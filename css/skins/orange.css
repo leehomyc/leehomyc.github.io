@@ -1,0 +1,55 @@
+/*////////////////////////////////////////////////////////////
+////////////////////// Orange #FF5A00 ///////////////////////
+//////////////////////////////////////////////////////////*/
+
+.wrapper a:hover, .vcard_btn:hover, .hz_freelance, .nav li.active a, .nav_icon li.active i,
+.rotate_words span, .portfolio .vcard_btn:hover, .portfolio .vcard_btn:active,
+.portfolio .vcard_btn.is-checked, .portfolio .vcard_btn.is-checked, .portfolio .vcard_btn:active, 
+.comment-reply.button, .comment-edit-link, .comment-reply-link, .respond .button_contact{
+   color: #FF5A00;
+}
+
+/*...............*/
+
+.vcard_btn:hover, .portfolio .vcard_btn:hover, .portfolio .vcard_btn:active,
+.portfolio .vcard_btn.is-checked, .portfolio .vcard_btn.is-checked, .portfolio .vcard_btn:active, 
+.comment-reply.button, .comment-edit-link, .comment-reply-link, .respond .button_contact{
+  border: 2px solid #FF5A00;
+}
+
+/*...............*/
+
+.social_icon span a:hover{
+  border: 1px solid #FF5A00;
+}
+
+/*...............*/
+
+.blog_item_content, .conmments_block, .respond{
+  border-top: 5px solid #FF5A00;
+}
+
+/*...............*/
+
+.contact_table_block{
+  border-left: 4px solid #FF5A00;
+}
+/*...............*/
+
+blockquote{
+	border-left: 5px solid #FF5A00;
+}
+
+/*...............*/
+
+html, body, .message blockquote:before, .standard .blog_item_content:before, .post_slider .blog_item_content:before,
+.audio_post .blog_item_content:before, .video_post .blog_item_content:before, .overlay, #loading {
+	background-color: #FF5A00;
+}
+
+/*...............*/
+
+.breaking_news .bn_title span{
+	border-left-color: #FF5A00;
+  	border-color: transparent transparent transparent #FF5A00; 
+}

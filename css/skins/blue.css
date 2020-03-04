@@ -1,0 +1,54 @@
+/*////////////////////////////////////////////////////////////
+/////////////////// Blue #2980b9 ////////////////////////////
+//////////////////////////////////////////////////////////*/
+.wrapper a:hover, .vcard_btn:hover, .hz_freelance, .nav li.active a, .nav_icon li.active i,
+.rotate_words span, .portfolio .vcard_btn:hover, .portfolio .vcard_btn:active,
+.portfolio .vcard_btn.is-checked, .portfolio .vcard_btn.is-checked, .portfolio .vcard_btn:active, 
+.comment-reply.button, .comment-edit-link, .comment-reply-link, .respond .button_contact{
+   color: #2980b9;
+}
+
+/*...............*/
+
+.vcard_btn:hover, .portfolio .vcard_btn:hover, .portfolio .vcard_btn:active,
+.portfolio .vcard_btn.is-checked, .portfolio .vcard_btn.is-checked, .portfolio .vcard_btn:active, 
+.comment-reply.button, .comment-edit-link, .comment-reply-link, .respond .button_contact{
+  border: 2px solid #2980b9;
+}
+
+/*...............*/
+
+.social_icon span a:hover{
+  border: 1px solid #2980b9;
+}
+
+/*...............*/
+
+.blog_item_content, .conmments_block, .respond{
+  border-top: 5px solid #2980b9;
+}
+
+/*...............*/
+
+.contact_table_block{
+  border-left: 4px solid #2980b9;
+}
+/*...............*/
+
+blockquote{
+	border-left: 5px solid #2980b9;
+}
+
+/*...............*/
+
+html, body, .message blockquote:before, .standard .blog_item_content:before, .post_slider .blog_item_content:before,
+.audio_post .blog_item_content:before, .video_post .blog_item_content:before, .overlay, #loading{
+	background-color: #2980b9;
+}
+
+/*...............*/
+
+.breaking_news .bn_title span{
+	border-left-color: #2980b9;
+  	border-color: transparent transparent transparent #2980b9; 
+}

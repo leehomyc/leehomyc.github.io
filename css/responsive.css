@@ -1,0 +1,357 @@
+/*==================================================
+=            Bootstrap 3 Media Queries             =
+==================================================*/
+
+  /*==========  Mobile First Method  ==========*/
+
+  /* Custom, iPhone Retina */ 
+  @media only screen and (min-width : 320px) {
+
+  }
+
+  /* Extra Small Devices, Phones */ 
+  @media only screen and (min-width : 480px) {
+
+  }
+
+  /* Small Devices, Tablets */
+  @media only screen and (min-width : 768px) {
+
+  }
+
+  /* Medium Devices, Desktops */
+  @media only screen and (min-width : 992px) {
+
+  }
+
+  /* Large Devices, Wide Screens */
+  @media only screen and (min-width : 1200px) {
+
+  }
+
+
+
+  /*==========  Non-Mobile First Method  ==========*/
+
+  /* Large Devices, Wide Screens */
+  @media only screen and (max-width : 1200px) {
+   
+   /*.main_wrapper {
+      height: 441px !important;
+    }*/
+    .social_feed li {
+      width: 76px !important;
+      height: 76px !important;
+    }
+    .social_feed li img {
+      width: 76px !important;
+      height: 76px !important;
+    }
+    .tweet_icon{
+    width: 11% !important;
+    padding: 30px 25px !important;
+  }
+  .wrapper{
+      top: 47% !important;
+    }
+
+  }
+
+
+  /* Medium Devices, Desktops */
+  @media only screen and (max-width : 992px) {
+
+    header{
+      width: 100% !important;
+      position: relative !important;
+    }
+    .main_wrapper {
+      height: 100% !important;
+      overflow: hidden !important;
+    }
+    .wrapper{
+      top: 35% !important;
+    }
+    .social_feed li {
+      width: 90px !important;
+      height: 90px !important;
+    }
+    .social_feed li img {
+      width: 90px !important;
+      height: 90px !important;
+    }
+    .contact_social{
+      text-align: center !important;
+    }
+    .contact_table_block th, .contact_table_block td{
+      display: block !important;
+    }
+    .hz_contact{
+      float: none !important;
+      margin-bottom: 15px !important;
+    }
+    .social_icon{
+      text-align: center !important;
+    }
+    .inner_out_side{
+	display: inline-block !important;
+	position: relative !important;
+	padding-top: 30px;
+	padding-right: 0px;
+	padding-left: 0px;
+	padding-bottom: 0px;
+	width: 100% !important;
+    }
+    .profile_date{
+      display: inline-block !important;
+      width: 100% !important;
+      text-align: center !important;
+    }
+    .profile_img {
+      display: inline-block !important;
+      width: 160px !important;
+      height: 160px !important;
+      border-radius: 100% !important;
+      overflow: hidden !important;
+    }
+    .name_and_job {
+       margin: 30px 0 30px 0px !important;
+       position: relative !important;
+       text-align: center !important;
+    }
+    .hz_copyright{
+      margin-bottom: 30px !important;
+      margin-top: 10px !important;
+    }
+    .profile_img img:hover{
+      opacity: 1 !important;
+    }
+   /* .social_feed{display: none !important;}*/
+  }
+
+
+
+  /* Small Devices, Tablets */
+  @media only screen and (max-width : 768px) {
+    .header .nav{
+      display: none !important;
+    }
+    .header .nav_icon{
+      display: block !important;
+    }
+    .tweet_icon {
+      width: 11% !important;
+      padding: 30px 15px !important;
+    }
+    .social_feed li {
+      width: 110px !important;
+      height: 110px !important;
+    }
+    .social_feed li img {
+      width: 110px !important;
+      height: 110px !important;
+    }
+    .education_item, .employment{
+      text-align: center !important;
+    }
+    .year{
+      float: none !important;
+      border-bottom: 2px solid #DDD !important;
+      border-right: none !important;
+      margin-bottom: 20px !important;
+      margin-right: 0px !important;
+    }
+    .fact_box{
+      border-right: none !important;
+      border-bottom: 1px solid #DDD !important;
+    }
+    .icon_servi{
+      text-align: center !important;
+    }
+    .icon_servi ul li i{
+      float: none !important;
+      border-right: none !important;
+      border-bottom: 2px solid #DDD !important;
+    }
+    .icon_servi ul li.icon_servi_right i{
+      margin: 18px 0 20px 0px !important;
+      border-right: none !important;
+      border-left: none !important;
+      border-bottom: 2px solid #ddd !important;
+    }
+    .icon_servi ul li.icon_servi_right h3, .icon_servi ul li p, .icon_servi ul li h3, .icon_servi ul li.icon_servi_right p{
+      text-align: center !important;
+    }
+    .icon_servi ul li{
+      margin: 0 !important;
+    }
+    .portfolio_item {
+        width: 50% !important;
+    }
+    .commentlist ul.children{
+      padding-left: 0px !important; 
+    }
+    .twit{
+      display: none !important;
+    }
+    .rotate_words{
+      display: block !important;
+    }
+  }
+
+
+  /* Extra Small Devices, Phones */ 
+  @media only screen and (max-width : 480px) {
+    .container {
+      width: 450px;
+    }
+    .out_side{
+      background-color: #fff !important;
+      color: #fff !important;
+    }
+    .inner_out_side{
+      padding: 0px !important;
+    }
+    /*.message strong{
+      display: none;
+    }*/
+    .profile_img {
+      width: 100% !important;
+      height: 100% !important;
+      border-radius: 0% !important;
+      margin-right: 0px !important;
+    }
+    .name_and_job {
+      margin: -51px 0 0px 0px !important;*/
+      display: block !important;
+      text-align: left !important;
+      position: absolute !important;
+    }
+    .profile_date{
+      width: 100% !important;
+    }
+    .portfolio_item {
+      width: 100% !important;
+    }
+    .portfolio .vcard_btn{
+      font-weight: 400 !important;
+      font-size: 13px !important;
+      padding: 4px 10px !important;
+      border: 1px solid #ccc !important;
+    }
+    .portfolio .vcard_btn:active,
+    .portfolio .vcard_btn.is-checked {
+      border: 1px solid #7db701 !important;
+    }
+    .portfolio .vcard_btn:hover {
+      border: 1px solid #7db701 !important;
+    }
+    ul.button-group{
+      margin-top: 0px !important;
+    }
+    .social_feed li {
+      width: 92px !important;
+      height: 92px !important;
+    }
+    .social_feed li img {
+      width: 92px !important;
+      height: 92px !important;
+    }
+    .post_header h3{
+      font-size: 19px !important;
+    }
+   /* .message blockquote br{
+      display: none !important;
+    }*/
+    .social_icon span{
+      margin: 5px 0 !important;
+    }
+    .profile_img img:hover{
+      opacity: 0.6 !important;
+    }
+    .comment-form .form-input input, .comment-form .form-input textarea{
+      width: 100% !important;
+    }
+    .img-section{
+      background-image: inherit !important;
+    }
+    .vcard_block.message{margin-top: 20px !important;}
+    .education.vcard_block{margin-top: 0px !important;}
+    .employment.vcard_block{margin-top: 0px !important;}
+    .vcard_block.icon_servi{margin-top: 0px !important;}
+    .fact.vcard_block{margin-top: 20px !important;}
+  }
+
+
+
+  /* Custom, iPhone Retina */ 
+  @media only screen and (max-width : 400px) {
+    .container {
+      width: 350px;
+    }
+    .wrapper{
+      top: 64% !important;
+    }
+    .header .nav_icon i{
+      font-size: 18px !important;
+      padding: 15px 13px !important;
+    }
+    .contact_social .hz_contact .vcard_btn, .portfolio .vcard_btn{
+      margin-bottom: 10px !important;
+    }
+    ul.button-group{display: block !important;}
+    .portfolio .btn{display: block !important;}
+    .social_feed li {
+      width: 72.5px !important;
+      height: 72.5px !important;
+    }
+    .social_feed li img {
+      width: 72.5px !important;
+      height: 72.5px !important;
+    }
+    .post_header h3{
+      font-size: 19px !important;
+    }
+    .post_header h3:before{
+      width: 10% !important;
+      height: 4px !important;
+    }
+    .post_header h3:after{
+      width: 10% !important;
+      height: 4px !important;
+    }
+  }
+
+
+  /*==========  ***  ==========*/
+
+
+  /*Desktops */
+  @media screen and (min-width: 1024px) {
+
+  }
+
+  /* Large Devices, Wide Screens */
+  @media screen and (max-width: 1023px) and (min-width: 720px) {
+
+  }
+
+  /* Medium Devices, Desktops */
+  @media only screen and (max-width : 992px) {
+  
+  }
+
+  /* Small Devices, Tablets */
+  @media only screen and (max-width : 768px) {
+
+  }
+
+  /* Extra Small Devices, Phones */ 
+  @media only screen and (max-width : 480px) {
+
+  }
+
+  /* Custom, iPhone Retina */ 
+  @media only screen and (max-width : 320px) {
+  
+  }

@@ -1,0 +1,1 @@
+encoding: western it will be wrong symbols.
