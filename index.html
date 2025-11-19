@@ -2,1293 +2,759 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Harry Yang - Personal Webpage</title>
-    <!-- Google Fonts -->
-    <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@500;700&family=Dancing+Script:wght@600&display=swap"
-        rel="stylesheet">
-    <!-- AOS Library CSS -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Harry Yang | Professor & Scientist</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css">
     <style>
         :root {
-            --primary-color: #0f172a;
-            /* Slate 900 */
-            --secondary-color: #ffffff;
-            --accent-color: #4f46e5;
-            /* Indigo 600 */
-            --accent-hover: #4338ca;
-            /* Indigo 700 */
-            --background-gradient: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-            /* Slate 50 to Slate 200 */
-            --background-color: #f8fafc;
-            --text-color: #334155;
-            /* Slate 700 */
-            --card-background: rgba(255, 255, 255, 0.8);
-            --card-border: 1px solid rgba(255, 255, 255, 0.6);
-            --shadow-color: rgba(0, 0, 0, 0.06);
-            --shadow-hover: rgba(0, 0, 0, 0.12);
-            --navbar-height: 70px;
-            --tooltip-bg: rgba(15, 23, 42, 0.95);
+            --bg-color: #f5f5f7;
+            /* Apple Off-White */
+            --text-primary: #1d1d1f;
+            --text-secondary: #86868b;
+            --accent: #0066cc;
+            /* Apple Link Blue */
+            --card-bg: #ffffff;
+            --nav-bg: rgba(255, 255, 255, 0.8);
+            --ease-apple: cubic-bezier(0.25, 1, 0.5, 1);
         }
 
         * {
-            box-sizing: border-box;
             margin: 0;
             padding: 0;
+            box-sizing: border-box;
         }
 
         body {
-            font-family: 'Inter', sans-serif;
-            background: var(--background-color);
-            color: var(--text-color);
-            line-height: 1.7;
-            min-height: 100vh;
-            position: relative;
-            -webkit-font-smoothing: antialiased;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            line-height: 1.5;
             overflow-x: hidden;
-        }
-
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar {
-            width: 10px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: transparent;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: #cbd5e1;
-            border-radius: 5px;
-            border: 2px solid var(--background-color);
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: #94a3b8;
-        }
-
-        /* Background Orbs */
-        .background-orb {
-            position: fixed;
-            border-radius: 50%;
-            filter: blur(80px);
-            z-index: -1;
-            opacity: 0.6;
-            animation: floatOrb 20s infinite ease-in-out;
-        }
-
-        .orb-1 {
-            top: -10%;
-            left: -10%;
-            width: 50vw;
-            height: 50vw;
-            background: radial-gradient(circle, rgba(79, 70, 229, 0.15) 0%, rgba(255, 255, 255, 0) 70%);
-        }
-
-        .orb-2 {
-            bottom: -10%;
-            right: -10%;
-            width: 60vw;
-            height: 60vw;
-            background: radial-gradient(circle, rgba(56, 189, 248, 0.15) 0%, rgba(255, 255, 255, 0) 70%);
-            animation-delay: -10s;
-        }
-
-        @keyframes floatOrb {
-
-            0%,
-            100% {
-                transform: translate(0, 0);
-            }
-
-            50% {
-                transform: translate(30px, 50px);
-            }
+            -webkit-font-smoothing: antialiased;
         }
 
         a {
-            color: var(--accent-color);
+            color: var(--accent);
             text-decoration: none;
-            font-weight: 500;
-            transition: all 0.2s ease;
-            position: relative;
+            transition: opacity 0.2s;
         }
 
         a:hover {
-            color: var(--accent-hover);
+            text-decoration: underline;
         }
 
-        /* Subtle underline animation for text links */
-        p a:not(.btn)::after {
-            content: '';
-            position: absolute;
-            bottom: -2px;
-            left: 0;
-            width: 0;
-            height: 1.5px;
-            background: var(--accent-hover);
-            transition: width 0.3s ease;
-            opacity: 0.7;
-        }
-
-        p a:not(.btn):hover::after {
-            width: 100%;
-        }
-
-        header {
+        /* Dynamic Island Navbar */
+        .navbar-container {
             position: fixed;
             top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 90%;
-            max-width: 1200px;
-            height: var(--navbar-height);
-            background: rgba(255, 255, 255, 0.7);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.8);
-            border-radius: 20px;
+            width: 100%;
             display: flex;
-            align-items: center;
             justify-content: center;
             z-index: 1000;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            pointer-events: none;
         }
 
-        header.scrolled {
-            background: rgba(255, 255, 255, 0.9);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            top: 10px;
-            width: 95%;
-        }
-
-        header h1 {
-            font-family: 'Outfit', sans-serif;
-            font-size: 1.5em;
-            font-weight: 700;
-            letter-spacing: -0.5px;
-            color: var(--primary-color);
-        }
-
-        .animated-background {
-            width: 100%;
-            position: relative;
-            overflow: hidden;
+        .dynamic-island {
+            background: rgba(29, 29, 31, 0.8);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: 12px 24px;
+            border-radius: 100px;
             display: flex;
-            align-items: start;
-            justify-content: center;
-            padding-top: calc(var(--navbar-height));
-            /* No fixed height here, allow page to scroll naturally */
+            gap: 24px;
+            pointer-events: auto;
+            transition: all 0.4s var(--ease-apple);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
         }
 
-        #particles-js {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 0;
+        .dynamic-island a {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
         }
 
-        .animated-background::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(58, 58, 58, 0.7);
-            z-index: 1;
+        .dynamic-island a:hover {
+            color: #fff;
+            text-decoration: none;
         }
 
-        .hero-overlay {
-            position: relative;
-            z-index: 2;
-            color: var(--primary-color);
-            opacity: 0;
-            transform: translateY(20px);
-            animation: fadeInUp 1s forwards;
-            animation-delay: 0.5s;
-            max-width: 1600px;
-            width: 90%;
-            display: grid;
-            grid-template-columns: 500px minmax(400px, 1fr);
-            gap: 80px;
-            /* No fixed height and no vertical centering, let it scroll if needed */
-            margin-bottom: 100px;
-            /* Add bottom space */
-        }
-
-        .intro-column {
+        /* Hero Section */
+        .hero {
             display: flex;
             flex-direction: column;
             align-items: center;
-            max-width: 600px;
-            width: 100%;
-        }
-
-        .intro-column img.profile {
-            width: 200px;
-            height: 200px;
-            object-fit: cover;
-            border-radius: 40px;
-            /* Squircle ish */
-            border: 4px solid #fff;
-            box-shadow: 0 10px 30px rgba(79, 70, 229, 0.2);
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            margin-bottom: 25px;
-        }
-
-        .intro-column img.profile:hover {
-            transform: scale(1.05) rotate(-2deg);
-            box-shadow: 0 15px 40px rgba(79, 70, 229, 0.3);
-        }
-
-        .intro-column h2 {
-            font-family: 'Outfit', sans-serif;
-            font-size: 3em;
-            font-weight: 700;
-            margin-bottom: 15px;
+            justify-content: center;
             text-align: center;
-            background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
+            padding: 110px 20px 20px;
+            position: relative;
+        }
+
+        .hero h1 {
+            font-size: clamp(40px, 6vw, 72px);
+            font-weight: 700;
+            letter-spacing: -0.03em;
+            line-height: 1.1;
+            margin-bottom: 16px;
+            background: linear-gradient(180deg, #1d1d1f 0%, #424245 100%);
             -webkit-background-clip: text;
             background-clip: text;
             -webkit-text-fill-color: transparent;
-            letter-spacing: -1px;
+            opacity: 0;
+            transform: translateY(30px);
+            animation: fadeUp 1s var(--ease-apple) forwards;
         }
 
-        /* Removed "Dedicated to the Advancement of AGI" */
-
-        .intro-column p {
-            font-size: 1.1em;
-            margin-bottom: 20px;
-            text-shadow: 0 1px 1px rgba(255, 255, 255, 0.3);
-            /* subtle highlight for light backgrounds */
-            text-align: center;
+        .hero p {
+            font-size: clamp(18px, 3vw, 22px);
+            color: var(--text-secondary);
+            font-weight: 400;
+            max-width: 800px;
+            margin: 0 auto 40px;
+            opacity: 0;
+            transform: translateY(30px);
+            animation: fadeUp 1s var(--ease-apple) 0.2s forwards;
         }
 
-        /* Changed "visiting professor" to "visiting Professor" in the text below:
-           (Already done in code) */
-
-        .links {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            margin-top: 25px;
-        }
-
-        .social-btn {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 48px;
-            height: 48px;
-            background: #fff;
+        .profile-container {
+            width: 160px;
+            height: 160px;
             border-radius: 50%;
-            color: var(--text-color);
-            border: 1px solid rgba(0, 0, 0, 0.05);
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            overflow: hidden;
+            margin: 0 auto 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            opacity: 0;
+            transform: scale(0.9);
+            animation: scaleIn 1s var(--ease-apple) 0.4s forwards;
+            transition: transform 0.5s var(--ease-apple);
+        }
+
+        .profile-container:hover {
+            transform: scale(1.05) !important;
+        }
+
+        .profile-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Bento Grid Layout */
+        .section-title {
+            font-size: 48px;
+            font-weight: 700;
+            text-align: center;
+            margin: 10px 0 30px;
+            letter-spacing: -0.02em;
+        }
+
+        .bento-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            grid-auto-rows: minmax(300px, auto);
+            gap: 24px;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        .bento-card {
+            background: var(--card-bg);
+            border-radius: 30px;
+            padding: 40px;
             position: relative;
             overflow: hidden;
-        }
-
-        .social-btn svg {
-            width: 20px;
-            height: 20px;
-            fill: currentColor;
-            transition: transform 0.3s ease;
-        }
-
-        .social-btn:hover {
-            background: var(--primary-color);
-            color: #fff;
-            transform: translateY(-5px);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-            border-color: transparent;
-        }
-
-        .social-btn:hover svg {
-            transform: scale(1.1);
-        }
-
-        /* Tooltip for social buttons */
-        .social-btn::before {
-            content: attr(aria-label);
-            position: absolute;
-            bottom: 120%;
-            left: 50%;
-            transform: translateX(-50%) translateY(10px);
-            background: var(--tooltip-bg);
-            color: #fff;
-            padding: 5px 10px;
-            border-radius: 6px;
-            font-size: 0.75rem;
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.2s ease;
-            white-space: nowrap;
-            pointer-events: none;
-        }
-
-        .social-btn:hover::before {
-            opacity: 1;
-            visibility: visible;
-            transform: translateX(-50%) translateY(0);
-        }
-
-        .tabs-column {
-            background: transparent;
-            padding: 0;
-            width: 100%;
+            transition: transform 0.4s var(--ease-apple), box-shadow 0.4s var(--ease-apple);
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04);
             display: flex;
             flex-direction: column;
-            box-shadow: none;
+            justify-content: space-between;
         }
 
-        .tabs-column:hover {
-            box-shadow: none;
+        .bento-card:hover {
+            transform: scale(1.02);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+            z-index: 2;
         }
 
-        .tabs {
-            display: inline-flex;
-            background: rgba(255, 255, 255, 0.5);
-            backdrop-filter: blur(10px);
-            padding: 6px;
-            border-radius: 16px;
-            gap: 5px;
-            margin: 0 auto 40px auto;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.6);
+        .span-12 {
+            grid-column: span 12;
         }
 
-        .tab {
-            cursor: pointer;
-            padding: 10px 24px;
-            border-radius: 12px;
-            background: transparent;
-            color: var(--text-color);
-            font-weight: 600;
-            font-size: 0.95em;
-            transition: all 0.3s ease;
-            box-shadow: none;
-            margin: 0;
-            border: none;
+        .span-8 {
+            grid-column: span 8;
         }
 
-        .tab:hover {
-            color: var(--accent-color);
-            background: rgba(255, 255, 255, 0.5);
-            transform: none;
+        .span-6 {
+            grid-column: span 6;
         }
 
-        .tab.active {
-            background: #fff;
-            color: var(--accent-color);
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-            border: none;
+        .span-4 {
+            grid-column: span 4;
         }
 
-        .tab-content {
-            display: none;
-            animation: fadeInUp 1s forwards;
-            overflow: auto;
-        }
+        @media (max-width: 900px) {
 
-        .tab-content.active {
-            display: block;
-        }
-
-        .card-container {
-            display: grid;
-            gap: 30px;
-            grid-template-columns: 1fr;
-            /* ✅ Only one column per row */
-            margin: 20px 0;
-            overflow: visible;
-            /* Keep overflow behavior */
-        }
-
-        .card {
-            background: rgba(255, 255, 255, 0.7);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.8);
-            border-top: 1px solid rgba(255, 255, 255, 0.9);
-            border-left: 1px solid rgba(255, 255, 255, 0.9);
-            border-radius: 24px;
-            box-shadow:
-                0 4px 6px -1px rgba(0, 0, 0, 0.02),
-                0 10px 15px -3px rgba(0, 0, 0, 0.04),
-                inset 0 0 0 1px rgba(255, 255, 255, 0.5);
-            padding: 32px;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            overflow: visible;
-            position: relative;
-            margin-bottom: 24px;
-        }
-
-        .card:hover {
-            transform: translateY(-5px) scale(1.01);
-            box-shadow:
-                0 20px 25px -5px rgba(0, 0, 0, 0.05),
-                0 10px 10px -5px rgba(0, 0, 0, 0.02),
-                0 0 0 1px rgba(79, 70, 229, 0.1);
-            background: rgba(255, 255, 255, 0.85);
-        }
-
-        .card h4 {
-            margin-bottom: 20px;
-            font-family: 'Outfit', sans-serif;
-            font-size: 1.4em;
-            font-weight: 700;
-            color: var(--primary-color);
-            letter-spacing: -0.5px;
-        }
-
-        .card p,
-        .card ul {
-            font-size: 1em;
-            color: var(--text-color);
-            line-height: 1.5;
-            margin-bottom: 0;
-        }
-
-        .card ul {
-            list-style: disc;
-            padding-left: 20px;
-            margin-top: 10px;
-        }
-
-        .names-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            /* Three names per row */
-            gap: 20px;
-            /* Add spacing between names */
-            justify-content: center;
-            align-items: center;
-            margin: 20px 0;
-        }
-
-        .name-pill {
-            display: inline-block;
-            font-family: 'Dancing Script', cursive;
-            font-size: 1.6rem;
-            color: var(--text-color);
-            position: relative;
-            margin: 12px;
-            cursor: pointer;
-            text-align: center;
-            transition: all 0.3s ease;
-            padding: 5px 15px;
-            border-radius: 50px;
-        }
-
-        .name-pill:hover {
-            color: var(--accent-color);
-            background: rgba(255, 255, 255, 0.8);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-            transform: translateY(-2px);
-        }
-
-        .name-pill::after {
-            display: none;
-        }
-
-        /* Tooltip for affiliations */
-        .name-pill:hover::before {
-            content: attr(data-affiliation);
-            /* Show affiliation from data attribute */
-            position: absolute;
-            top: 120%;
-            /* Below the text */
-            left: 50%;
-            transform: translateX(-50%);
-            background-color: var(--card-background);
-            color: var(--text-color);
-            padding: 5px 15px;
-            border-radius: 5px;
-            font-size: 0.8rem;
-            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.4);
-            white-space: nowrap;
-            z-index: 10;
-            text-align: center;
-            opacity: 0;
-            animation: fadeIn 0.3s ease forwards;
-        }
-
-        @keyframes fadeIn {
-            to {
-                opacity: 1;
+            .span-8,
+            .span-6,
+            .span-4 {
+                grid-column: span 12;
             }
         }
 
-        .team-card {
-            position: relative;
-            cursor: pointer;
-            text-align: center;
+        .card-label {
+            font-size: 14px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
         }
 
-        .team-card h4 {
-            margin-bottom: 5px;
+        .card-title {
+            font-size: 32px;
+            font-weight: 700;
+            line-height: 1.1;
+            margin-bottom: 16px;
+            letter-spacing: -0.02em;
         }
 
-        .team-card p {
-            visibility: hidden;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: var(--tooltip-bg);
-            padding: 10px;
-            border-radius: 10px;
-            pointer-events: none;
-            white-space: nowrap;
+        .card-desc {
+            font-size: 18px;
+            color: var(--text-secondary);
+            line-height: 1.5;
         }
 
-        .team-card:hover p {
-            visibility: visible;
-            opacity: 1;
+        .card-link {
+            margin-top: 20px;
+            display: inline-block;
+            color: var(--accent);
+            font-weight: 600;
+            text-decoration: none;
         }
 
-        .paper-link {
-            position: relative;
-            /* Ensure the tooltip is positioned relative to the link */
+        .card-dark {
+            background: #1d1d1f;
+            color: #f5f5f7;
         }
 
-        .paper-tooltip {
-            visibility: hidden;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-            position: absolute;
-            bottom: 110%;
-            /* Position the tooltip above the link */
-            left: 50%;
-            transform: translateX(-50%);
-            background: var(--tooltip-bg);
+        .card-dark .card-label,
+        .card-dark .card-desc {
+            color: #86868b;
+        }
+
+        .card-dark .card-title {
             color: #fff;
-            padding: 15px;
-            /* Increased padding */
-            border-radius: 5px;
-            white-space: normal;
-            /* Allow wrapping of text */
-            word-wrap: break-word;
-            /* Prevent long words or links from breaking the layout */
-            text-align: left;
-            font-size: 1em;
-            /* Appropriate font size */
+        }
+
+        .card-image-bg {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 50%;
+            height: 100%;
+            object-fit: cover;
+            mask-image: linear-gradient(to right, transparent, black);
+            -webkit-mask-image: linear-gradient(to right, transparent, black);
+        }
+
+        /* Research List */
+        .research-list {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        .paper-item {
+            border-bottom: 1px solid #e5e5e5;
+            padding: 32px 0;
+            transition: opacity 0.3s;
+        }
+
+        .paper-item:hover {
+            opacity: 0.8;
+        }
+
+        .paper-meta {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .paper-title {
+            font-size: 22px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text-primary);
+        }
+
+        .paper-authors {
+            font-size: 16px;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+        }
+
+        .paper-links a {
+            font-size: 14px;
+            font-weight: 600;
+            margin-right: 16px;
+        }
+
+        /* News Timeline */
+        .news-list {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        .news-item {
+            display: flex;
+            gap: 24px;
+            padding: 20px 0;
+            border-left: 2px solid #e5e5e5;
+            padding-left: 30px;
+            position: relative;
+        }
+
+        .news-item::before {
+            content: '';
+            position: absolute;
+            left: -6px;
+            top: 28px;
+            width: 10px;
+            height: 10px;
+            background: var(--text-secondary);
+            border-radius: 50%;
+        }
+
+        .news-date {
+            min-width: 120px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            font-size: 14px;
+            padding-top: 4px;
+        }
+
+        .news-content {
+            font-size: 16px;
             line-height: 1.6;
-            /* Better line spacing */
-            max-width: 400px;
-            /* Maximum width for the tooltip */
-            z-index: 999999;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
-            /* Enhanced shadow for better visibility */
-
-            /* Add scrolling if content is too long */
-            max-height: 300px;
-            /* Set a maximum height */
-            overflow-y: auto;
-            /* Add vertical scrolling if needed */
         }
 
-        /* Show tooltip on hover */
-        .paper-link:hover .paper-tooltip {
-            visibility: visible;
-            opacity: 1;
+        /* Team Grid */
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
         }
 
-        @keyframes fadeInUp {
+        .team-card {
+            background: #fff;
+            padding: 24px;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+            transition: transform 0.2s;
+        }
+
+        .team-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+        }
+
+        .team-name {
+            font-weight: 600;
+            font-size: 16px;
+            margin-bottom: 4px;
+        }
+
+        .team-role {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        /* Footer */
+        footer {
+            background: #fff;
+            padding: 60px 24px;
+            margin-top: 120px;
+            border-top: 1px solid #e5e5e5;
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 12px;
+        }
+
+        /* Animations */
+        @keyframes fadeUp {
             to {
                 opacity: 1;
                 transform: translateY(0);
             }
         }
 
-        @media (max-width:992px) {
-            .hero-overlay {
-                grid-template-columns: 1fr;
-                margin-bottom: 100px;
-            }
-
-            .intro-column h2 {
-                font-size: 2em;
+        @keyframes scaleIn {
+            to {
+                opacity: 1;
+                transform: scale(1);
             }
         }
 
-        @media (max-width:768px) {
-            header h1 {
-                font-size: 1.2em;
-            }
-
-            .intro-column img.profile {
-                width: 140px;
-                height: 140px;
-            }
-
-            .links a {
-                padding: 8px 16px;
-                font-size: 0.9em;
-            }
-
-            .intro-column h2 {
-                font-size: 1.8em;
-            }
-
-            .intro-column p {
-                font-size: 0.95em;
-            }
-
-            .tab {
-                padding: 8px 15px;
-                margin: 0 5px;
-            }
+        .pulse {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background: #ff3b30;
+            border-radius: 50%;
+            margin-right: 8px;
+            animation: pulse 2s infinite;
         }
 
-        @media (max-width:480px) {
-            .intro-column img.profile {
-                width: 120px;
-                height: 120px;
-            }
-
-            .links a {
-                padding: 6px 12px;
-                font-size: 0.85em;
-            }
-
-            .intro-column h2 {
-                font-size: 1.5em;
-            }
-
-            .intro-column p {
-                font-size: 0.9em;
-            }
-
-            .tab {
-                padding: 5px 10px;
-                margin: 0 3px;
-            }
-        }
-
-        /* Popover Styling */
-        .popover {
-            visibility: hidden;
-            opacity: 0;
-            position: absolute;
-            top: 120%;
-            /* Below the link */
-            left: 50%;
-            transform: translateX(-50%);
-            background: var(--popover-bg);
-            color: var(--popover-text);
-            padding: 10px;
-            border-radius: 8px;
-            white-space: nowrap;
-            font-size: 0.9rem;
-            line-height: 1.4;
-            box-shadow: 0 4px 10px var(--popover-shadow);
-            z-index: 9999;
-            /* Ensure popover is above all other elements */
-            transition: opacity 0.3s ease, visibility 0.3s ease;
-        }
-
-        a:hover .popover {
-            visibility: visible;
-            opacity: 1;
-        }
-
-        @media (max-width: 768px) {
-            .popover {
-                white-space: normal;
-                max-width: 200px;
-            }
-        }
-
-        .expand-btn {
-            margin-left: 10px;
-            padding: 4px 12px;
-            font-size: 0.75rem;
-            border: 1px solid var(--accent-color);
-            background-color: transparent;
-            color: var(--accent-color);
-            border-radius: 20px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            font-weight: 600;
-        }
-
-        .expand-btn:hover {
-            background-color: var(--accent-color);
-            color: #fff;
-        }
-
-        .expanded-summary {
-            margin-top: 10px;
-            padding: 10px;
-            font-size: 0.9rem;
-            background-color: var(--card-background);
-            color: var(--text-color);
-            border-left: 4px solid var(--accent-color);
-            display: none;
-            /* Hidden by default */
-        }
-
-        .glowing-text {
-            font-size: 20px;
-            font-weight: bold;
-            text-align: center;
-            color: #ffffff;
-            text-shadow: 0 0 5px #00ffe0, 0 0 10px #00ffe0, 0 0 20px #00ffe0, 0 0 40px #00ffe0;
-        }
-
-        #background-video {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            z-index: -1;
-            pointer-events: none;
-        }
-
-        .animated-background::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.4);
-            /* Adjust opacity as needed */
-            z-index: 0;
-        }
-
-        @keyframes pulse-soft {
+        @keyframes pulse {
             0% {
-                box-shadow: 0 0 0 0 rgba(79, 70, 229, 0.4);
+                box-shadow: 0 0 0 0 rgba(255, 59, 48, 0.4);
             }
 
             70% {
-                box-shadow: 0 0 0 6px rgba(79, 70, 229, 0);
+                box-shadow: 0 0 0 6px rgba(255, 59, 48, 0);
             }
 
             100% {
-                box-shadow: 0 0 0 0 rgba(79, 70, 229, 0);
+                box-shadow: 0 0 0 0 rgba(255, 59, 48, 0);
             }
-        }
-
-        .pulse-badge {
-            animation: pulse-soft 2s infinite;
-        }
-
-        footer {
-            text-align: center;
-            padding: 40px 20px;
-            color: var(--text-color);
-            font-size: 0.9rem;
-            opacity: 0.8;
-            margin-top: 60px;
         }
     </style>
 </head>
 
 <body>
 
+    <!-- Navbar -->
+    <div class="navbar-container">
+        <nav class="dynamic-island">
+            <a href="#highlights">Highlights</a>
+            <a href="#research">Research</a>
+            <a href="#news">News</a>
+            <a href="#team">Team</a>
+            <a href="mailto:harryyang.hk@gmail.com">Contact</a>
+        </nav>
+    </div>
 
-    <div class="background-orb orb-1"></div>
-    <div class="background-orb orb-2"></div>
-    <section class="animated-background">
-        <div id="particles-js"></div>
-        <div class="hero-overlay">
-            <!-- Introduction Column (Left) -->
-            <div class="intro-column" data-aos="fade-right" data-aos-duration="1200">
-                <img src="me.JPG" alt="Harry Yang" class="profile" loading="lazy">
-                <div class="links">
-                    <a href="https://scholar.google.com/citations?hl=en&user=jpIFgToAAAAJ&view_op=list_works&sortby=pubdate"
-                        class="social-btn" aria-label="Google Scholar">
-                        <svg viewBox="0 0 24 24">
-                            <path
-                                d="M12 24a7 7 0 1 1 0-14 7 7 0 0 1 0 14zm0-24L0 9.5l4.838 3.94A8 8 0 0 1 12 9a8 8 0 0 1 7.162 4.44L24 9.5z" />
-                        </svg>
-                    </a>
-                    <a href="https://x.com/hyang_ust" class="social-btn" aria-label="X (Twitter)">
-                        <svg viewBox="0 0 24 24">
-                            <path
-                                d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
-                        </svg>
-                    </a>
-                    <a href="mailto:harryyang.hk@gmail.com" class="social-btn" aria-label="Email">
-                        <svg viewBox="0 0 24 24">
-                            <path
-                                d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z" />
-                        </svg>
-                    </a>
-                    <a href="https://www.linkedin.com/in/harry-yang-a62b3b2a/" class="social-btn" aria-label="LinkedIn">
-                        <svg viewBox="0 0 24 24">
-                            <path
-                                d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" />
-                        </svg>
-                    </a>
-                </div>
-                <div style="text-align: center; margin: 25px 0 5px 0;">
-                    <img src="everlyn.png" alt="Everlyn AI"
-                        style="max-width: 100%; height: auto; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
-                    <p style="margin-top: 6px; margin-bottom: 0; font-size: 1em; color: #2f2f2f;">
-                        <strong class="pulse-badge"
-                            style="color: var(--accent-color); font-weight: 700; margin-right: 8px; background: rgba(79, 70, 229, 0.1); padding: 2px 8px; border-radius: 6px;">New!</strong>
-                        <a href="https://everlyn.ai"
-                            style="color: var(--primary-color); text-decoration: none; font-weight: 600; border-bottom: 2px solid var(--accent-color);">
-                            Try Everlyn.ai
-                        </a> — The fastest video model we built.
-                    </p>
-                </div>
+    <!-- Hero -->
+    <section class="hero">
+        <div class="profile-container">
+            <img src="me.JPG" alt="Harry Yang">
+        </div>
+        <h1>Harry Yang</h1>
+        <p>
+            Assistant Professor at HKUST AMC. Previously Visiting Professor at Yale and Research Scientist at Meta. <br>
+            Co-founder of <a href="https://everlyn.ai">Everlyn</a>. <br>
+            PhD from USC, Undergrad from USTC. USC Distinguished Alumni. <br>
+            Advancing AGI in image & video generation.
+        </p>
 
-                <p>
-                    I am a Professor at HKUST AMC and a Visiting Professor at Yale University. My research focuses on
-                    advancing AGI, particularly in image and video generation. Previously, I worked at Meta as a
-                    Research Scientist. I am also the co-founder of <a href="http://everlyn.ai">Everlyn</a>, with
-                    <strong>Yann LeCun</strong> as our advisor. I earned PhD in computer science from USC and completed
-                    my undergraduate studies at USTC (SCGY). I am honored to be a recipient of the USC Distinguished
-                    Alumni Award.
-                </p>
-
-            </div>
-
-            <!-- Tabs Column (Right) -->
-            <div class="tabs-column" data-aos="fade-left" data-aos-duration="1200">
-                <div class="tabs">
-                    <div class="tab active" data-target="news">News</div>
-                    <div class="tab" data-target="students">Students & Interns</div>
-                    <div class="tab" data-target="grant">Grant</div>
-
-                    <div class="tab" data-target="teaching">Teaching</div>
-                </div>
-
-                <!-- News Tab Content -->
-                <!-- News Tab Content -->
-                <div id="news" class="tab-content active">
-                    <div class="card-container">
-                        <div class="card" data-aos="zoom-in" data-aos-delay="400">
-                            <h4>Recent</h4>
-                            <ul>
-                                <li>
-                                    <a href="https://arxiv.org/abs/2412.15321">
-                                        <em>“Next Patch Prediction for AutoRegressive Visual Generation”</em>
-                                    </a> by Yatian Pang (intern) accepted as a <strong>poster</strong> at <strong>AAAI
-                                        2026</strong>.
-                                </li>
-                                <li>
-                                    <a href="https://arxiv.org/abs/2508.10858">
-                                        <em>“Hierarchical Fine-Grained Preference Optimization for Physically Plausible
-                                            Video Generation”</em>
-                                    </a> by <strong>Haodong Chen</strong> (intern) accepted to <strong>NeurIPS
-                                        2025</strong>.
-                                </li>
-                                <li>
-                                    <a href="https://arxiv.org/abs/2506.05551">
-                                        <em>“When Semantics Mislead Vision: Mitigating Large Multimodal Models
-                                            Hallucinations in Scene Text Spotting and Understanding”</em>
-                                    </a> by <strong>Yexin Liu</strong> (PhD student) accepted to <strong>NeurIPS
-                                        2025</strong>.
-                                </li>
-                                <li><a href=https://cheliosoops.github.io/VGoT><em>“VideoGen-of-Thought: Step-by-Step
-                                            Generation of Multi-Shot Videos with Minimal Manual Intervention”</em></a>
-                                    by <strong>Mingzhe Zheng</strong> (PhD student) accepted as an <strong>oral
-                                        presentation</strong> at the <strong>NeurIPS 2025 NextVid Workshop</strong>.
-                                </li>
-                                <li>Serving as <strong>Area Chair</strong> for <strong>ICLR 2026</strong>.</li>
-                                <li>Giving a <a
-                                        href=https://gamma.app/docs/Towards-Physically-Plausible-and-Semantically-Faithful-Video-Gene-nbh1bb4o8tkgjov>talk</a>
-                                    at <strong>HKUST-GZ CMA Seminar</strong>.</li>
-                                <li><strong>Yann LeCun</strong> joins <a href="https://everlyn.ai" target="_blank"
-                                        rel="noopener noreferrer">Everlyn</a> as our <strong>advisor</strong>.</li>
-                            </ul>
-                            <div style="margin-top:5px; display:flex; align-items:center; gap:5px; flex-wrap:wrap;">
-                                <img src="cma.png" alt="HKUST-GZ CMA Seminar"
-                                    style="border-radius:10px; max-width:30%; height:auto;">
-                                <img src="yann.png" alt="Yann LeCun joins Everlyn as advisor"
-                                    style="border-radius:10px; max-width:27%; height:auto;">
-                                <img src="vibe2.png" alt="Yann LeCun joins Everlyn as advisor"
-                                    style="border-radius:10px; max-width:37%; height:auto;">
-                            </div>
-
-
-                        </div>
-
-                        <div class="card" data-aos="zoom-in" data-aos-delay="300">
-                            <h4>July 2025</h4>
-                            <ul>
-                                <li><em>“Meta-Learning for Speeding Up Large Model Inference in Decentralized
-                                        Environments”</em>, first-authored by my PhD student Zihao Wang, has been
-                                    accepted to <strong>COLM 2025</strong>.</li>
-                                <li>Internship placements: Congratulations to my first-year PhD students for securing
-                                    research internships at <strong>Kuaishou (Kling)</strong>, <strong>Tencent</strong>,
-                                    and <strong>Bytedance</strong>.</li>
-                            </ul>
-                        </div>
-
-                        <div class="card" data-aos="zoom-in" data-aos-delay="300">
-                            <h4>June 2025</h4>
-                            <ul>
-                                <li><em>“An Integrated Framework for Autoregressive Video Generation and
-                                        Understanding”</em>, for which I serve as Principal Investigator, has been
-                                    awarded funding under the <strong>GRF/ECS 2025-26</strong> scheme.</li>
-                                <li>Two papers accepted to <strong>ICCV 2025</strong>:
-                                    <ul>
-                                        <li><a href="https://arxiv.org/pdf/2412.00397" target="_blank"><em>“DreamDance:
-                                                    Animating Human Images by Enriching 3D Geometry Cues from 2D
-                                                    Poses”</em></a> (with Yatian as my intern)</li>
-                                        <li><a href="https://arxiv.org/pdf/2504.03140" target="_blank"><em>“Model
-                                                    Reveals What to Cache: Profiling-Based Feature Reuse for Video
-                                                    Diffusion Models”</em></a> (with my PhD students Xuran, Yexin, and
-                                            Yaofu)</li>
-                                    </ul>
-                                </li>
-                                <li>Serving as Area Chair for <strong>AAAI-26</strong>.</li>
-                                <li>Serving as Associate Editor for <strong>APSCNNIPA Transactions on Signal and
-                                        Information Processing</strong>.</li>
-                                <li>Visiting <strong>Meta AI</strong>, New York.</li>
-                                <li>Interviewed by <strong>RTHK</strong> on GenAI and video generation, discussing
-                                    applications in Hong Kong local community. (Cantonese)</li>
-                                <li>Interviewed by <strong>CNN</strong> on <a
-                                        href="https://www.cnn.com/business/alpha-bot-humanoid-robots-china-embodied-ai-hnk-spc"
-                                        target="_blank" rel="noopener noreferrer">Embodied AI</a>, discussing the
-                                    current status, challenges, and future directions.</li>
-                            </ul>
-                        </div>
-
-                        <div class="card" data-aos="zoom-in" data-aos-delay="300">
-                            <h4>February 2025</h4>
-                            <li>
-                                <span class="paper-link">
-                                    <a href="https://arxiv.org/abs/2406.10638">Unveiling the Ignorance of MLLMs: Seeing
-                                        Clearly, Answering Incorrectly</a> by Yexin as my PhD student accepted to CVPR
-                                    2025.
-                                </span>
-                                <button class="expand-btn"
-                                    data-summary="We study MLLM’s understanding of visual content and why it generates incorrect answers, and propose content guidance together with attention refinement to improve MLLM’s focus on relevant visual info.">
-                                    Expand
-                                </button>
-                                <div class="expanded-summary"></div>
-                            </li>
-                            <li>Panelist at the <strong>Hong Kong Web3 & AI Builder Workshop</strong>, <strong>invited
-                                    by Prof. Xiaofan Liu</strong>, speaking on “When AI Meets Web3: Redefining the
-                                Future for Developers and Builders.”</li>
-                            <li>Panel speaker at <strong>DeSci HK 2025</strong> during the <strong>2025 HKG Consensus
-                                    Web3 Conference</strong> (hosted by CityU), <strong>invited by Prof. Yu
-                                    Wang</strong>.</li>
-                            </ul>
-                        </div>
-
-                        <div class="card" data-aos="zoom-in" data-aos-delay="300">
-                            <h4>January 2025</h4>
-                            <li>
-                                <span class="paper-link">
-                                    <a href="https://openreview.net/forum?id=zGb4WgCW5i">Intervening Anchor Token:
-                                        Decoding Strategy in Alleviating Hallucinations for MLLMs</a> accepted to ICLR
-                                    2025.
-                                </span>
-                                <button class="expand-btn"
-                                    data-summary="We propose a decoding strategy, Dynamic Token Propagation Mechanism (TAME), to alleviate hallucinations in multimodal large language models by intervening in the query-key parameters variance.">
-                                    Expand
-                                </button>
-                                <div class="expanded-summary"></div>
-                            </li>
-                            <li>“Secure and Robust Distributed AI Training and Inference Framework for Next-Generation
-                                AI Systems” was awarded the 2025 HKUST-POSTECH Joint Research Seed Grant Program and
-                                Global Knowledge Network Awards (a joint grant with Professor <a
-                                    href="https://sites.google.com/view/kimki">Kwang In Kim</a>). </li>
-                            <li>We received millions of USD in funding from industry partners, along with access to
-                                large-scale, high-end computing resources. </li>
-                            </ul>
-                        </div>
-                        <div class="card" data-aos="zoom-in" data-aos-delay="300">
-                            <h4>Paper Highlights</h4>
-                            <ul>
-                                <li>
-                                    <span class="paper-link">
-                                        <a href="https://arxiv.org/pdf/2412.15321">Next Patch Prediction for
-                                            Autoregressive Visual Generation</a>
-                                    </span>
-                                    <button class="expand-btn"
-                                        data-summary="We introduce a novel Next Patch Prediction (NPP) paradigm for autoregressive image generation. By grouping image tokens into patch tokens with high information density, the model predicts the next patch, reducing computational costs and improving image generation quality.">
-                                        Expand
-                                    </button>
-                                    <div class="expanded-summary"></div>
-                                </li>
-                                <li>
-                                    <span class="paper-link">
-                                        <a href="https://arxiv.org/pdf/2412.00397">DreamDance: Animating Human Images by
-                                            Enriching 3D Geometry Cues from 2D Poses</a>
-                                    </span>
-                                    <button class="expand-btn"
-                                        data-summary="We present DreamDance, a diffusion-based method for animating human images from skeleton pose sequences, enriched with 3D geometry cues for higher-quality results. It introduces the Mutually Aligned Geometry Diffusion model for temporal coherence, generating dynamic and realistic animations, especially excelling on the TikTokDance55 dataset.">
-                                        Expand
-                                    </button>
-                                    <div class="expanded-summary"></div>
-                                </li>
-                            </ul>
-                        </div>
-                        <div class="card" data-aos="zoom-in" data-aos-delay="300">
-                            <h4>December 2024</h4>
-                            <ul>
-                                <li>Our video project was approved for the <a
-                                        href="https://etecom1.com/hkust/news_details.php?id=16&wid=5&page=1">HKSTP
-                                        Incubation Program (3 years)</a>.</li>
-                                <li>
-                                    <span class="paper-link">
-                                        <a href="https://arxiv.org/abs/2410.21340">Meta-Learning for Speeding Up Large
-                                            Model Inference</a> (AAAI DAI Workshop)
-                                    </span>
-                                    <button class="expand-btn"
-                                        data-summary="Our paper introduces a framework for scalable AI inference in decentralized environments.">
-                                        Expand
-                                    </button>
-                                    <div class="expanded-summary"></div>
-                                </li>
-                                <li>Project funded by TSSSU-O.</li>
-                                <li>
-                                    <span class="paper-link">
-                                        <a href="https://arxiv.org/pdf/2407.19401">Towards Secure and Private AI: A
-                                            Framework for Decentralized Inference</a> (NeurIPS Workshop on RBFM)
-                                    </span>
-                                    <button class="expand-btn"
-                                        data-summary="Our framework integrates zero-knowledge proofs, consensus-based verification, split learning, and TEEs to ensure secure, private, and fair multimodal AI systems.">
-                                        Expand
-                                    </button>
-                                    <div class="expanded-summary"></div>
-                                </li>
-                            </ul>
-                        </div>
-                        <div class="card" data-aos="zoom-in" data-aos-delay="400">
-                            <h4>November 2024</h4>
-                            <ul>
-                                <li>Delivered a talk at DevCon Bangkok.</li>
-                            </ul>
-                        </div>
-                        <div class="card" data-aos="zoom-in" data-aos-delay="500">
-                            <h4>September 2024</h4>
-                            <ul>
-                                <li>Visited Abu Dhabi and met with the Royal Family to discuss collaboration.</li>
-                                <li>Delivered a talk in Singapore at Token2049.</li>
-                            </ul>
-                        </div>
-                        <div class="card" data-aos="zoom-in" data-aos-delay="600">
-                            <h4>August 2024</h4>
-                            <ul>
-                                <li>Hosted a roundtable at Foresight 2024 in Hong Kong.</li>
-                                <li>Invited as a panel speaker at ABS 2024 in Taipei.</li>
-                                <li>Visited CUHKSZ.</li>
-                            </ul>
-                        </div>
-                        <div class="card" data-aos="zoom-in" data-aos-delay="800">
-                            <h4>April 2024</h4>
-                            <ul>
-                                <li><a href="https://s.foresightnews.pro/article/detail/62560">Foresight interview</a>.
-                                </li>
-                                <li>Invited as a panel speaker at the Harvard Blockchain Conference 2024.</li>
-                            </ul>
-                        </div>
-                        <div class="card" data-aos="zoom-in" data-aos-delay="900">
-                            <h4>March 2024</h4>
-                            <ul>
-                                <li>Our project was selected by Binance Labs for incubation.</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-
-
-                <!-- Students & Interns Tab Content (Name Pills) -->
-                <div id="students" class="tab-content">
-                    <h4>Current Students</h4>
-                    <div class="names-grid">
-                        <span class="name-pill" data-affiliation="HKUST">Zihao Wang</span>
-                        <span class="name-pill" data-affiliation="HKUST-GZ">Yexin Liu</span>
-                        <span class="name-pill" data-affiliation="Beijing Institute of Technology">Xuran Ma</span>
-                        <span class="name-pill" data-affiliation="Northwestern Polytechnical University">Mingzhe
-                            Zheng</span>
-                        <span class="name-pill" data-affiliation="Fudan University">Jiajun Zha</span>
-                        <span class="name-pill" data-affiliation="HKUST">Yaofu Liu</span>
-                        <span class="name-pill" data-affiliation="Beijing Jiaotong">Haoze Zheng</span>
-                        <span class="name-pill" data-affiliation="UESTC">Wenjie Shu</span>
-                        <span class="name-pill" data-affiliation="CUHK">Weixiao Wang</span>
-                        <span class="name-pill" data-affiliation="HKUST">Zhefan Rao (with Qifeng Chen)</span>
-                        <span class="name-pill" data-affiliation="Northwestern Polytechnical University">Dengyang
-                            Jiang</span>
-                    </div>
-
-                    <div style="text-align: center; margin-top: 25px;">
-                        <img src="iclr.png" alt="Group attending ICLR 2025 at Singapore"
-                            style="max-width: 30%; height: auto; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
-                        <p style="font-size: 0.95rem; color: #555; margin-top: 10px;">
-                            Group attending <strong>ICLR 2025</strong> in Singapore
-                        </p>
-                    </div>
-
-                    <h4>Past Students and Interns</h4>
-                    <div class="names-grid">
-                        <span class="name-pill" data-affiliation="Jianghan University">Xianfeng Wu</span>
-                        <span class="name-pill" data-affiliation="Jianghan University">Yajing Bai</span>
-                        <span class="name-pill" data-affiliation="Northwestern Polytechnical University">Harold
-                            Chen</span>
-                        <span class="name-pill" data-affiliation="NUS">Yatian Pang (with Li Yuan)</span>
-                        <span class="name-pill" data-affiliation="Monash University">Feilong Tang</span>
-                        <span class="name-pill" data-affiliation="XJTU">Bin Ma</span>
-                        <span class="name-pill" data-affiliation="USTC">Sen Liang</span>
-                        <span class="name-pill" data-affiliation="Georgia Institute of Technology">Yuxiang Lin</span>
-
-                        <span class="name-pill" data-affiliation="HKUST">Xin Yang (with Qifeng Chen)</span>
-                        <span class="name-pill" data-affiliation="Nanjing U">Yiyu Zhuang</span>
-                        <span class="name-pill" data-affiliation="University of Sydney">Dongli Xu</span>
-                    </div>
-                </div>
-
-                <!-- Team & Collaborators Tab Content -->
-
-
-                <div id="grant" class="tab-content">
-                    <div class="card-container">
-                        <div class="card" data-aos="zoom-in" data-aos-delay="300">
-                            <h4>Grants</h4>
-                            <ul>
-                                <li><strong>GRF/ECS 2025:</strong> The General Research Fund / Early Career Scheme.
-                                </li>
-                                <li><strong>TSSSU:</strong> The Technology Start‑up Support Scheme for Universities
-                                    helps university teams start technology businesses and commercialise R&D results.
-                                </li>
-                                <li><strong>HKSTP Incubation Programme:</strong> A 3‑year incubation programme from Hong
-                                    Kong Science and Technology Parks.</li>
-                                <li><strong>HKUST‑KAIST Seed Grant:</strong> A collaborative seed grant that supports
-                                    joint research projects between HKUST and KAIST.</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-
-                <div id="teaching" class="tab-content">
-                    <div class="card-container">
-                        <div class="card" data-aos="zoom-in" data-aos-delay="300">
-                            <h4>Fall 2025</h4>
-                            <ul>
-                                <li>
-                                    <a href="https://future-exoplanet-990.notion.site/AMCC-5160-AI-Driven-Animation-and-Video-Generation-271bb0713b7880f69babe08ca33f119a"
-                                        target="_blank" rel="noopener noreferrer">
-                                        AMCC 5160: AI-Driven Animation and Video Generation
-                                    </a>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-
-
-            </div><!-- .tabs-column -->
-        </div><!-- .hero-overlay -->
+        <div
+            style="margin-top: 30px; opacity: 0; animation: fadeUp 1s var(--ease-apple) 0.6s forwards; display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
+            <a href="mailto:yangharry@ust.hk" style="color: var(--text-primary); font-weight: 600;">Email</a>
+            <span style="color: var(--text-secondary);">•</span>
+            <a href="https://scholar.google.com/citations?hl=en&user=jpIFgToAAAAJ"
+                style="color: var(--text-primary); font-weight: 500;">Google Scholar</a>
+            <span style="color: var(--text-secondary);">•</span>
+            <a href="https://x.com/hyang_ust" style="color: var(--text-primary); font-weight: 500;">X (Twitter)</a>
+            <span style="color: var(--text-secondary);">•</span>
+            <a href="https://www.linkedin.com/in/harry-yang-a62b3b2a/"
+                style="color: var(--text-primary); font-weight: 500;">LinkedIn</a>
+        </div>
     </section>
 
+    <!-- Highlights (Bento) -->
+    <h2 class="section-title" id="highlights">Highlights</h2>
+    <div class="bento-grid">
+
+        <!-- Everlyn -->
+        <div class="bento-card span-12 card-dark" data-aos="fade-up">
+            <div style="z-index: 2; max-width: 60%;">
+                <div class="card-label"><span class="pulse"></span>New Release</div>
+                <div class="card-title">Everlyn AI</div>
+                <div class="card-desc">The fastest video model we've ever built. <br><strong>Yann LeCun</strong> joins
+                    as Advisor.</div>
+                <a href="https://everlyn.ai" class="card-link" style="color: #2997ff;">Launch Everlyn &rarr;</a>
+            </div>
+            <img src="everlyn.png" class="card-image-bg" style="opacity: 0.8;">
+        </div>
+
+        <!-- Grants -->
+        <div class="bento-card span-6" style="background: linear-gradient(135deg, #e0f2fe 0%, #f0f9ff 100%);"
+            data-aos="fade-up">
+            <div class="card-label" style="color: #0369a1;">Funding</div>
+            <div class="card-title" style="color: #0c4a6e;">Major Grants</div>
+            <div class="card-desc" style="color: #0369a1;">
+                • GRF/ECS 2025-26<br>
+                • HKSTP Incubation<br>
+                • TSSSU-O & Industry Partners
+            </div>
+        </div>
+
+        <!-- Teaching -->
+        <div class="bento-card span-6" style="background: #fff;" data-aos="fade-up">
+            <div class="card-label">Teaching</div>
+            <div class="card-title">Fall 2025</div>
+            <div class="card-desc">AMCC 5160: AI-Driven Animation and Video Generation.</div>
+            <a href="https://future-exoplanet-990.notion.site/AMCC-5160-AI-Driven-Animation-and-Video-Generation-271bb0713b7880f69babe08ca33f119a"
+                class="card-link">View Syllabus &rarr;</a>
+        </div>
+    </div>
+
+    <!-- Research -->
+    <h2 class="section-title" id="research">Selected Research</h2>
+    <div class="research-list">
+
+        <div class="paper-item" data-aos="fade-up">
+            <div class="paper-meta">AAAI 2026 (Poster)</div>
+            <div class="paper-title">Next Patch Prediction for AutoRegressive Visual Generation</div>
+            <div class="paper-authors">Yatian Pang (intern)</div>
+            <div class="paper-links">
+                <a href="https://arxiv.org/abs/2412.15321">arXiv</a>
+            </div>
+        </div>
+
+        <div class="paper-item" data-aos="fade-up">
+            <div class="paper-meta">NeurIPS 2025</div>
+            <div class="paper-title">Hierarchical Fine-Grained Preference Optimization for Physically Plausible Video
+                Generation</div>
+            <div class="paper-authors">Haodong Chen (intern)</div>
+            <div class="paper-links">
+                <a href="https://arxiv.org/abs/2508.10858">arXiv</a>
+            </div>
+        </div>
+
+        <div class="paper-item" data-aos="fade-up">
+            <div class="paper-meta">NeurIPS 2025</div>
+            <div class="paper-title">When Semantics Mislead Vision: Mitigating Hallucinations in MLLMs</div>
+            <div class="paper-authors">Yexin Liu (PhD student)</div>
+            <div class="paper-links">
+                <a href="https://arxiv.org/abs/2506.05551">arXiv</a>
+            </div>
+        </div>
+
+        <div class="paper-item" data-aos="fade-up">
+            <div class="paper-meta">NeurIPS 2025 NextVid Workshop (Oral)</div>
+            <div class="paper-title">VideoGen-of-Thought: Step-by-Step Generation of Multi-Shot Videos</div>
+            <div class="paper-authors">Mingzhe Zheng (PhD student)</div>
+            <div class="paper-links">
+                <a href="https://cheliosoops.github.io/VGoT">Project Page</a>
+            </div>
+        </div>
+
+        <div class="paper-item" data-aos="fade-up">
+            <div class="paper-meta">ICCV 2025</div>
+            <div class="paper-title">DreamDance: Animating Human Images by Enriching 3D Geometry Cues</div>
+            <div class="paper-authors">Yatian Pang (intern)</div>
+            <div class="paper-links">
+                <a href="https://arxiv.org/pdf/2412.00397">arXiv</a>
+            </div>
+        </div>
+
+        <div class="paper-item" data-aos="fade-up">
+            <div class="paper-meta">ICCV 2025</div>
+            <div class="paper-title">Model Reveals What to Cache: Profiling-Based Feature Reuse</div>
+            <div class="paper-authors">Xuran Ma, Yexin Liu, Yaofu Liu</div>
+            <div class="paper-links">
+                <a href="https://arxiv.org/pdf/2504.03140">arXiv</a>
+            </div>
+        </div>
+
+        <div class="paper-item" data-aos="fade-up">
+            <div class="paper-meta">CVPR 2025</div>
+            <div class="paper-title">Unveiling the Ignorance of MLLMs: Seeing Clearly, Answering Incorrectly</div>
+            <div class="paper-authors">Yexin Liu</div>
+            <div class="paper-links">
+                <a href="https://arxiv.org/abs/2406.10638">arXiv</a>
+            </div>
+        </div>
+
+        <div class="paper-item" data-aos="fade-up">
+            <div class="paper-meta">ICLR 2025</div>
+            <div class="paper-title">Intervening Anchor Token: Decoding Strategy in Alleviating Hallucinations</div>
+            <div class="paper-links">
+                <a href="https://openreview.net/forum?id=zGb4WgCW5i">OpenReview</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- News Timeline -->
+    <h2 class="section-title" id="news">Latest News</h2>
+    <div class="news-list">
+        <div class="news-item" data-aos="fade-up">
+            <div class="news-date">Current</div>
+            <div class="news-content">Serving as <strong>Area Chair</strong> for <strong>ICLR 2026</strong> and
+                <strong>AAAI 2026</strong>.
+            </div>
+        </div>
+        <div class="news-item" data-aos="fade-up">
+            <div class="news-date">Current</div>
+            <div class="news-content">
+                <div><strong>Yann LeCun</strong> joins Everlyn as Advisor.</div>
+                <div style="margin-top: 12px; display: flex; gap: 10px; overflow-x: auto;">
+                    <img src="yann.png" alt="Yann LeCun"
+                        style="height: 80px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+                    <img src="vibe2.png" alt="Vibe"
+                        style="height: 80px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+                    <img src="cma.png" alt="CMA"
+                        style="height: 80px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+                </div>
+            </div>
+        </div>
+        <div class="news-item" data-aos="fade-up">
+            <div class="news-date">July 2025</div>
+            <div class="news-content">PhD students secured internships at <strong>Kuaishou (Kling)</strong>,
+                <strong>Tencent</strong>, and <strong>Bytedance</strong>.
+            </div>
+        </div>
+        <div class="news-item" data-aos="fade-up">
+            <div class="news-date">June 2025</div>
+            <div class="news-content">Awarded <strong>GRF/ECS 2025-26</strong> funding.</div>
+        </div>
+        <div class="news-item" data-aos="fade-up">
+            <div class="news-date">June 2025</div>
+            <div class="news-content">Interviewed by <strong>RTHK</strong> (GenAI) and <strong>CNN</strong> (Embodied
+                AI).</div>
+        </div>
+        <div class="news-item" data-aos="fade-up">
+            <div class="news-date">Jan 2025</div>
+            <div class="news-content">Awarded <strong>HKUST-POSTECH Joint Research Seed Grant</strong>.</div>
+        </div>
+        <div class="news-item" data-aos="fade-up">
+            <div class="news-date">Dec 2024</div>
+            <div class="news-content">Video project approved for <strong>HKSTP Incubation Program</strong> (3 years).
+            </div>
+        </div>
+        <div class="news-item" data-aos="fade-up">
+            <div class="news-date">Sep 2024</div>
+            <div class="news-content">Visited Abu Dhabi (Royal Family meeting) and Token2049 Singapore.</div>
+        </div>
+    </div>
+
+    <!-- Team -->
+    <h2 class="section-title" id="team">The Lab</h2>
+
+    <h3 style="text-align: center; margin-bottom: 30px; color: var(--text-secondary);">Current Students</h3>
+    <div class="team-grid">
+        <div class="team-card">
+            <div class="team-name">Zihao Wang</div>
+            <div class="team-role">PhD @ HKUST</div>
+        </div>
+        <div class="team-card">
+            <div class="team-name">Yexin Liu</div>
+            <div class="team-role">PhD @ HKUST-GZ</div>
+        </div>
+        <div class="team-card">
+            <div class="team-name">Xuran Ma</div>
+            <div class="team-role">PhD @ BIT</div>
+        </div>
+        <div class="team-card">
+            <div class="team-name">Mingzhe Zheng</div>
+            <div class="team-role">PhD @ NPU</div>
+        </div>
+        <div class="team-card">
+            <div class="team-name">Jiajun Zha</div>
+            <div class="team-role">PhD @ Fudan</div>
+        </div>
+        <div class="team-card">
+            <div class="team-name">Yaofu Liu</div>
+            <div class="team-role">PhD @ HKUST</div>
+        </div>
+        <div class="team-card">
+            <div class="team-name">Haoze Zheng</div>
+            <div class="team-role">PhD @ Beijing Jiaotong</div>
+        </div>
+        <div class="team-card">
+            <div class="team-name">Wenjie Shu</div>
+            <div class="team-role">PhD @ UESTC</div>
+        </div>
+        <div class="team-card">
+            <div class="team-name">Weixiao Wang</div>
+            <div class="team-role">PhD @ CUHK</div>
+        </div>
+        <div class="team-card">
+            <div class="team-name">Zhefan Rao</div>
+            <div class="team-role">PhD @ HKUST</div>
+        </div>
+        <div class="team-card">
+            <div class="team-name">Dengyang Jiang</div>
+            <div class="team-role">PhD @ NPU</div>
+        </div>
+    </div>
+
+    <h3 style="text-align: center; margin: 60px 0 30px; color: var(--text-secondary);">Alumni & Interns</h3>
+    <div class="team-grid">
+        <div class="team-card">
+            <div class="team-name">Xianfeng Wu</div>
+            <div class="team-role">Jianghan Univ</div>
+        </div>
+        <div class="team-card">
+            <div class="team-name">Yajing Bai</div>
+            <div class="team-role">Jianghan Univ</div>
+        </div>
+        <div class="team-card">
+            <div class="team-name">Harold Chen</div>
+            <div class="team-role">NPU</div>
+        </div>
+        <div class="team-card">
+            <div class="team-name">Yatian Pang</div>
+            <div class="team-role">NUS</div>
+        </div>
+        <div class="team-card">
+            <div class="team-name">Feilong Tang</div>
+            <div class="team-role">Monash</div>
+        </div>
+        <div class="team-card">
+            <div class="team-name">Bin Ma</div>
+            <div class="team-role">XJTU</div>
+        </div>
+        <div class="team-card">
+            <div class="team-name">Sen Liang</div>
+            <div class="team-role">USTC</div>
+        </div>
+        <div class="team-card">
+            <div class="team-name">Yuxiang Lin</div>
+            <div class="team-role">Georgia Tech</div>
+        </div>
+        <div class="team-card">
+            <div class="team-name">Xin Yang</div>
+            <div class="team-role">HKUST</div>
+        </div>
+        <div class="team-card">
+            <div class="team-name">Yiyu Zhuang</div>
+            <div class="team-role">Nanjing U</div>
+        </div>
+        <div class="team-card">
+            <div class="team-name">Dongli Xu</div>
+            <div class="team-role">USyd</div>
+        </div>
+    </div>
+
+    <div style="text-align: center; margin-top: 60px;">
+        <img src="iclr.png" alt="Group at ICLR 2025"
+            style="max-width: 100%; width: 600px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
+        <p style="margin-top: 10px; color: var(--text-secondary); font-size: 14px;">Group attending ICLR 2025 in
+            Singapore</p>
+    </div>
+
     <footer>
-        <p>&copy; 2025 Harry Yang. All rights reserved.</p>
-        <p style="font-size: 0.8em; margin-top: 5px; opacity: 0.6;">Built with modern web technologies.</p>
+        &copy; 2025 Harry Yang. All rights reserved. <br>
+        Hong Kong &bull; New Haven
     </footer>
 
-    <!-- AOS Library JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
-    <!-- Particles.js Library JS -->
-    <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
     <script>
         AOS.init({
             duration: 1000,
             once: true,
-            easing: 'ease-in-out',
-        });
-
-        particlesJS("particles-js", {
-            "particles": {
-                "number": { "value": 60, "density": { "enable": true, "value_area": 800 } },
-                "color": { "value": "#f5f5f5" },
-                "shape": { "type": "circle" },
-                "opacity": { "value": 0.5, "random": true },
-                "size": { "value": 3, "random": true },
-                "line_linked": { "enable": true, "distance": 150, "color": "#f5f5f5", "opacity": 0.4, "width": 1 },
-                "move": { "enable": true, "speed": 2, "random": true }
-            },
-            "interactivity": {
-                "detect_on": "canvas",
-                "events": {
-                    "onhover": { "enable": true, "mode": "repulse" },
-                    "onclick": { "enable": true, "mode": "push" },
-                    "resize": true
-                }
-            },
-            "retina_detect": true
-        });
-
-        window.addEventListener('scroll', function () {
-            const navbar = document.getElementById('navbar');
-            if (window.scrollY > 50) {
-                navbar.classList.add('scrolled');
-            } else {
-                navbar.classList.remove('scrolled');
-            }
-        });
-
-        // Tabs
-        const tabs = document.querySelectorAll('.tab');
-        const tabContents = document.querySelectorAll('.tab-content');
-        tabs.forEach(tab => {
-            tab.addEventListener('click', () => {
-                tabs.forEach(t => t.classList.remove('active'));
-                tab.classList.add('active');
-                tabContents.forEach(c => c.classList.remove('active'));
-                const target = tab.getAttribute('data-target');
-                document.getElementById(target).classList.add('active');
-            });
-        });
-        // Function to adjust tooltip size and position
-        document.addEventListener("DOMContentLoaded", () => {
-            const buttons = document.querySelectorAll(".expand-btn");
-
-            buttons.forEach(button => {
-                button.addEventListener("click", () => {
-                    const summary = button.dataset.summary;
-                    const summaryDiv = button.nextElementSibling; // Correctly targets the sibling
-
-                    if (summaryDiv.style.display === "block") {
-                        // Collapse if already expanded
-                        summaryDiv.style.display = "none";
-                        summaryDiv.textContent = "";
-                        button.textContent = "Expand";
-                    } else {
-                        // Expand and display the summary
-                        summaryDiv.style.display = "block";
-                        summaryDiv.textContent = summary;
-                        button.textContent = "Collapse";
-                    }
-                });
-            });
-        });
-        document.querySelectorAll('.expand-btn').forEach(button => {
-            button.addEventListener('click', () => {
-                const summary = button.dataset.summary;
-                const summaryDiv = button.nextElementSibling; // Get the next sibling div
-                if (summaryDiv.innerHTML) {
-                    // If already expanded, collapse it
-                    summaryDiv.innerHTML = '';
-                    button.textContent = 'Expand';
-                } else {
-                    // Expand and display the summary
-                    summaryDiv.innerHTML = summary;
-                    button.textContent = 'Collapse';
-                }
-            });
+            easing: 'cubic-bezier(0.25, 1, 0.5, 1)',
+            offset: 50
         });
     </script>
 </body>
