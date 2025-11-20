@@ -494,10 +494,28 @@
                 transform: translate(-20px, 20px) scale(0.9);
             }
         }
+
+        .background-logo {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 25vw;
+            height: 25vw;
+            max-width: 300px;
+            max-height: 300px;
+            z-index: -2;
+            opacity: 0.25;
+            pointer-events: none;
+            background-image: url('amc_logo.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: bottom right;
+        }
     </style>
 </head>
 
 <body>
+    <div class="background-logo"></div>
     <div class="background-blobs">
         <div class="blob blob-1"></div>
         <div class="blob blob-2"></div>
