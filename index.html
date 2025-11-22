@@ -44,6 +44,90 @@
             text-decoration: underline;
         }
 
+        .card-link:hover {
+            text-decoration: underline;
+        }
+
+        /* Photo Carousel */
+        .photo-carousel {
+            display: flex;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+            /* Firefox */
+            -ms-overflow-style: none;
+            /* IE 10+ */
+            height: 100%;
+            width: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        .photo-carousel::-webkit-scrollbar {
+            display: none;
+            /* Chrome/Safari/WebKit */
+        }
+
+        .carousel-slide {
+            flex: 0 0 100%;
+            width: 100%;
+            height: 100%;
+            position: relative;
+            scroll-snap-align: center;
+            overflow: hidden;
+        }
+
+        .carousel-slide img {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 70%;
+            height: 100%;
+            object-fit: cover;
+            mask-image: linear-gradient(to right, transparent, black 20%);
+            -webkit-mask-image: linear-gradient(to right, transparent, black 20%);
+        }
+
+        .slide-caption {
+            position: absolute;
+            bottom: 40px;
+            left: 40px;
+            width: 40%;
+            color: white;
+            font-size: 24px;
+            font-weight: 600;
+            line-height: 1.2;
+            z-index: 2;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .carousel-dots {
+            position: absolute;
+            bottom: 20px;
+            left: 40px;
+            /* Aligned with caption */
+            transform: none;
+            /* Remove center transform */
+            display: flex;
+            gap: 8px;
+            z-index: 10;
+        }
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .dot.active {
+            background: rgba(255, 255, 255, 1);
+        }
+
         /* Dynamic Island Navbar */
         .navbar-container {
             position: fixed;
@@ -567,6 +651,39 @@
     <h2 class="section-title" id="highlights">Highlights</h2>
     <div class="bento-grid">
 
+        <!-- Photo Carousel -->
+        <div class="bento-card span-12" style="padding: 0; height: 400px; background: #000;" data-aos="fade-up">
+            <div class="photo-carousel" id="carousel">
+                <div class="carousel-slide">
+                    <div class="slide-caption">Yann LeCun joins Everlyn as advisor.</div>
+                    <img src="yann2.png" alt="Yann LeCun">
+                </div>
+                <div class="carousel-slide">
+                    <div class="slide-caption">Give a talk at CMA, HKUST-GZ.</div>
+                    <img src="cma2.png" alt="CMA">
+                </div>
+                <div class="carousel-slide">
+                    <div class="slide-caption">Give a talk at Vibe Coding Hong Kong.</div>
+                    <img src="vibe2.png" alt="Vibe">
+                </div>
+                <div class="carousel-slide">
+                    <div class="slide-caption">Group gathering at ICLR 2025, Singapore.</div>
+                    <img src="iclr.png" alt="ICLR">
+                </div>
+                <div class="carousel-slide">
+                    <div class="slide-caption">AMC BBQ Gathering at Sai Kung</div>
+                    <img src="bbq.png" alt="BBQ">
+                </div>
+            </div>
+            <div class="carousel-dots" id="dots">
+                <div class="dot active" onclick="scrollToSlide(0)"></div>
+                <div class="dot" onclick="scrollToSlide(1)"></div>
+                <div class="dot" onclick="scrollToSlide(2)"></div>
+                <div class="dot" onclick="scrollToSlide(3)"></div>
+                <div class="dot" onclick="scrollToSlide(4)"></div>
+            </div>
+        </div>
+
         <!-- Everlyn -->
         <div class="bento-card span-12 card-dark" data-aos="fade-up">
             <div style="z-index: 2; max-width: 60%;">
@@ -731,14 +848,6 @@
             <div class="news-date">Current</div>
             <div class="news-content">
                 <div><strong>Yann LeCun</strong> joins Everlyn as Advisor.</div>
-                <div style="margin-top: 12px; display: flex; gap: 10px; overflow-x: auto;">
-                    <img src="yann.png" alt="Yann LeCun"
-                        style="height: 80px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
-                    <img src="vibe2.png" alt="Vibe"
-                        style="height: 80px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
-                    <img src="cma.png" alt="CMA"
-                        style="height: 80px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
-                </div>
             </div>
         </div>
         <div class="news-item" data-aos="fade-up">
@@ -967,6 +1076,38 @@
             easing: 'cubic-bezier(0.25, 1, 0.5, 1)',
             offset: 50
         });
+
+        const carousel = document.getElementById('carousel');
+        const dots = document.getElementById('dots').children;
+
+        carousel.addEventListener('scroll', () => {
+            const scrollLeft = carousel.scrollLeft;
+            const width = carousel.offsetWidth;
+            const index = Math.round(scrollLeft / width);
+
+            for (let i = 0; i < dots.length; i++) {
+                dots[i].classList.remove('active');
+            }
+            if (dots[index]) {
+                dots[index].classList.add('active');
+            }
+        });
+
+        function scrollToSlide(index) {
+            const width = carousel.offsetWidth;
+            carousel.scrollTo({
+                left: width * index,
+                behavior: 'smooth'
+            });
+        }
+
+        // Auto-rotate every 5 seconds
+        setInterval(() => {
+            const width = carousel.offsetWidth;
+            const currentIndex = Math.round(carousel.scrollLeft / width);
+            const nextIndex = (currentIndex + 1) % dots.length;
+            scrollToSlide(nextIndex);
+        }, 5000);
     </script>
 </body>
 
