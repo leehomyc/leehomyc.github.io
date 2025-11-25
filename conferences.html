@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Conferences | Harry Yang</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css">
+    <style>
+        :root {
+            --bg-color: #f5f5f7;
+            --text-primary: #1d1d1f;
+            --text-secondary: #86868b;
+            --accent: #0066cc;
+            --card-bg: #ffffff;
+            --nav-bg: rgba(255, 255, 255, 0.8);
+            --ease-apple: cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            line-height: 1.5;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        a {
+            color: var(--accent);
+            text-decoration: none;
+            transition: opacity 0.2s;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        /* Dynamic Island Navbar */
+        .navbar-container {
+            position: fixed;
+            top: 20px;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            z-index: 1000;
+            pointer-events: none;
+        }
+
+        .dynamic-island {
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(30px) saturate(180%);
+            -webkit-backdrop-filter: blur(30px) saturate(180%);
+            padding: 12px 24px;
+            border-radius: 100px;
+            display: flex;
+            gap: 24px;
+            pointer-events: auto;
+            transition: all 0.4s var(--ease-apple);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .dynamic-island a {
+            color: var(--text-primary);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .dynamic-island a:hover {
+            color: var(--accent);
+            text-decoration: none;
+        }
+
+        /* Hero Section */
+        .hero {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 150px 20px 60px;
+            position: relative;
+        }
+
+        .hero h1 {
+            font-size: clamp(40px, 6vw, 64px);
+            font-weight: 700;
+            letter-spacing: -0.03em;
+            line-height: 1.1;
+            margin-bottom: 16px;
+            background: linear-gradient(180deg, #1d1d1f 0%, #424245 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            opacity: 0;
+            transform: translateY(30px);
+            animation: fadeUp 1s var(--ease-apple) forwards;
+        }
+
+        .hero p {
+            font-size: clamp(18px, 2.5vw, 24px);
+            color: var(--text-secondary);
+            font-weight: 400;
+            max-width: 800px;
+            margin: 0 auto;
+            opacity: 0;
+            transform: translateY(30px);
+            animation: fadeUp 1s var(--ease-apple) 0.2s forwards;
+        }
+
+        /* Conference Grid */
+        .conference-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 24px;
+            max-width: 1200px;
+            margin: 0 auto 100px;
+            padding: 0 24px;
+        }
+
+        .conf-card {
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            border-radius: 30px;
+            padding: 0;
+            /* Remove padding from main container */
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.4s var(--ease-apple), box-shadow 0.4s var(--ease-apple);
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeUp 1s var(--ease-apple) forwards;
+            min-height: 320px;
+        }
+
+        .card-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            transition: transform 0.4s var(--ease-apple);
+            z-index: 0;
+        }
+
+        .conf-card:hover .card-bg {
+            transform: scale(1.05);
+        }
+
+        .card-content {
+            position: relative;
+            z-index: 1;
+            padding: 32px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: color 0.3s;
+        }
+
+        /* Dark mode overlay for cards with images */
+        .card-content.has-image {
+            background: linear-gradient(to bottom, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.6));
+            color: white;
+        }
+
+        .card-content.has-image .conf-name,
+        .card-content.has-image .countdown-value {
+            color: white;
+        }
+
+        .card-content.has-image .conf-location,
+        .card-content.has-image .conf-date,
+        .card-content.has-image .countdown-label {
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .card-content.has-image .conf-year {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            backdrop-filter: blur(5px);
+        }
+
+        .card-content.has-image .countdown-container {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+        }
+
+        .card-content.has-image .status-badge {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            backdrop-filter: blur(5px);
+        }
+
+        .conf-card:hover {
+            transform: scale(1.02) translateY(0);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+            z-index: 2;
+        }
+
+        .conf-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+        }
+
+        .conf-name {
+            font-size: 28px;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            color: var(--text-primary);
+        }
+
+        .conf-year {
+            font-size: 14px;
+            font-weight: 600;
+            background: #e5e5e5;
+            padding: 4px 10px;
+            border-radius: 20px;
+            color: var(--text-secondary);
+        }
+
+        .conf-details {
+            margin-bottom: 30px;
+        }
+
+        .conf-location,
+        .conf-date {
+            font-size: 16px;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .countdown-container {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            text-align: center;
+            background: rgba(0, 0, 0, 0.03);
+            border-radius: 20px;
+            padding: 20px;
+        }
+
+        .countdown-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .countdown-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-primary);
+            font-variant-numeric: tabular-nums;
+        }
+
+        .countdown-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-top: 4px;
+        }
+
+        /* Status Indicators */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            padding: 6px 12px;
+            border-radius: 100px;
+            margin-bottom: 16px;
+        }
+
+        .status-upcoming {
+            background: rgba(0, 122, 255, 0.1);
+            color: #007aff;
+        }
+
+        .status-happening {
+            background: rgba(52, 199, 89, 0.1);
+            color: #34c759;
+        }
+
+        .status-ended {
+            background: rgba(142, 142, 147, 0.1);
+            color: #8e8e93;
+        }
+
+        /* Footer */
+        footer {
+            background: #fff;
+            padding: 60px 24px;
+            border-top: 1px solid #e5e5e5;
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 12px;
+        }
+
+        /* Animations */
+        @keyframes fadeUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Background Blobs */
+        .background-blobs {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        .blob {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.6;
+            animation: float 20s infinite ease-in-out;
+        }
+
+        .blob-1 {
+            top: -10%;
+            left: -10%;
+            width: 50vw;
+            height: 50vw;
+            background: radial-gradient(circle, rgba(0, 102, 204, 0.2) 0%, rgba(0, 102, 204, 0) 70%);
+            animation-delay: 0s;
+        }
+
+        .blob-2 {
+            bottom: -10%;
+            right: -10%;
+            width: 60vw;
+            height: 60vw;
+            background: radial-gradient(circle, rgba(150, 50, 255, 0.15) 0%, rgba(150, 50, 255, 0) 70%);
+            animation-delay: -5s;
+        }
+
+        .blob-3 {
+            top: 40%;
+            left: 40%;
+            width: 40vw;
+            height: 40vw;
+            background: radial-gradient(circle, rgba(50, 200, 255, 0.15) 0%, rgba(50, 200, 255, 0) 70%);
+            animation-delay: -10s;
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translate(0, 0) scale(1);
+            }
+
+            33% {
+                transform: translate(30px, -50px) scale(1.1);
+            }
+
+            66% {
+                transform: translate(-20px, 20px) scale(0.9);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="background-blobs">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+    </div>
+
+    <!-- Navbar -->
+    <div class="navbar-container">
+        <nav class="dynamic-island">
+            <a href="index.html">Home</a>
+            <a href="index.html#highlights">Highlights</a>
+            <a href="index.html#research">Research</a>
+            <a href="index.html#news">News</a>
+            <a href="index.html#team">Team</a>
+        </nav>
+    </div>
+
+    <!-- Hero -->
+    <section class="hero">
+        <h1>Conference Countdown</h1>
+        <p>Track upcoming major AI & Vision conferences.</p>
+
+        <!-- Toggle Switch -->
+        <div class="toggle-container"
+            style="margin-top: 30px; background: rgba(118, 118, 128, 0.12); padding: 4px; border-radius: 32px; display: inline-flex; position: relative;">
+            <div class="toggle-bg" id="toggle-bg"
+                style="position: absolute; left: 4px; top: 4px; width: calc(50% - 4px); height: calc(100% - 8px); background: #fff; border-radius: 28px; box-shadow: 0 3px 8px rgba(0,0,0,0.12); transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1);">
+            </div>
+            <button class="toggle-btn active" onclick="setMode('conference')"
+                style="position: relative; border: none; background: none; padding: 8px 24px; font-size: 15px; font-weight: 600; cursor: pointer; z-index: 1; width: 160px; color: #000;">Conference
+                Date</button>
+            <button class="toggle-btn" onclick="setMode('paper')"
+                style="position: relative; border: none; background: none; padding: 8px 24px; font-size: 15px; font-weight: 600; cursor: pointer; z-index: 1; width: 160px; color: #86868b;">Paper
+                Deadline</button>
+        </div>
+    </section>
+
+    <!-- Conference Grid -->
+    <div class="conference-grid" id="conference-grid">
+        <!-- Cards will be injected here by JS -->
+    </div>
+
+    <footer>
+        <p>&copy; 2025 Harry Yang. All rights reserved.</p>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
+    <script>
+        AOS.init({
+            duration: 800,
+            easing: 'ease-out-cubic',
+            once: true
+        });
+
+        const conferences = [
+            {
+                name: "NeurIPS",
+                year: 2025,
+                location: "San Diego, USA",
+                dateStr: "Dec 2 - 7, 2025",
+                startDate: "2025-12-02T09:00:00",
+                paperDeadline: "2025-05-22T23:59:59", // Estimated based on previous years
+                paperDeadlineStr: "May 22, 2025 (Est.)",
+                url: "https://neurips.cc/",
+                image: "san_diego.png"
+            },
+            {
+                name: "SIGGRAPH Asia",
+                year: 2025,
+                location: "Hong Kong",
+                dateStr: "Dec 15 - 18, 2025",
+                startDate: "2025-12-15T09:00:00",
+                paperDeadline: "2025-05-23T23:59:59", // Passed
+                paperDeadlineStr: "May 23, 2025",
+                url: "https://asia.siggraph.org/2025/",
+                image: "hong_kong_bg" // Fallback to gradient if image missing
+            },
+            {
+                name: "AAAI",
+                year: 2026,
+                location: "Singapore",
+                dateStr: "Jan 20 - 27, 2026",
+                startDate: "2026-01-20T09:00:00",
+                paperDeadline: "2025-08-15T23:59:59", // Estimated
+                paperDeadlineStr: "Aug 15, 2025 (Est.)",
+                url: "https://aaai.org/",
+                image: "singapore.png"
+            },
+            {
+                name: "ICLR",
+                year: 2026,
+                location: "Rio de Janeiro, Brazil",
+                dateStr: "Apr 23 - 27, 2026",
+                startDate: "2026-04-23T09:00:00",
+                paperDeadline: "2025-10-01T23:59:59", // Estimated
+                paperDeadlineStr: "Oct 1, 2025 (Est.)",
+                url: "https://iclr.cc/",
+                image: "rio.png"
+            },
+            {
+                name: "CVPR",
+                year: 2026,
+                location: "Denver, USA",
+                dateStr: "Jun 3 - 7, 2026",
+                startDate: "2026-06-03T09:00:00",
+                paperDeadline: "2025-11-13T23:59:59",
+                paperDeadlineStr: "Nov 13, 2025",
+                url: "https://cvpr.thecvf.com/",
+                image: "denver.png"
+            },
+            {
+                name: "ICML",
+                year: 2026,
+                location: "Seoul, South Korea",
+                dateStr: "Jul 6 - 12, 2026",
+                startDate: "2026-07-06T09:00:00",
+                paperDeadline: "2026-01-28T23:59:59",
+                paperDeadlineStr: "Jan 28, 2026",
+                url: "https://icml.cc/",
+                image: "seoul.png"
+            },
+            {
+                name: "SIGGRAPH",
+                year: 2026,
+                location: "Los Angeles, USA",
+                dateStr: "Jul 19 - 23, 2026",
+                startDate: "2026-07-19T09:00:00",
+                paperDeadline: "2026-01-22T23:59:59",
+                paperDeadlineStr: "Jan 22, 2026",
+                url: "https://s2026.siggraph.org/",
+                image: "la.png"
+            },
+            {
+                name: "ECCV",
+                year: 2026,
+                location: "Malmö, Sweden",
+                dateStr: "Sep 8 - 13, 2026",
+                startDate: "2026-09-08T09:00:00",
+                paperDeadline: "2026-03-06T23:59:59",
+                paperDeadlineStr: "Mar 6, 2026",
+                url: "https://eccv.ecva.net/",
+                image: "malmo_bg" // Fallback
+            },
+            {
+                name: "ICCV",
+                year: 2027,
+                location: "TBD",
+                dateStr: "Oct 2027 (Expected)",
+                startDate: "2027-10-01T09:00:00",
+                paperDeadline: "2027-03-01T23:59:59", // Estimated
+                paperDeadlineStr: "Mar 2027 (Est.)",
+                url: "https://iccv2027.thecvf.com/",
+                image: "" // No image yet
+            }
+        ];
+
+        let currentMode = 'conference'; // 'conference' or 'paper'
+
+        function setMode(mode) {
+            currentMode = mode;
+            const bg = document.getElementById('toggle-bg');
+            const btns = document.querySelectorAll('.toggle-btn');
+
+            if (mode === 'conference') {
+                bg.style.transform = 'translateX(0)';
+                btns[0].style.color = '#000';
+                btns[1].style.color = '#86868b';
+            } else {
+                bg.style.transform = 'translateX(100%)';
+                btns[0].style.color = '#86868b';
+                btns[1].style.color = '#000';
+            }
+
+            renderCards();
+            updateCountdowns();
+        }
+
+        function renderCards() {
+            const grid = document.getElementById('conference-grid');
+            grid.innerHTML = '';
+
+            conferences.forEach((conf, index) => {
+                const card = document.createElement('div');
+                card.className = 'conf-card';
+                card.style.animationDelay = `${index * 0.1}s`;
+
+                // Background Image Logic
+                let bgStyle = '';
+                if (conf.image && !conf.image.includes('_bg')) {
+                    bgStyle = `background-image: url('${conf.image}');`;
+                } else if (conf.name === 'SIGGRAPH Asia') {
+                    bgStyle = `background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 99%, #fecfef 100%);`;
+                } else if (conf.name === 'ECCV') {
+                    bgStyle = `background: linear-gradient(120deg, #a1c4fd 0%, #c2e9fb 100%);`;
+                } else if (conf.name === 'ICCV') {
+                    bgStyle = `background: linear-gradient(to top, #cfd9df 0%, #e2ebf0 100%);`;
+                }
+
+                // Add overlay for text readability if image exists
+                const overlayClass = (conf.image && !conf.image.includes('_bg')) ? 'has-image' : '';
+
+                card.innerHTML = `
+                    <div class="card-bg" style="${bgStyle}"></div>
+                    <div class="card-content ${overlayClass}">
+                        <div class="conf-header">
+                            <div class="conf-name">${conf.name}</div>
+                            <div class="conf-year">${conf.year}</div>
+                        </div>
+                        <div class="status-badge status-upcoming" id="status-${index}">Upcoming</div>
+                        <div class="conf-details">
+                            <div class="conf-location">📍 ${conf.location}</div>
+                            <div class="conf-date">
+                                ${currentMode === 'conference' ? '📅 ' + conf.dateStr : '📝 Due: ' + conf.paperDeadlineStr}
+                            </div>
+                        </div>
+                        <div class="countdown-container" id="countdown-${index}">
+                            <div class="countdown-item">
+                                <span class="countdown-value" id="days-${index}">00</span>
+                                <span class="countdown-label">Days</span>
+                            </div>
+                            <div class="countdown-item">
+                                <span class="countdown-value" id="hours-${index}">00</span>
+                                <span class="countdown-label">Hrs</span>
+                            </div>
+                            <div class="countdown-item">
+                                <span class="countdown-value" id="mins-${index}">00</span>
+                                <span class="countdown-label">Mins</span>
+                            </div>
+                            <div class="countdown-item">
+                                <span class="countdown-value" id="secs-${index}">00</span>
+                                <span class="countdown-label">Secs</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function updateCountdowns() {
+            const now = new Date().getTime();
+
+            conferences.forEach((conf, index) => {
+                const targetDate = currentMode === 'conference' ?
+                    new Date(conf.startDate).getTime() :
+                    new Date(conf.paperDeadline).getTime();
+
+                const distance = targetDate - now;
+
+                const daysEl = document.getElementById(`days-${index}`);
+                const hoursEl = document.getElementById(`hours-${index}`);
+                const minsEl = document.getElementById(`mins-${index}`);
+                const secsEl = document.getElementById(`secs-${index}`);
+                const statusEl = document.getElementById(`status-${index}`);
+                const countdownContainer = document.getElementById(`countdown-${index}`);
+
+                if (!daysEl) return; // Guard clause if re-rendering
+
+                if (distance < 0) {
+                    if (currentMode === 'conference') {
+                        // Conference logic
+                        const daysPast = Math.abs(distance) / (1000 * 60 * 60 * 24);
+                        if (daysPast < 7) {
+                            statusEl.className = 'status-badge status-happening';
+                            statusEl.innerText = 'Happening Now';
+                            countdownContainer.style.display = 'none';
+                        } else {
+                            statusEl.className = 'status-badge status-ended';
+                            statusEl.innerText = 'Ended';
+                            countdownContainer.style.display = 'none';
+                        }
+                    } else {
+                        // Deadline logic
+                        statusEl.className = 'status-badge status-ended';
+                        statusEl.innerText = 'Deadline Passed';
+                        countdownContainer.style.display = 'none';
+                    }
+                } else {
+                    statusEl.className = 'status-badge status-upcoming';
+                    statusEl.innerText = currentMode === 'conference' ? 'Upcoming' : 'Submitting Soon';
+                    countdownContainer.style.display = 'grid';
+
+                    const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                    const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                    const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                    const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+                    daysEl.innerText = days;
+                    hoursEl.innerText = hours.toString().padStart(2, '0');
+                    minsEl.innerText = minutes.toString().padStart(2, '0');
+                    secsEl.innerText = seconds.toString().padStart(2, '0');
+                }
+            });
+        }
+
+        // Initial render
+        renderCards();
+        // Update every second
+        setInterval(updateCountdowns, 1000);
+    </script>
+</body>
+
+</html>
