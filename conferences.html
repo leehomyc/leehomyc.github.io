@@ -403,13 +403,9 @@
     <div class="navbar-container">
         <nav class="dynamic-island">
             <a href="index.html">Home</a>
-            <a href="index.html#highlights">Highlights</a>
-            <a href="index.html#research">Research</a>
-            <a href="index.html#news">News</a>
-            <a href="index.html#team">Team</a>
+            <a href="conferences.html">Conferences</a>
         </nav>
     </div>
-
     <!-- Hero -->
     <section class="hero">
         <h1>Conference Countdown</h1>
@@ -468,7 +464,7 @@
                 paperDeadline: "2025-05-23T23:59:59", // Passed
                 paperDeadlineStr: "May 23, 2025",
                 url: "https://asia.siggraph.org/2025/",
-                image: "hong_kong_bg" // Fallback to gradient if image missing
+                image: "hk.png" // Fallback to gradient if image missing
             },
             {
                 name: "AAAI",
@@ -534,19 +530,8 @@
                 paperDeadline: "2026-03-06T23:59:59",
                 paperDeadlineStr: "Mar 6, 2026",
                 url: "https://eccv.ecva.net/",
-                image: "malmo_bg" // Fallback
+                image: "malmo.png" // Fallback
             },
-            {
-                name: "ICCV",
-                year: 2027,
-                location: "TBD",
-                dateStr: "Oct 2027 (Expected)",
-                startDate: "2027-10-01T09:00:00",
-                paperDeadline: "2027-03-01T23:59:59", // Estimated
-                paperDeadlineStr: "Mar 2027 (Est.)",
-                url: "https://iccv2027.thecvf.com/",
-                image: "" // No image yet
-            }
         ];
 
         let currentMode = 'conference'; // 'conference' or 'paper'
@@ -573,8 +558,26 @@
         function renderCards() {
             const grid = document.getElementById('conference-grid');
             grid.innerHTML = '';
+            const now = new Date().getTime();
 
-            conferences.forEach((conf, index) => {
+            // Filter and Sort
+            const visibleConferences = conferences.filter(conf => {
+                if (currentMode === 'conference') {
+                    const startTime = new Date(conf.startDate).getTime();
+                    const endTime = startTime + (7 * 24 * 60 * 60 * 1000);
+                    return endTime > now;
+                } else {
+                    if (!conf.paperDeadline) return false;
+                    const deadlineTime = new Date(conf.paperDeadline).getTime();
+                    return deadlineTime > now;
+                }
+            }).sort((a, b) => {
+                const dateA = currentMode === 'conference' ? new Date(a.startDate).getTime() : new Date(a.paperDeadline).getTime();
+                const dateB = currentMode === 'conference' ? new Date(b.startDate).getTime() : new Date(b.paperDeadline).getTime();
+                return dateA - dateB;
+            });
+
+            visibleConferences.forEach((conf, index) => {
                 const card = document.createElement('div');
                 card.className = 'conf-card';
                 card.style.animationDelay = `${index * 0.1}s`;
@@ -594,6 +597,14 @@
                 // Add overlay for text readability if image exists
                 const overlayClass = (conf.image && !conf.image.includes('_bg')) ? 'has-image' : '';
 
+                // Create unique ID for this specific card instance (since index is now relative to filtered list)
+                // We'll use the conference name as part of the ID to avoid collisions if we were to update in place, 
+                // but since we clear innerHTML, index is fine for the loop, but we need to map back to the data for updates.
+                // Actually, updateCountdowns iterates over the FULL 'conferences' array. 
+                // This is a problem because the DOM elements are now generated from 'visibleConferences'.
+                // We need to attach the original index or use a data attribute.
+                // Let's use the conference name as a data attribute to find the element.
+
                 card.innerHTML = `
                     <div class="card-bg" style="${bgStyle}"></div>
                     <div class="card-content ${overlayClass}">
@@ -601,28 +612,28 @@
                             <div class="conf-name">${conf.name}</div>
                             <div class="conf-year">${conf.year}</div>
                         </div>
-                        <div class="status-badge status-upcoming" id="status-${index}">Upcoming</div>
+                        <div class="status-badge status-upcoming" id="status-${conf.name.replace(/\s+/g, '')}-${conf.year}">Upcoming</div>
                         <div class="conf-details">
                             <div class="conf-location">📍 ${conf.location}</div>
                             <div class="conf-date">
                                 ${currentMode === 'conference' ? '📅 ' + conf.dateStr : '📝 Due: ' + conf.paperDeadlineStr}
                             </div>
                         </div>
-                        <div class="countdown-container" id="countdown-${index}">
+                        <div class="countdown-container" id="countdown-${conf.name.replace(/\s+/g, '')}-${conf.year}">
                             <div class="countdown-item">
-                                <span class="countdown-value" id="days-${index}">00</span>
+                                <span class="countdown-value" id="days-${conf.name.replace(/\s+/g, '')}-${conf.year}">00</span>
                                 <span class="countdown-label">Days</span>
                             </div>
                             <div class="countdown-item">
-                                <span class="countdown-value" id="hours-${index}">00</span>
+                                <span class="countdown-value" id="hours-${conf.name.replace(/\s+/g, '')}-${conf.year}">00</span>
                                 <span class="countdown-label">Hrs</span>
                             </div>
                             <div class="countdown-item">
-                                <span class="countdown-value" id="mins-${index}">00</span>
+                                <span class="countdown-value" id="mins-${conf.name.replace(/\s+/g, '')}-${conf.year}">00</span>
                                 <span class="countdown-label">Mins</span>
                             </div>
                             <div class="countdown-item">
-                                <span class="countdown-value" id="secs-${index}">00</span>
+                                <span class="countdown-value" id="secs-${conf.name.replace(/\s+/g, '')}-${conf.year}">00</span>
                                 <span class="countdown-label">Secs</span>
                             </div>
                         </div>
@@ -630,30 +641,37 @@
                 `;
                 grid.appendChild(card);
             });
+
+            // If no cards, show a message
+            if (grid.children.length === 0) {
+                grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: var(--text-secondary); padding: 40px;">No upcoming events found.</div>';
+            }
         }
 
         function updateCountdowns() {
             const now = new Date().getTime();
 
-            conferences.forEach((conf, index) => {
+            conferences.forEach((conf) => {
+                const idSuffix = `${conf.name.replace(/\s+/g, '')}-${conf.year}`;
+                const daysEl = document.getElementById(`days-${idSuffix}`);
+
+                // If element doesn't exist (filtered out), skip
+                if (!daysEl) return;
+
                 const targetDate = currentMode === 'conference' ?
                     new Date(conf.startDate).getTime() :
                     new Date(conf.paperDeadline).getTime();
 
                 const distance = targetDate - now;
 
-                const daysEl = document.getElementById(`days-${index}`);
-                const hoursEl = document.getElementById(`hours-${index}`);
-                const minsEl = document.getElementById(`mins-${index}`);
-                const secsEl = document.getElementById(`secs-${index}`);
-                const statusEl = document.getElementById(`status-${index}`);
-                const countdownContainer = document.getElementById(`countdown-${index}`);
-
-                if (!daysEl) return; // Guard clause if re-rendering
+                const hoursEl = document.getElementById(`hours-${idSuffix}`);
+                const minsEl = document.getElementById(`mins-${idSuffix}`);
+                const secsEl = document.getElementById(`secs-${idSuffix}`);
+                const statusEl = document.getElementById(`status-${idSuffix}`);
+                const countdownContainer = document.getElementById(`countdown-${idSuffix}`);
 
                 if (distance < 0) {
                     if (currentMode === 'conference') {
-                        // Conference logic
                         const daysPast = Math.abs(distance) / (1000 * 60 * 60 * 24);
                         if (daysPast < 7) {
                             statusEl.className = 'status-badge status-happening';
@@ -665,7 +683,6 @@
                             countdownContainer.style.display = 'none';
                         }
                     } else {
-                        // Deadline logic
                         statusEl.className = 'status-badge status-ended';
                         statusEl.innerText = 'Deadline Passed';
                         countdownContainer.style.display = 'none';
