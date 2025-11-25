@@ -8,11 +8,11 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css">
     <style>
         :root {
-            --bg-color: #f5f5f7;
+            --bg-color: #fbfbfd;
             --text-primary: #1d1d1f;
             --text-secondary: #86868b;
-            --accent: #0066cc;
-            --card-bg: #ffffff;
+            --accent: #0071e3;
+            --card-bg: rgba(255, 255, 255, 0.7);
             --nav-bg: rgba(255, 255, 255, 0.8);
             --ease-apple: cubic-bezier(0.25, 1, 0.5, 1);
         }
@@ -24,7 +24,7 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             background-color: var(--bg-color);
             color: var(--text-primary);
             line-height: 1.5;
@@ -54,17 +54,17 @@
         }
 
         .dynamic-island {
-            background: rgba(255, 255, 255, 0.6);
-            backdrop-filter: blur(30px) saturate(180%);
-            -webkit-backdrop-filter: blur(30px) saturate(180%);
+            background: rgba(255, 255, 255, 0.65);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
             padding: 12px 24px;
             border-radius: 100px;
             display: flex;
             gap: 24px;
             pointer-events: auto;
             transition: all 0.4s var(--ease-apple);
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.4);
         }
 
         .dynamic-island a {
@@ -86,17 +86,18 @@
             align-items: center;
             justify-content: center;
             text-align: center;
-            padding: 150px 20px 80px;
+            padding: 180px 20px 100px;
             position: relative;
+            overflow: hidden;
         }
 
         .hero h1 {
-            font-size: clamp(48px, 8vw, 80px);
+            font-size: clamp(56px, 9vw, 96px);
             font-weight: 700;
             letter-spacing: -0.03em;
-            line-height: 1.1;
-            margin-bottom: 16px;
-            background: linear-gradient(180deg, #1d1d1f 0%, #424245 100%);
+            line-height: 1.05;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #1d1d1f 0%, #434344 100%);
             -webkit-background-clip: text;
             background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -106,9 +107,12 @@
         }
 
         .hero-subtitle {
-            font-size: clamp(20px, 4vw, 28px);
+            font-size: clamp(24px, 4vw, 32px);
             font-weight: 600;
-            color: var(--text-primary);
+            background: linear-gradient(90deg, #0071e3, #9b51e0);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
             margin-bottom: 24px;
             opacity: 0;
             transform: translateY(30px);
@@ -116,10 +120,10 @@
         }
 
         .hero p {
-            font-size: clamp(18px, 2.5vw, 22px);
+            font-size: clamp(18px, 2.5vw, 24px);
             color: var(--text-secondary);
             font-weight: 400;
-            max-width: 800px;
+            max-width: 700px;
             margin: 0 auto;
             opacity: 0;
             transform: translateY(30px);
@@ -128,180 +132,293 @@
 
         /* Content Sections */
         .section-container {
-            max-width: 1000px;
+            max-width: 1100px;
             margin: 0 auto;
-            padding: 60px 24px;
+            padding: 40px 24px 120px;
         }
 
         .section-title {
-            font-size: 40px;
+            font-size: 48px;
             font-weight: 700;
             text-align: center;
-            margin-bottom: 60px;
+            margin: 120px 0 60px;
             letter-spacing: -0.02em;
         }
 
-        .text-block {
-            font-size: 20px;
-            line-height: 1.6;
+        .intro-text {
+            font-size: 24px;
+            line-height: 1.5;
             color: var(--text-primary);
-            margin-bottom: 40px;
             text-align: center;
-            max-width: 800px;
-            margin-left: auto;
-            margin-right: auto;
+            max-width: 900px;
+            margin: 0 auto 100px;
+            font-weight: 500;
         }
 
-        /* Bento Grid for Sectors */
+        /* Bento Grid System */
         .bento-grid {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(12, 1fr);
             gap: 24px;
-            margin-bottom: 80px;
+            margin-bottom: 40px;
         }
 
         .bento-card {
-            background: rgba(255, 255, 255, 0.6);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.4);
-            border-radius: 30px;
-            padding: 32px;
+            background: var(--card-bg);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            border-radius: 32px;
+            padding: 40px;
+            position: relative;
+            overflow: hidden;
             transition: transform 0.4s var(--ease-apple), box-shadow 0.4s var(--ease-apple);
-            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.02);
             display: flex;
             flex-direction: column;
+            justify-content: space-between;
         }
 
         .bento-card:hover {
             transform: scale(1.02);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.06);
+            z-index: 2;
         }
 
-        .card-icon {
-            font-size: 32px;
-            margin-bottom: 20px;
+        .span-12 {
+            grid-column: span 12;
+        }
+
+        .span-8 {
+            grid-column: span 8;
+        }
+
+        .span-6 {
+            grid-column: span 6;
+        }
+
+        .span-4 {
+            grid-column: span 4;
+        }
+
+        @media (max-width: 900px) {
+
+            .span-8,
+            .span-6,
+            .span-4 {
+                grid-column: span 12;
+            }
+        }
+
+        /* Card Styles */
+        .card-label {
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: rgba(0, 0, 0, 0.5);
+            margin-bottom: 16px;
         }
 
         .card-title {
-            font-size: 24px;
+            font-size: 28px;
             font-weight: 700;
             margin-bottom: 12px;
+            line-height: 1.1;
             color: var(--text-primary);
         }
 
         .card-desc {
-            font-size: 16px;
+            font-size: 17px;
             color: var(--text-secondary);
             line-height: 1.5;
+            font-weight: 500;
         }
 
-        /* Value Add List */
-        .value-list {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 20px;
-            max-width: 800px;
-            margin: 0 auto 80px;
-        }
-
-        .value-item {
-            background: #fff;
-            padding: 20px;
-            border-radius: 16px;
-            font-weight: 600;
-            color: var(--text-primary);
-            text-align: center;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
-        }
-
-        /* Team */
-        .team-container {
-            display: flex;
-            justify-content: center;
-            gap: 40px;
-            margin-bottom: 80px;
-            flex-wrap: wrap;
-        }
-
-        .team-member {
-            text-align: center;
-        }
-
-        .team-avatar {
-            width: 120px;
-            height: 120px;
-            border-radius: 50%;
-            background: #e5e5e5;
-            margin-bottom: 16px;
-            overflow: hidden;
-            margin: 0 auto 16px;
-        }
-
-        .team-avatar img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .team-name {
-            font-size: 20px;
-            font-weight: 700;
-        }
-
-        .team-role {
-            font-size: 16px;
-            color: var(--text-secondary);
-        }
-
-        /* Contact */
-        .contact-box {
-            background: #1d1d1f;
-            color: #fff;
-            border-radius: 30px;
-            padding: 60px;
-            text-align: center;
-            margin-top: 60px;
-        }
-
-        .contact-box h3 {
-            font-size: 32px;
+        .card-icon {
+            font-size: 48px;
             margin-bottom: 20px;
         }
 
-        .contact-box p {
-            font-size: 18px;
+        /* Specialized Gradients */
+        .gradient-blue {
+            background: linear-gradient(135deg, #e0f2fe 0%, #f0f9ff 100%);
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+
+        .gradient-blue .card-title {
+            color: #0c4a6e;
+        }
+
+        .gradient-blue .card-desc {
+            color: #0369a1;
+        }
+
+        .gradient-purple {
+            background: linear-gradient(135deg, #f3e8ff 0%, #faf5ff 100%);
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+
+        .gradient-purple .card-title {
+            color: #581c87;
+        }
+
+        .gradient-purple .card-desc {
+            color: #6b21a8;
+        }
+
+        .gradient-orange {
+            background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%);
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+
+        .gradient-orange .card-title {
+            color: #7c2d12;
+        }
+
+        .gradient-orange .card-desc {
+            color: #9a3412;
+        }
+
+        .gradient-green {
+            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+
+        .gradient-green .card-title {
+            color: #14532d;
+        }
+
+        .gradient-green .card-desc {
+            color: #166534;
+        }
+
+        .card-dark {
+            background: #1d1d1f;
+            color: white;
+        }
+
+        .card-dark .card-title {
+            color: white;
+        }
+
+        .card-dark .card-desc {
+            color: #a1a1a6;
+        }
+
+        .card-dark .card-label {
             color: #86868b;
-            margin-bottom: 30px;
+        }
+
+        /* Value Add Grid */
+        .value-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+        }
+
+        .value-card {
+            background: #fff;
+            padding: 24px;
+            border-radius: 24px;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
+            transition: transform 0.2s;
+            border: 1px solid rgba(0, 0, 0, 0.03);
+        }
+
+        .value-card:hover {
+            transform: translateY(-4px);
+        }
+
+        .value-icon {
+            font-size: 32px;
+            margin-bottom: 12px;
+            display: block;
+        }
+
+        .value-text {
+            font-weight: 600;
+            font-size: 15px;
+        }
+
+        /* Team */
+        .team-card-apple {
+            background: #fff;
+            border-radius: 32px;
+            padding: 40px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+            transition: transform 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .team-card-apple:hover {
+            transform: scale(1.03);
+        }
+
+        .team-img {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin: 0 auto 24px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+        }
+
+        .team-name-lg {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .team-role-lg {
+            font-size: 16px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        /* Contact */
+        .contact-section {
+            background: linear-gradient(135deg, #000000 0%, #1d1d1f 100%);
+            border-radius: 40px;
+            padding: 80px 40px;
+            text-align: center;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .contact-section h2 {
+            font-size: 48px;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        .contact-section p {
+            font-size: 20px;
+            color: #a1a1a6;
+            margin-bottom: 40px;
             max-width: 600px;
             margin-left: auto;
             margin-right: auto;
         }
 
         .contact-btn {
-            background: #fff;
-            color: #000;
-            padding: 12px 30px;
+            background: white;
+            color: black;
+            padding: 16px 40px;
             border-radius: 100px;
+            font-size: 18px;
             font-weight: 600;
-            font-size: 16px;
             display: inline-block;
+            transition: transform 0.2s;
         }
 
         .contact-btn:hover {
+            transform: scale(1.05);
             text-decoration: none;
-            opacity: 0.9;
-        }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .bento-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .value-list {
-                grid-template-columns: 1fr;
-            }
         }
 
         /* Animations */
@@ -327,26 +444,35 @@
         .blob {
             position: absolute;
             border-radius: 50%;
-            filter: blur(80px);
-            opacity: 0.6;
-            animation: float 20s infinite ease-in-out;
+            filter: blur(100px);
+            opacity: 0.5;
+            animation: float 25s infinite ease-in-out;
         }
 
         .blob-1 {
-            top: -10%;
-            left: -10%;
-            width: 50vw;
-            height: 50vw;
-            background: radial-gradient(circle, rgba(0, 102, 204, 0.15) 0%, rgba(0, 102, 204, 0) 70%);
+            top: -20%;
+            left: -20%;
+            width: 60vw;
+            height: 60vw;
+            background: radial-gradient(circle, rgba(0, 113, 227, 0.2) 0%, rgba(0, 113, 227, 0) 70%);
         }
 
         .blob-2 {
-            bottom: -10%;
-            right: -10%;
-            width: 60vw;
-            height: 60vw;
-            background: radial-gradient(circle, rgba(50, 200, 150, 0.1) 0%, rgba(50, 200, 150, 0) 70%);
+            bottom: -20%;
+            right: -20%;
+            width: 70vw;
+            height: 70vw;
+            background: radial-gradient(circle, rgba(155, 81, 224, 0.15) 0%, rgba(155, 81, 224, 0) 70%);
             animation-delay: -5s;
+        }
+
+        .blob-3 {
+            top: 40%;
+            left: 30%;
+            width: 40vw;
+            height: 40vw;
+            background: radial-gradient(circle, rgba(52, 199, 89, 0.1) 0%, rgba(52, 199, 89, 0) 70%);
+            animation-delay: -10s;
         }
 
         @keyframes float {
@@ -357,11 +483,11 @@
             }
 
             33% {
-                transform: translate(30px, -50px) scale(1.1);
+                transform: translate(40px, -60px) scale(1.1);
             }
 
             66% {
-                transform: translate(-20px, 20px) scale(0.9);
+                transform: translate(-30px, 30px) scale(0.9);
             }
         }
     </style>
@@ -371,16 +497,14 @@
     <div class="background-blobs">
         <div class="blob blob-1"></div>
         <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
     </div>
 
     <!-- Navbar -->
     <div class="navbar-container">
         <nav class="dynamic-island">
             <a href="index.html">Home</a>
-            <a href="index.html#highlights">Highlights</a>
-            <a href="conferences.html">Conferences</a>
             <a href="hai.html">HAI Labs</a>
-            <a href="index.html#team">Team</a>
         </nav>
     </div>
 
@@ -392,102 +516,129 @@
     </section>
 
     <div class="section-container">
-        <!-- About -->
-        <div class="text-block" data-aos="fade-up">
-            HAI Labs is an early-stage investment firm and incubation platform based in Hong Kong. We back founders
-            building at the edge of AI, Crypto, and Biotech — technologies we believe will define the next decade of
-            human progress.
+
+        <!-- Intro -->
+        <div class="intro-text" data-aos="fade-up">
+            We back founders building at the edge of AI, Crypto, and Biotech — technologies we believe will define the
+            next decade of human progress.
             <br><br>
-            “HAI” reflects our core thesis: <strong>Humanity</strong>, empowered by <strong>Artificial
-                Intelligence</strong>, creating enduring <strong>Innovation</strong>. It also represents the partnership
-            of Harry and Amie, building HAI Labs as a founder-aligned, high-conviction early-stage lab.
+            <span style="color: var(--text-secondary); font-size: 20px;">“HAI” reflects our core thesis: Humanity,
+                empowered by Artificial Intelligence, creating enduring Innovation.</span>
         </div>
 
-        <!-- Investment Thesis -->
+        <!-- Investment Thesis Grid -->
         <h2 class="section-title" data-aos="fade-up">Investment Thesis</h2>
-        <div class="text-block" data-aos="fade-up">
-            We invest primarily at Pre-Seed to Seed, and selectively at Series A where we have high conviction. We are
-            globally oriented, with a strong emphasis on Asia–US cross-border opportunities and founders building from
-            Hong Kong and beyond. We invest in companies leveraging exponential technologies to reshape major systems —
-            intelligence, value networks, and life sciences.
-            <br><br>
-            <strong>We look for:</strong>
-        </div>
-        <div class="value-list" data-aos="fade-up">
-            <div class="value-item">Step-function innovation on long-term technology curves</div>
-            <div class="value-item">Technical defensibility with clear paths to productization</div>
-            <div class="value-item">Founder-market fit and capacity for rapid iteration</div>
-            <div class="value-item">Global ambition, with pragmatic execution</div>
+        <div class="bento-grid">
+            <div class="bento-card span-12" style="min-height: 200px;" data-aos="fade-up">
+                <div class="card-label">Our Focus</div>
+                <div class="card-title">Reshaping Major Systems</div>
+                <div class="card-desc">We invest in companies leveraging exponential technologies to reshape major
+                    systems — intelligence, value networks, and life sciences. Primarily Pre-Seed to Seed, with a strong
+                    emphasis on Asia–US cross-border opportunities.</div>
+            </div>
+
+            <div class="bento-card span-6 gradient-blue" data-aos="fade-up" data-aos-delay="100">
+                <div class="card-icon">🚀</div>
+                <div class="card-title">Step-Function Innovation</div>
+                <div class="card-desc">Building on long-term technology curves rather than incremental improvements.
+                </div>
+            </div>
+
+            <div class="bento-card span-6 gradient-purple" data-aos="fade-up" data-aos-delay="200">
+                <div class="card-icon">🛡️</div>
+                <div class="card-title">Technical Defensibility</div>
+                <div class="card-desc">Deep tech with clear paths to productization and moats.</div>
+            </div>
+
+            <div class="bento-card span-6 gradient-orange" data-aos="fade-up" data-aos-delay="300">
+                <div class="card-icon">⚡</div>
+                <div class="card-title">Founder-Market Fit</div>
+                <div class="card-desc">Capacity for rapid iteration and deep domain insight.</div>
+            </div>
+
+            <div class="bento-card span-6 gradient-green" data-aos="fade-up" data-aos-delay="400">
+                <div class="card-icon">🌏</div>
+                <div class="card-title">Global Ambition</div>
+                <div class="card-desc">Pragmatic execution with a vision that transcends borders.</div>
+            </div>
         </div>
 
         <!-- Focus Sectors -->
         <h2 class="section-title" data-aos="fade-up">Focus Sectors</h2>
         <div class="bento-grid">
-            <div class="bento-card" data-aos="fade-up" data-aos-delay="0">
+            <div class="bento-card span-4 card-dark" data-aos="fade-up">
                 <div class="card-icon">🤖</div>
                 <div class="card-title">Artificial Intelligence</div>
                 <div class="card-desc">Foundation models, AI-native applications, autonomous systems, and enterprise
-                    intelligence with real-world adoption.</div>
+                    intelligence.</div>
             </div>
-            <div class="bento-card" data-aos="fade-up" data-aos-delay="100">
+            <div class="bento-card span-4" style="background: #fff;" data-aos="fade-up" data-aos-delay="100">
                 <div class="card-icon">⛓️</div>
                 <div class="card-title">Crypto / Web3</div>
-                <div class="card-desc">Next-generation financial and digital infrastructure: on-chain applications,
-                    decentralized networks, privacy/security, and sustainable protocol economics.</div>
+                <div class="card-desc">Next-gen financial infrastructure, on-chain apps, privacy, and sustainable
+                    protocol economics.</div>
             </div>
-            <div class="bento-card" data-aos="fade-up" data-aos-delay="200">
+            <div class="bento-card span-4" style="background: linear-gradient(135deg, #e6fffa 0%, #ffffff 100%);"
+                data-aos="fade-up" data-aos-delay="200">
                 <div class="card-icon">🧬</div>
                 <div class="card-title">Biotech</div>
-                <div class="card-desc">Computational biology, AI-driven drug discovery, synthetic biology platforms, and
-                    data-centric life-science tooling.</div>
+                <div class="card-desc">Computational biology, AI-driven drug discovery, synthetic biology, and
+                    life-science tooling.</div>
             </div>
         </div>
 
         <!-- Value Add -->
         <h2 class="section-title" data-aos="fade-up">Value-Add</h2>
-        <div class="text-block" style="margin-bottom: 30px;" data-aos="fade-up">
-            HAI Labs is built to be an operator-minded early-stage partner. We support companies through:
-        </div>
-        <div class="value-list" data-aos="fade-up">
-            <div class="value-item">Early product & technical strategy</div>
-            <div class="value-item">Go-to-market and growth design</div>
-            <div class="value-item">Hiring and key talent access</div>
-            <div class="value-item">Capital formation and global investor network</div>
-            <div class="value-item">Ecosystem and enterprise partnerships</div>
-            <div class="value-item">Founder mentorship</div>
-        </div>
-        <div class="text-block" style="font-style: italic; font-size: 18px;" data-aos="fade-up">
-            We move early, stay close, and help founders build into category leaders.
+        <div class="value-grid" data-aos="fade-up">
+            <div class="value-card">
+                <span class="value-icon">🎯</span>
+                <span class="value-text">Product Strategy</span>
+            </div>
+            <div class="value-card">
+                <span class="value-icon">📈</span>
+                <span class="value-text">Go-to-Market</span>
+            </div>
+            <div class="value-card">
+                <span class="value-icon">👥</span>
+                <span class="value-text">Talent Access</span>
+            </div>
+            <div class="value-card">
+                <span class="value-icon">💰</span>
+                <span class="value-text">Capital Formation</span>
+            </div>
+            <div class="value-card">
+                <span class="value-icon">🤝</span>
+                <span class="value-text">Partnerships</span>
+            </div>
+            <div class="value-card">
+                <span class="value-icon">💡</span>
+                <span class="value-text">Mentorship</span>
+            </div>
         </div>
 
         <!-- Team -->
         <h2 class="section-title" data-aos="fade-up">Team</h2>
-        <div class="team-container" data-aos="fade-up">
-            <div class="team-member">
-                <div class="team-avatar">
-                    <!-- Placeholder for Harry's image, reusing me.JPG if appropriate or generic -->
-                    <img src="me.JPG" alt="Harry">
-                </div>
-                <div class="team-name">Harry</div>
-                <div class="team-role">Co-Founder</div>
+        <div class="bento-grid" style="max-width: 800px; margin: 0 auto 80px;">
+            <div class="bento-card span-6 team-card-apple" data-aos="fade-up">
+                <img src="me.JPG" alt="Harry" class="team-img">
+                <div class="team-name-lg">Harry</div>
+                <div class="team-role-lg">Co-Founder</div>
             </div>
-            <div class="team-member">
-                <div class="team-avatar">
-                    <div
-                        style="width:100%; height:100%; background:#ccc; display:flex; align-items:center; justify-content:center; color:#fff; font-size:32px;">
-                        A</div>
-                </div>
-                <div class="team-name">Amie</div>
-                <div class="team-role">Co-Founder</div>
+            <div class="bento-card span-6 team-card-apple" data-aos="fade-up" data-aos-delay="100">
+                <div class="team-img"
+                    style="background: #f5f5f7; display: flex; align-items: center; justify-content: center; font-size: 40px; color: #86868b;">
+                    A</div>
+                <div class="team-name-lg">Amie</div>
+                <div class="team-role-lg">Co-Founder</div>
             </div>
         </div>
 
         <!-- Contact -->
-        <div class="contact-box" data-aos="fade-up">
-            <h3>Contact</h3>
-            <p>If you’re building in AI, Crypto, or Biotech and looking for a high-conviction early partner, please
-                reach out.</p>
-            <a href="mailto:hello@hailabs.com" class="contact-btn">Email: hello@hailabs.com</a>
+        <div class="contact-section" data-aos="fade-up">
+            <h2>Build With Us</h2>
+            <p>If you’re building in AI, Crypto, or Biotech and looking for a high-conviction early partner, let's talk.
+            </p>
+            <a href="mailto:hello@hailabs.com" class="contact-btn">hello@hailabs.com</a>
         </div>
 
     </div>
