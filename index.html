@@ -611,11 +611,41 @@
         <nav class="dynamic-island">
             <a href="#highlights">Highlights</a>
             <a href="#research">Research</a>
-            <a href="conferences.html">Conferences</a>
+            <a href="#news">News</a>
             <a href="#opportunities">Join Us</a>
             <a href="#team">Team</a>
         </nav>
     </div>
+
+    <!-- Secondary Navbar (Top Right) -->
+    <div class="secondary-nav-container">
+        <nav class="dynamic-island secondary-nav">
+            <a href="conferences.html">Conferences</a>
+            <a href="hai.html">VC</a>
+        </nav>
+    </div>
+
+    <style>
+        .secondary-nav-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            pointer-events: none;
+        }
+
+        .secondary-nav {
+            pointer-events: auto;
+        }
+
+        @media (max-width: 768px) {
+            .secondary-nav-container {
+                top: 80px;
+                right: 50%;
+                transform: translateX(50%);
+            }
+        }
+    </style>
 
     <!-- Hero -->
     <section class="hero">
