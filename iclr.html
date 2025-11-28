@@ -267,16 +267,20 @@
 
         .review-card {
             background: #fff;
-            border: 1px solid #dadce0;
-            border-radius: 12px;
-            padding: 16px;
-            margin-top: 12px;
-            box-shadow: 0 1px 2px rgba(60, 64, 67, 0.1);
-            transition: box-shadow 0.2s;
+            border: 1px solid #e0e0e0;
+            border-radius: 16px;
+            padding: 20px;
+            margin-top: 16px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
         }
 
         .review-card:hover {
-            box-shadow: 0 2px 6px rgba(60, 64, 67, 0.15);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+            border-color: #d0d0d0;
         }
 
         .review-header {
@@ -288,14 +292,27 @@
             color: #202124;
         }
 
+        .reviewer-link {
+            color: #1a73e8;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.2s;
+        }
+
+        .reviewer-link:hover {
+            color: #1557b0;
+            text-decoration: underline;
+        }
+
         .review-score {
             background: #e8f0fe;
             color: #1967d2;
-            padding: 4px 10px;
-            border-radius: 16px;
-            font-size: 12px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 13px;
             font-weight: 600;
-            margin-left: 5px;
+            margin-left: 8px;
+            display: inline-block;
         }
 
         .loading {
@@ -386,7 +403,7 @@
                     <path
                         d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" />
                 </svg>
-                <input type="text" id="searchInput" placeholder="Enter Paper ID (e.g., 1) or Title"
+                <input type="text" id="searchInput" placeholder="Enter Paper ID"
                     onkeydown="if(event.key === 'Enter') performSearch()">
             </div>
         </div>
@@ -514,11 +531,12 @@
                         const score = review.rating !== null ? review.rating : 'N/A';
                         const confidence = review.confidence !== null ? review.confidence : 'N/A';
                         const reviewerId = review.reviewer_id ? review.reviewer_id.replace('~', '') : 'Anonymous';
+                        const reviewerLink = review.reviewer_id ? `https://openreview.net/profile?id=${review.reviewer_id}` : '#';
                         
                         html += `
                             <div class="review-card">
                                 <div class="review-header">
-                                    <span>Reviewer: ${reviewerId}</span>
+                                    <span>Reviewer: <a href="${reviewerLink}" class="reviewer-link" target="_blank">${reviewerId}</a></span>
                                     <div>
                                         <span class="review-score">Rating: ${score}</span>
                                         <span class="review-score">Conf: ${confidence}</span>
