@@ -336,7 +336,10 @@
         }
 
         .toggle-btn {
-            padding: 8px 24px;
+            padding: 8px 0;
+            /* Removed horizontal padding, using width instead */
+            width: 120px;
+            /* Fixed width for equal sizing */
             border-radius: 100px;
             border: none;
             background: transparent;
@@ -347,6 +350,10 @@
             transition: all 0.3s var(--ease-apple);
             position: relative;
             z-index: 2;
+            text-align: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
         .toggle-btn.active {
@@ -358,7 +365,8 @@
             top: 4px;
             left: 4px;
             height: calc(100% - 8px);
-            width: calc(50% - 4px);
+            width: 120px;
+            /* Fixed width to match buttons */
             background: #fff;
             border-radius: 100px;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
@@ -555,10 +563,11 @@
 
         <!-- Toggle -->
         <div class="toggle-container">
-            <div class="toggle-wrapper">
+            <div class="toggle-wrapper" style="width: fit-content;">
                 <div class="toggle-bg" id="toggle-bg"></div>
-                <button class="toggle-btn active" onclick="switchTab('today')">Today's Top 10</button>
-                <button class="toggle-btn" onclick="switchTab('recent')">Recent 3 Days</button>
+                <button class="toggle-btn active" onclick="switchTab('today')">Today</button>
+                <button class="toggle-btn" onclick="switchTab('week')">This Week</button>
+                <button class="toggle-btn" onclick="switchTab('month')">This Month</button>
             </div>
         </div>
     </div>
@@ -617,9 +626,12 @@
             if (tab === 'today') {
                 buttons[0].classList.add('active');
                 bg.style.transform = 'translateX(0)';
-            } else {
+            } else if (tab === 'week') {
                 buttons[1].classList.add('active');
                 bg.style.transform = 'translateX(100%)';
+            } else {
+                buttons[2].classList.add('active');
+                bg.style.transform = 'translateX(200%)';
             }
 
             renderPapers();
@@ -710,7 +722,14 @@
                 }
 
                 // Select data based on tab
-                const papers = currentTab === 'today' ? window.trendingPapers : (window.recentPapers || []);
+                let papers = [];
+                if (currentTab === 'today') {
+                    papers = window.trendingPapers.today || [];
+                } else if (currentTab === 'week') {
+                    papers = window.trendingPapers.week || [];
+                } else if (currentTab === 'month') {
+                    papers = window.trendingPapers.month || [];
+                }
 
                 // Update date if available
                 if (window.papersLastUpdated) {
