@@ -29,6 +29,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            transition: all 0.3s ease;
         }
 
         .logo {
@@ -38,6 +39,7 @@
             letter-spacing: -2px;
             user-select: none;
             line-height: 1;
+            transition: all 0.3s ease;
         }
 
         .logo span:nth-child(1) {
@@ -154,6 +156,9 @@
 
         .buttons {
             margin-top: 15px;
+            display: flex;
+            gap: 12px;
+            justify-content: center;
         }
 
         /* Premium Light Gray Button */
@@ -162,7 +167,7 @@
             color: #3c4043;
             border: 1px solid transparent;
             border-radius: 8px;
-            padding: 0 32px;
+            padding: 0 24px;
             font-family: 'Outfit', sans-serif;
             font-size: 15px;
             font-weight: 500;
@@ -305,14 +310,15 @@
         }
 
         .review-score {
-            background: #e8f0fe;
-            color: #1967d2;
+            color: #fff;
+            /* White text for better contrast on colored background */
             padding: 6px 12px;
             border-radius: 20px;
             font-size: 13px;
             font-weight: 600;
             margin-left: 8px;
             display: inline-block;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
         }
 
         .loading {
@@ -325,7 +331,8 @@
         /* Search mode layout */
         body.has-results {
             justify-content: flex-start;
-            padding-top: 20px;
+            padding-top: 40px;
+            /* More space on top */
             height: auto;
             background-color: #fff;
         }
@@ -333,7 +340,8 @@
         body.has-results .container {
             max-width: 100%;
             padding: 20px 30px;
-            flex-direction: row;
+            flex-direction: column;
+            /* Keep centered column layout */
             align-items: center;
             border-bottom: 1px solid #ebebeb;
             box-shadow: 0 1px 6px rgba(32, 33, 36, 0.05);
@@ -344,26 +352,29 @@
         }
 
         body.has-results .logo {
-            font-size: 2rem;
-            margin-bottom: 0;
-            margin-right: 40px;
+            font-size: 3rem;
+            /* Larger than before (was 2rem) */
+            margin-bottom: 20px;
+            margin-right: 0;
             cursor: pointer;
         }
 
         body.has-results .search-wrapper {
-            max-width: 690px;
+            max-width: 750px;
+            /* Wider search box */
             margin-bottom: 0;
-            flex-grow: 1;
+            flex-grow: 0;
+            width: 100%;
             padding: 0;
-            /* Remove glow padding in search mode */
             background: none;
         }
 
         body.has-results .search-bar {
             box-shadow: none;
             border: 1px solid #dfe1e5;
-            padding: 10px 20px;
-            height: 44px;
+            padding: 12px 24px;
+            height: 50px;
+            /* Taller */
         }
 
         body.has-results .search-bar:hover,
@@ -373,7 +384,7 @@
         }
 
         body.has-results .search-bar input {
-            font-size: 16px;
+            font-size: 18px;
         }
 
         body.has-results .buttons {
@@ -382,10 +393,9 @@
 
         body.has-results #results {
             display: block;
-            padding: 20px 30px;
+            padding: 30px 30px;
             max-width: 800px;
             margin: 0 auto;
-            /* Center results */
         }
     </style>
 </head>
@@ -409,6 +419,7 @@
         </div>
         <div class="buttons">
             <button class="search-btn" onclick="performSearch()">Search My Reviewers</button>
+            <button class="search-btn" onclick="randomSearch()">I'm Feeling Lucky</button>
         </div>
         <div id="loading" class="loading">Loading database...</div>
     </div>
@@ -421,7 +432,7 @@
 
         async function loadDatabase() {
             if (db.length > 0) return;
-            
+
             const loadingEl = document.getElementById('loading');
             loadingEl.style.display = 'block';
             loadingEl.textContent = 'Loading database...';
@@ -431,10 +442,10 @@
                 // Use the smaller, optimized file
                 const response = await fetch('iclr2026_reviews_small.jsonl');
                 if (!response.ok) throw new Error(`Failed to load data: ${response.status} ${response.statusText}`);
-                
+
                 const text = await response.text();
                 const lines = text.split('\n');
-                
+
                 db = [];
                 for (const line of lines) {
                     if (!line.trim()) continue;
@@ -444,7 +455,7 @@
                         console.error('Error parsing line', e);
                     }
                 }
-                
+
                 console.log('Database loaded:', db.length, 'entries');
                 loadingEl.style.display = 'none';
             } catch (err) {
@@ -462,6 +473,36 @@
             document.body.classList.remove('has-results');
             document.getElementById('results').innerHTML = '';
             document.getElementById('searchInput').value = '';
+        }
+
+        function getColorForRating(score) {
+            if (score === null || score === undefined || isNaN(score)) return '#9AA0A6'; // Grey for N/A
+
+            // 0 -> Green (Hue 120), 10 -> Red (Hue 0)
+            // We want to interpolate from Green to Red.
+            // Hue: 120 (Green) -> 60 (Yellow) -> 0 (Red)
+            // Formula: Hue = 120 - (score * 12)
+            // Example: Score 0 -> 120 (Green)
+            // Example: Score 5 -> 60 (Yellow)
+            // Example: Score 10 -> 0 (Red)
+
+            const hue = Math.max(0, Math.min(120, 120 - (score * 12)));
+            return `hsl(${hue}, 80%, 45%)`;
+        }
+
+        function randomSearch() {
+            if (db.length === 0) {
+                if (isLoading) alert('Database is still loading...');
+                else alert('Database failed to load.');
+                return;
+            }
+
+            const randomIndex = Math.floor(Math.random() * db.length);
+            const randomPaper = db[randomIndex];
+
+            // Set input to ID and search
+            document.getElementById('searchInput').value = randomPaper.id;
+            performSearch();
         }
 
         function performSearch() {
@@ -483,10 +524,10 @@
 
             // Search logic
             const isNumeric = /^\d+$/.test(query);
-            
+
             const results = db.filter(item => {
-                const subNum = (item.id || '').toString(); 
-                
+                const subNum = (item.id || '').toString();
+
                 // Strict match for numeric queries
                 if (isNumeric) {
                     return subNum === query;
@@ -494,10 +535,10 @@
 
                 // Broad match for text queries
                 const subId = (item.submission_id || '').toLowerCase();
-                
+
                 // Check if query matches ID or Number (partial match allowed for non-numeric)
                 if (subId.includes(query) || subNum === query) return true;
-                
+
                 // Check authors
                 if (item.authors && item.authors.some(a => (a || '').toLowerCase().includes(query))) return true;
 
@@ -512,16 +553,19 @@
             results.forEach(item => {
                 const div = document.createElement('div');
                 div.className = 'result-item';
-                
-                const title = item.submission_id; 
+
+                const title = item.submission_id;
                 const authors = item.authors ? item.authors.map(a => (a || '').replace('~', '').replace(/[0-9]+$/, '')).join(', ') : 'Unknown Authors';
                 const avgRating = item.avg_rating !== null ? item.avg_rating.toFixed(2) : 'N/A';
-                
+                const avgColor = getColorForRating(item.avg_rating);
+
                 let html = `
                     <div class="result-url">ICLR 2026 <span>› Submission ${item.id}</span></div>
                     <a href="#" class="result-title">${title}</a>
                     <div class="result-snippet">Authors: ${authors}</div>
-                    <div class="result-snippet" style="margin-top:5px; color:#1a0dab;"><strong>Average Rating: ${avgRating}</strong></div>
+                    <div class="result-snippet" style="margin-top:5px; color:#1a0dab;">
+                        <strong>Average Rating: <span style="background-color:${avgColor}; color:white; padding:2px 8px; border-radius:12px;">${avgRating}</span></strong>
+                    </div>
                 `;
 
                 // Add reviews
@@ -532,14 +576,15 @@
                         const confidence = review.confidence !== null ? review.confidence : 'N/A';
                         const reviewerId = review.reviewer_id ? review.reviewer_id.replace('~', '') : 'Anonymous';
                         const reviewerLink = review.reviewer_id ? `https://openreview.net/profile?id=${review.reviewer_id}` : '#';
-                        
+                        const scoreColor = getColorForRating(review.rating);
+
                         html += `
                             <div class="review-card">
                                 <div class="review-header">
                                     <span>Reviewer: <a href="${reviewerLink}" class="reviewer-link" target="_blank">${reviewerId}</a></span>
                                     <div>
-                                        <span class="review-score">Rating: ${score}</span>
-                                        <span class="review-score">Conf: ${confidence}</span>
+                                        <span class="review-score" style="background-color: ${scoreColor}">Rating: ${score}</span>
+                                        <span class="review-score" style="background-color: #e8f0fe; color: #1967d2;">Conf: ${confidence}</span>
                                     </div>
                                 </div>
                             </div>
