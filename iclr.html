@@ -478,15 +478,13 @@
         function getColorForRating(score) {
             if (score === null || score === undefined || isNaN(score)) return '#9AA0A6'; // Grey for N/A
 
-            // 0 -> Green (Hue 120), 10 -> Red (Hue 0)
-            // We want to interpolate from Green to Red.
-            // Hue: 120 (Green) -> 60 (Yellow) -> 0 (Red)
-            // Formula: Hue = 120 - (score * 12)
-            // Example: Score 0 -> 120 (Green)
+            // 0 -> Red (Hue 0), 10 -> Green (Hue 120)
+            // Formula: Hue = score * 12
+            // Example: Score 0 -> 0 (Red)
             // Example: Score 5 -> 60 (Yellow)
-            // Example: Score 10 -> 0 (Red)
+            // Example: Score 10 -> 120 (Green)
 
-            const hue = Math.max(0, Math.min(120, 120 - (score * 12)));
+            const hue = Math.max(0, Math.min(120, score * 12));
             return `hsl(${hue}, 80%, 45%)`;
         }
 
