@@ -1,0 +1,32 @@
+name: Update Trending Papers
+
+on:
+  schedule:
+    - cron: '0 0 * * *' # Runs daily at midnight UTC
+  workflow_dispatch: # Allows manual trigger
+
+jobs:
+  update-papers:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      - name: Run update script
+        run: |
+          chmod +x update_papers.sh
+          ./update_papers.sh
+
+      - name: Commit and push changes
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git add papers.json papers_data.js
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Update trending papers [skip ci]" && git push)
