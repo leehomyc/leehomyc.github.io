@@ -24,13 +24,17 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background: linear-gradient(135deg, #FFF6E5 0%, #FFE3E3 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            background-image: url('papers_bg.png');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            background-repeat: no-repeat;
             color: var(--text-primary);
-            line-height: 1.5;
-            overflow-x: hidden;
-            -webkit-font-smoothing: antialiased;
+            margin: 0;
+            padding: 0;
             min-height: 100vh;
+            overflow-x: hidden;
         }
 
         a {
@@ -309,6 +313,222 @@
                 transform: translate(-30px, 30px) scale(0.9);
             }
         }
+
+        /* Toggle Switch */
+        .toggle-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 30px;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeUp 1s var(--ease-apple) 0.6s forwards;
+        }
+
+        .toggle-wrapper {
+            background: rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 100px;
+            padding: 4px;
+            display: flex;
+            position: relative;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .toggle-btn {
+            padding: 8px 24px;
+            border-radius: 100px;
+            border: none;
+            background: transparent;
+            color: var(--text-secondary);
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s var(--ease-apple);
+            position: relative;
+            z-index: 2;
+        }
+
+        .toggle-btn.active {
+            color: var(--text-primary);
+        }
+
+        .toggle-bg {
+            position: absolute;
+            top: 4px;
+            left: 4px;
+            height: calc(100% - 8px);
+            width: calc(50% - 4px);
+            background: #fff;
+            border-radius: 100px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s var(--ease-apple);
+            z-index: 1;
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.4s var(--ease-apple);
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            width: 90%;
+            max-width: 800px;
+            max-height: 85vh;
+            border-radius: 24px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            transform: scale(0.95) translateY(20px);
+            transition: all 0.4s var(--ease-apple);
+            overflow-y: auto;
+            position: relative;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+
+        .modal-overlay.active .modal-content {
+            transform: scale(1) translateY(0);
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 24px;
+            right: 24px;
+            background: rgba(0, 0, 0, 0.05);
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            color: var(--text-secondary);
+        }
+
+        .modal-close:hover {
+            background: rgba(0, 0, 0, 0.1);
+            color: var(--text-primary);
+        }
+
+        .modal-title {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            line-height: 1.3;
+            color: var(--text-primary);
+        }
+
+        .modal-authors {
+            font-size: 16px;
+            color: var(--text-secondary);
+            margin-bottom: 24px;
+            line-height: 1.5;
+        }
+
+        .modal-body {
+            display: flex;
+            gap: 30px;
+            flex-direction: column;
+        }
+
+        .modal-thumbnail {
+            width: 100%;
+            height: auto;
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            object-fit: cover;
+            max-height: 300px;
+        }
+
+        .modal-abstract {
+            font-size: 16px;
+            line-height: 1.7;
+            color: var(--text-primary);
+            opacity: 0.9;
+        }
+
+        .modal-actions {
+            margin-top: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .lang-toggle {
+            display: flex;
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: 100px;
+            padding: 4px;
+        }
+
+        .lang-btn {
+            padding: 6px 16px;
+            border-radius: 100px;
+            border: none;
+            background: transparent;
+            color: var(--text-secondary);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .lang-btn.active {
+            background: white;
+            color: var(--text-primary);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .btn-primary {
+            background: #007AFF;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 100px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 15px;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 12px rgba(0, 122, 255, 0.2);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0, 122, 255, 0.3);
+        }
+
+        @media (min-width: 768px) {
+            .modal-body {
+                flex-direction: row;
+            }
+
+            .modal-thumbnail {
+                width: 300px;
+                flex-shrink: 0;
+            }
+        }
     </style>
 </head>
 
@@ -332,6 +552,15 @@
         <h1>Trending Papers</h1>
         <div id="last-updated" class="hero-subtitle" style="font-size: 24px; opacity: 0.8; margin-top: 10px;">Loading
             date...</div>
+
+        <!-- Toggle -->
+        <div class="toggle-container">
+            <div class="toggle-wrapper">
+                <div class="toggle-bg" id="toggle-bg"></div>
+                <button class="toggle-btn active" onclick="switchTab('today')">Today's Top 10</button>
+                <button class="toggle-btn" onclick="switchTab('recent')">Recent 3 Days</button>
+            </div>
+        </div>
     </div>
 
     <div class="section-container">
@@ -349,6 +578,21 @@
             via Hugging Face & AlphaXiv.</p>
     </footer>
 
+    <!-- Modal -->
+    <div class="modal-overlay" id="paper-modal" onclick="closeModal(event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <button class="modal-close" onclick="closeModal()">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M1 1L13 13M1 13L13 1" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                </svg>
+            </button>
+            <div id="modal-content-inner">
+                <!-- Content injected via JS -->
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
     <script src="papers_data.js"></script>
     <script>
@@ -359,15 +603,114 @@
             mirror: true
         });
 
+        let currentTab = 'today';
+
+        function switchTab(tab) {
+            if (currentTab === tab) return;
+            currentTab = tab;
+
+            // Update Toggle UI
+            const buttons = document.querySelectorAll('.toggle-btn');
+            const bg = document.getElementById('toggle-bg');
+
+            buttons.forEach(btn => btn.classList.remove('active'));
+            if (tab === 'today') {
+                buttons[0].classList.add('active');
+                bg.style.transform = 'translateX(0)';
+            } else {
+                buttons[1].classList.add('active');
+                bg.style.transform = 'translateX(100%)';
+            }
+
+            renderPapers();
+        }
+
+        function openModal(paper) {
+            const modal = document.getElementById('paper-modal');
+            const content = document.getElementById('modal-content-inner');
+            const authors = paper.authors.map(a => a.name).join(', ');
+            const abstractEn = paper.summary.replace(/\n/g, '<br>');
+            const abstractZh = (paper.summary_zh || 'Translation not available.').replace(/\n/g, '<br>');
+            const abstractSimple = paper.summary_simple || 'Summary not available.';
+            const paperId = paper.id;
+            const thumbnail = paper.thumbnail;
+            const alphaXivUrl = `https://alphaxiv.org/abs/${paperId}`;
+
+            let thumbnailHtml = '';
+            if (thumbnail) {
+                thumbnailHtml = `<img src="${thumbnail}" class="modal-thumbnail" alt="${paper.title}">`;
+            }
+
+            content.innerHTML = `
+                <div class="modal-title">${paper.title}</div>
+                <div class="modal-authors">${authors}</div>
+                <div class="modal-body">
+                    ${thumbnailHtml}
+                    <div style="flex: 1;">
+                        <div class="modal-abstract" id="modal-abstract-text">${abstractEn}</div>
+                        <div class="modal-actions">
+                            <div class="lang-toggle">
+                                <button class="lang-btn active" onclick="switchLang('en', this)">English</button>
+                                <button class="lang-btn" onclick="switchLang('zh', this)">中文</button>
+                                <button class="lang-btn" onclick="switchLang('simple', this)">Summary</button>
+                            </div>
+                            <a href="${alphaXivUrl}" target="_blank" class="btn-primary">Read Paper</a>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Store translations on the modal element for easy access
+            modal.dataset.abstractEn = abstractEn;
+            modal.dataset.abstractZh = abstractZh;
+            modal.dataset.abstractSimple = abstractSimple;
+
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden'; // Prevent background scrolling
+        }
+
+        function switchLang(lang, btn) {
+            const modal = document.getElementById('paper-modal');
+            const abstractText = document.getElementById('modal-abstract-text');
+
+            // Update text
+            if (lang === 'en') {
+                abstractText.innerHTML = modal.dataset.abstractEn;
+            } else if (lang === 'zh') {
+                abstractText.innerHTML = modal.dataset.abstractZh;
+            } else if (lang === 'simple') {
+                abstractText.innerHTML = modal.dataset.abstractSimple;
+            }
+
+            // Update buttons
+            const btns = btn.parentElement.querySelectorAll('.lang-btn');
+            btns.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+        }
+
+        function closeModal(event) {
+            const modal = document.getElementById('paper-modal');
+            modal.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        // Close on Escape key
+        document.addEventListener('keydown', function (event) {
+            if (event.key === 'Escape') {
+                closeModal();
+            }
+        });
+
         function renderPapers() {
             const grid = document.getElementById('papers-grid');
             try {
                 // Data loaded from papers_data.js
-                if (typeof window.trendingPapers === 'undefined' || !window.trendingPapers) {
+                if (typeof window.trendingPapers === 'undefined') {
                     throw new Error('Papers data not found');
                 }
 
-                const papers = window.trendingPapers;
+                // Select data based on tab
+                const papers = currentTab === 'today' ? window.trendingPapers : (window.recentPapers || []);
 
                 // Update date if available
                 if (window.papersLastUpdated) {
@@ -377,20 +720,29 @@
 
                 grid.innerHTML = ''; // Clear loading state
 
+                if (papers.length === 0) {
+                    grid.innerHTML = `
+                        <div class="bento-card span-12" style="text-align: center; justify-content: center;">
+                            <div class="card-title">No papers found for this selection.</div>
+                        </div>
+                    `;
+                    return;
+                }
+
                 papers.forEach((item, index) => {
                     const paper = item.paper;
                     const title = paper.title;
                     const authors = paper.authors.map(a => a.name).join(', ');
                     const abstract = paper.summary.replace(/\n/g, ' ');
-                    const paperId = paper.id;
-                    const thumbnail = paper.thumbnail;
-                    const alphaXivUrl = `https://alphaxiv.org/abs/${paperId}`;
 
                     const card = document.createElement('div');
                     card.className = 'bento-card span-12';
                     card.setAttribute('data-aos', 'zoom-in-up');
-                    card.setAttribute('data-aos-delay', index * 100);
-                    card.onclick = () => window.open(alphaXivUrl, '_blank');
+                    card.setAttribute('data-aos-delay', index * 50); // Faster delay
+
+                    // Pass the full paper object to openModal
+                    // We need to attach the event listener properly to avoid closure issues if we just passed 'paper' directly in onclick string
+                    card.onclick = () => openModal(paper);
 
                     // Liquid Glass Gradients
                     const gradients = [
