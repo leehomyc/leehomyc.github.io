@@ -5,9 +5,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ICLR Review Search</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Outfit', sans-serif;
             margin: 0;
             padding: 0;
             display: flex;
@@ -15,20 +18,26 @@
             height: 100vh;
             align-items: center;
             justify-content: center;
+            background-color: #fff;
         }
 
         .container {
             text-align: center;
             width: 100%;
-            max-width: 600px;
+            max-width: 680px;
             padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
         .logo {
-            font-size: 5rem;
-            font-weight: bold;
-            margin-bottom: 20px;
-            letter-spacing: -3px;
+            font-size: 6rem;
+            font-weight: 700;
+            margin-bottom: 40px;
+            letter-spacing: -2px;
+            user-select: none;
+            line-height: 1;
         }
 
         .logo span:nth-child(1) {
@@ -55,58 +64,145 @@
             color: #EA4335;
         }
 
+        .logo span:nth-child(7) {
+            color: #4285F4;
+        }
+
+        .logo span:nth-child(8) {
+            color: #EA4335;
+        }
+
+        .logo span:nth-child(9) {
+            color: #FBBC05;
+        }
+
+        .logo span:nth-child(10) {
+            color: #34A853;
+        }
+
+        .search-wrapper {
+            width: 100%;
+            position: relative;
+            margin-bottom: 35px;
+            padding: 3px;
+            /* Space for the glow */
+            border-radius: 34px;
+            background: transparent;
+            transition: all 0.3s ease;
+        }
+
+        /* Colorful glowing animation */
+        .search-wrapper:hover,
+        .search-wrapper:focus-within {
+            background: linear-gradient(90deg, #4285F4, #EA4335, #FBBC05, #34A853, #4285F4);
+            background-size: 400% 400%;
+            animation: glowing 3s ease infinite;
+        }
+
+        @keyframes glowing {
+            0% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
         .search-bar {
             width: 100%;
             display: flex;
             align-items: center;
             border: 1px solid #dfe1e5;
-            border-radius: 24px;
-            padding: 10px 20px;
+            border-radius: 30px;
+            padding: 16px 28px;
             box-shadow: 0 1px 6px rgba(32, 33, 36, .28);
-            transition: box-shadow 200ms cubic-bezier(0.4, 0.0, 0.2, 1);
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            box-sizing: border-box;
+            background: #fff;
+            position: relative;
+            z-index: 1;
         }
 
-        .search-bar:hover,
-        .search-bar:focus-within {
-            box-shadow: 0 1px 6px rgba(32, 33, 36, .28), 0 1px 6px rgba(32, 33, 36, .28);
-            /* stronger shadow */
-            border-color: rgba(223, 225, 229, 0);
+        /* Hide border when glowing */
+        .search-wrapper:hover .search-bar,
+        .search-wrapper:focus-within .search-bar {
+            border-color: transparent;
+            box-shadow: none;
+        }
+
+        .search-bar svg {
+            fill: #9AA0A6;
+            margin-right: 18px;
+            width: 24px;
+            height: 24px;
         }
 
         .search-bar input {
             flex-grow: 1;
             border: none;
             outline: none;
-            font-size: 16px;
-            margin-left: 10px;
+            font-size: 18px;
+            font-family: inherit;
+            color: #202124;
+            font-weight: 400;
         }
 
         .buttons {
-            margin-top: 30px;
+            margin-top: 15px;
         }
 
-        .buttons button {
-            background-color: #f8f9fa;
-            border: 1px solid #f8f9fa;
-            border-radius: 4px;
+        /* Premium Light Gray Button */
+        .search-btn {
+            background-color: #f1f3f4;
             color: #3c4043;
-            font-family: arial, sans-serif;
-            font-size: 14px;
-            margin: 11px 4px;
-            padding: 0 16px;
-            line-height: 27px;
-            height: 36px;
-            min-width: 54px;
-            text-align: center;
+            border: 1px solid transparent;
+            border-radius: 8px;
+            padding: 0 32px;
+            font-family: 'Outfit', sans-serif;
+            font-size: 15px;
+            font-weight: 500;
+            height: 48px;
+            line-height: 48px;
             cursor: pointer;
-            user-select: none;
+            transition: all 0.2s ease;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+            position: relative;
+            overflow: hidden;
         }
 
-        .buttons button:hover {
-            box-shadow: 0 1px 1px rgba(0, 0, 0, .1);
-            background-color: #f8f9fa;
-            border: 1px solid #dadce0;
+        .search-btn:hover {
+            background-color: #e8eaed;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
+            transform: translateY(-1px);
             color: #202124;
+            border-color: #dadce0;
+        }
+
+        .search-btn:active {
+            background-color: #dadce0;
+            box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+            transform: translateY(0);
+        }
+
+        /* Light animation on button hover */
+        .search-btn::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.8), transparent);
+            transition: 0.5s;
+        }
+
+        .search-btn:hover::after {
+            left: 100%;
         }
 
         #results {
@@ -115,21 +211,35 @@
             max-width: 800px;
             text-align: left;
             display: none;
-            /* Hidden by default */
+            padding-bottom: 50px;
         }
 
         .result-item {
             margin-bottom: 30px;
             border-bottom: 1px solid #eee;
             padding-bottom: 20px;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .result-title {
             color: #1a0dab;
-            font-size: 20px;
+            font-size: 22px;
             text-decoration: none;
             display: block;
-            margin-bottom: 5px;
+            margin-bottom: 6px;
+            font-weight: 500;
         }
 
         .result-title:hover {
@@ -137,81 +247,116 @@
         }
 
         .result-url {
-            color: #006621;
+            color: #202124;
             font-size: 14px;
-            margin-bottom: 5px;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+        }
+
+        .result-url span {
+            color: #5f6368;
+            margin-left: 5px;
         }
 
         .result-snippet {
-            color: #545454;
+            color: #4d5156;
             font-size: 14px;
-            line-height: 1.5;
+            line-height: 1.58;
         }
 
         .review-card {
             background: #fff;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            padding: 15px;
-            margin-top: 10px;
+            border: 1px solid #dadce0;
+            border-radius: 12px;
+            padding: 16px;
+            margin-top: 12px;
+            box-shadow: 0 1px 2px rgba(60, 64, 67, 0.1);
+            transition: box-shadow 0.2s;
+        }
+
+        .review-card:hover {
+            box-shadow: 0 2px 6px rgba(60, 64, 67, 0.15);
         }
 
         .review-header {
-            font-weight: bold;
-            margin-bottom: 10px;
+            font-weight: 500;
+            margin-bottom: 12px;
             display: flex;
             justify-content: space-between;
+            align-items: center;
+            color: #202124;
         }
 
         .review-score {
             background: #e8f0fe;
             color: #1967d2;
-            padding: 2px 6px;
-            border-radius: 4px;
+            padding: 4px 10px;
+            border-radius: 16px;
             font-size: 12px;
-        }
-
-        .review-section {
-            margin-top: 8px;
-        }
-
-        .review-section-title {
-            font-weight: bold;
-            font-size: 0.9em;
-            color: #333;
+            font-weight: 600;
+            margin-left: 5px;
         }
 
         .loading {
             margin-top: 20px;
-            color: #666;
+            color: #5f6368;
+            font-size: 14px;
             display: none;
         }
 
-        /* Search mode layout (move to top) */
+        /* Search mode layout */
         body.has-results {
             justify-content: flex-start;
-            padding-top: 30px;
+            padding-top: 20px;
             height: auto;
+            background-color: #fff;
         }
 
         body.has-results .container {
-            max-width: 800px;
-            display: flex;
+            max-width: 100%;
+            padding: 20px 30px;
+            flex-direction: row;
             align-items: center;
-            padding-bottom: 0;
+            border-bottom: 1px solid #ebebeb;
+            box-shadow: 0 1px 6px rgba(32, 33, 36, 0.05);
+            position: sticky;
+            top: 0;
+            background: #fff;
+            z-index: 100;
         }
 
         body.has-results .logo {
             font-size: 2rem;
             margin-bottom: 0;
-            margin-right: 30px;
+            margin-right: 40px;
             cursor: pointer;
         }
 
+        body.has-results .search-wrapper {
+            max-width: 690px;
+            margin-bottom: 0;
+            flex-grow: 1;
+            padding: 0;
+            /* Remove glow padding in search mode */
+            background: none;
+        }
+
         body.has-results .search-bar {
-            max-width: 600px;
             box-shadow: none;
             border: 1px solid #dfe1e5;
+            padding: 10px 20px;
+            height: 44px;
+        }
+
+        body.has-results .search-bar:hover,
+        body.has-results .search-bar:focus-within {
+            box-shadow: 0 2px 5px rgba(32, 33, 36, 0.1);
+            transform: none;
+        }
+
+        body.has-results .search-bar input {
+            font-size: 16px;
         }
 
         body.has-results .buttons {
@@ -220,7 +365,10 @@
 
         body.has-results #results {
             display: block;
-            padding: 20px;
+            padding: 20px 30px;
+            max-width: 800px;
+            margin: 0 auto;
+            /* Center results */
         }
     </style>
 </head>
@@ -232,18 +380,18 @@
             <span>I</span><span>C</span><span>L</span><span>R</span><span>
             </span><span>S</span><span>e</span><span>a</span><span>r</span><span>c</span><span>h</span>
         </div>
-        <div class="search-bar">
-            <svg focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20px" height="20px">
-                <path
-                    d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"
-                    fill="#9AA0A6" />
-            </svg>
-            <input type="text" id="searchInput" placeholder="Enter Paper ID (e.g., 1) or Title"
-                onkeydown="if(event.key === 'Enter') performSearch()">
+        <div class="search-wrapper">
+            <div class="search-bar">
+                <svg focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                    <path
+                        d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" />
+                </svg>
+                <input type="text" id="searchInput" placeholder="Enter Paper ID (e.g., 1) or Title"
+                    onkeydown="if(event.key === 'Enter') performSearch()">
+            </div>
         </div>
         <div class="buttons">
-            <button onclick="performSearch()">Google Search</button>
-            <button onclick="performSearch(true)">I'm Feeling Lucky</button>
+            <button class="search-btn" onclick="performSearch()">Search My Reviewers</button>
         </div>
         <div id="loading" class="loading">Loading database...</div>
     </div>
@@ -256,7 +404,7 @@
 
         async function loadDatabase() {
             if (db.length > 0) return;
-
+            
             const loadingEl = document.getElementById('loading');
             loadingEl.style.display = 'block';
             loadingEl.textContent = 'Loading database...';
@@ -266,10 +414,10 @@
                 // Use the smaller, optimized file
                 const response = await fetch('iclr2026_reviews_small.jsonl');
                 if (!response.ok) throw new Error(`Failed to load data: ${response.status} ${response.statusText}`);
-
+                
                 const text = await response.text();
                 const lines = text.split('\n');
-
+                
                 db = [];
                 for (const line of lines) {
                     if (!line.trim()) continue;
@@ -279,7 +427,7 @@
                         console.error('Error parsing line', e);
                     }
                 }
-
+                
                 console.log('Database loaded:', db.length, 'entries');
                 loadingEl.style.display = 'none';
             } catch (err) {
@@ -299,7 +447,7 @@
             document.getElementById('searchInput').value = '';
         }
 
-        function performSearch(lucky = false) {
+        function performSearch() {
             const query = document.getElementById('searchInput').value.trim().toLowerCase();
             if (!query) return;
 
@@ -317,13 +465,22 @@
             resultsContainer.innerHTML = '';
 
             // Search logic
+            const isNumeric = /^\d+$/.test(query);
+            
             const results = db.filter(item => {
+                const subNum = (item.id || '').toString(); 
+                
+                // Strict match for numeric queries
+                if (isNumeric) {
+                    return subNum === query;
+                }
+
+                // Broad match for text queries
                 const subId = (item.submission_id || '').toLowerCase();
-                const subNum = (item.id || '').toString(); // Note: 'id' in small jsonl corresponds to submission_number
-
-                // Check if query matches ID or Number
+                
+                // Check if query matches ID or Number (partial match allowed for non-numeric)
                 if (subId.includes(query) || subNum === query) return true;
-
+                
                 // Check authors
                 if (item.authors && item.authors.some(a => (a || '').toLowerCase().includes(query))) return true;
 
@@ -335,19 +492,16 @@
                 return;
             }
 
-            // I'm Feeling Lucky: Show only the first result
-            const displayResults = lucky ? [results[0]] : results;
-
-            displayResults.forEach(item => {
+            results.forEach(item => {
                 const div = document.createElement('div');
                 div.className = 'result-item';
-
-                const title = item.submission_id;
+                
+                const title = item.submission_id; 
                 const authors = item.authors ? item.authors.map(a => (a || '').replace('~', '').replace(/[0-9]+$/, '')).join(', ') : 'Unknown Authors';
                 const avgRating = item.avg_rating !== null ? item.avg_rating.toFixed(2) : 'N/A';
-
+                
                 let html = `
-                    <div class="result-url">ICLR 2026 > Submission ${item.id}</div>
+                    <div class="result-url">ICLR 2026 <span>› Submission ${item.id}</span></div>
                     <a href="#" class="result-title">${title}</a>
                     <div class="result-snippet">Authors: ${authors}</div>
                     <div class="result-snippet" style="margin-top:5px; color:#1a0dab;"><strong>Average Rating: ${avgRating}</strong></div>
@@ -360,7 +514,7 @@
                         const score = review.rating !== null ? review.rating : 'N/A';
                         const confidence = review.confidence !== null ? review.confidence : 'N/A';
                         const reviewerId = review.reviewer_id ? review.reviewer_id.replace('~', '') : 'Anonymous';
-
+                        
                         html += `
                             <div class="review-card">
                                 <div class="review-header">
