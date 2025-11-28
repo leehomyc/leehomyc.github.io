@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ICLR Review Search</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            text-align: center;
+            width: 100%;
+            max-width: 600px;
+            padding: 20px;
+        }
+
+        .logo {
+            font-size: 5rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+            letter-spacing: -3px;
+        }
+
+        .logo span:nth-child(1) {
+            color: #4285F4;
+        }
+
+        .logo span:nth-child(2) {
+            color: #EA4335;
+        }
+
+        .logo span:nth-child(3) {
+            color: #FBBC05;
+        }
+
+        .logo span:nth-child(4) {
+            color: #4285F4;
+        }
+
+        .logo span:nth-child(5) {
+            color: #34A853;
+        }
+
+        .logo span:nth-child(6) {
+            color: #EA4335;
+        }
+
+        .search-bar {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            border: 1px solid #dfe1e5;
+            border-radius: 24px;
+            padding: 10px 20px;
+            box-shadow: 0 1px 6px rgba(32, 33, 36, .28);
+            transition: box-shadow 200ms cubic-bezier(0.4, 0.0, 0.2, 1);
+        }
+
+        .search-bar:hover,
+        .search-bar:focus-within {
+            box-shadow: 0 1px 6px rgba(32, 33, 36, .28), 0 1px 6px rgba(32, 33, 36, .28);
+            /* stronger shadow */
+            border-color: rgba(223, 225, 229, 0);
+        }
+
+        .search-bar input {
+            flex-grow: 1;
+            border: none;
+            outline: none;
+            font-size: 16px;
+            margin-left: 10px;
+        }
+
+        .buttons {
+            margin-top: 30px;
+        }
+
+        .buttons button {
+            background-color: #f8f9fa;
+            border: 1px solid #f8f9fa;
+            border-radius: 4px;
+            color: #3c4043;
+            font-family: arial, sans-serif;
+            font-size: 14px;
+            margin: 11px 4px;
+            padding: 0 16px;
+            line-height: 27px;
+            height: 36px;
+            min-width: 54px;
+            text-align: center;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .buttons button:hover {
+            box-shadow: 0 1px 1px rgba(0, 0, 0, .1);
+            background-color: #f8f9fa;
+            border: 1px solid #dadce0;
+            color: #202124;
+        }
+
+        #results {
+            margin-top: 40px;
+            width: 100%;
+            max-width: 800px;
+            text-align: left;
+            display: none;
+            /* Hidden by default */
+        }
+
+        .result-item {
+            margin-bottom: 30px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 20px;
+        }
+
+        .result-title {
+            color: #1a0dab;
+            font-size: 20px;
+            text-decoration: none;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .result-title:hover {
+            text-decoration: underline;
+        }
+
+        .result-url {
+            color: #006621;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+
+        .result-snippet {
+            color: #545454;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .review-card {
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 10px;
+        }
+
+        .review-header {
+            font-weight: bold;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .review-score {
+            background: #e8f0fe;
+            color: #1967d2;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+
+        .review-section {
+            margin-top: 8px;
+        }
+
+        .review-section-title {
+            font-weight: bold;
+            font-size: 0.9em;
+            color: #333;
+        }
+
+        .loading {
+            margin-top: 20px;
+            color: #666;
+            display: none;
+        }
+
+        /* Search mode layout (move to top) */
+        body.has-results {
+            justify-content: flex-start;
+            padding-top: 30px;
+            height: auto;
+        }
+
+        body.has-results .container {
+            max-width: 800px;
+            display: flex;
+            align-items: center;
+            padding-bottom: 0;
+        }
+
+        body.has-results .logo {
+            font-size: 2rem;
+            margin-bottom: 0;
+            margin-right: 30px;
+            cursor: pointer;
+        }
+
+        body.has-results .search-bar {
+            max-width: 600px;
+            box-shadow: none;
+            border: 1px solid #dfe1e5;
+        }
+
+        body.has-results .buttons {
+            display: none;
+        }
+
+        body.has-results #results {
+            display: block;
+            padding: 20px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <div class="logo" onclick="resetSearch()">
+            <span>I</span><span>C</span><span>L</span><span>R</span><span>
+            </span><span>S</span><span>e</span><span>a</span><span>r</span><span>c</span><span>h</span>
+        </div>
+        <div class="search-bar">
+            <svg focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20px" height="20px">
+                <path
+                    d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"
+                    fill="#9AA0A6" />
+            </svg>
+            <input type="text" id="searchInput" placeholder="Enter Paper ID (e.g., 1) or Title"
+                onkeydown="if(event.key === 'Enter') performSearch()">
+        </div>
+        <div class="buttons">
+            <button onclick="performSearch()">Google Search</button>
+            <button onclick="performSearch(true)">I'm Feeling Lucky</button>
+        </div>
+        <div id="loading" class="loading">Loading database...</div>
+    </div>
+
+    <div id="results"></div>
+
+    <script>
+        let db = [];
+        let isLoading = false;
+
+        async function loadDatabase() {
+            if (db.length > 0) return;
+
+            const loadingEl = document.getElementById('loading');
+            loadingEl.style.display = 'block';
+            loadingEl.textContent = 'Loading database...';
+            isLoading = true;
+
+            try {
+                // Use the smaller, optimized file
+                const response = await fetch('iclr2026_reviews_small.jsonl');
+                if (!response.ok) throw new Error(`Failed to load data: ${response.status} ${response.statusText}`);
+
+                const text = await response.text();
+                const lines = text.split('\n');
+
+                db = [];
+                for (const line of lines) {
+                    if (!line.trim()) continue;
+                    try {
+                        db.push(JSON.parse(line));
+                    } catch (e) {
+                        console.error('Error parsing line', e);
+                    }
+                }
+
+                console.log('Database loaded:', db.length, 'entries');
+                loadingEl.style.display = 'none';
+            } catch (err) {
+                console.error(err);
+                loadingEl.innerHTML = `Error loading database: ${err.message}.<br>Note: This may fail if opening locally via file:// due to CORS. Please host on a server.`;
+            } finally {
+                isLoading = false;
+            }
+        }
+
+        // Load immediately
+        loadDatabase();
+
+        function resetSearch() {
+            document.body.classList.remove('has-results');
+            document.getElementById('results').innerHTML = '';
+            document.getElementById('searchInput').value = '';
+        }
+
+        function performSearch(lucky = false) {
+            const query = document.getElementById('searchInput').value.trim().toLowerCase();
+            if (!query) return;
+
+            if (db.length === 0 && isLoading) {
+                alert('Database is still loading, please wait...');
+                return;
+            }
+            if (db.length === 0 && !isLoading) {
+                alert('Database failed to load. Please check the error message.');
+                return;
+            }
+
+            document.body.classList.add('has-results');
+            const resultsContainer = document.getElementById('results');
+            resultsContainer.innerHTML = '';
+
+            // Search logic
+            const results = db.filter(item => {
+                const subId = (item.submission_id || '').toLowerCase();
+                const subNum = (item.id || '').toString(); // Note: 'id' in small jsonl corresponds to submission_number
+
+                // Check if query matches ID or Number
+                if (subId.includes(query) || subNum === query) return true;
+
+                // Check authors
+                if (item.authors && item.authors.some(a => (a || '').toLowerCase().includes(query))) return true;
+
+                return false;
+            });
+
+            if (results.length === 0) {
+                resultsContainer.innerHTML = '<p>No results found. Try searching by Submission ID (e.g., "1") or Author ID.</p>';
+                return;
+            }
+
+            // I'm Feeling Lucky: Show only the first result
+            const displayResults = lucky ? [results[0]] : results;
+
+            displayResults.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'result-item';
+
+                const title = item.submission_id;
+                const authors = item.authors ? item.authors.map(a => (a || '').replace('~', '').replace(/[0-9]+$/, '')).join(', ') : 'Unknown Authors';
+                const avgRating = item.avg_rating !== null ? item.avg_rating.toFixed(2) : 'N/A';
+
+                let html = `
+                    <div class="result-url">ICLR 2026 > Submission ${item.id}</div>
+                    <a href="#" class="result-title">${title}</a>
+                    <div class="result-snippet">Authors: ${authors}</div>
+                    <div class="result-snippet" style="margin-top:5px; color:#1a0dab;"><strong>Average Rating: ${avgRating}</strong></div>
+                `;
+
+                // Add reviews
+                if (item.reviews && item.reviews.length > 0) {
+                    html += `<div style="margin-top:15px;">`;
+                    item.reviews.forEach(review => {
+                        const score = review.rating !== null ? review.rating : 'N/A';
+                        const confidence = review.confidence !== null ? review.confidence : 'N/A';
+                        const reviewerId = review.reviewer_id ? review.reviewer_id.replace('~', '') : 'Anonymous';
+
+                        html += `
+                            <div class="review-card">
+                                <div class="review-header">
+                                    <span>Reviewer: ${reviewerId}</span>
+                                    <div>
+                                        <span class="review-score">Rating: ${score}</span>
+                                        <span class="review-score">Conf: ${confidence}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    html += `</div>`;
+                }
+
+                div.innerHTML = html;
+                resultsContainer.appendChild(div);
+            });
+        }
+    </script>
+</body>
+
+</html>
