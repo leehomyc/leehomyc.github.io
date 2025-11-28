@@ -337,14 +337,14 @@
 
         .toggle-btn {
             padding: 8px 0;
-            /* Removed horizontal padding, using width instead */
-            width: 120px;
-            /* Fixed width for equal sizing */
+            width: 100px;
+            /* Reduced width to fit 4 buttons */
             border-radius: 100px;
             border: none;
             background: transparent;
             color: var(--text-secondary);
-            font-size: 14px;
+            font-size: 13px;
+            /* Slightly smaller font */
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s var(--ease-apple);
@@ -365,13 +365,72 @@
             top: 4px;
             left: 4px;
             height: calc(100% - 8px);
-            width: 120px;
-            /* Fixed width to match buttons */
+            width: 100px;
+            /* Match button width */
             background: #fff;
             border-radius: 100px;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
             transition: transform 0.3s var(--ease-apple);
             z-index: 1;
+        }
+
+        /* Bookmark Icon */
+        .bookmark-icon {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            z-index: 5;
+            color: var(--text-secondary);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+
+        .bookmark-icon:hover {
+            transform: scale(1.1);
+            background: rgba(255, 255, 255, 0.9);
+            color: #FF2D55;
+            /* Apple Pink/Red */
+        }
+
+        .bookmark-icon.active {
+            background: #FF2D55;
+            color: white;
+            border-color: #FF2D55;
+        }
+
+        .bookmark-btn-modal {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.05);
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: var(--text-secondary);
+            margin-right: 12px;
+        }
+
+        .bookmark-btn-modal:hover {
+            background: rgba(0, 0, 0, 0.1);
+            color: #FF2D55;
+        }
+
+        .bookmark-btn-modal.active {
+            background: #FF2D55;
+            color: white;
         }
 
         /* Modal */
@@ -619,6 +678,7 @@
                 <button class="toggle-btn active" onclick="switchTab('today')">Today</button>
                 <button class="toggle-btn" onclick="switchTab('week')">This Week</button>
                 <button class="toggle-btn" onclick="switchTab('month')">This Month</button>
+                <button class="toggle-btn" onclick="switchTab('bookmarks')">Bookmarks</button>
             </div>
         </div>
     </div>
@@ -667,6 +727,70 @@
         let currentPaperIndex = 0;
         let currentPaperList = [];
 
+        // Bookmark Functions
+        function getBookmarks() {
+            const stored = localStorage.getItem('hai_labs_bookmarks');
+            return stored ? JSON.parse(stored) : {};
+        }
+
+        function isBookmarked(paperId) {
+            const bookmarks = getBookmarks();
+            return !!bookmarks[paperId];
+        }
+
+        function toggleBookmark(event, paper) {
+            if (event) event.stopPropagation();
+
+            const bookmarks = getBookmarks();
+            const paperId = paper.id;
+            const isNowBookmarked = !bookmarks[paperId];
+
+            if (bookmarks[paperId]) {
+                delete bookmarks[paperId];
+            } else {
+                bookmarks[paperId] = paper;
+            }
+
+            localStorage.setItem('hai_labs_bookmarks', JSON.stringify(bookmarks));
+
+            // Update Modal UI if open
+            const modalBtn = document.getElementById('modal-bookmark-btn');
+            if (modalBtn && document.getElementById('paper-modal').classList.contains('active')) {
+                updateModalBookmarkState(paperId);
+            }
+
+            // Update Grid UI
+            if (currentTab === 'bookmarks') {
+                // In bookmarks tab, we must re-render to remove the item
+                renderPapers();
+            } else {
+                // In other tabs, just update the icon on the card directly to avoid re-animation
+                const gridBtn = document.getElementById(`bookmark-btn-${paperId}`);
+                if (gridBtn) {
+                    if (isNowBookmarked) {
+                        gridBtn.classList.add('active');
+                        gridBtn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>`;
+                    } else {
+                        gridBtn.classList.remove('active');
+                        gridBtn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>`;
+                    }
+                }
+            }
+        }
+
+        function updateModalBookmarkState(paperId) {
+            const btn = document.getElementById('modal-bookmark-btn');
+            if (!btn) return;
+
+            if (isBookmarked(paperId)) {
+                btn.classList.add('active');
+                btn.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>`;
+            } else {
+                btn.classList.remove('active');
+                btn.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>`;
+            }
+        }
+
         function switchTab(tab) {
             if (currentTab === tab) return;
             currentTab = tab;
@@ -682,9 +806,12 @@
             } else if (tab === 'week') {
                 buttons[1].classList.add('active');
                 bg.style.transform = 'translateX(100%)';
-            } else {
+            } else if (tab === 'month') {
                 buttons[2].classList.add('active');
                 bg.style.transform = 'translateX(200%)';
+            } else { // bookmarks
+                buttons[3].classList.add('active');
+                bg.style.transform = 'translateX(300%)';
             }
 
             renderPapers();
@@ -743,7 +870,12 @@
                                 <button class="lang-btn" onclick="switchLang('simple', this)">Summary</button>
                                 <button class="lang-btn" onclick="switchLang('zh', this)">中文</button>
                             </div>
-                            <a href="${alphaXivUrl}" target="_blank" class="btn-primary">Read Paper</a>
+                            <div style="display: flex; align-items: center;">
+                                <button id="modal-bookmark-btn" class="bookmark-btn-modal" onclick='toggleBookmark(null, ${JSON.stringify(paper).replace(/'/g, "&#39;")})'>
+                                    <!-- Icon injected by JS -->
+                                </button>
+                                <a href="${alphaXivUrl}" target="_blank" class="btn-primary">Read Paper</a>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -753,6 +885,8 @@
             modal.dataset.abstractEn = abstractEn;
             modal.dataset.abstractZh = abstractZh;
             modal.dataset.abstractSimple = abstractSimple;
+
+            updateModalBookmarkState(paperId);
 
             modal.classList.add('active');
             document.body.style.overflow = 'hidden'; // Prevent background scrolling
@@ -770,7 +904,9 @@
 
             const nextPaperItem = currentPaperList[newIndex];
             if (nextPaperItem) {
-                openModal(nextPaperItem.paper, newIndex);
+                // Handle both raw paper objects (bookmarks) and wrapped objects (trending)
+                const paper = nextPaperItem.paper || nextPaperItem;
+                openModal(paper, newIndex);
             }
         }
 
@@ -829,6 +965,9 @@
                     papers = window.trendingPapers.week || [];
                 } else if (currentTab === 'month') {
                     papers = window.trendingPapers.month || [];
+                } else if (currentTab === 'bookmarks') {
+                    const bookmarks = getBookmarks();
+                    papers = Object.values(bookmarks);
                 }
 
                 // Update global list for navigation
@@ -843,19 +982,22 @@
                 grid.innerHTML = ''; // Clear loading state
 
                 if (papers.length === 0) {
+                    const msg = currentTab === 'bookmarks' ? "No bookmarks yet." : "No papers found for this selection.";
                     grid.innerHTML = `
                         <div class="bento-card span-12" style="text-align: center; justify-content: center;">
-                            <div class="card-title">No papers found for this selection.</div>
+                            <div class="card-title">${msg}</div>
                         </div>
                     `;
                     return;
                 }
 
                 papers.forEach((item, index) => {
-                    const paper = item.paper;
+                    // Handle both raw paper objects (bookmarks) and wrapped objects (trending)
+                    const paper = item.paper || item;
                     const title = paper.title;
                     const authors = paper.authors.map(a => a.name).join(', ');
                     const abstract = paper.summary.replace(/\n/g, ' ');
+                    const isSaved = isBookmarked(paper.id);
 
                     const card = document.createElement('div');
                     card.className = 'bento-card span-12';
@@ -872,12 +1014,21 @@
                         'linear-gradient(135deg, rgba(50, 205, 50, 0.15) 0%, rgba(0, 255, 255, 0.15) 100%)'   // Green -> Cyan
                     ];
 
-                    if (index < 3) {
+                    if (currentTab !== 'bookmarks' && index < 3) {
                         card.style.background = gradients[index];
                         card.style.border = '1px solid rgba(255, 255, 255, 0.3)';
                     }
 
+                    const bookmarkIcon = isSaved ?
+                        `<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>` :
+                        `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>`;
+
+                    const activeClass = isSaved ? 'active' : '';
+
                     card.innerHTML = `
+                        <div id="bookmark-btn-${paper.id}" class="bookmark-icon ${activeClass}" onclick='toggleBookmark(event, ${JSON.stringify(paper).replace(/'/g, "&#39;")})'>
+                            ${bookmarkIcon}
+                        </div>
                         <div class="card-label">Trending #${index + 1}</div>
                         <div class="card-authors">${authors}</div>
                         <div class="card-title">${title}</div>
