@@ -537,6 +537,57 @@
                 flex-shrink: 0;
             }
         }
+
+        .nav-arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.8);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            z-index: 10;
+            color: var(--text-secondary);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+
+        .nav-arrow:hover {
+            background: white;
+            color: var(--text-primary);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        .nav-prev {
+            left: 20px;
+        }
+
+        .nav-next {
+            right: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .nav-arrow {
+                width: 32px;
+                height: 32px;
+                background: rgba(255, 255, 255, 0.9);
+            }
+
+            .nav-prev {
+                left: 10px;
+            }
+
+            .nav-next {
+                right: 10px;
+            }
+        }
     </style>
 </head>
 
@@ -613,6 +664,8 @@
         });
 
         let currentTab = 'today';
+        let currentPaperIndex = 0;
+        let currentPaperList = [];
 
         function switchTab(tab) {
             if (currentTab === tab) return;
@@ -637,9 +690,15 @@
             renderPapers();
         }
 
-        function openModal(paper) {
+        function openModal(paper, index) {
             const modal = document.getElementById('paper-modal');
             const content = document.getElementById('modal-content-inner');
+
+            // Update state
+            if (typeof index !== 'undefined') {
+                currentPaperIndex = index;
+            }
+
             const authors = paper.authors.map(a => a.name).join(', ');
             const abstractEn = paper.summary.replace(/\n/g, '<br>');
             const abstractZh = (paper.summary_zh || 'Translation not available.').replace(/\n/g, '<br>');
@@ -653,7 +712,25 @@
                 thumbnailHtml = `<img src="${thumbnail}" class="modal-thumbnail" alt="${paper.title}">`;
             }
 
+            // Navigation Arrows
+            const prevBtn = `
+                <button class="nav-arrow nav-prev" onclick="navigatePaper(-1)">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M15 18l-6-6 6-6" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+            `;
+            const nextBtn = `
+                <button class="nav-arrow nav-next" onclick="navigatePaper(1)">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M9 18l6-6-6-6" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+            `;
+
             content.innerHTML = `
+                ${prevBtn}
+                ${nextBtn}
                 <div class="modal-title">${paper.title}</div>
                 <div class="modal-authors">${authors}</div>
                 <div class="modal-body">
@@ -663,8 +740,8 @@
                         <div class="modal-actions">
                             <div class="lang-toggle">
                                 <button class="lang-btn active" onclick="switchLang('en', this)">English</button>
-                                <button class="lang-btn" onclick="switchLang('zh', this)">中文</button>
                                 <button class="lang-btn" onclick="switchLang('simple', this)">Summary</button>
+                                <button class="lang-btn" onclick="switchLang('zh', this)">中文</button>
                             </div>
                             <a href="${alphaXivUrl}" target="_blank" class="btn-primary">Read Paper</a>
                         </div>
@@ -679,6 +756,22 @@
 
             modal.classList.add('active');
             document.body.style.overflow = 'hidden'; // Prevent background scrolling
+        }
+
+        function navigatePaper(direction) {
+            let newIndex = currentPaperIndex + direction;
+
+            // Loop around
+            if (newIndex < 0) {
+                newIndex = currentPaperList.length - 1;
+            } else if (newIndex >= currentPaperList.length) {
+                newIndex = 0;
+            }
+
+            const nextPaperItem = currentPaperList[newIndex];
+            if (nextPaperItem) {
+                openModal(nextPaperItem.paper, newIndex);
+            }
         }
 
         function switchLang(lang, btn) {
@@ -710,6 +803,13 @@
         document.addEventListener('keydown', function (event) {
             if (event.key === 'Escape') {
                 closeModal();
+            } else if (document.getElementById('paper-modal').classList.contains('active')) {
+                // Arrow keys navigation
+                if (event.key === 'ArrowLeft') {
+                    navigatePaper(-1);
+                } else if (event.key === 'ArrowRight') {
+                    navigatePaper(1);
+                }
             }
         });
 
@@ -730,6 +830,9 @@
                 } else if (currentTab === 'month') {
                     papers = window.trendingPapers.month || [];
                 }
+
+                // Update global list for navigation
+                currentPaperList = papers;
 
                 // Update date if available
                 if (window.papersLastUpdated) {
@@ -759,9 +862,8 @@
                     card.setAttribute('data-aos', 'zoom-in-up');
                     card.setAttribute('data-aos-delay', index * 50); // Faster delay
 
-                    // Pass the full paper object to openModal
-                    // We need to attach the event listener properly to avoid closure issues if we just passed 'paper' directly in onclick string
-                    card.onclick = () => openModal(paper);
+                    // Pass the full paper object and index to openModal
+                    card.onclick = () => openModal(paper, index);
 
                     // Liquid Glass Gradients
                     const gradients = [
