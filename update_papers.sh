@@ -9,7 +9,7 @@ mkdir -p temp_papers
 # Generate dates and fetch in parallel
 for i in {0..29}; do
     (
-        date_val=$(date -v-${i}d +%Y-%m-%d)
+        date_val=$(python3 -c "from datetime import datetime, timedelta; print((datetime.now() - timedelta(days=$i)).strftime('%Y-%m-%d'))")
         if [ ! -f "temp_papers/papers_$date_val.json" ] || [ "$date_val" == "$(date +%Y-%m-%d)" ]; then
             echo "Fetching $date_val..."
             curl -s "https://huggingface.co/api/daily_papers?date=$date_val" > "temp_papers/papers_$date_val.json"
