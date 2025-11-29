@@ -10,9 +10,24 @@ mkdir -p temp_papers
 for i in {0..29}; do
     (
         date_val=$(python3 -c "from datetime import datetime, timedelta; print((datetime.now() - timedelta(days=$i)).strftime('%Y-%m-%d'))")
+        # Check if file exists but has fewer than 10 papers (likely incomplete fetch)
+        if [ -f "temp_papers/papers_$date_val.json" ]; then
+             # Count occurrences of "id": to estimate number of papers
+             count=$(grep -o '"id":' "temp_papers/papers_$date_val.json" | wc -l)
+             if [ "$count" -lt 10 ]; then
+                 echo "File for $date_val has only $count papers. Re-fetching..."
+                 rm "temp_papers/papers_$date_val.json"
+             fi
+        fi
+
         if [ ! -f "temp_papers/papers_$date_val.json" ] || [ "$date_val" == "$(date +%Y-%m-%d)" ]; then
             echo "Fetching $date_val..."
             curl -s "https://huggingface.co/api/daily_papers?date=$date_val" > "temp_papers/papers_$date_val.json"
+            # Check if file is empty or contains empty array
+            if [ ! -s "temp_papers/papers_$date_val.json" ] || grep -q "\[\]" "temp_papers/papers_$date_val.json"; then
+                echo "Warning: No data for $date_val"
+                rm "temp_papers/papers_$date_val.json"
+            fi
         fi
     ) &
     
@@ -177,13 +192,16 @@ if os.path.exists(today_file):
     except:
         papers_today_raw = []
 
-# If today is empty (maybe early morning), try yesterday
+# If today is empty, find the LATEST available file
 if not papers_today_raw:
-    yesterday_str = (datetime.now() - timedelta(days=1)).strftime('%Y-%m-%d')
-    yesterday_file = f'temp_papers/papers_{yesterday_str}.json'
-    if os.path.exists(yesterday_file):
+    import glob
+    files = glob.glob('temp_papers/papers_*.json')
+    if files:
+        # Sort by date in filename (papers_YYYY-MM-DD.json)
+        latest_file = sorted(files)[-1]
+        print(f"Today is empty. Falling back to latest available: {latest_file}")
         try:
-            with open(yesterday_file, 'r') as f:
+            with open(latest_file, 'r') as f:
                 papers_today_raw = json.load(f)
         except:
             pass
