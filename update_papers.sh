@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 # Fetch papers for the last 30 days
 echo "Fetching papers for the last 30 days..."
 
