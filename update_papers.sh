@@ -152,7 +152,8 @@ for filename in glob.glob('temp_papers/papers_*.json'):
     try:
         with open(filename, 'r') as f:
             data = json.load(f)
-            all_papers.extend(data)
+            if isinstance(data, list):
+                all_papers.extend(data)
     except:
         pass
 
@@ -160,6 +161,8 @@ for filename in glob.glob('temp_papers/papers_*.json'):
 seen_ids = set()
 unique_papers = []
 for p in all_papers:
+    if not isinstance(p, dict) or 'paper' not in p:
+        continue
     pid = p['paper']['id']
     if pid not in seen_ids:
         seen_ids.add(pid)
