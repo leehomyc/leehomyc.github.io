@@ -191,21 +191,41 @@ papers_today_raw = []
 if os.path.exists(today_file):
     try:
         with open(today_file, 'r') as f:
-            papers_today_raw = json.load(f)
+            data = json.load(f)
+            if isinstance(data, list):
+                papers_today_raw = data
+            else:
+                papers_today_raw = []
     except:
         papers_today_raw = []
 
-# If today is empty, find the LATEST available file
-if not papers_today_raw:
+# If today is empty or has < 10 papers, backfill from previous days
+if len(papers_today_raw) < 10:
     import glob
-    files = glob.glob('temp_papers/papers_*.json')
-    if files:
-        # Sort by date in filename (papers_YYYY-MM-DD.json)
-        latest_file = sorted(files)[-1]
-        print(f"Today is empty. Falling back to latest available: {latest_file}")
+    files = sorted(glob.glob('temp_papers/papers_*.json'), reverse=True)
+    
+    seen_ids_today = set(p['paper']['id'] for p in papers_today_raw if isinstance(p, dict) and 'paper' in p)
+    
+    for filename in files:
+        if len(papers_today_raw) >= 10:
+            break
+            
+        # Skip if it's the today file we already loaded (if it existed)
+        if filename == today_file and os.path.exists(today_file):
+            continue
+            
         try:
-            with open(latest_file, 'r') as f:
-                papers_today_raw = json.load(f)
+            with open(filename, 'r') as f:
+                data = json.load(f)
+                if isinstance(data, list):
+                    for p in data:
+                        if len(papers_today_raw) >= 10:
+                            break
+                        if isinstance(p, dict) and 'paper' in p:
+                            pid = p['paper']['id']
+                            if pid not in seen_ids_today:
+                                seen_ids_today.add(pid)
+                                papers_today_raw.append(p)
         except:
             pass
 
