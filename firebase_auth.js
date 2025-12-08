@@ -1,4 +1,4 @@
-// Firebase Compat Version (for file:// usage)
+// Firebase Compat Version
 console.log("Loading Firebase Auth (Compat Mode)...");
 
 const firebaseConfig = {
@@ -11,8 +11,40 @@ const firebaseConfig = {
     measurementId: "G-FRS2BE2FHL"
 };
 
-// Initialize Firebase
+// Initialize
 let app, auth, db;
+
+// --- TOAST UI HELPER ---
+function showToast(message, duration = 3000) {
+    let toast = document.getElementById('firebase-toast');
+    if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'firebase-toast';
+        Object.assign(toast.style, {
+            position: 'fixed',
+            bottom: '20px',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            backgroundColor: 'rgba(0,0,0,0.8)',
+            color: '#fff',
+            padding: '12px 24px',
+            borderRadius: '24px',
+            zIndex: '10000',
+            fontSize: '14px',
+            fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+            opacity: '0',
+            transition: 'opacity 0.3s ease',
+            pointerEvents: 'none'
+        });
+        document.body.appendChild(toast);
+    }
+    toast.textContent = message;
+    toast.style.opacity = '1';
+
+    setTimeout(() => {
+        toast.style.opacity = '0';
+    }, duration);
+}
 
 try {
     if (typeof firebase !== 'undefined') {
@@ -22,9 +54,11 @@ try {
         console.log("Firebase Initialized Successfully");
     } else {
         console.error("Firebase SDK not loaded!");
+        showToast("Error: Firebase SDK not loaded");
     }
 } catch (e) {
     console.error("Firebase initialization failed:", e);
+    showToast("Firebase init failed: " + e.message);
 }
 
 const provider = new firebase.auth.GoogleAuthProvider();
@@ -40,6 +74,7 @@ window.handleGoogleLogin = async () => {
         const result = await auth.signInWithPopup(provider);
         const user = result.user;
         console.log("Logged in as:", user.displayName);
+        showToast(`Welcome, ${user.displayName}!`);
         await syncBookmarks(user);
     } catch (error) {
         console.error("Login failed:", error);
@@ -52,7 +87,6 @@ window.handleLogout = async () => {
     try {
         await auth.signOut();
         console.log("Logged out");
-        // Clear local bookmarks
         localStorage.removeItem('hai_labs_bookmarks');
         location.reload();
     } catch (error) {
@@ -63,6 +97,8 @@ window.handleLogout = async () => {
 // Sync Logic
 async function syncBookmarks(user) {
     if (!db) return;
+
+    showToast("Syncing bookmarks from cloud...");
 
     const localBookmarks = JSON.parse(localStorage.getItem('hai_labs_bookmarks') || '{}');
     const userRef = db.collection("users").doc(user.uid);
@@ -77,17 +113,23 @@ async function syncBookmarks(user) {
 
         const mergedBookmarks = { ...cloudBookmarks, ...localBookmarks };
 
-        // Sanitize: Remove bookmarks with missing titles (legacy data)
+        // Sanitize
+        let hasChanges = false;
         Object.keys(mergedBookmarks).forEach(key => {
             const item = mergedBookmarks[key];
             if (!item || !item.title) {
                 delete mergedBookmarks[key];
+                hasChanges = true;
             }
         });
 
+        // Save merge back to cloud
         await userRef.set({ bookmarks: mergedBookmarks }, { merge: true });
 
+        // Save to local
         localStorage.setItem('hai_labs_bookmarks', JSON.stringify(mergedBookmarks));
+
+        showToast("Bookmarks synced successfully!");
 
         if (window.renderPapers && window.currentTab === 'bookmarks') {
             window.renderPapers();
@@ -95,6 +137,7 @@ async function syncBookmarks(user) {
 
     } catch (e) {
         console.error("Error syncing bookmarks:", e);
+        showToast("Sync failed: " + e.code);
     }
 }
 
@@ -124,7 +167,7 @@ if (auth) {
             if (userInfo) userInfo.style.display = 'none';
         }
 
-        // Re-render UI to reflect bookmark privacy
+        // Re-render UI
         if (window.renderPapers) {
             window.renderPapers();
         }
@@ -139,27 +182,31 @@ window.saveBookmarkToCloud = async (paperId, paperData, isAdding) => {
 
     try {
         if (isAdding) {
-            // Use FieldPath to handle IDs with dots (e.g. 2412.1234)
+            // Use FieldPath to handle IDs with dots
             await userRef.update(
                 new firebase.firestore.FieldPath('bookmarks', paperId),
                 paperData
             );
+            showToast("Saved to cloud");
         } else {
             await userRef.update(
                 new firebase.firestore.FieldPath('bookmarks', paperId),
                 firebase.firestore.FieldValue.delete()
             );
+            showToast("Removed from cloud");
         }
     } catch (e) {
-        // If the document doesn't exist, update() fails. Set it first.
+        // If doc doesn't exist, Create it
         if (isAdding && e.code === 'not-found') {
             await userRef.set({
                 bookmarks: {
                     [paperId]: paperData
                 }
             }, { merge: true });
+            showToast("Saved to cloud (New Profile)");
         } else {
             console.error("Cloud save error:", e);
+            showToast("Cloud save error: " + e.code);
         }
     }
 };
