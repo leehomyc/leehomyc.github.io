@@ -52,6 +52,8 @@ window.handleLogout = async () => {
     try {
         await auth.signOut();
         console.log("Logged out");
+        // Clear local bookmarks
+        localStorage.removeItem('hai_labs_bookmarks');
         location.reload();
     } catch (error) {
         console.error("Logout failed:", error);
@@ -75,6 +77,14 @@ async function syncBookmarks(user) {
 
         const mergedBookmarks = { ...cloudBookmarks, ...localBookmarks };
 
+        // Sanitize: Remove bookmarks with missing titles (legacy data)
+        Object.keys(mergedBookmarks).forEach(key => {
+            const item = mergedBookmarks[key];
+            if (!item || !item.title) {
+                delete mergedBookmarks[key];
+            }
+        });
+
         await userRef.set({ bookmarks: mergedBookmarks }, { merge: true });
 
         localStorage.setItem('hai_labs_bookmarks', JSON.stringify(mergedBookmarks));
@@ -95,6 +105,8 @@ if (auth) {
         const logoutBtn = document.getElementById('google-logout-btn');
         const userInfo = document.getElementById('user-info');
 
+        window.isUserLoggedIn = !!user;
+
         if (user) {
             if (loginBtn) loginBtn.style.display = 'none';
             if (logoutBtn) logoutBtn.style.display = 'block';
@@ -111,6 +123,11 @@ if (auth) {
             if (logoutBtn) logoutBtn.style.display = 'none';
             if (userInfo) userInfo.style.display = 'none';
         }
+
+        // Re-render UI to reflect bookmark privacy
+        if (window.renderPapers) {
+            window.renderPapers();
+        }
     });
 }
 
@@ -122,16 +139,27 @@ window.saveBookmarkToCloud = async (paperId, paperData, isAdding) => {
 
     try {
         if (isAdding) {
-            const update = {};
-            update[`bookmarks.${paperId}`] = paperData;
-            await userRef.update(update);
+            // Use FieldPath to handle IDs with dots (e.g. 2412.1234)
+            await userRef.update(
+                new firebase.firestore.FieldPath('bookmarks', paperId),
+                paperData
+            );
         } else {
-            const update = {};
-            update[`bookmarks.${paperId}`] = firebase.firestore.FieldValue.delete();
-            await userRef.update(update);
+            await userRef.update(
+                new firebase.firestore.FieldPath('bookmarks', paperId),
+                firebase.firestore.FieldValue.delete()
+            );
         }
     } catch (e) {
-        console.error("Cloud save error:", e);
-        // Fallback or retry logic could go here
+        // If the document doesn't exist, update() fails. Set it first.
+        if (isAdding && e.code === 'not-found') {
+            await userRef.set({
+                bookmarks: {
+                    [paperId]: paperData
+                }
+            }, { merge: true });
+        } else {
+            console.error("Cloud save error:", e);
+        }
     }
 };

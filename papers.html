@@ -771,14 +771,18 @@
             if (bookmarks[paperId]) {
                 delete bookmarks[paperId];
             } else {
-                bookmarks[paperId] = paper;
+                // Add timestamp when saving
+                bookmarks[paperId] = {
+                    ...paper,
+                    bookmarkedAt: Date.now()
+                };
             }
 
             localStorage.setItem('hai_labs_bookmarks', JSON.stringify(bookmarks));
 
             // Sync to Cloud if logged in
             if (window.saveBookmarkToCloud) {
-                await window.saveBookmarkToCloud(paperId, isNowBookmarked ? paper : null, isNowBookmarked);
+                await window.saveBookmarkToCloud(paperId, bookmarks[paperId] || null, isNowBookmarked);
             }
 
             // Update Modal UI if open
@@ -789,18 +793,16 @@
 
             // Update Grid UI
             if (currentTab === 'bookmarks') {
-                // In bookmarks tab, we must re-render to remove the item
                 renderPapers();
             } else {
-                // In other tabs, just update the icon on the card directly to avoid re-animation
                 const gridBtn = document.getElementById(`bookmark-btn-${paperId}`);
                 if (gridBtn) {
                     if (isNowBookmarked) {
                         gridBtn.classList.add('active');
-                        gridBtn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" /></svg>`;
+                        gridBtn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>`;
                     } else {
                         gridBtn.classList.remove('active');
-                        gridBtn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" /></svg>`;
+                        gridBtn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>`;
                     }
                 }
             }
@@ -899,7 +901,7 @@
                                 <button class="lang-btn" onclick="switchLang('zh', this)">中文</button>
                             </div>
                             <div style="display: flex; align-items: center;">
-                                <button id="modal-bookmark-btn" class="bookmark-btn-modal" onclick='toggleBookmark(null, ${JSON.stringify(paper).replace(/' /g, "&#39;")})'>
+                                <button id="modal-bookmark-btn" class="bookmark-btn-modal" onclick='toggleBookmark(null, ${JSON.stringify(paper).replace(/'/g, "&#39;")})'>
                             <!-- Icon injected by JS -->
                             </button>
                             <a href="${alphaXivUrl}" target="_blank" class="btn-primary">Read Paper</a>
@@ -994,8 +996,12 @@
                 } else if (currentTab === 'month') {
                     papers = window.trendingPapers.month || [];
                 } else if (currentTab === 'bookmarks') {
-                    const bookmarks = getBookmarks();
-                    papers = Object.values(bookmarks);
+                    if (window.isUserLoggedIn) {
+                        const bookmarks = getBookmarks();
+                        papers = Object.values(bookmarks);
+                    } else {
+                        papers = []; // Force empty if not logged in
+                    }
                 }
 
                 // Update global list for navigation
@@ -1010,7 +1016,17 @@
                 grid.innerHTML = ''; // Clear loading state
 
                 if (papers.length === 0) {
-                    const msg = currentTab === 'bookmarks' ? "No bookmarks yet." : "No papers found for this selection.";
+                    let msg = "";
+                    if (currentTab === 'bookmarks') {
+                        if (!window.isUserLoggedIn) {
+                            msg = "Please login to see your bookmarks.";
+                        } else {
+                            msg = "No bookmarks yet.";
+                        }
+                    } else {
+                        msg = "No papers found for this selection.";
+                    }
+
                     grid.innerHTML = `
             <div class="bento-card span-12" style="text-align: center; justify-content: center;">
                 <div class="card-title">${msg}</div>
@@ -1019,13 +1035,29 @@
                     return;
                 }
 
+                // Sort Bookmarks by Date (Newest First)
+                if (currentTab === 'bookmarks') {
+                    papers.sort((a, b) => {
+                        const dateA = a.bookmarkedAt || 0;
+                        const dateB = b.bookmarkedAt || 0;
+                        return dateB - dateA; // Descending
+                    });
+                }
+
                 papers.forEach((item, index) => {
                     // Handle both raw paper objects (bookmarks) and wrapped objects (trending)
                     const paper = item.paper || item;
-                    const title = paper.title;
-                    const authors = paper.authors.map(a => a.name).join(', ');
-                    const abstract = paper.summary.replace(/\n/g, ' ');
+                    const title = paper.title || 'Untitled';
+                    const authors = (paper.authors || []).map(a => a.name).join(', ');
+                    const abstract = (paper.summary || '').replace(/\n/g, ' ');
                     const isSaved = isBookmarked(paper.id);
+
+                    // Display bookmark date if available, else fallback
+                    let dateStr = paper.date || 'Unknown Date';
+                    if (currentTab === 'bookmarks' && paper.bookmarkedAt) {
+                        const d = new Date(paper.bookmarkedAt);
+                        dateStr = "Saved " + d.toLocaleDateString();
+                    }
 
                     const card = document.createElement('div');
                     card.className = 'bento-card span-12';
@@ -1047,17 +1079,28 @@
                         card.style.border = '1px solid rgba(255, 255, 255, 0.3)';
                     }
 
-                    const bookmarkIcon = isSaved ?
-                        `<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" /></svg>` :
-                        `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" /></svg>`;
+                    // Only show bookmark icon if logged in
+                    let bookmarkHtml = '';
+                    if (window.isUserLoggedIn) {
+                        const bookmarkIcon = isSaved ?
+                            `<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" /></svg>` :
+                            `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" /></svg>`;
 
-                    const activeClass = isSaved ? 'active' : '';
+                        const activeClass = isSaved ? 'active' : '';
+
+                        // FIX: .replace(/'/g, "&#39;") - prevent JSON parse error
+                        bookmarkHtml = `
+                        <div id="bookmark-btn-${paper.id}" class="bookmark-icon ${activeClass}" onclick='toggleBookmark(event, ${JSON.stringify(paper).replace(/'/g, "&#39;")})'>
+                            ${bookmarkIcon}
+                        </div>`;
+                    }
+
+                    // Label: Date for bookmarks, Trending # for others
+                    const labelText = currentTab === 'bookmarks' ? dateStr : `Trending #${index + 1}`;
 
                     card.innerHTML = `
-            <div id="bookmark-btn-${paper.id}" class="bookmark-icon ${activeClass}" onclick='toggleBookmark(event, ${JSON.stringify(paper).replace(/' /g, "&#39;")})'>
-            ${bookmarkIcon}
-        </div>
-        <div class="card-label">Trending #${index + 1}</div>
+            ${bookmarkHtml}
+        <div class="card-label">${labelText}</div>
         <div class="card-authors">${authors}</div>
         <div class="card-title">${title}</div>
         <div class="card-desc">${abstract}</div>
