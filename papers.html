@@ -733,7 +733,11 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
     <script src="papers_data.js"></script>
-    <script type="module" src="firebase_auth.js"></script>
+    <!-- Firebase Compat SDKs (Works with file://) -->
+    <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
+    <script src="firebase_auth.js"></script>
     <script>
         AOS.init({
             duration: 1000,
