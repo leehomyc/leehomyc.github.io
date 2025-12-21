@@ -715,28 +715,45 @@
             </div>
         </div>
 
-        <!-- Everlyn -->
-        <div class="bento-card span-6 card-dark" data-aos="fade-up">
-            <div style="z-index: 2; max-width: 60%;">
-                <div class="card-label"><span class="pulse"></span>New Release</div>
-                <div class="card-title">Everlyn AI</div>
-                <div class="card-desc">The fastest video model we've ever built. <br><strong>Yann LeCun</strong> joins
-                    as Advisor.</div>
-                <a href="https://everlyn.ai" class="card-link" style="color: #2997ff;">Launch Everlyn &rarr;</a>
+        <!-- Product Carousel -->
+        <div class="bento-card span-6 card-dark" data-aos="fade-up" style="padding: 0;">
+            <div class="photo-carousel" id="product-carousel">
+                <div class="carousel-slide">
+                    <div style="z-index: 2; max-width: 60%; padding: 40px; position: relative;">
+                        <div class="card-label"><span class="pulse"></span>New Release</div>
+                        <div class="card-title">Everlyn AI</div>
+                        <div class="card-desc">The fastest video model we've ever built. <br><strong>Yann LeCun</strong>
+                            joins as Advisor.</div>
+                        <a href="https://everlyn.ai" class="card-link" style="color: #2997ff;">Launch Everlyn &rarr;</a>
+                    </div>
+                    <img src="everlyn.png" class="card-image-bg" style="opacity: 0.8;">
+                </div>
+                <div class="carousel-slide">
+                    <div style="z-index: 2; max-width: 60%; padding: 40px; position: relative;">
+                        <div class="card-label"><span class="pulse"></span>New Release</div>
+                        <div class="card-title">AI PPT</div>
+                        <div class="card-desc">AI slides generator.<br>Turn papers into presentations instantly.</div>
+                        <a href="https://www.freetts.net/paper-to-ppt" class="card-link" style="color: #2997ff;">Try it
+                            now &rarr;</a>
+                    </div>
+                    <img src="ai_ppt.png" class="card-image-bg" style="opacity: 0.8;">
+                </div>
+                <div class="carousel-slide">
+                    <div style="z-index: 2; max-width: 60%; padding: 40px; position: relative;">
+                        <div class="card-label"><span class="pulse"></span>New Release</div>
+                        <div class="card-title">Wan 2.2 FT and Inference Guide</div>
+                        <div class="card-desc">Comprehensive guide for Wan 2.2 LoRA Training.</div>
+                        <a href="https://www.notion.so/Wan-2-2-LoRA-Training-2afbb0713b7880e19926c95a2bf894c5?source=copy_link"
+                            class="card-link" style="color: #2997ff;">View Guide &rarr;</a>
+                    </div>
+                    <img src="wan_2_2.png" class="card-image-bg" style="opacity: 0.8;">
+                </div>
             </div>
-            <img src="everlyn.png" class="card-image-bg" style="opacity: 0.8;">
-        </div>
-
-        <!-- AI PPT -->
-        <div class="bento-card span-6 card-dark" data-aos="fade-up">
-            <div style="z-index: 2; max-width: 60%;">
-                <div class="card-label"><span class="pulse"></span>New Release</div>
-                <div class="card-title">AI PPT</div>
-                <div class="card-desc">AI slides generator.<br>Turn papers into presentations instantly.</div>
-                <a href="https://www.freetts.net/paper-to-ppt" class="card-link" style="color: #2997ff;">Try it now
-                    &rarr;</a>
+            <div class="carousel-dots" id="product-dots" style="left: 40px; bottom: 30px;">
+                <div class="dot active" onclick="scrollToProductSlide(0)"></div>
+                <div class="dot" onclick="scrollToProductSlide(1)"></div>
+                <div class="dot" onclick="scrollToProductSlide(2)"></div>
             </div>
-            <img src="ai_ppt.png" class="card-image-bg" style="opacity: 0.8;">
         </div>
 
         <!-- Grants -->
@@ -811,6 +828,7 @@
             <div class="paper-authors">Y Liu, WJ Shu, Z Huang, H Zheng, Y Wang, M Zhang, SN Lim, H Yang</div>
             <div class="paper-links">
                 <a href="https://arxiv.org/abs/2512.01334">arXiv</a>
+                <a href="ppt/alignvid.pdf">Slides</a>
             </div>
         </div>
 
@@ -1233,6 +1251,39 @@
             const nextIndex = (currentIndex + 1) % dots.length;
             scrollToSlide(nextIndex);
         }, 5000);
+
+        // Product Carousel Logic
+        const productCarousel = document.getElementById('product-carousel');
+        const productDots = document.getElementById('product-dots').children;
+
+        productCarousel.addEventListener('scroll', () => {
+            const scrollLeft = productCarousel.scrollLeft;
+            const width = productCarousel.offsetWidth;
+            const index = Math.round(scrollLeft / width);
+
+            for (let i = 0; i < productDots.length; i++) {
+                productDots[i].classList.remove('active');
+            }
+            if (productDots[index]) {
+                productDots[index].classList.add('active');
+            }
+        });
+
+        function scrollToProductSlide(index) {
+            const width = productCarousel.offsetWidth;
+            productCarousel.scrollTo({
+                left: width * index,
+                behavior: 'smooth'
+            });
+        }
+
+        // Auto-rotate product carousel every 4 seconds
+        setInterval(() => {
+            const width = productCarousel.offsetWidth;
+            const currentIndex = Math.round(productCarousel.scrollLeft / width);
+            const nextIndex = (currentIndex + 1) % productDots.length;
+            scrollToProductSlide(nextIndex);
+        }, 4000);
     </script>
 </body>
 
