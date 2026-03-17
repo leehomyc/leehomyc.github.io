@@ -764,6 +764,11 @@
                     <img src="wan_2_2.png" class="card-image-bg" style="opacity: 0.8;">
                 </div>
             </div>
+            <div class="carousel-dots" id="product-dots">
+                <div class="dot active"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+            </div>
         </div>
 
         <!-- Grants -->
@@ -1358,70 +1363,52 @@
             offset: 50
         });
 
-        const carousel = document.getElementById('carousel');
-        const dots = document.getElementById('dots').children;
+        function initCarousel(carouselId, dotsId, intervalMs) {
+            const carousel = document.getElementById(carouselId);
+            const dotsContainer = document.getElementById(dotsId);
 
-        carousel.addEventListener('scroll', () => {
-            const scrollLeft = carousel.scrollLeft;
-            const width = carousel.offsetWidth;
-            const index = Math.round(scrollLeft / width);
-
-            for (let i = 0; i < dots.length; i++) {
-                dots[i].classList.remove('active');
+            if (!carousel || !dotsContainer) {
+                return;
             }
-            if (dots[index]) {
-                dots[index].classList.add('active');
-            }
-        });
 
-        function scrollToSlide(index) {
-            const width = carousel.offsetWidth;
-            carousel.scrollTo({
-                left: width * index,
-                behavior: 'smooth'
+            const dots = Array.from(dotsContainer.children);
+
+            function updateActiveDot() {
+                const width = carousel.offsetWidth;
+                const index = Math.round(carousel.scrollLeft / width);
+
+                dots.forEach((dot) => dot.classList.remove('active'));
+                if (dots[index]) {
+                    dots[index].classList.add('active');
+                }
+            }
+
+            function scrollToIndex(index) {
+                const width = carousel.offsetWidth;
+                carousel.scrollTo({
+                    left: width * index,
+                    behavior: 'smooth'
+                });
+            }
+
+            dots.forEach((dot, index) => {
+                dot.addEventListener('click', () => scrollToIndex(index));
             });
+
+            carousel.addEventListener('scroll', updateActiveDot);
+
+            setInterval(() => {
+                const width = carousel.offsetWidth;
+                const currentIndex = Math.round(carousel.scrollLeft / width);
+                const nextIndex = (currentIndex + 1) % dots.length;
+                scrollToIndex(nextIndex);
+            }, intervalMs);
+
+            return scrollToIndex;
         }
 
-        // Auto-rotate every 5 seconds
-        setInterval(() => {
-            const width = carousel.offsetWidth;
-            const currentIndex = Math.round(carousel.scrollLeft / width);
-            const nextIndex = (currentIndex + 1) % dots.length;
-            scrollToSlide(nextIndex);
-        }, 5000);
-
-        // Product Carousel Logic
-        const productCarousel = document.getElementById('product-carousel');
-        const productDots = document.getElementById('product-dots').children;
-
-        productCarousel.addEventListener('scroll', () => {
-            const scrollLeft = productCarousel.scrollLeft;
-            const width = productCarousel.offsetWidth;
-            const index = Math.round(scrollLeft / width);
-
-            for (let i = 0; i < productDots.length; i++) {
-                productDots[i].classList.remove('active');
-            }
-            if (productDots[index]) {
-                productDots[index].classList.add('active');
-            }
-        });
-
-        function scrollToProductSlide(index) {
-            const width = productCarousel.offsetWidth;
-            productCarousel.scrollTo({
-                left: width * index,
-                behavior: 'smooth'
-            });
-        }
-
-        // Auto-rotate product carousel every 4 seconds
-        setInterval(() => {
-            const width = productCarousel.offsetWidth;
-            const currentIndex = Math.round(productCarousel.scrollLeft / width);
-            const nextIndex = (currentIndex + 1) % productDots.length;
-            scrollToProductSlide(nextIndex);
-        }, 4000);
+        window.scrollToSlide = initCarousel('carousel', 'dots', 5000);
+        initCarousel('product-carousel', 'product-dots', 4000);
     </script>
 </body>
 
