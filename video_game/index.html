@@ -159,6 +159,7 @@
   function playIntro() {
     stage = "intro";
     player.muted = false;
+    player.autoplay = false; // intro is unmuted → needs explicit play() inside gesture
     loadVideo(VIDEOS.intro);
     player.loop = true; // loop the intro until user picks an option
     player.play().catch(() => {});
@@ -213,17 +214,18 @@
   function playBranch(key) {
     stage = "branch";
     deactivateHotspots();
-    // set BGM src just-in-time so nothing loads/plays before the user chooses
+    // Muted video → use the `autoplay` attribute so we don't need an explicit
+    // play() call. WeChat's WebView allows only one play() per user gesture,
+    // and we need that single gesture to start the BGM (audio can't autoplay).
+    player.muted = true;
+    player.loop = true;
+    player.autoplay = true;
+    loadVideo(VIDEOS[key]);
+    // Start BGM with the gesture — audio has no autoplay fallback.
     bgm.loop = true;
     bgm.src = BGM_SRC[key];
     bgm.currentTime = 0;
     bgm.play().catch(() => {});
-    // mute the branch video: iOS serializes audio streams, so a loud clip would
-    // mute the BGM on mobile. Only the BGM should be heard on branch videos.
-    player.muted = true;
-    loadVideo(VIDEOS[key]);
-    player.loop = true;
-    player.play().catch(() => {});
     // looping branch never fires 'ended' — show Replay right away
     replay.classList.add("visible");
   }
