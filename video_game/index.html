@@ -217,19 +217,18 @@
   function playBranch(key) {
     stage = "branch";
     deactivateHotspots();
+    stopAllBgm();
+    // pick BGM first, set it playing during this user gesture so iOS permits it
+    const bgm = (key === "a") ? bgmA : bgmB;
+    bgm.loop = true;
+    bgm.currentTime = (key === "a") ? BGM_A_START : BGM_B_START;
+    bgm.play().catch(() => {});
+    // mute the branch video: iOS serializes audio streams, so a loud clip would
+    // mute the BGM on mobile. Only the BGM should be heard on branch videos.
+    player.muted = true;
     loadVideo(VIDEOS[key]);
     player.loop = true;
     player.play().catch(() => {});
-    stopAllBgm();
-    if (key === "a") {
-      bgmA.loop = true;
-      bgmA.currentTime = BGM_A_START;
-      bgmA.play().catch(() => {});
-    } else {
-      bgmB.loop = true;
-      bgmB.currentTime = BGM_B_START;
-      bgmB.play().catch(() => {});
-    }
     // looping branch never fires 'ended' — show Replay right away
     replay.classList.add("visible");
   }
@@ -270,9 +269,31 @@
     if (stage === "intro" || stage === "choosing") positionHotspots();
   });
 
+  // iOS requires each <audio> element to be touched inside a user gesture
+  // before it will play later. Briefly play+pause both BGM tracks silently
+  // during the Start click so they can be started programmatically on branch.
+  function primeBgm() {
+    [bgmA, bgmB].forEach(a => {
+      const originalVolume = a.volume;
+      a.volume = 0;
+      const p = a.play();
+      const finish = () => {
+        a.pause();
+        a.currentTime = 0;
+        a.volume = originalVolume;
+      };
+      if (p && typeof p.then === "function") {
+        p.then(finish).catch(() => { a.volume = originalVolume; });
+      } else {
+        finish();
+      }
+    });
+  }
+
   // require an explicit user gesture so audio plays unmuted
   function handleStart() {
     startOverlay.classList.add("hidden");
+    primeBgm();
     playIntro();
   }
   startOverlay.addEventListener("click", handleStart);
