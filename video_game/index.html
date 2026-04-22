@@ -186,20 +186,20 @@
     stage = "branch";
     deactivateHotspots();
     loadVideo(VIDEOS[key]);
-    player.loop = (key === "a");
+    player.loop = true;
     player.play().catch(() => {});
     stopAllBgm();
     if (key === "a") {
       bgmA.loop = true;
       bgmA.currentTime = BGM_A_START;
       bgmA.play().catch(() => {});
-      // looping branch never fires 'ended' — show Replay right away
-      replay.classList.add("visible");
     } else {
       bgmB.loop = true;
       bgmB.currentTime = BGM_B_START;
       bgmB.play().catch(() => {});
     }
+    // looping branch never fires 'ended' — show Replay right away
+    replay.classList.add("visible");
   }
 
   player.addEventListener("click", () => {
