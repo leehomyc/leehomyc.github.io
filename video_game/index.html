@@ -272,18 +272,18 @@
   // iOS requires each <audio> element to be touched inside a user gesture
   // before it will play later. Briefly play+pause both BGM tracks silently
   // during the Start click so they can be started programmatically on branch.
+  // Note: iOS Safari ignores programmatic .volume changes — use .muted instead.
   function primeBgm() {
     [bgmA, bgmB].forEach(a => {
-      const originalVolume = a.volume;
-      a.volume = 0;
+      a.muted = true;
       const p = a.play();
       const finish = () => {
         a.pause();
         a.currentTime = 0;
-        a.volume = originalVolume;
+        a.muted = false;
       };
       if (p && typeof p.then === "function") {
-        p.then(finish).catch(() => { a.volume = originalVolume; });
+        p.then(finish).catch(() => { a.muted = false; });
       } else {
         finish();
       }
