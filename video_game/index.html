@@ -115,8 +115,7 @@
       <button class="start-btn" id="startBtn">▶  Start</button>
     </div>
 
-    <audio id="bgmA" preload="metadata" src="bgm_a.mp3"></audio>
-    <audio id="bgmB" preload="metadata" src="bgm_b.mp3"></audio>
+    <audio id="bgm" preload="none"></audio>
   </div>
 
 <script>
@@ -139,16 +138,15 @@
   const replay        = document.getElementById("replay");
   const hotspotA      = document.getElementById("hotspotA");
   const hotspotB      = document.getElementById("hotspotB");
-  const bgmA          = document.getElementById("bgmA");
-  const bgmB          = document.getElementById("bgmB");
+  const bgm           = document.getElementById("bgm");
+  const BGM_SRC       = { a: "bgm_a.mp3", b: "bgm_b.mp3" };
   const startOverlay  = document.getElementById("startOverlay");
   const startBtn      = document.getElementById("startBtn");
 
-  bgmA.volume = 0.7;
-  bgmB.volume = 0.7;
+  bgm.volume = 0.7;
 
-  function stopAllBgm() {
-    [bgmA, bgmB].forEach(a => { a.pause(); });
+  function stopBgm() {
+    bgm.pause();
   }
 
   let stage = "idle"; // idle | intro | choosing | branch
@@ -215,10 +213,10 @@
   function playBranch(key) {
     stage = "branch";
     deactivateHotspots();
-    stopAllBgm();
-    // pick BGM first, set it playing during this user gesture so iOS permits it
-    const bgm = (key === "a") ? bgmA : bgmB;
+    // set BGM src just-in-time so nothing loads/plays before the user chooses
     bgm.loop = true;
+    bgm.src = BGM_SRC[key];
+    bgm.currentTime = 0;
     bgm.play().catch(() => {});
     // mute the branch video: iOS serializes audio streams, so a loud clip would
     // mute the BGM on mobile. Only the BGM should be heard on branch videos.
@@ -257,7 +255,7 @@
   hotspotB.addEventListener("click", () => playBranch("b"));
 
   replay.addEventListener("click", () => {
-    stopAllBgm();
+    stopBgm();
     deactivateHotspots();
     playIntro();
   });
