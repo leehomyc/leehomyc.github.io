@@ -143,6 +143,10 @@
   const bgmB          = document.getElementById("bgmB");
   const startOverlay  = document.getElementById("startOverlay");
   const startBtn      = document.getElementById("startBtn");
+
+  // WeChat's in-app WebView mis-handles seeks into VBR mp3s (the audio plays
+  // garbled or cuts out). Detect it so we can fall back to playing from 0.
+  const isWeChat = /MicroMessenger/i.test(navigator.userAgent);
   bgmA.volume = 0.7;
   bgmB.volume = 0.7;
 
@@ -220,8 +224,10 @@
     stopAllBgm();
     // pick BGM first, set it playing during this user gesture so iOS permits it
     const bgm = (key === "a") ? bgmA : bgmB;
+    const startTime = (key === "a") ? BGM_A_START : BGM_B_START;
     bgm.loop = true;
-    bgm.currentTime = (key === "a") ? BGM_A_START : BGM_B_START;
+    // In WeChat, skip the seek — seeking VBR mp3s there produces broken audio.
+    try { bgm.currentTime = isWeChat ? 0 : startTime; } catch (e) {}
     bgm.play().catch(() => {});
     // mute the branch video: iOS serializes audio streams, so a loud clip would
     // mute the BGM on mobile. Only the BGM should be heard on branch videos.
