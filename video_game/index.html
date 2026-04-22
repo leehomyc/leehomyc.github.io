@@ -54,6 +54,51 @@
   }
   .replay.visible { opacity: 1; pointer-events: auto; }
   .replay:hover { background: rgba(255,255,255,0.15); }
+
+  .start-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0,0,0,0.55);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    z-index: 20;
+    cursor: pointer;
+    transition: opacity 0.3s ease;
+  }
+  .start-overlay.hidden {
+    opacity: 0;
+    pointer-events: none;
+  }
+  .start-btn {
+    padding: 24px 72px;
+    font-size: 28px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    color: #fff;
+    background: linear-gradient(135deg, #ff3b7f 0%, #b000ff 100%);
+    border: none;
+    border-radius: 999px;
+    cursor: pointer;
+    box-shadow: 0 10px 40px rgba(176, 0, 255, 0.45),
+                0 0 0 1px rgba(255,255,255,0.15) inset;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    animation: btnPulse 2.4s infinite ease-in-out;
+  }
+  .start-btn:hover {
+    transform: scale(1.06);
+    box-shadow: 0 14px 50px rgba(255, 59, 127, 0.55),
+                0 0 0 1px rgba(255,255,255,0.25) inset;
+  }
+  .start-btn:active { transform: scale(0.98); }
+  @keyframes btnPulse {
+    0%, 100% { box-shadow: 0 10px 40px rgba(176, 0, 255, 0.45),
+                           0 0 0 1px rgba(255,255,255,0.15) inset; }
+    50%      { box-shadow: 0 14px 60px rgba(255, 59, 127, 0.7),
+                           0 0 0 1px rgba(255,255,255,0.3) inset; }
+  }
 </style>
 </head>
 <body>
@@ -65,6 +110,11 @@
     <div class="hotspot hotspot-b" id="hotspotB" title="在他酒里偷偷下药"></div>
 
     <button class="replay" id="replay">Replay</button>
+
+    <div class="start-overlay" id="startOverlay">
+      <button class="start-btn" id="startBtn">▶  Start</button>
+    </div>
+
     <audio id="bgmA" preload="auto" src="張紫豪 - 可不可以不希望我的未來不是你只願意和你永遠不分離動態歌詞Lyrics.mp3"></audio>
     <audio id="bgmB" preload="auto" src="张学友 你好毒DJMiko ProgHouse KTV 导唱字幕 备有伴奏视频.mp3"></audio>
   </div>
@@ -85,12 +135,14 @@
     b: { left: 0.150, top: 0.895, width: 0.705, height: 0.080 }  // 在他酒里偷偷下药
   };
 
-  const player    = document.getElementById("player");
-  const replay    = document.getElementById("replay");
-  const hotspotA  = document.getElementById("hotspotA");
-  const hotspotB  = document.getElementById("hotspotB");
-  const bgmA      = document.getElementById("bgmA");
-  const bgmB      = document.getElementById("bgmB");
+  const player        = document.getElementById("player");
+  const replay        = document.getElementById("replay");
+  const hotspotA      = document.getElementById("hotspotA");
+  const hotspotB      = document.getElementById("hotspotB");
+  const bgmA          = document.getElementById("bgmA");
+  const bgmB          = document.getElementById("bgmB");
+  const startOverlay  = document.getElementById("startOverlay");
+  const startBtn      = document.getElementById("startBtn");
   bgmA.volume = 0.7;
   bgmB.volume = 0.7;
 
@@ -107,6 +159,7 @@
 
   function playIntro() {
     stage = "intro";
+    player.muted = false;
     loadVideo(VIDEOS.intro);
     player.loop = true; // loop the intro until user picks an option
     player.play().catch(() => {});
@@ -217,16 +270,15 @@
     if (stage === "intro" || stage === "choosing") positionHotspots();
   });
 
-  // auto-start on load; if the browser blocks unmuted autoplay, retry muted
-  window.addEventListener("DOMContentLoaded", () => {
+  // require an explicit user gesture so audio plays unmuted
+  function handleStart() {
+    startOverlay.classList.add("hidden");
     playIntro();
-    const p = player.play();
-    if (p && typeof p.catch === "function") {
-      p.catch(() => {
-        player.muted = true;
-        player.play().catch(() => {});
-      });
-    }
+  }
+  startOverlay.addEventListener("click", handleStart);
+  startBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    handleStart();
   });
 </script>
 </body>
