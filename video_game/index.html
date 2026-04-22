@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Interactive Video Game</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    height: 100%;
+    background: #0a0a0f;
+    color: #eee;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    overflow: hidden;
+  }
+  .stage {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+  }
+  video {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    background: #000;
+    cursor: pointer;
+  }
+  /* invisible clickable regions layered on top of the in-video buttons */
+  .hotspot {
+    position: absolute;
+    cursor: pointer;
+    background: transparent;
+    pointer-events: none;
+  }
+  .hotspot.active {
+    pointer-events: auto;
+  }
+
+  .start-hint {
+    position: absolute;
+    bottom: 40px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 12px 24px;
+    background: rgba(0,0,0,0.55);
+    border: 1px solid rgba(255,255,255,0.25);
+    border-radius: 999px;
+    font-size: 14px;
+    letter-spacing: 0.5px;
+    animation: pulse 2s infinite ease-in-out;
+    pointer-events: none;
+    z-index: 5;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 0.6; }
+    50% { opacity: 1; }
+  }
+  .replay {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    padding: 8px 16px;
+    background: rgba(0,0,0,0.5);
+    border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 8px;
+    color: #fff;
+    font-size: 13px;
+    cursor: pointer;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+    z-index: 10;
+  }
+  .replay.visible { opacity: 1; pointer-events: auto; }
+  .replay:hover { background: rgba(255,255,255,0.15); }
+</style>
+</head>
+<body>
+  <div class="stage">
+    <video id="player" playsinline preload="auto"></video>
+
+    <!-- transparent overlays positioned over the two in-video buttons -->
+    <div class="hotspot hotspot-a" id="hotspotA" title="和她成为好姐妹"></div>
+    <div class="hotspot hotspot-b" id="hotspotB" title="在他酒里偷偷下药"></div>
+
+    <div class="start-hint" id="startHint">Click the video to start</div>
+    <button class="replay" id="replay">Replay</button>
+    <audio id="bgmA" preload="auto" src="張紫豪 - 可不可以不希望我的未來不是你只願意和你永遠不分離動態歌詞Lyrics.mp3"></audio>
+    <audio id="bgmB" preload="auto" src="张学友 你好毒DJMiko ProgHouse KTV 导唱字幕 备有伴奏视频.mp3"></audio>
+  </div>
+
+<script>
+  const VIDEOS = {
+    intro: "kling_20260422_作品_坐在左边的女的说_v2.mp4",
+    // top in-video button (和她成为好姐妹) → two women together path
+    a:     "kling_20260422_作品_The_two_wo_5524_0.mp4",
+    // bottom in-video button (在他酒里偷偷下药) → the girl path
+    b:     "kling_20260422_作品_The_girl_o_5542_0.mp4"
+  };
+
+  // button positions as fractions of the rendered video area (left, top, width, height)
+  // measured from the intro video's final frame
+  const HOTSPOTS = {
+    a: { left: 0.150, top: 0.775, width: 0.705, height: 0.080 }, // 和她成为好姐妹
+    b: { left: 0.150, top: 0.895, width: 0.705, height: 0.080 }  // 在他酒里偷偷下药
+  };
+
+  const player    = document.getElementById("player");
+  const startHint = document.getElementById("startHint");
+  const replay    = document.getElementById("replay");
+  const hotspotA  = document.getElementById("hotspotA");
+  const hotspotB  = document.getElementById("hotspotB");
+  const bgmA      = document.getElementById("bgmA");
+  const bgmB      = document.getElementById("bgmB");
+  bgmA.volume = 0.7;
+  bgmB.volume = 0.7;
+
+  function stopAllBgm() {
+    [bgmA, bgmB].forEach(a => { a.pause(); a.currentTime = 0; });
+  }
+
+  let stage = "idle"; // idle | intro | choosing | branch
+
+  function loadVideo(src) {
+    player.src = src;
+    player.load();
+  }
+
+  function playIntro() {
+    stage = "intro";
+    startHint.style.display = "none";
+    replay.classList.remove("visible");
+    loadVideo(VIDEOS.intro);
+    player.loop = true; // loop the intro until user picks an option
+    player.play().catch(() => {});
+    // arm the hotspots as soon as the intro starts — clickable during playback too
+    activateHotspots();
+  }
+
+  function activateHotspots() {
+    positionHotspots();
+    hotspotA.classList.add("active");
+    hotspotB.classList.add("active");
+  }
+  function deactivateHotspots() {
+    hotspotA.classList.remove("active");
+    hotspotB.classList.remove("active");
+  }
+
+  // compute the actual rendered area of the <video> after object-fit: contain,
+  // then place each hotspot at the correct percentage inside that area.
+  function positionHotspots() {
+    const vw = player.videoWidth;
+    const vh = player.videoHeight;
+    if (!vw || !vh) return;
+    const rect = player.getBoundingClientRect();
+    const videoAspect = vw / vh;
+    const boxAspect   = rect.width / rect.height;
+
+    let renderedW, renderedH, offsetX, offsetY;
+    if (videoAspect > boxAspect) {
+      renderedW = rect.width;
+      renderedH = rect.width / videoAspect;
+      offsetX = 0;
+      offsetY = (rect.height - renderedH) / 2;
+    } else {
+      renderedW = rect.height * videoAspect;
+      renderedH = rect.height;
+      offsetX = (rect.width - renderedW) / 2;
+      offsetY = 0;
+    }
+
+    for (const [key, el] of [["a", hotspotA], ["b", hotspotB]]) {
+      const h = HOTSPOTS[key];
+      el.style.left   = (offsetX + renderedW * h.left)   + "px";
+      el.style.top    = (offsetY + renderedH * h.top)    + "px";
+      el.style.width  = (renderedW * h.width)  + "px";
+      el.style.height = (renderedH * h.height) + "px";
+    }
+  }
+
+  const BGM_A_START = 72; // 1:12
+  const BGM_B_START = 64; // 1:04
+
+  function playBranch(key) {
+    stage = "branch";
+    deactivateHotspots();
+    loadVideo(VIDEOS[key]);
+    player.loop = (key === "a");
+    player.play().catch(() => {});
+    stopAllBgm();
+    if (key === "a") {
+      bgmA.loop = true;
+      bgmA.currentTime = BGM_A_START;
+      bgmA.play().catch(() => {});
+      // looping branch never fires 'ended' — show Replay right away
+      replay.classList.add("visible");
+    } else {
+      bgmB.loop = true;
+      bgmB.currentTime = BGM_B_START;
+      bgmB.play().catch(() => {});
+    }
+  }
+
+  player.addEventListener("click", () => {
+    if (stage === "idle") {
+      playIntro();
+    } else if (stage === "branch" && player.paused) {
+      player.play();
+    }
+  });
+
+  player.addEventListener("ended", () => {
+    if (stage === "intro") {
+      stage = "choosing";
+      // hotspots are already active from when the intro started
+      activateHotspots();
+    } else if (stage === "branch") {
+      replay.classList.add("visible");
+    }
+  });
+
+  // keep hotspots aligned as video metadata loads / resizes
+  player.addEventListener("loadedmetadata", () => {
+    if (stage === "intro" || stage === "choosing") positionHotspots();
+  });
+
+  hotspotA.addEventListener("click", () => playBranch("a"));
+  hotspotB.addEventListener("click", () => playBranch("b"));
+
+  replay.addEventListener("click", () => {
+    stage = "idle";
+    player.removeAttribute("src");
+    player.load();
+    stopAllBgm();
+    startHint.style.display = "block";
+    deactivateHotspots();
+    replay.classList.remove("visible");
+  });
+
+  window.addEventListener("resize", () => {
+    if (stage === "intro" || stage === "choosing") positionHotspots();
+  });
+</script>
+</body>
+</html>
