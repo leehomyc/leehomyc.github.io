@@ -36,25 +36,6 @@
     pointer-events: auto;
   }
 
-  .start-hint {
-    position: absolute;
-    bottom: 40px;
-    left: 50%;
-    transform: translateX(-50%);
-    padding: 12px 24px;
-    background: rgba(0,0,0,0.55);
-    border: 1px solid rgba(255,255,255,0.25);
-    border-radius: 999px;
-    font-size: 14px;
-    letter-spacing: 0.5px;
-    animation: pulse 2s infinite ease-in-out;
-    pointer-events: none;
-    z-index: 5;
-  }
-  @keyframes pulse {
-    0%, 100% { opacity: 0.6; }
-    50% { opacity: 1; }
-  }
   .replay {
     position: absolute;
     top: 20px;
@@ -83,7 +64,6 @@
     <div class="hotspot hotspot-a" id="hotspotA" title="和她成为好姐妹"></div>
     <div class="hotspot hotspot-b" id="hotspotB" title="在他酒里偷偷下药"></div>
 
-    <div class="start-hint" id="startHint">Click the video to start</div>
     <button class="replay" id="replay">Replay</button>
     <audio id="bgmA" preload="auto" src="張紫豪 - 可不可以不希望我的未來不是你只願意和你永遠不分離動態歌詞Lyrics.mp3"></audio>
     <audio id="bgmB" preload="auto" src="张学友 你好毒DJMiko ProgHouse KTV 导唱字幕 备有伴奏视频.mp3"></audio>
@@ -106,7 +86,6 @@
   };
 
   const player    = document.getElementById("player");
-  const startHint = document.getElementById("startHint");
   const replay    = document.getElementById("replay");
   const hotspotA  = document.getElementById("hotspotA");
   const hotspotB  = document.getElementById("hotspotB");
@@ -128,13 +107,13 @@
 
   function playIntro() {
     stage = "intro";
-    startHint.style.display = "none";
-    replay.classList.remove("visible");
     loadVideo(VIDEOS.intro);
     player.loop = true; // loop the intro until user picks an option
     player.play().catch(() => {});
     // arm the hotspots as soon as the intro starts — clickable during playback too
     activateHotspots();
+    // replay is always available
+    replay.classList.add("visible");
   }
 
   function activateHotspots() {
@@ -205,7 +184,7 @@
   player.addEventListener("click", () => {
     if (stage === "idle") {
       playIntro();
-    } else if (stage === "branch" && player.paused) {
+    } else if (player.paused) {
       player.play();
     }
   });
@@ -229,17 +208,25 @@
   hotspotB.addEventListener("click", () => playBranch("b"));
 
   replay.addEventListener("click", () => {
-    stage = "idle";
-    player.removeAttribute("src");
-    player.load();
     stopAllBgm();
-    startHint.style.display = "block";
     deactivateHotspots();
-    replay.classList.remove("visible");
+    playIntro();
   });
 
   window.addEventListener("resize", () => {
     if (stage === "intro" || stage === "choosing") positionHotspots();
+  });
+
+  // auto-start on load; if the browser blocks unmuted autoplay, retry muted
+  window.addEventListener("DOMContentLoaded", () => {
+    playIntro();
+    const p = player.play();
+    if (p && typeof p.catch === "function") {
+      p.catch(() => {
+        player.muted = true;
+        player.play().catch(() => {});
+      });
+    }
   });
 </script>
 </body>
