@@ -115,8 +115,8 @@
       <button class="start-btn" id="startBtn">▶  Start</button>
     </div>
 
-    <audio id="bgmA" preload="auto" src="bgm_a.mp3"></audio>
-    <audio id="bgmB" preload="auto" src="bgm_b.mp3"></audio>
+    <audio id="bgmA" preload="metadata" src="bgm_a.mp3"></audio>
+    <audio id="bgmB" preload="metadata" src="bgm_b.mp3"></audio>
   </div>
 
 <script>
@@ -148,7 +148,7 @@
   bgmB.volume = 0.7;
 
   function stopAllBgm() {
-    [bgmA, bgmB].forEach(a => { a.pause(); a.currentTime = 0; });
+    [bgmA, bgmB].forEach(a => { a.pause(); });
   }
 
   let stage = "idle"; // idle | intro | choosing | branch
@@ -266,31 +266,9 @@
     if (stage === "intro" || stage === "choosing") positionHotspots();
   });
 
-  // iOS requires each <audio> element to be touched inside a user gesture
-  // before it will play later. Briefly play+pause both BGM tracks silently
-  // during the Start click so they can be started programmatically on branch.
-  // Note: iOS Safari ignores programmatic .volume changes — use .muted instead.
-  function primeBgm() {
-    [bgmA, bgmB].forEach(a => {
-      a.muted = true;
-      const p = a.play();
-      const finish = () => {
-        a.pause();
-        a.currentTime = 0;
-        a.muted = false;
-      };
-      if (p && typeof p.then === "function") {
-        p.then(finish).catch(() => { a.muted = false; });
-      } else {
-        finish();
-      }
-    });
-  }
-
   // require an explicit user gesture so audio plays unmuted
   function handleStart() {
     startOverlay.classList.add("hidden");
-    primeBgm();
     playIntro();
   }
   startOverlay.addEventListener("click", handleStart);
