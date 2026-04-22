@@ -115,8 +115,8 @@
       <button class="start-btn" id="startBtn">▶  Start</button>
     </div>
 
-    <audio id="bgmA" preload="auto" src="張紫豪 - 可不可以不希望我的未來不是你只願意和你永遠不分離動態歌詞Lyrics.mp3"></audio>
-    <audio id="bgmB" preload="auto" src="张学友 你好毒DJMiko ProgHouse KTV 导唱字幕 备有伴奏视频.mp3"></audio>
+    <audio id="bgmA" preload="auto" src="bgm_a.mp3"></audio>
+    <audio id="bgmB" preload="auto" src="bgm_b.mp3"></audio>
   </div>
 
 <script>
@@ -144,9 +144,6 @@
   const startOverlay  = document.getElementById("startOverlay");
   const startBtn      = document.getElementById("startBtn");
 
-  // WeChat's in-app WebView mis-handles seeks into VBR mp3s (the audio plays
-  // garbled or cuts out). Detect it so we can fall back to playing from 0.
-  const isWeChat = /MicroMessenger/i.test(navigator.userAgent);
   bgmA.volume = 0.7;
   bgmB.volume = 0.7;
 
@@ -215,19 +212,13 @@
     }
   }
 
-  const BGM_A_START = 72; // 1:12
-  const BGM_B_START = 64; // 1:04
-
   function playBranch(key) {
     stage = "branch";
     deactivateHotspots();
     stopAllBgm();
     // pick BGM first, set it playing during this user gesture so iOS permits it
     const bgm = (key === "a") ? bgmA : bgmB;
-    const startTime = (key === "a") ? BGM_A_START : BGM_B_START;
     bgm.loop = true;
-    // In WeChat, skip the seek — seeking VBR mp3s there produces broken audio.
-    try { bgm.currentTime = isWeChat ? 0 : startTime; } catch (e) {}
     bgm.play().catch(() => {});
     // mute the branch video: iOS serializes audio streams, so a loud clip would
     // mute the BGM on mobile. Only the BGM should be heard on branch videos.
