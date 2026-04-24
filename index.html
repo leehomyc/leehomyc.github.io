@@ -646,44 +646,7 @@
                 transform: translateX(50%);
             }
         }
-
-        /* Full-screen opening video, zooms out to reveal the page */
-        .opening-overlay {
-            position: fixed;
-            inset: 0;
-            background: #000;
-            z-index: 99999;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-            transition: transform 0.9s cubic-bezier(0.16, 1, 0.3, 1),
-                        opacity 0.9s ease;
-            cursor: pointer;
-            transform-origin: center center;
-        }
-
-        .opening-overlay video {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .opening-overlay.dismissed {
-            transform: scale(0.05);
-            opacity: 0;
-            pointer-events: none;
-        }
-
-        body.opening-locked {
-            overflow: hidden;
-        }
     </style>
-
-    <!-- Opening Video -->
-    <div class="opening-overlay" id="openingOverlay">
-        <video id="openingVideo" autoplay muted playsinline preload="auto" src="opening_video.mp4"></video>
-    </div>
 
     <!-- Hero -->
     <section class="hero">
@@ -1517,26 +1480,6 @@
 
         window.scrollToSlide = initCarousel('carousel', 'dots', 5000);
         initCarousel('product-carousel', 'product-dots', 4000);
-
-        // Opening video: play once, then zoom out to reveal the page.
-        (function () {
-            const overlay = document.getElementById('openingOverlay');
-            const video = document.getElementById('openingVideo');
-            if (!overlay || !video) return;
-            document.body.classList.add('opening-locked');
-            let dismissed = false;
-            function dismiss() {
-                if (dismissed) return;
-                dismissed = true;
-                overlay.classList.add('dismissed');
-                document.body.classList.remove('opening-locked');
-                setTimeout(() => overlay.remove(), 1000);
-            }
-            video.addEventListener('ended', dismiss);
-            overlay.addEventListener('click', dismiss);
-            // Safety net: if autoplay fails or metadata never loads, don't trap the user
-            setTimeout(dismiss, 8000);
-        })();
     </script>
 </body>
 
