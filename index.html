@@ -1454,20 +1454,28 @@
                 });
             }
 
+            let timer;
+            function startAutoAdvance() {
+                clearInterval(timer);
+                timer = setInterval(() => {
+                    const width = carousel.offsetWidth;
+                    const currentIndex = Math.round(carousel.scrollLeft / width);
+                    const nextIndex = (currentIndex + 1) % dots.length;
+                    scrollToIndex(nextIndex);
+                }, intervalMs);
+            }
+
             dots.forEach((dot, index) => {
-                dot.addEventListener('click', () => scrollToIndex(index));
+                dot.addEventListener('click', () => {
+                    scrollToIndex(index);
+                    startAutoAdvance(); // reset so user gets a full interval on the chosen slide
+                });
             });
 
             carousel.addEventListener('scroll', updateActiveDot);
+            startAutoAdvance();
 
-            setInterval(() => {
-                const width = carousel.offsetWidth;
-                const currentIndex = Math.round(carousel.scrollLeft / width);
-                const nextIndex = (currentIndex + 1) % dots.length;
-                scrollToIndex(nextIndex);
-            }, intervalMs);
-
-            return scrollToIndex;
+            return (index) => { scrollToIndex(index); startAutoAdvance(); };
         }
 
         window.scrollToSlide = initCarousel('carousel', 'dots', 5000);
