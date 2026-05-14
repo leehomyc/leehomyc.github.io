@@ -322,6 +322,24 @@
             text-decoration: none;
         }
 
+        .gh-stars {
+            display: inline-block;
+            margin-left: 10px;
+            padding: 2px 8px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.85);
+            font-size: 13px;
+            font-weight: 500;
+            vertical-align: middle;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .gh-stars.loaded {
+            opacity: 1;
+        }
+
         .card-dark {
             background: #1d1d1f;
             color: #f5f5f7;
@@ -750,6 +768,7 @@
                         <div class="card-desc">Automated AI research.<br>Idea generation, experimentation, and iteration in one open-source loop.</div>
                         <a href="https://github.com/leehomyc/EurekAI" class="card-link"
                             style="color: #2997ff;">Open Source &rarr;</a>
+                        <span class="gh-stars" data-repo="leehomyc/EurekAI"></span>
                     </div>
                     <img src="einstein.jpg" class="card-image-bg" alt="Albert Einstein portrait"
                         style="opacity: 0.78; object-position: center top;">
@@ -761,6 +780,7 @@
                         <div class="card-desc">AI PPT and Poster generator.<br>Turn papers into presentations and posters instantly.</div>
                         <a href="https://github.com/leehomyc/SlidesAI" class="card-link"
                             style="color: #2997ff;">Open Source &rarr;</a>
+                        <span class="gh-stars" data-repo="leehomyc/SlidesAI"></span>
                     </div>
                     <img src="ai_ppt2.png" class="card-image-bg" style="opacity: 0.8;">
                 </div>
@@ -771,6 +791,7 @@
                         <div class="card-desc">A personal AI health companion for iOS.<br>Conversational meal scanning, sleep &amp; activity tracking, proactive guidance, and empathetic emotional support.</div>
                         <a href="https://github.com/leehomyc/OnlyYou" class="card-link"
                             style="color: #2997ff;">Open Source &rarr;</a>
+                        <span class="gh-stars" data-repo="leehomyc/OnlyYou"></span>
                     </div>
                     <img src="only_you.PNG" class="card-image-bg" style="opacity: 0.8;">
                 </div>
@@ -781,6 +802,7 @@
                         <div class="card-desc">Video interpolation model.<br>Smooth, high-quality frame interpolation with Wan.</div>
                         <a href="https://github.com/ff2416/WanFM" class="card-link"
                             style="color: #2997ff;">Open Source &rarr;</a>
+                        <span class="gh-stars" data-repo="ff2416/WanFM"></span>
                     </div>
                     <img src="https://raw.githubusercontent.com/ff2416/WanFM/main/examples/flf2v_input_first_frame.png"
                         class="card-image-bg" style="opacity: 0.8;">
@@ -1564,6 +1586,27 @@
 
         window.scrollToSlide = initCarousel('carousel', 'dots', 5000);
         initCarousel('product-carousel', 'product-dots', 4000);
+
+        function formatStars(n) {
+            if (n >= 1000) return (n / 1000).toFixed(1).replace(/\.0$/, '') + 'k';
+            return String(n);
+        }
+
+        async function loadGitHubStars() {
+            const elements = document.querySelectorAll('.gh-stars[data-repo]');
+            await Promise.all(Array.from(elements).map(async (el) => {
+                const repo = el.dataset.repo;
+                try {
+                    const res = await fetch(`https://api.github.com/repos/${repo}`);
+                    if (!res.ok) return;
+                    const data = await res.json();
+                    el.textContent = `★ ${formatStars(data.stargazers_count)}`;
+                    el.classList.add('loaded');
+                } catch (e) { /* leave hidden on failure */ }
+            }));
+        }
+
+        loadGitHubStars();
     </script>
 </body>
 
