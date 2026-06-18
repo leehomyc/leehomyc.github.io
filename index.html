@@ -373,6 +373,8 @@
 
         /* Research List */
         .research-list {
+            display: flex;
+            flex-direction: column;
             max-width: 900px;
             margin: 0 auto;
             padding: 0 24px;
@@ -382,6 +384,11 @@
             border-bottom: 1px solid #e5e5e5;
             padding: 32px 0;
             transition: opacity 0.3s;
+            order: 3;
+        }
+
+        .paper-item.preprint {
+            order: 1;
         }
 
         .paper-item:hover {
@@ -406,6 +413,37 @@
             font-weight: 700;
             letter-spacing: 0.02em;
             vertical-align: middle;
+        }
+
+        .research-group-label {
+            order: 0;
+            color: var(--text-secondary);
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            margin: 6px 0 -8px;
+            text-transform: uppercase;
+        }
+
+        .research-divider {
+            align-items: center;
+            color: var(--text-secondary);
+            display: flex;
+            font-size: 13px;
+            font-weight: 700;
+            gap: 16px;
+            letter-spacing: 0.08em;
+            margin: 34px 0 0;
+            order: 2;
+            text-transform: uppercase;
+        }
+
+        .research-divider::before,
+        .research-divider::after {
+            background: #d8d8dc;
+            content: '';
+            flex: 1;
+            height: 1px;
         }
 
         .paper-title {
@@ -902,6 +940,8 @@
         <em>Italic</em> denotes PhD student, <u>underline</u> denotes RA or intern.
     </div>
     <div class="research-list">
+        <div class="research-group-label">Preprints and technical reports</div>
+        <div class="research-divider" data-aos="fade-up"><span>Reviewed papers</span></div>
 
         <div class="paper-item" data-aos="fade-up">
             <div class="paper-meta">ECCV 2026</div>
@@ -951,7 +991,7 @@
             </div>
         </div>
 
-        <div class="paper-item" data-aos="fade-up">
+        <div class="paper-item preprint" data-aos="fade-up">
             <div class="paper-meta">arXiv 2026</div>
             <div class="paper-title">Hallucination as Exploit: Evidence-Carrying Multimodal Agents</div>
             <div class="paper-authors"><u>Guijia Zhang</u>, Hao Zheng, <strong>Harry Yang</strong></div>
@@ -960,7 +1000,7 @@
             </div>
         </div>
 
-        <div class="paper-item" data-aos="fade-up">
+        <div class="paper-item preprint" data-aos="fade-up">
             <div class="paper-meta">arXiv 2026</div>
             <div class="paper-title">D-OPSD: On-Policy Self-Distillation for Continuously Tuning Step-Distilled Diffusion
                 Models</div>
@@ -975,7 +1015,7 @@
             </div>
         </div>
 
-        <div class="paper-item" data-aos="fade-up">
+        <div class="paper-item preprint" data-aos="fade-up">
             <div class="paper-meta">arXiv 2026</div>
             <div class="paper-title">AHPA: Adaptive Hierarchical Prior Alignment for Diffusion Transformers</div>
             <div class="paper-authors"><u>Ruibin Min</u>, <em>Yexin Liu</em>, Aimin Pan, Changsheng Lu, Jiafei Wu, Kelu Yao, Xiaogang Xu,
@@ -1094,7 +1134,7 @@
         </div>
 
 
-        <div class="paper-item" data-aos="fade-up">
+        <div class="paper-item preprint" data-aos="fade-up">
             <div class="paper-meta">Technical Report</div>
             <div class="paper-title">INT4 Quantization for FlashAttention</div>
             <div class="paper-authors"><em>Yaofu Liu</em>, <strong>Harry Yang</strong></div>
@@ -1105,7 +1145,7 @@
             </div>
         </div>
 
-        <div class="paper-item" data-aos="fade-up">
+        <div class="paper-item preprint" data-aos="fade-up">
             <div class="paper-meta">arXiv 2026</div>
             <div class="paper-title">Thinking in Loops: Scaling Visual ARC with Looped Transformers</div>
             <div class="paper-authors"><u>Wen-Jie Shu</u>, Xuerui Qiu, Rui-Jie Zhu, <u>Harold Haodong Chen</u>, <em>Yexin Liu</em>, <strong>Harry Yang</strong>
@@ -1120,7 +1160,7 @@
             </div>
         </div>
 
-        <div class="paper-item" data-aos="fade-up">
+        <div class="paper-item preprint" data-aos="fade-up">
             <div class="paper-meta">arXiv 2026</div>
             <div class="paper-title">SAGE-GRPO: Manifold-Aware Exploration for Reinforcement Learning in Video
                 Generation</div>
