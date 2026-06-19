@@ -420,9 +420,8 @@
             color: var(--text-secondary);
             font-size: 13px;
             font-weight: 700;
-            letter-spacing: 0.08em;
+            letter-spacing: 0.02em;
             margin: 6px 0 -8px;
-            text-transform: uppercase;
         }
 
         .research-divider {
@@ -432,10 +431,9 @@
             font-size: 13px;
             font-weight: 700;
             gap: 16px;
-            letter-spacing: 0.08em;
+            letter-spacing: 0.02em;
             margin: 34px 0 0;
             order: 2;
-            text-transform: uppercase;
         }
 
         .research-divider::before,
@@ -451,6 +449,13 @@
             font-weight: 600;
             margin-bottom: 8px;
             color: var(--text-primary);
+        }
+
+        .paper-note {
+            color: var(--text-secondary);
+            font-size: 14px;
+            font-weight: 600;
+            margin: -2px 0 10px;
         }
 
         .paper-authors {
@@ -940,8 +945,8 @@
         <em>Italic</em> denotes PhD student, <u>underline</u> denotes RA or intern.
     </div>
     <div class="research-list">
-        <div class="research-group-label">Preprints and technical reports</div>
-        <div class="research-divider" data-aos="fade-up"><span>Reviewed papers</span></div>
+        <div class="research-group-label">Preprints and Technical Reports</div>
+        <div class="research-divider" data-aos="fade-up"><span>Reviewed Papers</span></div>
 
         <div class="paper-item" data-aos="fade-up">
             <div class="paper-meta">ECCV 2026</div>
@@ -1137,6 +1142,7 @@
         <div class="paper-item preprint" data-aos="fade-up">
             <div class="paper-meta">Technical Report</div>
             <div class="paper-title">INT4 Quantization for FlashAttention</div>
+            <div class="paper-note">Full paper accepted to ECCV 2026.</div>
             <div class="paper-authors"><em>Yaofu Liu</em>, <strong>Harry Yang</strong></div>
             <div class="paper-links">
                 <a
@@ -1185,7 +1191,7 @@
         </div>
 
         <div class="paper-item" data-aos="fade-up">
-            <div class="paper-meta">AAAI 2026 (Poster)</div>
+            <div class="paper-meta">AAAI 2026</div>
             <div class="paper-title">Next Patch Prediction for AutoRegressive Visual Generation</div>
             <div class="paper-authors"><u>Yatian Pang</u>, Peng Jin, Shuo Yang, Bin Lin, Bin Zhu, Zhenyu Tang, Liuhan Chen,
                 Francis E. H. Tay, Ser-Nam Lim, <strong>Harry Yang</strong>, Li Yuan</div>
