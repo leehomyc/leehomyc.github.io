@@ -433,6 +433,51 @@
             order: 2;
         }
 
+        .scholar-metrics {
+            align-items: center;
+            display: flex;
+            gap: 18px;
+            justify-content: center;
+            margin: -22px 0 30px;
+            padding: 0 24px;
+        }
+
+        .scholar-metric {
+            color: var(--text-primary);
+            min-width: 92px;
+            text-align: center;
+            text-decoration: none;
+        }
+
+        .scholar-metric:hover {
+            text-decoration: none;
+        }
+
+        .scholar-metric-value {
+            display: block;
+            font-size: 22px;
+            font-weight: 700;
+            line-height: 1.1;
+        }
+
+        .scholar-metric-label {
+            color: var(--text-secondary);
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            margin-top: 4px;
+        }
+
+        @media (max-width: 520px) {
+            .scholar-metrics {
+                gap: 12px;
+            }
+
+            .scholar-metric {
+                min-width: 78px;
+            }
+        }
+
         .paper-title {
             font-size: 22px;
             font-weight: 600;
@@ -930,6 +975,16 @@
 
     <!-- Research -->
     <h2 class="section-title" id="research">Selected Research</h2>
+    <div class="scholar-metrics" data-aos="fade-up" aria-label="Google Scholar metrics">
+        <a class="scholar-metric" href="https://scholar.google.com/citations?hl=en&user=jpIFgToAAAAJ">
+            <span class="scholar-metric-value" id="scholar-citations">7,575</span>
+            <span class="scholar-metric-label">Citations</span>
+        </a>
+        <a class="scholar-metric" href="https://scholar.google.com/citations?hl=en&user=jpIFgToAAAAJ">
+            <span class="scholar-metric-value" id="scholar-h-index">34</span>
+            <span class="scholar-metric-label">h-index</span>
+        </a>
+    </div>
     <div style="text-align: center; color: var(--text-secondary); font-size: 14px; margin: -20px 0 30px;">
         <em>Italic</em> denotes PhD student, <u>underline</u> denotes RA or intern.
     </div>
@@ -1710,6 +1765,7 @@
     </footer>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
+    <script src="scholar_metrics.js"></script>
     <script>
         AOS.init({
             duration: 1000,
@@ -1792,7 +1848,25 @@
             }));
         }
 
+        function loadScholarMetrics() {
+            const metrics = window.scholarMetrics;
+            if (!metrics) return;
+
+            const citations = document.getElementById('scholar-citations');
+            const hIndex = document.getElementById('scholar-h-index');
+            const formatter = new Intl.NumberFormat('en-US');
+
+            if (citations && Number.isFinite(metrics.citations)) {
+                citations.textContent = formatter.format(metrics.citations);
+            }
+
+            if (hIndex && Number.isFinite(metrics.hIndex)) {
+                hIndex.textContent = formatter.format(metrics.hIndex);
+            }
+        }
+
         loadGitHubStars();
+        loadScholarMetrics();
     </script>
 </body>
 
