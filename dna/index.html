@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DNA Lab | Digital Neural Alive</title>
+    <link rel="icon" type="image/png" href="../favicon.png">
+    <style>
+        :root {
+            --ink: #111318;
+            --muted: #5f6673;
+            --line: #dfe3ea;
+            --paper: #ffffff;
+            --soft: #f5f7fb;
+            --blue: #0057b8;
+            --green: #0b7a64;
+            --amber: #b35c00;
+            --max: 1120px;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            color: var(--ink);
+            background: var(--soft);
+            line-height: 1.55;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        a {
+            color: var(--blue);
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .topbar {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            background: rgba(255, 255, 255, 0.92);
+            border-bottom: 1px solid rgba(17, 19, 24, 0.08);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+        }
+
+        .nav {
+            max-width: var(--max);
+            margin: 0 auto;
+            padding: 14px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 24px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: baseline;
+            gap: 10px;
+            color: var(--ink);
+            white-space: nowrap;
+        }
+
+        .brand strong {
+            font-size: 18px;
+            letter-spacing: 0;
+        }
+
+        .brand span {
+            font-size: 13px;
+            color: var(--muted);
+        }
+
+        .nav-links {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+            gap: 16px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .nav-links a {
+            color: var(--ink);
+        }
+
+        .hero {
+            background: var(--paper);
+            border-bottom: 1px solid var(--line);
+        }
+
+        .hero-inner {
+            max-width: var(--max);
+            margin: 0 auto;
+            padding: 72px 24px 52px;
+            display: grid;
+            grid-template-columns: minmax(0, 1.05fr) minmax(320px, 0.95fr);
+            gap: 48px;
+            align-items: center;
+        }
+
+        .eyebrow {
+            margin: 0 0 12px;
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--green);
+        }
+
+        h1 {
+            margin: 0;
+            font-size: clamp(42px, 7vw, 78px);
+            line-height: 0.98;
+            letter-spacing: 0;
+        }
+
+        .hero-copy {
+            max-width: 680px;
+            margin: 22px 0 0;
+            font-size: clamp(18px, 2vw, 22px);
+            color: var(--muted);
+        }
+
+        .hero-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 30px;
+        }
+
+        .button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 42px;
+            padding: 10px 16px;
+            border: 1px solid var(--ink);
+            border-radius: 6px;
+            color: var(--ink);
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+        .button.primary {
+            background: var(--ink);
+            color: white;
+        }
+
+        .hero-media {
+            margin: 0;
+        }
+
+        .hero-media img {
+            display: block;
+            width: 100%;
+            aspect-ratio: 4 / 3;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 1px solid var(--line);
+            box-shadow: 0 20px 50px rgba(17, 19, 24, 0.12);
+        }
+
+        .hero-media figcaption {
+            margin-top: 10px;
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        .band {
+            border-bottom: 1px solid var(--line);
+        }
+
+        .band.white {
+            background: var(--paper);
+        }
+
+        .section {
+            max-width: var(--max);
+            margin: 0 auto;
+            padding: 58px 24px;
+        }
+
+        .section-head {
+            display: grid;
+            grid-template-columns: 240px minmax(0, 1fr);
+            gap: 36px;
+            margin-bottom: 28px;
+            align-items: start;
+        }
+
+        h2 {
+            margin: 0;
+            font-size: 26px;
+            line-height: 1.15;
+            letter-spacing: 0;
+        }
+
+        .lead {
+            margin: 0;
+            color: var(--muted);
+            font-size: 18px;
+            max-width: 760px;
+        }
+
+        .theme-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 16px;
+        }
+
+        .theme {
+            min-height: 210px;
+            padding: 22px;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            background: var(--paper);
+        }
+
+        .theme-number {
+            font-size: 13px;
+            font-weight: 800;
+            color: var(--amber);
+        }
+
+        .theme h3 {
+            margin: 22px 0 10px;
+            font-size: 19px;
+            line-height: 1.2;
+        }
+
+        .theme p {
+            margin: 0;
+            color: var(--muted);
+            font-size: 15px;
+        }
+
+        .people-layout {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 18px;
+        }
+
+        .person-card,
+        .people-panel {
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            background: var(--paper);
+        }
+
+        .person-card {
+            padding: 24px;
+        }
+
+        .person-card img {
+            width: 96px;
+            height: 96px;
+            object-fit: cover;
+            border-radius: 50%;
+            margin-bottom: 18px;
+        }
+
+        .person-card h3,
+        .people-panel h3 {
+            margin: 0 0 8px;
+            font-size: 20px;
+        }
+
+        .person-card p {
+            margin: 0 0 16px;
+            color: var(--muted);
+        }
+
+        .mini-links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .people-panel {
+            padding: 24px;
+        }
+
+        .name-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .name {
+            padding: 13px 14px;
+            background: var(--soft);
+            border: 1px solid rgba(17, 19, 24, 0.06);
+            border-radius: 8px;
+        }
+
+        .name strong {
+            display: block;
+            font-size: 15px;
+        }
+
+        .name span {
+            display: block;
+            color: var(--muted);
+            font-size: 13px;
+            margin-top: 2px;
+        }
+
+        .paper-list {
+            display: grid;
+            gap: 14px;
+        }
+
+        .paper {
+            padding: 20px 22px;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            background: var(--paper);
+        }
+
+        .paper-meta {
+            color: var(--green);
+            font-size: 13px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .paper-title {
+            margin: 8px 0 6px;
+            font-size: 18px;
+            font-weight: 800;
+            line-height: 1.3;
+        }
+
+        .paper-authors {
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        .paper-links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 10px;
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .contact-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 16px;
+        }
+
+        .contact-item {
+            padding: 22px;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            background: var(--paper);
+        }
+
+        .contact-item h3 {
+            margin: 0 0 10px;
+            font-size: 18px;
+        }
+
+        .contact-item p {
+            margin: 0;
+            color: var(--muted);
+        }
+
+        footer {
+            padding: 34px 24px;
+            color: var(--muted);
+            font-size: 14px;
+            text-align: center;
+        }
+
+        @media (max-width: 900px) {
+            .hero-inner,
+            .section-head,
+            .people-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .theme-grid,
+            .contact-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .name-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 640px) {
+            .nav {
+                align-items: flex-start;
+                flex-direction: column;
+                gap: 12px;
+            }
+
+            .nav-links {
+                justify-content: flex-start;
+                gap: 12px;
+            }
+
+            .hero-inner {
+                padding-top: 44px;
+                gap: 28px;
+            }
+
+            .theme-grid,
+            .contact-grid,
+            .name-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header class="topbar">
+        <nav class="nav" aria-label="DNA Lab navigation">
+            <a class="brand" href="#home" aria-label="DNA Lab home">
+                <strong>DNA Lab</strong>
+                <span>Digital Neural Alive</span>
+            </a>
+            <div class="nav-links">
+                <a href="../">Harry Yang</a>
+                <a href="#about">About</a>
+                <a href="#research">Research</a>
+                <a href="#people">People</a>
+                <a href="#publications">Publications</a>
+                <a href="#contact">Contact</a>
+            </div>
+        </nav>
+    </header>
+
+    <main id="home">
+        <section class="hero">
+            <div class="hero-inner">
+                <div>
+                    <p class="eyebrow">HKUST AMC</p>
+                    <h1>DNA: Digital Neural Alive</h1>
+                    <p class="hero-copy">
+                        DNA Lab studies generative world models, multimodal agents, and controllable visual intelligence
+                        for systems that can see, make, reason, and act in dynamic environments.
+                    </p>
+                    <div class="hero-actions">
+                        <a class="button primary" href="#research">Research Areas</a>
+                        <a class="button" href="#contact">Join Us</a>
+                    </div>
+                </div>
+                <figure class="hero-media">
+                    <img src="../iclr.png" alt="DNA Lab group gathering at ICLR 2025 in Singapore">
+                    <figcaption>Group gathering at ICLR 2025 in Singapore.</figcaption>
+                </figure>
+            </div>
+        </section>
+
+        <section class="band white" id="about">
+            <div class="section">
+                <div class="section-head">
+                    <h2>What We Do</h2>
+                    <p class="lead">
+                        We build AI systems around three connected questions: how neural models represent a changing
+                        world, how humans steer generated media and agents, and how research prototypes become reliable
+                        tools for creative, scientific, and social use.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <section class="band" id="research">
+            <div class="section">
+                <div class="section-head">
+                    <h2>Research Themes</h2>
+                    <p class="lead">
+                        DNA Lab's agenda connects image and video generation, world modeling, embodied and GUI agents,
+                        efficient model adaptation, and human-centered applications.
+                    </p>
+                </div>
+                <div class="theme-grid">
+                    <article class="theme">
+                        <div class="theme-number">01</div>
+                        <h3>World Models and Video Generation</h3>
+                        <p>Physically plausible generation, multi-shot visual reasoning, controllable motion, and
+                            video-native representations.</p>
+                    </article>
+                    <article class="theme">
+                        <div class="theme-number">02</div>
+                        <h3>Multimodal Agents</h3>
+                        <p>Agents that ground decisions in pixels, structure, evidence, and interactive feedback instead
+                            of brittle language-only traces.</p>
+                    </article>
+                    <article class="theme">
+                        <div class="theme-number">03</div>
+                        <h3>Efficient Neural Systems</h3>
+                        <p>Quantization, feature reuse, preference optimization, and scalable training or inference
+                            methods for modern generative models.</p>
+                    </article>
+                    <article class="theme">
+                        <div class="theme-number">04</div>
+                        <h3>Human and Creative AI</h3>
+                        <p>AI-guided creation, narrative self-films, health companions, video tools, and interfaces that
+                            keep human intent in the loop.</p>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <section class="band white" id="people">
+            <div class="section">
+                <div class="section-head">
+                    <h2>Who We Are</h2>
+                    <p class="lead">
+                        DNA Lab is led by Harry Yang at HKUST AMC, with students and interns working across visual
+                        generation, multimodal reasoning, agents, and applied AI systems.
+                    </p>
+                </div>
+                <div class="people-layout">
+                    <article class="person-card">
+                        <img src="../me.JPG" alt="Harry Yang">
+                        <h3>Harry Yang</h3>
+                        <p>Assistant Professor at HKUST AMC and affiliate of HKUST Von Neumann Institute. Previously
+                            Visiting Professor at Yale and Research Scientist at Meta.</p>
+                        <div class="mini-links">
+                            <a href="https://scholar.google.com/citations?hl=en&user=jpIFgToAAAAJ">Scholar</a>
+                            <a href="https://github.com/leehomyc/">GitHub</a>
+                            <a href="mailto:yangharry@ust.hk">Email</a>
+                        </div>
+                    </article>
+                    <article class="people-panel">
+                        <h3>Current Students</h3>
+                        <div class="name-grid">
+                            <div class="name"><strong>Zihao Wang</strong><span>HKUST</span></div>
+                            <div class="name"><strong>Yexin Liu</strong><span>HKUST-GZ</span></div>
+                            <div class="name"><strong>Xuran Ma</strong><span>BIT</span></div>
+                            <div class="name"><strong>Mingzhe Zheng</strong><span>NPU</span></div>
+                            <div class="name"><strong>Jiajun Zha</strong><span>Fudan</span></div>
+                            <div class="name"><strong>Yaofu Liu</strong><span>HKUST</span></div>
+                            <div class="name"><strong>Haoze Zheng</strong><span>Beijing Jiaotong</span></div>
+                            <div class="name"><strong>Wenjie Shu</strong><span>UESTC</span></div>
+                            <div class="name"><strong>Weixiao Wang</strong><span>CUHK</span></div>
+                            <div class="name"><strong>Dengyang Jiang</strong><span>NPU</span></div>
+                            <div class="name"><strong>Haiying He</strong><span>China Agricultural University</span></div>
+                        </div>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <section class="band" id="publications">
+            <div class="section">
+                <div class="section-head">
+                    <h2>Selected Publications</h2>
+                    <p class="lead">
+                        Recent work from Harry Yang's group, selected from the current hyang.org research list.
+                    </p>
+                </div>
+                <div class="paper-list">
+                    <article class="paper">
+                        <div class="paper-meta">ECCV 2026</div>
+                        <div class="paper-title">RotateAttention: RoPE-Aware Rotation and Range Rectification for INT4
+                            Quantized Attention in Video Generation</div>
+                        <div class="paper-authors">LIU Yaofu, Lan Wangli, lijinxi, Binhang Yuan, Harry Yang</div>
+                        <div class="paper-links">
+                            <a href="https://arxiv.org/abs/2607.02584">arXiv</a>
+                            <a href="https://github.com/yliuls/RotateAttn">Code</a>
+                        </div>
+                    </article>
+                    <article class="paper">
+                        <div class="paper-meta">arXiv 2026</div>
+                        <div class="paper-title">Do GUI Agents Believe Their Eyes? Diagnosing State-Belief Reliance on
+                            Pixels versus Structure</div>
+                        <div class="paper-authors">Guijia Zhang, Harry Yang</div>
+                        <div class="paper-links">
+                            <a href="https://arxiv.org/abs/2607.04334">arXiv</a>
+                        </div>
+                    </article>
+                    <article class="paper">
+                        <div class="paper-meta">ICML 2026</div>
+                        <div class="paper-title">AlignVid: Training-Free Attention Scaling for Semantic Fidelity in
+                            Text-Guided Image-to-Video Generation</div>
+                        <div class="paper-authors">Yexin Liu, Wen-Jie Shu, Zile Huang, Haoze Zheng, Yueze Wang, Manyuan
+                            Zhang, Ser-Nam Lim, Harry Yang</div>
+                        <div class="paper-links">
+                            <a href="https://arxiv.org/abs/2512.01334">arXiv</a>
+                            <a href="../ppt/alignvid.pdf">Slides</a>
+                            <a href="https://github.com/LAW1223/AlignVid">Code</a>
+                        </div>
+                    </article>
+                    <article class="paper">
+                        <div class="paper-meta">NeurIPS 2025 NextVid Workshop</div>
+                        <div class="paper-title">VideoGen-of-Thought: Step-by-Step Generation of Multi-Shot Videos</div>
+                        <div class="paper-authors">Mingzhe Zheng, Yongqi Xu, Haojian Huang, Xuran Ma, Yexin Liu, Wenjie
+                            Shu, Yatian Pang, Feilong Tang, Qifeng Chen, Harry Yang, Ser-Nam Lim</div>
+                        <div class="paper-links">
+                            <a href="https://arxiv.org/abs/2412.02259">arXiv</a>
+                            <a href="https://cheliosoops.github.io/VGoT">Project Page</a>
+                            <a href="https://github.com/DuNGEOnmassster/VideoGen-of-Thought">Code</a>
+                        </div>
+                    </article>
+                    <article class="paper">
+                        <div class="paper-meta">ICLR 2023</div>
+                        <div class="paper-title">Make-A-Video: Text-to-Video Generation without Text-Video Data</div>
+                        <div class="paper-authors">Uriel Singer, Adam Polyak, Thomas Hayes, Xi Yin, Jie An, Songyang
+                            Zhang, Qiyuan Hu, Harry Yang, Oron Ashual, Oran Gafni, Devi Parikh, Sonal Gupta, Yaniv
+                            Taigman</div>
+                        <div class="paper-links">
+                            <a href="https://arxiv.org/abs/2209.14792">arXiv</a>
+                            <a href="https://makeavideo.studio/">Project Page</a>
+                        </div>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <section class="band white" id="contact">
+            <div class="section">
+                <div class="section-head">
+                    <h2>Contact and Join</h2>
+                    <p class="lead">
+                        DNA Lab welcomes strong PhD, RA, and internship candidates interested in video generation,
+                        multimodal agents, world models, and AI systems.
+                    </p>
+                </div>
+                <div class="contact-grid">
+                    <div class="contact-item">
+                        <h3>Email</h3>
+                        <p><a href="mailto:yangharry@ust.hk">yangharry@ust.hk</a><br>
+                            <a href="mailto:harryyang.hk@gmail.com">harryyang.hk@gmail.com</a></p>
+                    </div>
+                    <div class="contact-item">
+                        <h3>Affiliation</h3>
+                        <p><a href="https://amc.hkust.edu.hk/">HKUST AMC</a><br>
+                            <a href="https://vni.ust.hk/">HKUST Von Neumann Institute</a></p>
+                    </div>
+                    <div class="contact-item">
+                        <h3>Openings</h3>
+                        <p>RPG students, research assistants, and interns. Strong students are encouraged to apply for
+                            HKPFS.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        Copyright &copy; 2026 DNA Lab. Built under hyang.org.
+    </footer>
+</body>
+
+</html>
