@@ -1,7 +1,7 @@
 window.scholarMetrics = {
   citations: 7786,
   hIndex: 35,
-  updatedAt: "2026-07-28T17:46:55Z",
+  updatedAt: "2026-07-28T18:47:52Z",
   source: "Google Scholar",
   sourceUrl: "https://scholar.google.com/citations?hl=en&user=jpIFgToAAAAJ"
 };
