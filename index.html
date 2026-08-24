@@ -405,15 +405,66 @@
             padding: 0 24px;
         }
 
+        .publication-tabs {
+            display: flex;
+            justify-content: center;
+            margin: 0 auto 12px;
+            padding: 0 24px;
+        }
+
+        .publication-tablist {
+            display: inline-flex;
+            gap: 4px;
+            padding: 4px;
+            border-radius: 999px;
+            background: rgba(0, 0, 0, 0.06);
+        }
+
+        .publication-tab {
+            appearance: none;
+            border: 0;
+            border-radius: 999px;
+            background: transparent;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font: inherit;
+            font-size: 15px;
+            font-weight: 650;
+            line-height: 1;
+            padding: 11px 18px;
+            transition: background 0.2s ease, box-shadow 0.2s ease, color 0.2s ease;
+        }
+
+        .publication-tab:hover {
+            color: var(--text-primary);
+        }
+
+        .publication-tab[aria-selected="true"] {
+            background: #fff;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.14);
+            color: var(--text-primary);
+        }
+
+        .publication-tab:focus-visible {
+            outline: 3px solid rgba(0, 113, 227, 0.35);
+            outline-offset: 2px;
+        }
+
+        .publication-count {
+            color: var(--text-secondary);
+            font-size: 0.82em;
+            margin-left: 4px;
+        }
+
+        .research-list[data-publication-filter="reviewed"] .paper-item.preprint,
+        .research-list[data-publication-filter="preprint"] .paper-item:not(.preprint) {
+            display: none;
+        }
+
         .paper-item {
             border-bottom: 1px solid #e5e5e5;
             padding: 32px 0;
             transition: opacity 0.3s;
-            order: 3;
-        }
-
-        .paper-item.preprint {
-            order: 1;
         }
 
         .paper-item:hover {
@@ -438,24 +489,6 @@
             font-weight: 700;
             letter-spacing: 0.02em;
             vertical-align: middle;
-        }
-
-        .research-group-label {
-            order: 0;
-            color: var(--text-secondary);
-            font-size: 16px;
-            font-weight: 700;
-            letter-spacing: 0.02em;
-            margin: 6px 0 -8px;
-        }
-
-        .research-divider {
-            color: var(--text-secondary);
-            font-size: 16px;
-            font-weight: 700;
-            letter-spacing: 0.02em;
-            margin: 34px 0 -8px;
-            order: 2;
         }
 
         .scholar-metrics {
@@ -500,6 +533,11 @@
 
             .scholar-metric {
                 min-width: 78px;
+            }
+
+            .publication-tab {
+                font-size: 14px;
+                padding: 10px 14px;
             }
         }
 
@@ -1029,9 +1067,18 @@
     <div style="text-align: center; color: var(--text-secondary); font-size: 14px; margin: -20px 0 30px;">
         <em>Italic</em> denotes PhD student, <u>underline</u> denotes RA or intern.
     </div>
-    <div class="research-list">
-        <div class="research-group-label">Preprints and Technical Reports</div>
-        <div class="research-divider" data-aos="fade-up"><span>Reviewed Papers</span></div>
+    <div class="publication-tabs" data-aos="fade-up">
+        <div class="publication-tablist" role="tablist" aria-label="Publication type">
+            <button class="publication-tab" id="reviewed-tab" type="button" role="tab" aria-selected="true"
+                aria-controls="publication-list" data-publication-tab="reviewed">Peer-reviewed <span
+                    class="publication-count" aria-hidden="true"></span></button>
+            <button class="publication-tab" id="preprint-tab" type="button" role="tab" aria-selected="false"
+                aria-controls="publication-list" data-publication-tab="preprint" tabindex="-1">Preprints <span
+                    class="publication-count" aria-hidden="true"></span></button>
+        </div>
+    </div>
+    <div class="research-list" id="publication-list" role="tabpanel" aria-labelledby="reviewed-tab"
+        data-publication-filter="reviewed">
 
         <div class="paper-item" data-aos="fade-up">
             <div class="paper-meta">EMNLP 2026 (Findings)</div>
@@ -2095,8 +2142,56 @@
             }
         }
 
+        function initPublicationTabs() {
+            const list = document.getElementById('publication-list');
+            const tabs = Array.from(document.querySelectorAll('[data-publication-tab]'));
+            if (!list || !tabs.length) return;
+
+            const papers = Array.from(list.querySelectorAll('.paper-item'));
+            const counts = {
+                reviewed: papers.filter((paper) => !paper.classList.contains('preprint')).length,
+                preprint: papers.filter((paper) => paper.classList.contains('preprint')).length
+            };
+
+            function selectPublicationType(type, moveFocus = false) {
+                const activeTab = tabs.find((tab) => tab.dataset.publicationTab === type);
+                if (!activeTab) return;
+
+                list.dataset.publicationFilter = type;
+                list.setAttribute('aria-labelledby', activeTab.id);
+
+                tabs.forEach((tab) => {
+                    const isActive = tab === activeTab;
+                    tab.setAttribute('aria-selected', String(isActive));
+                    tab.tabIndex = isActive ? 0 : -1;
+                });
+
+                if (moveFocus) activeTab.focus();
+                if (window.AOS) window.AOS.refreshHard();
+            }
+
+            tabs.forEach((tab, index) => {
+                const count = tab.querySelector('.publication-count');
+                if (count) count.textContent = `(${counts[tab.dataset.publicationTab]})`;
+
+                tab.addEventListener('click', () => selectPublicationType(tab.dataset.publicationTab));
+                tab.addEventListener('keydown', (event) => {
+                    if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
+                    event.preventDefault();
+
+                    let nextIndex = index;
+                    if (event.key === 'ArrowLeft') nextIndex = (index - 1 + tabs.length) % tabs.length;
+                    if (event.key === 'ArrowRight') nextIndex = (index + 1) % tabs.length;
+                    if (event.key === 'Home') nextIndex = 0;
+                    if (event.key === 'End') nextIndex = tabs.length - 1;
+                    selectPublicationType(tabs[nextIndex].dataset.publicationTab, true);
+                });
+            });
+        }
+
         loadGitHubStars();
         loadScholarMetrics();
+        initPublicationTabs();
     </script>
 </body>
 
