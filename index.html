@@ -295,6 +295,27 @@
             }
         }
 
+        @media (max-width: 768px) {
+            .research-systems-card {
+                max-width: 75% !important;
+                padding: 32px 24px !important;
+            }
+
+            .research-systems-card .card-title {
+                font-size: 26px;
+            }
+
+            .research-systems-card .card-desc {
+                font-size: 15px;
+                line-height: 1.35;
+            }
+
+            .research-systems-card .card-link {
+                margin-top: 14px;
+                font-size: 14px;
+            }
+        }
+
         .card-label {
             font-size: 14px;
             font-weight: 600;
@@ -869,16 +890,21 @@
         </div>
 
         <!-- Product Carousel -->
-        <div class="bento-card span-12 card-dark" data-aos="fade-up" style="padding: 0;">
+        <div class="bento-card span-12 card-dark" data-aos="fade-up" style="padding: 0; min-height: 380px;">
             <div class="photo-carousel" id="product-carousel">
                 <div class="carousel-slide">
-                    <div style="z-index: 2; max-width: 60%; padding: 40px; position: relative;">
+                    <div class="research-systems-card"
+                        style="z-index: 2; max-width: 60%; padding: 40px; position: relative;">
                         <div class="card-label"><span class="pulse"></span>New Release</div>
-                        <div class="card-title">EurekAI</div>
-                        <div class="card-desc">Automated AI research.<br>Idea generation, experimentation, and iteration in one open-source loop.</div>
+                        <div class="card-title">Automated AI Research</div>
+                        <div class="card-desc"><strong>EurekAI + FarField</strong> by Guijia.<br>Open-source loops for
+                            idea generation, preregistered experiments, and rollouts in frozen world environments.</div>
                         <a href="https://github.com/leehomyc/EurekAI" class="card-link"
-                            style="color: #2997ff;">Open Source &rarr;</a>
+                            style="color: #2997ff;">EurekAI &rarr;</a>
                         <span class="gh-stars" data-repo="leehomyc/EurekAI"></span>
+                        <a href="https://github.com/123zgj123/FarField" class="card-link"
+                            style="color: #2997ff; margin-left: 16px;">FarField &rarr;</a>
+                        <span class="gh-stars" data-repo="123zgj123/FarField"></span>
                     </div>
                     <img src="einstein.jpg" class="card-image-bg" alt="Albert Einstein portrait"
                         style="opacity: 0.78; object-position: center top;">
