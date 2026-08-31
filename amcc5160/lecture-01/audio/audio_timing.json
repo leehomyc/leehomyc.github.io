@@ -1,0 +1,252 @@
+{
+  "voice": "Daniel",
+  "label": "AI-narrated study edition based on the instructor transcript",
+  "totalSeconds": 7200,
+  "chapters": [
+    {
+      "slide": 1,
+      "title": "When does an image become a world?",
+      "start": 0,
+      "end": 120,
+      "durationMinutes": 2
+    },
+    {
+      "slide": 2,
+      "title": "Welcome to AMCC 5160",
+      "start": 120,
+      "end": 300,
+      "durationMinutes": 3
+    },
+    {
+      "slide": 3,
+      "title": "Your teaching team is here to help you connect the lenses",
+      "start": 300,
+      "end": 420,
+      "durationMinutes": 2
+    },
+    {
+      "slide": 4,
+      "title": "Assessment rewards process, craft, judgment, and explanation",
+      "start": 420,
+      "end": 600,
+      "durationMinutes": 3
+    },
+    {
+      "slide": 5,
+      "title": "The weekly presentation turns your past work into shared course knowledge",
+      "start": 600,
+      "end": 780,
+      "durationMinutes": 3
+    },
+    {
+      "slide": 6,
+      "title": "Each class moves through four modes of attention",
+      "start": 780,
+      "end": 960,
+      "durationMinutes": 3
+    },
+    {
+      "slide": 7,
+      "title": "You already know more than you think",
+      "start": 960,
+      "end": 1140,
+      "durationMinutes": 3
+    },
+    {
+      "slide": 8,
+      "title": "By the end, you can see the system and the artwork",
+      "start": 1140,
+      "end": 1320,
+      "durationMinutes": 3
+    },
+    {
+      "slide": 9,
+      "title": "This is one course with two inseparable lenses",
+      "start": 1320,
+      "end": 1500,
+      "durationMinutes": 3
+    },
+    {
+      "slide": 10,
+      "title": "Intent is visible in the decisions you can defend",
+      "start": 1500,
+      "end": 1680,
+      "durationMinutes": 3
+    },
+    {
+      "slide": 11,
+      "title": "Generative media belongs to a longer history of rule-making",
+      "start": 1680,
+      "end": 1860,
+      "durationMinutes": 3
+    },
+    {
+      "slide": 12,
+      "title": "Video is not an image with more frames",
+      "start": 1860,
+      "end": 2040,
+      "durationMinutes": 3
+    },
+    {
+      "slide": 13,
+      "title": "A durable map: data \u2192 representation \u2192 model \u2192 sampling",
+      "start": 2040,
+      "end": 2280,
+      "durationMinutes": 4
+    },
+    {
+      "slide": 14,
+      "title": "A dataset is a cultural archive with edges",
+      "start": 2280,
+      "end": 2460,
+      "durationMinutes": 3
+    },
+    {
+      "slide": 15,
+      "title": "Representation decides what the system can change smoothly",
+      "start": 2460,
+      "end": 2640,
+      "durationMinutes": 3
+    },
+    {
+      "slide": 16,
+      "title": "Latent space is less a library than a landscape",
+      "start": 2640,
+      "end": 2820,
+      "durationMinutes": 3
+    },
+    {
+      "slide": 17,
+      "title": "Diffusion learns to reverse corruption",
+      "start": 2820,
+      "end": 3060,
+      "durationMinutes": 4
+    },
+    {
+      "slide": 18,
+      "title": "Flow matching reframes generation as a learned motion",
+      "start": 3060,
+      "end": 3240,
+      "durationMinutes": 3
+    },
+    {
+      "slide": 19,
+      "title": "Transformers learn relationships across a sequence",
+      "start": 3240,
+      "end": 3420,
+      "durationMinutes": 3
+    },
+    {
+      "slide": 20,
+      "title": "A video model must bind appearance, time, and action",
+      "start": 3420,
+      "end": 3660,
+      "durationMinutes": 4
+    },
+    {
+      "slide": 21,
+      "title": "A model is a capability; a tool is a set of opinions",
+      "start": 3660,
+      "end": 3840,
+      "durationMinutes": 3
+    },
+    {
+      "slide": 22,
+      "title": "Prompt archaeology: reverse-engineer the decisions",
+      "start": 3840,
+      "end": 4200,
+      "durationMinutes": 6
+    },
+    {
+      "slide": 23,
+      "title": "Art direction is a system of relations, not a bag of adjectives",
+      "start": 4200,
+      "end": 4380,
+      "durationMinutes": 3
+    },
+    {
+      "slide": 24,
+      "title": "Constraints produce style when they are repeated deliberately",
+      "start": 4380,
+      "end": 4560,
+      "durationMinutes": 3
+    },
+    {
+      "slide": 25,
+      "title": "The creative loop is hypothesis, variation, selection, reflection",
+      "start": 4560,
+      "end": 4800,
+      "durationMinutes": 4
+    },
+    {
+      "slide": 26,
+      "title": "Failures reveal the model\u2019s world\u2014and sometimes your own",
+      "start": 4800,
+      "end": 5040,
+      "durationMinutes": 4
+    },
+    {
+      "slide": 27,
+      "title": "Name the failure before you fix it",
+      "start": 5040,
+      "end": 5280,
+      "durationMinutes": 4
+    },
+    {
+      "slide": 28,
+      "title": "Critique the intention, evidence, system, and next move",
+      "start": 5280,
+      "end": 5520,
+      "durationMinutes": 4
+    },
+    {
+      "slide": 29,
+      "title": "Authorship lives in the chain of decisions",
+      "start": 5520,
+      "end": 5700,
+      "durationMinutes": 3
+    },
+    {
+      "slide": 30,
+      "title": "Provenance turns process into inspectable evidence",
+      "start": 5700,
+      "end": 5940,
+      "durationMinutes": 4
+    },
+    {
+      "slide": 31,
+      "title": "Bias appears as defaults, absences, and uneven failure",
+      "start": 5940,
+      "end": 6180,
+      "durationMinutes": 4
+    },
+    {
+      "slide": 32,
+      "title": "A world model predicts what happens next under action",
+      "start": 6180,
+      "end": 6420,
+      "durationMinutes": 4
+    },
+    {
+      "slide": 33,
+      "title": "Studio challenge: direct one meaningful transformation",
+      "start": 6420,
+      "end": 6720,
+      "durationMinutes": 5
+    },
+    {
+      "slide": 34,
+      "title": "The semester moves from seeing to making to directing worlds",
+      "start": 6720,
+      "end": 6960,
+      "durationMinutes": 4
+    },
+    {
+      "slide": 35,
+      "title": "Your exit ticket is one sentence with a decision inside it",
+      "start": 6960,
+      "end": 7200,
+      "durationMinutes": 4
+    }
+  ]
+}

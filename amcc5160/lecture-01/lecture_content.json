@@ -1,0 +1,587 @@
+{
+  "title": "When does an image become a world?",
+  "totalMinutes": 120,
+  "slides": [
+    {
+      "title": "When does an image become a world?",
+      "kicker": "AMCC 5160 · Lecture 01",
+      "duration": 2,
+      "layout": "hero",
+      "image": "hero.png",
+      "subtitle": "From generative media to multimodal simulation",
+      "notes": "Welcome to AMCC 5160. I want to begin with a question rather than a product demo: when does an image become a world? A still image gives us a surface. Animation gives us time. A world gives us consequences: things persist, collide, remember, respond, and surprise us. Generative systems are moving across that spectrum, but the artistic problem is not solved by technical capability alone. Our job in this course is to connect two forms of judgment: how the system works, and why a creative choice matters.\n\nLook at the threshold in this image. On one side is a bounded frame; on the other is a space that seems explorable. For the next two hours, we will use that threshold as our organizing metaphor. We will build a simple mental model of generative systems, practice reading their failures, and end by framing a studio experiment of your own.",
+      "facilitation": "Let the image sit silently for five seconds before speaking. Invite students to keep the opening question in mind.",
+      "sources": [
+        "Visual: OpenAI image generation, commissioned for AMCC 5160, 2026."
+      ]
+    },
+    {
+      "title": "Welcome to AMCC 5160",
+      "kicker": "COURSE LOGISTICS",
+      "duration": 3,
+      "layout": "list",
+      "bullets": [
+        "Fall 2026/27 · 3 credits",
+        "Tuesdays · 18:30–21:20",
+        "Room MIL13002 · class quota 50",
+        "Canvas is the official channel for materials and announcements"
+      ],
+      "notes": "Before we begin, here are the practical details. AMCC 5160 is a three-credit course meeting on Tuesdays from 18:30 to 21:20 in MIL13002. The class quota is fifty students. Canvas is the official channel for announcements, submissions, and any time-sensitive changes; this public course site is the readable front door for the syllabus, schedule, sign-ups, and teaching materials.\n\nOur class is designed as a studio-seminar. A typical meeting mixes visual examples, a technical concept explained from first principles, a guided exercise, discussion, and project critique. You are not expected to enter with equal confidence in art and computing. You are expected to test ideas, document your process, and become increasingly fluent across both lenses.\n\nPlease keep questions active during class. If a concept feels opaque, ask for a different explanation. If a creative example feels culturally narrow or ethically incomplete, name that. The quality of this course depends on building a room where technical curiosity and artistic disagreement can coexist productively.",
+      "facilitation": "Point students to the course site and Canvas. Confirm the room and weekly meeting rhythm.",
+      "sources": []
+    },
+    {
+      "title": "Your teaching team is here to help you connect the lenses",
+      "kicker": "PEOPLE",
+      "duration": 2,
+      "layout": "split",
+      "leftTitle": "Instructor",
+      "left": [
+        "Harry Yang",
+        "Assistant Professor, AMC",
+        "yangharry@ust.hk",
+        "hyang.org"
+      ],
+      "rightTitle": "Teaching assistant",
+      "right": [
+        "Yaofu Liu",
+        "AMCC 5160",
+        "yliuls@connect.ust.hk",
+        "Technical & studio support"
+      ],
+      "notes": "I am Harry Yang, the instructor for the course, and Yaofu Liu is our teaching assistant. My work sits across generative media, computer vision, and creative AI. You can find my research and projects at hyang.org. Yaofu will support technical setup, studio questions, and course logistics.\n\nUse email for individual matters and Canvas for course-wide information. For project help, the most useful message is specific: include what you are trying to make, what you attempted, one representative result or error, and the decision you are facing. That lets us help you move the project rather than merely diagnose a tool.\n\nWe will announce consultation arrangements on Canvas. You do not need to wait until a project is “good” to ask for feedback. Early questions about intention, feasibility, reference, or workflow often prevent wasted effort later.",
+      "facilitation": "Briefly introduce both people and show the homepage link.",
+      "sources": [
+        "https://hyang.org/"
+      ]
+    },
+    {
+      "title": "Assessment rewards process, craft, judgment, and explanation",
+      "kicker": "ASSESSMENT · 100%",
+      "duration": 3,
+      "layout": "four",
+      "bullets": [
+        "Weekly presentation · 10%",
+        "Assignments 1–3 · 20% each",
+        "Final presentation · 30%"
+      ],
+      "notes": "The assessment structure has four parts. The weekly presentation is ten percent. Each of the three assignments is worth twenty percent, for sixty percent total. Their due dates are fixed on the syllabus, while the project content remains to be announced. The final presentation is thirty percent and asks you to select one assignment, refine it, and present it as your strongest showcase.\n\nAcross components, we value four qualities: conceptual clarity, formal and technical craft, evidence of iteration, and the ability to explain decisions responsibly. Polish matters, but polish alone is not enough. A visually impressive clip with no clear intention or process can be weaker than a smaller experiment that asks a sharp question and learns from failure.\n\nThe final presentation should make the chain of decisions visible: problem or artistic intention, audience, methods, evidence, one representative failure or unresolved limitation, your own contribution, use of AI tools, and what changed through iteration.",
+      "facilitation": "Emphasize that three project briefs are still TBD but their published due dates are fixed.",
+      "sources": []
+    },
+    {
+      "title": "The weekly presentation turns your past work into shared course knowledge",
+      "kicker": "WEEKLY PRESENTATION · 10%",
+      "duration": 3,
+      "layout": "activity",
+      "bullets": [
+        "Around 10 minutes",
+        "Share one current or past artistic, design, research, or technical project",
+        "Explain context, creative intention, and technical approach",
+        "End with one lesson, limitation, or question",
+        "Choose a slot in the sign-up sheet"
+      ],
+      "notes": "In Weeks 2 through 11, students give a short weekly presentation worth ten percent. Share one current or past artistic, design, research, or technical project. The work does not need to use generative AI. In fact, projects from photography, animation, installation, performance, design, coding, research, or another medium can give the class a richer foundation.\n\nUse roughly ten minutes. Begin with context: what was the situation and why did you make it? State the creative intention or research question. Explain the technical approach at the level necessary for us to understand the choices. Show the work rather than describing it abstractly. End with one lesson, limitation, or open question that connects to this course.\n\nSign up for an empty weekly slot in the Google Sheet. Enter your name, student ID, and topic. The aim is not to prove mastery; it is to give the class a concrete practice to discuss and to help us learn what each person brings into the room.",
+      "facilitation": "Open the sign-up instructions on the site after class; remind students that slots are empty by design.",
+      "sources": []
+    },
+    {
+      "title": "Each class moves through four modes of attention",
+      "kicker": "HOW WE LEARN",
+      "duration": 3,
+      "layout": "pipeline",
+      "bullets": [
+        "Look closely",
+        "Understand the system",
+        "Make a controlled experiment",
+        "Critique and document"
+      ],
+      "notes": "Our weekly rhythm has four modes. We look closely at art, media, and contemporary systems. We build a technical mental model that is accurate enough to guide action. We make a controlled experiment rather than chasing random outputs. Then we critique and document what happened.\n\nThis structure draws from strong art-and-technology teaching. CMU’s studio courses combine computational craft, cultural context, looking outward, and critique. NYU ITP presents machine learning through accessible creative applications and prototypes. MIT’s Creative AI work pairs hands-on making with questions about authorship, bias, and ownership. Stanford graphics teaching emphasizes connecting generative controls to real artist workflows.\n\nThe result is a course where reading, coding, directing, editing, discussion, and presentation all count as forms of inquiry. You do not learn a model by memorizing its name. You learn it by forming a hypothesis, making something, observing what the system permits or resists, and explaining why that matters.",
+      "facilitation": "Use this as the transition from logistics into the intellectual content of Lecture 1.",
+      "sources": [
+        "https://ems.andrew.cmu.edu/2022f/index.html",
+        "https://itp.nyu.edu/itp/the-neural-aesthetic/",
+        "https://www.media.mit.edu/projects/creative-ai-a-curriculum-around-creativity-generative-ai-and-ethics/overview/",
+        "https://gfxcourses.stanford.edu/cs248a/winter25content/media/wrapup/20_summary.pdf"
+      ]
+    },
+    {
+      "title": "You already know more than you think",
+      "kicker": "OPENING POLL",
+      "duration": 3,
+      "layout": "question",
+      "subtitle": "Which result feels intentional—and what evidence tells you that?",
+      "bullets": [
+        "Composition",
+        "Continuity",
+        "Material logic",
+        "Point of view"
+      ],
+      "notes": "Before we define any technical term, let us start from perception. Imagine three short generated clips: one is visually polished but emotionally empty, one contains artifacts but has a strong point of view, and one is technically consistent but feels generic. Which one would you remember tomorrow?\n\nTake thirty seconds and choose the evidence you would use: composition, continuity, material logic, point of view, or something else. Then compare with the person next to you. The aim is not to agree. The aim is to notice that you already possess criteria. Technical vocabulary helps us name causes; artistic vocabulary helps us name effects. Neither is sufficient alone.\n\nAsk for three answers and write only the nouns on the board. We will return to them near the end. If students say “quality,” ask: what visible property makes you call it quality? If they say “realistic,” ask whether realism is always the goal. This establishes the course habit of moving from vague approval to observable evidence.",
+      "facilitation": "30-second individual choice; 60-second pair exchange; collect three responses.",
+      "sources": []
+    },
+    {
+      "title": "By the end, you can see the system and the artwork",
+      "kicker": "TODAY'S OUTCOMES",
+      "duration": 3,
+      "layout": "list",
+      "bullets": [
+        "Explain generation as data → representation → model → sampling",
+        "Critique an output in artistic and technical language",
+        "Identify failures without reducing them to “bad AI”",
+        "Frame one responsible studio experiment"
+      ],
+      "notes": "These are our four outcomes. First, you will be able to explain a generative pipeline without advanced mathematics. The purpose is not simplification for its own sake; it is to give you a durable map that survives changing products. Second, you will learn to critique an output with two lenses. “I like it” is honest but incomplete. “The motion prior collapses at the cut, which weakens the intended unease” connects mechanism and meaning.\n\nThird, we will build a failure vocabulary. Failure is not only a defect. Sometimes it is evidence about the model; sometimes it becomes the material of the artwork. Finally, you will leave with a small studio experiment, not merely notes.\n\nThis learning design follows a studio pattern used across leading art-and-technology courses: accessible technical explanation, hands-on making, looking outward to prior work, and critique. CMU’s digital-media courses emphasize computational craft within cultural practice; NYU ITP combines accessible ML concepts with creative experimentation; MIT’s Creative AI curriculum pairs making with authorship and ethics.",
+      "facilitation": "Ask students which outcome feels easiest and which feels most unfamiliar; no need for a full-room response.",
+      "sources": [
+        "https://ems.andrew.cmu.edu/2022f/index.html",
+        "https://itp.nyu.edu/itp/the-neural-aesthetic/",
+        "https://www.media.mit.edu/projects/creative-ai-a-curriculum-around-creativity-generative-ai-and-ethics/overview/"
+      ]
+    },
+    {
+      "title": "This is one course with two inseparable lenses",
+      "kicker": "COURSE LOGIC",
+      "duration": 3,
+      "layout": "split",
+      "leftTitle": "Art",
+      "left": [
+        "Intention",
+        "Form & rhythm",
+        "Reference & context",
+        "Audience experience"
+      ],
+      "rightTitle": "Technology",
+      "right": [
+        "Data & representation",
+        "Architecture",
+        "Control & iteration",
+        "Evaluation"
+      ],
+      "notes": "We are not alternating between an art course and a technology course. We are using both lenses on the same object. Consider a camera move generated from a still image. The art lens asks: why this move, at this speed, from this point of view? What does it do to attention? The technology lens asks: how was motion conditioned, what remains consistent, and where does the model invent unseen geometry?\n\nThe strongest projects make these questions interdependent. A technical constraint can become an aesthetic rule. A creative intention can determine which control method is necessary. The point is not to become equally expert in every domain. The point is to make choices that are legible.\n\nCMU describes creative coding as a studio art practice whose medium is software, while NYU’s Machine Learning for Artists emphasizes integrating available tools into artistic practice without requiring deep mathematical prerequisites. We adopt that same bridge, but extend it from interactive media into contemporary image, animation, video, and world models.",
+      "facilitation": "Invite one example where a limitation became a style: stop motion, pixel art, compression, glitch, or a personal example.",
+      "sources": [
+        "https://ems.andrew.cmu.edu/2018/60212s/",
+        "https://itp.nyu.edu/itp/machine-learning-for-artists/"
+      ]
+    },
+    {
+      "title": "Intent is visible in the decisions you can defend",
+      "kicker": "MINI CRITIQUE",
+      "duration": 3,
+      "layout": "quote",
+      "subtitle": "“It looks good” is a reaction. A critique traces choices.",
+      "bullets": [
+        "What is the work trying to do?",
+        "What formal choice carries that intention?",
+        "What technical choice enables or weakens it?"
+      ],
+      "notes": "A critique begins by reconstructing intention, not by guessing whether a tool was difficult. Ask what the work is trying to do. Then identify the formal choice that carries that intention: framing, pacing, repetition, texture, sound, scale, or interaction. Only then connect it to the technical decision.\n\nFor example: “The slow lateral camera motion turns the generated architecture into a memory rather than a location. The image-to-video model preserves the silhouette but invents unstable windows, so the space feels dreamlike. That instability supports the concept until the identity of the central figure also drifts; then the focus becomes accidental.” This is not praise or blame. It is a causal account.\n\nIn pairs, take one work you remember—your own or someone else’s—and complete the three questions on screen. You do not need to name the artist. The exercise is about moving from taste to evidence.",
+      "facilitation": "Two-minute paired mini-critique, then one volunteer example.",
+      "sources": []
+    },
+    {
+      "title": "Generative media belongs to a longer history of rule-making",
+      "kicker": "A SHORT LINEAGE",
+      "duration": 3,
+      "layout": "timeline",
+      "bullets": [
+        "Camera: capture",
+        "Animation: construct time",
+        "Procedural art: encode rules",
+        "Machine learning: learn regularities",
+        "World models: predict consequences"
+      ],
+      "notes": "Generative media did not appear from nowhere. The camera automated part of image capture but did not remove authorship; it reorganized it around framing, timing, selection, printing, and circulation. Animation constructed time frame by frame. Procedural and generative artists wrote rules that could produce families of forms. Machine learning shifts part of the rule-making into learned statistical regularities. World models aim to predict how scenes change under actions.\n\nEach shift creates a familiar anxiety: if the machine performs more of the visible labor, where does the artist go? Historically, authorship moves rather than disappears. It can move into system design, dataset choice, constraint, selection, sequencing, interaction, context, or critique.\n\nWe should also resist a story of smooth progress. New media do not replace old ones; they coexist. A hand-drawn mark, a procedural system, and a diffusion model can all appear in one work. The useful question is not “which technology wins?” but “what relation between technologies produces the intended experience?”",
+      "facilitation": "Ask students to name one older medium whose “limitation” still creates expressive value.",
+      "sources": [
+        "https://ems.andrew.cmu.edu/2022f/index.html",
+        "https://ems.andrew.cmu.edu/2018/60212s/"
+      ]
+    },
+    {
+      "title": "Video is not an image with more frames",
+      "kicker": "THE CORE CHALLENGE",
+      "duration": 3,
+      "layout": "equation",
+      "subtitle": "Image quality + temporal consistency + meaningful change + sound + control",
+      "notes": "A convincing still image can be judged at one instant. Video requires a relation across instants. The system must preserve identity and geometry while allowing meaningful change. It must decide what is rigid, what deforms, what enters or leaves the frame, how the camera moves, and how sound relates to action.\n\nThis is why a beautiful first frame does not guarantee a useful clip. A model can optimize local plausibility while losing the larger event. A hand may look correct in each frame but attach differently over time. A shadow may be plausible moment to moment but inconsistent with a moving light source.\n\nFor artists, this means direction must include time. “A blue room” is an image description. “The room slowly forgets its geometry as the speaker remembers a childhood story” is a temporal proposition. It contains an arc, a rate of change, and a relation between form and meaning. Throughout the course, we will treat time as material—not just duration.",
+      "facilitation": "Have students turn a static prompt into a temporal proposition in one sentence.",
+      "sources": []
+    },
+    {
+      "title": "A durable map: data → representation → model → sampling",
+      "kicker": "TECHNICAL MENTAL MODEL",
+      "duration": 4,
+      "layout": "pipeline",
+      "bullets": [
+        "Data shapes the examples",
+        "Representation compresses what matters",
+        "The model learns regularities",
+        "Sampling turns possibility into one output"
+      ],
+      "notes": "Here is the most important technical map for today. Data supplies examples and therefore boundaries. Representation determines how those examples become manageable signals or tokens. The model learns regularities over those representations. Sampling turns a space of possibilities into one particular output.\n\nProducts hide these layers, but creative control often means intervening in one of them. Curating a dataset changes the learned world. Choosing a latent or token representation changes what variations are easy. Conditioning and architecture change what relationships can be controlled. Sampling settings and iteration change which path is taken through possibility.\n\nThis map is deliberately broad. It can describe a text-to-image diffusion model, an autoregressive multimodal model, or a video generator with additional temporal machinery. It also gives us a diagnostic habit: when something fails, ask which layer could plausibly be responsible. Do not jump directly from visible artifact to a mystical claim that “the AI is confused.”",
+      "facilitation": "Point to each stage and ask for one creative decision associated with it.",
+      "sources": [
+        "https://courses.media.mit.edu/2019fall/mass68/",
+        "https://itp.nyu.edu/itp/the-neural-aesthetic/"
+      ]
+    },
+    {
+      "title": "A dataset is a cultural archive with edges",
+      "kicker": "DATA",
+      "duration": 3,
+      "layout": "statement",
+      "subtitle": "What is common becomes easy. What is absent becomes expensive—or impossible.",
+      "notes": "Data is not neutral fuel. It is a cultural archive assembled through institutions, platforms, labor, permissions, and historical inequality. A model learns what appears often, what appears together, and what is labeled or described. That makes some visual languages easy to produce and others difficult.\n\nWhen a prompt seems to “work,” it may be because the requested subject and style are densely represented. When it fails, the problem may not be your wording. The concept may be rare, poorly labeled, or represented through stereotypes. This creates an artistic opportunity and an ethical responsibility. You can work with the grain of the model, against it, or expose the grain itself—but you should know which you are doing.\n\nAsk of any system: whose images, whose language, and whose labor made this output statistically likely? You may not always obtain complete documentation, but the absence of transparency is itself relevant evidence. MIT’s Creative AI curriculum explicitly pairs creative making with questions of ownership, bias, and the consequences of generated media.",
+      "facilitation": "Ask for one concept students expect a global model to represent poorly or stereotypically. Keep examples respectful.",
+      "sources": [
+        "https://www.media.mit.edu/projects/creative-ai-a-curriculum-around-creativity-generative-ai-and-ethics/overview/"
+      ]
+    },
+    {
+      "title": "Representation decides what the system can change smoothly",
+      "kicker": "REPRESENTATION",
+      "duration": 3,
+      "layout": "three",
+      "bullets": [
+        "Pixels: direct but expensive",
+        "Latents: compressed visual factors",
+        "Tokens: sequences that models can predict"
+      ],
+      "notes": "A representation is the form in which the system handles media. Pixels are direct, but high-resolution video contains enormous redundancy. Latent representations compress visual information into a smaller space. Discrete visual tokens turn image or video content into sequences that can be modeled alongside language.\n\nThe creative consequence is that representation creates neighborhoods. In a useful latent space, nearby points often correspond to related appearances or concepts. That makes interpolation, editing, and controlled variation possible. But compression also discards information. Fine texture, exact typography, identity details, or unusual structures may be weakly represented.\n\nThink of a representation as a set of handles. If a handle exists for camera angle, material, pose, or semantic content, the system can vary it coherently. If multiple properties are entangled, changing one may disturb another. This is why a request to “keep everything identical but change only the reflection” can be much harder than it sounds.",
+      "facilitation": "Use a suitcase analogy: compression keeps what the system predicts will matter and leaves other detail behind.",
+      "sources": [
+        "https://courses.media.mit.edu/2019fall/mass68/",
+        "https://itp.nyu.edu/itp/the-neural-aesthetic/"
+      ]
+    },
+    {
+      "title": "Latent space is less a library than a landscape",
+      "kicker": "LATENT SPACE",
+      "duration": 3,
+      "layout": "image",
+      "image": "latent.png",
+      "subtitle": "Creation becomes navigation, not retrieval.",
+      "notes": "This image gives us a useful metaphor. A library suggests fixed items waiting to be retrieved. A landscape suggests continuous movement, neighborhoods, paths, and inaccessible regions. A latent representation does not usually store a complete image at each point. It organizes learned features so that the model can traverse combinations.\n\nPrompting is therefore not a database query with one correct result. It is an act of navigation under uncertainty. Seed, conditioning, guidance, reference images, masks, and sampling steps all influence the route. Artists can treat this uncertainty as noise to eliminate or as material to choreograph.\n\nNotice that navigation still needs direction. More samples are not automatically more authorship. A strong process defines what counts as progress. You might search for a specific emotional rhythm, a recurring visual motif, or a productive kind of failure. Without criteria, exploration becomes scrolling. With criteria, it becomes research.",
+      "facilitation": "Ask students: what would count as a meaningful direction in this landscape for your practice?",
+      "sources": [
+        "Visual: OpenAI image generation, commissioned for AMCC 5160, 2026.",
+        "https://itp.nyu.edu/itp/the-neural-aesthetic/"
+      ]
+    },
+    {
+      "title": "Diffusion learns to reverse corruption",
+      "kicker": "MODEL IDEA 01",
+      "duration": 4,
+      "layout": "process",
+      "bullets": [
+        "Add noise during training",
+        "Learn a denoising direction",
+        "Start from noise at generation time",
+        "Iteratively reveal structure"
+      ],
+      "notes": "The diffusion idea can be understood without equations. During training, examples are progressively corrupted with noise. The model learns how to predict a direction back toward a plausible clean example, conditioned by text or other signals. At generation time, we begin with noise and repeatedly apply those learned corrections.\n\nThe important word is repeatedly. Generation is a trajectory, not a single lookup. Early steps establish broad composition; later steps refine texture and detail, though implementations vary. Guidance can push the trajectory toward a condition, but excessive guidance may reduce diversity or create harsh artifacts.\n\nFor creative practice, this suggests several controls: the initial noise, the number and schedule of steps, the strength of conditioning, masks, reference images, and interventions during denoising. It also explains why small changes can lead to substantially different outputs. We are navigating a probabilistic process whose early decisions cascade.",
+      "facilitation": "Demonstrate with the metaphor of restoring a fogged photograph, while noting the model is synthesizing rather than revealing a hidden original.",
+      "sources": [
+        "https://courses.media.mit.edu/2019fall/mass68/",
+        "https://itp.nyu.edu/itp/the-neural-aesthetic/"
+      ]
+    },
+    {
+      "title": "Flow matching reframes generation as a learned motion",
+      "kicker": "MODEL IDEA 02",
+      "duration": 3,
+      "layout": "equation",
+      "subtitle": "Instead of many noisy corrections, learn a velocity field through possibility.",
+      "notes": "Flow matching offers another useful mental picture. Imagine probability mass moving from a simple distribution toward the complex distribution of real images or videos. The model learns a velocity field: at any point and time, which direction should a sample move?\n\nYou do not need the mathematics today. The practical takeaway is that modern generators may formulate sampling as solving a continuous path. This can support efficient training and generation, and it links to diffusion through related continuous-time views.\n\nArtistically, the metaphor matters because it emphasizes trajectory. An output is the endpoint of a path through possibility. Interventions can alter direction, speed, or constraints. Later in the course, when we compare schedulers and sampling methods, we will ask not only which is faster or sharper, but which yields the kinds of variation and control our work needs.",
+      "facilitation": "Keep this concise; the goal is recognition, not derivation.",
+      "sources": []
+    },
+    {
+      "title": "Transformers learn relationships across a sequence",
+      "kicker": "MODEL IDEA 03",
+      "duration": 3,
+      "layout": "network",
+      "bullets": [
+        "Tokens can represent words, images, audio, or video",
+        "Attention connects relevant parts",
+        "Prediction builds structure one relation at a time"
+      ],
+      "notes": "Transformers model relationships across sequences. Tokens may represent words, patches, compressed visual units, audio codes, or video elements. Attention allows the model to weigh which other tokens matter when predicting or transforming the current one.\n\nThis helps explain the rise of unified multimodal systems. If different media can be represented as compatible sequences, one model can learn relationships among text, images, sound, and time. But “unified” does not mean every modality is equally represented or controlled. The tokenization, training mixture, context length, and objectives still shape performance.\n\nFor creators, transformer language gives us a way to think about context. A reference image, previous frame, camera instruction, dialogue track, or edit history can all become conditions within a larger sequence. The challenge is preserving the right relationships over long durations without allowing irrelevant details to dominate.",
+      "facilitation": "Use a classroom analogy: attention is selective relevance, not human awareness or intention.",
+      "sources": [
+        "https://courses.media.mit.edu/2019fall/mass68/"
+      ]
+    },
+    {
+      "title": "A video model must bind appearance, time, and action",
+      "kicker": "VIDEO STACK",
+      "duration": 4,
+      "layout": "layers",
+      "bullets": [
+        "Spatial structure: what exists",
+        "Temporal structure: what persists and changes",
+        "Conditioning: what should happen",
+        "Decoding: how it becomes frames and sound"
+      ],
+      "notes": "A useful video stack has at least four concerns. Spatial structure represents objects, surfaces, lighting, and composition. Temporal structure represents persistence, motion, causality, and rhythm. Conditioning states what should happen through text, images, trajectories, poses, audio, depth, or previous frames. Decoding turns the internal representation into visible frames and perhaps sound.\n\nWhen a clip fails, locate the symptom. If a face drifts, identity may not be preserved across temporal context. If the camera direction is ignored, conditioning may be weak or ambiguous. If motion is smooth but meaningless, the model may follow common dynamics without a strong event structure. If details flicker, decoding or high-frequency consistency may be involved.\n\nThis layered diagnosis is more productive than changing random prompt words. It points toward a control: stronger reference conditioning, shorter shot length, explicit blocking, segmented generation, compositing, or accepting the instability as the conceptual focus.",
+      "facilitation": "Ask students to classify one familiar video artifact into one of the four layers.",
+      "sources": []
+    },
+    {
+      "title": "A model is a capability; a tool is a set of opinions",
+      "kicker": "PRODUCT LITERACY",
+      "duration": 3,
+      "layout": "split",
+      "leftTitle": "Model",
+      "left": [
+        "Training data",
+        "Objective",
+        "Architecture",
+        "Weights"
+      ],
+      "rightTitle": "Tool",
+      "right": [
+        "Interface",
+        "Defaults",
+        "Safety policy",
+        "Business limits"
+      ],
+      "notes": "We need to distinguish a model from a tool. A model is a learned capability shaped by data, objectives, architecture, and weights. A tool wraps that capability in an interface with defaults, filters, pricing, resolution limits, export formats, and a particular workflow.\n\nTwo tools can expose the same underlying model very differently. One encourages fast prompting; another reveals seeds, masks, control maps, or node graphs. The interface shapes what creators imagine is possible. Defaults can quietly become style. Safety systems and platform policies also affect which subjects or transformations are available.\n\nThis is why our course does not organize itself around brand loyalty. We will learn transferable concepts, then compare how tools expose them. When evaluating a new product, ask: what model family or capability is underneath; what controls are exposed; what is hidden; what can be reproduced; and what does the platform require you to give up?",
+      "facilitation": "Have students name one default setting that has visibly shaped online aesthetics.",
+      "sources": [
+        "https://itp.nyu.edu/itp/machine-learning-for-artists/",
+        "https://gfxcourses.stanford.edu/cs248a/winter25content/media/wrapup/20_summary.pdf"
+      ]
+    },
+    {
+      "title": "Prompt archaeology: reverse-engineer the decisions",
+      "kicker": "ACTIVITY · 6 MINUTES",
+      "duration": 6,
+      "layout": "activity",
+      "bullets": [
+        "Observe: list only what is visible or audible",
+        "Infer: propose the likely controls and references",
+        "Test: change one variable, not five",
+        "Record: keep the prompt, seed, input, and result"
+      ],
+      "notes": "This is our first studio activity. Work in groups of three. Choose one generated image or short clip available on a group member’s device. You are not trying to guess the exact prompt. You are reconstructing the decision structure.\n\nMinute one: observe. List only what is visible or audible—camera position, lighting, motion, material, pacing, sound, repeated motifs, and artifacts. Avoid interpretation for a moment. Minutes two and three: infer. Which variables were likely controlled by text, a reference image, a mask, a motion guide, editing, or post-production? Mark every inference as uncertain. Minutes four and five: propose one test that changes a single variable while holding the rest stable. Minute six: prepare one sentence: “We think this effect comes from X because Y; we would test it by Z.”\n\nThe purpose is method. Creative AI practice becomes stronger when we preserve evidence. Record prompts, inputs, model versions, settings, seeds where available, and outputs. Otherwise we cannot learn whether an improvement came from intention, chance, or a hidden product update.",
+      "facilitation": "Time the four phases. Invite two groups to share their one-sentence hypothesis after the timer.",
+      "sources": []
+    },
+    {
+      "title": "Art direction is a system of relations, not a bag of adjectives",
+      "kicker": "CREATIVE PRACTICE",
+      "duration": 3,
+      "layout": "statement",
+      "subtitle": "Subject + point of view + space + light + time + transformation + sound",
+      "notes": "Many prompts accumulate adjectives: cinematic, beautiful, surreal, highly detailed. These can influence surface style, but they rarely define a coherent work. Art direction is relational. Who is looking? From where? What is stable? What changes? What does the light reveal? What does the sound contradict? How does the work position the audience?\n\nA useful brief might say: “A fixed waist-height camera watches a temporary wall of ice slowly become transparent as overheard conversations accumulate. The sound becomes clearer as the image disappears.” This defines point of view, material behavior, temporal arc, and audiovisual relation. It can guide prompting, shooting, compositing, or model choice.\n\nTreat the model as one collaborator inside a larger direction system. Your brief should survive if the exact generator changes. That is how you preserve authorship amid rapidly changing products.",
+      "facilitation": "Rewrite one adjective-heavy prompt into a relational brief with the class.",
+      "sources": [
+        "https://ems.andrew.cmu.edu/2018/60212s/"
+      ]
+    },
+    {
+      "title": "Constraints produce style when they are repeated deliberately",
+      "kicker": "CREATIVE CONTROL",
+      "duration": 3,
+      "layout": "three",
+      "bullets": [
+        "One camera rule",
+        "One transformation rule",
+        "One material rule"
+      ],
+      "notes": "Style is often the memory of repeated constraints. Instead of asking for a vague look, define a small rule set. One camera rule: every shot is a slow clockwise orbit at eye level. One transformation rule: objects change only when they leave the frame. One material rule: every surface behaves like folded paper.\n\nThese constraints do three things. They reduce the search space, making iteration more legible. They create continuity across separate generations. And they reveal exceptions—moments when breaking the rule has meaning.\n\nThis is also a bridge between art and technology. A rule can be encoded in prompts, camera trajectories, node graphs, masks, control signals, or post-production. If the tool cannot support the rule directly, that limitation tells you what additional technique or different model you need. The question shifts from “How do I get a good result?” to “How do I maintain a coherent system of decisions?”",
+      "facilitation": "Students invent one camera, transformation, and material rule for an imaginary 20-second piece.",
+      "sources": [
+        "https://ems.andrew.cmu.edu/2022f/index.html",
+        "https://ems.andrew.cmu.edu/2018/60212s/"
+      ]
+    },
+    {
+      "title": "The creative loop is hypothesis, variation, selection, reflection",
+      "kicker": "ITERATION",
+      "duration": 4,
+      "layout": "cycle",
+      "bullets": [
+        "Hypothesis",
+        "Controlled variation",
+        "Selection with criteria",
+        "Reflection and documentation"
+      ],
+      "notes": "Iteration is not generating many options. It is a learning loop. Begin with a hypothesis: “A static camera will make the changing body feel more vulnerable.” Create controlled variations. Select using criteria derived from the intention. Reflect on what the results teach about both the model and the artwork. Then document the next question.\n\nIf every generation changes subject, framing, model, prompt, seed, and settings, you have produced variety but little knowledge. Controlled variation gives you evidence. Conversely, do not over-control too early. Exploratory phases can be broad, but once you recognize a promising direction, narrow the variables.\n\nKeep a process log. For each meaningful iteration, record the input, settings, output, observation, and decision. This becomes material for critique and for the final presentation, where you will show not only a polished result but also one representative failure and what changed after iteration.",
+      "facilitation": "Show the loop clockwise and emphasize that selection requires pre-existing criteria.",
+      "sources": []
+    },
+    {
+      "title": "Failures reveal the model’s world—and sometimes your own",
+      "kicker": "FAILURE MUSEUM",
+      "duration": 4,
+      "layout": "image",
+      "image": "failure-museum.png",
+      "subtitle": "Do not hide every artifact before asking what it means.",
+      "notes": "Welcome to the failure museum. Each frame is almost plausible. That “almost” is valuable. A broken reflection may reveal that the system learned appearance without geometric causality. Identity drift may reveal weak persistence. A hand may expose training bias and the difficulty of articulated structure. An impossible material may become the central aesthetic of a work.\n\nThere are at least three responses to failure. Repair it when it distracts from the intention. Constrain it when it teaches you how to direct the system. Reframe it when the artifact creates a meaning worth pursuing. The choice is artistic, but it should be informed by technical diagnosis.\n\nTake thirty seconds to choose one frame. Is the anomaly merely an error, or could it become a rule? What context would make it legible as deliberate? This is not permission to romanticize poor craft. It is an invitation to distinguish accidental failure from consciously composed instability.",
+      "facilitation": "Silent viewing, then quick show of hands: repair, constrain, or reframe.",
+      "sources": [
+        "Visual: OpenAI image generation, commissioned for AMCC 5160, 2026."
+      ]
+    },
+    {
+      "title": "Name the failure before you fix it",
+      "kicker": "DIAGNOSTIC VOCABULARY",
+      "duration": 4,
+      "layout": "matrix",
+      "bullets": [
+        "Semantic: wrong object, action, or relation",
+        "Spatial: broken geometry, depth, or reflection",
+        "Temporal: flicker, drift, or implausible motion",
+        "Identity: subject changes across frames",
+        "Aesthetic: generic, incoherent, or off-intent"
+      ],
+      "notes": "A useful failure taxonomy prevents random troubleshooting. Semantic failure means the content or relation is wrong: the subject performs a different action, or cause and effect are reversed. Spatial failure involves geometry, depth, lighting, reflections, or contact. Temporal failure includes flicker, motion discontinuity, and changing object topology. Identity failure means a person, character, or designed object does not persist. Aesthetic failure means the result may be technically plausible but does not serve the intended visual language or emotional effect.\n\nMultiple categories can overlap. A drifting face is identity and temporal. A reflection that moves independently is spatial and temporal. The value of naming is that each category suggests different interventions: reference conditioning, shorter shots, explicit blocking, segmentation, compositing, a different model, or a changed concept.\n\nUse the narrowest description you can. “The left hand changes from five to six fingers between seconds two and three while crossing the face” is actionable evidence. “The AI looks weird” is not.",
+      "facilitation": "Ask students to rephrase “it looks weird” into one observable failure statement.",
+      "sources": []
+    },
+    {
+      "title": "Critique the intention, evidence, system, and next move",
+      "kicker": "THE I·E·S·N PROTOCOL",
+      "duration": 4,
+      "layout": "four",
+      "bullets": [
+        "Intention — what experience is proposed?",
+        "Evidence — what in the work supports it?",
+        "System — which choices produced the result?",
+        "Next move — what single test teaches the most?"
+      ],
+      "notes": "We will use a four-part critique protocol throughout the course. Intention: what experience or question does the work propose? Evidence: what specific formal feature supports or contradicts that intention? System: what technical and production choices likely produced the result? Next move: what single experiment would teach the most?\n\nThe protocol is designed to keep critique generous and precise. We do not need to solve the entire project. We need to identify the most informative next move. That might be technical—lock camera motion with a trajectory—or artistic—remove narration and let the visual contradiction carry the idea.\n\nWhen giving feedback, separate observation from interpretation. Say what you saw before what you think it means. When receiving feedback, listen for patterns across viewers rather than defending every decision. Critique is not a judgment ceremony; it is a collective instrument for seeing more clearly.",
+      "facilitation": "Practice the protocol on the opening example or a volunteer work; keep the next move to one test.",
+      "sources": [
+        "https://ems.andrew.cmu.edu/2022f/index.html"
+      ]
+    },
+    {
+      "title": "Authorship lives in the chain of decisions",
+      "kicker": "AUTHORSHIP",
+      "duration": 3,
+      "layout": "chain",
+      "bullets": [
+        "Brief",
+        "References & data",
+        "Generation",
+        "Selection",
+        "Editing",
+        "Context & release"
+      ],
+      "notes": "Authorship in generative practice is not proven by typing every pixel into existence. It appears in the chain of decisions: the brief, references, data, conditions, generations, selections, edits, sequencing, sound, context, and release. The more clearly you can explain that chain, the more legible your contribution becomes.\n\nThis does not mean every chain is ethically equivalent. Using a living artist’s name as a shortcut, reproducing a person’s likeness without consent, or hiding automated production in a context that expects disclosure raises different issues. Authorship includes responsibility for inputs and circulation, not just pride in outputs.\n\nFor each assignment, document what you contributed, what the system contributed, what external work influenced you, and where uncertainty remains. This is not bureaucratic overhead. It strengthens your ability to critique your own process and helps audiences understand the work’s conditions.",
+      "facilitation": "Ask students where they feel their strongest authorship currently sits in the chain.",
+      "sources": [
+        "https://www.media.mit.edu/projects/creative-ai-a-curriculum-around-creativity-generative-ai-and-ethics/overview/"
+      ]
+    },
+    {
+      "title": "Provenance turns process into inspectable evidence",
+      "kicker": "RESPONSIBLE PRACTICE",
+      "duration": 4,
+      "layout": "document",
+      "bullets": [
+        "Keep prompts and meaningful settings",
+        "Archive source media and permissions",
+        "Record model/tool/version when possible",
+        "Disclose synthetic or altered media when context requires it"
+      ],
+      "notes": "Provenance means the history of how a media object came to be. At the studio level, it starts with disciplined documentation: source media, permissions, prompts, settings, model or tool version, edits, and release context. At the ecosystem level, standards and metadata can help attach assertions about origin and modification, though no mechanism is complete or universally adopted.\n\nWhy does this matter artistically? A documented process can become part of the work’s meaning. It allows comparison across versions, supports reproducibility where appropriate, and makes your claims inspectable. It also protects collaborators by clarifying consent and contribution.\n\nDisclosure is contextual. A speculative gallery piece, a documentary image, an advertisement, and a private sketch do not carry the same audience expectations. The ethical question is not simply “Was AI used?” It is “What belief could this artifact reasonably create, who could be affected, and what information does the audience need?”",
+      "facilitation": "Have students name one context where disclosure is essential and one where it may be less consequential.",
+      "sources": [
+        "https://www.media.mit.edu/projects/creative-ai-a-curriculum-around-creativity-generative-ai-and-ethics/overview/"
+      ]
+    },
+    {
+      "title": "Bias appears as defaults, absences, and uneven failure",
+      "kicker": "CRITICAL LENS",
+      "duration": 4,
+      "layout": "statement",
+      "subtitle": "A system can be impressive overall and still fail particular people or cultures predictably.",
+      "notes": "Bias is not only an offensive output. It can appear as a default—the kinds of bodies, homes, professions, beauty, or family the model produces without specification. It can appear as absence—cultural forms that are poorly represented or flattened. It can appear as uneven failure—identity preservation or speech alignment working better for some groups than others.\n\nCreative practitioners have choices. You can test deliberately across relevant populations, avoid claims your evidence cannot support, use consented and contextualized references, and acknowledge limits. You can also make the bias itself visible, but doing so does not remove the risk of reproducing harm. Critical art still needs careful framing and care for affected people.\n\nMIT’s Creative AI curriculum makes ethics part of the making process through questions about ownership, creative partnership, bias, and synthetic media. We follow that principle: ethics is not a final warning slide. It is a design constraint that shapes the project from the beginning.",
+      "facilitation": "Keep discussion focused on systems and contexts, not on asking students to represent personal identities publicly.",
+      "sources": [
+        "https://www.media.mit.edu/projects/creative-ai-a-curriculum-around-creativity-generative-ai-and-ethics/overview/"
+      ]
+    },
+    {
+      "title": "A world model predicts what happens next under action",
+      "kicker": "BEYOND VIDEO",
+      "duration": 4,
+      "layout": "pipeline",
+      "bullets": [
+        "Observe a state",
+        "Receive an action or condition",
+        "Predict the next state",
+        "Maintain enough consistency to continue"
+      ],
+      "notes": "A video generator can produce plausible motion without representing a stable, actionable world. A world model aims to predict how a state changes under actions or conditions. The stronger claim is not “it makes video” but “it supports consequence.” If I turn left, the environment changes consistently. If I pick up an object, its state persists.\n\nThis is difficult because visual plausibility can hide causal weakness. A system may generate a convincing few seconds while forgetting objects, violating geometry, or responding inconsistently to the same action. We should therefore treat “world model” as a hypothesis to test, not a marketing label to repeat.\n\nFor artists, even imperfect world models open new forms: explorable cinema, responsive installations, characters that improvise, and environments that change with audience behavior. The aesthetic question becomes how much consistency the work needs. A dream world may productively mutate; a training simulation may require strict reliability.",
+      "facilitation": "Ask: what minimum form of memory or consequence would make a generated environment feel like a world?",
+      "sources": []
+    },
+    {
+      "title": "Studio challenge: direct one meaningful transformation",
+      "kicker": "MAKE SOMETHING TODAY",
+      "duration": 5,
+      "layout": "activity",
+      "bullets": [
+        "Start with one image you have the right to use",
+        "Define one temporal proposition",
+        "Apply three repeatable constraints",
+        "Generate or storyboard three variations",
+        "Choose using intention—not polish alone"
+      ],
+      "notes": "Your first studio challenge is intentionally small. Start with one image that you created or have the right to use. Define one temporal proposition: what changes, at what rate, and why? Add three repeatable constraints—a camera rule, transformation rule, and material or sound rule. Produce three variations, or storyboard them if the required tool is unavailable.\n\nSelection is part of the challenge. Choose the variation that best supports the intention, not automatically the cleanest result. Save one failure that teaches you something. Record the input, model or tool, relevant settings, and your observation.\n\nA strong example could be: “A still portrait gradually loses all features except eye contact; the camera never moves; skin becomes paper only when the subject exhales; sound becomes drier as identity disappears.” The point is not spectacle. It is a clear relation between form, system, and meaning. Bring the process—not just the final clip—to our next discussion.",
+      "facilitation": "Give students one minute to write a temporal proposition and three constraints. Invite two readings.",
+      "sources": [
+        "https://ems.andrew.cmu.edu/2022f/index.html",
+        "https://itp.nyu.edu/itp/the-neural-aesthetic/"
+      ]
+    },
+    {
+      "title": "The semester moves from seeing to making to directing worlds",
+      "kicker": "COURSE ROADMAP",
+      "duration": 4,
+      "layout": "timeline",
+      "bullets": [
+        "See: representation, models, visual language",
+        "Make: image, edit, adaptation, video",
+        "Direct: motion, sound, characters, interaction",
+        "Account: evaluation, provenance, critique",
+        "Show: refined project and public explanation"
+      ],
+      "notes": "The semester follows a learning progression. We begin by seeing: building the vocabulary to read images, systems, representations, and cultural context. Then we make: image generation and editing, adaptation, and video foundations. We move into direction: motion, sound, characters, and interactive worlds. Evaluation and provenance run through every phase rather than appearing at the end. Finally, you select and refine one assignment into a public presentation.\n\nThe structure borrows three useful patterns from leading courses. From CMU, frequent looking outward, computational craft, and studio critique. From NYU ITP, accessible technical explanations tied directly to creative prototypes. From MIT, hands-on exploration combined with open questions about authorship and ethics. Stanford’s graphics teaching also provides a useful reminder that generative controls should connect to established artist workflows rather than forcing artists to abandon them.\n\nYou do not need to enter as both an artist and an engineer. You do need to become curious about the other lens.",
+      "facilitation": "Connect the roadmap to the published syllabus and assessment structure.",
+      "sources": [
+        "https://ems.andrew.cmu.edu/2022f/index.html",
+        "https://itp.nyu.edu/itp/the-neural-aesthetic/",
+        "https://www.media.mit.edu/projects/creative-ai-a-curriculum-around-creativity-generative-ai-and-ethics/overview/",
+        "https://gfxcourses.stanford.edu/cs248a/winter25content/media/wrapup/20_summary.pdf"
+      ]
+    },
+    {
+      "title": "Your exit ticket is one sentence with a decision inside it",
+      "kicker": "CLOSE",
+      "duration": 4,
+      "layout": "question",
+      "subtitle": "“I want to explore ___ by constraining ___ because ___.”",
+      "bullets": [
+        "Name the experience",
+        "Name the system choice",
+        "Name why they belong together"
+      ],
+      "notes": "Return to the opening question: when does an image become a world? Our provisional answer is that a world begins when visual possibility acquires relations, persistence, consequence, and an audience position. Technical systems can provide some of that structure, but an artwork still needs decisions about what matters and why.\n\nWrite one sentence: “I want to explore blank by constraining blank because blank.” The first blank is an experience or question, not a product. The second is a system choice: camera, time, material, sound, dataset, reference, interaction, or another constraint. The final blank explains why they belong together.\n\nKeep the sentence. It is not a commitment to a final project. It is a first hypothesis. Next week we will examine visual representations and unified multimodal models, then test how the structure of representation affects what can be controlled. Before you leave, compare your exit sentence with the perception criterion you named at the beginning. Has your language become more precise?",
+      "facilitation": "One minute silent writing; invite three volunteers; close by previewing Week 2.",
+      "sources": [
+        "https://ems.andrew.cmu.edu/2022f/index.html",
+        "https://itp.nyu.edu/itp/the-neural-aesthetic/",
+        "https://www.media.mit.edu/projects/creative-ai-a-curriculum-around-creativity-generative-ai-and-ethics/overview/"
+      ]
+    }
+  ]
+}
