@@ -38,9 +38,31 @@
 .transcript-panel > p { font-size: 18px; line-height: 1.65; }.transcript-subtitle { color: #0071e3; font-weight: 650; }
 .transcript-panel #transcript-copy p { font-size: 18px; line-height: 1.65; }
 .transcript-panel aside { margin-top: 32px; padding: 22px; border-radius: 20px; color: #535358; background: #e8eef5; line-height: 1.5; }.transcript-panel aside span { display: block; margin-bottom: 8px; color: #0071e3; font-size: 10px; font-weight: 700; }
+.reading-section { padding: 110px clamp(24px,7vw,110px); color: #1d1d1f; background: #fff; }
+.reading-heading { display: grid; grid-template-columns: 1.1fr .9fr; gap: 60px; align-items: end; margin-bottom: 48px; }
+.reading-heading > div > p { margin: 0 0 14px; color: #6e5cff; font-size: 11px; font-weight: 750; letter-spacing: .08em; }
+.reading-heading h2 { margin: 0; font-size: clamp(44px,6vw,82px); line-height: .95; letter-spacing: -.06em; }
+.reading-heading > p { max-width: 600px; margin: 0; color: #6e6e73; font-size: 18px; line-height: 1.5; }
+.reading-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; }
+.reading-grid a { min-height: 370px; display: flex; flex-direction: column; padding: 28px; overflow: hidden; border: 1px solid rgba(29,29,31,.09); border-radius: 26px; color: #1d1d1f; background: #f5f5f7; transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease; }
+.reading-grid a:nth-child(1) { background: linear-gradient(145deg,#eaf4ff,#f5efff); }
+.reading-grid a:nth-child(2) { background: #15151b; color: #fff; }
+.reading-grid a:nth-child(3) { background: linear-gradient(145deg,#f0f5eb,#f8f4e9); }
+.reading-grid a:hover { transform: translateY(-4px); border-color: rgba(72,88,230,.3); box-shadow: 0 24px 50px rgba(30,35,70,.12); }
+.reading-grid a > div { display: flex; align-items: start; justify-content: space-between; gap: 18px; }
+.reading-grid span { color: #6e5cff; font-size: 10px; font-weight: 750; letter-spacing: .05em; }
+.reading-grid em { color: rgba(29,29,31,.2); font-size: 38px; font-style: normal; font-weight: 750; line-height: .8; }
+.reading-grid a:nth-child(2) span { color: #8ec8ff; }.reading-grid a:nth-child(2) em { color: rgba(255,255,255,.18); }
+.reading-grid h3 { margin: 52px 0 16px; font-size: clamp(25px,2.4vw,34px); line-height: 1.04; letter-spacing: -.045em; }
+.reading-grid p { margin: 0; color: #6e6e73; font-size: 14px; line-height: 1.55; }
+.reading-grid a:nth-child(2) p { color: #a1a1a6; }
+.reading-grid strong { margin-top: auto; padding-top: 30px; color: #0071e3; font-size: 12px; }
+.reading-grid a:nth-child(2) strong { color: #8ec8ff; }
+.reading-prompt { display: grid; grid-template-columns: 160px 1fr; gap: 28px; align-items: start; margin-top: 18px; padding: 24px 28px; border: 1px solid rgba(29,29,31,.09); border-radius: 20px; background: #fafafa; }
+.reading-prompt span { color: #6e5cff; font-size: 11px; font-weight: 750; text-transform: uppercase; }.reading-prompt p { margin: 0; color: #535358; font-size: 15px; line-height: 1.5; }
 .download-section { display: grid; grid-template-columns: .85fr 1.15fr; gap: 80px; padding: 110px clamp(24px,7vw,110px); color: #1d1d1f; background: #f5f5f7; }.download-section > div > p { color: #0071e3; font-size: 12px; font-weight: 700; }.download-section h2 { margin: 16px 0 0; font-size: clamp(42px,5vw,72px); line-height: .98; letter-spacing: -.055em; }
 .download-grid { display: grid; gap: 14px; }.download-grid a { min-height: 150px; padding: 26px; border-radius: 24px; background: #fff; border: 1px solid rgba(29,29,31,.08); }.download-grid span { color: #6e6e73; font-size: 11px; }.download-grid strong { display: block; margin: 18px 0; font-size: 25px; }.download-grid em { color: #0071e3; font-size: 13px; font-style: normal; }
 .podcast-section { display: grid; grid-template-columns: 360px minmax(0,1fr); gap: 80px; align-items: center; padding: 110px clamp(24px,7vw,110px); background: linear-gradient(145deg,#161326,#08080b); }.podcast-mark { display: grid; place-items: center; width: 330px; aspect-ratio: 1; border-radius: 30%; color: #fff; background: radial-gradient(circle at 32% 25%,#75d0ff,#6e5cff 42%,#d43fa4 70%,#f15d39); box-shadow: 0 35px 90px rgba(88,76,231,.28); font-size: 68px; font-weight: 750; line-height: .83; letter-spacing: -.08em; text-align: center; }.podcast-copy > p:first-child { color: #8ec8ff; font-size: 12px; font-weight: 700; }.podcast-copy h2 { margin: 16px 0 20px; font-size: clamp(42px,5vw,72px); line-height: 1; letter-spacing: -.055em; }.podcast-copy > p:not(:first-child) { max-width: 700px; color: #a1a1a6; font-size: 18px; line-height: 1.5; }.podcast-copy audio { display: block; width: min(100%,700px); margin: 30px 0 18px; }.podcast-copy a { color: #8ec8ff; font-size: 13px; }
 .lecture-footer { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 18px; padding: 30px clamp(24px,7vw,110px) 46px; color: #717177; border-top: 1px solid rgba(255,255,255,.08); font-size: 11px; }
-@media (max-width: 900px) { .audio-dock { position: relative; top: auto; grid-template-columns: 1fr; }.download-section,.podcast-section { grid-template-columns: 1fr; }.podcast-mark { width: min(70vw,330px); }.lecture-intro { padding-top: 90px; }.video-heading { align-items: start; flex-direction: column; }.video-heading > span { white-space: normal; } }
-@media (max-width: 620px) { .player-shell { padding-inline: 10px; }.slide-stage { border-radius: 14px; }.slide-controls { padding-inline: 10px; }.slide-controls button { font-size: 11px; }.transcript-panel { border-radius: 22px; }.podcast-section,.download-section { padding-block: 80px; }.lecture-meta span,.lecture-meta a { font-size: 10px; } }
+@media (max-width: 900px) { .audio-dock { position: relative; top: auto; grid-template-columns: 1fr; }.download-section,.podcast-section,.reading-heading { grid-template-columns: 1fr; }.reading-grid { grid-template-columns: 1fr; }.reading-grid a { min-height: 300px; }.podcast-mark { width: min(70vw,330px); }.lecture-intro { padding-top: 90px; }.video-heading { align-items: start; flex-direction: column; }.video-heading > span { white-space: normal; } }
+@media (max-width: 620px) { .player-shell { padding-inline: 10px; }.slide-stage { border-radius: 14px; }.slide-controls { padding-inline: 10px; }.slide-controls button { font-size: 11px; }.transcript-panel { border-radius: 22px; }.podcast-section,.download-section,.reading-section { padding-block: 80px; }.reading-prompt { grid-template-columns: 1fr; }.lecture-meta span,.lecture-meta a { font-size: 10px; } }
