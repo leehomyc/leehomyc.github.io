@@ -10,7 +10,7 @@
   <meta http-equiv="Expires" content="0">
   <title>Lecture 01 — How machines learn to make moving worlds | AMCC 5160</title>
   <link rel="stylesheet" href="../styles.css?v=20260901-student-clean">
-  <link rel="stylesheet" href="./lecture.css?v=20260901-sections">
+  <link rel="stylesheet" href="./lecture.css?v=20260901-video-sections">
 </head>
 <body>
 <main class="lecture-page">
@@ -22,11 +22,17 @@
   </section>
 
   <section class="video-section" aria-label="Narrated lecture">
-    <video controls preload="metadata" poster="./slides102/slide-001.png" src="./video/AMCC5160_Lecture01_ElevenLabs_102_Slides.mp4?v=20260901-final">
-      <track kind="captions" src="./captions/AMCC5160_Lecture01_ElevenLabs_102_Slides_Bilingual.vtt?v=20260901-word-aligned" srclang="zh-Hans" label="English + 中文" default>
-      <track kind="captions" src="./captions/AMCC5160_Lecture01_ElevenLabs_102_Slides.vtt?v=20260901-word-aligned" srclang="en" label="English">
-      Your browser does not support video playback.
-    </video>
+    <div class="video-frame">
+      <video controls preload="metadata" poster="./slides102/slide-001.png" src="./video/AMCC5160_Lecture01_ElevenLabs_102_Slides.mp4?v=20260901-final">
+        <track kind="captions" src="./captions/AMCC5160_Lecture01_ElevenLabs_102_Slides_Bilingual.vtt?v=20260901-word-aligned" srclang="zh-Hans" label="English + 中文" default>
+        <track kind="captions" src="./captions/AMCC5160_Lecture01_ElevenLabs_102_Slides.vtt?v=20260901-word-aligned" srclang="en" label="English">
+        Your browser does not support video playback.
+      </video>
+      <div class="video-section-bar" aria-label="Video section timeline">
+        <div class="video-section-status"><span>VIDEO SECTIONS</span><strong id="video-section-title">Course and lecture map</strong><small id="video-section-time">00:00 / 40:21</small></div>
+        <div class="video-section-track" id="video-section-track" role="navigation" aria-label="Jump to a video section"></div>
+      </div>
+    </div>
   </section>
 
   <section class="player-shell" aria-live="polite">
@@ -75,6 +81,6 @@
 
   <footer class="lecture-footer"><span>AMCC 5160 · AI-Driven Animation &amp; Video Generation</span><span>102-slide technical lecture · ElevenLabs narration · instructor-authored transcript · primary sources in speaker notes</span></footer>
 </main>
-<script src="./player.js?v=20260901-sections"></script>
+<script src="./player.js?v=20260901-video-sections"></script>
 </body>
 </html>
