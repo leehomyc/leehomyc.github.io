@@ -3,49 +3,71 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="description" content="A two-hour narrated browser lecture with synchronized slides, bilingual English-Chinese captions, transcript, podcast, and downloads.">
+  <meta name="description" content="AMCC 5160 Lecture 01: a 102-slide technical lecture from neural networks and CNNs to transformers, diffusion, Seedance, H3, ComfyUI, and AI filmmaking.">
+  <meta name="theme-color" content="#07111f">
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>Lecture 01 — When does an image become a world? | AMCC 5160</title>
-  <link rel="stylesheet" href="../styles.css?v=20260901-tight">
-  <link rel="stylesheet" href="./lecture.css?v=20260901-tight">
+  <title>Lecture 01 — How machines learn to make moving worlds | AMCC 5160</title>
+  <link rel="stylesheet" href="../styles.css?v=20260901-102">
+  <link rel="stylesheet" href="./lecture.css?v=20260901-102">
 </head>
 <body>
 <main class="lecture-page">
   <header class="lecture-header"><a href="../" class="lecture-brand">AMCC <span>5160</span></a><a href="../" class="back-link">Course syllabus ↗</a></header>
-  <section class="lecture-intro"><p>LECTURE 01 · FALL 2026/27</p><h1>When does an image<br>become a world?</h1><div class="lecture-meta"><span>60 slides</span><span>121 minutes</span><span>Natural-voice narration</span><span>Harry Yang</span><a href="https://hyang.org/" target="_blank" rel="noreferrer">hyang.org ↗</a></div></section>
 
-  <section class="video-section" aria-label="Recorded lecture"><div class="video-heading"><div><p>RECORDED LECTURE · ENGLISH + 中文</p><h2>Watch with bilingual captions.</h2></div><span>1,720 word-aligned cues · 12 labeled activities</span></div><video controls preload="metadata" poster="./slides60/slide-01.png" src="./video/AMCC5160_Lecture01_60_Slides_Bilingual.mp4?v=word-aligned-20260901"><track kind="captions" src="./captions/AMCC5160_Lecture01_Bilingual_Captions.srt?v=word-aligned-20260901" srclang="en" label="English + 中文">Your browser does not support video playback.</video></section>
+  <section class="lecture-intro">
+    <p>LECTURE 01 · FALL 2026/27</p>
+    <h1>How machines learn<br>to make moving worlds</h1>
+    <div class="lecture-meta"><span>102 slides</span><span>≈100 minutes</span><span>Instructor transcript</span><span>Harry Yang</span><a href="https://hyang.org/" target="_blank" rel="noreferrer">hyang.org ↗</a></div>
+  </section>
+
+  <section class="edition-banner" aria-label="Current edition">
+    <div><span>CURRENT EDITION</span><strong>Neural networks → CNNs → transformers → diffusion → video foundation models → AI filmmaking</strong></div>
+    <p>Use the arrow keys or controls to move through the deck. The full classroom transcript and primary sources appear beneath every slide.</p>
+  </section>
 
   <section class="player-shell" aria-live="polite">
-    <div class="audio-dock">
-      <div class="now-playing"><span id="now-slide">NOW PLAYING · SLIDE 01 —</span><strong id="now-title">Loading lecture…</strong><p>Natural-voice study edition · slide-accurate timing</p></div>
-      <audio id="lecture-audio" controls preload="metadata" src="./audio/AMCC5160_Lecture01_Full_Narration_60_Slides.mp3">Your browser does not support audio playback.</audio>
-      <div class="audio-options"><label><input id="sync-toggle" type="checkbox" checked> Sync slides to audio</label><span id="clock">0:00 / 2:00:00</span></div>
+    <div class="deck-toolbar">
+      <div class="now-playing"><span id="now-slide">SLIDE 001 OF 102</span><strong id="now-title">Loading lecture…</strong><p id="now-section">Course and lecture map</p></div>
+      <div class="deck-status"><strong id="deck-progress-label">1 / 102</strong><span>← → to navigate</span></div>
       <div class="progress-track"><span id="progress"></span></div>
     </div>
-    <div class="slide-stage"><img id="slide-image" src="./slides60/slide-01.png" alt="Slide 1"></div>
+
+    <div class="slide-stage"><img id="slide-image" src="./slides102/slide-001.png" alt="Slide 1"></div>
     <div class="slide-controls"><button id="previous" type="button" disabled>← Previous</button><button class="transcript-toggle" id="transcript-toggle" type="button" aria-controls="transcript-panel" aria-expanded="true">Hide transcript</button><button id="next" type="button">Next →</button></div>
     <div class="chapter-strip" id="chapter-strip" aria-label="Lecture chapters"></div>
-    <article class="transcript-panel" id="transcript-panel"><div class="transcript-heading"><div><span id="transcript-number">SLIDE 01</span><h2 id="transcript-title">Loading…</h2></div><strong id="transcript-duration">0 min</strong></div><p class="transcript-subtitle" id="transcript-subtitle"></p><div id="transcript-copy"></div><aside><span>FACILITATION</span><div id="facilitation"></div></aside></article>
+
+    <article class="transcript-panel" id="transcript-panel">
+      <div class="transcript-heading"><div><span id="transcript-number">SLIDE 001</span><h2 id="transcript-title">Loading…</h2></div><strong id="transcript-duration">≈1 minute</strong></div>
+      <p class="transcript-subtitle" id="transcript-subtitle"></p>
+      <div id="transcript-copy"></div>
+      <aside><span>TEACHING NOTE</span><div id="facilitation"></div><div class="transcript-sources" id="transcript-sources"></div></aside>
+    </article>
   </section>
 
   <section class="reading-section" id="readings" aria-labelledby="reading-title">
-    <div class="reading-heading"><div><p>LECTURE 01 · CURRENT PERSPECTIVES</p><h2 id="reading-title">Watch, listen, then read.</h2></div><p>Three recent pieces that extend the lecture’s central question: when does generated media become a persistent, interactive world?</p></div>
+    <div class="reading-heading"><div><p>LECTURE 01 · PRIMARY SOURCES</p><h2 id="reading-title">Read the systems, not the hype.</h2></div><p>Three 2026 sources anchor the lecture’s current model landscape. Read each for what it discloses, what it measures, and what remains outside the evidence.</p></div>
     <div class="reading-grid">
-      <a href="https://www.youtube.com/watch?v=pNYVckbCFuk" target="_blank" rel="noreferrer"><div><span>WATCH · JUN 2026 · 18 MIN</span><em>01</em></div><h3>Fei-Fei Li on creating large world models</h3><p>Emily Chang asks why spatial intelligence—not only language—is the next major frontier for AI.</p><strong>Bloomberg Live ↗</strong></a>
-      <a href="https://blog.google/innovation-and-ai/models-and-research/google-deepmind/ai-release-notes-podcast-demis-hassabis/" target="_blank" rel="noreferrer"><div><span>LISTEN · AUG 2025 · 30 MIN</span><em>02</em></div><h3>Demis Hassabis on world models and better evaluation</h3><p>A concise conversation about Genie 3, interactive environments, jagged intelligence, and the shift from models to systems.</p><strong>Google AI: Release Notes ↗</strong></a>
-      <a href="https://www.worldlabs.ai/blog/taxonomy-of-world-models" target="_blank" rel="noreferrer"><div><span>READ · JUN 2026</span><em>03</em></div><h3>A functional taxonomy of world models</h3><p>Distinguish renderers, simulators, and planners—and ask what each must understand about space, time, and consequence.</p><strong>World Labs ↗</strong></a>
+      <a href="https://arxiv.org/abs/2604.06339" target="_blank" rel="noreferrer"><div><span>READ · APR 2026</span><em>01</em></div><h3>Evolution of Video Generative Foundations</h3><p>A technical survey of architectures, training objectives, data, evaluation, and the shift toward multimodal long narratives.</p><strong>arXiv ↗</strong></a>
+      <a href="https://arxiv.org/abs/2604.14148" target="_blank" rel="noreferrer"><div><span>TECHNICAL REPORT · APR 2026</span><em>02</em></div><h3>Seedance 2.0</h3><p>Evaluation across text-to-video, image-to-video, reference-to-video, audio, and multimodal task following.</p><strong>ByteDance / arXiv ↗</strong></a>
+      <a href="https://www.minimax.io/news/minimax-h3-open-source" target="_blank" rel="noreferrer"><div><span>OPEN-SOURCE REPORT · 2026</span><em>03</em></div><h3>MiniMax H3</h3><p>A disclosed audio-video system with Context-IR, a 33B dense omni-modal transformer, latent visual and audio paths, and 2K regeneration.</p><strong>MiniMax ↗</strong></a>
     </div>
-    <aside class="reading-prompt"><span>Bring to class</span><p>Choose one idea you agree with and one claim you would challenge. Connect both to a concrete image, video, game, or interactive work.</p></aside>
+    <aside class="reading-prompt"><span>Bring to class</span><p>Choose one architecture claim and one evaluation claim. For each, identify the evidence, the missing comparison, and one shot-level test you would run.</p></aside>
   </section>
 
-  <section class="download-section"><div><p>KEEP LEARNING</p><h2>Watch, listen, read, or teach from the complete edition.</h2></div><div class="download-grid"><a href="./video/AMCC5160_Lecture01_60_Slides_Bilingual.mp4?v=word-aligned-20260901" download><span>Bilingual lecture video</span><strong>English + 中文 captions</strong><em>Download MP4 ↓</em></a><a href="./video/AMCC5160_Lecture01_60_Slides.mp4" download><span>Clean lecture video</span><strong>121-minute synchronized MP4</strong><em>Download MP4 ↓</em></a><a href="../materials/AMCC5160_Lecture01_From_Prompt_to_World_60_Slides.pptx" download><span>PowerPoint</span><strong>Editable 60-slide deck</strong><em>Download ↓</em></a><a href="../materials/AMCC5160_Lecture01_Transcript_60_Slides.docx" download><span>Transcript</span><strong>62-page slide-by-slide script</strong><em>Download DOCX ↓</em></a><a href="../materials/AMCC5160_Lecture01_Transcript_60_Slides.pdf" download><span>Transcript PDF</span><strong>Print-ready teaching script</strong><em>Open or download ↓</em></a><a href="./captions/AMCC5160_Lecture01_Bilingual_Captions.srt?v=word-aligned-20260901" download><span>Subtitle file</span><strong>English + Simplified Chinese SRT</strong><em>Download SRT ↓</em></a><a href="./audio/AMCC5160_Lecture01_Full_Narration_60_Slides.mp3" download><span>Full audio</span><strong>Two-hour synchronized study edition</strong><em>Download ↓</em></a></div></section>
+  <section class="download-section">
+    <div><p>TEACH OR STUDY</p><h2>Download the complete technical edition.</h2></div>
+    <div class="download-grid">
+      <a href="../materials/AMCC5160_Lecture01_Neural_Networks_to_AI_Filmmaking_102_Slides.pptx" download><span>PowerPoint</span><strong>Editable 102-slide deck</strong><em>Download PPTX ↓</em></a>
+      <a href="../materials/AMCC5160_Lecture01_Instructor_Transcript_102_Slides.docx" download><span>Instructor transcript</span><strong>36-page slide-by-slide script</strong><em>Download DOCX ↓</em></a>
+      <a href="../materials/AMCC5160_Lecture01_Instructor_Transcript_102_Slides.pdf" target="_blank"><span>Transcript PDF</span><strong>Print-ready teaching edition</strong><em>Open PDF ↗</em></a>
+      <a href="../materials/AMCC5160_Lecture01_Instructor_Transcript_102_Slides.txt" download><span>Plain text</span><strong>Searchable classroom script</strong><em>Download TXT ↓</em></a>
+    </div>
+  </section>
 
-  <section class="podcast-section"><div class="podcast-mark">AMCC<br>5160</div><div class="podcast-copy"><p>PODCAST EDITION</p><h2>The complete lecture, without classroom pauses.</h2><p>A continuous 106-minute audio edition covering the technical mental models, production workflow, creative practices, and critical questions.</p><audio controls preload="metadata" src="./audio/AMCC5160_Lecture01_Podcast_60_Slides.mp3"></audio><a href="./audio/AMCC5160_Lecture01_Podcast_60_Slides.mp3" download>Download podcast ↓</a></div></section>
-  <footer class="lecture-footer"><span>AMCC 5160 · AI-Driven Animation &amp; Video Generation</span><span>Natural-voice narration · instructor-authored transcript · measured slide timing</span></footer>
+  <footer class="lecture-footer"><span>AMCC 5160 · AI-Driven Animation &amp; Video Generation</span><span>102-slide technical lecture · instructor-authored transcript · primary sources in speaker notes</span></footer>
 </main>
-<script src="./player.js?v=20260901-tight"></script>
+<script src="./player.js?v=20260901-102"></script>
 </body>
 </html>

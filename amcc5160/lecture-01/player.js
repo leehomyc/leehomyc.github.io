@@ -1,86 +1,120 @@
 (() => {
-  const audio = document.getElementById('lecture-audio');
   const image = document.getElementById('slide-image');
   const previous = document.getElementById('previous');
   const next = document.getElementById('next');
-  const syncToggle = document.getElementById('sync-toggle');
   const transcriptToggle = document.getElementById('transcript-toggle');
   const transcriptPanel = document.getElementById('transcript-panel');
   const chapterStrip = document.getElementById('chapter-strip');
   let lecture;
-  let timing;
   let current = 0;
 
-  const pad = value => String(value).padStart(2, '0');
-  const clock = seconds => {
-    const h = Math.floor(seconds / 3600);
-    const m = Math.floor((seconds % 3600) / 60);
-    const s = Math.floor(seconds % 60);
-    return h ? `${h}:${pad(m)}:${pad(s)}` : `${m}:${pad(s)}`;
-  };
+  const pad = value => String(value).padStart(3, '0');
 
-  function render(index, seek = false) {
-    if (!lecture || !timing) return;
+  function activeSection(index) {
+    if (!lecture?.sections?.length) return null;
+    return [...lecture.sections].reverse().find(section => index + 1 >= section.start) || lecture.sections[0];
+  }
+
+  function renderSources(sources) {
+    const container = document.getElementById('transcript-sources');
+    container.replaceChildren();
+    if (!sources?.length) return;
+    const label = document.createElement('strong');
+    label.textContent = 'Sources';
+    container.appendChild(label);
+    sources.forEach((url, index) => {
+      const link = document.createElement('a');
+      link.href = url;
+      link.target = '_blank';
+      link.rel = 'noreferrer';
+      link.textContent = `Source ${index + 1} ↗`;
+      container.appendChild(link);
+    });
+  }
+
+  function render(index, scrollTranscript = false) {
+    if (!lecture) return;
     current = Math.max(0, Math.min(index, lecture.slides.length - 1));
     const slide = lecture.slides[current];
-    const chapter = timing.slides[current];
-    image.src = `./slides60/slide-${pad(current + 1)}.png`;
-    image.alt = `Slide ${current + 1}: ${slide.title}`;
-    document.getElementById('now-slide').textContent = `NOW PLAYING · SLIDE ${pad(current + 1)} —`;
-    document.getElementById('now-title').textContent = chapter.title;
-    document.getElementById('transcript-number').textContent = `SLIDE ${pad(current + 1)}`;
+    const section = activeSection(current);
+    const slideNumber = current + 1;
+
+    image.src = `./slides102/${slide.image}`;
+    image.alt = `Slide ${slideNumber}: ${slide.title}`;
+    document.getElementById('now-slide').textContent = `SLIDE ${pad(slideNumber)} OF ${lecture.slideCount}`;
+    document.getElementById('now-title').textContent = slide.title;
+    document.getElementById('now-section').textContent = section?.title || '';
+    document.getElementById('deck-progress-label').textContent = `${slideNumber} / ${lecture.slideCount}`;
+    document.getElementById('progress').style.width = `${slideNumber / lecture.slideCount * 100}%`;
+    document.getElementById('transcript-number').textContent = `SLIDE ${pad(slideNumber)}`;
     document.getElementById('transcript-title').textContent = slide.title;
-    document.getElementById('transcript-duration').textContent = `${clock(chapter.narrationSeconds)} narration`;
+    document.getElementById('transcript-duration').textContent = '≈1 minute';
+
     const subtitle = document.getElementById('transcript-subtitle');
     subtitle.textContent = slide.subtitle || '';
     subtitle.hidden = !slide.subtitle;
+
     const copy = document.getElementById('transcript-copy');
-    copy.replaceChildren(...slide.notes.split('\n\n').map(text => {
-      const p = document.createElement('p'); p.textContent = text; return p;
+    copy.replaceChildren(...slide.notes.split('\n\n').filter(Boolean).map(paragraph => {
+      const p = document.createElement('p');
+      p.textContent = paragraph;
+      return p;
     }));
-    document.getElementById('facilitation').textContent = slide.facilitation;
+    document.getElementById('facilitation').textContent = slide.facilitation || '';
+    renderSources(slide.sources);
+
     previous.disabled = current === 0;
     next.disabled = current === lecture.slides.length - 1;
-    [...chapterStrip.children].forEach((button, i) => button.classList.toggle('active', i === current));
-    if (seek) { audio.currentTime = chapter.startSeconds; updateClock(chapter.startSeconds); }
-  }
-
-  function updateClock(seconds) {
-    const total = timing?.totalSeconds || 7240;
-    document.getElementById('clock').textContent = `${clock(seconds)} / ${clock(total)}`;
-    document.getElementById('progress').style.width = `${Math.min(100, seconds / total * 100)}%`;
-  }
-
-  Promise.all([
-    fetch('./lecture_content.json').then(r => r.json()),
-    fetch('./audio/audio_timing_60.json').then(r => r.json())
-  ]).then(([lectureData, timingData]) => {
-    lecture = lectureData; timing = timingData;
-    timing.slides.forEach((chapter, index) => {
-      const button = document.createElement('button');
-      button.type = 'button';
-      button.textContent = pad(chapter.slide); button.title = chapter.title;
-      button.addEventListener('click', () => render(index, true));
-      chapterStrip.appendChild(button);
+    [...chapterStrip.children].forEach((button, buttonIndex) => {
+      const chapter = lecture.sections[buttonIndex];
+      const nextChapter = lecture.sections[buttonIndex + 1];
+      const active = slideNumber >= chapter.start && (!nextChapter || slideNumber < nextChapter.start);
+      button.classList.toggle('active', active);
     });
-    render(0);
-    updateClock(0);
-  }).catch(() => {
-    document.getElementById('now-title').textContent = 'Lecture materials could not be loaded.';
-  });
 
-  audio.addEventListener('timeupdate', () => {
-    updateClock(audio.currentTime);
-    if (!syncToggle.checked || !timing || audio.paused) return;
-    const index = timing.slides.findIndex(item => audio.currentTime >= item.startSeconds && audio.currentTime < item.endSeconds);
-    if (index >= 0 && index !== current) render(index);
-  });
-  previous.addEventListener('click', () => render(current - 1, true));
-  next.addEventListener('click', () => render(current + 1, true));
+    history.replaceState(null, '', `#slide-${pad(slideNumber)}`);
+    if (scrollTranscript) image.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  fetch('./lecture_content.json')
+    .then(response => {
+      if (!response.ok) throw new Error('Lecture content unavailable');
+      return response.json();
+    })
+    .then(data => {
+      lecture = data;
+      lecture.sections.forEach(section => {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.innerHTML = `<span>${section.number}</span><strong>${section.title}</strong>`;
+        button.addEventListener('click', () => render(section.start - 1, true));
+        chapterStrip.appendChild(button);
+      });
+      const match = location.hash.match(/slide-(\d+)/);
+      const start = match ? Number(match[1]) - 1 : 0;
+      render(Number.isFinite(start) ? start : 0);
+    })
+    .catch(() => {
+      document.getElementById('now-title').textContent = 'Lecture materials could not be loaded.';
+    });
+
+  previous.addEventListener('click', () => render(current - 1));
+  next.addEventListener('click', () => render(current + 1));
   transcriptToggle.addEventListener('click', () => {
     const hidden = transcriptPanel.hidden;
     transcriptPanel.hidden = !hidden;
     transcriptToggle.setAttribute('aria-expanded', String(hidden));
     transcriptToggle.textContent = hidden ? 'Hide transcript' : 'Show transcript';
+  });
+
+  window.addEventListener('keydown', event => {
+    if (event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement) return;
+    if (event.key === 'ArrowLeft') render(current - 1);
+    if (event.key === 'ArrowRight' || event.key === ' ') {
+      if (event.key === ' ') event.preventDefault();
+      render(current + 1);
+    }
+    if (event.key === 'Home') render(0);
+    if (event.key === 'End' && lecture) render(lecture.slides.length - 1);
   });
 })();
