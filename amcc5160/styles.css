@@ -46,7 +46,6 @@ button, input, textarea { font: inherit; }
 .nav-links a:hover { color: #000; }
 .nav-links a:hover::after { right: 0; }
 .nav-links a.is-active { color: var(--blue); }
-.nav-featured { color: var(--blue); font-weight: 650; }
 .nav-cta {
   justify-self: end;
   padding: 8px 13px;
@@ -145,7 +144,7 @@ button, input, textarea { font: inherit; }
 @keyframes ring-one { to { transform: rotate(380deg) scaleY(.54); } }
 @keyframes ring-two { to { transform: rotate(322deg) scaleY(.68); } }
 
-.quick-links { position: relative; z-index: 6; display: grid; grid-template-columns: repeat(5,1fr); gap: 1px; margin: -38px clamp(24px,7vw,110px) 0; padding: 1px; border: 1px solid var(--line); border-radius: 24px; overflow: hidden; background: var(--line); box-shadow: 0 24px 70px rgba(29,29,31,.12); }
+.quick-links { position: relative; z-index: 6; display: grid; grid-template-columns: repeat(3,1fr); gap: 1px; margin: -38px clamp(24px,7vw,110px) 0; padding: 1px; border: 1px solid var(--line); border-radius: 24px; overflow: hidden; background: var(--line); box-shadow: 0 24px 70px rgba(29,29,31,.12); }
 .quick-links a { position: relative; min-height: 112px; padding: 22px; background: rgba(255,255,255,.96); transition: background .2s ease, transform .2s ease; }
 .quick-links a:hover { z-index: 2; background: #f5faff; transform: translateY(-2px); }
 .quick-links span, .quick-links strong { display: block; }
@@ -155,8 +154,6 @@ button, input, textarea { font: inherit; }
 .quick-links .quick-signup { color: #fff; background: linear-gradient(135deg,#15151a,#272233); }
 .quick-links .quick-signup span { color: #aeb7ff; }
 .quick-links .quick-signup i { color: #9dccff; }
-.quick-links .quick-quiz { background: linear-gradient(145deg,#eef4ff,#f7edff); }
-.quick-links .quick-quiz span, .quick-links .quick-quiz i { color: #7656d9; }
 
 .section { padding: 98px clamp(24px, 7vw, 110px); }
 .fact-section { background: #fff; }
