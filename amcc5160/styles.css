@@ -241,6 +241,24 @@ button, input, textarea { font: inherit; }
 .final-panel li { color: #c7c7cc; border-color: rgba(255,255,255,.12); }
 .final-panel li::before { color: #9dccff; }
 
+.faq-section { padding-top: 0; background: #fff; }
+.faq-shell { padding: clamp(32px, 5vw, 72px); border: 1px solid rgba(29,29,31,.08); border-radius: 34px; background: linear-gradient(145deg,#f7f8ff,#f4f9ff 50%,#fff8fb); box-shadow: 0 28px 80px rgba(35,48,98,.08); }
+.faq-heading { display: grid; grid-template-columns: minmax(0,1fr) minmax(260px,380px); align-items: end; gap: 56px; margin-bottom: 50px; }
+.faq-heading > p { margin: 0; color: var(--muted); font-size: 15px; line-height: 1.55; }
+.faq-list { border-top: 1px solid rgba(29,29,31,.12); }
+.faq-list details { border-bottom: 1px solid rgba(29,29,31,.12); }
+.faq-list summary { display: grid; grid-template-columns: 44px minmax(0,1fr) 30px; align-items: center; gap: 18px; min-height: 104px; cursor: pointer; list-style: none; }
+.faq-list summary::-webkit-details-marker { display: none; }
+.faq-list summary strong { font-size: clamp(19px,2vw,27px); line-height: 1.2; letter-spacing: -.03em; transition: color .2s ease; }
+.faq-list summary:hover strong { color: var(--blue); }
+.faq-number { color: #86868b; font-size: 11px; font-weight: 700; letter-spacing: .06em; }
+.faq-toggle { color: #86868b; font-size: 21px; transition: transform .25s ease; }
+.faq-list details[open] .faq-toggle { transform: rotate(45deg); }
+.faq-answer { padding: 0 48px 34px 62px; }
+.faq-answer p { max-width: 900px; margin: 0; color: var(--muted); font-size: 17px; line-height: 1.65; }
+.faq-answer p b { color: var(--ink); font-weight: 680; }
+.faq-answer a { display: inline-block; margin-top: 18px; color: var(--blue); font-size: 13px; font-weight: 700; }
+
 .schedule-section { background: #fbfbfd; }
 .schedule-heading { display: flex; justify-content: space-between; align-items: end; gap: 30px; margin-bottom: 52px; }
 .schedule-heading > p { max-width: 180px; margin: 0; color: #86868b; font-size: 13px; line-height: 1.5; }
@@ -332,6 +350,7 @@ footer > p { margin: 8px 0 46px; color: #86868b; }
   .assessment-card { min-height: 230px; }
   .presentation-section { grid-template-columns: 1fr; }
   .presentation-panel { min-height: 550px; }
+  .faq-heading { grid-template-columns: 1fr; gap: 20px; }
   .quick-links { grid-template-columns: 1fr 1fr; }
   .deadline-strip { grid-template-columns: 1fr 1fr; }
   .deadline-strip > p { grid-column: 1 / -1; min-height: 110px; }
@@ -367,6 +386,10 @@ footer > p { margin: 8px 0 46px; color: #86868b; }
   .deadline-strip > p { grid-column: auto; }
   .deadline-strip article { min-height: 110px; border-left: 0; border-top: 1px solid var(--line); }
   .presentation-panel { min-height: 570px; border-radius: 26px; }
+  .faq-shell { padding: 28px 22px; border-radius: 26px; }
+  .faq-list summary { grid-template-columns: 32px minmax(0,1fr) 24px; gap: 12px; min-height: 96px; }
+  .faq-answer { padding: 0 0 28px 44px; }
+  .faq-answer p { font-size: 16px; }
   .schedule-heading { align-items: start; flex-direction: column; }
   .schedule-list summary { grid-template-columns: 36px minmax(0, 1fr) 24px; gap: 12px; padding: 18px 0; }
   .week-date { grid-column: 2; grid-row: 2; }
