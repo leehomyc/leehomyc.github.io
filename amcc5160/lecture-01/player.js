@@ -4,7 +4,7 @@
   const next = document.getElementById('next');
   const transcriptToggle = document.getElementById('transcript-toggle');
   const transcriptPanel = document.getElementById('transcript-panel');
-  const chapterStrip = document.getElementById('chapter-strip');
+  const slideStrip = document.getElementById('slide-strip');
   let lecture;
   let current = 0;
 
@@ -60,17 +60,15 @@
       p.textContent = paragraph;
       return p;
     }));
-    document.getElementById('facilitation').textContent = slide.facilitation || '';
     renderSources(slide.sources);
 
     previous.disabled = current === 0;
     next.disabled = current === lecture.slides.length - 1;
-    [...chapterStrip.children].forEach((button, buttonIndex) => {
-      const chapter = lecture.sections[buttonIndex];
-      const nextChapter = lecture.sections[buttonIndex + 1];
-      const active = slideNumber >= chapter.start && (!nextChapter || slideNumber < nextChapter.start);
-      button.classList.toggle('active', active);
+    [...slideStrip.children].forEach((button, buttonIndex) => {
+      button.classList.toggle('active', buttonIndex === current);
+      button.setAttribute('aria-current', buttonIndex === current ? 'page' : 'false');
     });
+    slideStrip.children[current]?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
 
     history.replaceState(null, '', `#slide-${pad(slideNumber)}`);
     if (scrollTranscript) image.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -83,12 +81,14 @@
     })
     .then(data => {
       lecture = data;
-      lecture.sections.forEach(section => {
+      lecture.slides.forEach((slide, index) => {
         const button = document.createElement('button');
         button.type = 'button';
-        button.innerHTML = `<span>${section.number}</span><strong>${section.title}</strong>`;
-        button.addEventListener('click', () => render(section.start - 1, true));
-        chapterStrip.appendChild(button);
+        button.textContent = pad(index + 1);
+        button.title = slide.title;
+        button.setAttribute('aria-label', `Slide ${index + 1}: ${slide.title}`);
+        button.addEventListener('click', () => render(index, true));
+        slideStrip.appendChild(button);
       });
       const match = location.hash.match(/slide-(\d+)/);
       const start = match ? Number(match[1]) - 1 : 0;
