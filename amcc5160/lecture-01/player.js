@@ -23,14 +23,14 @@
     if (!lecture || !timing) return;
     current = Math.max(0, Math.min(index, lecture.slides.length - 1));
     const slide = lecture.slides[current];
-    const chapter = timing.chapters[current];
-    image.src = `./slides/slide-${pad(current + 1)}.png`;
+    const chapter = timing.slides[current];
+    image.src = `./slides60/slide-${pad(current + 1)}.png`;
     image.alt = `Slide ${current + 1}: ${slide.title}`;
     document.getElementById('now-slide').textContent = `NOW PLAYING · SLIDE ${pad(current + 1)}`;
     document.getElementById('now-title').textContent = chapter.title;
     document.getElementById('transcript-number').textContent = `SLIDE ${pad(current + 1)}`;
     document.getElementById('transcript-title').textContent = slide.title;
-    document.getElementById('transcript-duration').textContent = `${slide.duration} min`;
+    document.getElementById('transcript-duration').textContent = `${clock(chapter.narrationSeconds)} narration`;
     const subtitle = document.getElementById('transcript-subtitle');
     subtitle.textContent = slide.subtitle || '';
     subtitle.hidden = !slide.subtitle;
@@ -42,21 +42,21 @@
     previous.disabled = current === 0;
     next.disabled = current === lecture.slides.length - 1;
     [...chapterStrip.children].forEach((button, i) => button.classList.toggle('active', i === current));
-    if (seek) { audio.currentTime = chapter.start; updateClock(chapter.start); }
+    if (seek) { audio.currentTime = chapter.startSeconds; updateClock(chapter.startSeconds); }
   }
 
   function updateClock(seconds) {
-    const total = timing?.totalSeconds || 7200;
+    const total = timing?.totalSeconds || 7240;
     document.getElementById('clock').textContent = `${clock(seconds)} / ${clock(total)}`;
     document.getElementById('progress').style.width = `${Math.min(100, seconds / total * 100)}%`;
   }
 
   Promise.all([
     fetch('./lecture_content.json').then(r => r.json()),
-    fetch('./audio/audio_timing.json').then(r => r.json())
+    fetch('./audio/audio_timing_60.json').then(r => r.json())
   ]).then(([lectureData, timingData]) => {
     lecture = lectureData; timing = timingData;
-    timing.chapters.forEach((chapter, index) => {
+    timing.slides.forEach((chapter, index) => {
       const button = document.createElement('button');
       button.textContent = pad(chapter.slide); button.title = chapter.title;
       button.addEventListener('click', () => render(index, true));
@@ -71,7 +71,7 @@
   audio.addEventListener('timeupdate', () => {
     updateClock(audio.currentTime);
     if (!syncToggle.checked || !timing || audio.paused) return;
-    const index = timing.chapters.findIndex(item => audio.currentTime >= item.start && audio.currentTime < item.end);
+    const index = timing.slides.findIndex(item => audio.currentTime >= item.startSeconds && audio.currentTime < item.endSeconds);
     if (index >= 0 && index !== current) render(index);
   });
   previous.addEventListener('click', () => render(current - 1, true));
