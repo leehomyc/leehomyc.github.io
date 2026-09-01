@@ -67,11 +67,11 @@
       <form id="booking-form" class="booking-form">
         <input id="slot-id" name="slotId" type="hidden">
         <div class="field-grid">
-          <label>Family name <span class="field-hint">shown to classmates</span><input id="student-name" name="name" type="text" maxlength="80" autocomplete="family-name" required></label>
+          <label>Full name <span class="field-hint">only family name shown to classmates</span><input id="student-name" name="name" type="text" maxlength="80" autocomplete="name" required></label>
           <label>Student ID<input id="student-id" name="studentId" type="text" maxlength="30" autocomplete="off" required></label>
         </div>
         <label id="topic-label">Presentation topic or title<textarea id="presentation-topic" name="topic" maxlength="240" rows="3" required></textarea></label>
-        <p class="privacy-note">Classmates see only your family name, the last four digits of your student ID, and your topic. Your full student ID is not stored; a protected fingerprint lets you update your booking later.</p>
+        <p class="privacy-note">Your full name and student ID are stored with your submission and visible only in the protected instructor dashboard. Classmates see only your family name, the last four digits of your ID, and your topic.</p>
         <div class="form-actions"><button id="cancel-selection" type="button">Choose another slot</button><button class="primary-submit" type="submit">Save reservation →</button></div>
       </form>
     </section>

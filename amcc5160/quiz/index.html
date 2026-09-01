@@ -29,10 +29,10 @@
 
     <form id="quiz-form" class="quiz-form">
       <section class="identity-card" aria-labelledby="identity-title">
-        <div><p class="card-kicker">Course access</p><h2 id="identity-title">Identify your submission.</h2><p>Use the access code shared in class. Your full student ID is not stored.</p></div>
+        <div><p class="card-kicker">Course access</p><h2 id="identity-title">Identify your submission.</h2><p>Use the access code shared in class. Your full name and student ID are stored with your submission and visible only in the protected instructor dashboard.</p></div>
         <div class="identity-fields">
           <label>Access code<input name="code" type="password" autocomplete="off" required placeholder="Enter code"></label>
-          <label>Family name<input name="name" type="text" autocomplete="family-name" maxlength="80" required></label>
+          <label>Full name<input name="name" type="text" autocomplete="name" maxlength="80" required></label>
           <label>Student ID<input name="studentId" type="text" autocomplete="off" maxlength="30" required></label>
         </div>
       </section>
