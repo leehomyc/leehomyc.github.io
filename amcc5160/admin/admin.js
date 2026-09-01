@@ -17,6 +17,20 @@
   const studentName = item => item.name || item.fullName || item.familyName || 'Name unavailable';
   const studentId = item => item.studentId || (item.idLastFour ? `•••• ${item.idLastFour}` : 'ID unavailable');
   const person = item => `${studentName(item)} · ${studentId(item)}`;
+  const SLIDES_MARKER = '\n[[SLIDES]]';
+
+  function presentationDetails(value) {
+    const stored = String(value || '');
+    const markerIndex = stored.indexOf(SLIDES_MARKER);
+    return markerIndex === -1
+      ? { topic: stored, slidesUrl: '' }
+      : { topic: stored.slice(0, markerIndex), slidesUrl: stored.slice(markerIndex + SLIDES_MARKER.length) };
+  }
+
+  function safeSlidesUrl(value) {
+    try { const url = new URL(value); return ['http:', 'https:'].includes(url.protocol) ? url.href : ''; }
+    catch (_) { return ''; }
+  }
 
   async function request(payload) {
     if (!endpoint) throw new Error('The course service is not configured.');
@@ -92,7 +106,12 @@
   }
 
   function renderPresentation(selector, items, maxScore) {
-    $(selector).innerHTML = items.length ? items.map(item => `<article class="record" data-id="${escapeHtml(item.recordId)}"><div class="record-identity"><h3>${escapeHtml(item.slotId.replaceAll('-', ' · '))}</h3><p>${escapeHtml(person(item))}</p></div><div class="record-content"><strong>${escapeHtml(item.topic)}</strong><p>Updated ${new Date(item.updatedAt).toLocaleString()}</p></div>${gradeForm(item, maxScore)}</article>`).join('') : '<div class="empty">No reservations yet. New sign-ups will appear here automatically.</div>';
+    $(selector).innerHTML = items.length ? items.map(item => {
+      const details = presentationDetails(item.topic);
+      const slidesUrl = safeSlidesUrl(details.slidesUrl);
+      const slides = slidesUrl ? `<p><a href="${escapeHtml(slidesUrl)}" target="_blank" rel="noreferrer">Open slides ↗</a></p>` : '<p>Slides not added yet</p>';
+      return `<article class="record" data-id="${escapeHtml(item.recordId)}"><div class="record-identity"><h3>${escapeHtml(item.slotId.replaceAll('-', ' · '))}</h3><p>${escapeHtml(person(item))}</p></div><div class="record-content"><strong>${escapeHtml(details.topic)}</strong>${slides}<p>Updated ${new Date(item.updatedAt).toLocaleString()}</p></div>${gradeForm(item, maxScore)}</article>`;
+    }).join('') : '<div class="empty">No reservations yet. New sign-ups will appear here automatically.</div>';
   }
 
   function renderQuiz(selector, items) {
@@ -122,7 +141,7 @@
       ? [['Student name','Student ID','Weekly slots','Quiz weeks','Final slots','Last activity'], ...students.map(i => [i.name,i.studentId,i.weekly.join('; '),i.quizzes.join('; '),i.finals.join('; '),i.lastActivity])]
       : type === 'quiz'
         ? [['Week','Attempt','Submitted at','Student name','Student ID',...questions.map((_, i) => `Answer ${i + 1}`),'Score / 20','Feedback'], ...items.map(i => [i.week,i.attemptNumber || 1,i.submittedAt,studentName(i),studentId(i),...i.answers,i.score,i.feedback])]
-        : [['Slot','Student name','Student ID','Topic',`Score / ${type === 'final' ? 25 : 10}`,'Feedback'], ...items.map(i => [i.slotId,studentName(i),studentId(i),i.topic,i.score,i.feedback])];
+        : [['Slot','Student name','Student ID','Topic','Slides link',`Score / ${type === 'final' ? 25 : 10}`,'Feedback'], ...items.map(i => { const details = presentationDetails(i.topic); return [i.slotId,studentName(i),studentId(i),details.topic,details.slidesUrl,i.score,i.feedback]; })];
     const blob = new Blob([rows.map(row => row.map(csvValue).join(',')).join('\n')], { type: 'text/csv;charset=utf-8' });
     const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = `amcc5160-${type}.csv`; link.click(); URL.revokeObjectURL(link.href);
   }

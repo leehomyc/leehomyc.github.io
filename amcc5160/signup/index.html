@@ -9,7 +9,7 @@
   <meta http-equiv="Expires" content="0">
   <title>Presentation Sign-up — AMCC 5160</title>
   <link rel="stylesheet" href="../styles.css?v=20260901-tight">
-  <link rel="stylesheet" href="./signup.css?v=20260901-tight">
+  <link rel="stylesheet" href="./signup.css?v=20260901-slides">
 </head>
 <body>
   <nav class="site-nav" aria-label="Primary navigation">
@@ -54,7 +54,7 @@
 
       <div class="availability-key" aria-label="Availability legend"><span><i class="open-dot"></i>Available</span><span><i class="taken-dot"></i>Reserved</span><button id="refresh-button" type="button">Refresh availability ↻</button></div>
       <section class="manage-booking" aria-labelledby="manage-title">
-        <div><p class="card-kicker">Already signed up?</p><h3 id="manage-title">Change your reservation.</h3><p>Enter the same student ID to retrieve your weekly and final bookings. You can move to another open slot or update your topic.</p></div>
+        <div><p class="card-kicker">Already signed up?</p><h3 id="manage-title">Change your reservation.</h3><p>Enter the same student ID to retrieve your weekly and final bookings. You can move to another open slot, update your topic, or add your slides link later.</p></div>
         <form id="manage-form"><label for="manage-student-id">Student ID</label><div class="input-action-row"><input id="manage-student-id" type="text" maxlength="30" autocomplete="off" required placeholder="Enter your student ID"><button type="submit">Find my booking →</button></div></form>
         <div id="manage-results" class="manage-results" hidden></div>
       </section>
@@ -74,6 +74,7 @@
           <label>Student ID<input id="student-id" name="studentId" type="text" maxlength="30" autocomplete="off" required></label>
         </div>
         <label id="topic-label">Presentation topic or title<textarea id="presentation-topic" name="topic" maxlength="240" rows="3" required></textarea></label>
+        <label>Slides link <span class="field-hint">add it now or return after your presentation</span><input id="slides-link" name="slidesUrl" type="url" maxlength="220" inputmode="url" autocomplete="url" placeholder="https://docs.google.com/presentation/…"></label>
         <p class="privacy-note">Your full name and student ID are stored with your submission and visible only in the protected instructor dashboard. Classmates see only your family name, the last four digits of your ID, and your topic.</p>
         <div class="form-actions"><button id="cancel-selection" type="button">Choose another slot</button><button class="primary-submit" type="submit">Save reservation →</button></div>
       </form>
@@ -85,6 +86,6 @@
   <footer><div class="footer-title">AMCC 5160</div><p>Presentation sign-up · Fall 2026/27</p><div class="footer-links"><a href="../">Course home ←</a><a href="https://canvas.ust.hk/courses/71833" target="_blank" rel="noreferrer">HKUST Canvas ↗</a><a href="mailto:yangharry@ust.hk">Contact instructor ↗</a></div></footer>
 
   <script src="./config.js?v=20260901-tight"></script>
-  <script src="./signup.js?v=20260901-tight"></script>
+  <script src="./signup.js?v=20260901-slides"></script>
 </body>
 </html>

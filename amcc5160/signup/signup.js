@@ -10,6 +10,7 @@
     { id: 'final-12', type: 'final', eyebrow: 'Final presentations I', title: 'Nov 17', slotCount: 25 },
     { id: 'final-13', type: 'final', eyebrow: 'Final presentations II', title: 'Nov 24', slotCount: 25 }
   ];
+  const SLIDES_MARKER = '\n[[SLIDES]]';
 
   const state = { code: '', type: new URLSearchParams(location.search).get('type') === 'final' ? 'final' : 'weekly', signups: [], selectedSlotId: '' };
   const accessForm = document.getElementById('access-form');
@@ -53,6 +54,26 @@
     return session ? `${session.eyebrow} · ${session.title} · Slot ${Number(slotNumber)}` : slotId;
   }
 
+  function presentationDetails(value) {
+    const stored = String(value || '');
+    const markerIndex = stored.indexOf(SLIDES_MARKER);
+    return markerIndex === -1
+      ? { topic: stored, slidesUrl: '' }
+      : { topic: stored.slice(0, markerIndex), slidesUrl: stored.slice(markerIndex + SLIDES_MARKER.length) };
+  }
+
+  function storedPresentation(topic, slidesUrl) {
+    const cleanTopic = String(topic || '').trim();
+    const cleanUrl = String(slidesUrl || '').trim();
+    if (!cleanUrl) return cleanTopic;
+    let parsed;
+    try { parsed = new URL(cleanUrl); } catch (_) { throw new Error('Please enter a complete slides link beginning with https://.'); }
+    if (!['http:', 'https:'].includes(parsed.protocol)) throw new Error('Please enter a complete slides link beginning with https://.');
+    const stored = `${cleanTopic}${SLIDES_MARKER}${cleanUrl}`;
+    if (stored.length > 240) throw new Error('The topic and slides link are a little too long together. Please shorten the topic or use a shorter sharing link.');
+    return stored;
+  }
+
   function renderTabs() {
     tabs.forEach(tab => tab.setAttribute('aria-selected', String(tab.dataset.type === state.type)));
   }
@@ -91,7 +112,8 @@
         button.disabled = Boolean(signup) && state.selectedSlotId !== slotId;
         button.dataset.slotId = slotId;
         const publicIdentity = signup ? `${signup.familyName} · ID ending ${signup.idLastFour}` : '';
-        button.setAttribute('aria-label', signup ? `Slot ${index}, reserved by ${publicIdentity}, topic ${signup.topic}` : `Slot ${index}, available`);
+        const details = presentationDetails(signup && signup.topic);
+        button.setAttribute('aria-label', signup ? `Slot ${index}, reserved by ${publicIdentity}, topic ${details.topic}` : `Slot ${index}, available`);
         const number = document.createElement('strong');
         number.textContent = `Slot ${index}`;
         const detail = document.createElement('span');
@@ -100,7 +122,7 @@
         if (signup) {
           const topic = document.createElement('span');
           topic.className = 'slot-topic';
-          topic.textContent = signup.topic;
+          topic.textContent = details.topic;
           button.append(topic);
         }
         if (!signup || state.selectedSlotId === slotId) button.addEventListener('click', () => selectSlot(slotId));
@@ -120,7 +142,9 @@
       document.getElementById('student-name').value = existing.fullName || existing.name || '';
       document.getElementById('student-name').placeholder = 'Re-enter your full name';
       document.getElementById('student-id').value = studentId;
-      document.getElementById('presentation-topic').value = existing.topic;
+      const details = presentationDetails(existing.topic);
+      document.getElementById('presentation-topic').value = details.topic;
+      document.getElementById('slides-link').value = details.slidesUrl;
       document.querySelector('.primary-submit').textContent = 'Save changes →';
       document.getElementById('booking-title').textContent = 'Update your booking.';
     } else {
@@ -156,9 +180,18 @@
       kind.textContent = booking.type === 'final' ? 'Final presentation' : 'Weekly presentation';
       const slot = document.createElement('strong');
       slot.textContent = slotLabel(booking.slotId);
+      const details = presentationDetails(booking.topic);
       const topic = document.createElement('small');
-      topic.textContent = booking.topic;
+      topic.textContent = details.topic;
       copy.append(kind, slot, topic);
+      if (details.slidesUrl) {
+        const slides = document.createElement('a');
+        slides.href = details.slidesUrl;
+        slides.target = '_blank';
+        slides.rel = 'noreferrer';
+        slides.textContent = 'Slides added ↗';
+        copy.append(slides);
+      }
       const edit = document.createElement('button');
       edit.type = 'button';
       edit.textContent = 'Change →';
@@ -239,13 +272,14 @@
     submitButton.textContent = 'Saving…';
     try {
       const form = new FormData(bookingForm);
+      const topic = storedPresentation(form.get('topic'), form.get('slidesUrl'));
       const result = await apiRequest({
         action: 'signup',
         code: state.code,
         slotId: form.get('slotId'),
         name: form.get('name'),
         studentId: form.get('studentId'),
-        topic: form.get('topic')
+        topic
       });
       state.signups = result.signups || [];
       clearSelection();
