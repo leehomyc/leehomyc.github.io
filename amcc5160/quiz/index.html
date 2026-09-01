@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Lecture 01 quiz for AMCC 5160.">
+  <meta name="theme-color" content="#fbfbfd">
+  <title>Quiz 01 — AMCC 5160</title>
+  <link rel="stylesheet" href="../styles.css">
+  <link rel="stylesheet" href="./quiz.css">
+</head>
+<body>
+  <nav class="site-nav" aria-label="Primary navigation">
+    <a class="brand" href="../">AMCC <span>5160</span></a>
+    <div class="nav-links"><a href="../lecture-01/">Lecture 01</a><a href="../#schedule">Schedule</a><a href="../signup/">Presentations</a></div>
+    <a class="nav-cta" href="../">Course home →</a>
+  </nav>
+
+  <main class="quiz-page">
+    <header class="quiz-hero">
+      <div><p class="eyebrow">September 1 · Lecture 01</p><h1>Quiz <span>01.</span></h1></div>
+      <div class="quiz-meta"><strong>20%</strong><p>Five short responses based on the slides and teaching transcript.</p></div>
+    </header>
+
+    <section class="quiz-intro" aria-labelledby="quiz-title">
+      <div><p class="card-kicker">Before you begin</p><h2 id="quiz-title">Answer in your own words.</h2></div>
+      <p>Concise answers are welcome. Focus on the central idea and use one concrete example where helpful. You may update your submission later using the same student ID.</p>
+    </section>
+
+    <form id="quiz-form" class="quiz-form">
+      <section class="identity-card" aria-labelledby="identity-title">
+        <div><p class="card-kicker">Course access</p><h2 id="identity-title">Identify your submission.</h2><p>Use the access code shared in class. Your full student ID is not stored.</p></div>
+        <div class="identity-fields">
+          <label>Access code<input name="code" type="password" autocomplete="off" required placeholder="Enter code"></label>
+          <label>Family name<input name="name" type="text" autocomplete="family-name" maxlength="80" required></label>
+          <label>Student ID<input name="studentId" type="text" autocomplete="off" maxlength="30" required></label>
+        </div>
+      </section>
+
+      <section class="question-list" aria-label="Quiz questions">
+        <article class="question-card"><div><span>01</span><strong>4 points</strong></div><label>In Lecture 01, what makes a “world” different from a still image or an animation?<textarea name="answer" rows="5" maxlength="1200" required placeholder="Explain the key difference in 2–4 sentences."></textarea></label></article>
+        <article class="question-card"><div><span>02</span><strong>4 points</strong></div><label>Write the four stages in the course’s durable generative-media map. Briefly explain what one stage controls.<textarea name="answer" rows="5" maxlength="1200" required placeholder="Name all four stages, then explain one."></textarea></label></article>
+        <article class="question-card"><div><span>03</span><strong>4 points</strong></div><label>Why is video not simply “an image with more frames”? Name one temporal consistency problem a video model must solve.<textarea name="answer" rows="5" maxlength="1200" required placeholder="Connect time to one concrete failure or challenge."></textarea></label></article>
+        <article class="question-card"><div><span>04</span><strong>4 points</strong></div><label>What is controlled variation, and why does it teach us more than changing many variables at once?<textarea name="answer" rows="5" maxlength="1200" required placeholder="Describe the method and its value."></textarea></label></article>
+        <article class="question-card"><div><span>05</span><strong>4 points</strong></div><label>What should a creator record to make a generative-media process inspectable? Give at least three examples.<textarea name="answer" rows="5" maxlength="1200" required placeholder="List at least three kinds of process evidence."></textarea></label></article>
+      </section>
+
+      <section class="submit-card">
+        <div><p class="card-kicker">Ready to submit?</p><h2>Review all five answers.</h2><p>Submitting again with the same student ID replaces your earlier answers while preserving any instructor grade.</p></div>
+        <button id="submit-quiz" type="submit">Submit Quiz 01 →</button>
+      </section>
+    </form>
+
+    <section id="quiz-success" class="quiz-success" hidden aria-live="polite"><span>✓</span><div><p>Submission received</p><h2>Quiz 01 is saved.</h2><small id="submitted-at"></small></div><a href="../">Return to course home →</a></section>
+    <div id="quiz-status" class="quiz-status" role="status" aria-live="polite"></div>
+  </main>
+
+  <footer><div class="footer-title">Quiz 01</div><p>AMCC 5160 · Lecture 01 · September 1</p><div class="footer-links"><a href="../lecture-01/">Review Lecture 01 ←</a><a href="../">Course home ←</a></div></footer>
+  <script src="../signup/config.js"></script>
+  <script src="./quiz.js"></script>
+</body>
+</html>

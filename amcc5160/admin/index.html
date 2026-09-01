@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <meta name="theme-color" content="#0b0b10">
+  <title>Instructor Dashboard — AMCC 5160</title>
+  <link rel="stylesheet" href="./admin.css">
+</head>
+<body>
+  <header class="topbar"><a href="../">AMCC <span>5160</span></a><p>Instructor dashboard</p><button id="refresh" type="button" hidden>Refresh data</button></header>
+  <main>
+    <section id="login" class="login-card">
+      <p class="eyebrow">Private course workspace</p>
+      <h1>See the class at a glance.</h1>
+      <p>Live presentation reservations, Quiz 01 responses, and grading in one place.</p>
+      <form id="login-form"><label>Instructor code<input id="admin-code" type="password" autocomplete="current-password" required autofocus placeholder="Enter instructor code"></label><button type="submit">Open dashboard →</button></form>
+      <p id="login-status" class="status" role="status"></p>
+    </section>
+
+    <section id="dashboard" hidden>
+      <div class="dashboard-head"><div><p class="eyebrow">AMCC 5160 · Live overview</p><h1>Course dashboard.</h1><p id="last-updated">Loading current records…</p></div><div class="live-pill"><i></i> Live · refreshes every 30s</div></div>
+      <section class="metrics" aria-label="Course summary">
+        <article><span>Weekly</span><strong id="metric-weekly">0</strong><small>of 50 slots reserved</small></article>
+        <article><span>Quiz 01</span><strong id="metric-quiz">0</strong><small>submissions</small></article>
+        <article><span>Final</span><strong id="metric-final">0</strong><small>of 50 slots reserved</small></article>
+        <article><span>Graded</span><strong id="metric-graded">0</strong><small>across all records</small></article>
+      </section>
+
+      <nav class="tabs" aria-label="Dashboard sections">
+        <button class="active" data-panel="weekly" type="button">Weekly presentations <span id="count-weekly">0</span></button>
+        <button data-panel="quiz" type="button">Quiz 01 <span id="count-quiz">0</span></button>
+        <button data-panel="final" type="button">Final presentations <span id="count-final">0</span></button>
+      </nav>
+
+      <section id="panel-weekly" class="panel"><div class="panel-head"><div><p class="eyebrow">10% of course grade</p><h2>Weekly presentations</h2></div><button class="export" data-export="weekly" type="button">Export CSV</button></div><div id="weekly-list" class="records"></div></section>
+      <section id="panel-quiz" class="panel" hidden><div class="panel-head"><div><p class="eyebrow">20% of course grade</p><h2>Quiz 01 submissions</h2></div><button class="export" data-export="quiz" type="button">Export CSV</button></div><div id="quiz-list" class="records"></div></section>
+      <section id="panel-final" class="panel" hidden><div class="panel-head"><div><p class="eyebrow">25% of course grade</p><h2>Final presentations</h2></div><button class="export" data-export="final" type="button">Export CSV</button></div><div id="final-list" class="records"></div></section>
+      <p id="dashboard-status" class="status" role="status"></p>
+    </section>
+  </main>
+  <script src="../signup/config.js"></script>
+  <script src="./admin.js"></script>
+</body>
+</html>
