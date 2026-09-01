@@ -10,7 +10,7 @@
   <meta http-equiv="Expires" content="0">
   <title>Quiz 01 — AMCC 5160</title>
   <link rel="stylesheet" href="../styles.css?v=20260901-tight">
-  <link rel="stylesheet" href="./quiz.css?v=20260901-tight">
+  <link rel="stylesheet" href="./quiz.css?v=20260901-preview">
 </head>
 <body>
   <nav class="site-nav" aria-label="Primary navigation">
@@ -49,8 +49,15 @@
       </section>
 
       <section class="submit-card">
-        <div><p class="card-kicker">Ready to submit?</p><h2>Review all five answers.</h2><p>Submitting again with the same student ID replaces your earlier answers while preserving any instructor grade.</p></div>
-        <button id="submit-quiz" type="submit">Submit Quiz 01 →</button>
+        <div><p class="card-kicker">Ready to review?</p><h2>Preview before submitting.</h2><p>You will see your name, student ID, and all five answers before anything is sent. Submitting again with the same student ID replaces your earlier answers while preserving any instructor grade.</p></div>
+        <button id="preview-quiz" type="submit">Preview submission →</button>
+      </section>
+
+      <section id="quiz-preview" class="quiz-preview" hidden tabindex="-1" aria-labelledby="preview-title">
+        <div class="preview-heading"><div><p class="card-kicker">Final check</p><h2 id="preview-title">Confirm your submission.</h2><p>Nothing has been submitted yet. Check your identity and responses carefully.</p></div><span>Quiz 01 · 5 answers</span></div>
+        <dl class="preview-identity"><div><dt>Student name</dt><dd id="preview-name"></dd></div><div><dt>Student ID</dt><dd id="preview-student-id"></dd></div></dl>
+        <div id="preview-answers" class="preview-answers"></div>
+        <div class="preview-actions"><button id="edit-quiz" type="button">← Back to edit</button><button id="confirm-quiz" type="button">Confirm and submit Quiz 01 →</button></div>
       </section>
     </form>
 
@@ -60,6 +67,6 @@
 
   <footer><div class="footer-title">Quiz 01</div><p>AMCC 5160 · Lecture 01 · September 1</p><div class="footer-links"><a href="../lecture-01/">Review Lecture 01 ←</a><a href="../">Course home ←</a></div></footer>
   <script src="../signup/config.js?v=20260901-tight"></script>
-  <script src="./quiz.js?v=20260901-tight"></script>
+  <script src="./quiz.js?v=20260901-preview"></script>
 </body>
 </html>
