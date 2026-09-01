@@ -75,11 +75,13 @@
 
     previous.disabled = current === 0;
     next.disabled = current === lecture.slides.length - 1;
+    const sectionIndex = lecture.sections.findIndex(item => item.start === section?.start);
     [...slideStrip.children].forEach((button, buttonIndex) => {
-      button.classList.toggle('active', buttonIndex === current);
-      button.setAttribute('aria-current', buttonIndex === current ? 'page' : 'false');
+      const isActive = buttonIndex === sectionIndex;
+      button.classList.toggle('active', isActive);
+      button.setAttribute('aria-current', isActive ? 'page' : 'false');
     });
-    slideStrip.children[current]?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+    slideStrip.children[sectionIndex]?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
 
     history.replaceState(null, '', `#slide-${pad(slideNumber)}`);
     if (scrollTranscript) image.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -92,13 +94,21 @@
     })
     .then(data => {
       lecture = data;
-      lecture.slides.forEach((slide, index) => {
+      lecture.sections.forEach((section, index) => {
+        const nextSection = lecture.sections[index + 1];
+        const lastSlide = nextSection ? nextSection.start - 1 : lecture.slideCount;
         const button = document.createElement('button');
         button.type = 'button';
-        button.textContent = pad(index + 1);
-        button.title = slide.title;
-        button.setAttribute('aria-label', `Slide ${index + 1}: ${slide.title}`);
-        button.addEventListener('click', () => render(index, true));
+        const number = document.createElement('span');
+        number.textContent = section.number;
+        const title = document.createElement('strong');
+        title.textContent = section.title;
+        const range = document.createElement('small');
+        range.textContent = `Slides ${pad(section.start)}–${pad(lastSlide)}`;
+        button.append(number, title, range);
+        button.title = `${section.title}, slides ${section.start} to ${lastSlide}`;
+        button.setAttribute('aria-label', `${section.title}, slides ${section.start} to ${lastSlide}`);
+        button.addEventListener('click', () => render(section.start - 1, true));
         slideStrip.appendChild(button);
       });
       const match = location.hash.match(/slide-(\d+)/);
