@@ -50,6 +50,11 @@
       </div>
 
       <div class="availability-key" aria-label="Availability legend"><span><i class="open-dot"></i>Available</span><span><i class="taken-dot"></i>Reserved</span><button id="refresh-button" type="button">Refresh availability ↻</button></div>
+      <section class="manage-booking" aria-labelledby="manage-title">
+        <div><p class="card-kicker">Already signed up?</p><h3 id="manage-title">Change your reservation.</h3><p>Enter the same student ID to retrieve your weekly and final bookings. You can move to another open slot or update your topic.</p></div>
+        <form id="manage-form"><label for="manage-student-id">Student ID</label><div class="input-action-row"><input id="manage-student-id" type="text" maxlength="30" autocomplete="off" required placeholder="Enter your student ID"><button type="submit">Find my booking →</button></div></form>
+        <div id="manage-results" class="manage-results" hidden></div>
+      </section>
       <div id="session-list" class="session-list" aria-live="polite"></div>
     </section>
 
@@ -67,7 +72,7 @@
         </div>
         <label id="topic-label">Presentation topic or title<textarea id="presentation-topic" name="topic" maxlength="240" rows="3" required></textarea></label>
         <p class="privacy-note">Classmates see only your family name, the last four digits of your student ID, and your topic. Your full student ID is not stored; a protected fingerprint lets you update your booking later.</p>
-        <div class="form-actions"><button id="cancel-selection" type="button">Choose another slot</button><button class="primary-submit" type="submit">Confirm sign-up →</button></div>
+        <div class="form-actions"><button id="cancel-selection" type="button">Choose another slot</button><button class="primary-submit" type="submit">Save reservation →</button></div>
       </form>
     </section>
 

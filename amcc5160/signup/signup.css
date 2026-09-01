@@ -36,6 +36,21 @@ button { border: 0; cursor: pointer; }
 .taken-dot { background: #c7c7cc; }
 #refresh-button { margin-left: auto; padding: 7px 0; background: transparent; color: var(--blue); font-size: 12px; }
 
+.manage-booking { display: grid; grid-template-columns: 1fr 1fr; gap: 26px 54px; margin-bottom: 20px; padding: 26px 28px; border: 1px solid #d9e6f4; border-radius: 22px; background: linear-gradient(135deg,#f4f9ff,#faf6ff); }
+.manage-booking h3 { margin: 0 0 8px; font-size: 24px; letter-spacing: -.035em; }
+.manage-booking p { margin: 0; color: #73737a; font-size: 13px; line-height: 1.5; }
+.manage-booking .card-kicker { margin-bottom: 8px; color: #6e5cff; }
+.manage-booking form { align-self: center; }
+.manage-booking form > label { display: block; margin-bottom: 8px; color: #55555a; font-size: 12px; font-weight: 650; }
+.manage-results { grid-column: 1 / -1; display: grid; gap: 8px; padding-top: 18px; border-top: 1px solid rgba(80,80,100,.12); }
+.manage-results article { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 15px 16px; border-radius: 15px; background: #fff; }
+.manage-results span,.manage-results strong,.manage-results small { display: block; }
+.manage-results span { color: #6e5cff; font-size: 10px; font-weight: 750; text-transform: uppercase; }
+.manage-results strong { margin: 4px 0; font-size: 14px; }
+.manage-results small { color: #77777c; }
+.manage-results button { padding: 10px 15px; border-radius: 999px; background: var(--ink); color: #fff; font-size: 12px; font-weight: 700; white-space: nowrap; }
+.manage-empty { grid-column: 1 / -1; padding: 12px 0; }
+
 .session-list { display: grid; gap: 16px; }
 .session-card { display: grid; grid-template-columns: minmax(160px,.42fr) minmax(0,1.58fr); gap: 30px; padding: 28px; border: 1px solid var(--line); border-radius: 26px; background: #fff; }
 .session-heading p { margin: 0 0 9px; color: var(--blue); font-size: 12px; font-weight: 680; }
@@ -70,6 +85,8 @@ button { border: 0; cursor: pointer; }
 
 @media (max-width: 900px) {
   .access-card, .booking-card { grid-template-columns: 1fr; }
+  .manage-booking { grid-template-columns: 1fr; }
+  .manage-results { grid-column: 1; }
   .session-card { grid-template-columns: 1fr; }
   .slot-grid { grid-template-columns: repeat(4, minmax(0,1fr)); }
 }

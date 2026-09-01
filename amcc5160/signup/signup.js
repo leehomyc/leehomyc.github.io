@@ -16,6 +16,8 @@
   const bookingArea = document.getElementById('booking-area');
   const bookingCard = document.getElementById('booking-card');
   const bookingForm = document.getElementById('booking-form');
+  const manageForm = document.getElementById('manage-form');
+  const manageResults = document.getElementById('manage-results');
   const sessionList = document.getElementById('session-list');
   const selectedSlotLabel = document.getElementById('selected-slot-label');
   const statusMessage = document.getElementById('status-message');
@@ -86,7 +88,7 @@
         const button = document.createElement('button');
         button.type = 'button';
         button.className = `slot-button${signup ? ' taken' : ''}${state.selectedSlotId === slotId ? ' selected' : ''}`;
-        button.disabled = Boolean(signup);
+        button.disabled = Boolean(signup) && state.selectedSlotId !== slotId;
         button.dataset.slotId = slotId;
         const publicIdentity = signup ? `${signup.familyName} · ID ending ${signup.idLastFour}` : '';
         button.setAttribute('aria-label', signup ? `Slot ${index}, reserved by ${publicIdentity}, topic ${signup.topic}` : `Slot ${index}, available`);
@@ -101,7 +103,7 @@
           topic.textContent = signup.topic;
           button.append(topic);
         }
-        if (!signup) button.addEventListener('click', () => selectSlot(slotId));
+        if (!signup || state.selectedSlotId === slotId) button.addEventListener('click', () => selectSlot(slotId));
         grid.append(button);
       }
       card.append(heading, grid);
@@ -109,11 +111,21 @@
     });
   }
 
-  function selectSlot(slotId) {
+  function selectSlot(slotId, existing = null, studentId = '') {
     state.selectedSlotId = slotId;
     document.getElementById('slot-id').value = slotId;
     selectedSlotLabel.textContent = slotLabel(slotId);
     bookingCard.hidden = false;
+    if (existing) {
+      document.getElementById('student-name').value = existing.familyName;
+      document.getElementById('student-id').value = studentId;
+      document.getElementById('presentation-topic').value = existing.topic;
+      document.querySelector('.primary-submit').textContent = 'Save changes →';
+      document.getElementById('booking-title').textContent = 'Update your booking.';
+    } else {
+      document.querySelector('.primary-submit').textContent = 'Save reservation →';
+      document.getElementById('booking-title').textContent = 'Complete your booking.';
+    }
     renderSessions();
     bookingCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
     setTimeout(() => document.getElementById('student-name').focus(), 350);
@@ -123,7 +135,38 @@
     state.selectedSlotId = '';
     document.getElementById('slot-id').value = '';
     bookingCard.hidden = true;
+    bookingForm.reset();
+    document.getElementById('booking-title').textContent = 'Complete your booking.';
+    document.querySelector('.primary-submit').textContent = 'Save reservation →';
     renderSessions();
+  }
+
+  function renderManageResults(bookings, studentId) {
+    manageResults.hidden = false;
+    if (!bookings.length) {
+      manageResults.innerHTML = '<p class="manage-empty">No reservation was found for that student ID.</p>';
+      return;
+    }
+    manageResults.replaceChildren(...bookings.map(booking => {
+      const item = document.createElement('article');
+      const copy = document.createElement('div');
+      const kind = document.createElement('span');
+      kind.textContent = booking.type === 'final' ? 'Final presentation' : 'Weekly presentation';
+      const slot = document.createElement('strong');
+      slot.textContent = slotLabel(booking.slotId);
+      const topic = document.createElement('small');
+      topic.textContent = booking.topic;
+      copy.append(kind, slot, topic);
+      const edit = document.createElement('button');
+      edit.type = 'button';
+      edit.textContent = 'Change →';
+      edit.addEventListener('click', () => {
+        state.type = booking.type;
+        selectSlot(booking.slotId, booking, studentId);
+      });
+      item.append(copy, edit);
+      return item;
+    }));
   }
 
   async function loadAvailability(quiet = false) {
@@ -170,6 +213,23 @@
 
   document.getElementById('cancel-selection').addEventListener('click', clearSelection);
 
+  manageForm.addEventListener('submit', async event => {
+    event.preventDefault();
+    const studentId = document.getElementById('manage-student-id').value.trim();
+    const button = manageForm.querySelector('button');
+    button.disabled = true;
+    button.textContent = 'Finding…';
+    try {
+      const result = await apiRequest({ action: 'lookup-signups', code: state.code, studentId });
+      renderManageResults(result.bookings || [], studentId);
+    } catch (error) {
+      showStatus(error.message, 'error');
+    } finally {
+      button.disabled = false;
+      button.textContent = 'Find my booking →';
+    }
+  });
+
   bookingForm.addEventListener('submit', async event => {
     event.preventDefault();
     const submitButton = bookingForm.querySelector('.primary-submit');
@@ -186,16 +246,17 @@
         topic: form.get('topic')
       });
       state.signups = result.signups || [];
-      bookingForm.reset();
       clearSelection();
-      showStatus('Your presentation slot is confirmed.', 'success');
+      manageResults.hidden = true;
+      manageForm.reset();
+      showStatus('Your presentation reservation is saved.', 'success');
       bookingArea.scrollIntoView({ behavior: 'smooth', block: 'start' });
     } catch (error) {
       showStatus(error.message, 'error');
       try { await loadAvailability(true); } catch (_) { /* Keep the original error visible. */ }
     } finally {
       submitButton.disabled = false;
-      submitButton.textContent = 'Confirm sign-up →';
+      if (!bookingCard.hidden) submitButton.textContent = 'Save reservation →';
     }
   });
 
