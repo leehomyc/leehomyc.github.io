@@ -99,7 +99,8 @@
     confirmButton.textContent = 'Submitting…';
     try {
       const result = await submitQuiz(pendingPayload);
-      document.getElementById('submitted-at').textContent = `Saved ${new Date(result.submittedAt).toLocaleString()}`;
+      const attempt = result.attemptNumber ? `Attempt ${result.attemptNumber} · ` : '';
+      document.getElementById('submitted-at').textContent = `${attempt}saved ${new Date(result.submittedAt).toLocaleString()}`;
       form.hidden = true;
       success.hidden = false;
       success.scrollIntoView({ behavior: 'smooth', block: 'center' });
