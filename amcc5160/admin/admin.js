@@ -1,10 +1,10 @@
 (() => {
   const endpoint = window.AMCC5160_SIGNUP_API;
   const questions = [
-    'What makes a world different from a still image or animation?',
-    'What are the four stages in the durable generative-media map?',
-    'Why is video not simply an image with more frames?',
-    'What is controlled variation, and why is it useful?',
+    'What does it mean for a machine-learning model to learn? Use prediction, target, and loss.',
+    'What does one artificial neuron do? Explain weights, bias, and the activation function.',
+    'In self-attention, what do queries, keys, and values do?',
+    'Describe the basic latent-diffusion process from noise through denoising to decoding.',
     'Choose one Lecture 01 reading and critique one central claim in a short paragraph.'
   ];
   let adminCode = '';
