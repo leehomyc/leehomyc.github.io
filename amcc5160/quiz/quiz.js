@@ -3,6 +3,10 @@
 
   const API_URL = window.AMCC5160_SIGNUP_API || '';
   const form = document.getElementById('quiz-form');
+  const lookupCard = document.getElementById('quiz-lookup-card');
+  const lookupForm = document.getElementById('quiz-lookup-form');
+  const lookupResult = document.getElementById('quiz-lookup-result');
+  const journeyChoices = [...document.querySelectorAll('.quiz-journey-choice')];
   const preview = document.getElementById('quiz-preview');
   const confirmButton = document.getElementById('confirm-quiz');
   const status = document.getElementById('quiz-status');
@@ -15,6 +19,7 @@
   });
   let statusTimer;
   let pendingPayload = null;
+  let isEditing = false;
 
   function showError(message) {
     clearTimeout(statusTimer);
@@ -23,7 +28,7 @@
     statusTimer = setTimeout(() => status.classList.remove('show'), 5200);
   }
 
-  async function submitQuiz(payload) {
+  async function request(payload) {
     if (!API_URL) throw new Error('The quiz service is not connected. Please contact the instructor.');
     const response = await fetch(API_URL, {
       method: 'POST',
@@ -33,20 +38,56 @@
     });
     if (!response.ok) throw new Error('The quiz service could not be reached. Please try again.');
     const result = await response.json();
-    if (!result.ok) throw new Error(result.error || 'The quiz could not be submitted.');
+    if (!result.ok) throw new Error(result.error || 'The quiz request could not be completed.');
     return result;
+  }
+
+  function setJourney(journey) {
+    journeyChoices.forEach(choice => choice.setAttribute('aria-pressed', String(choice.dataset.quizJourney === journey)));
+    preview.hidden = true;
+    success.hidden = true;
+    pendingPayload = null;
+    lookupResult.hidden = true;
+    if (journey === 'new') {
+      isEditing = false;
+      lookupCard.hidden = true;
+      form.reset();
+      form.hidden = false;
+      document.getElementById('identity-kicker').textContent = 'Course access';
+      document.getElementById('identity-title').textContent = 'Identify your submission.';
+      document.getElementById('identity-copy').textContent = 'Use the access code shared in class. Your full name and student ID are stored with your submission and visible only in the protected instructor dashboard.';
+      document.getElementById('preview-quiz').textContent = 'Preview submission →';
+      form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      setTimeout(() => form.elements.code.focus(), 350);
+    } else {
+      isEditing = false;
+      form.hidden = true;
+      lookupCard.hidden = false;
+      lookupForm.reset();
+      lookupCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      setTimeout(() => lookupForm.elements.code.focus(), 350);
+    }
+  }
+
+  function populateSubmission(submission, code, studentId) {
+    form.reset();
+    form.elements.code.value = code;
+    form.elements.name.value = submission.name || '';
+    form.elements.studentId.value = studentId;
+    const answerFields = [...form.querySelectorAll('textarea[name="answer"]')];
+    answerFields.forEach((field, index) => { field.value = submission.answers[index] || ''; });
+    isEditing = true;
+    form.hidden = false;
+    document.getElementById('identity-kicker').textContent = 'Current submission retrieved';
+    document.getElementById('identity-title').textContent = 'Edit Quiz 01.';
+    document.getElementById('identity-copy').textContent = 'These are your current saved answers. Make any changes you need, preview the complete submission, and confirm to replace the current version.';
+    document.getElementById('preview-quiz').textContent = 'Preview updated submission →';
+    form.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
   function buildPayload() {
     const data = new FormData(form);
-    return {
-      action: 'quiz-submit',
-      quizId: 'week-01',
-      code: data.get('code'),
-      name: data.get('name'),
-      studentId: data.get('studentId'),
-      answers: data.getAll('answer')
-    };
+    return { action: 'quiz-submit', quizId: 'week-01', code: data.get('code'), name: data.get('name'), studentId: data.get('studentId'), answers: data.getAll('answer') };
   }
 
   function showPreview(payload) {
@@ -68,9 +109,38 @@
       return article;
     }));
     preview.hidden = false;
+    document.getElementById('preview-title').textContent = isEditing ? 'Confirm your update.' : 'Confirm your submission.';
+    confirmButton.textContent = isEditing ? 'Confirm and update Quiz 01 →' : 'Confirm and submit Quiz 01 →';
     preview.scrollIntoView({ behavior: 'smooth', block: 'start' });
     preview.focus({ preventScroll: true });
   }
+
+  journeyChoices.forEach(choice => choice.addEventListener('click', () => setJourney(choice.dataset.quizJourney)));
+
+  lookupForm.addEventListener('submit', async event => {
+    event.preventDefault();
+    const button = lookupForm.querySelector('button');
+    const code = lookupForm.elements.code.value.trim();
+    const studentId = lookupForm.elements.studentId.value.trim();
+    button.disabled = true;
+    button.textContent = 'Retrieving…';
+    lookupResult.hidden = true;
+    try {
+      const result = await request({ action: 'quiz-lookup', quizId: 'week-01', code, studentId });
+      if (!result.submitted) {
+        lookupResult.innerHTML = '<p>No Quiz 01 submission was found for that student ID.</p><button type="button">Start a new submission →</button>';
+        lookupResult.hidden = false;
+        lookupResult.querySelector('button').addEventListener('click', () => setJourney('new'));
+        return;
+      }
+      populateSubmission(result.submission, code, studentId);
+    } catch (error) {
+      showError(error.message);
+    } finally {
+      button.disabled = false;
+      button.textContent = 'Retrieve submission →';
+    }
+  });
 
   form.addEventListener('submit', event => {
     event.preventDefault();
@@ -96,19 +166,19 @@
       return;
     }
     confirmButton.disabled = true;
-    confirmButton.textContent = 'Submitting…';
+    confirmButton.textContent = 'Saving…';
     try {
-      const result = await submitQuiz(pendingPayload);
-      const attempt = result.attemptNumber ? `Attempt ${result.attemptNumber} · ` : '';
-      document.getElementById('submitted-at').textContent = `${attempt}saved ${new Date(result.submittedAt).toLocaleString()}`;
+      const result = await request(pendingPayload);
+      document.getElementById('submitted-at').textContent = `${result.updated ? 'Updated' : 'Saved'} ${new Date(result.submittedAt).toLocaleString()}`;
       form.hidden = true;
+      preview.hidden = true;
       success.hidden = false;
       success.scrollIntoView({ behavior: 'smooth', block: 'center' });
     } catch (error) {
       showError(error.message);
     } finally {
       confirmButton.disabled = false;
-      confirmButton.textContent = 'Confirm and submit Quiz 01 →';
+      confirmButton.textContent = isEditing ? 'Confirm and update Quiz 01 →' : 'Confirm and submit Quiz 01 →';
     }
   });
 })();

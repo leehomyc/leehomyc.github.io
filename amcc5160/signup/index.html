@@ -9,7 +9,7 @@
   <meta http-equiv="Expires" content="0">
   <title>Presentation Sign-up — AMCC 5160</title>
   <link rel="stylesheet" href="../styles.css?v=20260901-tight">
-  <link rel="stylesheet" href="./signup.css?v=20260901-slides">
+  <link rel="stylesheet" href="./signup.css?v=20260901-choice">
 </head>
 <body>
   <nav class="site-nav" aria-label="Primary navigation">
@@ -41,10 +41,25 @@
     </section>
 
     <section class="booking-area" id="booking-area" hidden>
+      <section class="journey-card" aria-labelledby="journey-title">
+        <div><p class="card-kicker">Start here</p><h2 id="journey-title">Have you signed up before?</h2><p>Choose one path. New students can reserve a place; returning students can retrieve and update their current weekly or final booking.</p></div>
+        <div class="journey-choices" role="group" aria-label="Reservation status">
+          <button class="journey-choice" type="button" data-journey="new" aria-pressed="false"><span>Not signed up</span><small>Choose an available slot and create my reservation.</small><b>Start a reservation →</b></button>
+          <button class="journey-choice" type="button" data-journey="existing" aria-pressed="false"><span>Already signed up</span><small>Find my current booking and change the slot, topic, or slides.</small><b>Retrieve my booking →</b></button>
+        </div>
+      </section>
+
+      <section class="manage-booking" id="existing-booking-flow" aria-labelledby="manage-title" hidden>
+        <div><p class="card-kicker">Already signed up</p><h3 id="manage-title">Find your reservation.</h3><p>Enter the same student ID used for your booking. You can retrieve your weekly and final reservations, then move to another open slot or update the details.</p></div>
+        <form id="manage-form"><label for="manage-student-id">Student ID</label><div class="input-action-row"><input id="manage-student-id" type="text" maxlength="30" autocomplete="off" required placeholder="Enter your student ID"><button type="submit">Find my booking →</button></div></form>
+        <div id="manage-results" class="manage-results" hidden></div>
+      </section>
+
+      <section id="availability-panel" hidden>
       <div class="booking-toolbar">
         <div>
           <p class="card-kicker">Live availability</p>
-          <h2>Pick one open slot.</h2>
+          <h2 id="availability-title">Pick one open slot.</h2>
         </div>
         <div class="type-tabs" role="tablist" aria-label="Presentation type">
           <button id="weekly-tab" class="type-tab" type="button" role="tab" data-type="weekly">Weekly · 10%</button>
@@ -53,12 +68,8 @@
       </div>
 
       <div class="availability-key" aria-label="Availability legend"><span><i class="open-dot"></i>Available</span><span><i class="taken-dot"></i>Reserved</span><button id="refresh-button" type="button">Refresh availability ↻</button></div>
-      <section class="manage-booking" aria-labelledby="manage-title">
-        <div><p class="card-kicker">Already signed up?</p><h3 id="manage-title">Change your reservation.</h3><p>Enter the same student ID to retrieve your weekly and final bookings. You can move to another open slot, update your topic, or add your slides link later.</p></div>
-        <form id="manage-form"><label for="manage-student-id">Student ID</label><div class="input-action-row"><input id="manage-student-id" type="text" maxlength="30" autocomplete="off" required placeholder="Enter your student ID"><button type="submit">Find my booking →</button></div></form>
-        <div id="manage-results" class="manage-results" hidden></div>
-      </section>
       <div id="session-list" class="session-list" aria-live="polite"></div>
+      </section>
     </section>
 
     <section class="booking-card" id="booking-card" hidden aria-labelledby="booking-title">
@@ -86,6 +97,6 @@
   <footer><div class="footer-title">AMCC 5160</div><p>Presentation sign-up · Fall 2026/27</p><div class="footer-links"><a href="../">Course home ←</a><a href="https://canvas.ust.hk/courses/71833" target="_blank" rel="noreferrer">HKUST Canvas ↗</a><a href="mailto:yangharry@ust.hk">Contact instructor ↗</a></div></footer>
 
   <script src="./config.js?v=20260901-tight"></script>
-  <script src="./signup.js?v=20260901-capacity80"></script>
+  <script src="./signup.js?v=20260901-choice"></script>
 </body>
 </html>

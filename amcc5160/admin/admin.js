@@ -92,7 +92,7 @@
   function studentActivity(item) {
     const labels = [];
     if (item.weekly.length) labels.push(`${item.weekly.length} weekly`);
-    if (item.quizzes.length) labels.push(`${item.quizzes.length} quiz submission${item.quizzes.length === 1 ? '' : 's'}`);
+    if (item.quizzes.length) labels.push(`${item.quizzes.length} quiz${item.quizzes.length === 1 ? '' : 'zes'}`);
     if (item.finals.length) labels.push(`${item.finals.length} final`);
     return labels.length ? labels : ['No activity'];
   }
@@ -115,7 +115,7 @@
   }
 
   function renderQuiz(selector, items) {
-    $(selector).innerHTML = items.length ? items.map(item => `<article class="record" data-id="${escapeHtml(item.recordId)}"><div class="record-identity"><h3>${escapeHtml(person(item))}</h3><p>Attempt ${escapeHtml(item.attemptNumber || 1)} · ${escapeHtml(item.title)} · ${new Date(item.submittedAt).toLocaleString()}</p></div><div class="record-content"><strong>Five responses</strong><div class="answers">${item.answers.map((answer, index) => `<details><summary>Question ${index + 1}</summary><p><b>${escapeHtml(questions[index])}</b><br>${escapeHtml(answer)}</p></details>`).join('')}</div></div>${gradeForm(item, 20)}</article>`).join('') : '<div class="empty">No quiz submissions yet. New responses will appear here automatically.</div>';
+    $(selector).innerHTML = items.length ? items.map(item => `<article class="record" data-id="${escapeHtml(item.recordId)}"><div class="record-identity"><h3>${escapeHtml(person(item))}</h3><p>${escapeHtml(item.title)} · Updated ${new Date(item.submittedAt).toLocaleString()}</p></div><div class="record-content"><strong>Five current responses</strong><div class="answers">${item.answers.map((answer, index) => `<details><summary>Question ${index + 1}</summary><p><b>${escapeHtml(questions[index])}</b><br>${escapeHtml(answer)}</p></details>`).join('')}</div></div>${gradeForm(item, 20)}</article>`).join('') : '<div class="empty">No quiz submissions yet. New responses will appear here automatically.</div>';
   }
 
   function gradeForm(item, maxScore) {
@@ -140,7 +140,7 @@
     const rows = type === 'students'
       ? [['Student name','Student ID','Weekly slots','Quiz weeks','Final slots','Last activity'], ...students.map(i => [i.name,i.studentId,i.weekly.join('; '),i.quizzes.join('; '),i.finals.join('; '),i.lastActivity])]
       : type === 'quiz'
-        ? [['Week','Attempt','Submitted at','Student name','Student ID',...questions.map((_, i) => `Answer ${i + 1}`),'Score / 20','Feedback'], ...items.map(i => [i.week,i.attemptNumber || 1,i.submittedAt,studentName(i),studentId(i),...i.answers,i.score,i.feedback])]
+        ? [['Week','Updated at','Student name','Student ID',...questions.map((_, i) => `Answer ${i + 1}`),'Score / 20','Feedback'], ...items.map(i => [i.week,i.submittedAt,studentName(i),studentId(i),...i.answers,i.score,i.feedback])]
         : [['Slot','Student name','Student ID','Topic','Slides link',`Score / ${type === 'final' ? 25 : 10}`,'Feedback'], ...items.map(i => { const details = presentationDetails(i.topic); return [i.slotId,studentName(i),studentId(i),details.topic,details.slidesUrl,i.score,i.feedback]; })];
     const blob = new Blob([rows.map(row => row.map(csvValue).join(',')).join('\n')], { type: 'text/csv;charset=utf-8' });
     const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = `amcc5160-${type}.csv`; link.click(); URL.revokeObjectURL(link.href);

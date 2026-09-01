@@ -10,7 +10,7 @@
   <meta http-equiv="Expires" content="0">
   <title>Quiz 01 — AMCC 5160</title>
   <link rel="stylesheet" href="../styles.css?v=20260901-tight">
-  <link rel="stylesheet" href="./quiz.css?v=20260901-history">
+  <link rel="stylesheet" href="./quiz.css?v=20260901-edit">
 </head>
 <body>
   <nav class="site-nav" aria-label="Primary navigation">
@@ -27,12 +27,30 @@
 
     <section class="quiz-intro" aria-labelledby="quiz-title">
       <div><p class="card-kicker">Before you begin</p><h2 id="quiz-title">Answer in your own words.</h2></div>
-      <p>There is no weekly rush: all quizzes are due together at the end of the semester. Complete this quiz when ready, and submit another attempt anytime before then. Earlier attempts remain on record.</p>
+      <p>There is no weekly rush: all quizzes are due together at the end of the semester. Each student keeps one current submission for each quiz, and you can retrieve and edit it anytime before the deadline.</p>
     </section>
 
-    <form id="quiz-form" class="quiz-form">
+    <section class="quiz-journey" aria-labelledby="quiz-journey-title">
+      <div><p class="card-kicker">Start here</p><h2 id="quiz-journey-title">Have you submitted Quiz 01?</h2><p>Choose one path. Your student ID securely connects you to one current Quiz 01 submission.</p></div>
+      <div class="quiz-journey-choices" role="group" aria-label="Quiz submission status">
+        <button class="quiz-journey-choice" type="button" data-quiz-journey="new" aria-pressed="false"><span>Not submitted</span><small>Fill in the five answers and preview them before submitting.</small><b>Start Quiz 01 →</b></button>
+        <button class="quiz-journey-choice" type="button" data-quiz-journey="existing" aria-pressed="false"><span>Already submitted</span><small>Retrieve my current answers, edit them, and save the updated version.</small><b>Retrieve my submission →</b></button>
+      </div>
+    </section>
+
+    <section id="quiz-lookup-card" class="quiz-lookup-card" hidden aria-labelledby="quiz-lookup-title">
+      <div><p class="card-kicker">Already submitted</p><h2 id="quiz-lookup-title">Retrieve Quiz 01.</h2><p>Enter the course code and the same student ID used for your submission. Your current answers will return here for editing.</p></div>
+      <form id="quiz-lookup-form" class="quiz-lookup-form">
+        <label>Access code<input name="code" type="password" autocomplete="off" required placeholder="Enter code"></label>
+        <label>Student ID<input name="studentId" type="text" autocomplete="off" maxlength="30" required></label>
+        <button type="submit">Retrieve submission →</button>
+      </form>
+      <div id="quiz-lookup-result" class="quiz-lookup-result" hidden></div>
+    </section>
+
+    <form id="quiz-form" class="quiz-form" hidden>
       <section class="identity-card" aria-labelledby="identity-title">
-        <div><p class="card-kicker">Course access</p><h2 id="identity-title">Identify your submission.</h2><p>Use the access code shared in class. Your full name and student ID are stored with your submission and visible only in the protected instructor dashboard.</p></div>
+        <div><p class="card-kicker" id="identity-kicker">Course access</p><h2 id="identity-title">Identify your submission.</h2><p id="identity-copy">Use the access code shared in class. Your full name and student ID are stored with your submission and visible only in the protected instructor dashboard.</p></div>
         <div class="identity-fields">
           <label>Access code<input name="code" type="password" autocomplete="off" required placeholder="Enter code"></label>
           <label>Full name<input name="name" type="text" autocomplete="name" maxlength="80" required></label>
@@ -49,7 +67,7 @@
       </section>
 
       <section class="submit-card">
-        <div><p class="card-kicker">Ready to review?</p><h2>Preview before submitting.</h2><p>You will see your name, student ID, and all five answers before anything is sent. Each confirmed submission is saved as a separate attempt in the instructor dashboard; earlier attempts remain available.</p></div>
+        <div><p class="card-kicker">Ready to review?</p><h2>Preview before submitting.</h2><p>You will see your name, student ID, and all five answers before anything is sent. Confirming replaces your current Quiz 01 version; it does not create a second record.</p></div>
         <button id="preview-quiz" type="submit">Preview submission →</button>
       </section>
 
@@ -67,6 +85,6 @@
 
   <footer><div class="footer-title">Quiz 01</div><p>AMCC 5160 · Lecture 01 · September 1</p><div class="footer-links"><a href="../lecture-01/">Review Lecture 01 ←</a><a href="../">Course home ←</a></div></footer>
   <script src="../signup/config.js?v=20260901-tight"></script>
-  <script src="./quiz.js?v=20260901-basics"></script>
+  <script src="./quiz.js?v=20260901-edit"></script>
 </body>
 </html>

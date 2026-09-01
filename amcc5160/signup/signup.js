@@ -12,13 +12,17 @@
   ];
   const SLIDES_MARKER = '\n[[SLIDES]]';
 
-  const state = { code: '', type: new URLSearchParams(location.search).get('type') === 'final' ? 'final' : 'weekly', signups: [], selectedSlotId: '' };
+  const state = { code: '', type: new URLSearchParams(location.search).get('type') === 'final' ? 'final' : 'weekly', signups: [], selectedSlotId: '', journey: '' };
   const accessForm = document.getElementById('access-form');
   const bookingArea = document.getElementById('booking-area');
   const bookingCard = document.getElementById('booking-card');
   const bookingForm = document.getElementById('booking-form');
   const manageForm = document.getElementById('manage-form');
   const manageResults = document.getElementById('manage-results');
+  const existingBookingFlow = document.getElementById('existing-booking-flow');
+  const availabilityPanel = document.getElementById('availability-panel');
+  const availabilityTitle = document.getElementById('availability-title');
+  const journeyChoices = [...document.querySelectorAll('.journey-choice')];
   const sessionList = document.getElementById('session-list');
   const selectedSlotLabel = document.getElementById('selected-slot-label');
   const statusMessage = document.getElementById('status-message');
@@ -76,6 +80,25 @@
 
   function renderTabs() {
     tabs.forEach(tab => tab.setAttribute('aria-selected', String(tab.dataset.type === state.type)));
+  }
+
+  function setJourney(journey) {
+    state.journey = journey;
+    journeyChoices.forEach(choice => choice.setAttribute('aria-pressed', String(choice.dataset.journey === journey)));
+    clearSelection();
+    manageResults.hidden = true;
+    manageForm.reset();
+    if (journey === 'new') {
+      existingBookingFlow.hidden = true;
+      availabilityPanel.hidden = false;
+      availabilityTitle.textContent = 'Pick one open slot.';
+      availabilityPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } else {
+      existingBookingFlow.hidden = false;
+      availabilityPanel.hidden = true;
+      existingBookingFlow.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      setTimeout(() => document.getElementById('manage-student-id').focus(), 350);
+    }
   }
 
   function renderSessions() {
@@ -138,6 +161,8 @@
     document.getElementById('slot-id').value = slotId;
     selectedSlotLabel.textContent = slotLabel(slotId);
     bookingCard.hidden = false;
+    availabilityPanel.hidden = false;
+    if (existing) availabilityTitle.textContent = 'Choose a different open slot—or keep this one.';
     if (existing) {
       document.getElementById('student-name').value = existing.fullName || existing.name || '';
       document.getElementById('student-name').placeholder = 'Re-enter your full name';
@@ -170,7 +195,8 @@
   function renderManageResults(bookings, studentId) {
     manageResults.hidden = false;
     if (!bookings.length) {
-      manageResults.innerHTML = '<p class="manage-empty">No reservation was found for that student ID.</p>';
+      manageResults.innerHTML = '<p class="manage-empty">No reservation was found for that student ID.</p><button type="button" data-start-new>Start a new reservation →</button>';
+      manageResults.querySelector('[data-start-new]').addEventListener('click', () => setJourney('new'));
       return;
     }
     manageResults.replaceChildren(...bookings.map(booking => {
@@ -241,6 +267,8 @@
     clearSelection();
   }));
 
+  journeyChoices.forEach(choice => choice.addEventListener('click', () => setJourney(choice.dataset.journey)));
+
   document.getElementById('refresh-button').addEventListener('click', async () => {
     try { await loadAvailability(); showStatus('Availability refreshed.', 'success'); }
     catch (error) { showStatus(error.message, 'error'); }
@@ -286,6 +314,10 @@
       manageResults.hidden = true;
       manageForm.reset();
       showStatus('Your presentation reservation is saved.', 'success');
+      state.journey = 'existing';
+      journeyChoices.forEach(choice => choice.setAttribute('aria-pressed', String(choice.dataset.journey === 'existing')));
+      existingBookingFlow.hidden = false;
+      availabilityPanel.hidden = true;
       bookingArea.scrollIntoView({ behavior: 'smooth', block: 'start' });
     } catch (error) {
       showStatus(error.message, 'error');
