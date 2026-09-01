@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Choose a weekly or final presentation slot for AMCC 5160.">
+  <title>Presentation Sign-up — AMCC 5160</title>
+  <link rel="stylesheet" href="../styles.css">
+  <link rel="stylesheet" href="./signup.css">
+</head>
+<body>
+  <nav class="site-nav" aria-label="Primary navigation">
+    <a class="brand" href="../">AMCC <span>5160</span></a>
+    <div class="nav-links"><a href="../#assessment">Assessment</a><a href="../#schedule">Schedule</a><a href="../lecture-01/">Lecture 01</a></div>
+    <a class="nav-cta" href="../">Course home →</a>
+  </nav>
+
+  <main class="signup-page">
+    <header class="signup-hero">
+      <p class="eyebrow">AMCC 5160 · Fall 2026/27</p>
+      <h1>Choose your<br><span>presentation slot.</span></h1>
+      <p>See live availability and reserve a weekly or final presentation slot directly on the course website.</p>
+    </header>
+
+    <section class="access-card" id="access-panel" aria-labelledby="access-title">
+      <div>
+        <p class="card-kicker">Course access</p>
+        <h2 id="access-title">Enter the course code.</h2>
+        <p>Enter <strong>AMCC5160</strong> to verify course access. The code is not saved in your browser.</p>
+      </div>
+      <form id="access-form" class="access-form">
+        <label for="course-code">Course code</label>
+        <div class="input-action-row">
+          <input id="course-code" name="code" type="password" autocomplete="off" autocapitalize="characters" spellcheck="false" required placeholder="Enter code">
+          <button type="submit">Unlock slots →</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="booking-area" id="booking-area" hidden>
+      <div class="booking-toolbar">
+        <div>
+          <p class="card-kicker">Live availability</p>
+          <h2>Pick one open slot.</h2>
+        </div>
+        <div class="type-tabs" role="tablist" aria-label="Presentation type">
+          <button id="weekly-tab" class="type-tab" type="button" role="tab" data-type="weekly">Weekly · 10%</button>
+          <button id="final-tab" class="type-tab" type="button" role="tab" data-type="final">Final · 30%</button>
+        </div>
+      </div>
+
+      <div class="availability-key" aria-label="Availability legend"><span><i class="open-dot"></i>Available</span><span><i class="taken-dot"></i>Reserved</span><button id="refresh-button" type="button">Refresh availability ↻</button></div>
+      <div id="session-list" class="session-list" aria-live="polite"></div>
+    </section>
+
+    <section class="booking-card" id="booking-card" hidden aria-labelledby="booking-title">
+      <div class="booking-summary">
+        <p class="card-kicker">Selected slot</p>
+        <h2 id="booking-title">Complete your booking.</h2>
+        <p id="selected-slot-label"></p>
+      </div>
+      <form id="booking-form" class="booking-form">
+        <input id="slot-id" name="slotId" type="hidden">
+        <div class="field-grid">
+          <label>Family name <span class="field-hint">shown to classmates</span><input id="student-name" name="name" type="text" maxlength="80" autocomplete="family-name" required></label>
+          <label>Student ID<input id="student-id" name="studentId" type="text" maxlength="30" autocomplete="off" required></label>
+        </div>
+        <label id="topic-label">Presentation topic or title<textarea id="presentation-topic" name="topic" maxlength="240" rows="3" required></textarea></label>
+        <p class="privacy-note">Classmates see only your family name, the last four digits of your student ID, and your topic. Your full student ID is not stored; a protected fingerprint lets you update your booking later.</p>
+        <div class="form-actions"><button id="cancel-selection" type="button">Choose another slot</button><button class="primary-submit" type="submit">Confirm sign-up →</button></div>
+      </form>
+    </section>
+
+    <div id="status-message" class="status-message" role="status" aria-live="polite"></div>
+  </main>
+
+  <footer><div class="footer-title">AMCC 5160</div><p>Presentation sign-up · Fall 2026/27</p><div class="footer-links"><a href="../">Course home ←</a><a href="https://canvas.ust.hk/courses/71833" target="_blank" rel="noreferrer">HKUST Canvas ↗</a><a href="mailto:yangharry@ust.hk">Contact instructor ↗</a></div></footer>
+
+  <script src="./config.js"></script>
+  <script src="./signup.js"></script>
+</body>
+</html>
