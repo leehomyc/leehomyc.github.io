@@ -1,4 +1,5 @@
 (() => {
+  const lectureVideo = document.querySelector('.video-section video');
   const image = document.getElementById('slide-image');
   const previous = document.getElementById('previous');
   const next = document.getElementById('next');
@@ -7,6 +8,16 @@
   const slideStrip = document.getElementById('slide-strip');
   let lecture;
   let current = 0;
+
+  function showDefaultCaptions() {
+    if (!lectureVideo?.textTracks?.length) return;
+    [...lectureVideo.textTracks].forEach(track => {
+      track.mode = track.label === 'English + 中文' ? 'showing' : 'disabled';
+    });
+  }
+
+  lectureVideo?.addEventListener('loadedmetadata', showDefaultCaptions, { once: true });
+  showDefaultCaptions();
 
   const pad = value => String(value).padStart(3, '0');
 

@@ -1,0 +1,2719 @@
+1
+00:00:00,000 --> 00:00:00,480
+Welcome.
+欢迎。
+
+2
+00:00:00,560 --> 00:00:03,560
+Today I want to remove some of the magic without removing the wonder.
+今天我想在不消除奇迹的情况下消除一些魔法。
+
+3
+00:00:03,640 --> 00:00:13,180
+We will begin with a single artificial neuron, build up to convolution and transformers, then open current video systems and finally assemble a film workflow you can run and critique.
+我们将从单个人工神经元开始，构建卷积和变压器，然后剖析当前的视频系统，最后组装一个可以运行和评析的电影工作流。
+
+4
+00:00:13,420 --> 00:00:17,070
+By the end, a model demo should no longer look like a black box.
+到最后，模型 Demo不应再看起来像黑匣子。
+
+5
+00:00:17,070 --> 00:00:22,980
+You should be able to point to the representation, conditioning, sampling choice, and production decision behind it.
+您应该能够指出其背后的表示、条件控制、采样选择和制作决策。
+
+6
+00:00:23,000 --> 00:00:25,820
+Let us start with the contract for how this class will work.
+先说明这门课的基本约定。
+
+7
+00:00:26,563 --> 00:00:28,563
+Model names will change faster than our semester.
+模型名称更新得比我们这个学期还要快。
+
+8
+00:00:28,563 --> 00:00:38,703
+The useful skill is learning how to ask stable questions: what is represented, what is predicted, what conditions the prediction, what remains consistent over time, and where human judgment enters.
+有用的技能是学习如何提出稳定的问题：代表什么、预测什么、预测的条件是什么、随着时间的推移保持一致的内容以及人类判断的介入点。
+
+9
+00:00:38,823 --> 00:00:45,503
+If Seedance or Mini Max changes next month, those questions still let you diagnose the new system in minutes instead of starting from zero.
+如果 Seedance 或 MiniMax 下个月发生变化，这些问题仍然可以让您在几分钟内诊断新系统，而不是从零开始。
+
+10
+00:00:45,603 --> 00:00:49,423
+Before the technical journey, here is exactly how the course is assessed.
+在开始技术之旅之前，以下是课程的评估方式。
+
+11
+00:00:50,294 --> 00:00:53,234
+The lecture is deliberately paced as one idea per slide.
+讲座的节奏故意安排为每张幻灯片一个想法。
+
+12
+00:00:53,274 --> 00:00:55,314
+The first half builds the machinery.
+上半年建造机械。
+
+13
+00:00:55,314 --> 00:01:01,854
+The second half uses that machinery to read current systems and then convert model capability into a production pipeline.
+后半部分使用该机器读取当前系统，然后将模型功能转换为生产管道。
+
+14
+00:01:02,194 --> 00:01:08,014
+Think of it like a camera department tour: we first learn the parts, then compare camera bodies, and finally plan the shoot.
+可以把它想象成一次相机部门之旅：我们首先学习部件，然后比较相机机身，最后计划拍摄。
+
+15
+00:01:08,034 --> 00:01:11,014
+A short assessment slide now prevents confusion later.
+现在，一个简短的评估幻灯片可以防止以后出现混乱。
+
+16
+00:01:11,842 --> 00:01:13,622
+The course assessment has four parts.
+课程评估分为四个部分。
+
+17
+00:01:13,622 --> 00:01:15,992
+Weekly presentations account for ten percent.
+每周演示占百分之十。
+
+18
+00:01:15,992 --> 00:01:18,712
+The Lecture 01 quiz is twenty percent.
+第一堂课的测验是百分之二十。
+
+19
+00:01:18,712 --> 00:01:22,982
+The three assignments are fifteen percent each, for forty-five percent in total.
+三项作业各占百分之十五，总共占百分之四十五。
+
+20
+00:01:22,982 --> 00:01:25,332
+The final presentation is twenty-five percent.
+最终的呈现是百分之二十五。
+
+21
+00:01:25,332 --> 00:01:27,992
+Together, these components add to one hundred percent.
+以上四部分合计为 100%。
+
+22
+00:01:27,992 --> 00:01:35,122
+The balance rewards two kinds of learning: explaining technical work clearly and developing a sustained creative practice through projects and presentations.
+这种平衡奖励两种学习：清楚地解释技术工作以及通过项目和演示开发持续的创造性实践。
+
+23
+00:01:35,302 --> 00:01:38,582
+The quiz focuses on the concepts that organize this lecture.
+测验的重点是组织本次讲座的概念。
+
+24
+00:01:39,427 --> 00:01:42,587
+Quiz 01 contains five short responses worth four points each.
+测验 01 包含五个简短回答，每个回答得分 4 分。
+
+25
+00:01:42,727 --> 00:01:47,067
+A strong answer defines the idea, explains why it matters, and gives one specific example.
+一个强有力的答案定义了这个想法，解释了它为什么重要，并给出了一个具体的例子。
+
+26
+00:01:47,207 --> 00:01:51,327
+The questions are designed to test understanding, not vocabulary memorization.
+这些问题旨在测试理解力，而不是词汇记忆。
+
+27
+00:01:51,547 --> 00:02:02,667
+You will explain the difference between a world and a sequence of images, trace the four-stage generative map, discuss temporal consistency, design a controlled comparison, and critique one recent reading.
+您将解释世界和一系列图像之间的差异，追踪四阶段生成图，讨论时间一致性，设计受控比较，并批评最近的一篇阅读。
+
+28
+00:02:02,767 --> 00:02:06,507
+The assignment briefs will be announced separately, while the deadlines are already fixed.
+作业简介将单独公布，截止日期已经确定。
+
+29
+00:02:07,244 --> 00:02:09,144
+The three project briefs will be announced separately.
+这三个项目简介将分别公布。
+
+30
+00:02:09,244 --> 00:02:17,884
+Their deadlines are fixed: Assignment 1 is due September 30, Assignment 2 is due October 31, and Assignment 3 is due November 30.
+他们的截止日期是固定的：作业 1 的截止日期为 9 月 30 日，作业 2 的截止日期为 10 月 31 日，作业 3 的截止日期为 11 月 30 日。
+
+31
+00:02:17,924 --> 00:02:20,984
+Each deadline is 23:59 Hong Kong time.
+每个截止时间为香港时间23:59。
+
+32
+00:02:21,184 --> 00:02:23,504
+Treat these dates as production milestones.
+将这些日期视为制作里程碑。
+
+33
+00:02:23,584 --> 00:02:29,284
+Reserve time for iteration, editing, and documentation instead of planning only for the final export.
+预留时间用于迭代、编辑和文档记录，而不是仅规划最终导出。
+
+34
+00:02:29,284 --> 00:02:32,584
+With the course structure clear, we can begin with the central technical idea.
+课程结构清晰后，我们就可以从中心技术思想开始。
+
+35
+00:02:33,390 --> 00:02:36,500
+A video model does not store a shelf of finished films and retrieve one.
+视频模型不会存储一架成品电影并检索一部。
+
+36
+00:02:36,500 --> 00:02:44,750
+It learns statistical regularities in images, motion, language, and sound, then produces one trajectory that is compatible with the conditions we provide.
+它学习图像、运动、语言和声音的统计规律，然后产生与我们提供的条件兼容的一条轨迹。
+
+37
+00:02:44,930 --> 00:02:52,780
+The practical consequence is important: directing AI video means controlling a process of change, not decorating a still image with motion words.
+实际结果很重要：导演AI视频意味着控制变化的过程，而不是用动态效果装饰静止图像。
+
+38
+00:02:52,780 --> 00:02:55,910
+To understand that process, we need to start with learning itself.
+要理解这个过程，我们需要从学习本身开始。
+
+39
+00:02:56,796 --> 00:02:57,936
+Data supplies examples.
+数据提供示例。
+
+40
+00:02:57,936 --> 00:03:00,956
+Representation decides what information becomes compact and comparable.
+表征决定哪些信息变得紧凑且具有可比性。
+
+41
+00:03:00,996 --> 00:03:03,516
+The model learns relationships in that representation.
+该模型学习该表示中的关系。
+
+42
+00:03:03,716 --> 00:03:06,736
+Sampling turns a learned distribution into one particular output.
+采样将学习到的分布转化为一个特定的输出。
+
+43
+00:03:06,776 --> 00:03:11,486
+This four-stage map will reappear when we inspect Seedance, Mini Max, and Comfy U I.
+当我们检查 Seedance、MiniMax 和 ComfyUI 时，这个四阶段图将会重新出现。
+
+44
+00:03:11,486 --> 00:03:18,856
+When a face drifts, we can ask whether the cause is missing data, weak identity representation, insufficient temporal modeling, or an inference setting.
+当人脸漂移时，我们可以询问原因是否是数据丢失、身份表示弱、时间建模不足或推理设置。
+
+45
+00:03:19,476 --> 00:03:21,996
+First: what does a neural network actually learn?
+第一：神经网络实际上学习什么？
+
+46
+00:03:22,802 --> 00:03:25,602
+This section is intentionally basic, but not simplistic.
+本节故意是基础的，但并不简单。
+
+47
+00:03:25,702 --> 00:03:29,522
+We will build enough detail that later architecture diagrams become readable.
+我们将构建足够的细节，以便以后的架构图变得可读。
+
+48
+00:03:29,602 --> 00:03:36,382
+You do not need to calculate gradients by hand; you do need to understand what information moves through the network and what training changes.
+您不需要手动计算梯度；您确实需要了解哪些信息通过网络传输以及培训发生了哪些变化。
+
+49
+00:03:36,562 --> 00:03:44,102
+Once you see networks as transformations of representation, the leap from C N Ns to video transformers becomes much smaller.
+一旦你将网络视为表示的转换，从 CNN 到视频转换器的跨越就会变得更小。
+
+50
+00:03:44,162 --> 00:03:46,402
+Begin with the smallest trainable unit.
+从最小的可训练单元开始。
+
+51
+00:03:47,183 --> 00:03:51,803
+Artificial intelligence includes hand-written rules, search procedures, learned predictors, and generative systems.
+AI包括手写规则、搜索程序、学习预测器和生成系统。
+
+52
+00:03:52,043 --> 00:03:57,623
+Modern video models sit mainly in the last two categories: they learn from examples and then synthesize new samples.
+现代视频模型主要属于最后两类：它们从示例中学习，然后合成新的样本。
+
+53
+00:03:57,703 --> 00:04:04,783
+A chess engine and a video diffusion model are both called AI, but they represent problems and produce answers in radically different ways.
+国际象棋引擎和视频扩散模型都被称为AI，但它们以完全不同的方式代表问题并产生答案。
+
+54
+00:04:04,823 --> 00:04:08,123
+Machine learning narrows the question to how behavior changes from data.
+机器学习将问题缩小到行为如何根据数据发生变化。
+
+55
+00:04:08,917 --> 00:04:11,257
+A supervised training step is simple to state.
+监督训练步骤很容易表述。
+
+56
+00:04:11,337 --> 00:04:18,777
+Give the network an input, produce a prediction, compare it with a target using a loss, and adjust parameters so future predictions improve.
+为网络提供输入，生成预测，使用损失将其与目标进行比较，并调整参数，以便改进未来的预测。
+
+57
+00:04:19,057 --> 00:04:23,477
+Generative training uses more elaborate targets, but the optimization loop remains recognizable.
+生成训练使用更精细的目标，但优化循环仍然可识别。
+
+58
+00:04:23,617 --> 00:04:29,937
+For image classification the target may be ‘cat.’ For diffusion, the target may be the noise that was added to a latent.
+对于图像分类，目标可能是“猫”。对于扩散，目标可能是添加到潜在图像中的噪声。
+
+59
+00:04:29,957 --> 00:04:33,077
+The adjustable parameters live inside neurons and layers.
+可条件控制的参数存在于神经元和层内部。
+
+60
+00:04:33,948 --> 00:04:40,468
+A neuron multiplies each input by a weight, adds the results and a bias, then passes the value through a nonlinear activation.
+神经元将每个输入乘以权重，将结果和偏差相加，然后通过非线性激活传递该值。
+
+61
+00:04:40,588 --> 00:04:43,108
+The weights express which input directions matter.
+权重表示哪些输入方向重要。
+
+62
+00:04:43,248 --> 00:04:47,788
+The nonlinearity lets stacked layers represent more than one large linear transformation.
+非线性让堆叠层代表多个大型线性变换。
+
+63
+00:04:47,988 --> 00:04:54,948
+A single neuron can act like a soft detector: is there enough evidence for a vertical edge, a smile, or a lighting pattern?
+单个神经元可以充当软探测器：是否有足够的证据证明垂直边缘、微笑或照明图案？
+
+64
+00:04:55,088 --> 00:04:57,968
+Real networks learn thousands of such detectors together.
+真实的网络一起学习数千个这样的检测器。
+
+65
+00:04:58,068 --> 00:05:00,388
+Training is the process that tunes those weights.
+训练是调整这些权重的过程。
+
+66
+00:05:01,255 --> 00:05:03,625
+During the forward pass, data moves through the network.
+在前向传递期间，数据通过网络移动。
+
+67
+00:05:03,625 --> 00:05:05,575
+The loss turns performance into a scalar.
+损失将性能变成一个标量。
+
+68
+00:05:06,035 --> 00:05:10,015
+Backpropagation uses the chain rule to estimate how each parameter contributed to that loss.
+反向传播使用链式法则来估计每个参数对损失的影响。
+
+69
+00:05:10,115 --> 00:05:14,315
+An optimizer then nudges parameters in a direction expected to reduce future error.
+然后，优化器将参数推向预期减少未来错误的方向。
+
+70
+00:05:14,395 --> 00:05:21,415
+No engineer specifies the exact edge filter in a modern network; the filter emerges because it helps reduce loss across many examples.
+没有工程师指定现代网络中精确的边缘滤波器；滤波器的出现是因为它有助于减少许多示例中的损失。
+
+71
+00:05:21,675 --> 00:05:24,775
+Stacking neurons creates representations of increasing abstraction.
+堆叠神经元创建了越来越抽象的表示。
+
+72
+00:05:25,729 --> 00:05:34,769
+The familiar story is that early visual layers respond to simple edges, middle layers combine them into textures or parts, and deeper layers respond to larger semantic patterns.
+熟悉的故事是，早期视觉层响应简单的边缘，中间层将它们组合成纹理或部分，而更深的层响应更大的语义模式。
+
+73
+00:05:34,889 --> 00:05:39,309
+The hierarchy is not perfectly clean, but it is a useful mental model.
+层次结构并不完全干净，但它是一个有用的思维模型。
+
+74
+00:05:39,369 --> 00:05:42,759
+A face detector does not need a separate rule for every possible face.
+人脸检测器不需要为每个可能的人脸制定单独的规则。
+
+75
+00:05:42,759 --> 00:05:47,349
+It learns reusable intermediate features such as contours, eyes, and arrangements.
+它学习可重用的中间特征，例如轮廓、眼睛和排列。
+
+76
+00:05:47,869 --> 00:05:50,689
+Convolution made this hierarchy practical for images.
+卷积使这种层次结构适用于图像。
+
+77
+00:05:51,642 --> 00:05:53,392
+An image is not an arbitrary list of numbers.
+图像不是任意的数字列表。
+
+78
+00:05:53,392 --> 00:05:59,142
+Neighbouring pixels are correlated, patterns repeat across locations, and the same object can appear anywhere.
+相邻像素是相关的，图案在不同位置重复，并且同一对象可以出现在任何地方。
+
+79
+00:05:59,222 --> 00:06:04,162
+A good architecture should exploit those regularities instead of relearning them at every position.
+一个好的架构应该利用这些规律，而不是在每个位置重新学习它们。
+
+80
+00:06:04,442 --> 00:06:09,002
+Convolution encodes that prior directly: look locally with the same filter everywhere.
+卷积直接对该先验进行编码：在各处使用相同的过滤器进行局部观察。
+
+81
+00:06:09,102 --> 00:06:11,402
+Let us make the convolution operation tangible.
+让我们让卷积运算具体化。
+
+82
+00:06:12,308 --> 00:06:14,298
+A small kernel slides across the image.
+一个小内核滑过图像。
+
+83
+00:06:14,298 --> 00:06:17,688
+At each location it computes a weighted sum of nearby pixels.
+在每个位置，它都会计算附近像素的加权和。
+
+84
+00:06:17,808 --> 00:06:20,908
+The result is a feature map showing where that pattern appears.
+结果是显示该模式出现位置的特征图。
+
+85
+00:06:20,988 --> 00:06:24,598
+During training, the kernel values are learned rather than designed by hand.
+在训练过程中，内核值是学习的而不是手工设计的。
+
+86
+00:06:24,598 --> 00:06:27,168
+One filter may respond to vertical contrast.
+一种滤波器可以响应垂直对比度。
+
+87
+00:06:27,208 --> 00:06:29,288
+Another may respond to a colored corner.
+另一个可能会对彩色角落做出反应。
+
+88
+00:06:29,548 --> 00:06:32,928
+Deeper filters combine earlier maps into more complex motifs.
+更深层次的过滤器将早期的地图组合成更复杂的图案。
+
+89
+00:06:32,948 --> 00:06:35,188
+The key advantage is weight sharing.
+关键优势是重量共享。
+
+90
+00:06:36,039 --> 00:06:37,839
+Kernel size controls the local window.
+内核大小控制本地窗口。
+
+91
+00:06:37,879 --> 00:06:40,199
+Stride controls how far the filter moves.
+步幅控制过滤器移动的距离。
+
+92
+00:06:40,459 --> 00:06:42,499
+Padding controls what happens near borders.
+填充控制边界附近发生的情况。
+
+93
+00:06:43,479 --> 00:06:48,239
+Channels let the filter combine information across RGB or intermediate feature maps.
+通道让过滤器组合 RGB 或中间特征图的信息。
+
+94
+00:06:48,479 --> 00:06:56,399
+A three-by-three kernel with stride one preserves fine local detail; larger strides reduce resolution and computation but may discard small structures.
+步长为 1 的三乘三内核保留了精细的局部细节；较大的步幅会降低分辨率和计算量，但可能会丢弃小结构。
+
+95
+00:06:56,659 --> 00:06:59,299
+These choices determine the receptive field.
+这些选择决定了感受野。
+
+96
+00:07:00,048 --> 00:07:03,488
+After convolution, each output channel is a spatial map of activations.
+卷积后，每个输出通道都是激活的空间图。
+
+97
+00:07:03,528 --> 00:07:06,018
+It is useful to imagine a channel as a learned question.
+将渠道想象成一个学习问题是很有用的。
+
+98
+00:07:06,018 --> 00:07:10,028
+The network asks that question at every location and records the strength of the answer.
+网络在每个位置都会提出这个问题并记录答案的强度。
+
+99
+00:07:10,188 --> 00:07:12,318
+Later layers do not see raw pixels directly.
+后面的层不能直接看到原始像素。
+
+100
+00:07:12,318 --> 00:07:16,028
+They see stacks of these learned answers, which is why representation matters so much.
+他们看到了一堆这些学到的答案，这就是为什么代表性如此重要的原因。
+
+101
+00:07:16,048 --> 00:07:19,428
+As layers stack, each activation sees a larger region of the image.
+随着层的堆叠，每次激活都会看到更大的图像区域。
+
+102
+00:07:20,249 --> 00:07:23,909
+The receptive field is the portion of the input that can influence one activation.
+感受野是输入中可以影响一次激活的部分。
+
+103
+00:07:24,249 --> 00:07:26,179
+Stacking convolutions grows it.
+堆叠卷积会增长它。
+
+104
+00:07:26,179 --> 00:07:31,169
+Early units see small patches; later units can integrate information across an object or scene.
+早期单位看到小斑块；后来的单元可以集成整个对象或场景的信息。
+
+105
+00:07:31,369 --> 00:07:37,769
+A hand can be rendered sharply yet attach to the wrong arm if the model captures local texture better than long-range relation.
+如果模型捕捉局部纹理比长距离关系更好，那么手可能会被清晰地渲染，但会附着在错误的手臂上。
+
+106
+00:07:38,329 --> 00:07:41,209
+Downsampling expands context, but it also creates a trade-off.
+下采样扩展了上下文，但也产生了一种权衡。
+
+107
+00:07:41,936 --> 00:07:44,696
+Pooling or strided convolution reduces spatial size.
+池化或跨步卷积减小了空间大小。
+
+108
+00:07:44,696 --> 00:07:48,376
+This makes deeper processing cheaper and increases effective context.
+这使得更深层次的处理更便宜，并增加了有效的上下文。
+
+109
+00:07:48,416 --> 00:07:53,556
+But information thrown away early is difficult to reconstruct later, especially text, fingers, and thin geometry.
+但早期丢弃的信息很难在以后重建，尤其是文本、手指和薄几何图形。
+
+110
+00:07:53,616 --> 00:07:58,136
+Many generative systems therefore work at multiple scales or use skip connections to preserve detail.
+因此，许多生成系统在多个尺度上工作或使用跳跃连接来保留细节。
+
+111
+00:07:58,256 --> 00:08:01,816
+Residual connections solve a different problem: training very deep networks.
+残差连接解决了另一个问题：训练非常深的网络。
+
+112
+00:08:02,741 --> 00:08:05,941
+A residual block adds its learned transformation back to the original input.
+残差块将其学习到的变换添加回原始输入。
+
+113
+00:08:05,941 --> 00:08:11,381
+If the new transformation is temporarily unhelpful, the identity path still carries information forward.
+如果新的转换暂时没有帮助，身份路径仍然会向前传送信息。
+
+114
+00:08:11,461 --> 00:08:14,181
+This makes very deep networks easier to optimize.
+这使得非常深的网络更容易优化。
+
+115
+00:08:14,481 --> 00:08:20,231
+The same idea appears throughout modern architectures: preserve a stable path, then learn a useful update around it.
+同样的想法出现在整个现代架构中：保留稳定的路径，然后围绕它学习有用的更新。
+
+116
+00:08:20,231 --> 00:08:25,801
+C N Ns were transformative, but their local bias becomes awkward for global relationships.
+CNN 具有变革性，但它们的局部偏见对于全球关系来说变得尴尬。
+
+117
+00:08:26,750 --> 00:08:30,310
+C N Ns are excellent at exploiting locality and grids.
+CNN 非常擅长利用局部性和网格。
+
+118
+00:08:30,310 --> 00:08:37,210
+Their weakness is not that they cannot model global structure, but that global interaction is indirect and often requires many layers or special modules.
+它们的弱点不是无法对全局结构进行建模，而是全局交互是间接的，并且通常需要许多层或特殊模块。
+
+119
+00:08:37,350 --> 00:08:41,010
+In video, a character may disappear behind a wall and reappear seconds later.
+在视频中，角色可能会消失在墙后，几秒钟后又重新出现。
+
+120
+00:08:41,190 --> 00:08:45,210
+Local filters alone do not naturally express that long-range identity relation.
+仅本地过滤器并不能自然地表达这种远程身份关系。
+
+121
+00:08:45,210 --> 00:08:48,010
+Sequence models approach the problem from another direction.
+序列模型从另一个方向解决问题。
+
+122
+00:08:48,855 --> 00:08:57,895
+Attention begins with a provocative idea: instead of deciding in advance which neighbours matter, let each element compare itself with all relevant elements and construct a weighted mixture.
+注意力始于一个挑衅性的想法：不是预先决定哪些邻居重要，而是让每个元素与所有相关元素进行比较并构建加权混合。
+
+123
+00:08:57,975 --> 00:09:03,075
+That flexible relation mechanism is why transformers moved from language into images, audio, and video.
+这种灵活的关系机制就是变压器从语言转向图像、音频和视频的原因。
+
+124
+00:09:03,255 --> 00:09:06,455
+We need one more abstraction first: tokens.
+我们首先需要一个抽象：token。
+
+125
+00:09:07,291 --> 00:09:09,471
+A token is a unit the model processes.
+token是模型处理的一个单元。
+
+126
+00:09:09,731 --> 00:09:11,691
+In language it may be a word fragment.
+在语言中，它可能是一个单词片段。
+
+127
+00:09:11,731 --> 00:09:14,031
+In vision it may be a patch embedding.
+在视觉上它可能是一个补丁嵌入。
+
+128
+00:09:14,031 --> 00:09:17,611
+In video it may represent a compressed block across space and time.
+在视频中，它可能代表跨空间和时间的压缩块。
+
+129
+00:09:17,751 --> 00:09:21,471
+Once converted to vectors, very different media can share transformer machinery.
+一旦转换为矢量，不同的媒体就可以共享变压器机制。
+
+130
+00:09:21,551 --> 00:09:23,321
+The token is not the raw thing.
+token不是原始的东西。
+
+131
+00:09:23,321 --> 00:09:27,191
+It is a learned representation designed to preserve information useful for the task.
+它是一种学习表示，旨在保留对任务有用的信息。
+
+132
+00:09:27,371 --> 00:09:30,291
+Embeddings place those tokens in a continuous vector space.
+嵌入将这些token放置在连续向量空间中。
+
+133
+00:09:31,068 --> 00:09:34,108
+An embedding maps a discrete or structured input into a vector.
+嵌入将离散或结构化输入映射到向量中。
+
+134
+00:09:34,168 --> 00:09:39,668
+The coordinates do not have simple names, but distances and directions can capture useful relationships learned from data.
+坐标没有简单的名称，但距离和方向可以捕获从数据中学到的有用关系。
+
+135
+00:09:39,728 --> 00:09:47,388
+A text prompt, a reference image, and an audio cue may enter through different encoders, yet all must eventually become representations the generator can relate.
+文本提示、参考图像和音频提示可以通过不同的编码器输入，但最终都必须成为生成器可以关联的表示。
+
+136
+00:09:47,568 --> 00:09:50,948
+Attention performs that relation through queries, keys, and values.
+注意力通过查询、键和值来执行这种关系。
+
+137
+00:09:51,780 --> 00:09:54,420
+Each token produces a query, a key, and a value.
+每个token都会生成一个查询、一个键和一个值。
+
+138
+00:09:54,620 --> 00:09:57,040
+Query-key similarity determines attention weights.
+查询键相似度决定注意力权重。
+
+139
+00:09:57,120 --> 00:09:59,900
+The weighted sum of values becomes the updated token.
+值的加权和成为更新的token。
+
+140
+00:09:59,980 --> 00:10:04,480
+The square-root scaling prevents dot products from becoming so large that softmax saturates.
+平方根缩放可防止点积变得太大而导致 softmax 饱和。
+
+141
+00:10:04,520 --> 00:10:09,780
+For a red scarf across frames, the current token can attend to earlier tokens that carry the scarf’s identity and appearance.
+对于跨帧的红领巾，当前token可以关注承载围巾身份和外观的早期token。
+
+142
+00:10:09,800 --> 00:10:12,960
+Multiple heads let the model learn several relationship types at once.
+多个头让模型可以同时学习多种关系类型。
+
+143
+00:10:13,699 --> 00:10:17,959
+Instead of one attention map, multi-head attention projects tokens into several subspaces.
+多头注意力不是一张注意力图，而是将token投射到多个子空间中。
+
+144
+00:10:17,999 --> 00:10:22,739
+One head may emphasize local appearance, another long-distance identity, another temporal order.
+一个头可能强调本地外观，另一个头可能强调远距离身份，另一个头可能强调时间顺序。
+
+145
+00:10:22,859 --> 00:10:25,199
+The outputs are concatenated and mixed.
+输出被串联和混合。
+
+146
+00:10:25,199 --> 00:10:32,049
+Heads are not guaranteed to align with neat human concepts, but the parallel structure expands the kinds of relations one layer can represent.
+头脑不能保证与简洁的人类概念保持一致，但并行结构扩展了一层可以表示的关系类型。
+
+147
+00:10:32,049 --> 00:10:36,919
+The transformer block wraps attention with normalization, an MLP, and residual paths.
+Transformer 块通过归一化、MLP 和残差路径来吸引注意力。
+
+148
+00:10:37,755 --> 00:10:41,535
+The original transformer used an encoder and decoder, each built from repeated blocks.
+最初的转换器使用编码器和解码器，每个编码器和解码器都由重复的块构建。
+
+149
+00:10:41,575 --> 00:10:51,795
+Modern vision and diffusion systems modify this structure, but the recurring pattern remains: mix information across tokens, transform each token with an MLP, and preserve stable residual paths.
+现代视觉和扩散系统修改了这种结构，但重复出现的模式仍然存在：跨token混合信息，使用 MLP 转换每个token，并保留稳定的残差路径。
+
+150
+00:10:51,875 --> 00:10:55,915
+The architecture diagram looks complicated until you recognize those repeated operations.
+在您认识到那些重复操作之前，架构图看起来很复杂。
+
+151
+00:10:56,035 --> 00:10:59,035
+A sequence still needs information about order and position.
+序列仍然需要有关顺序和位置的信息。
+
+152
+00:10:59,860 --> 00:11:04,760
+Because attention compares a set of vectors, it needs extra structure to distinguish left from right or earlier from later.
+因为注意力比较一组向量，所以它需要额外的结构来区分左与右或早与晚。
+
+153
+00:11:04,820 --> 00:11:06,880
+Position encodings inject coordinates.
+位置编码注入坐标。
+
+154
+00:11:07,160 --> 00:11:12,850
+Rotary position embedding, or RoPE, rotates query and key components so relative position influences similarity.
+旋转位置嵌入（RoPE）会旋转查询和关键组件，因此相对位置会影响相似性。
+
+155
+00:11:12,850 --> 00:11:17,130
+In video, useful position may have three axes: time, height, and width.
+在视频中，有用的位置可能有三个轴：时间、高度和宽度。
+
+156
+00:11:17,130 --> 00:11:21,680
+Mini Max H three and Hunyuan Video explicitly describe spatiotemporal RoPE variants.
+MiniMax H3 和 Hunyuan Video 明确描述了时空 RoPE 变体。
+
+157
+00:11:21,980 --> 00:11:24,860
+Vision Transformers apply the sequence idea to image patches.
+Vision Transformers 将序列思想应用于图像块。
+
+158
+00:11:25,773 --> 00:11:34,793
+A Vision Transformer cuts an image into patches, flattens or projects each patch into a token, adds position information, and processes the sequence with transformer blocks.
+视觉转换器将图像切割成块，将每个块展平或投影到token中，添加位置信息，并使用转换器块处理序列。
+
+159
+00:11:34,893 --> 00:11:39,473
+It replaces much of the C N N’s local bias with data-driven global interaction.
+它用数据驱动的全球互动取代了 CNN 的大部分本地偏见。
+
+160
+00:11:39,793 --> 00:11:45,473
+The price is token count: smaller patches preserve detail but create longer, more expensive sequences.
+代价是token数：较小的补丁可以保留细节，但会创建更长、更昂贵的序列。
+
+161
+00:11:45,893 --> 00:11:50,093
+Diffusion Transformers use related blocks to predict how noisy latents should change.
+扩散变压器使用相关块来预测噪声潜空间应该如何变化。
+
+162
+00:11:50,850 --> 00:12:01,350
+diffusion transformer patchifies a noisy latent, adds timestep and conditioning information, processes the tokens through transformer blocks, and reconstructs a prediction in latent space.
+扩散变压器修补噪声潜空间，添加时间步长和条件信息，通过变压器块处理token，并重建潜空间空间中的预测。
+
+163
+00:12:01,610 --> 00:12:06,140
+The paper showed that increasing transformer compute correlated with better image generation quality.
+该论文表明，增加变压器计算量与更好的图像生成质量相关。
+
+164
+00:12:06,140 --> 00:12:12,730
+This architecture scales naturally to long token sequences, which helped make it a foundation for modern video systems.
+这种架构可以自然地扩展到长token序列，这有助于使其成为现代视频系统的基础。
+
+165
+00:12:12,810 --> 00:12:16,670
+Before diffusion, we need to understand why models generate in latent space.
+在扩散之前，我们需要了解为什么模型会在潜在空间中生成。
+
+166
+00:12:17,460 --> 00:12:19,600
+Raw video contains an enormous number of values.
+原始视频包含大量的值。
+
+167
+00:12:19,660 --> 00:12:26,640
+A practical generator usually compresses frames into latents, performs expensive modeling there, and decodes only at the end.
+实用的生成器通常将帧压缩为潜在帧，在那里执行昂贵的建模，并仅在最后进行解码。
+
+168
+00:12:26,660 --> 00:12:28,680
+The compression is not just engineering.
+压缩不仅仅是工程方面的。
+
+169
+00:12:28,680 --> 00:12:33,320
+It defines which differences the model can preserve, ignore, or reconstruct.
+它定义了模型可以保留、忽略或重建哪些差异。
+
+170
+00:12:33,560 --> 00:12:36,060
+An autoencoder provides the basic pattern.
+自动编码器提供了基本模式。
+
+171
+00:12:36,872 --> 00:12:39,752
+The encoder maps an input to a smaller latent representation.
+编码器将输入映射到更小的潜在表示。
+
+172
+00:12:39,772 --> 00:12:42,842
+The decoder reconstructs the input from that bottleneck.
+解码器重建来自该瓶颈的输入。
+
+173
+00:12:42,842 --> 00:12:48,872
+Training rewards faithful reconstruction, so the latent must preserve information the decoder needs.
+训练奖励忠实的重建，因此潜在的必须保留解码器所需的信息。
+
+174
+00:12:48,912 --> 00:12:53,172
+If the bottleneck is too narrow, small text and identity details disappear.
+如果瓶颈太窄，小文本和身份细节就会消失。
+
+175
+00:12:53,292 --> 00:12:57,432
+If it is too wide, the later generative model faces a costly sequence.
+如果太宽，后面的生成模型将面临代价高昂的序列。
+
+176
+00:12:57,452 --> 00:13:00,892
+A variational autoencoder adds structure to the latent distribution.
+变分自动编码器为潜在分布添加了结构。
+
+177
+00:13:01,810 --> 00:13:06,520
+A V A E predicts parameters of a latent distribution rather than a single deterministic code.
+VAE 预测潜在分布的参数，而不是单个确定性代码。
+
+178
+00:13:06,520 --> 00:13:09,930
+A regularization term encourages nearby, sampleable structure.
+正则化项鼓励邻近的、可采样的结构。
+
+179
+00:13:09,930 --> 00:13:15,070
+This makes the latent space more suitable for generation, though reconstruction can become softer.
+这使得潜在空间更适合生成，尽管重建可以变得更柔和。
+
+180
+00:13:15,150 --> 00:13:23,860
+In modern video systems, the term V A E often refers broadly to a learned compressor-decoder, even when architectural details differ from the original V A E.
+在现代视频系统中，术语 VAE 通常泛指学习的压缩器-解码器，即使架构细节与原始 VAE 不同。
+
+181
+00:13:23,860 --> 00:13:27,410
+Latent diffusion moves the denoising process into this compressed space.
+潜在扩散将去噪过程转移到这个压缩空间中。
+
+182
+00:13:28,234 --> 00:13:31,534
+Latent diffusion reduces the spatial size before running the generative model.
+潜在扩散在运行生成模型之前会减小空间大小。
+
+183
+00:13:31,534 --> 00:13:36,414
+This lowers memory and compute while retaining enough perceptual information for high-quality decoding.
+这会降低内存和计算量，同时保留足够的感知信息以进行高质量解码。
+
+184
+00:13:36,454 --> 00:13:39,134
+Text or other conditions guide the denoising path.
+文本或其他条件引导去噪路径。
+
+185
+00:13:39,134 --> 00:13:44,354
+The idea is central to video: without spatial and temporal compression, token sequences become prohibitive.
+这个想法是视频的核心：如果没有空间和时间压缩，token序列就会变得令人望而却步。
+
+186
+00:13:44,474 --> 00:13:47,254
+Diffusion itself begins by deliberately corrupting data.
+扩散本身是从故意破坏数据开始的。
+
+187
+00:13:48,064 --> 00:13:51,084
+The forward process gradually adds Gaussian noise according to a schedule.
+前向过程按照时间表逐渐添加高斯噪声。
+
+188
+00:13:51,164 --> 00:13:58,324
+During training, we can jump directly to a chosen noise level, ask the network to predict the added noise or a related target, and compute an error.
+在训练过程中，我们可以直接跳转到选定的噪声级别，要求网络预测添加的噪声或相关目标，并计算误差。
+
+189
+00:13:58,364 --> 00:14:04,384
+The network sees examples ranging from almost clean to almost pure noise, learning useful directions across the whole path.
+网络看到的示例范围从几乎干净到几乎纯粹的噪声，在整个路径中学习有用的方向。
+
+190
+00:14:04,584 --> 00:14:06,984
+Generation runs the learned process in reverse.
+生成过程以相反的方式运行学习过程。
+
+191
+00:14:07,847 --> 00:14:13,387
+At inference, a sampler starts with random noise and repeatedly applies the model’s prediction according to a numerical schedule.
+在推理时，采样器从随机噪声开始，并根据数值时间表重复应用模型的预测。
+
+192
+00:14:13,467 --> 00:14:17,307
+Each step moves the latent toward a sample compatible with training and conditioning.
+每一步都会将潜在样本移向与训练和条件兼容的样本。
+
+193
+00:14:17,347 --> 00:14:24,497
+This is why seeds matter: the initial noise chooses a starting point, but the prompt, references, guidance, and scheduler shape the path.
+这就是为什么种子很重要：最初的噪音选择了一个起点，但提示、参考、引导强度和调度程序塑造了路径。
+
+194
+00:14:24,497 --> 00:14:27,687
+The training target can be parameterized in several ways.
+训练目标可以通过多种方式参数化。
+
+195
+00:14:28,466 --> 00:14:32,906
+A diffusion model may predict noise, the clean sample, or a velocity-like combination.
+扩散模型可以预测噪声、干净样本或类似速度的组合。
+
+196
+00:14:33,006 --> 00:14:39,346
+These parameterizations affect optimization and numerical behavior, even when they describe related generative trajectories.
+这些参数化会影响优化和数值行为，即使它们描述了相关的生成轨迹。
+
+197
+00:14:39,466 --> 00:14:44,666
+Product interfaces hide this choice, while open workflows may expose model type and scheduler assumptions.
+产品界面隐藏了这种选择，而开放的工作流可能会暴露模型类型和调度程序假设。
+
+198
+00:14:44,806 --> 00:14:48,046
+A mismatch can produce poor contrast, color, or motion.
+不匹配会产生不良的对比度、颜色或运动。
+
+199
+00:14:48,146 --> 00:14:51,366
+Sampling quality also depends on how many steps we take and where.
+采样质量还取决于我们采取的步骤数量和地点。
+
+200
+00:14:52,197 --> 00:14:55,157
+A sampler is a numerical method for following the reverse process.
+采样器是一种遵循相反过程的数值方法。
+
+201
+00:14:55,157 --> 00:14:57,697
+The schedule allocates effort across noise levels.
+该时间表根据噪音级别分配工作量。
+
+202
+00:14:57,777 --> 00:15:02,557
+Distilled models may work in very few steps because training has compressed a longer trajectory into a shorter one.
+蒸馏模型可能只需要很少的步骤就可以工作，因为训练将较长的轨迹压缩为较短的轨迹。
+
+203
+00:15:02,657 --> 00:15:05,617
+Do not assume more steps always improve a distilled checkpoint.
+不要假设更多的步骤总能改进精炼的检查点。
+
+204
+00:15:05,757 --> 00:15:09,657
+Follow the model’s recommended regime, then test one variable at a time.
+遵循模型的推荐方案，然后一次测试一个变量。
+
+205
+00:15:09,937 --> 00:15:12,737
+Conditioning steers which solution the trajectory reaches.
+条件控制引导轨迹到达哪个解决方案。
+
+206
+00:15:13,606 --> 00:15:18,806
+Classifier-free guidance compares a conditional and an unconditional prediction, then amplifies the difference.
+无分类器引导强度会比较条件预测和无条件预测，然后放大差异。
+
+207
+00:15:19,026 --> 00:15:24,786
+Stronger guidance can improve prompt adherence but may reduce diversity or create oversaturated, brittle results.
+更强的引导强度可以提高及时的依从性，但可能会减少多样性或产生过度饱和、脆弱的结果。
+
+208
+00:15:24,886 --> 00:15:31,246
+In video, excessive guidance can also harm motion because every frame is forced too aggressively toward static textual cues.
+在视频中，过多的引导也会损害运动，因为每一帧都被迫过于激进地朝向静态文本提示。
+
+209
+00:15:31,466 --> 00:15:34,686
+Flow matching offers another view of the same generative journey.
+流程匹配提供了同一生成过程的另一种视角。
+
+210
+00:15:35,572 --> 00:15:40,612
+Flow matching trains a vector field that transports samples from a simple distribution toward the data distribution.
+流匹配训练一个向量场，将样本从简单分布传输到数据分布。
+
+211
+00:15:40,712 --> 00:15:44,272
+At inference, an ODE solver follows that learned field.
+在推理时，ODE 求解器遵循该学习字段。
+
+212
+00:15:44,372 --> 00:15:47,812
+Rectified-flow variants aim for straighter, easier trajectories.
+整流流变体旨在实现更直、更容易的轨迹。
+
+213
+00:15:47,872 --> 00:15:52,872
+Many current models use flow-style objectives while keeping transformer backbones and latent representations.
+当前的许多模型使用流式目标，同时保留变压器骨干和潜在表示。
+
+214
+00:15:53,072 --> 00:15:58,332
+The labels change, but representation, conditioning, and numerical integration remain central.
+标签发生了变化，但表示、条件控制和数值积分仍然是核心。
+
+215
+00:15:58,392 --> 00:16:01,372
+Now extend those ideas from images into time.
+现在将这些想法从图像扩展到时间。
+
+216
+00:16:02,182 --> 00:16:04,042
+Video is not an image with more frames.
+视频并不是具有更多帧的图像。
+
+217
+00:16:04,122 --> 00:16:11,002
+The model must preserve identity, geometry, lighting, and world state while also producing meaningful change.
+该模型必须保留身份、几何形状、光照和世界状态，同时产生有意义的变化。
+
+218
+00:16:11,062 --> 00:16:15,822
+It must decide what moves, when it moves, and how one event affects the next.
+它必须决定什么移动、何时移动以及一个事件如何影响下一个事件。
+
+219
+00:16:15,862 --> 00:16:19,782
+This is the technical reason a beautiful first frame can still become a weak shot.
+这就是漂亮的第一帧仍然可能成为弱镜头的技术原因。
+
+220
+00:16:19,822 --> 00:16:22,382
+Start by counting what a raw video contains.
+首先计算原始视频包含的内容。
+
+221
+00:16:23,312 --> 00:16:27,432
+A video can be represented as a T-by-H-by-W-by-C tensor.
+视频可以表示为 T×H×W×C 张量。
+
+222
+00:16:27,592 --> 00:16:29,632
+Doubling duration doubles values.
+持续时间加倍，价值也会加倍。
+
+223
+00:16:29,712 --> 00:16:32,372
+Doubling both spatial dimensions quadruples them.
+将两个空间维度加倍，它们就会变成四倍。
+
+224
+00:16:32,792 --> 00:16:38,332
+Attention over all raw locations would grow even faster because pairwise interaction is quadratic in token count.
+对所有原始位置的关注会增长得更快，因为成对交互的token数量是二次的。
+
+225
+00:16:38,412 --> 00:16:44,192
+A ten-second 24-fps clip already contains 240 frames before audio is included.
+在包含音频之前，10 秒 24 fps 的剪辑已包含 240 帧。
+
+226
+00:16:44,432 --> 00:16:47,892
+Compression is therefore a design requirement, not an optional optimization.
+因此，压缩是一项设计要求，而不是可选的优化。
+
+227
+00:16:49,132 --> 00:16:53,372
+A video V A E compresses height and width and often reduces the time axis as well.
+视频 VAE 会压缩高度和宽度，并且通常还会缩小时间轴。
+
+228
+00:16:53,812 --> 00:16:58,282
+Causal designs ensure a latent does not depend on future frames in ways that break streaming or extension.
+因果设计确保潜空间不会以破坏流或扩展的方式依赖于未来的帧。
+
+229
+00:16:58,282 --> 00:17:05,652
+Mini Max H three reports sixteen-times spatial and four-times temporal V A E compression before an additional spatial patchification step.
+MiniMax H3 在额外的空间修补步骤之前报告了 16 倍空间和四倍时间 VAE 压缩。
+
+230
+00:17:05,672 --> 00:17:08,132
+The resulting latent blocks become video tokens.
+由此产生的潜在块成为视频token。
+
+231
+00:17:09,055 --> 00:17:11,375
+Patchification groups latent values into tokens.
+修补将潜在值分组为token。
+
+232
+00:17:11,395 --> 00:17:13,855
+Each token carries content plus coordinates.
+每个token都携带内容和坐标。
+
+233
+00:17:13,955 --> 00:17:18,595
+The transformer then models relationships across space, time, and conditions.
+然后，变压器对空间、时间和条件之间的关系进行建模。
+
+234
+00:17:19,335 --> 00:17:22,955
+Larger patches reduce cost but risk losing fine motion or text.
+较大的贴片可降低成本，但有丢失精细动作或文本的风险。
+
+235
+00:17:23,195 --> 00:17:26,575
+Smaller patches preserve detail but increase sequence length and memory.
+较小的补丁可以保留细节，但会增加序列长度和内存。
+
+236
+00:17:26,855 --> 00:17:30,395
+Temporal attention determines how broadly tokens communicate across frames.
+时间注意力决定了token跨帧通信的范围。
+
+237
+00:17:31,300 --> 00:17:36,680
+Full spatiotemporal attention provides maximum flexibility but becomes expensive as duration and resolution grow.
+充分的时空注意力提供了最大的灵活性，但随着持续时间和分辨率的增长而变得昂贵。
+
+238
+00:17:37,040 --> 00:17:44,480
+Sparse, sliding, factorized, or block attention limits which tokens interact, trading some flexibility for practical scale.
+稀疏、滑动、分解或块注意力限制了代币的交互，牺牲了一些灵活性来换取实际规模。
+
+239
+00:17:45,760 --> 00:17:55,420
+Hunyuan Video 1.5 uses selective and sliding tile attention; Mini Max H three describes native sparse-attention support, although its first open release uses full attention for inference.
+混元视频1.5采用选择性和滑动瓦片注意力； MiniMax H3 描述了原生稀疏注意力支持，尽管它的第一个开放版本使用完全注意力进行推理。
+
+240
+00:17:55,820 --> 00:18:00,440
+Longer context is useful only if the representation preserves identity and state.
+仅当表示保留身份和状态时，较长的上下文才有用。
+
+241
+00:18:01,300 --> 00:18:04,290
+A multimodal generator has a finite context and compute budget.
+多模态生成器具有有限的上下文和计算预算。
+
+242
+00:18:04,290 --> 00:18:09,860
+More reference files, higher resolution, longer duration, and native audio increase the sequence or conditioning burden.
+更多参考文件、更高的分辨率、更长的持续时间和原生音频会增加序列或条件控制负担。
+
+243
+00:18:09,920 --> 00:18:20,750
+The practical question is not ‘how many references can I upload?’ but ‘which references provide non-redundant control?’ A clear hero image and motion reference may outperform twelve ambiguous files.
+实际问题不是“我可以上传多少个参考？”而是“哪些参考提供非冗余控制？”清晰的英雄图像和运动参考可能胜过十二个模糊的文件。
+
+244
+00:18:20,750 --> 00:18:22,520
+That leads to multimodal conditioning.
+这导致了多模式条件控制。
+
+245
+00:18:23,359 --> 00:18:25,259
+Text-to-video invents nearly everything.
+文本生成视频几乎发明了一切。
+
+246
+00:18:25,319 --> 00:18:27,259
+Image-to-video anchors appearance.
+图像生成视频锚点的外观。
+
+247
+00:18:27,319 --> 00:18:30,339
+First-and-last-frame workflows constrain endpoints.
+第一帧和最后一帧工作流限制端点。
+
+248
+00:18:30,479 --> 00:18:33,959
+Reference-to-video can transfer identity, style, motion, or sound.
+对视频的引用可以传递身份、风格、动作或声音。
+
+249
+00:18:34,019 --> 00:18:38,239
+Editing workflows preserve more of an existing clip while changing selected attributes.
+编辑工作流在更改选定属性时保留更多现有剪辑。
+
+250
+00:18:38,299 --> 00:18:40,919
+Choose the task with the least unnecessary invention.
+选择不必要的发明最少的任务。
+
+251
+00:18:41,079 --> 00:18:44,799
+If identity already exists, do not ask text alone to recreate it.
+如果身份已经存在，不要仅要求文本来重新创建它。
+
+252
+00:18:44,819 --> 00:18:48,759
+Audio is becoming a condition and an output rather than a separate afterthought.
+音频正在成为一种条件和一种输出，而不是一个单独的事后想法。
+
+253
+00:18:49,551 --> 00:18:53,601
+Native audio-video models predict related visual and audio latents.
+本机音频-视频模型预测相关的视觉和音频潜力。
+
+254
+00:18:53,601 --> 00:19:04,731
+Synchronization is not one problem: lip motion may require frame-level alignment, footsteps need event timing, ambience needs scene consistency, and music operates across longer structure.
+同步不是一个问题：嘴唇运动可能需要帧级对齐，脚步需要事件计时，氛围需要场景一致性，音乐需要跨较长的结构运行。
+
+255
+00:19:04,811 --> 00:19:08,891
+A clip can have excellent sound quality and poor audiovisual causality.
+剪辑可能具有出色的音质和较差的视听因果关系。
+
+256
+00:19:09,071 --> 00:19:11,231
+Evaluate both fidelity and alignment.
+评估保真度和对齐度。
+
+257
+00:19:11,251 --> 00:19:14,431
+Before training, the system needs usable data and descriptions.
+在训练之前，系统需要可用的数据和描述。
+
+258
+00:19:15,418 --> 00:19:21,228
+Video training data contains duplicates, cuts, overlays, watermarks, weak motion, missing audio, and uncertain rights.
+视频训练数据包含重复、剪切、覆盖、水印、弱运动、丢失音频和不确定的权利。
+
+259
+00:19:21,228 --> 00:19:23,878
+Curation filters and scores clips before training.
+训练前，管理会对剪辑进行筛选和评分。
+
+260
+00:19:23,918 --> 00:19:28,718
+The selection criteria silently define which kinds of worlds become easy for the model.
+选择标准默默地定义了哪些类型的世界对于模型来说变得容易。
+
+261
+00:19:28,798 --> 00:19:35,358
+A dataset dominated by polished advertising will make glossy product shots easier than under-documented local performance traditions.
+以精美广告为主的数据集将使光鲜亮丽的产品镜头比记录不足的当地表演传统更容易。
+
+262
+00:19:35,618 --> 00:19:38,718
+Captions turn raw clips into controllable training pairs.
+字幕将原始剪辑转变为可控的训练对。
+
+263
+00:19:39,567 --> 00:19:48,547
+A weak caption says ‘a person outside.’ A production-grade caption can describe subject, action, shot size, camera movement, lighting, sound, and temporal order.
+弱字幕表示“外面的人”。制作级字幕可以描述主题、动作、镜头大小、摄影机移动、灯光、声音和时间顺序。
+
+264
+00:19:48,787 --> 00:19:52,557
+Some systems train caption models and refiners specifically for video data.
+一些系统专门针对视频数据训练字幕模型和细化器。
+
+265
+00:19:52,557 --> 00:19:59,277
+Hunyuan Video 1.5 describes a post-training pipeline that improves bilingual and glyph-aware descriptions before generator training.
+Hunyuan Video 1.5 描述了一个训练后管道，可在生成器训练之前改进双语和字形感知描述。
+
+266
+00:19:59,277 --> 00:20:02,807
+Pretraining creates capability; post-training shapes usefulness.
+预训练创造能力；培训后塑造有用性。
+
+267
+00:20:03,901 --> 00:20:09,641
+After large-scale pretraining, teams refine instruction following, aesthetic preference, motion quality, safety, and speed.
+经过大规模预训练后，团队会完善指令遵循、审美偏好、运动质量、安全性和速度。
+
+268
+00:20:09,841 --> 00:20:15,981
+Seedance 1.0 reports supervised fine-tuning and video R L H F with multidimensional rewards.
+Seedance 1.0 报告了具有多维奖励的监督微调和视频 RLHF。
+
+269
+00:20:16,161 --> 00:20:18,761
+Distillation compresses inference into fewer steps.
+蒸馏将推理压缩为更少的步骤。
+
+270
+00:20:18,781 --> 00:20:26,671
+The product you use is therefore not only an architecture; it is an architecture plus data, post-training, safety policy, and inference system.
+因此，您使用的产品不仅是一个架构，而且是一个架构。它是一个架构加数据、后训练、安全策略和推理系统。
+
+271
+00:20:26,671 --> 00:20:28,721
+Evaluation tries to separate those effects.
+评估试图区分这些影响。
+
+272
+00:20:29,582 --> 00:20:33,222
+Benchmarks combine automated metrics, multimodal judges, and human ratings.
+基准结合了自动化指标、多模式评判和人工评级。
+
+273
+00:20:33,302 --> 00:20:34,762
+Each has blind spots.
+每个人都有盲点。
+
+274
+00:20:34,762 --> 00:20:39,622
+A model may score well on average yet fail the exact identity, camera, or causal requirement of your scene.
+模型的平均得分可能很高，但无法满足场景的确切身份、相机或因果要求。
+
+275
+00:20:39,682 --> 00:20:48,862
+For production, add task-specific acceptance tests: does the hand complete the action, does the logo remain readable, does the sound occur at contact, and is the usable interval long enough to edit?
+对于生产，添加特定于任务的验收测试：手是否完成了动作，徽标是否仍然可读，接触时是否发出声音，以及可用间隔是否足够长以进行编辑？
+
+276
+00:20:48,862 --> 00:20:51,542
+A failure vocabulary makes those tests precise.
+失败词汇表使这些测试更加精确。
+
+277
+00:20:52,477 --> 00:20:54,907
+Semantic failures change what the scene means.
+语义错误会改变场景的含义。
+
+278
+00:20:54,907 --> 00:20:57,637
+Spatial failures break geometry and contact.
+空间故障会破坏几何形状和接触。
+
+279
+00:20:57,717 --> 00:20:59,657
+Temporal failures flicker or drift.
+时间故障闪烁或漂移。
+
+280
+00:20:59,937 --> 00:21:02,697
+Physical failures violate motion or causality.
+物理故障违反了运动或因果关系。
+
+281
+00:21:03,117 --> 00:21:05,557
+Identity failures change a subject across time.
+身份失败随着时间的推移改变了主题。
+
+282
+00:21:05,877 --> 00:21:09,897
+Aesthetic failure can overlay all five when the result contradicts the intended language.
+当结果与预期语言相矛盾时，审美失败可能会覆盖所有五个。
+
+283
+00:21:10,257 --> 00:21:12,937
+‘Bad consistency’ is too vague to choose a fix.
+“一致性差”太模糊，无法选择修复方案。
+
+284
+00:21:13,317 --> 00:21:17,857
+‘Identity changes after occlusion’ suggests a reference, duration, or shot-design intervention.
+“遮挡后的身份变化”暗示了参考、持续时间或镜头设计干预。
+
+285
+00:21:18,017 --> 00:21:20,937
+Now place these mechanisms in the current research landscape.
+现在将这些机制置于当前的研究领域中。
+
+286
+00:21:21,780 --> 00:21:34,680
+The 2026 survey frames the field as an evolution from adversarial learning to diffusion and autoregressive approaches, with current systems converging toward unified multimodal foundation models.
+2026 年的调查将该领域描绘为从对抗性学习到扩散和自回归方法的演变，当前系统正在向统一的多模态基础模型聚合。
+
+287
+00:21:34,680 --> 00:21:38,820
+The categories are not clean product boxes; many systems combine ideas.
+类别不是干净的产品盒；许多系统结合了想法。
+
+288
+00:21:38,900 --> 00:21:45,300
+The useful reading is architectural: what probability path is learned, how media is tokenized, and how conditions enter.
+有用的阅读是架构性的：学习什么概率路径、媒体如何token化以及条件如何输入。
+
+289
+00:21:45,360 --> 00:21:48,320
+A taxonomy shows the major branches more concretely.
+分类法更具体地显示了主要分支。
+
+290
+00:21:49,087 --> 00:21:53,787
+The survey maps modern video generation across GAN, diffusion, and autoregressive branches.
+该调查描绘了 GAN、扩散和自回归分支的现代视频生成。
+
+291
+00:21:54,027 --> 00:22:01,127
+The dominant frontier currently uses diffusion or flow with transformer backbones, while token-based autoregressive and hybrid systems continue to grow.
+目前的主导前沿使用带有变压器骨干的扩散或流动，而基于代币的自回归和混合系统则继续增长。
+
+292
+00:22:01,527 --> 00:22:03,777
+Do not read the diagram as a winner board.
+不要将图表视为获胜者板。
+
+293
+00:22:03,777 --> 00:22:07,757
+Read it as a menu of trade-offs in likelihood, sequence length, sampling speed, and controllability.
+将其视为可能性、序列长度、采样速度和可控性权衡的菜单。
+
+294
+00:22:07,757 --> 00:22:11,007
+The timeline reveals how quickly the capability frontier moved.
+时间线揭示了能力前沿移动的速度有多快。
+
+295
+00:22:11,750 --> 00:22:13,910
+The survey’s timeline shows the problem changing.
+调查的时间表显示问题正在发生变化。
+
+296
+00:22:13,930 --> 00:22:16,550
+Early systems competed on coherent motion.
+早期的系统在相干运动上进行竞争。
+
+297
+00:22:16,610 --> 00:22:23,690
+Later work emphasized stability and control, then physical grounding, multimodal integration, and longer narrative structure.
+后来的作品强调稳定性和控制，然后是物理基础、多模态整合和更长的叙事结构。
+
+298
+00:22:23,870 --> 00:22:30,830
+That shift explains why current releases foreground references, editing, sound, and story continuity rather than only resolution.
+这种转变解释了为什么当前发布的是前景参考、编辑、声音和故事连续性，而不仅仅是分辨率。
+
+299
+00:22:30,870 --> 00:22:34,170
+A compact comparison will help us choose models for production.
+紧凑的比较将帮助我们选择生成模型。
+
+300
+00:22:35,016 --> 00:22:39,356
+Marketing comparisons often mix resolution, duration, task, and human preference.
+营销比较通常会混合分辨率、持续时间、任务和人类偏好。
+
+301
+00:22:39,476 --> 00:22:50,616
+A more technical comparison asks how media is compressed, which network predicts latents, what conditions are supported, what the output contains, and whether the system is open, hosted, or hybrid.
+更具技术性的比较会询问媒体如何压缩、哪个网络预测潜空间、支持哪些条件、输出包含什么以及系统是开放的、托管的还是混合的。
+
+302
+00:22:51,256 --> 00:22:59,316
+This framework lets us compare Seedance, Mini Max H three, Wan, and Hunyuan without pretending their published evaluations are directly interchangeable.
+这个帧让我们可以比较 Seedance、MiniMax H3、Wan 和 Hunyuan，而不假装它们发布的评估可以直接互换。
+
+303
+00:22:59,316 --> 00:23:01,936
+We begin with ByteDance’s Seedance line.
+我们从字节跳动的 Seedance 系列开始。
+
+304
+00:23:02,787 --> 00:23:05,967
+Seedance is best understood as a sequence of system-level changes.
+Seedance 最好理解为一系列系统级更改。
+
+305
+00:23:06,027 --> 00:23:09,487
+Version 1.0 established a scalable video foundation.
+1.0版本建立了可扩展的视频基础。
+
+306
+00:23:09,587 --> 00:23:13,027
+Version 1.5 Pro added native audio-video generation.
+1.5 Pro版本添加了原生音视频生成。
+
+307
+00:23:13,247 --> 00:23:16,507
+Version 2.0 unified multimodal inputs and editing.
+2.0版本统一了多模式输入和编辑。
+
+308
+00:23:16,927 --> 00:23:19,627
+Version 2.5 extends duration and one-take control.
+2.5 版延长了持续时间和一次性控制。
+
+309
+00:23:19,907 --> 00:23:24,287
+Because 2.5 is proprietary, we must separate reported capability from disclosed architecture.
+由于 2.5 是专有的，因此我们必须将报告的功能与公开的架构分开。
+
+310
+00:23:24,327 --> 00:23:26,927
+Start with what the 1.0 report actually reveals.
+从 1.0 报告实际揭示的内容开始。
+
+311
+00:23:27,818 --> 00:23:30,958
+The 1.0 report emphasizes that architecture alone was not enough.
+1.0 报告强调仅靠架构是不够的。
+
+312
+00:23:31,078 --> 00:23:34,578
+Multi-source curation and precise video captioning improved supervision.
+多源管理和精确的视频字幕改善了监督。
+
+313
+00:23:34,918 --> 00:23:37,518
+One model handled text-to-video and image-to-video.
+一种模型处理文本生成视频和图像生成视频。
+
+314
+00:23:37,518 --> 00:23:42,998
+Post-training used multidimensional reward signals, and engineering plus distillation targeted practical speed.
+训练后使用多维奖励信号，工程加蒸馏以实际速度为目标。
+
+315
+00:23:43,078 --> 00:23:48,478
+The report gives a useful production lesson: quality emerges from the whole pipeline, not from one clever block.
+该报告给出了一个有用的生产教训：质量来自整个管道，而不是来自一个聪明的区块。
+
+316
+00:23:48,538 --> 00:23:52,038
+Its native multi-shot ability anticipates later storytelling features.
+其原生的多镜头能力预示着后来的讲故事功能。
+
+317
+00:23:52,895 --> 00:23:55,695
+Multi-shot generation means more than producing several pretty clips.
+多镜头生成不仅仅意味着生成几个漂亮的剪辑。
+
+318
+00:23:55,695 --> 00:24:00,205
+The system must preserve entities and setting while allowing viewpoint and action to change.
+系统必须保留实体和设置，同时允许观点和操作发生变化。
+
+319
+00:24:00,205 --> 00:24:04,855
+That requires modeling relations across shot boundaries rather than only smooth motion within one shot.
+这需要对跨镜头边界的关系进行建模，而不仅仅是一个镜头内的平滑运动。
+
+320
+00:24:04,855 --> 00:24:10,275
+A close-up should feel like the same event as the establishing shot, not a new sample that happens to share keywords.
+特写镜头应该感觉像是与定场镜头相同的事件，而不是碰巧共享关键字的新样本。
+
+321
+00:24:10,575 --> 00:24:14,215
+Seedance 1.5 Pro added a second difficult axis: native sound.
+Seedance 1.5 Pro 添加了第二个难点：原生声音。
+
+322
+00:24:15,047 --> 00:24:19,307
+The 1.5 Pro report presents a native audio-visual joint generation foundation model.
+1.5 Pro报告提出了原生视听联合生成基础模型。
+
+323
+00:24:19,367 --> 00:24:26,247
+Joint generation lets visual events and sound influence a shared process instead of relying entirely on post-hoc audio generation.
+联合生成让视觉事件和声音影响共享过程，而不是完全依赖事后音频生成。
+
+324
+00:24:26,387 --> 00:24:33,007
+For filmmaking, this can accelerate previs and dialogue experiments, but native sound is not a reason to skip deliberate sound editing.
+对于电影制作来说，这可以加速视觉预览和对话实验，但原生声音并不是跳过刻意声音编辑的理由。
+
+325
+00:24:33,447 --> 00:24:36,247
+Seedance two point zero expands the input side as well.
+Seedance 2.0 还扩展了输入侧。
+
+326
+00:24:37,013 --> 00:24:43,593
+Seedance two point zero accepts text, images, audio, and video as multimodal context and supports generation plus editing.
+Seedance 2.0 接受文本、图像、音频和视频作为多模态上下文，并支持生成和编辑。
+
+327
+00:24:43,653 --> 00:24:50,003
+The technical report describes a unified, large-scale architecture but does not publish enough block-level detail to reconstruct it.
+该技术报告描述了一个统一的大规模架构，但没有发布足够的块级细节来重建它。
+
+328
+00:24:50,003 --> 00:24:51,933
+That disclosure boundary matters.
+披露边界很重要。
+
+329
+00:24:51,933 --> 00:24:58,613
+We can discuss supported modalities and evaluations confidently, while treating internal tokenization and transformer design as unknown.
+我们可以自信地讨论支持的模式和评估，同时将内部token化和变压器设计视为未知。
+
+330
+00:24:58,773 --> 00:25:02,353
+The system exposes three especially useful task families.
+该系统公开了三个特别有用的任务系列。
+
+331
+00:25:03,205 --> 00:25:06,145
+Text-to-video is appropriate for ideation and broad exploration.
+文本生成视频适合构思和广泛探索。
+
+332
+00:25:06,345 --> 00:25:10,105
+Image-to-video is better when composition or identity already exists.
+当构图或身份已经存在时，图像生成视频会更好。
+
+333
+00:25:10,465 --> 00:25:16,245
+Reference-to-video can combine images, clips, and audio to specify appearance, motion, rhythm, or voice.
+视频参考可以组合图像、剪辑和音频来指定外观、动作、节奏或声音。
+
+334
+00:25:16,265 --> 00:25:20,365
+The best mode is often the one that removes degrees of freedom the story does not need.
+最好的模式通常是消除故事不需要的自由度的模式。
+
+335
+00:25:20,425 --> 00:25:23,285
+Reference capacity is not the same as reference clarity.
+参考容量与参考清晰度不同。
+
+336
+00:25:24,196 --> 00:25:26,496
+A clean reference stack gives each file a role.
+干净的参考堆栈赋予每个文件一个角色。
+
+337
+00:25:26,496 --> 00:25:34,676
+One image anchors character identity, another defines environment, a short video specifies motion, and audio establishes performance or rhythm.
+一幅图像锚定角色身份，另一幅图像定义环境，短视频指定动作，音频确定表演或节奏。
+
+338
+00:25:34,996 --> 00:25:38,416
+Redundant or contradictory references make the control problem harder.
+冗余或矛盾的参考使控制问题变得更加困难。
+
+339
+00:25:38,576 --> 00:25:41,366
+Write the role next to every file before uploading it.
+上传之前在每个文件旁边写下角色。
+
+340
+00:25:41,366 --> 00:25:43,996
+If you cannot say what it controls, remove it.
+如果您不能说出它控制什么，请将其删除。
+
+341
+00:25:44,236 --> 00:25:48,596
+Seedance two point zero reports direct audio-video generation over short shot durations.
+Seedance 2.0 报告在短镜头持续时间内直接生成音频-视频。
+
+342
+00:25:49,413 --> 00:25:55,313
+The Seedance two point zero evaluation separates audio quality, audio prompt following, and audio-visual synchronization.
+Seedance 2.0 评估将音频质量、音频提示词遵循度和视听同步分开。
+
+343
+00:25:55,313 --> 00:25:57,493
+That is the right conceptual split.
+这是正确的概念划分。
+
+344
+00:25:57,593 --> 00:26:02,393
+A beautiful soundtrack can still be wrong if it ignores events or changes the scene’s emotional direction.
+如果忽略事件或改变场景的情感方向，优美的配乐仍然可能是错误的。
+
+345
+00:26:02,513 --> 00:26:07,793
+For a glass landing on a table, the impact sound should align with contact and reflect the material and room.
+对于落在桌子上的玻璃，撞击声应与接触声一致并反映材料和房间。
+
+346
+00:26:07,793 --> 00:26:11,313
+Multi-shot and longer-form control are where 2.5 moves next.
+多镜头和较长形式的控制是 2.5 下一步的发展方向。
+
+347
+00:26:12,168 --> 00:26:21,128
+ByteDance describes 2.5 as inheriting the unified multimodal audio-video architecture of 2.0 while improving long-form storytelling, flexible references, and editing.
+字节跳动将2.5描述为继承2.0统一的多模态音视频架构，同时改进了长篇故事讲述、灵活引用和编辑。
+
+348
+00:26:21,188 --> 00:26:24,728
+A single generation can reach thirty seconds, with further extensions.
+单代可达三十秒，并可进一步延长。
+
+349
+00:26:24,868 --> 00:26:28,218
+That duration is useful only when the shot has internal beats.
+仅当镜头具有内部节拍时，该持续时间才有用。
+
+350
+00:26:28,218 --> 00:26:34,308
+‘Thirty seconds of cinematic motion’ is weaker than a timed sequence of setup, action, reaction, and release.
+“三十秒的电影动作”比设置、动作、反应和释放的定时序列弱。
+
+351
+00:26:34,848 --> 00:26:37,348
+Prompting should therefore resemble shot direction.
+因此，提示应这门课似于拍摄方向。
+
+352
+00:26:38,267 --> 00:26:43,287
+A strong prompt names the starting state, camera behavior, ordered action, environmental consequence, and sound.
+强烈的提示指出了起始状态、相机行为、有序动作、环境后果和声音。
+
+353
+00:26:43,887 --> 00:26:46,687
+Separate fixed constraints from events that change over time.
+将固定约束与随时间变化的事件分开。
+
+354
+00:26:46,887 --> 00:26:59,447
+For example: locked 35mm medium shot; courier enters frame, pauses at the door, hears a distant alarm, turns toward camera; red emergency light sweeps once; room tone and one metal impact.
+例如：锁定35mm中景；快递员进入画面，在门口停下来，听到远处传来警报声，转向镜头；红色应急灯扫一次；房间音调和一种金属冲击力。
+
+355
+00:26:59,607 --> 00:27:02,067
+Use one generation to test one shot proposition.
+用一代人来测试一次性命题。
+
+356
+00:27:03,019 --> 00:27:11,419
+Seedance is valuable when a team needs to explore an event with multiple reference types, preview audio-video timing, or create a longer shot with internal development.
+当团队需要探索具有多种参考类型的事件、预览音频-视频时序或通过内部开发创建更长的镜头时，Seedance 非常有价值。
+
+357
+00:27:11,459 --> 00:27:16,159
+It is not a replacement for editing, coverage, or continuity management across a whole film.
+它不能替代整部电影的剪辑、报道或连续性管理。
+
+358
+00:27:16,259 --> 00:27:21,999
+Treat each output as rushes: inspect, trim, compare, and decide whether it earns a place in the sequence.
+将每个输出视为匆忙：检查、修剪、比较并决定它是否在序列中赢得一席之地。
+
+359
+00:27:22,139 --> 00:27:25,499
+The technical unknowns also require disciplined claims.
+技术上的未知数也需要严格的声明。
+
+360
+00:27:26,332 --> 00:27:30,412
+The reports support claims about modalities, tasks, duration, and evaluation.
+这些报告支持有关模式、任务、持续时间和评估的主张。
+
+361
+00:27:30,432 --> 00:27:35,052
+They do not fully reveal the 2.5 backbone, parameter count, token packing, or training data composition.
+它们没有完全揭示 2.5 主干、参数计数、token打包或训练数据组成。
+
+362
+00:27:35,152 --> 00:27:38,892
+Saying ‘probably a diffusion transformer’ is an inference, not a disclosed fact.
+说“可能是扩散变压器”是一种推论，而不是公开的事实。
+
+363
+00:27:39,212 --> 00:27:41,692
+Technical literacy includes knowing where evidence stops.
+技术素养包括知道证据在哪里。
+
+364
+00:27:41,712 --> 00:27:44,042
+That makes critique more credible, not less exciting.
+这使得批评更加可信，而不是不那么令人兴奋。
+
+365
+00:27:44,042 --> 00:27:49,232
+Mini Max H three gives us a contrasting case with unusually detailed open documentation.
+MiniMax H3 为我们提供了一个对比案例，其中包含异常详细的开放文档。
+
+366
+00:27:50,248 --> 00:27:53,658
+We now turn to H three, Mini Max’s open audio-video foundation model.
+我们现在转向 H3，MiniMax 的开放音视频基础模型。
+
+367
+00:27:53,658 --> 00:28:07,918
+H three is important because the release describes a complete multimodal generation system rather than only a product interface: structured context, a large omni-modal transformer, separate visual and audio latent spaces, and a high-resolution regeneration stage.
+H3 很重要，因为该版本描述了一个完整的多模态生成系统，而不仅仅是一个产品界面：结构化上下文、大型全模态变压器、独立的视觉和音频潜在空间以及高分辨率再生阶段。
+
+368
+00:28:07,918 --> 00:28:17,558
+The architecture gives us enough detail to connect familiar ideas—encoders, patchification, attention, latent compression, and conditioning—to a contemporary production model.
+该架构为我们提供了足够的细节，可以将熟悉的想法（编码器、补丁、注意力、潜在压缩和条件控制）连接到当代的生成模型。
+
+369
+00:28:17,558 --> 00:28:21,648
+Begin with the system-level path from the user’s material to the final two K result.
+从用户素材到最终 2K 结果的系统级路径开始。
+
+370
+00:28:22,477 --> 00:28:26,907
+H three-Context I R turns free-form multimodal inputs into a structured intermediate representation.
+H3-Context IR 将自由形式的多模态输入转换为结构化的中间表示。
+
+371
+00:28:26,907 --> 00:28:30,280
+H three-Base generates synchronized audio and video at seven sixty-eight P.
+H3-Base 生成 768p 的同步音频和视频。
+
+372
+00:28:30,280 --> 00:28:35,237
+H three-Regenerate-two K feeds the result and original context back into the model for a higher-resolution regeneration.
+H3-Regenerate-2K 将结果和原始上下文反馈到模型中，以实现更高分辨率的再生。
+
+373
+00:28:35,457 --> 00:28:38,637
+Notice that two K is not described as ordinary super-resolution.
+请注意，2K 并不被描述为普通的超分辨率。
+
+374
+00:28:38,777 --> 00:28:42,077
+The system reuses semantic context while generating detail again.
+系统重用语义上下文，同时再次生成细节。
+
+375
+00:28:42,397 --> 00:28:45,377
+Context I R is essential, but it is not part of the open weights.
+Context IR 是必不可少的，但它不是开放权重的一部分。
+
+376
+00:28:46,254 --> 00:28:51,524
+Context I R reasons about how text, images, video, and audio relate to the intended output.
+上下文 IR 解释文本、图像、视频和音频如何与预期输出相关。
+
+377
+00:28:51,524 --> 00:28:57,054
+Mini Max says the hosted system may supplement underspecified details without changing the user’s intent.
+MiniMax 表示，托管系统可以补充未指定的细节，而不会改变用户的意图。
+
+378
+00:28:57,154 --> 00:29:01,094
+It distills large source material into a much smaller context representation.
+它将大量源材料压缩成更小的上下文表示。
+
+379
+00:29:01,314 --> 00:29:07,744
+This explains why copying only the final text prompt may fail to reproduce a hosted result: the hidden orchestration step is part of the system.
+这解释了为什么仅复制最终文本提示可能无法重现托管结果：隐藏的编排步骤是系统的一部分。
+
+380
+00:29:07,744 --> 00:29:10,774
+H three-Base then encodes each modality differently.
+然后，H3-Base 对每种模态进行不同的编码。
+
+381
+00:29:11,703 --> 00:29:17,503
+The H three encoder uses full pretrained Qwen3-VL-32B weights and passes hidden states from layer fifty to the generator.
+H3 编码器使用完全预训练的 Qwen3-VL-32B 权重，并将隐藏状态从第 50 层传递到生成器。
+
+382
+00:29:17,663 --> 00:29:22,993
+Visual inputs also go through the VisualVAE, while audio uses a separate AudioVAE.
+视觉输入也通过 VisualVAE，而音频则使用单独的 AudioVAE。
+
+383
+00:29:22,993 --> 00:29:27,603
+One representation carries semantic context; another preserves generative detail.
+一种表示带有语义上下文；另一个保留生成细节。
+
+384
+00:29:27,703 --> 00:29:30,383
+This dual role is common in multimodal systems.
+这种双重角色在多模态系统中很常见。
+
+385
+00:29:30,443 --> 00:29:32,643
+The visual compressor is unusually aggressive.
+视觉压缩器异常激进。
+
+386
+00:29:33,530 --> 00:29:40,890
+H three-VisualVAE is temporally causal with a spatial compression factor of sixteen, temporal factor of four, and twenty-four latent channels.
+H3-VisualVAE 具有时间因果关系，空间压缩因子为 16，时间因子为 4，潜在通道数为 24。
+
+387
+00:29:40,950 --> 00:29:45,850
+A one-by-two-by-two patchification further halves each spatial dimension before the transformer.
+一乘二乘二的补丁进一步将变换器之前的每个空间维度减半。
+
+388
+00:29:45,970 --> 00:29:53,810
+That creates an effective thirty-two-times spatial downsampling at the token level, dramatically reducing sequence length while demanding a very capable decoder.
+这在token级别创建了有效的 32 倍空间下采样，显着减少了序列长度，同时需要非常强大的解码器。
+
+389
+00:29:53,830 --> 00:29:56,250
+Audio follows a separate compression path.
+音频遵循单独的压缩路径。
+
+390
+00:29:56,982 --> 00:30:05,262
+H three-AudioVAE uses the same encoder and decoder parameters for left and right channels while processing them independently, then recombines them as stereo.
+H3-AudioVAE 对左右声道使用相同的编码器和解码器参数，同时独立处理它们，然后将它们重新组合为立体声。
+
+391
+00:30:05,442 --> 00:30:09,872
+Each channel’s 32-kilohertz audio becomes latent tokens at forty hertz.
+每个声道的 32 kHz 音频被压缩为 40 Hz 的潜空间 token。
+
+392
+00:30:09,872 --> 00:30:15,242
+The generator therefore predicts audio and video latents with very different natural token rates inside one system.
+因此，生成器可以预测一个系统内具有非常不同的自然token率的音频和视频潜空间。
+
+393
+00:30:15,262 --> 00:30:18,242
+Those tokens are packed into a single multimodal sequence.
+这些token被打包成单个多模式序列。
+
+394
+00:30:19,087 --> 00:30:28,587
+H three organizes encoded modalities into one packed sequence, adds rotary position information for spatial and temporal relationships, and passes the result to a single-stream transformer.
+H3 将编码模态组织成一个打包序列，添加空间和时间关系的旋转位置信息，并将结果传递给单流转换器。
+
+395
+00:30:28,747 --> 00:30:32,057
+The transformer jointly predicts visual and audio latents.
+变压器联合预测视觉和音频潜空间。
+
+396
+00:30:32,057 --> 00:30:38,627
+Modality-specific structures are concentrated at input, output, and adaptive normalization branches rather than separate attention networks.
+特定于模态的结构集中在输入、输出和自适应标准化分支，而不是单独的注意网络。
+
+397
+00:30:38,667 --> 00:30:41,807
+The core transformer is large but architecturally simple.
+核心变压器很大但结构简单。
+
+398
+00:30:42,632 --> 00:30:45,632
+Mini Max reports a thirty-three-billion-parameter dense transformer.
+MiniMax 报告了一个 330 亿参数的密集变压器。
+
+399
+00:30:45,712 --> 00:30:54,772
+Roughly thirteen billion parameters belong to adaptive layer-normalization branches whose outputs can be precomputed and cached, so inference-only deployments do not need to load them in the same way.
+大约 130 亿个参数属于自适应层标准化分支，其输出可以预先计算和缓存，因此仅推理部署不需要以相同的方式加载它们。
+
+400
+00:30:54,852 --> 00:30:57,832
+The attention and feed-forward layers are modality-agnostic.
+注意力层和前馈层与模态无关。
+
+401
+00:30:57,852 --> 00:31:01,632
+That simplicity is intended to support many tasks without separate backbones.
+这种简单性旨在支持许多任务，而无需单独的主干。
+
+402
+00:31:01,732 --> 00:31:04,532
+Two released checkpoints specialize the input conditions.
+两个已发布的检查点专门用于输入条件。
+
+403
+00:31:05,434 --> 00:31:10,994
+The FL2VA checkpoint supports text-only generation and first/last-frame-conditioned audio-video generation.
+FL2VA 检查点支持纯文本生成和首尾帧条件控制的音视频生成。
+
+404
+00:31:11,154 --> 00:31:15,534
+Endpoint frames are powerful when the narrative requires a defined entrance and exit state.
+当叙述需要定义的进入和退出状态时，端点帧非常强大。
+
+405
+00:31:15,534 --> 00:31:22,764
+The model still invents the path between endpoints, so choose frames that are physically and compositionally compatible rather than forcing an impossible transition.
+该模型仍然发明了端点之间的路径，因此选择物理和构图兼容的帧，而不是强制进行不可能的过渡。
+
+406
+00:31:22,764 --> 00:31:25,754
+The Ref2VA checkpoint accepts a richer reference package.
+Ref2VA 检查点接受更丰富的参考包。
+
+407
+00:31:26,564 --> 00:31:30,044
+Ref2VA accepts multimodal references within a twelve-file total.
+Ref2VA 接受总共 12 个文件内的多模式参考素材。
+
+408
+00:31:30,124 --> 00:31:37,824
+Images can anchor characters or style, videos can supply motion or camera language, and audio can define voice, rhythm, or event timing.
+图像可以锚定角色或风格，视频可以提供动作或摄影机语言，音频可以定义语音、节奏或事件时间。
+
+409
+00:31:37,964 --> 00:31:39,944
+Again, the limit is not a target.
+再次强调，极限不是目标。
+
+410
+00:31:39,984 --> 00:31:44,704
+A smaller set with explicit roles reduces ambiguity and makes failures easier to diagnose.
+具有明确角色的较小集合可以减少歧义并使故障更容易诊断。
+
+411
+00:31:44,884 --> 00:31:48,484
+The final two K stage regenerates rather than merely enlarges.
+最后的 2K 阶段会重新生成细节，而不只是放大画面。
+
+412
+00:31:49,319 --> 00:31:54,329
+Conventional super-resolution mainly predicts missing high-frequency detail from a low-resolution image or video.
+传统的超分辨率主要预测低分辨率图像或视频中丢失的高频细节。
+
+413
+00:31:54,329 --> 00:32:03,259
+H three-Regenerate-two K conditions on both the seven sixty-eight P result and the original multimodal context, allowing text and references to reassert fine detail.
+H3-Regenerate-2K 条件适用于 768p 结果和原始多模态上下文，允许文本和引用重新体现精细细节。
+
+414
+00:32:03,259 --> 00:32:08,099
+That can improve typography and brand elements, but regeneration may also change content.
+这可以改善版式和品牌元素，但再生也可能会改变内容。
+
+415
+00:32:08,239 --> 00:32:10,999
+High resolution therefore needs another continuity review.
+因此，高分辨率需要再次进行连续性审查。
+
+416
+00:32:11,039 --> 00:32:13,939
+Open deployment brings a different constraint: memory.
+开放部署带来了不同的限制：内存。
+
+417
+00:32:14,814 --> 00:32:23,284
+The open release provides BF16 checkpoints for FL2VA and Ref2VA, with support paths through SGLang, vLLM, Diffusers, and Comfy U I.
+开放版本为 FL2VA 和 Ref2VA 提供 BF16 检查点，并通过 SGLang、vLLM、Diffusers 和 ComfyUI 提供支持路径。
+
+418
+00:32:23,284 --> 00:32:28,154
+Sparse attention is described as native, but the first released inference path uses full attention.
+稀疏注意力被描述为原生的，但第一个发布的推理路径使用了完全注意力。
+
+419
+00:32:28,234 --> 00:32:35,494
+A realistic class workflow may use hosted generation or cloud nodes while using Comfy U I to make the pipeline explicit and reproducible.
+实际的课堂工作流可以使用托管生成或云节点，同时使用 ComfyUI 使管道明确且可重现。
+
+420
+00:32:35,534 --> 00:32:38,914
+Now compare the systems without pretending they publish identical evidence.
+现在比较这些系统，不要假装它们发布了相同的证据。
+
+421
+00:32:39,799 --> 00:32:44,449
+Seedance emphasizes polished multimodal creation and longer one-take workflows.
+Seedance 强调精致的多模式创作和更长的一次性工作流。
+
+422
+00:32:44,449 --> 00:32:48,019
+H three exposes a detailed open omni-modal architecture.
+H3公开了详细的开放式全模态架构。
+
+423
+00:32:48,499 --> 00:32:52,109
+Wan offers a broad open ecosystem with strong Comfy U I support.
+Wan 提供了广泛的开放生态系统以及强大的 ComfyUI 支持。
+
+424
+00:32:52,109 --> 00:32:59,579
+Hunyuan Video 1.5 targets efficient consumer-grade inference with an 8.3B model and a cascaded super-resolution stage.
+混元视频 1.5 的目标是通过 8.3B 模型和级联超分辨率阶段实现高效的消费级推理。
+
+425
+00:32:59,659 --> 00:33:05,319
+The right model is the one whose controllable task matches the shot and whose deployment constraints fit the production.
+正确的模型是其可控任务与镜头相匹配、其部署约束与制作相匹配的模型。
+
+426
+00:33:05,339 --> 00:33:08,939
+We can now turn architecture knowledge into a repeatable film workflow.
+我们现在可以将建筑知识转化为可重复的电影工作流。
+
+427
+00:33:09,799 --> 00:33:13,039
+Current models are shot engines, reference engines, and editing engines.
+当前模型包括镜头引擎、参考引擎和编辑引擎。
+
+428
+00:33:13,079 --> 00:33:18,859
+A film still requires dramatic structure, coverage, continuity, selection, sound, rhythm, and responsibility.
+电影仍然需要戏剧性的结构、报道、连续性、选择、声音、节奏和责任。
+
+429
+00:33:18,959 --> 00:33:23,679
+The workflow becomes reliable when each stage produces an inspectable artifact for the next stage.
+当每个阶段为下一阶段生成可检查的伪影时，工作流就会变得可靠。
+
+430
+00:33:23,859 --> 00:33:25,799
+Begin before prompts, with a brief.
+在出现提示之前开始，先做一个简短的介绍。
+
+431
+00:33:26,610 --> 00:33:28,010
+The brief defines purpose.
+简介定义了目的。
+
+432
+00:33:28,070 --> 00:33:30,270
+The world bible fixes continuity.
+世界观设定手册修复了连续性。
+
+433
+00:33:30,430 --> 00:33:32,630
+The animatic tests sequence and duration.
+动态分镜测试顺序和持续时间。
+
+434
+00:33:33,050 --> 00:33:35,510
+Shot generation produces controlled candidates.
+镜头生成产生受控候选者。
+
+435
+00:33:35,950 --> 00:33:40,110
+Post-production creates rhythm, sound, repair, color, titles, and disclosure.
+后期制作创造节奏、声音、修复、色彩、标题和披露。
+
+436
+00:33:40,550 --> 00:33:42,810
+Do not move forward because a stage feels exciting.
+不要因为某个阶段感觉令人兴奋而前进。
+
+437
+00:33:42,950 --> 00:33:46,830
+Move forward because its artifact answers the decisions needed by the next stage.
+只有当前阶段的产出足以支持下一阶段的决策时，才继续推进。
+
+438
+00:33:47,110 --> 00:33:48,550
+Gate one is a dramatic unit.
+第一道关卡是一个戏剧性的单元。
+
+439
+00:33:49,319 --> 00:33:51,159
+A useful brief can fit in four sentences.
+有用的摘要可以用四句话来概括。
+
+440
+00:33:51,219 --> 00:33:54,799
+Name the agent, goal, change, stakes, and intended audience experience.
+写清行动主体、目标、变化、利害关系，以及希望观众获得的体验。
+
+441
+00:33:55,019 --> 00:33:59,779
+Avoid beginning with visual adjectives, because style cannot rescue an event with no dramatic direction.
+避免以视觉形容词开头，因为风格无法拯救没有戏剧性方向的事件。
+
+442
+00:33:59,979 --> 00:34:04,719
+‘A courier must deliver one memory before the city deletes her identity’ creates action and consequence.
+“一名信使必须在城市删除她的身份之前传递一段记忆”创造了行动和后果。
+
+443
+00:34:05,099 --> 00:34:07,599
+‘Cinematic cyberpunk woman’ mainly creates decoration.
+“电影赛博朋克女人”主要创作装饰。
+
+444
+00:34:07,799 --> 00:34:10,759
+The world bible turns that brief into stable visual rules.
+世界观设定手册会把这份创意简述转化为稳定的视觉规则。
+
+445
+00:34:11,517 --> 00:34:14,097
+The bible should identify invariants and allowed variation.
+设定手册应当指出不变量和允许的变化。
+
+446
+00:34:14,317 --> 00:34:17,957
+Character silhouette and coat color may be fixed while fabric texture can vary.
+角色轮廓和外套颜色可能是固定的，而织物纹理可能会有所不同。
+
+447
+00:34:18,217 --> 00:34:20,917
+The room geometry may be fixed while light state changes.
+当光状态改变时，房间几何形状可以是固定的。
+
+448
+00:34:21,017 --> 00:34:23,717
+The camera may remain observational rather than heroic.
+相机可能仍然是观察性的，而不是英雄式的。
+
+449
+00:34:23,977 --> 00:34:27,477
+Reference images are evidence for these rules, not a random inspiration board.
+参考图像是这些规则的证据，而不是随机的灵感板。
+
+450
+00:34:27,657 --> 00:34:29,637
+Next convert story beats into coverage.
+接下来，把故事节拍转化为镜头覆盖方案。
+
+451
+00:34:30,557 --> 00:34:32,097
+Write the shot list before generation.
+在生成之前编写镜头列表。
+
+452
+00:34:32,117 --> 00:34:39,537
+A shot should answer why it exists in the edit, how long it needs to be, what the camera does, which action completes, and what must match adjacent shots.
+一个镜头应该回答为什么它存在于剪辑中、需要多长时间、摄影机做什么、完成哪个动作以及什么必须与相邻镜头匹配。
+
+453
+00:34:39,617 --> 00:34:43,757
+A five-second reaction shot may need stable eyeline more than spectacular motion.
+五秒的反应镜头可能比壮观的动作更需要稳定的视线。
+
+454
+00:34:43,817 --> 00:34:46,957
+That acceptance criterion changes the generation strategy.
+该接受标准改变了生成策略。
+
+455
+00:34:47,437 --> 00:34:50,937
+Storyboard and animatic expose sequence problems while changes are cheap.
+故事板和动态分镜能暴露了顺序问题，而更改的成本却很低。
+
+456
+00:34:51,733 --> 00:34:54,433
+Storyboard frames establish spatial relations and continuity.
+故事板帧建立空间关系和连续性。
+
+457
+00:34:54,573 --> 00:34:57,933
+The animatic adds approximate timing, temporary sound, and cuts.
+动态分镜加入了大致时间、临时声音和剪辑。
+
+458
+00:34:58,153 --> 00:35:03,353
+It is acceptable for these materials to be rough; their job is to reveal missing geography and rhythm.
+这些材料粗糙是可以接受的；他们的工作是揭示缺失的地理和节奏。
+
+459
+00:35:03,433 --> 00:35:10,793
+If the audience cannot understand the action in grey boxes and temporary audio, higher-fidelity video will probably hide rather than solve the problem.
+如果观众无法理解灰盒和临时音频中的动作，高保真视频可能会隐藏而不是解决问题。
+
+460
+00:35:10,833 --> 00:35:13,273
+Now choose a generation mode for each shot.
+现在为每个镜头选择一种生成模式。
+
+461
+00:35:14,070 --> 00:35:15,790
+Choose task mode shot by shot.
+逐个选择任务模式。
+
+462
+00:35:15,790 --> 00:35:18,470
+Text-to-video is useful when invention is desirable.
+当需要发明时，文本生成视频是有用的。
+
+463
+00:35:18,610 --> 00:35:20,890
+Image-to-video preserves a designed frame.
+图像生成视频保留设计的帧。
+
+464
+00:35:21,150 --> 00:35:23,070
+First-last-frame controls endpoints.
+First-last-frame 控制端点。
+
+465
+00:35:23,130 --> 00:35:25,390
+Reference generation anchors reusable assets.
+参考生成锚定可重用资产。
+
+466
+00:35:25,530 --> 00:35:28,190
+Video-to-video or editing preserves blocking and timing.
+视频生成视频或编辑模式可以保留场面调度与时序。
+
+467
+00:35:28,270 --> 00:35:32,250
+The less you need the model to invent, the more controllable and reproducible the shot can become.
+发明时需要的模型越少，镜头的可控性和可重复性就越高。
+
+468
+00:35:32,390 --> 00:35:35,390
+Reference preparation is therefore a technical production task.
+因此，准备参考素材本身就是一项技术性的制作任务。
+
+469
+00:35:36,222 --> 00:35:44,022
+Prepare references at sensible resolution, remove irrelevant borders or overlays, verify rights and consent, and label what each file controls.
+以合理的分辨率准备参考素材，删除不相关的边框或覆盖层，验证权利和同意，并token每个文件控制的内容。
+
+470
+00:35:44,062 --> 00:35:47,872
+Check for conflicts in age, costume, lighting, viewpoint, or movement.
+检查年龄、服装、灯光、视角或动作是否存在冲突。
+
+471
+00:35:47,872 --> 00:35:53,102
+A reference sheet with a one-line role under each asset is more useful than an unlabeled folder of beautiful images.
+每项资产下具有单行角色的参考表比未token的精美图像文件夹更有用。
+
+472
+00:35:53,102 --> 00:35:55,502
+Then write the shot instruction as a timed system.
+然后将镜头指令写成定时系统。
+
+473
+00:35:56,330 --> 00:36:01,590
+Begin with what must remain fixed: subject, environment, lens, lighting, and style constraints.
+从必须保持固定的内容开始：主题、环境、镜头、灯光和风格限制。
+
+474
+00:36:01,650 --> 00:36:04,390
+Then state ordered events with simple timing words.
+然后用简单的计时词陈述有序的事件。
+
+475
+00:36:04,410 --> 00:36:08,210
+End with negative or exclusion constraints only when they address observed failures.
+仅当它们解决观察到的故障时才以否定或排除约束结束。
+
+476
+00:36:08,270 --> 00:36:09,740
+Prompts should be testable.
+提示应该是可测试的。
+
+477
+00:36:09,740 --> 00:36:13,000
+If the clip fails, you need to know which clause controlled the missing behavior.
+如果剪辑失败，您需要知道哪个子句控制了缺失的行为。
+
+478
+00:36:13,000 --> 00:36:16,210
+Comfy U I makes this pipeline visible as a graph.
+ComfyUI 使该管道以图表形式可见。
+
+479
+00:36:16,996 --> 00:36:20,436
+Comfy U I represents the generation pipeline as connected nodes.
+ComfyUI 将生成管道表示为连接的节点。
+
+480
+00:36:20,436 --> 00:36:28,196
+The graph makes hidden dependencies explicit: checkpoint, text encoder, V A E, conditioning, latent dimensions, sampler, scheduler, and output.
+该图使隐藏的依赖关系变得明确：检查点、文本编码器、VAE、条件、潜在维度、采样器、调度器和输出。
+
+481
+00:36:28,536 --> 00:36:31,456
+Workflow JSON also becomes a reproducible production record.
+工作流 JSON 也成为可复制的制作记录。
+
+482
+00:36:31,576 --> 00:36:39,296
+The official Wan two point two templates are useful teaching examples because text-to-video, image-to-video, and first-last-frame workflows differ in visible nodes.
+官方的 Wan 2.2 模板是有用的教学示例，因为文本生成视频、图像生成视频和首尾帧工作流在可见节点上有所不同。
+
+483
+00:36:39,436 --> 00:36:41,976
+Read the graph from inputs toward media output.
+读取从输入到媒体输出的图表。
+
+484
+00:36:42,770 --> 00:36:44,410
+The loader selects weights and precision.
+加载器选择模型权重与数值精度。
+
+485
+00:36:44,430 --> 00:36:47,390
+The text encoder converts language into condition vectors.
+文本编码器将语言转换为条件控制向量。
+
+486
+00:36:47,530 --> 00:36:49,850
+Image or frame nodes add visual constraints.
+图像或帧节点添加视觉约束。
+
+487
+00:36:49,890 --> 00:36:52,190
+The sampler integrates the generative trajectory.
+采样器整合生成轨迹。
+
+488
+00:36:52,510 --> 00:36:54,810
+The V A E decodes latents into frames.
+VAE 将潜在数据解码为帧。
+
+489
+00:36:54,970 --> 00:36:57,970
+Video combine nodes set frame rate and container output.
+视频组合节点设置帧速率和容器输出。
+
+490
+00:36:58,030 --> 00:37:00,310
+If composition is ignored, inspect conditioning.
+如果构图失效，请检查条件控制情况。
+
+491
+00:37:00,450 --> 00:37:04,170
+If detail shimmers after good latents, inspect decode or post-processing.
+如果细节在良好的潜空间后闪烁，请检查解码或后处理。
+
+492
+00:37:04,170 --> 00:37:08,330
+If motion is chaotic, inspect model, duration, guidance, and endpoint constraints.
+如果运动混乱，请检查模型、持续时间、引导和端点约束。
+
+493
+00:37:08,510 --> 00:37:10,930
+Now set a controlled baseline before tuning.
+现在在调整之前设置受控基线。
+
+494
+00:37:11,795 --> 00:37:14,155
+Start from an official template and recommended model settings.
+从官方模板和推荐的模型设置开始。
+
+495
+00:37:14,175 --> 00:37:17,135
+Choose a modest resolution and duration that fit hardware.
+选择适合硬件的适度分辨率和持续时间。
+
+496
+00:37:17,135 --> 00:37:21,065
+Record frame count, frame rate, steps, guidance, sampler, scheduler, and seed.
+记录帧计数、帧速率、步骤、引导强度、采样器、调度程序和种子。
+
+497
+00:37:21,065 --> 00:37:23,615
+Run once before adding custom nodes.
+添加自定义节点之前运行一次。
+
+498
+00:37:23,615 --> 00:37:28,445
+A baseline that completes is more valuable than an ambitious graph whose failure has ten possible causes.
+一个能顺利跑通的基线，比一个失败原因多达十种的复杂节点图更有价值。
+
+499
+00:37:28,445 --> 00:37:31,055
+Controlled batches turn generation into an experiment.
+受控批次将生成变成实验。
+
+500
+00:37:31,903 --> 00:37:36,423
+Decide what you are testing: camera strength, endpoint frame, guidance, motion reference, or prompt wording.
+决定您要测试的内容：相机强度、端点帧、引导、运动参考或提示词写法。
+
+501
+00:37:36,463 --> 00:37:38,743
+Hold the other important conditions stable.
+保持其他重要条件稳定。
+
+502
+00:37:38,883 --> 00:37:42,833
+Generate three to six candidates and write observations before choosing a favorite.
+产生三到六名候选人并在选择最喜欢的之前写下观察结果。
+
+503
+00:37:42,833 --> 00:37:48,163
+Changing model, seed, prompt, duration, and reference at once may create variety, but it creates almost no knowledge.
+立即改变模型、种子、提示、持续时间和参考可能会创造多样性，但它几乎不会创造知识。
+
+504
+00:37:48,263 --> 00:37:50,483
+Selection now becomes an editorial decision.
+选择现在成为编辑决定。
+
+505
+00:37:51,361 --> 00:37:54,401
+Review clips at full speed, frame by frame, and with neighbouring shots.
+全速、逐帧以及相邻镜头查看剪辑。
+
+506
+00:37:54,441 --> 00:37:56,501
+Mark the usable in and out points.
+token可用的进出点。
+
+507
+00:37:56,521 --> 00:38:02,541
+Judge whether the action completes, the identity holds, the eyeline matches, and there are enough frames for the cut.
+判断动作是否完成、身份是否成立、视线是否匹配、是否有足够的帧用于剪辑。
+
+508
+00:38:02,661 --> 00:38:06,041
+Log why a candidate was selected and keep one representative failure.
+记录候选人被选中的原因并保留一个有代表性的失败案例。
+
+509
+00:38:06,161 --> 00:38:09,561
+The rejected batch documents the model boundary and supports later critique.
+被拒绝的批次记录了模型边界并支持以后的批评。
+
+510
+00:38:09,681 --> 00:38:12,261
+Post-production restores control across the sequence.
+后期制作恢复了整个序列的控制。
+
+511
+00:38:13,095 --> 00:38:15,235
+Build the picture edit before spending time on repair.
+在花时间修复之前先进行画面剪辑。
+
+512
+00:38:15,475 --> 00:38:17,975
+Composite or inpaint only shots that survive.
+只对最终入选的镜头做合成或局部重绘。
+
+513
+00:38:18,075 --> 00:38:22,355
+Design dialogue, ambience, Foley, and music at sequence level.
+在序列级别设计对话、氛围、拟音和音乐。
+
+514
+00:38:22,655 --> 00:38:27,335
+Interpolate when motion needs it, upscale after editorial lock, then color and title the film.
+在动作需要时进行插值，在剪辑定版后进行升级，然后为影片着色和标题。
+
+515
+00:38:27,495 --> 00:38:34,215
+Recent filmmaking research describes AI as reconfiguring production roles and timing; it does not remove the need for editorial judgment.
+最近的电影制作研究将AI描述为重新配置制作角色和时间安排；它并不能消除编辑判断的需要。
+
+516
+00:38:34,355 --> 00:38:37,735
+The final gate is quality control and responsible release.
+最后一道关卡是质量控制和负责任的发布。
+
+517
+00:38:38,590 --> 00:38:44,650
+Watch once for story and feeling, once for continuity, once for audio synchronization, and once for technical artifacts.
+看一次是为了故事和感觉，一次是为了连续性，一次是为了音频同步，一次是为了技术伪影。
+
+518
+00:38:45,070 --> 00:38:47,430
+Confirm rights, consent, and credits.
+确认版权、授权同意与署名。
+
+519
+00:38:47,590 --> 00:38:52,790
+Record model names, versions, dates, prompts, references, important settings, edits, and disclosure language.
+记录模型名称、版本、日期、提示、参考、重要设置、编辑和披露说明。
+
+520
+00:38:53,170 --> 00:38:55,740
+Provenance is not paperwork added after creativity.
+来源记录不是创作完成后才补上的文书工作。
+
+521
+00:38:55,740 --> 00:38:59,710
+It is what lets collaborators understand and responsibly stand behind the work.
+它让合作者能够理解并负责任地支持工作。
+
+522
+00:38:59,830 --> 00:39:02,370
+We can now return to the quiz with a complete map.
+现在我们可以用完整的地图返回测验。
+
+523
+00:39:03,110 --> 00:39:05,890
+These are the five ideas the quiz asks you to explain.
+这是测验要求您解释的五个想法。
+
+524
+00:39:06,030 --> 00:39:14,290
+Notice that they also summarize the lecture: what makes a world, how a generator works, why video is difficult, how to experiment, and how to critique current claims.
+请注意，他们还总结了讲座：世界是什么、生成器如何工作、视频为何困难、如何实验以及如何评析当前观点。
+
+525
+00:39:14,330 --> 00:39:16,560
+Use your own example for each answer.
+每个答案都使用您自己的示例。
+
+526
+00:39:16,560 --> 00:39:20,610
+A specific case demonstrates understanding better than repeating the slide title.
+一个具体的案例比重复幻灯片标题更能说明理解。
+
+527
+00:39:20,670 --> 00:39:23,890
+One final production exercise turns the lecture into action.
+最后的制作练习将讲座转化为行动。
+
+528
+00:39:24,704 --> 00:39:25,964
+Work in pairs for a few minutes.
+两人一组练习几分钟。
+
+529
+00:39:25,964 --> 00:39:26,924
+Do not generate yet.
+还没有生成。
+
+530
+00:39:27,004 --> 00:39:33,584
+Write an eight-second shot with one meaningful change, a camera constraint, a reference role, two ordered beats, and one acceptance test.
+编写一个八秒的镜头，其中包含一个有意义的更改、一个摄影机限制、一个参考角色、两个有序节拍和一个验收测试。
+
+531
+00:39:33,684 --> 00:39:40,704
+Then choose whether text to video, image to video, first-last-frame, or reference-to-video gives the model the least unnecessary freedom.
+然后选择文本生成视频、图像生成视频、首末帧还是视频参考，为模型提供最少不必要的自由。
+
+532
+00:39:40,784 --> 00:39:44,284
+A good proposal might be visually modest but experimentally strong.
+一个好的提案可能在视觉上很朴素，但在实验上却很强大。
+
+533
+00:39:44,424 --> 00:39:47,024
+The goal is to make the first generation informative.
+目标是让第一次生成就能提供有效信息。
+
+534
+00:39:47,244 --> 00:39:49,504
+We finish by returning to the opening promise.
+最后我们回到开头的承诺。
+
+535
+00:39:50,339 --> 00:39:51,969
+A neural network learns transformations.
+神经网络学习变换。
+
+536
+00:39:51,969 --> 00:39:54,919
+C N Ns build local visual hierarchies.
+CNN 构建局部的视觉层级。
+
+537
+00:39:55,239 --> 00:39:57,009
+Transformers relate tokens globally.
+Transformer 在 token 之间建立全局关系。
+
+538
+00:39:57,009 --> 00:39:58,999
+V A E models compress media.
+VAE 模型压缩媒体表示。
+
+539
+00:39:59,119 --> 00:40:01,679
+Diffusion and flow learn generative paths.
+扩散和流动学习生成路径。
+
+540
+00:40:01,819 --> 00:40:05,259
+Video systems extend those ideas across time and modalities.
+视频系统将这些想法扩展到时间和模态上。
+
+541
+00:40:05,679 --> 00:40:07,859
+Filmmaking turns the resulting shots into meaning.
+电影制作将最终的镜头转化为意义。
+
+542
+00:40:08,179 --> 00:40:12,879
+Keep one habit from today: when an output surprises you, do not only ask whether you like it.
+从今天开始保持一个习惯：当一个输出让你惊讶时，不要只问你是否喜欢它。
+
+543
+00:40:12,939 --> 00:40:17,319
+Ask which decision produced it and what controlled comparison would teach you more.
+询问哪个决定产生了这个结果，以及哪些受控比较可以让你学到更多。
+
+544
+00:40:17,339 --> 00:40:20,439
+That is where technical literacy becomes creative agency.
+这正是技术素养转化为创作自主权的地方。

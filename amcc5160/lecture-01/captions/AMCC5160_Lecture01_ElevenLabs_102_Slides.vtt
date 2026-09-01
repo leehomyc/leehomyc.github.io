@@ -1,0 +1,2177 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:00.611
+Welcome.
+
+2
+00:00:00.611 --> 00:00:04.124
+Today I want to remove some of the magic without removing the wonder.
+
+3
+00:00:04.124 --> 00:00:13.443
+We will begin with a single artificial neuron, build up to convolution and transformers, then open current video systems and finally assemble a film workflow you can run and critique.
+
+4
+00:00:13.443 --> 00:00:16.701
+By the end, a model demo should no longer look like a black box.
+
+5
+00:00:16.701 --> 00:00:22.608
+You should be able to point to the representation, conditioning, sampling choice, and production decision behind it.
+
+6
+00:00:22.608 --> 00:00:25.663
+Let us start with the contract for how this class will work.
+
+7
+00:00:26.563 --> 00:00:29.006
+Model names will change faster than our semester.
+
+8
+00:00:29.006 --> 00:00:38.826
+The useful skill is learning how to ask stable questions: what is represented, what is predicted, what conditions the prediction, what remains consistent over time, and where human judgment enters.
+
+9
+00:00:38.826 --> 00:00:45.755
+If Seedance or Mini Max changes next month, those questions still let you diagnose the new system in minutes instead of starting from zero.
+
+10
+00:00:45.755 --> 00:00:49.394
+Before the technical journey, here is exactly how the course is assessed.
+
+11
+00:00:50.294 --> 00:00:53.251
+The lecture is deliberately paced as one idea per slide.
+
+12
+00:00:53.251 --> 00:00:55.152
+The first half builds the machinery.
+
+13
+00:00:55.152 --> 00:01:01.542
+The second half uses that machinery to read current systems and then convert model capability into a production pipeline.
+
+14
+00:01:01.542 --> 00:01:08.090
+Think of it like a camera department tour: we first learn the parts, then compare camera bodies, and finally plan the shoot.
+
+15
+00:01:08.090 --> 00:01:10.942
+A short assessment slide now prevents confusion later.
+
+16
+00:01:11.842 --> 00:01:13.752
+The course assessment has four parts.
+
+17
+00:01:13.752 --> 00:01:16.074
+Weekly presentations account for ten percent.
+
+18
+00:01:16.074 --> 00:01:18.036
+The Lecture 01 quiz is twenty percent.
+
+19
+00:01:18.036 --> 00:01:22.165
+The three assignments are fifteen percent each, for forty-five percent in total.
+
+20
+00:01:22.165 --> 00:01:24.539
+The final presentation is twenty-five percent.
+
+21
+00:01:24.539 --> 00:01:27.327
+Together, these components add to one hundred percent.
+
+22
+00:01:27.327 --> 00:01:35.430
+The balance rewards two kinds of learning: explaining technical work clearly and developing a sustained creative practice through projects and presentations.
+
+23
+00:01:35.430 --> 00:01:38.527
+The quiz focuses on the concepts that organize this lecture.
+
+24
+00:01:39.427 --> 00:01:42.560
+Quiz 01 contains five short responses worth four points each.
+
+25
+00:01:42.560 --> 00:01:47.184
+A strong answer defines the idea, explains why it matters, and gives one specific example.
+
+26
+00:01:47.184 --> 00:01:51.190
+The questions are designed to test understanding, not vocabulary memorization.
+
+27
+00:01:51.190 --> 00:02:01.721
+You will explain the difference between a world and a sequence of images, trace the four-stage generative map, discuss temporal consistency, design a controlled comparison, and critique one recent reading.
+
+28
+00:02:01.721 --> 00:02:06.344
+The assignment briefs will be announced separately, while the deadlines are already fixed.
+
+29
+00:02:07.244 --> 00:02:10.321
+The three project briefs will be announced separately.
+
+30
+00:02:10.321 --> 00:02:17.673
+Their deadlines are fixed: Assignment 1 is due September 30, Assignment 2 is due October 31, and Assignment 3 is due November 30.
+
+31
+00:02:17.673 --> 00:02:19.839
+Each deadline is 23:59 Hong Kong time.
+
+32
+00:02:19.839 --> 00:02:22.289
+Treat these dates as production milestones.
+
+33
+00:02:22.289 --> 00:02:28.045
+Reserve time for iteration, editing, and documentation instead of planning only for the final export.
+
+34
+00:02:28.045 --> 00:02:32.490
+With the course structure clear, we can begin with the central technical idea.
+
+35
+00:02:33.390 --> 00:02:37.098
+A video model does not store a shelf of finished films and retrieve one.
+
+36
+00:02:37.098 --> 00:02:45.029
+It learns statistical regularities in images, motion, language, and sound, then produces one trajectory that is compatible with the conditions we provide.
+
+37
+00:02:45.029 --> 00:02:52.497
+The practical consequence is important: directing AI video means controlling a process of change, not decorating a still image with motion words.
+
+38
+00:02:52.497 --> 00:02:55.896
+To understand that process, we need to start with learning itself.
+
+39
+00:02:56.796 --> 00:02:57.956
+Data supplies examples.
+
+40
+00:02:57.956 --> 00:03:01.535
+Representation decides what information becomes compact and comparable.
+
+41
+00:03:01.535 --> 00:03:04.257
+The model learns relationships in that representation.
+
+42
+00:03:04.257 --> 00:03:07.534
+Sampling turns a learned distribution into one particular output.
+
+43
+00:03:07.534 --> 00:03:11.769
+This four-stage map will reappear when we inspect Seedance, Mini Max, and Comfy U I.
+
+44
+00:03:11.769 --> 00:03:19.432
+When a face drifts, we can ask whether the cause is missing data, weak identity representation, insufficient temporal modeling, or an inference setting.
+
+45
+00:03:19.432 --> 00:03:21.902
+First: what does a neural network actually learn?
+
+46
+00:03:22.802 --> 00:03:25.797
+This section is intentionally basic, but not simplistic.
+
+47
+00:03:25.797 --> 00:03:29.916
+We will build enough detail that later architecture diagrams become readable.
+
+48
+00:03:29.916 --> 00:03:37.565
+You do not need to calculate gradients by hand; you do need to understand what information moves through the network and what training changes.
+
+49
+00:03:37.565 --> 00:03:44.197
+Once you see networks as transformations of representation, the leap from C N Ns to video transformers becomes much smaller.
+
+50
+00:03:44.197 --> 00:03:46.283
+Begin with the smallest trainable unit.
+
+51
+00:03:47.183 --> 00:03:52.604
+Artificial intelligence includes hand-written rules, search procedures, learned predictors, and generative systems.
+
+52
+00:03:52.604 --> 00:03:58.071
+Modern video models sit mainly in the last two categories: they learn from examples and then synthesize new samples.
+
+53
+00:03:58.071 --> 00:04:04.623
+A chess engine and a video diffusion model are both called AI, but they represent problems and produce answers in radically different ways.
+
+54
+00:04:04.623 --> 00:04:08.017
+Machine learning narrows the question to how behavior changes from data.
+
+55
+00:04:08.917 --> 00:04:11.335
+A supervised training step is simple to state.
+
+56
+00:04:11.335 --> 00:04:18.696
+Give the network an input, produce a prediction, compare it with a target using a loss, and adjust parameters so future predictions improve.
+
+57
+00:04:18.696 --> 00:04:23.743
+Generative training uses more elaborate targets, but the optimization loop remains recognizable.
+
+58
+00:04:23.743 --> 00:04:30.051
+For image classification the target may be ‘cat.’ For diffusion, the target may be the noise that was added to a latent.
+
+59
+00:04:30.051 --> 00:04:33.048
+The adjustable parameters live inside neurons and layers.
+
+60
+00:04:33.948 --> 00:04:40.683
+A neuron multiplies each input by a weight, adds the results and a bias, then passes the value through a nonlinear activation.
+
+61
+00:04:40.683 --> 00:04:43.356
+The weights express which input directions matter.
+
+62
+00:04:43.356 --> 00:04:48.114
+The nonlinearity lets stacked layers represent more than one large linear transformation.
+
+63
+00:04:48.114 --> 00:04:54.689
+A single neuron can act like a soft detector: is there enough evidence for a vertical edge, a smile, or a lighting pattern?
+
+64
+00:04:54.689 --> 00:04:57.736
+Real networks learn thousands of such detectors together.
+
+65
+00:04:57.736 --> 00:05:00.355
+Training is the process that tunes those weights.
+
+66
+00:05:01.255 --> 00:05:04.046
+During the forward pass, data moves through the network.
+
+67
+00:05:04.046 --> 00:05:06.089
+The loss turns performance into a scalar.
+
+68
+00:05:06.089 --> 00:05:10.675
+Backpropagation uses the chain rule to estimate how each parameter contributed to that loss.
+
+69
+00:05:10.675 --> 00:05:14.811
+An optimizer then nudges parameters in a direction expected to reduce future error.
+
+70
+00:05:14.811 --> 00:05:21.490
+No engineer specifies the exact edge filter in a modern network; the filter emerges because it helps reduce loss across many examples.
+
+71
+00:05:21.490 --> 00:05:24.829
+Stacking neurons creates representations of increasing abstraction.
+
+72
+00:05:25.729 --> 00:05:35.524
+The familiar story is that early visual layers respond to simple edges, middle layers combine them into textures or parts, and deeper layers respond to larger semantic patterns.
+
+73
+00:05:35.524 --> 00:05:39.398
+The hierarchy is not perfectly clean, but it is a useful mental model.
+
+74
+00:05:39.398 --> 00:05:43.271
+A face detector does not need a separate rule for every possible face.
+
+75
+00:05:43.271 --> 00:05:47.809
+It learns reusable intermediate features such as contours, eyes, and arrangements.
+
+76
+00:05:47.809 --> 00:05:50.742
+Convolution made this hierarchy practical for images.
+
+77
+00:05:51.642 --> 00:05:53.940
+An image is not an arbitrary list of numbers.
+
+78
+00:05:53.940 --> 00:05:59.559
+Neighbouring pixels are correlated, patterns repeat across locations, and the same object can appear anywhere.
+
+79
+00:05:59.559 --> 00:06:04.615
+A good architecture should exploit those regularities instead of relearning them at every position.
+
+80
+00:06:04.615 --> 00:06:09.007
+Convolution encodes that prior directly: look locally with the same filter everywhere.
+
+81
+00:06:09.007 --> 00:06:11.408
+Let us make the convolution operation tangible.
+
+82
+00:06:12.308 --> 00:06:14.428
+A small kernel slides across the image.
+
+83
+00:06:14.428 --> 00:06:17.744
+At each location it computes a weighted sum of nearby pixels.
+
+84
+00:06:17.744 --> 00:06:21.169
+The result is a feature map showing where that pattern appears.
+
+85
+00:06:21.169 --> 00:06:25.300
+During training, the kernel values are learned rather than designed by hand.
+
+86
+00:06:25.300 --> 00:06:27.692
+One filter may respond to vertical contrast.
+
+87
+00:06:27.692 --> 00:06:29.866
+Another may respond to a colored corner.
+
+88
+00:06:29.866 --> 00:06:33.182
+Deeper filters combine earlier maps into more complex motifs.
+
+89
+00:06:33.182 --> 00:06:35.139
+The key advantage is weight sharing.
+
+90
+00:06:36.039 --> 00:06:38.229
+Kernel size controls the local window.
+
+91
+00:06:38.229 --> 00:06:40.592
+Stride controls how far the filter moves.
+
+92
+00:06:40.592 --> 00:06:43.070
+Padding controls what happens near borders.
+
+93
+00:06:43.070 --> 00:06:47.910
+Channels let the filter combine information across RGB or intermediate feature maps.
+
+94
+00:06:47.910 --> 00:06:56.612
+A three-by-three kernel with stride one preserves fine local detail; larger strides reduce resolution and computation but may discard small structures.
+
+95
+00:06:56.612 --> 00:06:59.148
+These choices determine the receptive field.
+
+96
+00:07:00.048 --> 00:07:03.374
+After convolution, each output channel is a spatial map of activations.
+
+97
+00:07:03.374 --> 00:07:05.998
+It is useful to imagine a channel as a learned question.
+
+98
+00:07:05.998 --> 00:07:10.120
+The network asks that question at every location and records the strength of the answer.
+
+99
+00:07:10.120 --> 00:07:12.181
+Later layers do not see raw pixels directly.
+
+100
+00:07:12.181 --> 00:07:16.210
+They see stacks of these learned answers, which is why representation matters so much.
+
+101
+00:07:16.210 --> 00:07:19.349
+As layers stack, each activation sees a larger region of the image.
+
+102
+00:07:20.249 --> 00:07:24.543
+The receptive field is the portion of the input that can influence one activation.
+
+103
+00:07:24.543 --> 00:07:26.166
+Stacking convolutions grows it.
+
+104
+00:07:26.166 --> 00:07:31.140
+Early units see small patches; later units can integrate information across an object or scene.
+
+105
+00:07:31.140 --> 00:07:37.790
+A hand can be rendered sharply yet attach to the wrong arm if the model captures local texture better than long-range relation.
+
+106
+00:07:37.790 --> 00:07:41.036
+Downsampling expands context, but it also creates a trade-off.
+
+107
+00:07:41.936 --> 00:07:44.454
+Pooling or strided convolution reduces spatial size.
+
+108
+00:07:44.454 --> 00:07:47.796
+This makes deeper processing cheaper and increases effective context.
+
+109
+00:07:47.796 --> 00:07:53.269
+But information thrown away early is difficult to reconstruct later, especially text, fingers, and thin geometry.
+
+110
+00:07:53.269 --> 00:07:58.160
+Many generative systems therefore work at multiple scales or use skip connections to preserve detail.
+
+111
+00:07:58.160 --> 00:08:01.841
+Residual connections solve a different problem: training very deep networks.
+
+112
+00:08:02.741 --> 00:08:06.778
+A residual block adds its learned transformation back to the original input.
+
+113
+00:08:06.778 --> 00:08:12.303
+If the new transformation is temporarily unhelpful, the identity path still carries information forward.
+
+114
+00:08:12.303 --> 00:08:14.906
+This makes very deep networks easier to optimize.
+
+115
+00:08:14.906 --> 00:08:21.069
+The same idea appears throughout modern architectures: preserve a stable path, then learn a useful update around it.
+
+116
+00:08:21.069 --> 00:08:25.850
+C N Ns were transformative, but their local bias becomes awkward for global relationships.
+
+117
+00:08:26.750 --> 00:08:29.457
+C N Ns are excellent at exploiting locality and grids.
+
+118
+00:08:29.457 --> 00:08:37.127
+Their weakness is not that they cannot model global structure, but that global interaction is indirect and often requires many layers or special modules.
+
+119
+00:08:37.127 --> 00:08:40.987
+In video, a character may disappear behind a wall and reappear seconds later.
+
+120
+00:08:40.987 --> 00:08:44.947
+Local filters alone do not naturally express that long-range identity relation.
+
+121
+00:08:44.947 --> 00:08:47.955
+Sequence models approach the problem from another direction.
+
+122
+00:08:48.855 --> 00:08:58.771
+Attention begins with a provocative idea: instead of deciding in advance which neighbours matter, let each element compare itself with all relevant elements and construct a weighted mixture.
+
+123
+00:08:58.771 --> 00:09:04.147
+That flexible relation mechanism is why transformers moved from language into images, audio, and video.
+
+124
+00:09:04.147 --> 00:09:06.391
+We need one more abstraction first: tokens.
+
+125
+00:09:07.291 --> 00:09:09.289
+A token is a unit the model processes.
+
+126
+00:09:09.289 --> 00:09:11.288
+In language it may be a word fragment.
+
+127
+00:09:11.288 --> 00:09:13.286
+In vision it may be a patch embedding.
+
+128
+00:09:13.286 --> 00:09:16.810
+In video it may represent a compressed block across space and time.
+
+129
+00:09:16.810 --> 00:09:21.017
+Once converted to vectors, very different media can share transformer machinery.
+
+130
+00:09:21.017 --> 00:09:22.648
+The token is not the raw thing.
+
+131
+00:09:22.648 --> 00:09:27.065
+It is a learned representation designed to preserve information useful for the task.
+
+132
+00:09:27.065 --> 00:09:30.168
+Embeddings place those tokens in a continuous vector space.
+
+133
+00:09:31.068 --> 00:09:34.090
+An embedding maps a discrete or structured input into a vector.
+
+134
+00:09:34.090 --> 00:09:39.943
+The coordinates do not have simple names, but distances and directions can capture useful relationships learned from data.
+
+135
+00:09:39.943 --> 00:09:47.666
+A text prompt, a reference image, and an audio cue may enter through different encoders, yet all must eventually become representations the generator can relate.
+
+136
+00:09:47.666 --> 00:09:50.880
+Attention performs that relation through queries, keys, and values.
+
+137
+00:09:51.780 --> 00:09:54.083
+Each token produces a query, a key, and a value.
+
+138
+00:09:54.083 --> 00:09:56.483
+Query-key similarity determines attention weights.
+
+139
+00:09:56.483 --> 00:09:59.026
+The weighted sum of values becomes the updated token.
+
+140
+00:09:59.026 --> 00:10:03.441
+The square-root scaling prevents dot products from becoming so large that softmax saturates.
+
+141
+00:10:03.441 --> 00:10:09.440
+For a red scarf across frames, the current token can attend to earlier tokens that carry the scarf’s identity and appearance.
+
+142
+00:10:09.440 --> 00:10:12.799
+Multiple heads let the model learn several relationship types at once.
+
+143
+00:10:13.699 --> 00:10:18.310
+Instead of one attention map, multi-head attention projects tokens into several subspaces.
+
+144
+00:10:18.310 --> 00:10:23.228
+One head may emphasize local appearance, another long-distance identity, another temporal order.
+
+145
+00:10:23.228 --> 00:10:25.226
+The outputs are concatenated and mixed.
+
+146
+00:10:25.226 --> 00:10:32.500
+Heads are not guaranteed to align with neat human concepts, but the parallel structure expands the kinds of relations one layer can represent.
+
+147
+00:10:32.500 --> 00:10:36.855
+The transformer block wraps attention with normalization, an MLP, and residual paths.
+
+148
+00:10:37.755 --> 00:10:42.006
+The original transformer used an encoder and decoder, each built from repeated blocks.
+
+149
+00:10:42.006 --> 00:10:51.595
+Modern vision and diffusion systems modify this structure, but the recurring pattern remains: mix information across tokens, transform each token with an MLP, and preserve stable residual paths.
+
+150
+00:10:51.595 --> 00:10:55.994
+The architecture diagram looks complicated until you recognize those repeated operations.
+
+151
+00:10:55.994 --> 00:10:58.960
+A sequence still needs information about order and position.
+
+152
+00:10:59.860 --> 00:11:06.152
+Because attention compares a set of vectors, it needs extra structure to distinguish left from right or earlier from later.
+
+153
+00:11:06.152 --> 00:11:08.095
+Position encodings inject coordinates.
+
+154
+00:11:08.095 --> 00:11:13.824
+Rotary position embedding, or RoPE, rotates query and key components so relative position influences similarity.
+
+155
+00:11:13.824 --> 00:11:17.456
+In video, useful position may have three axes: time, height, and width.
+
+156
+00:11:17.456 --> 00:11:21.753
+Mini Max H three and Hunyuan Video explicitly describe spatiotemporal RoPE variants.
+
+157
+00:11:21.753 --> 00:11:24.873
+Vision Transformers apply the sequence idea to image patches.
+
+158
+00:11:25.773 --> 00:11:35.301
+A Vision Transformer cuts an image into patches, flattens or projects each patch into a token, adds position information, and processes the sequence with transformer blocks.
+
+159
+00:11:35.301 --> 00:11:39.651
+It replaces much of the C N N’s local bias with data-driven global interaction.
+
+160
+00:11:39.651 --> 00:11:45.269
+The price is token count: smaller patches preserve detail but create longer, more expensive sequences.
+
+161
+00:11:45.269 --> 00:11:49.950
+Diffusion Transformers use related blocks to predict how noisy latents should change.
+
+162
+00:11:50.850 --> 00:12:00.837
+diffusion transformer patchifies a noisy latent, adds timestep and conditioning information, processes the tokens through transformer blocks, and reconstructs a prediction in latent space.
+
+163
+00:12:00.837 --> 00:12:06.202
+The paper showed that increasing transformer compute correlated with better image generation quality.
+
+164
+00:12:06.202 --> 00:12:12.523
+This architecture scales naturally to long token sequences, which helped make it a foundation for modern video systems.
+
+165
+00:12:12.523 --> 00:12:16.560
+Before diffusion, we need to understand why models generate in latent space.
+
+166
+00:12:17.460 --> 00:12:20.145
+Raw video contains an enormous number of values.
+
+167
+00:12:20.145 --> 00:12:27.135
+A practical generator usually compresses frames into latents, performs expensive modeling there, and decodes only at the end.
+
+168
+00:12:27.135 --> 00:12:29.373
+The compression is not just engineering.
+
+169
+00:12:29.373 --> 00:12:33.623
+It defines which differences the model can preserve, ignore, or reconstruct.
+
+170
+00:12:33.623 --> 00:12:35.972
+An autoencoder provides the basic pattern.
+
+171
+00:12:36.872 --> 00:12:40.282
+The encoder maps an input to a smaller latent representation.
+
+172
+00:12:40.282 --> 00:12:43.413
+The decoder reconstructs the input from that bottleneck.
+
+173
+00:12:43.413 --> 00:12:49.003
+Training rewards faithful reconstruction, so the latent must preserve information the decoder needs.
+
+174
+00:12:49.003 --> 00:12:53.195
+If the bottleneck is too narrow, small text and identity details disappear.
+
+175
+00:12:53.195 --> 00:12:57.109
+If it is too wide, the later generative model faces a costly sequence.
+
+176
+00:12:57.109 --> 00:13:00.910
+A variational autoencoder adds structure to the latent distribution.
+
+177
+00:13:01.810 --> 00:13:06.735
+A V A E predicts parameters of a latent distribution rather than a single deterministic code.
+
+178
+00:13:06.735 --> 00:13:10.018
+A regularization term encourages nearby, sampleable structure.
+
+179
+00:13:10.018 --> 00:13:15.207
+This makes the latent space more suitable for generation, though reconstruction can become softer.
+
+180
+00:13:15.207 --> 00:13:23.521
+In modern video systems, the term V A E often refers broadly to a learned compressor-decoder, even when architectural details differ from the original V A E.
+
+181
+00:13:23.521 --> 00:13:27.334
+Latent diffusion moves the denoising process into this compressed space.
+
+182
+00:13:28.234 --> 00:13:31.982
+Latent diffusion reduces the spatial size before running the generative model.
+
+183
+00:13:31.982 --> 00:13:36.930
+This lowers memory and compute while retaining enough perceptual information for high-quality decoding.
+
+184
+00:13:36.930 --> 00:13:39.333
+Text or other conditions guide the denoising path.
+
+185
+00:13:39.333 --> 00:13:44.473
+The idea is central to video: without spatial and temporal compression, token sequences become prohibitive.
+
+186
+00:13:44.473 --> 00:13:47.164
+Diffusion itself begins by deliberately corrupting data.
+
+187
+00:13:48.064 --> 00:13:51.629
+The forward process gradually adds Gaussian noise according to a schedule.
+
+188
+00:13:51.629 --> 00:13:58.758
+During training, we can jump directly to a chosen noise level, ask the network to predict the added noise or a related target, and compute an error.
+
+189
+00:13:58.758 --> 00:14:04.683
+The network sees examples ranging from almost clean to almost pure noise, learning useful directions across the whole path.
+
+190
+00:14:04.683 --> 00:14:06.947
+Generation runs the learned process in reverse.
+
+191
+00:14:07.847 --> 00:14:14.082
+At inference, a sampler starts with random noise and repeatedly applies the model’s prediction according to a numerical schedule.
+
+192
+00:14:14.082 --> 00:14:18.190
+Each step moves the latent toward a sample compatible with training and conditioning.
+
+193
+00:14:18.190 --> 00:14:24.811
+This is why seeds matter: the initial noise chooses a starting point, but the prompt, references, guidance, and scheduler shape the path.
+
+194
+00:14:24.811 --> 00:14:27.566
+The training target can be parameterized in several ways.
+
+195
+00:14:28.466 --> 00:14:32.959
+A diffusion model may predict noise, the clean sample, or a velocity-like combination.
+
+196
+00:14:32.959 --> 00:14:39.437
+These parameterizations affect optimization and numerical behavior, even when they describe related generative trajectories.
+
+197
+00:14:39.437 --> 00:14:44.975
+Product interfaces hide this choice, while open workflows may expose model type and scheduler assumptions.
+
+198
+00:14:44.975 --> 00:14:47.849
+A mismatch can produce poor contrast, color, or motion.
+
+199
+00:14:47.849 --> 00:14:51.297
+Sampling quality also depends on how many steps we take and where.
+
+200
+00:14:52.197 --> 00:14:55.389
+A sampler is a numerical method for following the reverse process.
+
+201
+00:14:55.389 --> 00:14:57.808
+The schedule allocates effort across noise levels.
+
+202
+00:14:57.808 --> 00:15:03.371
+Distilled models may work in very few steps because training has compressed a longer trajectory into a shorter one.
+
+203
+00:15:03.371 --> 00:15:06.418
+Do not assume more steps always improve a distilled checkpoint.
+
+204
+00:15:06.418 --> 00:15:09.901
+Follow the model’s recommended regime, then test one variable at a time.
+
+205
+00:15:09.901 --> 00:15:12.706
+Conditioning steers which solution the trajectory reaches.
+
+206
+00:15:13.606 --> 00:15:19.268
+Classifier-free guidance compares a conditional and an unconditional prediction, then amplifies the difference.
+
+207
+00:15:19.268 --> 00:15:25.032
+Stronger guidance can improve prompt adherence but may reduce diversity or create oversaturated, brittle results.
+
+208
+00:15:25.032 --> 00:15:31.357
+In video, excessive guidance can also harm motion because every frame is forced too aggressively toward static textual cues.
+
+209
+00:15:31.357 --> 00:15:34.672
+Flow matching offers another view of the same generative journey.
+
+210
+00:15:35.572 --> 00:15:41.747
+Flow matching trains a vector field that transports samples from a simple distribution toward the data distribution.
+
+211
+00:15:41.747 --> 00:15:44.674
+At inference, an ODE solver follows that learned field.
+
+212
+00:15:44.674 --> 00:15:48.081
+Rectified-flow variants aim for straighter, easier trajectories.
+
+213
+00:15:48.081 --> 00:15:53.883
+Many current models use flow-style objectives while keeping transformer backbones and latent representations.
+
+214
+00:15:53.883 --> 00:15:58.887
+The labels change, but representation, conditioning, and numerical integration remain central.
+
+215
+00:15:58.887 --> 00:16:01.282
+Now extend those ideas from images into time.
+
+216
+00:16:02.182 --> 00:16:04.430
+Video is not an image with more frames.
+
+217
+00:16:04.430 --> 00:16:10.712
+The model must preserve identity, geometry, lighting, and world state while also producing meaningful change.
+
+218
+00:16:10.712 --> 00:16:15.150
+It must decide what moves, when it moves, and how one event affects the next.
+
+219
+00:16:15.150 --> 00:16:19.876
+This is the technical reason a beautiful first frame can still become a weak shot.
+
+220
+00:16:19.876 --> 00:16:22.412
+Start by counting what a raw video contains.
+
+221
+00:16:23.312 --> 00:16:26.758
+A video can be represented as a T-by-H-by-W-by-C tensor.
+
+222
+00:16:26.758 --> 00:16:28.788
+Doubling duration doubles values.
+
+223
+00:16:28.788 --> 00:16:31.803
+Doubling both spatial dimensions quadruples them.
+
+224
+00:16:31.803 --> 00:16:38.756
+Attention over all raw locations would grow even faster because pairwise interaction is quadratic in token count.
+
+225
+00:16:38.756 --> 00:16:43.556
+A ten-second 24-fps clip already contains 240 frames before audio is included.
+
+226
+00:16:43.556 --> 00:16:48.232
+Compression is therefore a design requirement, not an optional optimization.
+
+227
+00:16:49.132 --> 00:16:53.303
+A video V A E compresses height and width and often reduces the time axis as well.
+
+228
+00:16:53.303 --> 00:16:58.694
+Causal designs ensure a latent does not depend on future frames in ways that break streaming or extension.
+
+229
+00:16:58.694 --> 00:17:05.714
+Mini Max H three reports sixteen-times spatial and four-times temporal V A E compression before an additional spatial patchification step.
+
+230
+00:17:05.714 --> 00:17:08.155
+The resulting latent blocks become video tokens.
+
+231
+00:17:09.055 --> 00:17:11.758
+Patchification groups latent values into tokens.
+
+232
+00:17:11.758 --> 00:17:14.236
+Each token carries content plus coordinates.
+
+233
+00:17:14.236 --> 00:17:18.573
+The transformer then models relationships across space, time, and conditions.
+
+234
+00:17:18.573 --> 00:17:22.121
+Larger patches reduce cost but risk losing fine motion or text.
+
+235
+00:17:22.121 --> 00:17:26.176
+Smaller patches preserve detail but increase sequence length and memory.
+
+236
+00:17:26.176 --> 00:17:30.400
+Temporal attention determines how broadly tokens communicate across frames.
+
+237
+00:17:31.300 --> 00:17:37.824
+Full spatiotemporal attention provides maximum flexibility but becomes expensive as duration and resolution grow.
+
+238
+00:17:37.824 --> 00:17:44.926
+Sparse, sliding, factorized, or block attention limits which tokens interact, trading some flexibility for practical scale.
+
+239
+00:17:44.926 --> 00:17:55.723
+Hunyuan Video 1.5 uses selective and sliding tile attention; Mini Max H three describes native sparse-attention support, although its first open release uses full attention for inference.
+
+240
+00:17:55.723 --> 00:18:00.400
+Longer context is useful only if the representation preserves identity and state.
+
+241
+00:18:01.300 --> 00:18:04.481
+A multimodal generator has a finite context and compute budget.
+
+242
+00:18:04.481 --> 00:18:10.541
+More reference files, higher resolution, longer duration, and native audio increase the sequence or conditioning burden.
+
+243
+00:18:10.541 --> 00:18:20.540
+The practical question is not ‘how many references can I upload?’ but ‘which references provide non-redundant control?’ A clear hero image and motion reference may outperform twelve ambiguous files.
+
+244
+00:18:20.540 --> 00:18:22.459
+That leads to multimodal conditioning.
+
+245
+00:18:23.359 --> 00:18:25.484
+Text-to-video invents nearly everything.
+
+246
+00:18:25.484 --> 00:18:27.291
+Image-to-video anchors appearance.
+
+247
+00:18:27.291 --> 00:18:30.001
+First-and-last-frame workflows constrain endpoints.
+
+248
+00:18:30.001 --> 00:18:33.508
+Reference-to-video can transfer identity, style, motion, or sound.
+
+249
+00:18:33.508 --> 00:18:38.130
+Editing workflows preserve more of an existing clip while changing selected attributes.
+
+250
+00:18:38.130 --> 00:18:40.947
+Choose the task with the least unnecessary invention.
+
+251
+00:18:40.947 --> 00:18:44.400
+If identity already exists, do not ask text alone to recreate it.
+
+252
+00:18:44.400 --> 00:18:48.651
+Audio is becoming a condition and an output rather than a separate afterthought.
+
+253
+00:18:49.551 --> 00:18:53.478
+Native audio-video models predict related visual and audio latents.
+
+254
+00:18:53.478 --> 00:19:04.496
+Synchronization is not one problem: lip motion may require frame-level alignment, footsteps need event timing, ambience needs scene consistency, and music operates across longer structure.
+
+255
+00:19:04.496 --> 00:19:08.657
+A clip can have excellent sound quality and poor audiovisual causality.
+
+256
+00:19:08.657 --> 00:19:10.826
+Evaluate both fidelity and alignment.
+
+257
+00:19:10.826 --> 00:19:14.518
+Before training, the system needs usable data and descriptions.
+
+258
+00:19:15.418 --> 00:19:21.583
+Video training data contains duplicates, cuts, overlays, watermarks, weak motion, missing audio, and uncertain rights.
+
+259
+00:19:21.583 --> 00:19:24.195
+Curation filters and scores clips before training.
+
+260
+00:19:24.195 --> 00:19:28.740
+The selection criteria silently define which kinds of worlds become easy for the model.
+
+261
+00:19:28.740 --> 00:19:35.689
+A dataset dominated by polished advertising will make glossy product shots easier than under-documented local performance traditions.
+
+262
+00:19:35.689 --> 00:19:38.667
+Captions turn raw clips into controllable training pairs.
+
+263
+00:19:39.567 --> 00:19:48.301
+A weak caption says ‘a person outside.’ A production-grade caption can describe subject, action, shot size, camera movement, lighting, sound, and temporal order.
+
+264
+00:19:48.301 --> 00:19:52.369
+Some systems train caption models and refiners specifically for video data.
+
+265
+00:19:52.369 --> 00:19:59.529
+Hunyuan Video 1.5 describes a post-training pipeline that improves bilingual and glyph-aware descriptions before generator training.
+
+266
+00:19:59.529 --> 00:20:03.001
+Pretraining creates capability; post-training shapes usefulness.
+
+267
+00:20:03.901 --> 00:20:10.645
+After large-scale pretraining, teams refine instruction following, aesthetic preference, motion quality, safety, and speed.
+
+268
+00:20:10.645 --> 00:20:15.688
+Seedance 1.0 reports supervised fine-tuning and video R L H F with multidimensional rewards.
+
+269
+00:20:15.688 --> 00:20:18.485
+Distillation compresses inference into fewer steps.
+
+270
+00:20:18.485 --> 00:20:26.325
+The product you use is therefore not only an architecture; it is an architecture plus data, post-training, safety policy, and inference system.
+
+271
+00:20:26.325 --> 00:20:28.682
+Evaluation tries to separate those effects.
+
+272
+00:20:29.582 --> 00:20:33.264
+Benchmarks combine automated metrics, multimodal judges, and human ratings.
+
+273
+00:20:33.264 --> 00:20:34.295
+Each has blind spots.
+
+274
+00:20:34.295 --> 00:20:39.548
+A model may score well on average yet fail the exact identity, camera, or causal requirement of your scene.
+
+275
+00:20:39.548 --> 00:20:49.269
+For production, add task-specific acceptance tests: does the hand complete the action, does the logo remain readable, does the sound occur at contact, and is the usable interval long enough to edit?
+
+276
+00:20:49.269 --> 00:20:51.577
+A failure vocabulary makes those tests precise.
+
+277
+00:20:52.477 --> 00:20:55.039
+Semantic failures change what the scene means.
+
+278
+00:20:55.039 --> 00:20:57.489
+Spatial failures break geometry and contact.
+
+279
+00:20:57.489 --> 00:20:59.439
+Temporal failures flicker or drift.
+
+280
+00:20:59.439 --> 00:21:02.000
+Physical failures violate motion or causality.
+
+281
+00:21:02.000 --> 00:21:04.618
+Identity failures change a subject across time.
+
+282
+00:21:04.618 --> 00:21:09.574
+Aesthetic failure can overlay all five when the result contradicts the intended language.
+
+283
+00:21:09.574 --> 00:21:12.192
+‘Bad consistency’ is too vague to choose a fix.
+
+284
+00:21:12.192 --> 00:21:17.483
+‘Identity changes after occlusion’ suggests a reference, duration, or shot-design intervention.
+
+285
+00:21:17.483 --> 00:21:20.880
+Now place these mechanisms in the current research landscape.
+
+286
+00:21:21.780 --> 00:21:33.537
+The 2026 survey frames the field as an evolution from adversarial learning to diffusion and autoregressive approaches, with current systems converging toward unified multimodal foundation models.
+
+287
+00:21:33.537 --> 00:21:37.817
+The categories are not clean product boxes; many systems combine ideas.
+
+288
+00:21:37.817 --> 00:21:45.052
+The useful reading is architectural: what probability path is learned, how media is tokenized, and how conditions enter.
+
+289
+00:21:45.052 --> 00:21:48.187
+A taxonomy shows the major branches more concretely.
+
+290
+00:21:49.087 --> 00:21:53.508
+The survey maps modern video generation across GAN, diffusion, and autoregressive branches.
+
+291
+00:21:53.508 --> 00:22:00.891
+The dominant frontier currently uses diffusion or flow with transformer backbones, while token-based autoregressive and hybrid systems continue to grow.
+
+292
+00:22:00.891 --> 00:22:02.932
+Do not read the diagram as a winner board.
+
+293
+00:22:02.932 --> 00:22:07.790
+Read it as a menu of trade-offs in likelihood, sequence length, sampling speed, and controllability.
+
+294
+00:22:07.790 --> 00:22:10.850
+The timeline reveals how quickly the capability frontier moved.
+
+295
+00:22:11.750 --> 00:22:14.436
+The survey’s timeline shows the problem changing.
+
+296
+00:22:14.436 --> 00:22:16.738
+Early systems competed on coherent motion.
+
+297
+00:22:16.738 --> 00:22:23.591
+Later work emphasized stability and control, then physical grounding, multimodal integration, and longer narrative structure.
+
+298
+00:22:23.591 --> 00:22:30.662
+That shift explains why current releases foreground references, editing, sound, and story continuity rather than only resolution.
+
+299
+00:22:30.662 --> 00:22:34.116
+A compact comparison will help us choose models for production.
+
+300
+00:22:35.016 --> 00:22:39.647
+Marketing comparisons often mix resolution, duration, task, and human preference.
+
+301
+00:22:39.647 --> 00:22:50.910
+A more technical comparison asks how media is compressed, which network predicts latents, what conditions are supported, what the output contains, and whether the system is open, hosted, or hybrid.
+
+302
+00:22:50.910 --> 00:22:59.600
+This framework lets us compare Seedance, Mini Max H three, Wan, and Hunyuan without pretending their published evaluations are directly interchangeable.
+
+303
+00:22:59.600 --> 00:23:01.887
+We begin with ByteDance’s Seedance line.
+
+304
+00:23:02.787 --> 00:23:06.662
+Seedance is best understood as a sequence of system-level changes.
+
+305
+00:23:06.662 --> 00:23:09.715
+Version 1.0 established a scalable video foundation.
+
+306
+00:23:09.715 --> 00:23:12.768
+Version 1.5 Pro added native audio-video generation.
+
+307
+00:23:12.768 --> 00:23:15.704
+Version 2.0 unified multimodal inputs and editing.
+
+308
+00:23:15.704 --> 00:23:18.639
+Version 2.5 extends duration and one-take control.
+
+309
+00:23:18.639 --> 00:23:24.100
+Because 2.5 is proprietary, we must separate reported capability from disclosed architecture.
+
+310
+00:23:24.100 --> 00:23:26.918
+Start with what the 1.0 report actually reveals.
+
+311
+00:23:27.818 --> 00:23:31.085
+The 1.0 report emphasizes that architecture alone was not enough.
+
+312
+00:23:31.085 --> 00:23:34.704
+Multi-source curation and precise video captioning improved supervision.
+
+313
+00:23:34.704 --> 00:23:37.268
+One model handled text-to-video and image-to-video.
+
+314
+00:23:37.268 --> 00:23:42.847
+Post-training used multidimensional reward signals, and engineering plus distillation targeted practical speed.
+
+315
+00:23:42.847 --> 00:23:48.477
+The report gives a useful production lesson: quality emerges from the whole pipeline, not from one clever block.
+
+316
+00:23:48.477 --> 00:23:51.995
+Its native multi-shot ability anticipates later storytelling features.
+
+317
+00:23:52.895 --> 00:23:56.213
+Multi-shot generation means more than producing several pretty clips.
+
+318
+00:23:56.213 --> 00:24:00.636
+The system must preserve entities and setting while allowing viewpoint and action to change.
+
+319
+00:24:00.636 --> 00:24:05.589
+That requires modeling relations across shot boundaries rather than only smooth motion within one shot.
+
+320
+00:24:05.589 --> 00:24:11.214
+A close-up should feel like the same event as the establishing shot, not a new sample that happens to share keywords.
+
+321
+00:24:11.214 --> 00:24:14.147
+Seedance 1.5 Pro added a second difficult axis: native sound.
+
+322
+00:24:15.047 --> 00:24:19.427
+The 1.5 Pro report presents a native audio-visual joint generation foundation model.
+
+323
+00:24:19.427 --> 00:24:26.206
+Joint generation lets visual events and sound influence a shared process instead of relying entirely on post-hoc audio generation.
+
+324
+00:24:26.206 --> 00:24:33.245
+For filmmaking, this can accelerate previs and dialogue experiments, but native sound is not a reason to skip deliberate sound editing.
+
+325
+00:24:33.245 --> 00:24:36.113
+Seedance two point zero expands the input side as well.
+
+326
+00:24:37.013 --> 00:24:43.441
+Seedance two point zero accepts text, images, audio, and video as multimodal context and supports generation plus editing.
+
+327
+00:24:43.441 --> 00:24:50.397
+The technical report describes a unified, large-scale architecture but does not publish enough block-level detail to reconstruct it.
+
+328
+00:24:50.397 --> 00:24:52.136
+That disclosure boundary matters.
+
+329
+00:24:52.136 --> 00:24:59.302
+We can discuss supported modalities and evaluations confidently, while treating internal tokenization and transformer design as unknown.
+
+330
+00:24:59.302 --> 00:25:02.305
+The system exposes three especially useful task families.
+
+331
+00:25:03.205 --> 00:25:06.589
+Text-to-video is appropriate for ideation and broad exploration.
+
+332
+00:25:06.589 --> 00:25:10.237
+Image-to-video is better when composition or identity already exists.
+
+333
+00:25:10.237 --> 00:25:15.735
+Reference-to-video can combine images, clips, and audio to specify appearance, motion, rhythm, or voice.
+
+334
+00:25:15.735 --> 00:25:20.335
+The best mode is often the one that removes degrees of freedom the story does not need.
+
+335
+00:25:20.335 --> 00:25:23.296
+Reference capacity is not the same as reference clarity.
+
+336
+00:25:24.196 --> 00:25:26.747
+A clean reference stack gives each file a role.
+
+337
+00:25:26.747 --> 00:25:34.509
+One image anchors character identity, another defines environment, a short video specifies motion, and audio establishes performance or rhythm.
+
+338
+00:25:34.509 --> 00:25:38.309
+Redundant or contradictory references make the control problem harder.
+
+339
+00:25:38.309 --> 00:25:41.240
+Write the role next to every file before uploading it.
+
+340
+00:25:41.240 --> 00:25:43.736
+If you cannot say what it controls, remove it.
+
+341
+00:25:43.736 --> 00:25:48.513
+Seedance two point zero reports direct audio-video generation over short shot durations.
+
+342
+00:25:49.413 --> 00:25:55.549
+The Seedance two point zero evaluation separates audio quality, audio prompt following, and audio-visual synchronization.
+
+343
+00:25:55.549 --> 00:25:57.323
+That is the right conceptual split.
+
+344
+00:25:57.323 --> 00:26:02.698
+A beautiful soundtrack can still be wrong if it ignores events or changes the scene’s emotional direction.
+
+345
+00:26:02.698 --> 00:26:08.226
+For a glass landing on a table, the impact sound should align with contact and reflect the material and room.
+
+346
+00:26:08.226 --> 00:26:11.268
+Multi-shot and longer-form control are where 2.5 moves next.
+
+347
+00:26:12.168 --> 00:26:21.301
+ByteDance describes 2.5 as inheriting the unified multimodal audio-video architecture of 2.0 while improving long-form storytelling, flexible references, and editing.
+
+348
+00:26:21.301 --> 00:26:25.153
+A single generation can reach thirty seconds, with further extensions.
+
+349
+00:26:25.153 --> 00:26:28.564
+That duration is useful only when the shot has internal beats.
+
+350
+00:26:28.564 --> 00:26:34.561
+‘Thirty seconds of cinematic motion’ is weaker than a timed sequence of setup, action, reaction, and release.
+
+351
+00:26:34.561 --> 00:26:37.367
+Prompting should therefore resemble shot direction.
+
+352
+00:26:38.267 --> 00:26:44.799
+A strong prompt names the starting state, camera behavior, ordered action, environmental consequence, and sound.
+
+353
+00:26:44.799 --> 00:26:48.356
+Separate fixed constraints from events that change over time.
+
+354
+00:26:48.356 --> 00:26:59.320
+For example: locked 35mm medium shot; courier enters frame, pauses at the door, hears a distant alarm, turns toward camera; red emergency light sweeps once; room tone and one metal impact.
+
+355
+00:26:59.320 --> 00:27:02.119
+Use one generation to test one shot proposition.
+
+356
+00:27:03.019 --> 00:27:11.984
+Seedance is valuable when a team needs to explore an event with multiple reference types, preview audio-video timing, or create a longer shot with internal development.
+
+357
+00:27:11.984 --> 00:27:16.894
+It is not a replacement for editing, coverage, or continuity management across a whole film.
+
+358
+00:27:16.894 --> 00:27:22.497
+Treat each output as rushes: inspect, trim, compare, and decide whether it earns a place in the sequence.
+
+359
+00:27:22.497 --> 00:27:25.432
+The technical unknowns also require disciplined claims.
+
+360
+00:27:26.332 --> 00:27:30.193
+The reports support claims about modalities, tasks, duration, and evaluation.
+
+361
+00:27:30.193 --> 00:27:35.408
+They do not fully reveal the 2.5 backbone, parameter count, token packing, or training data composition.
+
+362
+00:27:35.408 --> 00:27:39.420
+Saying ‘probably a diffusion transformer’ is an inference, not a disclosed fact.
+
+363
+00:27:39.420 --> 00:27:42.278
+Technical literacy includes knowing where evidence stops.
+
+364
+00:27:42.278 --> 00:27:44.935
+That makes critique more credible, not less exciting.
+
+365
+00:27:44.935 --> 00:27:49.348
+Mini Max H three gives us a contrasting case with unusually detailed open documentation.
+
+366
+00:27:50.248 --> 00:27:53.906
+We now turn to H three, Mini Max’s open audio-video foundation model.
+
+367
+00:27:53.906 --> 00:28:07.847
+H three is important because the release describes a complete multimodal generation system rather than only a product interface: structured context, a large omni-modal transformer, separate visual and audio latent spaces, and a high-resolution regeneration stage.
+
+368
+00:28:07.847 --> 00:28:17.124
+The architecture gives us enough detail to connect familiar ideas—encoders, patchification, attention, latent compression, and conditioning—to a contemporary production model.
+
+369
+00:28:17.124 --> 00:28:21.577
+Begin with the system-level path from the user’s material to the final two K result.
+
+370
+00:28:22.477 --> 00:28:27.155
+H three-Context I R turns free-form multimodal inputs into a structured intermediate representation.
+
+371
+00:28:27.155 --> 00:28:30.664
+H three-Base generates synchronized audio and video at seven sixty-eight P.
+
+372
+00:28:30.664 --> 00:28:36.278
+H three-Regenerate-two K feeds the result and original context back into the model for a higher-resolution regeneration.
+
+373
+00:28:36.278 --> 00:28:39.272
+Notice that two K is not described as ordinary super-resolution.
+
+374
+00:28:39.272 --> 00:28:42.313
+The system reuses semantic context while generating detail again.
+
+375
+00:28:42.313 --> 00:28:45.354
+Context I R is essential, but it is not part of the open weights.
+
+376
+00:28:46.254 --> 00:28:51.017
+Context I R reasons about how text, images, video, and audio relate to the intended output.
+
+377
+00:28:51.017 --> 00:28:56.513
+Mini Max says the hosted system may supplement underspecified details without changing the user’s intent.
+
+378
+00:28:56.513 --> 00:29:00.544
+It distills large source material into a much smaller context representation.
+
+379
+00:29:00.544 --> 00:29:08.081
+This explains why copying only the final text prompt may fail to reproduce a hosted result: the hidden orchestration step is part of the system.
+
+380
+00:29:08.081 --> 00:29:10.803
+H three-Base then encodes each modality differently.
+
+381
+00:29:11.703 --> 00:29:18.420
+The H three encoder uses full pretrained Qwen3-VL-32B weights and passes hidden states from layer fifty to the generator.
+
+382
+00:29:18.420 --> 00:29:22.971
+Visual inputs also go through the VisualVAE, while audio uses a separate AudioVAE.
+
+383
+00:29:22.971 --> 00:29:27.468
+One representation carries semantic context; another preserves generative detail.
+
+384
+00:29:27.468 --> 00:29:30.077
+This dual role is common in multimodal systems.
+
+385
+00:29:30.077 --> 00:29:32.630
+The visual compressor is unusually aggressive.
+
+386
+00:29:33.530 --> 00:29:40.792
+H three-VisualVAE is temporally causal with a spatial compression factor of sixteen, temporal factor of four, and twenty-four latent channels.
+
+387
+00:29:40.792 --> 00:29:45.701
+A one-by-two-by-two patchification further halves each spatial dimension before the transformer.
+
+388
+00:29:45.701 --> 00:29:53.934
+That creates an effective thirty-two-times spatial downsampling at the token level, dramatically reducing sequence length while demanding a very capable decoder.
+
+389
+00:29:53.934 --> 00:29:56.082
+Audio follows a separate compression path.
+
+390
+00:29:56.982 --> 00:30:05.316
+H three-AudioVAE uses the same encoder and decoder parameters for left and right channels while processing them independently, then recombines them as stereo.
+
+391
+00:30:05.316 --> 00:30:09.061
+Each channel’s 32-kilohertz audio becomes latent tokens at forty hertz.
+
+392
+00:30:09.061 --> 00:30:15.128
+The generator therefore predicts audio and video latents with very different natural token rates inside one system.
+
+393
+00:30:15.128 --> 00:30:18.187
+Those tokens are packed into a single multimodal sequence.
+
+394
+00:30:19.087 --> 00:30:28.726
+H three organizes encoded modalities into one packed sequence, adds rotary position information for spatial and temporal relationships, and passes the result to a single-stream transformer.
+
+395
+00:30:28.726 --> 00:30:31.685
+The transformer jointly predicts visual and audio latents.
+
+396
+00:30:31.685 --> 00:30:38.825
+Modality-specific structures are concentrated at input, output, and adaptive normalization branches rather than separate attention networks.
+
+397
+00:30:38.825 --> 00:30:41.732
+The core transformer is large but architecturally simple.
+
+398
+00:30:42.632 --> 00:30:45.856
+Mini Max reports a thirty-three-billion-parameter dense transformer.
+
+399
+00:30:45.856 --> 00:30:55.337
+Roughly thirteen billion parameters belong to adaptive layer-normalization branches whose outputs can be precomputed and cached, so inference-only deployments do not need to load them in the same way.
+
+400
+00:30:55.337 --> 00:30:58.181
+The attention and feed-forward layers are modality-agnostic.
+
+401
+00:30:58.181 --> 00:31:01.832
+That simplicity is intended to support many tasks without separate backbones.
+
+402
+00:31:01.832 --> 00:31:04.534
+Two released checkpoints specialize the input conditions.
+
+403
+00:31:05.434 --> 00:31:10.588
+The FL2VA checkpoint supports text-only generation and first/last-frame-conditioned audio-video generation.
+
+404
+00:31:10.588 --> 00:31:14.971
+Endpoint frames are powerful when the narrative requires a defined entrance and exit state.
+
+405
+00:31:14.971 --> 00:31:22.919
+The model still invents the path between endpoints, so choose frames that are physically and compositionally compatible rather than forcing an impossible transition.
+
+406
+00:31:22.919 --> 00:31:25.664
+The Ref2VA checkpoint accepts a richer reference package.
+
+407
+00:31:26.564 --> 00:31:30.197
+Ref2VA accepts multimodal references within a twelve-file total.
+
+408
+00:31:30.197 --> 00:31:37.917
+Images can anchor characters or style, videos can supply motion or camera language, and audio can define voice, rhythm, or event timing.
+
+409
+00:31:37.917 --> 00:31:39.791
+Again, the limit is not a target.
+
+410
+00:31:39.791 --> 00:31:44.899
+A smaller set with explicit roles reduces ambiguity and makes failures easier to diagnose.
+
+411
+00:31:44.899 --> 00:31:48.419
+The final two K stage regenerates rather than merely enlarges.
+
+412
+00:31:49.319 --> 00:31:55.121
+Conventional super-resolution mainly predicts missing high-frequency detail from a low-resolution image or video.
+
+413
+00:31:55.121 --> 00:32:03.593
+H three-Regenerate-two K conditions on both the seven sixty-eight P result and the original multimodal context, allowing text and references to reassert fine detail.
+
+414
+00:32:03.593 --> 00:32:08.163
+That can improve typography and brand elements, but regeneration may also change content.
+
+415
+00:32:08.163 --> 00:32:11.141
+High resolution therefore needs another continuity review.
+
+416
+00:32:11.141 --> 00:32:13.914
+Open deployment brings a different constraint: memory.
+
+417
+00:32:14.814 --> 00:32:21.952
+The open release provides BF16 checkpoints for FL2VA and Ref2VA, with support paths through SGLang, vLLM, Diffusers, and Comfy U I.
+
+418
+00:32:21.952 --> 00:32:27.347
+Sparse attention is described as native, but the first released inference path uses full attention.
+
+419
+00:32:27.347 --> 00:32:34.812
+A realistic class workflow may use hosted generation or cloud nodes while using Comfy U I to make the pipeline explicit and reproducible.
+
+420
+00:32:34.812 --> 00:32:38.899
+Now compare the systems without pretending they publish identical evidence.
+
+421
+00:32:39.799 --> 00:32:44.324
+Seedance emphasizes polished multimodal creation and longer one-take workflows.
+
+422
+00:32:44.324 --> 00:32:47.532
+H three exposes a detailed open omni-modal architecture.
+
+423
+00:32:47.532 --> 00:32:51.198
+Wan offers a broad open ecosystem with strong Comfy U I support.
+
+424
+00:32:51.198 --> 00:32:57.958
+Hunyuan Video 1.5 targets efficient consumer-grade inference with an 8.3B model and a cascaded super-resolution stage.
+
+425
+00:32:57.958 --> 00:33:04.832
+The right model is the one whose controllable task matches the shot and whose deployment constraints fit the production.
+
+426
+00:33:04.832 --> 00:33:08.899
+We can now turn architecture knowledge into a repeatable film workflow.
+
+427
+00:33:09.799 --> 00:33:13.447
+Current models are shot engines, reference engines, and editing engines.
+
+428
+00:33:13.447 --> 00:33:18.971
+A film still requires dramatic structure, coverage, continuity, selection, sound, rhythm, and responsibility.
+
+429
+00:33:18.971 --> 00:33:23.936
+The workflow becomes reliable when each stage produces an inspectable artifact for the next stage.
+
+430
+00:33:23.936 --> 00:33:25.710
+Begin before prompts, with a brief.
+
+431
+00:33:26.610 --> 00:33:28.087
+The brief defines purpose.
+
+432
+00:33:28.087 --> 00:33:29.961
+The world bible fixes continuity.
+
+433
+00:33:29.961 --> 00:33:32.289
+The animatic tests sequence and duration.
+
+434
+00:33:32.289 --> 00:33:34.959
+Shot generation produces controlled candidates.
+
+435
+00:33:34.959 --> 00:33:39.332
+Post-production creates rhythm, sound, repair, color, titles, and disclosure.
+
+436
+00:33:39.332 --> 00:33:42.228
+Do not move forward because a stage feels exciting.
+
+437
+00:33:42.228 --> 00:33:46.829
+Move forward because its artifact answers the decisions needed by the next stage.
+
+438
+00:33:46.829 --> 00:33:48.419
+Gate one is a dramatic unit.
+
+439
+00:33:49.319 --> 00:33:51.340
+A useful brief can fit in four sentences.
+
+440
+00:33:51.340 --> 00:33:54.841
+Name the agent, goal, change, stakes, and intended audience experience.
+
+441
+00:33:54.841 --> 00:33:59.968
+Avoid beginning with visual adjectives, because style cannot rescue an event with no dramatic direction.
+
+442
+00:33:59.968 --> 00:34:05.095
+‘A courier must deliver one memory before the city deletes her identity’ creates action and consequence.
+
+443
+00:34:05.095 --> 00:34:07.758
+‘Cinematic cyberpunk woman’ mainly creates decoration.
+
+444
+00:34:07.758 --> 00:34:10.617
+The world bible turns that brief into stable visual rules.
+
+445
+00:34:11.517 --> 00:34:14.433
+The bible should identify invariants and allowed variation.
+
+446
+00:34:14.433 --> 00:34:18.338
+Character silhouette and coat color may be fixed while fabric texture can vary.
+
+447
+00:34:18.338 --> 00:34:21.155
+The room geometry may be fixed while light state changes.
+
+448
+00:34:21.155 --> 00:34:23.874
+The camera may remain observational rather than heroic.
+
+449
+00:34:23.874 --> 00:34:27.729
+Reference images are evidence for these rules, not a random inspiration board.
+
+450
+00:34:27.729 --> 00:34:29.657
+Next convert story beats into coverage.
+
+451
+00:34:30.557 --> 00:34:32.464
+Write the shot list before generation.
+
+452
+00:34:32.464 --> 00:34:40.193
+A shot should answer why it exists in the edit, how long it needs to be, what the camera does, which action completes, and what must match adjacent shots.
+
+453
+00:34:40.193 --> 00:34:44.258
+A five-second reaction shot may need stable eyeline more than spectacular motion.
+
+454
+00:34:44.258 --> 00:34:47.169
+That acceptance criterion changes the generation strategy.
+
+455
+00:34:47.169 --> 00:34:50.833
+Storyboard and animatic expose sequence problems while changes are cheap.
+
+456
+00:34:51.733 --> 00:34:54.839
+Storyboard frames establish spatial relations and continuity.
+
+457
+00:34:54.839 --> 00:34:58.098
+The animatic adds approximate timing, temporary sound, and cuts.
+
+458
+00:34:58.098 --> 00:35:03.292
+It is acceptable for these materials to be rough; their job is to reveal missing geography and rhythm.
+
+459
+00:35:03.292 --> 00:35:10.980
+If the audience cannot understand the action in grey boxes and temporary audio, higher-fidelity video will probably hide rather than solve the problem.
+
+460
+00:35:10.980 --> 00:35:13.170
+Now choose a generation mode for each shot.
+
+461
+00:35:14.070 --> 00:35:15.581
+Choose task mode shot by shot.
+
+462
+00:35:15.581 --> 00:35:18.200
+Text-to-video is useful when invention is desirable.
+
+463
+00:35:18.200 --> 00:35:20.315
+Image-to-video preserves a designed frame.
+
+464
+00:35:20.315 --> 00:35:22.128
+First-last-frame controls endpoints.
+
+465
+00:35:22.128 --> 00:35:24.394
+Reference generation anchors reusable assets.
+
+466
+00:35:24.394 --> 00:35:27.214
+Video-to-video or editing preserves blocking and timing.
+
+467
+00:35:27.214 --> 00:35:32.149
+The less you need the model to invent, the more controllable and reproducible the shot can become.
+
+468
+00:35:32.149 --> 00:35:35.322
+Reference preparation is therefore a technical production task.
+
+469
+00:35:36.222 --> 00:35:43.469
+Prepare references at sensible resolution, remove irrelevant borders or overlays, verify rights and consent, and label what each file controls.
+
+470
+00:35:43.469 --> 00:35:47.017
+Check for conflicts in age, costume, lighting, viewpoint, or movement.
+
+471
+00:35:47.017 --> 00:35:52.896
+A reference sheet with a one-line role under each asset is more useful than an unlabeled folder of beautiful images.
+
+472
+00:35:52.896 --> 00:35:55.430
+Then write the shot instruction as a timed system.
+
+473
+00:35:56.330 --> 00:36:01.182
+Begin with what must remain fixed: subject, environment, lens, lighting, and style constraints.
+
+474
+00:36:01.182 --> 00:36:03.787
+Then state ordered events with simple timing words.
+
+475
+00:36:03.787 --> 00:36:08.077
+End with negative or exclusion constraints only when they address observed failures.
+
+476
+00:36:08.077 --> 00:36:09.456
+Prompts should be testable.
+
+477
+00:36:09.456 --> 00:36:13.593
+If the clip fails, you need to know which clause controlled the missing behavior.
+
+478
+00:36:13.593 --> 00:36:16.096
+Comfy U I makes this pipeline visible as a graph.
+
+479
+00:36:16.996 --> 00:36:20.326
+Comfy U I represents the generation pipeline as connected nodes.
+
+480
+00:36:20.326 --> 00:36:27.768
+The graph makes hidden dependencies explicit: checkpoint, text encoder, V A E, conditioning, latent dimensions, sampler, scheduler, and output.
+
+481
+00:36:27.768 --> 00:36:30.890
+Workflow JSON also becomes a reproducible production record.
+
+482
+00:36:30.890 --> 00:36:39.424
+The official Wan two point two templates are useful teaching examples because text-to-video, image-to-video, and first-last-frame workflows differ in visible nodes.
+
+483
+00:36:39.424 --> 00:36:41.870
+Read the graph from inputs toward media output.
+
+484
+00:36:42.770 --> 00:36:44.933
+The loader selects weights and precision.
+
+485
+00:36:44.933 --> 00:36:47.994
+The text encoder converts language into condition vectors.
+
+486
+00:36:47.994 --> 00:36:50.316
+Image or frame nodes add visual constraints.
+
+487
+00:36:50.316 --> 00:36:52.901
+The sampler integrates the generative trajectory.
+
+488
+00:36:52.901 --> 00:36:54.906
+The V A E decodes latents into frames.
+
+489
+00:36:54.906 --> 00:36:57.861
+Video combine nodes set frame rate and container output.
+
+490
+00:36:57.861 --> 00:37:00.394
+If composition is ignored, inspect conditioning.
+
+491
+00:37:00.394 --> 00:37:04.246
+If detail shimmers after good latents, inspect decode or post-processing.
+
+492
+00:37:04.246 --> 00:37:08.573
+If motion is chaotic, inspect model, duration, guidance, and endpoint constraints.
+
+493
+00:37:08.573 --> 00:37:10.895
+Now set a controlled baseline before tuning.
+
+494
+00:37:11.795 --> 00:37:14.866
+Start from an official template and recommended model settings.
+
+495
+00:37:14.866 --> 00:37:17.694
+Choose a modest resolution and duration that fit hardware.
+
+496
+00:37:17.694 --> 00:37:21.497
+Record frame count, frame rate, steps, guidance, sampler, scheduler, and seed.
+
+497
+00:37:21.497 --> 00:37:23.252
+Run once before adding custom nodes.
+
+498
+00:37:23.252 --> 00:37:28.370
+A baseline that completes is more valuable than an ambitious graph whose failure has ten possible causes.
+
+499
+00:37:28.370 --> 00:37:31.003
+Controlled batches turn generation into an experiment.
+
+500
+00:37:31.903 --> 00:37:36.977
+Decide what you are testing: camera strength, endpoint frame, guidance, motion reference, or prompt wording.
+
+501
+00:37:36.977 --> 00:37:38.997
+Hold the other important conditions stable.
+
+502
+00:37:38.997 --> 00:37:42.897
+Generate three to six candidates and write observations before choosing a favorite.
+
+503
+00:37:42.897 --> 00:37:48.394
+Changing model, seed, prompt, duration, and reference at once may create variety, but it creates almost no knowledge.
+
+504
+00:37:48.394 --> 00:37:50.461
+Selection now becomes an editorial decision.
+
+505
+00:37:51.361 --> 00:37:54.924
+Review clips at full speed, frame by frame, and with neighbouring shots.
+
+506
+00:37:54.924 --> 00:37:56.607
+Mark the usable in and out points.
+
+507
+00:37:56.607 --> 00:38:02.397
+Judge whether the action completes, the identity holds, the eyeline matches, and there are enough frames for the cut.
+
+508
+00:38:02.397 --> 00:38:05.811
+Log why a candidate was selected and keep one representative failure.
+
+509
+00:38:05.811 --> 00:38:09.572
+The rejected batch documents the model boundary and supports later critique.
+
+510
+00:38:09.572 --> 00:38:12.195
+Post-production restores control across the sequence.
+
+511
+00:38:13.095 --> 00:38:16.046
+Build the picture edit before spending time on repair.
+
+512
+00:38:16.046 --> 00:38:18.506
+Composite or inpaint only shots that survive.
+
+513
+00:38:18.506 --> 00:38:21.895
+Design dialogue, ambience, Foley, and music at sequence level.
+
+514
+00:38:21.895 --> 00:38:27.032
+Interpolate when motion needs it, upscale after editorial lock, then color and title the film.
+
+515
+00:38:27.032 --> 00:38:34.520
+Recent filmmaking research describes AI as reconfiguring production roles and timing; it does not remove the need for editorial judgment.
+
+516
+00:38:34.520 --> 00:38:37.690
+The final gate is quality control and responsible release.
+
+517
+00:38:38.590 --> 00:38:44.945
+Watch once for story and feeling, once for continuity, once for audio synchronization, and once for technical artifacts.
+
+518
+00:38:44.945 --> 00:38:46.905
+Confirm rights, consent, and credits.
+
+519
+00:38:46.905 --> 00:38:52.677
+Record model names, versions, dates, prompts, references, important settings, edits, and disclosure language.
+
+520
+00:38:52.677 --> 00:38:55.378
+Provenance is not paperwork added after creativity.
+
+521
+00:38:55.378 --> 00:38:59.562
+It is what lets collaborators understand and responsibly stand behind the work.
+
+522
+00:38:59.562 --> 00:39:02.210
+We can now return to the quiz with a complete map.
+
+523
+00:39:03.110 --> 00:39:05.918
+These are the five ideas the quiz asks you to explain.
+
+524
+00:39:05.918 --> 00:39:14.549
+Notice that they also summarize the lecture: what makes a world, how a generator works, why video is difficult, how to experiment, and how to critique current claims.
+
+525
+00:39:14.549 --> 00:39:16.473
+Use your own example for each answer.
+
+526
+00:39:16.473 --> 00:39:20.684
+A specific case demonstrates understanding better than repeating the slide title.
+
+527
+00:39:20.684 --> 00:39:23.804
+One final production exercise turns the lecture into action.
+
+528
+00:39:24.704 --> 00:39:26.313
+Work in pairs for a few minutes.
+
+529
+00:39:26.313 --> 00:39:27.318
+Do not generate yet.
+
+530
+00:39:27.318 --> 00:39:34.206
+Write an eight-second shot with one meaningful change, a camera constraint, a reference role, two ordered beats, and one acceptance test.
+
+531
+00:39:34.206 --> 00:39:41.093
+Then choose whether text to video, image to video, first-last-frame, or reference-to-video gives the model the least unnecessary freedom.
+
+532
+00:39:41.093 --> 00:39:44.462
+A good proposal might be visually modest but experimentally strong.
+
+533
+00:39:44.462 --> 00:39:47.126
+The goal is to make the first generation informative.
+
+534
+00:39:47.126 --> 00:39:49.439
+We finish by returning to the opening promise.
+
+535
+00:39:50.339 --> 00:39:52.625
+A neural network learns transformations.
+
+536
+00:39:52.625 --> 00:39:54.797
+C N Ns build local visual hierarchies.
+
+537
+00:39:54.797 --> 00:39:56.855
+Transformers relate tokens globally.
+
+538
+00:39:56.855 --> 00:39:58.455
+V A E models compress media.
+
+539
+00:39:58.455 --> 00:40:00.856
+Diffusion and flow learn generative paths.
+
+540
+00:40:00.856 --> 00:40:04.285
+Video systems extend those ideas across time and modalities.
+
+541
+00:40:04.285 --> 00:40:07.143
+Filmmaking turns the resulting shots into meaning.
+
+542
+00:40:07.143 --> 00:40:12.459
+Keep one habit from today: when an output surprises you, do not only ask whether you like it.
+
+543
+00:40:12.459 --> 00:40:17.203
+Ask which decision produced it and what controlled comparison would teach you more.
+
+544
+00:40:17.203 --> 00:40:20.461
+That is where technical literacy becomes creative agency.
