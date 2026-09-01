@@ -17,8 +17,8 @@
 
   function setInitialPlaybackRate() {
     if (!lectureVideo) return;
-    lectureVideo.defaultPlaybackRate = .9;
-    lectureVideo.playbackRate = .9;
+    lectureVideo.defaultPlaybackRate = 1;
+    lectureVideo.playbackRate = 1;
   }
 
   function showDefaultCaptions() {
