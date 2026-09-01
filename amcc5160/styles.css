@@ -291,12 +291,21 @@ button, input, textarea { font: inherit; }
 .week-resources small { color: var(--blue); font-size: 11px; }
 .week-resources .resource-primary { color: #fff; border-color: transparent; background: linear-gradient(135deg,#0d69bd,#6958dd); box-shadow: 0 12px 26px rgba(60,74,194,.2); }
 .week-resources .resource-primary strong, .week-resources .resource-primary small { color: #fff; }
-.week-reading { grid-column: 2; display: grid; grid-template-columns: 1.2fr repeat(3,1fr); gap: 1px; margin-top: 12px; overflow: hidden; border: 1px solid var(--line); border-radius: 20px; background: var(--line); }
-.week-reading > div,.week-reading > a { min-height: 132px; padding: 20px; background: #fff; }
-.week-reading > div { display: flex; justify-content: space-between; flex-direction: column; background: linear-gradient(145deg,#ecf4ff,#f5efff); }
-.week-reading > div span { color: #654bd0; font-size: 10px; font-weight: 750; text-transform: uppercase; }.week-reading > div strong { font-size: 16px; line-height: 1.15; letter-spacing: -.02em; }
-.week-reading > a { display: flex; flex-direction: column; transition: background .2s ease; }.week-reading > a:hover { background: #f7faff; }
-.week-reading small,.week-reading b,.week-reading em { display: block; }.week-reading small { color: #6e5cff; font-size: 9px; font-weight: 700; text-transform: uppercase; }.week-reading b { margin: 12px 0; font-size: 13px; line-height: 1.25; }.week-reading em { margin-top: auto; color: var(--blue); font-size: 10px; font-style: normal; }
+.week-reading { grid-column: 2; display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 12px; margin-top: 24px; }
+.week-reading > div { grid-column: 1 / -1; display: grid; grid-template-columns: .7fr 1.3fr; gap: 28px; align-items: end; padding: 0 2px 16px; border-bottom: 1px solid var(--line); }
+.week-reading > div span { color: #654bd0; font-size: 10px; font-weight: 750; letter-spacing: .04em; text-transform: uppercase; }
+.week-reading > div strong { max-width: 560px; font-size: 22px; line-height: 1.08; letter-spacing: -.035em; }
+.week-reading > a { min-height: 176px; display: flex; flex-direction: column; padding: 22px; overflow: hidden; border: 1px solid rgba(29,29,31,.09); border-radius: 20px; background: #fff; box-shadow: 0 12px 28px rgba(29,29,31,.045); transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease; }
+.week-reading > a:nth-of-type(1) { background: linear-gradient(145deg,#edf5ff,#f6f1ff); }
+.week-reading > a:nth-of-type(2) { color: #fff; background: linear-gradient(145deg,#16161d,#282334); }
+.week-reading > a:nth-of-type(3) { background: linear-gradient(145deg,#f1f6ec,#faf6ec); }
+.week-reading > a:hover { transform: translateY(-3px); border-color: rgba(101,75,208,.28); box-shadow: 0 18px 38px rgba(45,42,80,.11); }
+.week-reading small,.week-reading b,.week-reading em { display: block; }
+.week-reading small { color: #6e5cff; font-size: 9px; font-weight: 750; letter-spacing: .04em; text-transform: uppercase; }
+.week-reading > a:nth-of-type(2) small { color: #9dccff; }
+.week-reading b { margin: 20px 0; font-size: 17px; line-height: 1.18; letter-spacing: -.025em; }
+.week-reading em { margin-top: auto; color: var(--blue); font-size: 11px; font-style: normal; font-weight: 650; }
+.week-reading > a:nth-of-type(2) em { color: #9dccff; }
 .week-quiz-cta { grid-column: 2; display: grid; grid-template-columns: .8fr 1.4fr auto; align-items: center; gap: 24px; margin-top: 12px; padding: 22px 24px; border-radius: 20px; color: #fff; background: linear-gradient(110deg,#172d5c,#674bc9 62%,#b63f9d); box-shadow: 0 16px 38px rgba(68,60,174,.2); transition: transform .2s ease, box-shadow .2s ease; }
 .week-quiz-cta:hover { transform: translateY(-2px); box-shadow: 0 20px 44px rgba(68,60,174,.28); }
 .week-quiz-cta span { color: #c8d7ff; font-size: 11px; font-weight: 700; }
@@ -344,7 +353,8 @@ footer > p { margin: 10px 0 64px; color: #86868b; }
   .deadline-strip > p { grid-column: 1 / -1; min-height: 110px; }
   .deadline-strip article:nth-of-type(3) { border-top: 1px solid var(--line); }
   .current-week .week-resources { grid-template-columns: 1fr 1fr; }
-  .week-reading { grid-template-columns: 1fr 1fr; }
+  .week-reading { grid-template-columns: 1fr; }
+  .week-reading > div { grid-column: 1; grid-template-columns: 1fr; gap: 9px; }
   .week-quiz-cta { grid-template-columns: 1fr; gap: 8px; }
   .team-section { grid-template-columns: 1fr; }
 }
