@@ -22,6 +22,7 @@
     <section id="dashboard" hidden>
       <div class="dashboard-head"><div><p class="eyebrow">AMCC 5160 · Live overview</p><h1>Course dashboard.</h1><p id="last-updated">Loading current records…</p></div><div class="live-pill"><i></i> Live · refreshes every 30s</div></div>
       <section class="metrics" aria-label="Course summary">
+        <article><span>Students</span><strong id="metric-students">0</strong><small>unique students</small></article>
         <article><span>Weekly</span><strong id="metric-weekly">0</strong><small>of 50 slots reserved</small></article>
         <article><span>Quiz 01</span><strong id="metric-quiz">0</strong><small>submissions</small></article>
         <article><span>Final</span><strong id="metric-final">0</strong><small>of 50 slots reserved</small></article>
@@ -29,12 +30,14 @@
       </section>
 
       <nav class="tabs" aria-label="Dashboard sections">
-        <button class="active" data-panel="weekly" type="button">Weekly presentations <span id="count-weekly">0</span></button>
+        <button class="active" data-panel="students" type="button">Students <span id="count-students">0</span></button>
+        <button data-panel="weekly" type="button">Weekly presentations <span id="count-weekly">0</span></button>
         <button data-panel="quiz" type="button">Quiz 01 <span id="count-quiz">0</span></button>
         <button data-panel="final" type="button">Final presentations <span id="count-final">0</span></button>
       </nav>
 
-      <section id="panel-weekly" class="panel"><div class="panel-head"><div><p class="eyebrow">10% of course grade</p><h2>Weekly presentations</h2></div><button class="export" data-export="weekly" type="button">Export CSV</button></div><div id="weekly-list" class="records"></div></section>
+      <section id="panel-students" class="panel"><div class="panel-head student-panel-head"><div><p class="eyebrow">Private class directory</p><h2>All students</h2><p>Full names and IDs are visible only in this instructor dashboard.</p></div><div class="student-tools"><label>Search students<input id="student-search" type="search" autocomplete="off" placeholder="Name or student ID"></label><button class="export" data-export="students" type="button">Export CSV</button></div></div><div class="student-table-wrap"><table class="student-table"><thead><tr><th>Student</th><th>Student ID</th><th>Course activity</th><th>Last activity</th></tr></thead><tbody id="student-list"></tbody></table></div><div id="student-empty" class="empty" hidden>No students found.</div></section>
+      <section id="panel-weekly" class="panel" hidden><div class="panel-head"><div><p class="eyebrow">10% of course grade</p><h2>Weekly presentations</h2></div><button class="export" data-export="weekly" type="button">Export CSV</button></div><div id="weekly-list" class="records"></div></section>
       <section id="panel-quiz" class="panel" hidden><div class="panel-head"><div><p class="eyebrow">20% of course grade</p><h2>Quiz 01 submissions</h2></div><button class="export" data-export="quiz" type="button">Export CSV</button></div><div id="quiz-list" class="records"></div></section>
       <section id="panel-final" class="panel" hidden><div class="panel-head"><div><p class="eyebrow">25% of course grade</p><h2>Final presentations</h2></div><button class="export" data-export="final" type="button">Export CSV</button></div><div id="final-list" class="records"></div></section>
       <p id="dashboard-status" class="status" role="status"></p>

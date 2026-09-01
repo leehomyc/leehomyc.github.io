@@ -9,10 +9,14 @@
   ];
   let adminCode = '';
   let records = { signups: [], quizzes: [] };
+  let students = [];
+  let studentFilter = '';
   let refreshTimer;
   const $ = selector => document.querySelector(selector);
   const escapeHtml = value => String(value == null ? '' : value).replace(/[&<>'"]/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' })[char]);
-  const person = item => `${item.familyName} · •••• ${item.idLastFour}`;
+  const studentName = item => item.name || item.fullName || item.familyName || 'Name unavailable';
+  const studentId = item => item.studentId || (item.idLastFour ? `•••• ${item.idLastFour}` : 'ID unavailable');
+  const person = item => `${studentName(item)} · ${studentId(item)}`;
 
   async function request(payload) {
     if (!endpoint) throw new Error('The course service is not configured.');
@@ -41,11 +45,49 @@
     const finals = records.signups.filter(item => item.type === 'final');
     const quizzes = records.quizzes;
     const graded = [...records.signups, ...quizzes].filter(item => item.score !== null && item.score !== '').length;
+    students = buildStudents([...records.signups, ...quizzes]);
     [['weekly', weekly.length], ['quiz', quizzes.length], ['final', finals.length]].forEach(([key, value]) => { $(`#metric-${key}`).textContent = value; $(`#count-${key}`).textContent = value; });
+    $('#metric-students').textContent = students.length;
+    $('#count-students').textContent = students.length;
     $('#metric-graded').textContent = graded;
+    renderStudents();
     renderPresentation('#weekly-list', weekly, 10);
     renderQuiz('#quiz-list', quizzes);
     renderPresentation('#final-list', finals, 25);
+  }
+
+  function buildStudents(items) {
+    const directory = new Map();
+    items.forEach(item => {
+      const rawId = item.studentId || '';
+      const key = rawId ? `id:${rawId.replace(/\s+/g, '').toLowerCase()}` : `legacy:${String(item.familyName || '').toLowerCase()}:${item.idLastFour || ''}`;
+      const entry = directory.get(key) || { name: studentName(item), studentId: studentId(item), weekly: [], finals: [], quizzes: [], lastActivity: '' };
+      if (item.name || item.fullName) entry.name = studentName(item);
+      if (rawId) entry.studentId = rawId;
+      if (item.type === 'weekly') entry.weekly.push(item.slotId);
+      else if (item.type === 'final') entry.finals.push(item.slotId);
+      else if (item.quizId) entry.quizzes.push(item.week || item.quizId);
+      const activityAt = item.updatedAt || item.submittedAt || '';
+      if (activityAt > entry.lastActivity) entry.lastActivity = activityAt;
+      directory.set(key, entry);
+    });
+    return [...directory.values()].sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' }));
+  }
+
+  function studentActivity(item) {
+    const labels = [];
+    if (item.weekly.length) labels.push(`${item.weekly.length} weekly`);
+    if (item.quizzes.length) labels.push(`${item.quizzes.length} quiz`);
+    if (item.finals.length) labels.push(`${item.finals.length} final`);
+    return labels.length ? labels : ['No activity'];
+  }
+
+  function renderStudents() {
+    const query = studentFilter.trim().toLowerCase();
+    const visible = students.filter(item => !query || `${item.name} ${item.studentId}`.toLowerCase().includes(query));
+    $('#student-list').innerHTML = visible.map(item => `<tr><td data-label="Student"><strong>${escapeHtml(item.name)}</strong></td><td data-label="Student ID"><code>${escapeHtml(item.studentId)}</code></td><td data-label="Course activity"><div class="activity-tags">${studentActivity(item).map(label => `<span>${escapeHtml(label)}</span>`).join('')}</div></td><td data-label="Last activity">${item.lastActivity ? escapeHtml(new Date(item.lastActivity).toLocaleString()) : '—'}</td></tr>`).join('');
+    $('#student-empty').hidden = visible.length > 0;
+    $('.student-table-wrap').hidden = visible.length === 0;
   }
 
   function renderPresentation(selector, items, maxScore) {
@@ -75,9 +117,11 @@
   function csvValue(value) { return `"${String(value == null ? '' : value).replaceAll('"', '""')}"`; }
   function exportCsv(type) {
     const items = type === 'quiz' ? records.quizzes : records.signups.filter(item => item.type === type);
-    const rows = type === 'quiz'
-      ? [['Week','Family name','ID last four',...questions.map((_, i) => `Answer ${i + 1}`),'Score / 20','Feedback'], ...items.map(i => [i.week,i.familyName,i.idLastFour,...i.answers,i.score,i.feedback])]
-      : [['Slot','Family name','ID last four','Topic',`Score / ${type === 'final' ? 25 : 10}`,'Feedback'], ...items.map(i => [i.slotId,i.familyName,i.idLastFour,i.topic,i.score,i.feedback])];
+    const rows = type === 'students'
+      ? [['Student name','Student ID','Weekly slots','Quiz weeks','Final slots','Last activity'], ...students.map(i => [i.name,i.studentId,i.weekly.join('; '),i.quizzes.join('; '),i.finals.join('; '),i.lastActivity])]
+      : type === 'quiz'
+        ? [['Week','Student name','Student ID',...questions.map((_, i) => `Answer ${i + 1}`),'Score / 20','Feedback'], ...items.map(i => [i.week,studentName(i),studentId(i),...i.answers,i.score,i.feedback])]
+        : [['Slot','Student name','Student ID','Topic',`Score / ${type === 'final' ? 25 : 10}`,'Feedback'], ...items.map(i => [i.slotId,studentName(i),studentId(i),i.topic,i.score,i.feedback])];
     const blob = new Blob([rows.map(row => row.map(csvValue).join(',')).join('\n')], { type: 'text/csv;charset=utf-8' });
     const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = `amcc5160-${type}.csv`; link.click(); URL.revokeObjectURL(link.href);
   }
@@ -90,6 +134,7 @@
   document.addEventListener('submit', event => { if (event.target.matches('.record-grade')) { event.preventDefault(); saveGrade(event.target); } });
   $('.tabs').addEventListener('click', event => { const button = event.target.closest('button[data-panel]'); if (!button) return; document.querySelectorAll('.tabs button').forEach(item => item.classList.toggle('active', item === button)); document.querySelectorAll('.panel').forEach(panel => { panel.hidden = panel.id !== `panel-${button.dataset.panel}`; }); });
   document.addEventListener('click', event => { const button = event.target.closest('[data-export]'); if (button) exportCsv(button.dataset.export); });
+  $('#student-search').addEventListener('input', event => { studentFilter = event.target.value; renderStudents(); });
   $('#refresh').addEventListener('click', () => load(true));
   window.addEventListener('beforeunload', () => clearInterval(refreshTimer));
 })();
