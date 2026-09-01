@@ -303,39 +303,6 @@ button, input, textarea { font: inherit; }
 .week-quiz-cta strong { font-size: 16px; letter-spacing: -.02em; }
 .week-quiz-cta em { color: #fff; font-size: 12px; font-style: normal; font-weight: 700; white-space: nowrap; }
 
-.frontier-section { background: #fff; }
-.frontier-section > .section-title { max-width: 920px; }
-.frontier-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-top: 70px; }
-.frontier-grid article { min-height: 310px; padding: 28px; border-radius: 28px; background: #f5f5f7; }
-.frontier-grid span { color: var(--blue); font-size: 12px; font-weight: 650; }
-.frontier-grid h3 { margin: 58px 0 14px; font-size: 27px; letter-spacing: -.04em; }
-.frontier-grid p { margin: 0; color: var(--muted); line-height: 1.5; }
-.references-drawer { margin-top: 58px; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
-.references-drawer > summary { display: flex; align-items: center; justify-content: space-between; min-height: 76px; cursor: pointer; list-style: none; font-size: 14px; font-weight: 680; }
-.references-drawer > summary::-webkit-details-marker { display: none; }
-.references-drawer > summary span { color: var(--blue); font-size: 12px; font-weight: 550; }
-.references-drawer[open] > summary span { font-size: 0; }
-.references-drawer[open] > summary span::after { content: 'Close −'; font-size: 12px; }
-.source-links { display: grid; grid-template-columns: 180px repeat(4, minmax(0,1fr)); gap: 0; margin: 0 0 28px; border-top: 1px solid var(--line); animation: drawer-in .25s ease both; }
-.source-links p, .source-links a { margin: 0; padding: 18px 16px 18px 0; border-bottom: 1px solid var(--line); font-size: 12px; line-height: 1.4; }
-.source-links p { color: #86868b; }
-.source-links a { color: var(--blue); }
-@keyframes drawer-in { from { opacity: 0; transform: translateY(-8px); } }
-
-.signup-section { display: grid; grid-template-columns: .9fr 1.1fr; gap: 80px; color: white; background: #0c0c0e; }
-.section-kicker.light { color: #8ec8ff; }
-.signup-copy h2 { margin: 0; font-size: clamp(44px, 5.5vw, 76px); line-height: .98; letter-spacing: -.055em; }
-.signup-copy > p:not(.section-kicker) { max-width: 520px; margin: 28px 0; color: #a1a1a6; font-size: 18px; line-height: 1.5; }
-.button-white { background: white; color: var(--ink); }
-.signup-cards { display: grid; gap: 14px; align-content: center; }
-.signup-cards article { padding: 28px; border: 1px solid rgba(255,255,255,.12); border-radius: 26px; background: rgba(255,255,255,.055); }
-.signup-cards span { color: #8ec8ff; font-size: 12px; font-weight: 650; }
-.signup-cards h3 { margin: 12px 0 14px; font-size: 30px; letter-spacing: -.035em; }
-.signup-cards p { margin: 0; color: #a1a1a6; line-height: 1.5; }
-.signup-cards .access-note { padding: 10px 6px 0; font-size: 12px; }
-.signup-section .button-white { box-shadow: 0 0 0 0 rgba(142,200,255,.22); animation: signup-glow 3.4s ease-in-out infinite; }
-@keyframes signup-glow { 50% { box-shadow: 0 0 0 12px rgba(142,200,255,0); } }
-
 .team-section { display: grid; grid-template-columns: .75fr 1.25fr; gap: 80px; background: #fff; }
 .team-grid { display: grid; grid-template-columns: 1fr 1fr; align-content: end; border-top: 1px solid var(--line); }
 .team-grid article { min-height: 280px; padding: 28px 30px 0 0; display: flex; flex-direction: column; border-right: 1px solid var(--line); }
@@ -379,10 +346,7 @@ footer > p { margin: 10px 0 64px; color: #86868b; }
   .current-week .week-resources { grid-template-columns: 1fr 1fr; }
   .week-reading { grid-template-columns: 1fr 1fr; }
   .week-quiz-cta { grid-template-columns: 1fr; gap: 8px; }
-  .frontier-grid { grid-template-columns: 1fr 1fr; }
-  .source-links { grid-template-columns: 160px 1fr 1fr; }
   .team-section { grid-template-columns: 1fr; }
-  .signup-section { grid-template-columns: 1fr; gap: 58px; }
 }
 
 @media (max-width: 620px) {
@@ -421,9 +385,6 @@ footer > p { margin: 10px 0 64px; color: #86868b; }
   .week-reading { grid-column: 1; grid-template-columns: 1fr; }
   .week-quiz-cta { grid-column: 1; }
   .schedule-list .current-week { margin: 0 -12px; padding: 0 12px; }
-  .frontier-grid { grid-template-columns: 1fr; }
-  .source-links { grid-template-columns: 1fr; }
-  .source-links p { font-weight: 650; color: var(--ink); }
   .team-grid { grid-template-columns: 1fr; }
   .team-grid article, .team-grid article:last-child { min-height: 240px; padding: 24px 0; border-right: 0; border-bottom: 1px solid var(--line); }
   .footer-links { flex-direction: column; }
