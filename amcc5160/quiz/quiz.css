@@ -26,6 +26,12 @@
 .question-card > div span { color: var(--blue); font-size: 13px; font-weight: 750; }
 .question-card > div strong { color: #86868b; font-size: 11px; }
 .question-card label { color: var(--ink); font-size: clamp(20px,2.2vw,29px); line-height: 1.2; letter-spacing: -.025em; }
+.question-body { min-width: 0; }
+.question-prompt { margin: 0; color: var(--ink); font-size: clamp(20px,2.2vw,29px); line-height: 1.2; letter-spacing: -.025em; }
+.question-readings { display: flex; flex-wrap: wrap; gap: 7px; margin: 18px 0 22px; }
+.question-readings a { padding: 9px 12px; border: 1px solid #dcd6f7; border-radius: 999px; color: #654bd0; background: #f7f5ff; font-size: 11px; font-weight: 700; letter-spacing: 0; }
+.question-readings a:hover { border-color: #8a76df; background: #f0ecff; }
+.question-body .answer-label { gap: 8px; color: #6e6e73; font-size: 12px; letter-spacing: 0; }
 .submit-card { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 40px; margin-top: 24px; padding: clamp(30px,4vw,54px); border-radius: 30px; color: #fff; background: linear-gradient(135deg,#15151a,#27223b 65%,#4c2b68); }
 .submit-card .card-kicker { color: #aeb7ff; }
 .submit-card p:last-child { max-width: 620px; color: #b8b8bd; line-height: 1.5; }

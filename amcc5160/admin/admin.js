@@ -5,7 +5,7 @@
     'What are the four stages in the durable generative-media map?',
     'Why is video not simply an image with more frames?',
     'What is controlled variation, and why is it useful?',
-    'What process evidence makes generative media inspectable?'
+    'Choose one Lecture 01 reading and critique one central claim in a short paragraph.'
   ];
   let adminCode = '';
   let records = { signups: [], quizzes: [] };
