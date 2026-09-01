@@ -26,7 +26,7 @@
     const chapter = timing.slides[current];
     image.src = `./slides60/slide-${pad(current + 1)}.png`;
     image.alt = `Slide ${current + 1}: ${slide.title}`;
-    document.getElementById('now-slide').textContent = `NOW PLAYING · SLIDE ${pad(current + 1)}`;
+    document.getElementById('now-slide').textContent = `NOW PLAYING · SLIDE ${pad(current + 1)} —`;
     document.getElementById('now-title').textContent = chapter.title;
     document.getElementById('transcript-number').textContent = `SLIDE ${pad(current + 1)}`;
     document.getElementById('transcript-title').textContent = slide.title;
