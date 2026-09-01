@@ -1,0 +1,825 @@
+{
+  "title": "AMCC 5160 Lecture 01",
+  "voice": "cy45",
+  "model": "eleven_flash_v2_5",
+  "gapSeconds": 0.65,
+  "totalSeconds": 2421.361,
+  "slides": [
+    {
+      "slide": 1,
+      "title": "How machines learn to make moving worlds",
+      "start": 0.0,
+      "audioEnd": 25.913,
+      "end": 26.563,
+      "duration": 25.913
+    },
+    {
+      "slide": 2,
+      "title": "Build a mental model that survives the next release",
+      "start": 26.563,
+      "audioEnd": 49.644,
+      "end": 50.294,
+      "duration": 23.081
+    },
+    {
+      "slide": 3,
+      "title": "Today: from neurons to an AI film workflow",
+      "start": 50.294,
+      "audioEnd": 71.192,
+      "end": 71.842,
+      "duration": 20.898
+    },
+    {
+      "slide": 4,
+      "title": "Assessment",
+      "start": 71.842,
+      "audioEnd": 98.777,
+      "end": 99.427,
+      "duration": 26.935
+    },
+    {
+      "slide": 5,
+      "title": "Quiz 01",
+      "start": 99.427,
+      "audioEnd": 126.594,
+      "end": 127.244,
+      "duration": 27.167
+    },
+    {
+      "slide": 6,
+      "title": "Assignment deadlines",
+      "start": 127.244,
+      "audioEnd": 152.74,
+      "end": 153.39,
+      "duration": 25.496
+    },
+    {
+      "slide": 7,
+      "title": "A generated video is a learned prediction about change",
+      "start": 153.39,
+      "audioEnd": 176.146,
+      "end": 176.796,
+      "duration": 22.756
+    },
+    {
+      "slide": 8,
+      "title": "Every generator can be read through four stages",
+      "start": 176.796,
+      "audioEnd": 202.152,
+      "end": 202.802,
+      "duration": 25.356
+    },
+    {
+      "slide": 9,
+      "title": "From one neuron to visual intelligence",
+      "start": 202.802,
+      "audioEnd": 226.533,
+      "end": 227.183,
+      "duration": 23.731
+    },
+    {
+      "slide": 10,
+      "title": "AI is a family of systems, not one technique",
+      "start": 227.183,
+      "audioEnd": 248.267,
+      "end": 248.917,
+      "duration": 21.084
+    },
+    {
+      "slide": 11,
+      "title": "Learning means reducing error across examples",
+      "start": 248.917,
+      "audioEnd": 273.298,
+      "end": 273.948,
+      "duration": 24.381
+    },
+    {
+      "slide": 12,
+      "title": "Weighted sum, bias, nonlinearity",
+      "start": 273.948,
+      "audioEnd": 300.605,
+      "end": 301.255,
+      "duration": 26.657
+    },
+    {
+      "slide": 13,
+      "title": "Gradient descent is repeated correction",
+      "start": 301.255,
+      "audioEnd": 325.079,
+      "end": 325.729,
+      "duration": 23.824
+    },
+    {
+      "slide": 14,
+      "title": "Layers build features from features",
+      "start": 325.729,
+      "audioEnd": 350.992,
+      "end": 351.642,
+      "duration": 25.263
+    },
+    {
+      "slide": 15,
+      "title": "Nearby pixels usually belong together",
+      "start": 351.642,
+      "audioEnd": 371.658,
+      "end": 372.308,
+      "duration": 20.016
+    },
+    {
+      "slide": 16,
+      "title": "A convolution scans one learned filter across the image",
+      "start": 372.308,
+      "audioEnd": 395.389,
+      "end": 396.039,
+      "duration": 23.081
+    },
+    {
+      "slide": 17,
+      "title": "Four numbers control the spatial calculation",
+      "start": 396.039,
+      "audioEnd": 419.398,
+      "end": 420.048,
+      "duration": 23.359
+    },
+    {
+      "slide": 18,
+      "title": "A channel is a learned question asked everywhere",
+      "start": 420.048,
+      "audioEnd": 439.599,
+      "end": 440.249,
+      "duration": 19.551
+    },
+    {
+      "slide": 19,
+      "title": "Context grows with depth",
+      "start": 440.249,
+      "audioEnd": 461.286,
+      "end": 461.936,
+      "duration": 21.037
+    },
+    {
+      "slide": 20,
+      "title": "Resolution, context, and compute trade places",
+      "start": 461.936,
+      "audioEnd": 482.091,
+      "end": 482.741,
+      "duration": 20.155
+    },
+    {
+      "slide": 21,
+      "title": "Learn a correction, not an entirely new representation",
+      "start": 482.741,
+      "audioEnd": 506.1,
+      "end": 506.75,
+      "duration": 23.359
+    },
+    {
+      "slide": 22,
+      "title": "Local efficiency meets global difficulty",
+      "start": 506.75,
+      "audioEnd": 528.205,
+      "end": 528.855,
+      "duration": 21.455
+    },
+    {
+      "slide": 23,
+      "title": "Let every token choose what matters",
+      "start": 528.855,
+      "audioEnd": 546.641,
+      "end": 547.291,
+      "duration": 17.786
+    },
+    {
+      "slide": 24,
+      "title": "Different media can become sequences",
+      "start": 547.291,
+      "audioEnd": 570.418,
+      "end": 571.068,
+      "duration": 23.127
+    },
+    {
+      "slide": 25,
+      "title": "Meaning becomes geometry",
+      "start": 571.068,
+      "audioEnd": 591.13,
+      "end": 591.78,
+      "duration": 20.062
+    },
+    {
+      "slide": 26,
+      "title": "Queries ask; keys match; values contribute",
+      "start": 591.78,
+      "audioEnd": 613.049,
+      "end": 613.699,
+      "duration": 21.269
+    },
+    {
+      "slide": 27,
+      "title": "Parallel heads can specialize",
+      "start": 613.699,
+      "audioEnd": 637.105,
+      "end": 637.755,
+      "duration": 23.406
+    },
+    {
+      "slide": 28,
+      "title": "Attention is one component inside a repeated block",
+      "start": 637.755,
+      "audioEnd": 659.21,
+      "end": 659.86,
+      "duration": 21.455
+    },
+    {
+      "slide": 29,
+      "title": "Attention alone does not know order",
+      "start": 659.86,
+      "audioEnd": 685.123,
+      "end": 685.773,
+      "duration": 25.263
+    },
+    {
+      "slide": 30,
+      "title": "An image becomes a sequence of patch tokens",
+      "start": 685.773,
+      "audioEnd": 710.2,
+      "end": 710.85,
+      "duration": 24.427
+    },
+    {
+      "slide": 31,
+      "title": "DiT replaces a U-Net backbone with transformer blocks",
+      "start": 710.85,
+      "audioEnd": 736.81,
+      "end": 737.46,
+      "duration": 25.96
+    },
+    {
+      "slide": 32,
+      "title": "Compress first, then learn to create",
+      "start": 737.46,
+      "audioEnd": 756.222,
+      "end": 756.872,
+      "duration": 18.762
+    },
+    {
+      "slide": 33,
+      "title": "An encoder and decoder negotiate a bottleneck",
+      "start": 756.872,
+      "audioEnd": 781.16,
+      "end": 781.81,
+      "duration": 24.288
+    },
+    {
+      "slide": 34,
+      "title": "Learn a smooth distribution, not isolated codes",
+      "start": 781.81,
+      "audioEnd": 807.584,
+      "end": 808.234,
+      "duration": 25.774
+    },
+    {
+      "slide": 35,
+      "title": "Spend compute on semantics, decode detail once",
+      "start": 808.234,
+      "audioEnd": 827.414,
+      "end": 828.064,
+      "duration": 19.18
+    },
+    {
+      "slide": 36,
+      "title": "Training creates many controlled corruption levels",
+      "start": 828.064,
+      "audioEnd": 847.197,
+      "end": 847.847,
+      "duration": 19.133
+    },
+    {
+      "slide": 37,
+      "title": "Generation is iterative refinement",
+      "start": 847.847,
+      "audioEnd": 867.816,
+      "end": 868.466,
+      "duration": 19.969
+    },
+    {
+      "slide": 38,
+      "title": "Different parameterizations describe the same path differently",
+      "start": 868.466,
+      "audioEnd": 891.547,
+      "end": 892.197,
+      "duration": 23.081
+    },
+    {
+      "slide": 39,
+      "title": "Fewer steps trade accuracy for speed",
+      "start": 892.197,
+      "audioEnd": 912.956,
+      "end": 913.606,
+      "duration": 20.759
+    },
+    {
+      "slide": 40,
+      "title": "Push toward the condition without a separate classifier",
+      "start": 913.606,
+      "audioEnd": 934.922,
+      "end": 935.572,
+      "duration": 21.316
+    },
+    {
+      "slide": 41,
+      "title": "Learn a velocity field between distributions",
+      "start": 935.572,
+      "audioEnd": 961.532,
+      "end": 962.182,
+      "duration": 25.96
+    },
+    {
+      "slide": 42,
+      "title": "An image model must become a temporal system",
+      "start": 962.182,
+      "audioEnd": 982.662,
+      "end": 983.312,
+      "duration": 20.48
+    },
+    {
+      "slide": 43,
+      "title": "Time adds another expensive axis",
+      "start": 983.312,
+      "audioEnd": 1008.482,
+      "end": 1009.132,
+      "duration": 25.17
+    },
+    {
+      "slide": 44,
+      "title": "Compress space and time before the transformer",
+      "start": 1009.132,
+      "audioEnd": 1028.405,
+      "end": 1029.055,
+      "duration": 19.273
+    },
+    {
+      "slide": 45,
+      "title": "A token can represent a small block of spacetime",
+      "start": 1029.055,
+      "audioEnd": 1050.65,
+      "end": 1051.3,
+      "duration": 21.595
+    },
+    {
+      "slide": 46,
+      "title": "Full attention is powerful; sparse attention is practical",
+      "start": 1051.3,
+      "audioEnd": 1080.65,
+      "end": 1081.3,
+      "duration": 29.35
+    },
+    {
+      "slide": 47,
+      "title": "Every extra frame competes for memory and attention",
+      "start": 1081.3,
+      "audioEnd": 1102.709,
+      "end": 1103.359,
+      "duration": 21.409
+    },
+    {
+      "slide": 48,
+      "title": "The same backbone can solve different production tasks",
+      "start": 1103.359,
+      "audioEnd": 1128.901,
+      "end": 1129.551,
+      "duration": 25.542
+    },
+    {
+      "slide": 49,
+      "title": "Synchronization must be modeled at several scales",
+      "start": 1129.551,
+      "audioEnd": 1154.768,
+      "end": 1155.418,
+      "duration": 25.217
+    },
+    {
+      "slide": 50,
+      "title": "Scale helps only after curation",
+      "start": 1155.418,
+      "audioEnd": 1178.917,
+      "end": 1179.567,
+      "duration": 23.499
+    },
+    {
+      "slide": 51,
+      "title": "Better descriptions create better controls",
+      "start": 1179.567,
+      "audioEnd": 1203.251,
+      "end": 1203.901,
+      "duration": 23.684
+    },
+    {
+      "slide": 52,
+      "title": "Raw capability becomes instruction-following behavior",
+      "start": 1203.901,
+      "audioEnd": 1228.932,
+      "end": 1229.582,
+      "duration": 25.031
+    },
+    {
+      "slide": 53,
+      "title": "No single score measures a usable shot",
+      "start": 1229.582,
+      "audioEnd": 1251.827,
+      "end": 1252.477,
+      "duration": 22.245
+    },
+    {
+      "slide": 54,
+      "title": "Name the symptom before changing the workflow",
+      "start": 1252.477,
+      "audioEnd": 1281.13,
+      "end": 1281.78,
+      "duration": 28.653
+    },
+    {
+      "slide": 55,
+      "title": "Video generation converges on multimodal foundation models",
+      "start": 1281.78,
+      "audioEnd": 1308.437,
+      "end": 1309.087,
+      "duration": 26.657
+    },
+    {
+      "slide": 56,
+      "title": "Three paradigms, many hybrids",
+      "start": 1309.087,
+      "audioEnd": 1331.1,
+      "end": 1331.75,
+      "duration": 22.013
+    },
+    {
+      "slide": 57,
+      "title": "From coherent pixels to multimodal long narratives",
+      "start": 1331.75,
+      "audioEnd": 1354.366,
+      "end": 1355.016,
+      "duration": 22.616
+    },
+    {
+      "slide": 58,
+      "title": "Compare disclosed systems on the same axes",
+      "start": 1355.016,
+      "audioEnd": 1382.137,
+      "end": 1382.787,
+      "duration": 27.121
+    },
+    {
+      "slide": 59,
+      "title": "From efficient video generation to multimodal storytelling",
+      "start": 1382.787,
+      "audioEnd": 1407.168,
+      "end": 1407.818,
+      "duration": 24.381
+    },
+    {
+      "slide": 60,
+      "title": "A foundation built across the whole lifecycle",
+      "start": 1407.818,
+      "audioEnd": 1432.245,
+      "end": 1432.895,
+      "duration": 24.427
+    },
+    {
+      "slide": 61,
+      "title": "A shot sequence needs relations across cuts",
+      "start": 1432.895,
+      "audioEnd": 1454.397,
+      "end": 1455.047,
+      "duration": 21.502
+    },
+    {
+      "slide": 62,
+      "title": "Audio and video are generated together",
+      "start": 1455.047,
+      "audioEnd": 1476.363,
+      "end": 1477.013,
+      "duration": 21.316
+    },
+    {
+      "slide": 63,
+      "title": "Four input modalities feed one audio-video generator",
+      "start": 1477.013,
+      "audioEnd": 1502.555,
+      "end": 1503.205,
+      "duration": 25.542
+    },
+    {
+      "slide": 64,
+      "title": "Choose how much the model is allowed to invent",
+      "start": 1503.205,
+      "audioEnd": 1523.546,
+      "end": 1524.196,
+      "duration": 20.341
+    },
+    {
+      "slide": 65,
+      "title": "Assign one job to each reference",
+      "start": 1524.196,
+      "audioEnd": 1548.763,
+      "end": 1549.413,
+      "duration": 24.567
+    },
+    {
+      "slide": 66,
+      "title": "Evaluate event timing, not only sound quality",
+      "start": 1549.413,
+      "audioEnd": 1571.518,
+      "end": 1572.168,
+      "duration": 22.105
+    },
+    {
+      "slide": 67,
+      "title": "One-take creation extends a controlled event",
+      "start": 1572.168,
+      "audioEnd": 1597.617,
+      "end": 1598.267,
+      "duration": 25.449
+    },
+    {
+      "slide": 68,
+      "title": "Write a temporal instruction, not a mood board",
+      "start": 1598.267,
+      "audioEnd": 1622.369,
+      "end": 1623.019,
+      "duration": 24.102
+    },
+    {
+      "slide": 69,
+      "title": "Best fit: controlled shots and fast narrative exploration",
+      "start": 1623.019,
+      "audioEnd": 1645.682,
+      "end": 1646.332,
+      "duration": 22.663
+    },
+    {
+      "slide": 70,
+      "title": "Product evidence and technical evidence answer different questions",
+      "start": 1646.332,
+      "audioEnd": 1669.598,
+      "end": 1670.248,
+      "duration": 23.266
+    },
+    {
+      "slide": 71,
+      "title": "H3",
+      "start": 1670.248,
+      "audioEnd": 1701.827,
+      "end": 1702.477,
+      "duration": 31.579
+    },
+    {
+      "slide": 72,
+      "title": "Context-IR → H3-Base → Regenerate-2K",
+      "start": 1702.477,
+      "audioEnd": 1725.604,
+      "end": 1726.254,
+      "duration": 23.127
+    },
+    {
+      "slide": 73,
+      "title": "Prompt engineering becomes multimodal orchestration",
+      "start": 1726.254,
+      "audioEnd": 1751.053,
+      "end": 1751.703,
+      "duration": 24.799
+    },
+    {
+      "slide": 74,
+      "title": "Different media enter through specialized front ends",
+      "start": 1751.703,
+      "audioEnd": 1772.88,
+      "end": 1773.53,
+      "duration": 21.177
+    },
+    {
+      "slide": 75,
+      "title": "16× spatial, 4× temporal, then 2×2 patchification",
+      "start": 1773.53,
+      "audioEnd": 1796.332,
+      "end": 1796.982,
+      "duration": 22.802
+    },
+    {
+      "slide": 76,
+      "title": "Stereo channels share weights but remain separate",
+      "start": 1796.982,
+      "audioEnd": 1818.437,
+      "end": 1819.087,
+      "duration": 21.455
+    },
+    {
+      "slide": 77,
+      "title": "One transformer sees text, visual, and audio context",
+      "start": 1819.087,
+      "audioEnd": 1841.982,
+      "end": 1842.632,
+      "duration": 22.895
+    },
+    {
+      "slide": 78,
+      "title": "33B dense, single-stream, task-general",
+      "start": 1842.632,
+      "audioEnd": 1864.784,
+      "end": 1865.434,
+      "duration": 22.152
+    },
+    {
+      "slide": 79,
+      "title": "Text and endpoint frames control an audio-video shot",
+      "start": 1865.434,
+      "audioEnd": 1885.914,
+      "end": 1886.564,
+      "duration": 20.48
+    },
+    {
+      "slide": 80,
+      "title": "References can specify more than appearance",
+      "start": 1886.564,
+      "audioEnd": 1908.669,
+      "end": 1909.319,
+      "duration": 22.105
+    },
+    {
+      "slide": 81,
+      "title": "Resolution enhancement can revisit meaning",
+      "start": 1909.319,
+      "audioEnd": 1934.164,
+      "end": 1934.814,
+      "duration": 24.845
+    },
+    {
+      "slide": 82,
+      "title": "Open weights still require production infrastructure",
+      "start": 1934.814,
+      "audioEnd": 1959.149,
+      "end": 1959.799,
+      "duration": 24.335
+    },
+    {
+      "slide": 83,
+      "title": "Choose the system that fits the shot",
+      "start": 1959.799,
+      "audioEnd": 1989.149,
+      "end": 1989.799,
+      "duration": 29.35
+    },
+    {
+      "slide": 84,
+      "title": "A film is a sequence of decisions, not one generation",
+      "start": 1989.799,
+      "audioEnd": 2005.96,
+      "end": 2006.61,
+      "duration": 16.161
+    },
+    {
+      "slide": 85,
+      "title": "Five gates prevent expensive confusion",
+      "start": 2006.61,
+      "audioEnd": 2028.669,
+      "end": 2029.319,
+      "duration": 22.059
+    },
+    {
+      "slide": 86,
+      "title": "Define change before style",
+      "start": 2029.319,
+      "audioEnd": 2050.867,
+      "end": 2051.517,
+      "duration": 21.548
+    },
+    {
+      "slide": 87,
+      "title": "Define what must persist across shots",
+      "start": 2051.517,
+      "audioEnd": 2069.907,
+      "end": 2070.557,
+      "duration": 18.39
+    },
+    {
+      "slide": 88,
+      "title": "Each shot gets one purpose and one continuity anchor",
+      "start": 2070.557,
+      "audioEnd": 2091.083,
+      "end": 2091.733,
+      "duration": 20.526
+    },
+    {
+      "slide": 89,
+      "title": "Design the cut before rendering detail",
+      "start": 2091.733,
+      "audioEnd": 2113.42,
+      "end": 2114.07,
+      "duration": 21.687
+    },
+    {
+      "slide": 90,
+      "title": "Use the least generative task that solves the shot",
+      "start": 2114.07,
+      "audioEnd": 2135.572,
+      "end": 2136.222,
+      "duration": 21.502
+    },
+    {
+      "slide": 91,
+      "title": "Clean, label, and assign roles",
+      "start": 2136.222,
+      "audioEnd": 2155.68,
+      "end": 2156.33,
+      "duration": 19.458
+    },
+    {
+      "slide": 92,
+      "title": "Separate invariants from timed events",
+      "start": 2156.33,
+      "audioEnd": 2176.346,
+      "end": 2176.996,
+      "duration": 20.016
+    },
+    {
+      "slide": 93,
+      "title": "A workflow is data flowing through typed nodes",
+      "start": 2176.996,
+      "audioEnd": 2202.12,
+      "end": 2202.77,
+      "duration": 25.124
+    },
+    {
+      "slide": 94,
+      "title": "Know which node controls which failure",
+      "start": 2202.77,
+      "audioEnd": 2231.145,
+      "end": 2231.795,
+      "duration": 28.375
+    },
+    {
+      "slide": 95,
+      "title": "Change one variable after a known-good workflow runs",
+      "start": 2231.795,
+      "audioEnd": 2251.253,
+      "end": 2251.903,
+      "duration": 19.458
+    },
+    {
+      "slide": 96,
+      "title": "Hold the shot constant; vary one decision",
+      "start": 2251.903,
+      "audioEnd": 2270.711,
+      "end": 2271.361,
+      "duration": 18.808
+    },
+    {
+      "slide": 97,
+      "title": "Keep the usable interval, not the prettiest thumbnail",
+      "start": 2271.361,
+      "audioEnd": 2292.445,
+      "end": 2293.095,
+      "duration": 21.084
+    },
+    {
+      "slide": 98,
+      "title": "Edit first; repair only what survives the cut",
+      "start": 2293.095,
+      "audioEnd": 2317.94,
+      "end": 2318.59,
+      "duration": 24.845
+    },
+    {
+      "slide": 99,
+      "title": "Check the film as evidence, experience, and record",
+      "start": 2318.59,
+      "audioEnd": 2342.46,
+      "end": 2343.11,
+      "duration": 23.87
+    },
+    {
+      "slide": 100,
+      "title": "Five questions, five durable ideas",
+      "start": 2343.11,
+      "audioEnd": 2364.054,
+      "end": 2364.704,
+      "duration": 20.944
+    },
+    {
+      "slide": 101,
+      "title": "Design one eight-second shot before opening a generator",
+      "start": 2364.704,
+      "audioEnd": 2389.689,
+      "end": 2390.339,
+      "duration": 24.985
+    },
+    {
+      "slide": 102,
+      "title": "Technical literacy becomes creative agency",
+      "start": 2390.339,
+      "audioEnd": 2420.711,
+      "end": 2421.361,
+      "duration": 30.372
+    }
+  ]
+}
