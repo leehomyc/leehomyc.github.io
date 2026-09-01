@@ -5,10 +5,10 @@
   const weeklySessions = [
     ['02', 'Sep 8'], ['03', 'Sep 15'], ['04', 'Sep 22'], ['05', 'Sep 29'], ['06', 'Oct 6'],
     ['07', 'Oct 13'], ['08', 'Oct 20'], ['09', 'Oct 27'], ['10', 'Nov 3'], ['11', 'Nov 10']
-  ].map(([week, date]) => ({ id: `weekly-${week}`, type: 'weekly', eyebrow: `Week ${week}`, title: date, slotCount: 5 }));
+  ].map(([week, date]) => ({ id: `weekly-${week}`, type: 'weekly', eyebrow: `Week ${week}`, title: date, slotCount: 8 }));
   const finalSessions = [
-    { id: 'final-12', type: 'final', eyebrow: 'Final presentations I', title: 'Nov 17', slotCount: 25 },
-    { id: 'final-13', type: 'final', eyebrow: 'Final presentations II', title: 'Nov 24', slotCount: 25 }
+    { id: 'final-12', type: 'final', eyebrow: 'Final presentations I', title: 'Nov 17', slotCount: 40 },
+    { id: 'final-13', type: 'final', eyebrow: 'Final presentations II', title: 'Nov 24', slotCount: 40 }
   ];
   const SLIDES_MARKER = '\n[[SLIDES]]';
 
