@@ -15,6 +15,12 @@
   let activeVideoChapter = -1;
   let current = 0;
 
+  function setInitialPlaybackRate() {
+    if (!lectureVideo) return;
+    lectureVideo.defaultPlaybackRate = .8;
+    lectureVideo.playbackRate = .8;
+  }
+
   function showDefaultCaptions() {
     if (!lectureVideo?.textTracks?.length) return;
     [...lectureVideo.textTracks].forEach(track => {
@@ -23,7 +29,9 @@
   }
 
   lectureVideo?.addEventListener('loadedmetadata', showDefaultCaptions, { once: true });
+  lectureVideo?.addEventListener('loadedmetadata', setInitialPlaybackRate, { once: true });
   showDefaultCaptions();
+  setInitialPlaybackRate();
 
   const pad = value => String(value).padStart(3, '0');
 
