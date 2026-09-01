@@ -2,7 +2,7 @@
 [hidden] { display: none !important; }
 
 .signup-page { min-height: 100vh; padding: 130px clamp(22px, 7vw, 110px) 120px; background: #fbfbfd; }
-.signup-hero { max-width: 1040px; padding: 38px 0 86px; }
+.signup-hero { max-width: 1040px; padding: 30px 0 68px; }
 .signup-hero h1 { margin: 0; font-size: clamp(58px, 8vw, 116px); line-height: .92; letter-spacing: -.07em; }
 .signup-hero h1 span { background: linear-gradient(105deg, #0071e3, #6e5cff 46%, #d43fa4 82%); background-clip: text; -webkit-background-clip: text; color: transparent; }
 .signup-hero > p:last-child { max-width: 720px; margin: 34px 0 0; color: var(--muted); font-size: clamp(20px, 2.2vw, 28px); line-height: 1.35; letter-spacing: -.025em; }
@@ -24,7 +24,7 @@ button { border: 0; cursor: pointer; }
 .input-action-row button, .primary-submit { min-height: 52px; padding: 0 22px; border-radius: 14px; background: var(--ink); color: #fff; font-size: 14px; font-weight: 680; }
 .input-action-row button:disabled, .primary-submit:disabled { cursor: wait; opacity: .55; }
 
-.booking-area { margin-top: 96px; }
+.booking-area { margin-top: 72px; }
 .booking-toolbar { display: flex; align-items: end; justify-content: space-between; gap: 30px; }
 .type-tabs { display: flex; gap: 7px; padding: 5px; border-radius: 999px; background: #ececf0; }
 .type-tab { min-height: 40px; padding: 0 17px; border-radius: 999px; background: transparent; color: #626267; font-size: 13px; font-weight: 650; }
@@ -51,7 +51,7 @@ button { border: 0; cursor: pointer; }
 .manage-results button { padding: 10px 15px; border-radius: 999px; background: var(--ink); color: #fff; font-size: 12px; font-weight: 700; white-space: nowrap; }
 .manage-empty { grid-column: 1 / -1; padding: 12px 0; }
 
-.session-list { display: grid; gap: 16px; }
+.session-list { display: grid; gap: 12px; }
 .session-card { display: grid; grid-template-columns: minmax(160px,.42fr) minmax(0,1.58fr); gap: 30px; padding: 28px; border: 1px solid var(--line); border-radius: 26px; background: #fff; }
 .session-heading p { margin: 0 0 9px; color: var(--blue); font-size: 12px; font-weight: 680; }
 .session-heading h3 { margin: 0; font-size: 27px; letter-spacing: -.04em; }

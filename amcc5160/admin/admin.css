@@ -58,7 +58,7 @@ body {
 main {
   width: min(1320px, calc(100% - 44px));
   margin: 0 auto;
-  padding: 70px 0 100px;
+  padding: 54px 0 84px;
 }
 .login-card {
   width: min(680px, 100%);
@@ -139,7 +139,7 @@ button:disabled {
   justify-content: space-between;
   align-items: flex-end;
   gap: 30px;
-  margin-bottom: 38px;
+  margin-bottom: 30px;
 }
 .dashboard-head h1 {
   font-size: clamp(48px, 7vw, 88px);
@@ -198,7 +198,7 @@ button:disabled {
 .tabs {
   display: flex;
   gap: 8px;
-  margin: 42px 0 18px;
+  margin: 32px 0 16px;
   overflow: auto;
 }
 .tabs button {

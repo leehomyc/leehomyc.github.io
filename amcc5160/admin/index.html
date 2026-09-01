@@ -5,8 +5,11 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="robots" content="noindex,nofollow">
   <meta name="theme-color" content="#0b0b10">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
   <title>Instructor Dashboard — AMCC 5160</title>
-  <link rel="stylesheet" href="./admin.css">
+  <link rel="stylesheet" href="./admin.css?v=20260901-tight">
 </head>
 <body>
   <header class="topbar"><a href="../">AMCC <span>5160</span></a><p>Instructor dashboard</p><button id="refresh" type="button" hidden>Refresh data</button></header>
@@ -15,7 +18,7 @@
       <p class="eyebrow">Private course workspace</p>
       <h1>See the class at a glance.</h1>
       <p>Live presentation reservations, Quiz 01 responses, and grading in one place.</p>
-      <form id="login-form"><label>Instructor code<input id="admin-code" type="password" autocomplete="current-password" required autofocus placeholder="Enter instructor code"></label><button type="submit">Open dashboard →</button></form>
+      <form id="login-form"><label>Instructor code<input id="admin-code" type="password" autocomplete="off" required autofocus placeholder="Enter instructor code"></label><button type="submit">Open dashboard →</button></form>
       <p id="login-status" class="status" role="status"></p>
     </section>
 
@@ -43,7 +46,7 @@
       <p id="dashboard-status" class="status" role="status"></p>
     </section>
   </main>
-  <script src="../signup/config.js"></script>
-  <script src="./admin.js"></script>
+  <script src="../signup/config.js?v=20260901-tight"></script>
+  <script src="./admin.js?v=20260901-tight"></script>
 </body>
 </html>

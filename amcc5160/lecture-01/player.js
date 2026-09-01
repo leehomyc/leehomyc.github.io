@@ -58,6 +58,7 @@
     lecture = lectureData; timing = timingData;
     timing.slides.forEach((chapter, index) => {
       const button = document.createElement('button');
+      button.type = 'button';
       button.textContent = pad(chapter.slide); button.title = chapter.title;
       button.addEventListener('click', () => render(index, true));
       chapterStrip.appendChild(button);
@@ -79,6 +80,7 @@
   transcriptToggle.addEventListener('click', () => {
     const hidden = transcriptPanel.hidden;
     transcriptPanel.hidden = !hidden;
+    transcriptToggle.setAttribute('aria-expanded', String(hidden));
     transcriptToggle.textContent = hidden ? 'Hide transcript' : 'Show transcript';
   });
 })();

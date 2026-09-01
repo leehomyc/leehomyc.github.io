@@ -34,6 +34,7 @@
       render();
       $('#last-updated').textContent = `Last refreshed ${new Date(result.refreshedAt).toLocaleString()}`;
       $('#dashboard-status').textContent = '';
+      $('#dashboard-status').classList.remove('error');
     } catch (error) {
       $('#dashboard-status').textContent = error.message;
       $('#dashboard-status').classList.add('error');
@@ -128,7 +129,7 @@
 
   $('#login-form').addEventListener('submit', async event => {
     event.preventDefault(); adminCode = $('#admin-code').value.trim(); $('#login-status').textContent = 'Checking…';
-    try { const result = await request({ action: 'admin-list', adminCode }); records = result; $('#login').hidden = true; $('#dashboard').hidden = false; $('#refresh').hidden = false; render(); $('#last-updated').textContent = `Last refreshed ${new Date(result.refreshedAt).toLocaleString()}`; refreshTimer = setInterval(() => load(), 30000); }
+    try { const result = await request({ action: 'admin-list', adminCode }); records = result; $('#login-status').classList.remove('error'); $('#login').hidden = true; $('#dashboard').hidden = false; $('#refresh').hidden = false; render(); $('#last-updated').textContent = `Last refreshed ${new Date(result.refreshedAt).toLocaleString()}`; refreshTimer = setInterval(() => load(), 30000); }
     catch (error) { $('#login-status').textContent = error.message; $('#login-status').classList.add('error'); adminCode = ''; }
   });
   document.addEventListener('submit', event => { if (event.target.matches('.record-grade')) { event.preventDefault(); saveGrade(event.target); } });

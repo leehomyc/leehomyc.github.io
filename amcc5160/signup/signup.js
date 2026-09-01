@@ -117,7 +117,8 @@
     selectedSlotLabel.textContent = slotLabel(slotId);
     bookingCard.hidden = false;
     if (existing) {
-      document.getElementById('student-name').value = existing.familyName;
+      document.getElementById('student-name').value = existing.fullName || existing.name || '';
+      document.getElementById('student-name').placeholder = 'Re-enter your full name';
       document.getElementById('student-id').value = studentId;
       document.getElementById('presentation-topic').value = existing.topic;
       document.querySelector('.primary-submit').textContent = 'Save changes →';
@@ -136,6 +137,7 @@
     document.getElementById('slot-id').value = '';
     bookingCard.hidden = true;
     bookingForm.reset();
+    document.getElementById('student-name').placeholder = '';
     document.getElementById('booking-title').textContent = 'Complete your booking.';
     document.querySelector('.primary-submit').textContent = 'Save reservation →';
     renderSessions();
