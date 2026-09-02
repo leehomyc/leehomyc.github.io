@@ -2,18 +2,22 @@ const SHEET_NAME = 'Attendance';
 const SPEAKER_SHEET_NAME = 'Speakers';
 const ACCESS_CODE_PROPERTY = 'AMCC6090_ACCESS_CODE';
 const ADMIN_CODE_PROPERTY = 'AMCC6090_ADMIN_CODE';
+const SPEAKER_MANAGE_CODE_PROPERTY = 'AMCC6090_SPEAKER_MANAGE_CODE';
 
 function doPost(event) {
   try {
     const request = JSON.parse((event.postData && event.postData.contents) || '{}');
     if (request.action === 'attendance-admin-list') return handleAdminList(request);
     if (request.action === 'speaker-public-list') return handlePublicSpeakerList();
+    if (request.action === 'speaker-lookup' || request.action === 'speaker-signup') {
+      if (!validSpeakerManageCode(request.code)) return jsonResponse({ ok: false, error: 'Incorrect speaker management code.' });
+      if (request.action === 'speaker-lookup') return handleSpeakerLookup(request);
+      return handleSpeakerSignup(request);
+    }
     if (!validAccessCode(request.code)) return jsonResponse({ ok: false, error: 'Incorrect course access code.' });
     if (request.action === 'attendance-save') return handleAttendanceSave(request);
     if (request.action === 'attendance-lookup') return handleAttendanceLookup(request);
     if (request.action === 'speaker-list') return handleSpeakerList();
-    if (request.action === 'speaker-lookup') return handleSpeakerLookup(request);
-    if (request.action === 'speaker-signup') return handleSpeakerSignup(request);
     return jsonResponse({ ok: false, error: 'Unknown request.' });
   } catch (error) {
     console.error(error);
@@ -72,7 +76,7 @@ function handlePublicSpeakerList() {
 function handleSpeakerLookup(request) {
   const sessionId = clean(request.sessionId, 2);
   if (!validSpeakerSession(sessionId)) return jsonResponse({ ok: true, record: null });
-  const row = speakerRows(speakerSheet()).find(item => String(item[1]) === sessionId);
+  const row = speakerRows(speakerSheet()).find(item => sessionValue(item[1]) === sessionId);
   if (row) return jsonResponse({ ok: true, record: speakerRecord(row) });
   if (sessionId === '01') return jsonResponse({ ok: true, record: { sessionId: '01', name: 'Dengyang Jiang', materialsUrl: '', materialsNote: 'Research and internship experience', updatedAt: '', bio: '' } });
   return jsonResponse({ ok: true, record: null });
@@ -93,7 +97,7 @@ function handleSpeakerSignup(request) {
   try {
     const sheet = speakerSheet();
     const rows = speakerRows(sheet);
-    const index = rows.findIndex(row => String(row[1]) === sessionId);
+    const index = rows.findIndex(row => sessionValue(row[1]) === sessionId);
     if (index >= 0 && (!originalName || clean(rows[index][2], 80).toLowerCase() !== originalName.toLowerCase())) return jsonResponse({ ok: false, error: 'That seminar date has already been reserved.' });
     const now = new Date().toISOString();
     const createdAt = index >= 0 ? rows[index][0] : now;
@@ -128,12 +132,14 @@ function speakerSheet() {
 function dataRows(sheet) { const last = sheet.getLastRow(); return last < 2 ? [] : sheet.getRange(2, 1, last - 1, 8).getValues(); }
 function speakerRows(sheet) { const last = sheet.getLastRow(); return last < 2 ? [] : sheet.getRange(2, 1, last - 1, 7).getValues(); }
 function publicRecord(row) { return { sessionId: String(row[1]), name: String(row[2]), reflection: String(row[5] || ''), feedback: String(row[6] || ''), updatedAt: String(row[7]) }; }
-function publicSpeaker(row) { return { sessionId: String(row[1]), name: String(row[2]), materialsUrl: String(row[3] || ''), materialsNote: String(row[4] || ''), bio: String(row[6] || '') }; }
-function speakerRecord(row) { return { sessionId: String(row[1]), name: String(row[2]), materialsUrl: String(row[3] || ''), materialsNote: String(row[4] || ''), updatedAt: String(row[5]), bio: String(row[6] || '') }; }
+function publicSpeaker(row) { return { sessionId: sessionValue(row[1]), name: String(row[2]), materialsUrl: String(row[3] || ''), materialsNote: String(row[4] || ''), bio: String(row[6] || '') }; }
+function speakerRecord(row) { return { sessionId: sessionValue(row[1]), name: String(row[2]), materialsUrl: String(row[3] || ''), materialsNote: String(row[4] || ''), updatedAt: String(row[5]), bio: String(row[6] || '') }; }
 function adminRecord(row) { return { createdAt: String(row[0]), sessionId: String(row[1]), name: String(row[2]), studentId: String(row[3]), reflection: String(row[5] || ''), feedback: String(row[6] || ''), updatedAt: String(row[7]) }; }
 function validAccessCode(value) { const expected = PropertiesService.getScriptProperties().getProperty(ACCESS_CODE_PROPERTY); return Boolean(expected) && safeEqual(clean(value, 100).toUpperCase(), expected.toUpperCase()); }
+function validSpeakerManageCode(value) { const expected = PropertiesService.getScriptProperties().getProperty(SPEAKER_MANAGE_CODE_PROPERTY); return Boolean(expected) && safeEqual(clean(value, 100), expected); }
 function validSession(value) { return /^(0[1-9]|1[0-3])$/.test(value); }
 function validSpeakerSession(value) { return /^(0[1-9]|1[0-3])$/.test(value); }
+function sessionValue(value) { return String(value || '').padStart(2, '0'); }
 function validUrl(value) { try { const url = new URL(value); return url.protocol === 'https:' || url.protocol === 'http:'; } catch (error) { return false; } }
 function clean(value, max) { return String(value || '').replace(/[\u0000-\u001F\u007F]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, max); }
 function cleanMultiline(value, max) { return String(value || '').replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, '').trim().slice(0, max); }
