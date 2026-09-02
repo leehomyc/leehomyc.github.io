@@ -1,3 +1,13 @@
 [hidden] {
   display: none !important;
 }
+
+.journey-options button[aria-pressed="true"] {
+  border-color: var(--violet);
+  background: #f4f1ff;
+  box-shadow: inset 0 0 0 1px var(--violet);
+}
+
+.journey-options button[aria-pressed="true"] em {
+  color: #322477;
+}

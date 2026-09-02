@@ -3,17 +3,17 @@
 <head>
   <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Speaker sign-up · AMCC 6090</title>
-  <link rel="stylesheet" href="../styles.css"><link rel="stylesheet" href="../attendance/attendance.css"><link rel="stylesheet" href="./visibility.css?v=20260902">
+  <link rel="stylesheet" href="../styles.css"><link rel="stylesheet" href="../attendance/attendance.css"><link rel="stylesheet" href="./visibility.css?v=20260902b">
 </head>
 <body>
   <nav class="site-nav"><a class="brand" href="../admin/">AMCC 6090 <span>· Instructor tools</span></a><div></div><a class="nav-cta" href="../admin/">Admin dashboard →</a></nav>
   <main class="form-page">
     <section class="form-hero"><p class="eyebrow">AMCC 6090 · Fall 2026/27</p><h1>Share your <span>work.</span></h1><p>Reserve an open Friday seminar to present. Add a link to slides, a paper, a demo, or any other material if you would like.</p></section>
-    <section class="journey-card" id="speaker-choice"><div><p class="card-kicker">One speaker per session</p><h2>Choose a date.</h2><p>Session 01 is reserved for Dengyang Jiang. Available dates are shown below; a reserved date cannot be selected.</p></div><div class="journey-options"><button type="button" id="open-form"><b>Reserve a seminar</b><span>Share your name and select an available date.</span><em>Open form →</em></button><button type="button" id="edit-form"><b>Edit speaker sessions</b><span>Choose any existing sign-up and edit it in one form.</span><em>Open editor →</em></button></div></section>
+    <section class="journey-card" id="speaker-choice"><div><p class="card-kicker">Speaker management</p><h2>Choose an action.</h2><p>Switch between reserving an open seminar and editing an existing speaker session. The selected form stays directly below.</p></div><div class="journey-options"><button type="button" id="open-form" aria-pressed="false"><b>Reserve a seminar</b><span>Share a name and select an available date.</span><em>Show reserve form →</em></button><button type="button" id="edit-form" aria-pressed="false"><b>Edit speaker sessions</b><span>Choose any existing sign-up and edit it in one form.</span><em>Show edit form →</em></button></div></section>
     <section class="form-card" id="speaker-card" hidden><div class="form-intro"><p class="card-kicker" id="form-kicker">Speaker sign-up</p><h2 id="form-title">Reserve your slot.</h2><p id="availability-note">Choose an open seminar date.</p></div><form id="speaker-form"><input name="originalName" type="hidden"><label>Speaker management code<input name="code" type="password" autocomplete="off" required></label><label>Your name<input name="name" autocomplete="name" required maxlength="80"></label><label>Seminar date<select id="speaker-session" name="sessionId" required></select></label><label>Speaker bio <small>A short introduction shown with your session</small><textarea name="bio" rows="5" maxlength="1000" required placeholder="Your role, affiliation, research interests, and relevant experience"></textarea></label><label>Presentation materials <small>Optional · Slides, paper, demo, or other resource</small><input name="materialsUrl" type="url" placeholder="https://…"></label><label>Materials note <small>Optional</small><textarea name="materialsNote" rows="3" maxlength="300" placeholder="A short description of what you will share"></textarea></label><p class="privacy-note">Only the instructor can create or edit speaker sessions. The private code is not displayed or stored on this page.</p><button class="submit-button" type="submit">Reserve seminar →</button></form></section>
     <section class="success-card" id="success" hidden><span>✓</span><div><p>Speaker sign-up saved</p><h2>Your seminar is reserved.</h2><p id="success-time"></p></div><button type="button" id="another-session">View availability →</button></section>
   </main>
   <div id="status" class="status" role="status"></div>
-  <script src="./config.js"></script><script src="./speakers.js?v=20260902-admin-links"></script>
+  <script src="./config.js"></script><script src="./speakers.js?v=20260902-persistent-modes"></script>
 </body>
 </html>
