@@ -3,7 +3,7 @@
 
   const API_URL = window.AMCC6090_ATTENDANCE_API || '';
   const sessions = [
-    ['01', 'Sep 04', '2026-09-04T18:30:00+08:00', '2026-09-04T19:20:00+08:00', '2026-09-04T23:59:59+08:00', 'Dengyang Jiang — Research and internship experience'],
+    ['01', 'Sep 04', '2026-09-04T18:30:00+08:00', '2026-09-04T19:20:00+08:00', '2026-09-04T23:59:59+08:00', 'Dengyang Jiang — Self-distillation in generative AI, towards native self-evloving in all training stage'],
     ['02', 'Sep 11', '2026-09-11T18:30:00+08:00', '2026-09-11T19:20:00+08:00', '2026-09-11T23:59:59+08:00', 'Speaker to be announced'],
     ['03', 'Sep 18', '2026-09-18T18:30:00+08:00', '2026-09-18T19:20:00+08:00', '2026-09-18T23:59:59+08:00', 'Speaker to be announced'],
     ['04', 'Sep 25', '2026-09-25T18:30:00+08:00', '2026-09-25T19:20:00+08:00', '2026-09-25T23:59:59+08:00', 'Speaker to be announced'],
@@ -189,6 +189,21 @@
     return result;
   }
 
+  async function refreshSpeakerTitles() {
+    try {
+      const result = await request({ action: 'speaker-public-list' });
+      (result.speakers || []).forEach(speaker => {
+        const session = sessions.find(item => item.id === speaker.sessionId);
+        if (!session) return;
+        const title = String(speaker.materialsNote || '').trim();
+        session.title = `${speaker.name}${title ? ` — ${title}` : ''}`;
+      });
+      refreshSessionOptions();
+    } catch (_) {
+      // Keep the bundled session labels when live speaker details are unavailable.
+    }
+  }
+
   function chooseJourney(journey) {
     if (journey === 'new') {
       editing = false;
@@ -338,6 +353,7 @@
     loadRecordForEditing(duplicate.record, duplicate.credentials);
   });
   refreshSessionOptions();
+  refreshSpeakerTitles();
   setInterval(refreshSessionOptions, 60000);
   if (initialSession) chooseJourney('new');
 })();

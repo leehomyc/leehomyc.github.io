@@ -78,7 +78,7 @@ function handleSpeakerLookup(request) {
   if (!validSpeakerSession(sessionId)) return jsonResponse({ ok: true, record: null });
   const row = speakerRows(speakerSheet()).find(item => sessionValue(item[1]) === sessionId);
   if (row) return jsonResponse({ ok: true, record: speakerRecord(row) });
-  if (sessionId === '01') return jsonResponse({ ok: true, record: { sessionId: '01', name: 'Dengyang Jiang', materialsUrl: '', materialsNote: 'Research and internship experience', updatedAt: '', bio: '' } });
+  if (sessionId === '01') return jsonResponse({ ok: true, record: { sessionId: '01', name: 'Dengyang Jiang', materialsUrl: '', materialsNote: '', updatedAt: '', bio: '' } });
   return jsonResponse({ ok: true, record: null });
 }
 
