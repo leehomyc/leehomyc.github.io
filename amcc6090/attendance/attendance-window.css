@@ -51,6 +51,19 @@
   color: #873341;
 }
 
+#attendance-form input:disabled,
+#attendance-form select:disabled {
+  border-color: #ddd9e5;
+  background: #f0eef3;
+  color: #77737f;
+  cursor: not-allowed;
+  opacity: 1;
+}
+
+#attendance-form .confirm-row:has(input:disabled) {
+  color: #77737f;
+}
+
 @media (max-width: 780px) {
   .attendance-window-notice {
     align-items: flex-start;

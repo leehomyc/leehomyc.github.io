@@ -30,6 +30,7 @@
   const submitButton = form.querySelector('.submit-button');
   const initialSession = new URLSearchParams(location.search).get('session');
   let editing = false;
+  let editContext = null;
   let statusTimer;
 
   function attendanceState(session, now = Date.now()) {
@@ -80,6 +81,15 @@
     }
   }
 
+  function setRetrievedRecordMode(locked) {
+    sessionSelect.disabled = locked;
+    ['name', 'studentId', 'code', 'attended'].forEach(name => {
+      form.elements[name].disabled = locked;
+    });
+    form.elements.reflection.disabled = false;
+    form.elements.feedback.disabled = false;
+  }
+
   function refreshSessionOptions() {
     if (editing) return;
     const selected = sessionSelect.value || (sessions.some(session => session.id === initialSession) ? initialSession : '');
@@ -117,7 +127,9 @@
     success.hidden = true;
     if (journey === 'new') {
       editing = false;
+      editContext = null;
       form.reset();
+      setRetrievedRecordMode(false);
       refreshSessionOptions();
       if (sessions.some(session => session.id === initialSession)) sessionSelect.value = initialSession;
       const selected = sessions.find(session => session.id === sessionSelect.value);
@@ -160,7 +172,6 @@
       }
       const record = result.record;
       form.reset();
-      form.querySelectorAll('input, textarea').forEach(control => { control.disabled = false; });
       const retrievedOption = sessionSelect.querySelector(`option[value="${record.sessionId}"]`);
       if (retrievedOption) retrievedOption.disabled = false;
       form.elements.sessionId.value = record.sessionId;
@@ -171,12 +182,19 @@
       form.elements.reflection.value = record.reflection || '';
       form.elements.feedback.value = record.feedback || '';
       editing = true;
+      editContext = {
+        sessionId: record.sessionId,
+        name: record.name,
+        studentId: String(data.get('studentId')),
+        code: String(data.get('code'))
+      };
+      setRetrievedRecordMode(true);
       lookupCard.hidden = true;
       card.hidden = false;
       document.getElementById('form-title').textContent = 'Update your attendance record.';
       document.getElementById('session-summary').textContent = `Session ${record.sessionId} · current record retrieved`;
       windowStatus.className = 'window-status open';
-      windowStatus.textContent = 'Existing record retrieved — you may update your optional reflection or feedback.';
+      windowStatus.textContent = 'Existing attendance is locked. You may update only your optional reflection and feedback.';
       submitButton.disabled = false;
       submitButton.textContent = 'Save changes →';
       card.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -200,7 +218,25 @@
     submitButton.textContent = 'Saving…';
     try {
       const data = new FormData(form);
-      const result = await request({ action: 'attendance-save', code: data.get('code'), sessionId: data.get('sessionId'), name: data.get('name'), studentId: data.get('studentId'), attended: data.get('attended') === 'on', reflection: data.get('reflection'), feedback: data.get('feedback') });
+      const result = await request(editing ? {
+        action: 'attendance-save',
+        code: editContext.code,
+        sessionId: editContext.sessionId,
+        name: editContext.name,
+        studentId: editContext.studentId,
+        attended: true,
+        reflection: form.elements.reflection.value,
+        feedback: form.elements.feedback.value
+      } : {
+        action: 'attendance-save',
+        code: data.get('code'),
+        sessionId: data.get('sessionId'),
+        name: data.get('name'),
+        studentId: data.get('studentId'),
+        attended: data.get('attended') === 'on',
+        reflection: data.get('reflection'),
+        feedback: data.get('feedback')
+      });
       card.hidden = true;
       success.hidden = false;
       document.getElementById('success-title').textContent = result.updated ? 'Your attendance was updated.' : 'You’re marked present.';
@@ -208,6 +244,7 @@
       success.scrollIntoView({ behavior: 'smooth', block: 'center' });
       form.reset();
       editing = false;
+      editContext = null;
     } catch (error) {
       showStatus(error.message, 'error');
     } finally {
