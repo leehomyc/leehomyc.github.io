@@ -1,11 +1,12 @@
 <!doctype html>
 <html lang="en">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="AMCC 6090 attendance, reflection, and feedback form."><title>Attendance — AMCC 6090</title><link rel="stylesheet" href="../styles.css?v=20260902"><link rel="stylesheet" href="./attendance.css?v=20260902b"><link rel="stylesheet" href="./attendance-window.css?v=20260902b"></head>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="AMCC 6090 attendance, reflection, and feedback form."><title>Attendance — AMCC 6090</title><link rel="stylesheet" href="../styles.css?v=20260902"><link rel="stylesheet" href="./attendance.css?v=20260902b"><link rel="stylesheet" href="./attendance-window.css?v=20260902c"></head>
 <body>
   <nav class="site-nav"><a class="brand" href="../">AMCC <span>6090</span></a><div class="nav-links"><a href="../#about">About</a><a href="../#sessions">Sessions</a></div><a class="nav-cta" href="../">Course home →</a></nav>
   <main class="form-page">
     <header class="form-hero"><p class="eyebrow">AMCC 6090 · Fall 2026/27</p><h1>Mark your<br><span>attendance.</span></h1><p>Create or update one record for each seminar you attend. Reflection and feedback are always optional.</p></header>
     <aside class="attendance-window-notice"><strong>Attendance window</strong><span>Opens at 6:30 PM and closes at 11:59 PM on each seminar date.</span><em>Hong Kong time</em></aside>
+    <div id="status" class="status form-status" role="status" aria-live="polite"></div>
     <section class="journey-card"><div><p class="card-kicker">Start here</p><h2>What would you like to do?</h2><p>Submit this session’s attendance, or retrieve a record you already saved.</p></div><div class="journey-options"><button type="button" data-journey="new"><b>Mark attendance</b><span>Create my record for a seminar.</span><em>Start →</em></button><button type="button" data-journey="existing"><b>Update a record</b><span>Retrieve attendance by session and student ID.</span><em>Retrieve →</em></button></div></section>
 
     <section class="form-card" id="attendance-card" hidden><div class="form-intro"><p class="card-kicker">Session record</p><h2 id="form-title">Confirm your attendance.</h2><p id="session-summary">Choose the seminar you attended.</p></div>
@@ -23,7 +24,6 @@
     </section>
 
     <section class="form-card" id="lookup-card" hidden><div class="form-intro"><p class="card-kicker">Existing record</p><h2>Retrieve your attendance.</h2><p>Edit mode opens only when attendance has already been submitted for the selected seminar and student ID.</p></div><form id="lookup-form"><label>Past seminar<select name="sessionId" id="lookup-session" required></select></label><div class="field-grid"><label>Student ID<input name="studentId" type="text" maxlength="30" required></label><label>Course access code<input name="code" type="password" maxlength="40" required></label></div><button class="submit-button" type="submit">Retrieve record →</button></form><div id="lookup-result" class="lookup-result" hidden></div></section>
-    <div id="status" class="status" role="status" aria-live="polite"></div>
   </main>
 
   <dialog class="confirmation-dialog" id="attendance-confirmation" aria-labelledby="confirmation-title">

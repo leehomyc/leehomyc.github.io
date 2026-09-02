@@ -2,6 +2,21 @@
   display: none !important;
 }
 
+.form-status {
+  position: static;
+  display: none;
+  max-width: 1050px;
+  margin: 0 auto 22px;
+  opacity: 1;
+  transform: none;
+}
+
+.form-status.show {
+  display: block;
+  opacity: 1;
+  transform: none;
+}
+
 .attendance-window-notice {
   display: flex;
   align-items: center;
