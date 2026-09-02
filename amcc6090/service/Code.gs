@@ -64,7 +64,7 @@ function handleAttendanceCreate(request) {
     const sheet = attendanceSheet();
     const rows = dataRows(sheet);
     const hash = hashStudentId(input.studentId);
-    const index = rows.findIndex(row => String(row[1]) === input.sessionId && String(row[4]) === hash);
+    const index = rows.findIndex(row => sessionValue(row[1]) === input.sessionId && String(row[4]) === hash);
     if (index >= 0) return jsonResponse({ ok: false, error: 'Attendance is already submitted for this student and session. Retrieve the existing record to edit reflection or feedback.' });
     const now = new Date().toISOString();
     sheet.appendRow([now, input.sessionId, input.name, input.studentId, hash, input.reflection, input.feedback, now]);
@@ -84,7 +84,7 @@ function handleAttendanceUpdate(request) {
     const sheet = attendanceSheet();
     const rows = dataRows(sheet);
     const hash = hashStudentId(studentId);
-    const index = rows.findIndex(row => String(row[1]) === sessionId && String(row[4]) === hash);
+    const index = rows.findIndex(row => sessionValue(row[1]) === sessionId && String(row[4]) === hash);
     if (index < 0) return jsonResponse({ ok: false, error: 'No existing attendance record was found. Only previously submitted attendance can be edited.' });
     const now = new Date().toISOString();
     sheet.getRange(index + 2, 6, 1, 3).setValues([[reflection, feedback, now]]);
@@ -97,7 +97,7 @@ function handleAttendanceLookup(request) {
   const studentId = clean(request.studentId, 30);
   if (!validSession(sessionId) || studentId.length < 4) return jsonResponse({ ok: true, record: null });
   const hash = hashStudentId(studentId);
-  const row = dataRows(attendanceSheet()).find(item => String(item[1]) === sessionId && String(item[4]) === hash);
+  const row = dataRows(attendanceSheet()).find(item => sessionValue(item[1]) === sessionId && String(item[4]) === hash);
   return jsonResponse({ ok: true, record: row ? publicRecord(row) : null });
 }
 
@@ -173,10 +173,10 @@ function speakerSheet() {
 
 function dataRows(sheet) { const last = sheet.getLastRow(); return last < 2 ? [] : sheet.getRange(2, 1, last - 1, 8).getValues(); }
 function speakerRows(sheet) { const last = sheet.getLastRow(); return last < 2 ? [] : sheet.getRange(2, 1, last - 1, 7).getValues(); }
-function publicRecord(row) { return { sessionId: String(row[1]), name: String(row[2]), reflection: String(row[5] || ''), feedback: String(row[6] || ''), updatedAt: String(row[7]) }; }
+function publicRecord(row) { return { sessionId: sessionValue(row[1]), name: String(row[2]), reflection: String(row[5] || ''), feedback: String(row[6] || ''), updatedAt: String(row[7]) }; }
 function publicSpeaker(row) { return { sessionId: sessionValue(row[1]), name: String(row[2]), materialsUrl: String(row[3] || ''), materialsNote: String(row[4] || ''), bio: String(row[6] || '') }; }
 function speakerRecord(row) { return { sessionId: sessionValue(row[1]), name: String(row[2]), materialsUrl: String(row[3] || ''), materialsNote: String(row[4] || ''), updatedAt: String(row[5]), bio: String(row[6] || '') }; }
-function adminRecord(row) { return { createdAt: String(row[0]), sessionId: String(row[1]), name: String(row[2]), studentId: String(row[3]), reflection: String(row[5] || ''), feedback: String(row[6] || ''), updatedAt: String(row[7]) }; }
+function adminRecord(row) { return { createdAt: String(row[0]), sessionId: sessionValue(row[1]), name: String(row[2]), studentId: String(row[3]), reflection: String(row[5] || ''), feedback: String(row[6] || ''), updatedAt: String(row[7]) }; }
 function validAccessCode(value) { const expected = PropertiesService.getScriptProperties().getProperty(ACCESS_CODE_PROPERTY); return Boolean(expected) && safeEqual(clean(value, 100).toUpperCase(), expected.toUpperCase()); }
 function validSpeakerManageCode(value) { const expected = PropertiesService.getScriptProperties().getProperty(SPEAKER_MANAGE_CODE_PROPERTY); return Boolean(expected) && safeEqual(clean(value, 100), expected); }
 function validSession(value) { return /^(0[1-9]|1[0-3])$/.test(value); }
