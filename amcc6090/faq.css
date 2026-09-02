@@ -71,6 +71,7 @@
 .faq-list details > div p { margin: 0 0 13px; }
 .faq-list details > div p:last-child { margin-bottom: 0; }
 .faq-list details > div strong { color: var(--ink); }
+.faq-list details > div a { color: var(--violet); font-weight: 700; text-decoration: underline; text-underline-offset: 3px; }
 
 @media (max-width: 800px) {
   .faq { grid-template-columns: 1fr; }
