@@ -1,38 +1,22 @@
-.instructor-info {
-  display: flex;
+@media (min-width: 801px) {
+  .facts-grid { grid-template-columns: repeat(5, 1fr); }
+}
+
+.instructor-fact small {
+  display: grid;
+  gap: 7px;
+  margin-top: 13px;
+  font-size: 12px;
+}
+
+.instructor-fact small a {
   width: fit-content;
-  max-width: 100%;
-  flex-wrap: wrap;
-  gap: 8px 18px;
-  align-items: center;
-  margin: -6px 0 28px;
-  padding: 11px 15px;
-  border: 1px solid rgba(112, 85, 233, .2);
-  border-radius: 999px;
-  background: rgba(255, 255, 255, .76);
-  color: var(--muted);
-  font-size: 13px;
-  font-style: normal;
-}
-
-.instructor-info strong {
-  color: var(--ink);
-}
-
-.instructor-info a {
   color: var(--violet);
   font-weight: 700;
 }
 
-.instructor-info a:hover,
-.instructor-info a:focus-visible {
+.instructor-fact small a:hover,
+.instructor-fact small a:focus-visible {
   text-decoration: underline;
   text-underline-offset: 3px;
-}
-
-@media (max-width: 520px) {
-  .instructor-info {
-    width: 100%;
-    border-radius: 18px;
-  }
 }
