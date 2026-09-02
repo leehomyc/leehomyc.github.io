@@ -1,15 +1,17 @@
 <!doctype html>
 <html lang="en">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="AMCC 6090 attendance, reflection, and feedback form."><title>Attendance — AMCC 6090</title><link rel="stylesheet" href="../styles.css?v=20260902"><link rel="stylesheet" href="./attendance.css?v=20260902"></head>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="AMCC 6090 attendance, reflection, and feedback form."><title>Attendance — AMCC 6090</title><link rel="stylesheet" href="../styles.css?v=20260902"><link rel="stylesheet" href="./attendance.css?v=20260902"><link rel="stylesheet" href="./attendance-window.css?v=20260902"></head>
 <body>
   <nav class="site-nav"><a class="brand" href="../">AMCC <span>6090</span></a><div class="nav-links"><a href="../#about">About</a><a href="../#sessions">Sessions</a></div><a class="nav-cta" href="../">Course home →</a></nav>
   <main class="form-page">
     <header class="form-hero"><p class="eyebrow">AMCC 6090 · Fall 2026/27</p><h1>Mark your<br><span>attendance.</span></h1><p>Create or update one record for each seminar you attend. Reflection and feedback are always optional.</p></header>
+    <aside class="attendance-window-notice"><strong>Attendance window</strong><span>Opens at 6:30 PM and closes at 11:59 PM on each seminar date.</span><em>Hong Kong time</em></aside>
     <section class="journey-card"><div><p class="card-kicker">Start here</p><h2>What would you like to do?</h2><p>Submit this session’s attendance, or retrieve a record you already saved.</p></div><div class="journey-options"><button type="button" data-journey="new"><b>Mark attendance</b><span>Create my record for a seminar.</span><em>Start →</em></button><button type="button" data-journey="existing"><b>Update a record</b><span>Retrieve attendance by session and student ID.</span><em>Retrieve →</em></button></div></section>
 
     <section class="form-card" id="attendance-card" hidden><div class="form-intro"><p class="card-kicker">Session record</p><h2 id="form-title">Confirm your attendance.</h2><p id="session-summary">Choose the seminar you attended.</p></div>
       <form id="attendance-form">
         <label>Session<select name="sessionId" id="session-select" required></select></label>
+        <div id="window-status" class="window-status" role="status" aria-live="polite"></div>
         <div class="field-grid"><label>Full name<input name="name" type="text" maxlength="80" autocomplete="name" required></label><label>Student ID<input name="studentId" type="text" maxlength="30" autocomplete="off" required></label></div>
         <label>Course access code<input name="code" type="password" maxlength="40" autocomplete="off" required placeholder="Code shared in class"></label>
         <label class="confirm-row"><input name="attended" type="checkbox" required><span><b>I confirm that I attended this seminar in person.</b><small>Your submission time is recorded automatically.</small></span></label>
@@ -24,6 +26,6 @@
     <section class="success-card" id="success" hidden><span>✓</span><div><p>Attendance saved</p><h2 id="success-title">You’re marked present.</h2><p id="success-time"></p></div><button type="button" id="another-session">Mark another session →</button></section>
     <div id="status" class="status" role="status" aria-live="polite"></div>
   </main>
-  <script src="./config.js?v=20260902"></script><script src="./attendance.js?v=20260902b"></script>
+  <script src="./config.js?v=20260902"></script><script src="./attendance.js?v=20260902c"></script>
 </body>
 </html>

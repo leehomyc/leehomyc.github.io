@@ -1,0 +1,63 @@
+.attendance-window-notice {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  max-width: 1050px;
+  margin: -36px auto 32px;
+  padding: 18px 22px;
+  border-radius: 18px;
+  background: #17171a;
+  color: #fff;
+}
+
+.attendance-window-notice strong {
+  color: var(--lime);
+  font-size: 13px;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+.attendance-window-notice span {
+  font-size: 15px;
+}
+
+.attendance-window-notice em {
+  margin-left: auto;
+  color: #aaaab1;
+  font-size: 12px;
+  font-style: normal;
+}
+
+.window-status {
+  padding: 15px 17px;
+  border: 1px solid #ded9f6;
+  border-radius: 14px;
+  background: #f4f1ff;
+  color: #51466f;
+  font-size: 13px;
+  font-weight: 650;
+  line-height: 1.5;
+}
+
+.window-status.open {
+  border-color: #cfe79b;
+  background: #f1f9df;
+  color: #36540b;
+}
+
+.window-status.closed {
+  border-color: #ead8db;
+  background: #fbf1f3;
+  color: #873341;
+}
+
+@media (max-width: 780px) {
+  .attendance-window-notice {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .attendance-window-notice em {
+    margin-left: 0;
+  }
+}
