@@ -26,11 +26,12 @@
   const lookupSession = document.getElementById('lookup-session');
   const windowStatus = document.getElementById('window-status');
   const status = document.getElementById('status');
-  const success = document.getElementById('success');
+  const confirmationDialog = document.getElementById('attendance-confirmation');
   const submitButton = form.querySelector('.submit-button');
   const initialSession = new URLSearchParams(location.search).get('session');
   let editing = false;
   let editContext = null;
+  let pendingDuplicate = null;
   let statusTimer;
 
   function attendanceState(session, now = Date.now()) {
@@ -90,6 +91,71 @@
     form.elements.feedback.disabled = false;
   }
 
+  function displayValue(value) {
+    return String(value || '').trim() || 'Not provided';
+  }
+
+  function openConfirmation(record, studentId, options = {}) {
+    const session = sessions.find(item => item.id === record.sessionId);
+    const duplicate = Boolean(options.duplicate);
+    document.getElementById('confirmation-icon').textContent = duplicate ? '!' : '✓';
+    document.getElementById('confirmation-kicker').textContent = duplicate ? 'Existing record found' : options.updated ? 'Changes saved' : 'Attendance saved';
+    document.getElementById('confirmation-title').textContent = duplicate ? 'Already submitted.' : options.updated ? 'Record updated.' : 'Attendance confirmed.';
+    document.getElementById('confirmation-message').textContent = duplicate
+      ? 'This student ID already has attendance for this session. No second record was created. You can edit the reflection and feedback.'
+      : options.updated
+        ? 'Your attendance remains locked. Your reflection and feedback changes have been saved.'
+        : 'Please review your submitted attendance details below.';
+    document.getElementById('confirmation-session').textContent = session ? sessionLabel(session) : `Session ${record.sessionId}`;
+    document.getElementById('confirmation-name').textContent = record.name;
+    document.getElementById('confirmation-student-id').textContent = studentId;
+    document.getElementById('confirmation-attended').textContent = 'Confirmed · attended in person';
+    document.getElementById('confirmation-reflection').textContent = displayValue(record.reflection);
+    document.getElementById('confirmation-feedback').textContent = displayValue(record.feedback);
+    const savedAt = options.updatedAt || record.updatedAt;
+    document.getElementById('confirmation-time').textContent = savedAt
+      ? new Date(savedAt).toLocaleString('en-HK', { timeZone: 'Asia/Hong_Kong', dateStyle: 'medium', timeStyle: 'medium' }) + ' · Hong Kong time'
+      : 'Previously submitted';
+    document.getElementById('confirmation-edit').hidden = !duplicate;
+    if (typeof confirmationDialog.showModal === 'function') confirmationDialog.showModal();
+    else confirmationDialog.setAttribute('open', '');
+  }
+
+  function closeConfirmation() {
+    if (typeof confirmationDialog.close === 'function') confirmationDialog.close();
+    else confirmationDialog.removeAttribute('open');
+  }
+
+  function loadRecordForEditing(record, credentials) {
+    form.reset();
+    const retrievedOption = sessionSelect.querySelector(`option[value="${record.sessionId}"]`);
+    if (retrievedOption) retrievedOption.disabled = false;
+    form.elements.sessionId.value = record.sessionId;
+    form.elements.name.value = record.name;
+    form.elements.studentId.value = credentials.studentId;
+    form.elements.code.value = credentials.code;
+    form.elements.attended.checked = true;
+    form.elements.reflection.value = record.reflection || '';
+    form.elements.feedback.value = record.feedback || '';
+    editing = true;
+    editContext = {
+      sessionId: record.sessionId,
+      name: record.name,
+      studentId: String(credentials.studentId),
+      code: String(credentials.code)
+    };
+    setRetrievedRecordMode(true);
+    lookupCard.hidden = true;
+    card.hidden = false;
+    document.getElementById('form-title').textContent = 'Update your attendance record.';
+    document.getElementById('session-summary').textContent = `Session ${record.sessionId} · current record retrieved`;
+    windowStatus.className = 'window-status open';
+    windowStatus.textContent = 'Existing attendance is locked. You may update only your optional reflection and feedback.';
+    submitButton.disabled = false;
+    submitButton.textContent = 'Save changes →';
+    card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
   function refreshSessionOptions() {
     if (editing) return;
     const selected = sessionSelect.value || (sessions.some(session => session.id === initialSession) ? initialSession : '');
@@ -124,7 +190,6 @@
   }
 
   function chooseJourney(journey) {
-    success.hidden = true;
     if (journey === 'new') {
       editing = false;
       editContext = null;
@@ -170,34 +235,7 @@
         document.getElementById('lookup-result').textContent = 'No attendance record was found for this student and session.';
         return;
       }
-      const record = result.record;
-      form.reset();
-      const retrievedOption = sessionSelect.querySelector(`option[value="${record.sessionId}"]`);
-      if (retrievedOption) retrievedOption.disabled = false;
-      form.elements.sessionId.value = record.sessionId;
-      form.elements.name.value = record.name;
-      form.elements.studentId.value = data.get('studentId');
-      form.elements.code.value = data.get('code');
-      form.elements.attended.checked = true;
-      form.elements.reflection.value = record.reflection || '';
-      form.elements.feedback.value = record.feedback || '';
-      editing = true;
-      editContext = {
-        sessionId: record.sessionId,
-        name: record.name,
-        studentId: String(data.get('studentId')),
-        code: String(data.get('code'))
-      };
-      setRetrievedRecordMode(true);
-      lookupCard.hidden = true;
-      card.hidden = false;
-      document.getElementById('form-title').textContent = 'Update your attendance record.';
-      document.getElementById('session-summary').textContent = `Session ${record.sessionId} · current record retrieved`;
-      windowStatus.className = 'window-status open';
-      windowStatus.textContent = 'Existing attendance is locked. You may update only your optional reflection and feedback.';
-      submitButton.disabled = false;
-      submitButton.textContent = 'Save changes →';
-      card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      loadRecordForEditing(result.record, { studentId: data.get('studentId'), code: data.get('code') });
     } catch (error) {
       showStatus(error.message, 'error');
     } finally {
@@ -218,33 +256,63 @@
     submitButton.textContent = 'Saving…';
     try {
       const data = new FormData(form);
-      const result = await request(editing ? {
-        action: 'attendance-save',
-        code: editContext.code,
-        sessionId: editContext.sessionId,
-        name: editContext.name,
-        studentId: editContext.studentId,
-        attended: true,
-        reflection: form.elements.reflection.value,
-        feedback: form.elements.feedback.value
-      } : {
-        action: 'attendance-save',
-        code: data.get('code'),
-        sessionId: data.get('sessionId'),
-        name: data.get('name'),
-        studentId: data.get('studentId'),
-        attended: data.get('attended') === 'on',
-        reflection: data.get('reflection'),
-        feedback: data.get('feedback')
-      });
-      card.hidden = true;
-      success.hidden = false;
-      document.getElementById('success-title').textContent = result.updated ? 'Your attendance was updated.' : 'You’re marked present.';
-      document.getElementById('success-time').textContent = `Session ${data.get('sessionId')} · saved ${new Date(result.updatedAt).toLocaleString()}`;
-      success.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      form.reset();
-      editing = false;
-      editContext = null;
+      if (editing) {
+        const updatedRecord = {
+          sessionId: editContext.sessionId,
+          name: editContext.name,
+          reflection: form.elements.reflection.value,
+          feedback: form.elements.feedback.value
+        };
+        const result = await request({
+          action: 'attendance-save',
+          code: editContext.code,
+          sessionId: editContext.sessionId,
+          name: editContext.name,
+          studentId: editContext.studentId,
+          attended: true,
+          reflection: updatedRecord.reflection,
+          feedback: updatedRecord.feedback
+        });
+        openConfirmation(updatedRecord, editContext.studentId, { updated: true, updatedAt: result.updatedAt });
+        card.hidden = true;
+        form.reset();
+        editing = false;
+        editContext = null;
+      } else {
+        const submission = {
+          sessionId: String(data.get('sessionId')),
+          name: String(data.get('name')),
+          studentId: String(data.get('studentId')),
+          code: String(data.get('code')),
+          reflection: String(data.get('reflection') || ''),
+          feedback: String(data.get('feedback') || '')
+        };
+        const existing = await request({ action: 'attendance-lookup', code: submission.code, sessionId: submission.sessionId, studentId: submission.studentId });
+        if (existing.record) {
+          pendingDuplicate = { record: existing.record, credentials: { studentId: submission.studentId, code: submission.code } };
+          openConfirmation(existing.record, submission.studentId, { duplicate: true });
+          return;
+        }
+        const result = await request({
+          action: 'attendance-save',
+          code: submission.code,
+          sessionId: submission.sessionId,
+          name: submission.name,
+          studentId: submission.studentId,
+          attended: true,
+          reflection: submission.reflection,
+          feedback: submission.feedback
+        });
+        if (result.updated) {
+          const duplicate = await request({ action: 'attendance-lookup', code: submission.code, sessionId: submission.sessionId, studentId: submission.studentId });
+          pendingDuplicate = { record: duplicate.record || submission, credentials: { studentId: submission.studentId, code: submission.code } };
+          openConfirmation(duplicate.record || submission, submission.studentId, { duplicate: true, updatedAt: result.updatedAt });
+          return;
+        }
+        openConfirmation(submission, submission.studentId, { updatedAt: result.updatedAt });
+        card.hidden = true;
+        form.reset();
+      }
     } catch (error) {
       showStatus(error.message, 'error');
     } finally {
@@ -254,7 +322,21 @@
     }
   });
 
-  document.getElementById('another-session').addEventListener('click', () => chooseJourney('new'));
+  document.getElementById('confirmation-close').addEventListener('click', () => {
+    closeConfirmation();
+    pendingDuplicate = null;
+  });
+  document.getElementById('confirmation-done').addEventListener('click', () => {
+    closeConfirmation();
+    pendingDuplicate = null;
+  });
+  document.getElementById('confirmation-edit').addEventListener('click', () => {
+    if (!pendingDuplicate) return;
+    const duplicate = pendingDuplicate;
+    pendingDuplicate = null;
+    closeConfirmation();
+    loadRecordForEditing(duplicate.record, duplicate.credentials);
+  });
   refreshSessionOptions();
   setInterval(refreshSessionOptions, 60000);
   if (initialSession) chooseJourney('new');

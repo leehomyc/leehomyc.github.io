@@ -17,15 +17,30 @@
         <label class="confirm-row"><input name="attended" type="checkbox" required><span><b>I confirm that I attended this seminar in person.</b><small>Your submission time is recorded automatically.</small></span></label>
         <label>Reflection <small>Optional · What stayed with you?</small><textarea name="reflection" rows="5" maxlength="1200" placeholder="A useful idea, connection, question, or next step…"></textarea></label>
         <label>Feedback <small>Optional · Help improve future sessions.</small><textarea name="feedback" rows="4" maxlength="800" placeholder="What worked well, or what could be better?"></textarea></label>
-        <p class="privacy-note">Your name, student ID, attendance, reflection, and feedback are visible only in the instructor dashboard.</p>
+        <p class="privacy-note"><strong>One attendance record per student ID for each session.</strong> If you already submitted, the site will retrieve that record so you can edit only reflection and feedback. Your information is visible only in the instructor dashboard.</p>
         <button class="submit-button" type="submit">Save attendance →</button>
       </form>
     </section>
 
     <section class="form-card" id="lookup-card" hidden><div class="form-intro"><p class="card-kicker">Existing record</p><h2>Retrieve your attendance.</h2><p>Select a past seminar and enter the same student ID and course code used before.</p></div><form id="lookup-form"><label>Past seminar<select name="sessionId" id="lookup-session" required></select></label><div class="field-grid"><label>Student ID<input name="studentId" type="text" maxlength="30" required></label><label>Course access code<input name="code" type="password" maxlength="40" required></label></div><button class="submit-button" type="submit">Retrieve record →</button></form><div id="lookup-result" class="lookup-result" hidden></div></section>
-    <section class="success-card" id="success" hidden><span>✓</span><div><p>Attendance saved</p><h2 id="success-title">You’re marked present.</h2><p id="success-time"></p></div><button type="button" id="another-session">Mark another session →</button></section>
     <div id="status" class="status" role="status" aria-live="polite"></div>
   </main>
-  <script src="./config.js?v=20260902"></script><script src="./attendance.js?v=20260902d"></script>
+
+  <dialog class="confirmation-dialog" id="attendance-confirmation" aria-labelledby="confirmation-title">
+    <button class="dialog-close" id="confirmation-close" type="button" aria-label="Close confirmation">×</button>
+    <div class="confirmation-heading"><span id="confirmation-icon">✓</span><div><p id="confirmation-kicker">Attendance saved</p><h2 id="confirmation-title">Attendance confirmed.</h2><p id="confirmation-message"></p></div></div>
+    <dl class="confirmation-details">
+      <div><dt>Session</dt><dd id="confirmation-session"></dd></div>
+      <div><dt>Full name</dt><dd id="confirmation-name"></dd></div>
+      <div><dt>Student ID</dt><dd id="confirmation-student-id"></dd></div>
+      <div><dt>Attendance</dt><dd id="confirmation-attended"></dd></div>
+      <div class="full"><dt>Reflection</dt><dd id="confirmation-reflection"></dd></div>
+      <div class="full"><dt>Feedback</dt><dd id="confirmation-feedback"></dd></div>
+      <div class="full"><dt>Submitted</dt><dd id="confirmation-time"></dd></div>
+    </dl>
+    <div class="confirmation-actions"><button id="confirmation-edit" type="button" hidden>Edit reflection &amp; feedback →</button><button id="confirmation-done" type="button">Done</button></div>
+  </dialog>
+
+  <script src="./config.js?v=20260902"></script><script src="./attendance.js?v=20260902e"></script>
 </body>
 </html>
