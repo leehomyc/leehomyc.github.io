@@ -1,5 +1,6 @@
 (() => {
   const endpoint = window.AMCC5160_SIGNUP_API;
+  const ENROLLED_STUDENT_TOTAL = 80;
   const questions = [
     'What does it mean for a machine-learning model to learn? Use prediction, target, and loss.',
     'What does one artificial neuron do? Explain weights, bias, and the activation function.',
@@ -62,8 +63,9 @@
     const graded = [...records.signups, ...quizzes].filter(item => item.score !== null && item.score !== '').length;
     students = buildStudents([...records.signups, ...quizzes]);
     [['weekly', weekly.length], ['quiz', quizzes.length], ['final', finals.length]].forEach(([key, value]) => { $(`#metric-${key}`).textContent = value; $(`#count-${key}`).textContent = value; });
-    $('#metric-students').textContent = students.length;
-    $('#count-students').textContent = students.length;
+    $('#metric-students').textContent = ENROLLED_STUDENT_TOTAL;
+    $('#count-students').textContent = ENROLLED_STUDENT_TOTAL;
+    $('#activity-student-count').textContent = students.length;
     $('#metric-graded').textContent = graded;
     renderStudents();
     renderPresentation('#weekly-list', weekly, 10);
