@@ -1,5 +1,6 @@
 const SHEET_NAME = 'Attendance';
 const SPEAKER_SHEET_NAME = 'Speakers';
+const ROSTER_SHEET_NAME = 'Roster';
 const ACCESS_CODE_PROPERTY = 'AMCC6090_ACCESS_CODE';
 const ADMIN_CODE_PROPERTY = 'AMCC6090_ADMIN_CODE';
 const SPEAKER_MANAGE_CODE_PROPERTY = 'AMCC6090_SPEAKER_MANAGE_CODE';
@@ -24,6 +25,7 @@ function doPost(event) {
   try {
     const request = JSON.parse((event.postData && event.postData.contents) || '{}');
     if (request.action === 'attendance-admin-list') return handleAdminList(request);
+    if (request.action === 'attendance-admin-roster-save') return handleAdminRosterSave(request);
     if (request.action === 'speaker-public-list') return handlePublicSpeakerList();
     if (request.action === 'speaker-lookup' || request.action === 'speaker-signup') {
       if (!validSpeakerManageCode(request.code)) return jsonResponse({ ok: false, error: 'Incorrect speaker management code.' });
@@ -102,9 +104,39 @@ function handleAttendanceLookup(request) {
 }
 
 function handleAdminList(request) {
-  const expected = PropertiesService.getScriptProperties().getProperty(ADMIN_CODE_PROPERTY);
-  if (!expected || !safeEqual(clean(request.adminCode, 100), expected)) return jsonResponse({ ok: false, error: 'Incorrect instructor code.' });
-  return jsonResponse({ ok: true, records: dataRows(attendanceSheet()).map(adminRecord), refreshedAt: new Date().toISOString() });
+  if (!validAdminCode(request.adminCode)) return jsonResponse({ ok: false, error: 'Incorrect instructor code.' });
+  return jsonResponse({
+    ok: true,
+    roster: rosterRows(rosterSheet()).map(adminRosterRecord),
+    records: dataRows(attendanceSheet()).map(adminRecord),
+    refreshedAt: new Date().toISOString()
+  });
+}
+
+function handleAdminRosterSave(request) {
+  if (!validAdminCode(request.adminCode)) return jsonResponse({ ok: false, error: 'Incorrect instructor code.' });
+  if (!Array.isArray(request.roster) || request.roster.length < 1 || request.roster.length > 250) {
+    return jsonResponse({ ok: false, error: 'Please provide a valid course roster.' });
+  }
+  const seen = {};
+  const now = new Date().toISOString();
+  const rows = [];
+  for (let i = 0; i < request.roster.length; i += 1) {
+    const name = clean(request.roster[i] && request.roster[i].name, 80);
+    const studentId = clean(request.roster[i] && request.roster[i].studentId, 30);
+    if (name.length < 2 || studentId.length < 4) return jsonResponse({ ok: false, error: 'Every roster entry needs a valid name and student ID.' });
+    const hash = hashStudentId(studentId);
+    if (seen[hash]) return jsonResponse({ ok: false, error: 'The roster contains a duplicate student ID.' });
+    seen[hash] = true;
+    rows.push([name, studentId, hash, now]);
+  }
+  const lock = LockService.getScriptLock(); lock.waitLock(10000);
+  try {
+    const sheet = rosterSheet();
+    if (sheet.getLastRow() > 1) sheet.getRange(2, 1, sheet.getLastRow() - 1, 4).clearContent();
+    sheet.getRange(2, 1, rows.length, 4).setValues(rows);
+    return jsonResponse({ ok: true, count: rows.length, updatedAt: now });
+  } finally { lock.releaseLock(); }
 }
 
 function handleSpeakerList() {
@@ -171,13 +203,26 @@ function speakerSheet() {
   return sheet;
 }
 
+function rosterSheet() {
+  const spreadsheetId = PropertiesService.getScriptProperties().getProperty('AMCC6090_SPREADSHEET_ID');
+  if (!spreadsheetId) throw new Error('Spreadsheet is not configured.');
+  const book = SpreadsheetApp.openById(spreadsheetId);
+  let sheet = book.getSheetByName(ROSTER_SHEET_NAME);
+  if (!sheet) sheet = book.insertSheet(ROSTER_SHEET_NAME);
+  if (sheet.getLastRow() === 0) sheet.appendRow(['Student name','Student ID','Student hash','Updated at']);
+  return sheet;
+}
+
 function dataRows(sheet) { const last = sheet.getLastRow(); return last < 2 ? [] : sheet.getRange(2, 1, last - 1, 8).getValues(); }
 function speakerRows(sheet) { const last = sheet.getLastRow(); return last < 2 ? [] : sheet.getRange(2, 1, last - 1, 7).getValues(); }
+function rosterRows(sheet) { const last = sheet.getLastRow(); return last < 2 ? [] : sheet.getRange(2, 1, last - 1, 4).getValues(); }
 function publicRecord(row) { return { sessionId: sessionValue(row[1]), name: String(row[2]), reflection: String(row[5] || ''), feedback: String(row[6] || ''), updatedAt: String(row[7]) }; }
 function publicSpeaker(row) { return { sessionId: sessionValue(row[1]), name: String(row[2]), materialsUrl: String(row[3] || ''), materialsNote: String(row[4] || ''), bio: String(row[6] || '') }; }
 function speakerRecord(row) { return { sessionId: sessionValue(row[1]), name: String(row[2]), materialsUrl: String(row[3] || ''), materialsNote: String(row[4] || ''), updatedAt: String(row[5]), bio: String(row[6] || '') }; }
 function adminRecord(row) { return { createdAt: String(row[0]), sessionId: sessionValue(row[1]), name: String(row[2]), studentId: String(row[3]), reflection: String(row[5] || ''), feedback: String(row[6] || ''), updatedAt: String(row[7]) }; }
+function adminRosterRecord(row) { return { name: String(row[0]), studentId: String(row[1]) }; }
 function validAccessCode(value) { const expected = PropertiesService.getScriptProperties().getProperty(ACCESS_CODE_PROPERTY); return Boolean(expected) && safeEqual(clean(value, 100).toUpperCase(), expected.toUpperCase()); }
+function validAdminCode(value) { const expected = PropertiesService.getScriptProperties().getProperty(ADMIN_CODE_PROPERTY); return Boolean(expected) && safeEqual(clean(value, 100), expected); }
 function validSpeakerManageCode(value) { const expected = PropertiesService.getScriptProperties().getProperty(SPEAKER_MANAGE_CODE_PROPERTY); return Boolean(expected) && safeEqual(clean(value, 100), expected); }
 function validSession(value) { return /^(0[1-9]|1[0-3])$/.test(value); }
 function validSpeakerSession(value) { return /^(0[1-9]|1[0-3])$/.test(value); }
