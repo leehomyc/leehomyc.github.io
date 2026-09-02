@@ -89,6 +89,7 @@
     items.forEach(item => {
       const rawId = item.studentId || '';
       const key = studentKey(item);
+      if (roster.length && !directory.has(key)) return;
       const entry = directory.get(key) || { name: studentName(item), studentId: studentId(item), weekly: [], finals: [], quizzes: [], lastActivity: '' };
       if (item.name || item.fullName) entry.name = studentName(item);
       if (rawId) entry.studentId = rawId;
