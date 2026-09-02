@@ -71,10 +71,11 @@ function handlePublicSpeakerList() {
 
 function handleSpeakerLookup(request) {
   const sessionId = clean(request.sessionId, 2);
-  const name = clean(request.name, 80);
-  if (!validSpeakerSession(sessionId) || name.length < 2) return jsonResponse({ ok: true, record: null });
-  const row = speakerRows(speakerSheet()).find(item => String(item[1]) === sessionId && clean(item[2], 80).toLowerCase() === name.toLowerCase());
-  return jsonResponse({ ok: true, record: row ? speakerRecord(row) : null });
+  if (!validSpeakerSession(sessionId)) return jsonResponse({ ok: true, record: null });
+  const row = speakerRows(speakerSheet()).find(item => String(item[1]) === sessionId);
+  if (row) return jsonResponse({ ok: true, record: speakerRecord(row) });
+  if (sessionId === '01') return jsonResponse({ ok: true, record: { sessionId: '01', name: 'Dengyang Jiang', materialsUrl: '', materialsNote: 'Research and internship experience', updatedAt: '', bio: '' } });
+  return jsonResponse({ ok: true, record: null });
 }
 
 function handleSpeakerSignup(request) {
@@ -82,9 +83,11 @@ function handleSpeakerSignup(request) {
   const name = clean(request.name, 80);
   const materialsUrl = clean(request.materialsUrl, 500);
   const materialsNote = cleanMultiline(request.materialsNote, 300);
+  const bio = cleanMultiline(request.bio, 1000);
   const originalName = clean(request.originalName, 80);
   if (!validSpeakerSession(sessionId)) return jsonResponse({ ok: false, error: 'Please choose an open seminar date.' });
   if (name.length < 2) return jsonResponse({ ok: false, error: 'Please enter your name.' });
+  if (bio.length < 10) return jsonResponse({ ok: false, error: 'Please add a short speaker bio.' });
   if (materialsUrl && !validUrl(materialsUrl)) return jsonResponse({ ok: false, error: 'Please use a valid http(s) link for presentation materials.' });
   const lock = LockService.getScriptLock(); lock.waitLock(10000);
   try {
@@ -94,7 +97,7 @@ function handleSpeakerSignup(request) {
     if (index >= 0 && (!originalName || clean(rows[index][2], 80).toLowerCase() !== originalName.toLowerCase())) return jsonResponse({ ok: false, error: 'That seminar date has already been reserved.' });
     const now = new Date().toISOString();
     const createdAt = index >= 0 ? rows[index][0] : now;
-    const values = [createdAt, sessionId, name, materialsUrl, materialsNote, now];
+    const values = [createdAt, sessionId, name, materialsUrl, materialsNote, now, bio];
     if (index >= 0) sheet.getRange(index + 2, 1, 1, values.length).setValues([values]);
     else sheet.appendRow(values);
     return jsonResponse({ ok: true, updated: index >= 0, sessionId: sessionId, updatedAt: now });
@@ -117,19 +120,20 @@ function speakerSheet() {
   const book = SpreadsheetApp.openById(spreadsheetId);
   let sheet = book.getSheetByName(SPEAKER_SHEET_NAME);
   if (!sheet) sheet = book.insertSheet(SPEAKER_SHEET_NAME);
-  if (sheet.getLastRow() === 0) sheet.appendRow(['Created at','Session','Speaker name','Materials URL','Materials note','Updated at']);
+  if (sheet.getLastRow() === 0) sheet.appendRow(['Created at','Session','Speaker name','Materials URL','Materials note','Updated at','Speaker bio']);
+  else if (!sheet.getRange(1, 7).getValue()) sheet.getRange(1, 7).setValue('Speaker bio');
   return sheet;
 }
 
 function dataRows(sheet) { const last = sheet.getLastRow(); return last < 2 ? [] : sheet.getRange(2, 1, last - 1, 8).getValues(); }
-function speakerRows(sheet) { const last = sheet.getLastRow(); return last < 2 ? [] : sheet.getRange(2, 1, last - 1, 6).getValues(); }
+function speakerRows(sheet) { const last = sheet.getLastRow(); return last < 2 ? [] : sheet.getRange(2, 1, last - 1, 7).getValues(); }
 function publicRecord(row) { return { sessionId: String(row[1]), name: String(row[2]), reflection: String(row[5] || ''), feedback: String(row[6] || ''), updatedAt: String(row[7]) }; }
-function publicSpeaker(row) { return { sessionId: String(row[1]), name: String(row[2]), materialsUrl: String(row[3] || ''), materialsNote: String(row[4] || '') }; }
-function speakerRecord(row) { return { sessionId: String(row[1]), name: String(row[2]), materialsUrl: String(row[3] || ''), materialsNote: String(row[4] || ''), updatedAt: String(row[5]) }; }
+function publicSpeaker(row) { return { sessionId: String(row[1]), name: String(row[2]), materialsUrl: String(row[3] || ''), materialsNote: String(row[4] || ''), bio: String(row[6] || '') }; }
+function speakerRecord(row) { return { sessionId: String(row[1]), name: String(row[2]), materialsUrl: String(row[3] || ''), materialsNote: String(row[4] || ''), updatedAt: String(row[5]), bio: String(row[6] || '') }; }
 function adminRecord(row) { return { createdAt: String(row[0]), sessionId: String(row[1]), name: String(row[2]), studentId: String(row[3]), reflection: String(row[5] || ''), feedback: String(row[6] || ''), updatedAt: String(row[7]) }; }
 function validAccessCode(value) { const expected = PropertiesService.getScriptProperties().getProperty(ACCESS_CODE_PROPERTY); return Boolean(expected) && safeEqual(clean(value, 100).toUpperCase(), expected.toUpperCase()); }
 function validSession(value) { return /^(0[1-9]|1[0-3])$/.test(value); }
-function validSpeakerSession(value) { return /^(0[2-9]|1[0-3])$/.test(value); }
+function validSpeakerSession(value) { return /^(0[1-9]|1[0-3])$/.test(value); }
 function validUrl(value) { try { const url = new URL(value); return url.protocol === 'https:' || url.protocol === 'http:'; } catch (error) { return false; } }
 function clean(value, max) { return String(value || '').replace(/[\u0000-\u001F\u007F]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, max); }
 function cleanMultiline(value, max) { return String(value || '').replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, '').trim().slice(0, max); }

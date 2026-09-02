@@ -13,7 +13,7 @@
         main.querySelector('h3').textContent=speaker.name;
         main.querySelector('span').textContent=speaker.materialsNote || 'Presentation details available.';
         const details=document.createElement('details'); details.className='speaker-details';
-        details.innerHTML='<summary>Presentation details</summary><p>'+esc(speaker.materialsNote || 'Details will be shared by the speaker.')+'</p>'+(speaker.materialsUrl?'<a href="'+esc(speaker.materialsUrl)+'" target="_blank" rel="noopener">Open presentation materials →</a>':'');
+        details.innerHTML='<summary>Speaker bio & presentation details</summary>'+(speaker.bio?'<h4>About the speaker</h4><p>'+esc(speaker.bio)+'</p>':'')+'<h4>Presentation</h4><p>'+esc(speaker.materialsNote || 'Details will be shared by the speaker.')+'</p>'+(speaker.materialsUrl?'<a href="'+esc(speaker.materialsUrl)+'" target="_blank" rel="noopener">Open presentation materials →</a>':'');
         main.appendChild(details);
       });
     }).catch(()=>{});
