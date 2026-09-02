@@ -28,6 +28,7 @@
   const status = document.getElementById('status');
   const confirmationDialog = document.getElementById('attendance-confirmation');
   const submitButton = form.querySelector('.submit-button');
+  const lookupSubmitButton = lookupForm.querySelector('.submit-button');
   const initialSession = new URLSearchParams(location.search).get('session');
   let editing = false;
   let editContext = null;
@@ -61,6 +62,10 @@
     return sessions.find(session => Date.now() < Date.parse(session.opensAt));
   }
 
+  function currentSession() {
+    return sessions.find(session => attendanceState(session) === 'open');
+  }
+
   function setNewAttendanceAvailability(session) {
     const state = attendanceState(session);
     const canSubmit = Boolean(session) && state === 'open';
@@ -75,8 +80,11 @@
     } else if (session) {
       windowStatus.textContent = `Not open yet — Session ${session.id} opens at 6:30 PM and closes at 11:59 PM on ${session.date} (Hong Kong time).`;
     } else {
+      const current = currentSession();
       const upcoming = nextSession();
-      windowStatus.textContent = upcoming
+      windowStatus.textContent = current
+        ? `Attendance is open for Session ${current.id}. Choose it above to continue.`
+        : upcoming
         ? `No attendance window is open. Session ${upcoming.id} opens at 6:30 PM on ${upcoming.date} (Hong Kong time).`
         : 'All attendance windows for this course have closed.';
     }
@@ -165,6 +173,8 @@
     lookupSession.innerHTML = optionMarkup(pastSessions, pastSessions.length ? 'Choose a past seminar…' : 'No past seminars yet');
     if (selected) sessionSelect.value = selected;
     if (pastSessions.some(session => session.id === lookupSelected)) lookupSession.value = lookupSelected;
+    lookupSession.disabled = pastSessions.length === 0;
+    lookupSubmitButton.disabled = pastSessions.length === 0;
     if (!editing) setNewAttendanceAvailability(sessions.find(session => session.id === selected));
   }
 
@@ -279,7 +289,7 @@
           feedback: form.elements.feedback.value
         };
         const result = await request({
-          action: 'attendance-save',
+          action: 'attendance-update',
           code: editContext.code,
           sessionId: editContext.sessionId,
           name: editContext.name,

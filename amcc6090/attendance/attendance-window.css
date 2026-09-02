@@ -1,3 +1,7 @@
+[hidden] {
+  display: none !important;
+}
+
 .attendance-window-notice {
   display: flex;
   align-items: center;

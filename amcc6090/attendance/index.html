@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="AMCC 6090 attendance, reflection, and feedback form."><title>Attendance — AMCC 6090</title><link rel="stylesheet" href="../styles.css?v=20260902"><link rel="stylesheet" href="./attendance.css?v=20260902"><link rel="stylesheet" href="./attendance-window.css?v=20260902"></head>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="AMCC 6090 attendance, reflection, and feedback form."><title>Attendance — AMCC 6090</title><link rel="stylesheet" href="../styles.css?v=20260902"><link rel="stylesheet" href="./attendance.css?v=20260902b"><link rel="stylesheet" href="./attendance-window.css?v=20260902b"></head>
 <body>
   <nav class="site-nav"><a class="brand" href="../">AMCC <span>6090</span></a><div class="nav-links"><a href="../#about">About</a><a href="../#sessions">Sessions</a></div><a class="nav-cta" href="../">Course home →</a></nav>
   <main class="form-page">
@@ -22,7 +22,7 @@
       </form>
     </section>
 
-    <section class="form-card" id="lookup-card" hidden><div class="form-intro"><p class="card-kicker">Existing record</p><h2>Retrieve your attendance.</h2><p>Select a past seminar and enter the same student ID and course code used before.</p></div><form id="lookup-form"><label>Past seminar<select name="sessionId" id="lookup-session" required></select></label><div class="field-grid"><label>Student ID<input name="studentId" type="text" maxlength="30" required></label><label>Course access code<input name="code" type="password" maxlength="40" required></label></div><button class="submit-button" type="submit">Retrieve record →</button></form><div id="lookup-result" class="lookup-result" hidden></div></section>
+    <section class="form-card" id="lookup-card" hidden><div class="form-intro"><p class="card-kicker">Existing record</p><h2>Retrieve your attendance.</h2><p>Edit mode opens only when attendance has already been submitted for the selected seminar and student ID.</p></div><form id="lookup-form"><label>Past seminar<select name="sessionId" id="lookup-session" required></select></label><div class="field-grid"><label>Student ID<input name="studentId" type="text" maxlength="30" required></label><label>Course access code<input name="code" type="password" maxlength="40" required></label></div><button class="submit-button" type="submit">Retrieve record →</button></form><div id="lookup-result" class="lookup-result" hidden></div></section>
     <div id="status" class="status" role="status" aria-live="polite"></div>
   </main>
 
@@ -41,6 +41,6 @@
     <div class="confirmation-actions"><button id="confirmation-edit" type="button" hidden>Edit reflection &amp; feedback →</button><button id="confirmation-done" type="button">Done</button></div>
   </dialog>
 
-  <script src="./config.js?v=20260902"></script><script src="./attendance.js?v=20260902f"></script>
+  <script src="./config.js?v=20260902"></script><script src="./attendance.js?v=20260902g"></script>
 </body>
 </html>

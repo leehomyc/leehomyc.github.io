@@ -15,7 +15,8 @@ function doPost(event) {
       return handleSpeakerSignup(request);
     }
     if (!validAccessCode(request.code)) return jsonResponse({ ok: false, error: 'Incorrect course access code.' });
-    if (request.action === 'attendance-save') return handleAttendanceSave(request);
+    if (request.action === 'attendance-save') return handleAttendanceCreate(request);
+    if (request.action === 'attendance-update') return handleAttendanceUpdate(request);
     if (request.action === 'attendance-lookup') return handleAttendanceLookup(request);
     if (request.action === 'speaker-list') return handleSpeakerList();
     return jsonResponse({ ok: false, error: 'Unknown request.' });
@@ -25,28 +26,52 @@ function doPost(event) {
   }
 }
 
-function handleAttendanceSave(request) {
+function attendanceInput(request) {
   const sessionId = clean(request.sessionId, 2);
   const name = clean(request.name, 80);
   const studentId = clean(request.studentId, 30);
   const reflection = cleanMultiline(request.reflection, 1200);
   const feedback = cleanMultiline(request.feedback, 800);
+  if (!validSession(sessionId)) return { response: jsonResponse({ ok: false, error: 'Please choose a valid seminar session.' }) };
+  if (name.length < 2) return { response: jsonResponse({ ok: false, error: 'Please enter your full name.' }) };
+  if (studentId.length < 4) return { response: jsonResponse({ ok: false, error: 'Please enter a valid student ID.' }) };
+  if (request.attended !== true) return { response: jsonResponse({ ok: false, error: 'Please confirm that you attended this seminar.' }) };
+  return { sessionId: sessionId, name: name, studentId: studentId, reflection: reflection, feedback: feedback };
+}
+
+function handleAttendanceCreate(request) {
+  const input = attendanceInput(request);
+  if (input.response) return input.response;
+  const lock = LockService.getScriptLock(); lock.waitLock(10000);
+  try {
+    const sheet = attendanceSheet();
+    const rows = dataRows(sheet);
+    const hash = hashStudentId(input.studentId);
+    const index = rows.findIndex(row => String(row[1]) === input.sessionId && String(row[4]) === hash);
+    if (index >= 0) return jsonResponse({ ok: false, error: 'Attendance is already submitted for this student and session. Retrieve the existing record to edit reflection or feedback.' });
+    const now = new Date().toISOString();
+    sheet.appendRow([now, input.sessionId, input.name, input.studentId, hash, input.reflection, input.feedback, now]);
+    return jsonResponse({ ok: true, updated: false, updatedAt: now });
+  } finally { lock.releaseLock(); }
+}
+
+function handleAttendanceUpdate(request) {
+  const sessionId = clean(request.sessionId, 2);
+  const studentId = clean(request.studentId, 30);
+  const reflection = cleanMultiline(request.reflection, 1200);
+  const feedback = cleanMultiline(request.feedback, 800);
   if (!validSession(sessionId)) return jsonResponse({ ok: false, error: 'Please choose a valid seminar session.' });
-  if (name.length < 2) return jsonResponse({ ok: false, error: 'Please enter your full name.' });
   if (studentId.length < 4) return jsonResponse({ ok: false, error: 'Please enter a valid student ID.' });
-  if (request.attended !== true) return jsonResponse({ ok: false, error: 'Please confirm that you attended this seminar.' });
   const lock = LockService.getScriptLock(); lock.waitLock(10000);
   try {
     const sheet = attendanceSheet();
     const rows = dataRows(sheet);
     const hash = hashStudentId(studentId);
     const index = rows.findIndex(row => String(row[1]) === sessionId && String(row[4]) === hash);
+    if (index < 0) return jsonResponse({ ok: false, error: 'No existing attendance record was found. Only previously submitted attendance can be edited.' });
     const now = new Date().toISOString();
-    const createdAt = index >= 0 ? rows[index][0] : now;
-    const values = [createdAt, sessionId, name, studentId, hash, reflection, feedback, now];
-    if (index >= 0) sheet.getRange(index + 2, 1, 1, values.length).setValues([values]);
-    else sheet.appendRow(values);
-    return jsonResponse({ ok: true, updated: index >= 0, updatedAt: now });
+    sheet.getRange(index + 2, 6, 1, 3).setValues([[reflection, feedback, now]]);
+    return jsonResponse({ ok: true, updated: true, updatedAt: now });
   } finally { lock.releaseLock(); }
 }
 
