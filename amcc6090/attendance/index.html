@@ -20,10 +20,10 @@
       </form>
     </section>
 
-    <section class="form-card" id="lookup-card" hidden><div class="form-intro"><p class="card-kicker">Existing record</p><h2>Retrieve your attendance.</h2><p>Select a seminar and enter the same student ID and course code used before.</p></div><form id="lookup-form"><label>Session<select name="sessionId" id="lookup-session" required></select></label><div class="field-grid"><label>Student ID<input name="studentId" type="text" maxlength="30" required></label><label>Course access code<input name="code" type="password" maxlength="40" required></label></div><button class="submit-button" type="submit">Retrieve record →</button></form><div id="lookup-result" class="lookup-result" hidden></div></section>
+    <section class="form-card" id="lookup-card" hidden><div class="form-intro"><p class="card-kicker">Existing record</p><h2>Retrieve your attendance.</h2><p>Select a past seminar and enter the same student ID and course code used before.</p></div><form id="lookup-form"><label>Past seminar<select name="sessionId" id="lookup-session" required></select></label><div class="field-grid"><label>Student ID<input name="studentId" type="text" maxlength="30" required></label><label>Course access code<input name="code" type="password" maxlength="40" required></label></div><button class="submit-button" type="submit">Retrieve record →</button></form><div id="lookup-result" class="lookup-result" hidden></div></section>
     <section class="success-card" id="success" hidden><span>✓</span><div><p>Attendance saved</p><h2 id="success-title">You’re marked present.</h2><p id="success-time"></p></div><button type="button" id="another-session">Mark another session →</button></section>
     <div id="status" class="status" role="status" aria-live="polite"></div>
   </main>
-  <script src="./config.js?v=20260902"></script><script src="./attendance.js?v=20260902"></script>
+  <script src="./config.js?v=20260902"></script><script src="./attendance.js?v=20260902b"></script>
 </body>
 </html>

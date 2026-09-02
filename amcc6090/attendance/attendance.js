@@ -2,8 +2,8 @@
   'use strict';
   const API_URL = window.AMCC6090_ATTENDANCE_API || '';
   const sessions = [
-    ['01','Sep 04','Dengyang Jiang — Research and internship experience'],['02','Sep 11','Speaker to be announced'],['03','Sep 18','Speaker to be announced'],['04','Sep 25','Speaker to be announced'],['05','Oct 02','Speaker to be announced'],['06','Oct 09','Speaker to be announced'],['07','Oct 16','Speaker to be announced'],['08','Oct 23','Speaker to be announced'],['09','Oct 30','Speaker to be announced'],['10','Nov 06','Speaker to be announced'],['11','Nov 13','Speaker to be announced'],['12','Nov 20','Speaker to be announced'],['13','Nov 27','Speaker to be announced']
-  ].map(([id,date,title]) => ({ id, date, title }));
+    ['01','Sep 04','2026-09-04T19:20:00+08:00','Dengyang Jiang — Research and internship experience'],['02','Sep 11','2026-09-11T19:20:00+08:00','Speaker to be announced'],['03','Sep 18','2026-09-18T19:20:00+08:00','Speaker to be announced'],['04','Sep 25','2026-09-25T19:20:00+08:00','Speaker to be announced'],['05','Oct 02','2026-10-02T19:20:00+08:00','Speaker to be announced'],['06','Oct 09','2026-10-09T19:20:00+08:00','Speaker to be announced'],['07','Oct 16','2026-10-16T19:20:00+08:00','Speaker to be announced'],['08','Oct 23','2026-10-23T19:20:00+08:00','Speaker to be announced'],['09','Oct 30','2026-10-30T19:20:00+08:00','Speaker to be announced'],['10','Nov 06','2026-11-06T19:20:00+08:00','Speaker to be announced'],['11','Nov 13','2026-11-13T19:20:00+08:00','Speaker to be announced'],['12','Nov 20','2026-11-20T19:20:00+08:00','Speaker to be announced'],['13','Nov 27','2026-11-27T19:20:00+08:00','Speaker to be announced']
+  ].map(([id,date,endsAt,title]) => ({ id, date, endsAt, title }));
   const form = document.getElementById('attendance-form');
   const lookupForm = document.getElementById('lookup-form');
   const card = document.getElementById('attendance-card');
@@ -13,8 +13,10 @@
   let editing = false;
   let statusTimer;
 
-  function optionMarkup(){return '<option value="">Choose a seminar…</option>'+sessions.map(s=>`<option value="${s.id}">Session ${s.id} · ${s.date} · ${s.title}</option>`).join('')}
-  document.getElementById('session-select').innerHTML=optionMarkup();document.getElementById('lookup-session').innerHTML=optionMarkup();
+  function optionMarkup(items,emptyLabel='Choose a seminar…'){return `<option value="">${emptyLabel}</option>`+items.map(s=>`<option value="${s.id}">Session ${s.id} · ${s.date} · ${s.title}</option>`).join('')}
+  const pastSessions=sessions.filter(session=>Date.parse(session.endsAt)<=Date.now());
+  document.getElementById('session-select').innerHTML=optionMarkup(sessions);
+  document.getElementById('lookup-session').innerHTML=optionMarkup(pastSessions,pastSessions.length?'Choose a past seminar…':'No past seminars yet');
   const initialSession = new URLSearchParams(location.search).get('session');
   if (sessions.some(s=>s.id===initialSession)) {
     document.getElementById('session-select').value=initialSession;
