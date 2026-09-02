@@ -61,11 +61,14 @@
     const finals = records.signups.filter(item => item.type === 'final');
     const quizzes = records.quizzes;
     const graded = [...records.signups, ...quizzes].filter(item => item.score !== null && item.score !== '').length;
-    students = buildStudents([...records.signups, ...quizzes]);
+    const roster = Array.isArray(records.roster) ? records.roster : [];
+    students = buildStudents(roster, [...records.signups, ...quizzes]);
+    const enrollmentTotal = roster.length || ENROLLED_STUDENT_TOTAL;
+    const activeStudentTotal = students.filter(item => item.weekly.length || item.quizzes.length || item.finals.length).length;
     [['weekly', weekly.length], ['quiz', quizzes.length], ['final', finals.length]].forEach(([key, value]) => { $(`#metric-${key}`).textContent = value; $(`#count-${key}`).textContent = value; });
-    $('#metric-students').textContent = ENROLLED_STUDENT_TOTAL;
-    $('#count-students').textContent = ENROLLED_STUDENT_TOTAL;
-    $('#activity-student-count').textContent = students.length;
+    $('#metric-students').textContent = enrollmentTotal;
+    $('#count-students').textContent = enrollmentTotal;
+    $('#activity-student-count').textContent = activeStudentTotal;
     $('#metric-graded').textContent = graded;
     renderStudents();
     renderPresentation('#weekly-list', weekly, 10);
@@ -73,11 +76,19 @@
     renderPresentation('#final-list', finals, 25);
   }
 
-  function buildStudents(items) {
+  function studentKey(item) {
+    const rawId = item.studentId || '';
+    return rawId ? `id:${rawId.replace(/\s+/g, '').toLowerCase()}` : `legacy:${String(item.familyName || '').toLowerCase()}:${item.idLastFour || ''}`;
+  }
+
+  function buildStudents(roster, items) {
     const directory = new Map();
+    roster.forEach(item => {
+      directory.set(studentKey(item), { name: studentName(item), studentId: studentId(item), weekly: [], finals: [], quizzes: [], lastActivity: '' });
+    });
     items.forEach(item => {
       const rawId = item.studentId || '';
-      const key = rawId ? `id:${rawId.replace(/\s+/g, '').toLowerCase()}` : `legacy:${String(item.familyName || '').toLowerCase()}:${item.idLastFour || ''}`;
+      const key = studentKey(item);
       const entry = directory.get(key) || { name: studentName(item), studentId: studentId(item), weekly: [], finals: [], quizzes: [], lastActivity: '' };
       if (item.name || item.fullName) entry.name = studentName(item);
       if (rawId) entry.studentId = rawId;
