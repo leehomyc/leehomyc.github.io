@@ -1,1 +1,1 @@
-window.AMCC6090_ATTENDANCE_API = "https://script.google.com/macros/s/AKfycbw8M2Lo3Fq6i2ujEzrAZsQHXo2Gk7CwBI1eJKvsx1mfqYByh3EH3YDdxJaROxjz4hQ/exec";
+window.AMCC6090_ATTENDANCE_API = "https://script.google.com/macros/s/AKfycbz5xWKO1f2otd3FK-Qq559RmWmCELB7Pc-8hmqLpGhcSlpir8MJ3MtJP7fkuKo_fVU/exec";
