@@ -15,5 +15,7 @@
   document.getElementById('edit-form').addEventListener('click',openEdit);
   select.addEventListener('change',()=>{if(editing)loadEditRecord(select.value)});
   form.addEventListener('submit',async event=>{event.preventDefault();const button=form.querySelector('button');button.disabled=true;button.textContent=editing?'Saving…':'Reserving…';try{const data=new FormData(form);const result=await request({action:'speaker-signup',code:data.get('code'),name:data.get('name'),originalName:data.get('originalName'),sessionId:data.get('sessionId'),bio:data.get('bio'),materialsUrl:data.get('materialsUrl'),materialsNote:data.get('materialsNote')});card.hidden=true;document.getElementById('success').hidden=false;document.getElementById('success-time').textContent='Session '+result.sessionId+' · saved '+new Date(result.updatedAt).toLocaleString();form.reset();editing=false;await refresh()}catch(error){show(error.message,'error')}finally{button.disabled=false;button.textContent=editing?'Save changes →':'Reserve seminar →'}});
-  document.getElementById('another-session').addEventListener('click',openNew);refresh().catch(error=>{render();show(error.message,'error')});
+  document.getElementById('another-session').addEventListener('click',openNew);
+  const requestedMode=new URLSearchParams(location.search).get('mode');
+  refresh().then(()=>{if(requestedMode==='reserve')openNew();else if(requestedMode==='edit')openEdit()}).catch(error=>{render();show(error.message,'error')});
 })();

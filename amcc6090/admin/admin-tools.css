@@ -35,9 +35,38 @@
   font-weight: 750;
 }
 
+.management-actions {
+  display: flex;
+  flex: none;
+  gap: 10px;
+}
+
+.management-card a.secondary {
+  border: 1px solid #55555b;
+  background: transparent;
+  color: #fff;
+}
+
+.login-help {
+  margin: 16px 0 0;
+  color: #77737e;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
 @media (max-width: 700px) {
   .management-card {
     align-items: flex-start;
     flex-direction: column;
+  }
+
+  .management-actions {
+    align-items: stretch;
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .management-actions a {
+    text-align: center;
   }
 }

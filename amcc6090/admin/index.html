@@ -7,7 +7,7 @@
   <title>Instructor Dashboard — AMCC 6090</title>
   <link rel="stylesheet" href="../styles.css?v=20260902">
   <link rel="stylesheet" href="./admin.css?v=20260902">
-  <link rel="stylesheet" href="./admin-tools.css?v=20260902">
+  <link rel="stylesheet" href="./admin-tools.css?v=20260902b">
 </head>
 <body>
   <nav class="site-nav"><a class="brand" href="../">AMCC <span>6090</span></a><div></div><a class="nav-cta" href="../">Course home →</a></nav>
@@ -24,16 +24,17 @@
         <button type="submit">Open dashboard →</button>
       </form>
       <p id="login-status"></p>
+      <p class="login-help">Speaker sign-up and editing appear inside the dashboard after instructor verification.</p>
     </section>
 
     <section id="dashboard" hidden>
       <div class="management-card">
         <div>
           <p class="card-kicker">Instructor tool</p>
-          <h2>Speaker sessions</h2>
-          <p>Create a speaker session or edit any existing sign-up, bio, and presentation link.</p>
+          <h2>Speaker sign-up / edit</h2>
+          <p>Create a speaker session or edit any existing speaker, bio, and presentation link.</p>
         </div>
-        <a href="../speakers/">Open speaker management →</a>
+        <div class="management-actions"><a href="../speakers/?mode=reserve">Sign up a speaker →</a><a class="secondary" href="../speakers/?mode=edit">Edit an existing speaker →</a></div>
       </div>
 
       <div class="metrics">
