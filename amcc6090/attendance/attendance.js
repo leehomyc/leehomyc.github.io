@@ -3,7 +3,7 @@
 
   const API_URL = window.AMCC6090_ATTENDANCE_API || '';
   const sessions = [
-    ['01', 'Sep 04', '2026-09-04T18:30:00+08:00', '2026-09-04T19:20:00+08:00', '2026-09-04T23:59:59+08:00', 'Dengyang Jiang — Self-distillation in generative AI, towards native self-evloving in all training stage'],
+    ['01', 'Sep 04', '2026-09-04T18:30:00+08:00', '2026-09-04T19:20:00+08:00', '2026-09-04T23:59:59+08:00', 'Dengyang Jiang — Self-distillation in generative AI, towards native self-evolving in all training stages'],
     ['02', 'Sep 11', '2026-09-11T18:30:00+08:00', '2026-09-11T19:20:00+08:00', '2026-09-11T23:59:59+08:00', 'Speaker to be announced'],
     ['03', 'Sep 18', '2026-09-18T18:30:00+08:00', '2026-09-18T19:20:00+08:00', '2026-09-18T23:59:59+08:00', 'Speaker to be announced'],
     ['04', 'Sep 25', '2026-09-25T18:30:00+08:00', '2026-09-25T19:20:00+08:00', '2026-09-25T23:59:59+08:00', 'Speaker to be announced'],

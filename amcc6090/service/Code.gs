@@ -3,6 +3,22 @@ const SPEAKER_SHEET_NAME = 'Speakers';
 const ACCESS_CODE_PROPERTY = 'AMCC6090_ACCESS_CODE';
 const ADMIN_CODE_PROPERTY = 'AMCC6090_ADMIN_CODE';
 const SPEAKER_MANAGE_CODE_PROPERTY = 'AMCC6090_SPEAKER_MANAGE_CODE';
+const COURSE_TIME_ZONE = 'Asia/Hong_Kong';
+const ATTENDANCE_WINDOWS = {
+  '01': ['2026-09-04 18:30:00', '2026-09-04 23:59:59'],
+  '02': ['2026-09-11 18:30:00', '2026-09-11 23:59:59'],
+  '03': ['2026-09-18 18:30:00', '2026-09-18 23:59:59'],
+  '04': ['2026-09-25 18:30:00', '2026-09-25 23:59:59'],
+  '05': ['2026-10-02 18:30:00', '2026-10-02 23:59:59'],
+  '06': ['2026-10-09 18:30:00', '2026-10-09 23:59:59'],
+  '07': ['2026-10-16 18:30:00', '2026-10-16 23:59:59'],
+  '08': ['2026-10-23 18:30:00', '2026-10-23 23:59:59'],
+  '09': ['2026-10-30 18:30:00', '2026-10-30 23:59:59'],
+  '10': ['2026-11-06 18:30:00', '2026-11-06 23:59:59'],
+  '11': ['2026-11-13 18:30:00', '2026-11-13 23:59:59'],
+  '12': ['2026-11-20 18:30:00', '2026-11-20 23:59:59'],
+  '13': ['2026-11-27 18:30:00', '2026-11-27 23:59:59']
+};
 
 function doPost(event) {
   try {
@@ -42,6 +58,7 @@ function attendanceInput(request) {
 function handleAttendanceCreate(request) {
   const input = attendanceInput(request);
   if (input.response) return input.response;
+  if (!attendanceWindowIsOpen(input.sessionId)) return jsonResponse({ ok: false, error: 'Attendance can only be submitted from 6:30 PM until 11:59 PM on the seminar date (Hong Kong time).' });
   const lock = LockService.getScriptLock(); lock.waitLock(10000);
   try {
     const sheet = attendanceSheet();
@@ -164,6 +181,12 @@ function validAccessCode(value) { const expected = PropertiesService.getScriptPr
 function validSpeakerManageCode(value) { const expected = PropertiesService.getScriptProperties().getProperty(SPEAKER_MANAGE_CODE_PROPERTY); return Boolean(expected) && safeEqual(clean(value, 100), expected); }
 function validSession(value) { return /^(0[1-9]|1[0-3])$/.test(value); }
 function validSpeakerSession(value) { return /^(0[1-9]|1[0-3])$/.test(value); }
+function attendanceWindowIsOpen(sessionId) {
+  const window = ATTENDANCE_WINDOWS[sessionId];
+  if (!window) return false;
+  const now = Utilities.formatDate(new Date(), COURSE_TIME_ZONE, 'yyyy-MM-dd HH:mm:ss');
+  return now >= window[0] && now <= window[1];
+}
 function sessionValue(value) { return String(value || '').padStart(2, '0'); }
 function validUrl(value) { try { const url = new URL(value); return url.protocol === 'https:' || url.protocol === 'http:'; } catch (error) { return false; } }
 function clean(value, max) { return String(value || '').replace(/[\u0000-\u001F\u007F]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, max); }
