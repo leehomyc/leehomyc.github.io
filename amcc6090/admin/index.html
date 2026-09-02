@@ -23,7 +23,7 @@
         <label>Instructor code<input id="admin-code" type="password" required autocomplete="off"></label>
         <button type="submit">Open dashboard →</button>
       </form>
-      <p id="login-status"></p>
+      <p id="login-status" role="status" aria-live="polite"></p>
       <p class="login-help">Speaker sign-up and editing appear inside the dashboard after instructor verification.</p>
     </section>
 
@@ -58,7 +58,7 @@
         <div id="record-list"></div>
       </div>
     </section>
-    <div id="dashboard-status"></div>
+    <div id="dashboard-status" role="status" aria-live="polite"></div>
   </main>
   <script src="./config.js?v=20260902"></script>
   <script src="./admin.js?v=20260902"></script>
