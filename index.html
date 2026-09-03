@@ -2131,16 +2131,21 @@
 
         async function loadGitHubStars() {
             const elements = document.querySelectorAll('.gh-stars[data-repo]');
-            await Promise.all(Array.from(elements).map(async (el) => {
-                const repo = el.dataset.repo;
-                try {
-                    const res = await fetch(`https://api.github.com/repos/${repo}`);
-                    if (!res.ok) return;
-                    const data = await res.json();
-                    el.textContent = `★ ${formatStars(data.stargazers_count)}`;
+            if (!elements.length) return;
+
+            try {
+                const cacheVersion = new Date().toISOString().slice(0, 10);
+                const res = await fetch(`github_stars.json?v=${cacheVersion}`, { cache: 'no-cache' });
+                if (!res.ok) return;
+
+                const data = await res.json();
+                elements.forEach((el) => {
+                    const stars = data.stars?.[el.dataset.repo];
+                    if (!Number.isFinite(stars)) return;
+                    el.textContent = `★ ${formatStars(stars)}`;
                     el.classList.add('loaded');
-                } catch (e) { /* leave hidden on failure */ }
-            }));
+                });
+            } catch (e) { /* leave hidden if the local cache is unavailable */ }
         }
 
         function loadScholarMetrics() {
