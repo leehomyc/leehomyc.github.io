@@ -26,6 +26,7 @@ function doPost(event) {
     const request = JSON.parse((event.postData && event.postData.contents) || '{}');
     if (request.action === 'attendance-admin-list') return handleAdminList(request);
     if (request.action === 'attendance-admin-roster-save') return handleAdminRosterSave(request);
+    if (request.action === 'attendance-public-reflections') return handlePublicReflections();
     if (request.action === 'speaker-public-list') return handlePublicSpeakerList();
     if (request.action === 'speaker-lookup' || request.action === 'speaker-signup') {
       if (!validSpeakerManageCode(request.code)) return jsonResponse({ ok: false, error: 'Incorrect speaker management code.' });
@@ -143,6 +144,13 @@ function handleSpeakerList() {
   return jsonResponse({ ok: true, speakers: speakerRows(speakerSheet()).map(speakerRecord) });
 }
 
+function handlePublicReflections() {
+  const responses = dataRows(attendanceSheet())
+    .map(publicReflection)
+    .filter(item => item.reflection || item.feedback);
+  return jsonResponse({ ok: true, responses: responses });
+}
+
 function handlePublicSpeakerList() {
   return jsonResponse({ ok: true, speakers: speakerRows(speakerSheet()).map(publicSpeaker) });
 }
@@ -217,6 +225,13 @@ function dataRows(sheet) { const last = sheet.getLastRow(); return last < 2 ? []
 function speakerRows(sheet) { const last = sheet.getLastRow(); return last < 2 ? [] : sheet.getRange(2, 1, last - 1, 7).getValues(); }
 function rosterRows(sheet) { const last = sheet.getLastRow(); return last < 2 ? [] : sheet.getRange(2, 1, last - 1, 4).getValues(); }
 function publicRecord(row) { return { sessionId: sessionValue(row[1]), name: String(row[2]), reflection: String(row[5] || ''), feedback: String(row[6] || ''), updatedAt: String(row[7]) }; }
+function publicReflection(row) {
+  return {
+    sessionId: sessionValue(row[1]),
+    reflection: anonymizeText(row[5], row[2], row[3]),
+    feedback: anonymizeText(row[6], row[2], row[3])
+  };
+}
 function publicSpeaker(row) { return { sessionId: sessionValue(row[1]), name: String(row[2]), materialsUrl: String(row[3] || ''), materialsNote: String(row[4] || ''), bio: String(row[6] || '') }; }
 function speakerRecord(row) { return { sessionId: sessionValue(row[1]), name: String(row[2]), materialsUrl: String(row[3] || ''), materialsNote: String(row[4] || ''), updatedAt: String(row[5]), bio: String(row[6] || '') }; }
 function adminRecord(row) { return { createdAt: String(row[0]), sessionId: sessionValue(row[1]), name: String(row[2]), studentId: String(row[3]), reflection: String(row[5] || ''), feedback: String(row[6] || ''), updatedAt: String(row[7]) }; }
@@ -236,6 +251,14 @@ function sessionValue(value) { return String(value || '').padStart(2, '0'); }
 function validUrl(value) { try { const url = new URL(value); return url.protocol === 'https:' || url.protocol === 'http:'; } catch (error) { return false; } }
 function clean(value, max) { return String(value || '').replace(/[\u0000-\u001F\u007F]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, max); }
 function cleanMultiline(value, max) { return String(value || '').replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, '').trim().slice(0, max); }
+function anonymizeText(value, name, studentId) {
+  let text = String(value || '');
+  [name, studentId].forEach(identifier => {
+    const token = String(identifier || '').trim();
+    if (token) text = text.replace(new RegExp(token.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi'), '[redacted]');
+  });
+  return text.replace(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi, '[email removed]');
+}
 function hashStudentId(value) { const bytes = Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, clean(value, 30).toLowerCase(), Utilities.Charset.UTF_8); return bytes.map(byte => ('0' + ((byte + 256) % 256).toString(16)).slice(-2)).join(''); }
 function safeEqual(a, b) { if (a.length !== b.length) return false; let result = 0; for (let i = 0; i < a.length; i += 1) result |= a.charCodeAt(i) ^ b.charCodeAt(i); return result === 0; }
 function jsonResponse(payload) { return ContentService.createTextOutput(JSON.stringify(payload)).setMimeType(ContentService.MimeType.JSON); }
