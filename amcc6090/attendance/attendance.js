@@ -53,8 +53,8 @@
 
   function optionMarkup(items, emptyLabel = 'Choose a seminar…', includeWindow = false) {
     return `<option value="">${emptyLabel}</option>` + items.map(session => {
-      const disabled = includeWindow && attendanceState(session) !== 'open' ? ' disabled' : '';
-      return `<option value="${session.id}"${disabled}>${sessionLabel(session, includeWindow)}</option>`;
+      // Keep sessions selectable; the attendance window gates the entry fields.
+      return `<option value="${session.id}">${sessionLabel(session, includeWindow)}</option>`;
     }).join('');
   }
 
@@ -169,7 +169,7 @@
     const selected = sessionSelect.value || (sessions.some(session => session.id === initialSession) ? initialSession : '');
     const lookupSelected = lookupSession.value;
     const pastSessions = sessions.filter(session => Date.parse(session.endsAt) <= Date.now());
-    sessionSelect.innerHTML = optionMarkup(sessions, 'Choose the open seminar…', true);
+    sessionSelect.innerHTML = optionMarkup(sessions, 'Choose a seminar…', true);
     lookupSession.innerHTML = optionMarkup(pastSessions, pastSessions.length ? 'Choose a past seminar…' : 'No past seminars yet');
     if (selected) sessionSelect.value = selected;
     if (pastSessions.some(session => session.id === lookupSelected)) lookupSession.value = lookupSelected;
