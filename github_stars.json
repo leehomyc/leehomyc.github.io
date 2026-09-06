@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-09-05T07:40:46.403Z",
+  "updated_at": "2026-09-06T07:54:44.929Z",
   "stars": {
     "123zgj123/FarField": 1,
     "BAAI-DCAI/Multimodal-Robustness-Benchmark": 57,
@@ -21,13 +21,13 @@
     "PKU-YuanGroup/Next-Patch-Prediction": 129,
     "shuyansy/MLLM-Semantic-Hallucination": 30,
     "SongweiGe/TATS": 288,
-    "Tencent-Hunyuan/SAGE-GRPO": 129,
+    "Tencent-Hunyuan/SAGE-GRPO": 130,
     "UIOSN/AHPA": 3,
     "vvvvvjdy/D-OPSD": 323,
     "vvvvvjdy/dmdr": 295,
     "WenjieShu/LoopViT": 49,
     "xianzuwu/Niagara": 100,
-    "xmz111/FlowRVS": 104,
+    "xmz111/FlowRVS": 103,
     "yliuls/RotateAttn": 0
   }
 }
