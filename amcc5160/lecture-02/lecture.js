@@ -29,7 +29,7 @@ byId('slide-number').onchange=e=>render(Number(e.target.value));byId('chapter').
 byId('fullscreen').onclick=async()=>{try{await byId('slide-stage').requestFullscreen();}catch{error.hidden=false;error.textContent='Full screen is unavailable in this browser. Use the slide PDF for projection.';}};
 byId('slide-image').onerror=()=>{error.hidden=false;error.textContent='This slide image could not load. Please try again or open the slide PDF.';};
 byId('slide-image').onload=()=>{error.hidden=true;};
-window.addEventListener('keydown',e=>{if(/INPUT|SELECT|TEXTAREA/.test(document.activeElement.tagName)||e.altKey||e.ctrlKey||e.metaKey)return;if(e.key==='ArrowRight'){e.preventDefault();render(current+1);}if(e.key==='ArrowLeft'){e.preventDefault();render(current-1);}});
+window.addEventListener('keydown',e=>{if(/INPUT|SELECT|TEXTAREA|VIDEO/.test(document.activeElement.tagName)||e.altKey||e.ctrlKey||e.metaKey)return;if(e.key==='ArrowRight'){e.preventDefault();render(current+1);}if(e.key==='ArrowLeft'){e.preventDefault();render(current-1);}});
 window.addEventListener('hashchange',()=>{if(/^#slide-\d+$/.test(location.hash))render(hashNumber(),false);});
 render(hashNumber(),false);
 })();

@@ -1,0 +1,3025 @@
+WEBVTT
+
+00:00:00.000 --> 00:00:01.825
+Imagine you are the art director.
+
+00:00:02.059 --> 00:00:03.913
+Your exhibition opens tomorrow.
+
+00:00:04.425 --> 00:00:07.695
+You love this glass pear, but you want to see it in ivory ceramic.
+
+00:00:08.279 --> 00:00:12.762
+You give the editor a tiny request: change the material, keep everything else.
+
+00:00:13.347 --> 00:00:14.980
+Then you notice the reflection.
+
+00:00:15.653 --> 00:00:17.492
+Should it still look like glass?
+
+00:00:18.413 --> 00:00:22.019
+Suddenly, a three-word edit contains a whole argument about the world.
+
+00:00:22.224 --> 00:00:24.064
+That is our starting point.
+
+00:00:24.064 --> 00:00:30.561
+We will follow this fictional artwork through image editing, exhibition design, and a moving shot.
+
+00:00:31.233 --> 00:00:33.775
+The exhibition is called AFTER RAIN.
+
+00:00:34.577 --> 00:00:36.958
+The pear is our recurring character.
+
+00:00:37.630 --> 00:00:46.127
+By the end, you should be able to explain a model's mechanism, defend a visual choice, and catch a failure that a beautiful preview can hide.
+
+00:00:46.798 --> 00:00:49.997
+First, look carefully at what you think must survive.
+
+00:00:50.597 --> 00:00:53.429
+We are going to give the same object three different jobs.
+
+00:00:53.941 --> 00:00:59.256
+First it is a technical puzzle: can its material change while its identity survives?
+
+00:00:59.767 --> 00:01:05.243
+Then it becomes an artwork: can its placement and lighting make us feel that it is fragile?
+
+00:01:06.045 --> 00:01:12.193
+Finally it becomes a character in time: can it disappear behind something and return as the same object?
+
+00:01:12.777 --> 00:01:15.244
+Those jobs demand different judgments.
+
+00:01:15.245 --> 00:01:17.931
+A technically clean image may say very little.
+
+00:01:18.516 --> 00:01:22.517
+An expressive poster may contain an intentional impossibility.
+
+00:01:23.101 --> 00:01:26.123
+A wonderful still may belong to a broken video.
+
+00:01:26.708 --> 00:01:33.293
+As its job changes, you may find yourself approving a change that you would have rejected five minutes earlier.
+
+00:01:33.893 --> 00:01:35.864
+For a few seconds, ignore the pear.
+
+00:01:36.288 --> 00:01:37.748
+Look at the water beneath it.
+
+00:01:38.331 --> 00:01:39.864
+Now look back at the body.
+
+00:01:40.449 --> 00:01:45.356
+If the body becomes opaque ceramic, what happens to the light that used to pass through the glass?
+
+00:01:46.027 --> 00:01:49.283
+The answer cannot live entirely inside the object's outline.
+
+00:01:49.868 --> 00:01:53.401
+This comparison is a prepared classroom illustration.
+
+00:01:53.401 --> 00:01:59.825
+Use it to locate the consequences of the request: transmission, highlights, and the reflection below.
+
+00:02:00.410 --> 00:02:03.461
+We still want the blue stem and recognizable silhouette.
+
+00:02:04.046 --> 00:02:13.610
+But preserving every surrounding pixel could preserve the wrong optics. a successful local edit may require a carefully justified change somewhere else.
+
+00:02:14.210 --> 00:02:16.969
+Let us make the opening comparison more disciplined.
+
+00:02:17.554 --> 00:02:24.358
+The disappearance of transmitted amber light is consistent with changing transparent glass into opaque ceramic.
+
+00:02:25.030 --> 00:02:32.960
+A changed blue stem, by contrast, would need a separate justification because the instruction did not request that transformation.
+
+00:02:33.543 --> 00:02:35.938
+The reflection is more interesting.
+
+00:02:35.938 --> 00:02:43.137
+A material change can require its appearance to change, while its placement should still agree with the object and the water.
+
+00:02:44.056 --> 00:02:48.510
+We cannot classify every difference using a simple rule that change is bad.
+
+00:02:49.095 --> 00:02:51.459
+We need a model of the intended scene.
+
+00:02:51.971 --> 00:02:57.256
+That is why the edit contract includes allowed consequences as well as invariants.
+
+00:02:57.856 --> 00:02:59.798
+Here is the route through that puzzle.
+
+00:03:00.383 --> 00:03:08.604
+We begin inside an image editor: its representations, sampling process, and controls.
+
+00:03:09.406 --> 00:03:13.948
+Then we take the art director's seat and decide what those controls should accomplish.
+
+00:03:14.532 --> 00:03:20.563
+In the final technical section, the image starts moving and the preservation problem becomes harder.
+
+00:03:21.147 --> 00:03:24.315
+The spoken script is planned for about ninety minutes.
+
+00:03:24.315 --> 00:03:29.688
+The marked discussions, the break, and student presentations need additional class time.
+
+00:03:30.273 --> 00:03:33.792
+You will see the same pear return in different situations.
+
+00:03:34.464 --> 00:03:40.494
+Each return asks us to revise our judgment, rather than learn a completely unrelated example.
+
+00:03:41.298 --> 00:03:47.212
+At the end, three readings let us question who sets the goal and who decides whether it was achieved.
+
+00:03:47.811 --> 00:03:51.257
+Here are three decisions I want you to be able to defend by the end.
+
+00:03:51.841 --> 00:03:56.280
+When an edit fails, which control would you change, and why?
+
+00:03:56.864 --> 00:04:01.390
+When two posters both look good, which belongs in this exhibition?
+
+00:04:01.814 --> 00:04:06.648
+When a video looks convincing, which moment would you inspect before accepting it?
+
+00:04:07.231 --> 00:04:10.473
+You do need a link between mechanism and consequence.
+
+00:04:10.473 --> 00:04:17.306
+A mask tells us where; a reference can show us what; an artistic brief tells us why the result matters.
+
+00:04:17.979 --> 00:04:20.533
+Today we will practice making those links aloud.
+
+00:04:21.337 --> 00:04:26.009
+The aim is to leave with reasons you can use when the next tool has a different interface.
+
+00:04:26.609 --> 00:04:33.546
+The pear gives us a concrete technical problem: change its material while retaining the information that makes it recognizable.
+
+00:04:34.129 --> 00:04:38.744
+We can describe this as conditional generation under preservation constraints.
+
+00:04:39.415 --> 00:04:44.030
+The inputs specify the change; the contract specifies what should survive.
+
+00:04:44.613 --> 00:04:48.716
+Throughout this section, connect each mechanism to one part of that problem.
+
+00:04:49.388 --> 00:04:52.601
+We begin by making our expectations explicit.
+
+00:04:53.201 --> 00:04:56.530
+Before we open the machinery, decide what success should look like.
+
+00:04:57.041 --> 00:05:00.049
+When glass becomes ceramic, what should stay the same?
+
+00:05:00.414 --> 00:05:03.159
+Which parts of the scene must change with the material?
+
+00:05:03.743 --> 00:05:06.561
+What could a model misunderstand in that request?
+
+00:05:07.146 --> 00:05:11.482
+Discuss these three questions and point to visible evidence for your choices.
+
+00:05:11.482 --> 00:05:18.622
+If your partner wants to preserve a detail that you want to change, identify the artistic intention behind each answer.
+
+00:05:19.207 --> 00:05:20.579
+Pause the video here.
+
+00:05:21.163 --> 00:05:26.084
+We will return to these expectations when we write the worked ceramic-edit contract.
+
+00:05:30.084 --> 00:05:32.187
+The gallery has become a forest.
+
+00:05:32.611 --> 00:05:34.567
+Let us write the edit contract.
+
+00:05:34.655 --> 00:05:37.094
+The intended change is the environment.
+
+00:05:37.604 --> 00:05:42.992
+The pear's identity, its pedestal, and the framing should remain recognizable.
+
+00:05:43.577 --> 00:05:47.737
+The ambient light and reflections are allowed to adapt to the forest.
+
+00:05:48.321 --> 00:05:50.322
+Why include that last category?
+
+00:05:50.643 --> 00:05:55.199
+Because preserving every visible relationship would contradict the new setting.
+
+00:05:55.200 --> 00:05:59.405
+Imagine retaining a bright gallery-window reflection inside a dark forest.
+
+00:05:59.989 --> 00:06:04.502
+The model might preserve the source faithfully and still produce an implausible scene.
+
+00:06:05.173 --> 00:06:11.918
+Before generating, separate the requested change, the invariants, and the consequences that should adapt.
+
+00:06:12.503 --> 00:06:15.642
+Afterwards, inspect those categories separately.
+
+00:06:16.242 --> 00:06:20.155
+Suppose a curator says, keep the pear exactly the same.
+
+00:06:20.740 --> 00:06:23.660
+There are at least two meanings hiding in that sentence.
+
+00:06:24.244 --> 00:06:28.538
+One means that a visitor should recognize the same sculpture in a new room.
+
+00:06:29.121 --> 00:06:31.341
+Its highlights may change with the room.
+
+00:06:31.852 --> 00:06:35.561
+The other means that selected pixel values must remain identical.
+
+00:06:36.071 --> 00:06:37.780
+Those are different requirements.
+
+00:06:38.101 --> 00:06:41.942
+Generative conditioning can encourage recognizable identity.
+
+00:06:41.942 --> 00:06:47.389
+Copying source pixels or compositing can enforce exact preservation in a specified region.
+
+00:06:47.972 --> 00:06:54.631
+Neither requirement automatically makes the whole image coherent: a copied region may now have the wrong lighting.
+
+00:06:55.141 --> 00:06:58.412
+Before choosing a tool, settle the meaning of same.
+
+00:06:59.013 --> 00:07:06.956
+Read the expression as a distribution of possible edited results, given the source, instruction, and optional references.
+
+00:07:07.759 --> 00:07:11.030
+The symbol theta represents the model's learned parameters.
+
+00:07:11.454 --> 00:07:17.366
+The vertical bar means 'given.' We are not asking for a unique answer in every case.
+
+00:07:17.878 --> 00:07:21.557
+Two different forest scenes might both satisfy the same brief.
+
+00:07:21.558 --> 00:07:27.370
+However, a source image is a condition rather than a promise that every unmentioned pixel will be copied.
+
+00:07:27.953 --> 00:07:32.597
+To judge success, we need a more precise contract than 'it looks plausible.'
+
+00:07:33.197 --> 00:07:38.132
+The probability expression says that the system produces a candidate given conditions.
+
+00:07:38.644 --> 00:07:42.732
+It does not contain a certificate that the candidate passes our checks.
+
+00:07:43.316 --> 00:07:47.287
+The acceptance step is a separate decision that we impose on the result.
+
+00:07:47.960 --> 00:07:50.019
+Imagine two forest outputs.
+
+00:07:50.178 --> 00:07:54.691
+Both look plausible, but one changes the pear's stem and one retains it.
+
+00:07:54.691 --> 00:07:59.217
+The model can assign probability to both; our contract can reject one.
+
+00:08:00.021 --> 00:08:06.489
+In practice, acceptance may involve human inspection, image comparisons, or explicit production constraints.
+
+00:08:07.089 --> 00:08:14.960
+The RGB image has 1024 by 1024 pixels and three channels: just over three million scalar values.
+
+00:08:15.383 --> 00:08:28.948
+With spatial reduction by sixteen and sixty-four latent channels, the representation becomes 64 by 64 by 64: 262,144 values.
+
+00:08:29.459 --> 00:08:30.540
+Notice the trap.
+
+00:08:31.212 --> 00:08:39.447
+Sixteen times smaller along each spatial axis does not mean sixteen times fewer values overall, because the number of channels changes too.
+
+00:08:39.447 --> 00:08:42.425
+Here the scalar count falls by a factor of twelve.
+
+00:08:43.010 --> 00:08:45.303
+That is specific to this configuration.
+
+00:08:45.580 --> 00:08:51.376
+The model works in a learned representation, and its decoder must recover visible detail.
+
+00:08:52.297 --> 00:08:57.378
+Our next question is what that compression already loses before we request any edit.
+
+00:08:57.978 --> 00:09:02.023
+Suppose the small exhibition caption is already blurry after an edit.
+
+00:09:02.695 --> 00:09:07.396
+You might spend an hour rewriting the prompt to say, preserve every letter.
+
+00:09:08.068 --> 00:09:14.785
+There is a quicker diagnostic: encode the original image and decode it again without requesting a change.
+
+00:09:15.589 --> 00:09:23.035
+If the letters are already damaged in that round trip, part of the problem lies in representation and reconstruction.
+
+00:09:23.035 --> 00:09:28.335
+A more emphatic instruction cannot restore a detail the editing path never retained faithfully.
+
+00:09:29.007 --> 00:09:32.892
+Look at fine text, thin edges, and small textures first.
+
+00:09:33.475 --> 00:09:38.936
+If reconstruction is sound but the edit damages them, investigate the editing stage.
+
+00:09:39.520 --> 00:09:44.645
+It also explains why exact exhibition typography deserves its own editable layer.
+
+00:09:45.246 --> 00:09:48.750
+Now consider the number of tokens a transformer processes.
+
+00:09:49.262 --> 00:09:58.198
+In our toy example, one token per position on a 64 by 64 grid gives 4,096 tokens.
+
+00:09:58.781 --> 00:10:05.353
+Grouping each two-by-two region gives 1,024 tokens, a reduction by four.
+
+00:10:06.155 --> 00:10:09.121
+Dense self-attention compares token pairs.
+
+00:10:09.704 --> 00:10:21.313
+Squaring the two counts gives 16,777,216 and 1,048,576 pair scores.
+
+00:10:21.737 --> 00:10:24.087
+That is a reduction by sixteen.
+
+00:10:24.087 --> 00:10:27.635
+This is why representation choices matter so much for cost.
+
+00:10:28.220 --> 00:10:31.812
+It is not a claim that the whole system runs sixteen times faster.
+
+00:10:32.395 --> 00:10:38.280
+Text tokens, reference tokens, other layers, and implementation details also matter.
+
+00:10:38.880 --> 00:10:41.756
+Before reading the second number, make a prediction.
+
+00:10:42.180 --> 00:10:46.415
+We double the image width and double its height, keeping the patch scheme fixed.
+
+00:10:47.087 --> 00:10:49.028
+How many image tokens do we get?
+
+00:10:49.539 --> 00:10:50.912
+Four times as many.
+
+00:10:51.496 --> 00:10:55.585
+In dense self-attention, each token can compare with every other token.
+
+00:10:56.095 --> 00:10:59.615
+Four times four gives sixteen times as many pair scores.
+
+00:10:59.615 --> 00:11:07.616
+This calculation describes the image-token attention component, not a promise that the entire system becomes sixteen times slower.
+
+00:11:08.537 --> 00:11:11.325
+Other operations and implementations matter.
+
+00:11:12.129 --> 00:11:18.700
+The useful habit is to ask what grew: pixels, tokens, comparisons, or measured runtime.
+
+00:11:19.284 --> 00:11:22.803
+They are related quantities, but they are not interchangeable.
+
+00:11:23.403 --> 00:11:26.571
+Let us walk through this architecture from the input side.
+
+00:11:27.156 --> 00:11:34.821
+The source image contributes semantic information through a vision-language component and visual information through a VAE.
+
+00:11:35.405 --> 00:11:39.216
+The target stream begins with an evolving noisy representation.
+
+00:11:39.800 --> 00:11:43.596
+The transformer processes that stream together with the conditions.
+
+00:11:44.181 --> 00:11:51.029
+During training, we possess an example of the desired edited target, so we can measure what the model should learn.
+
+00:11:51.029 --> 00:11:55.235
+During inference, we have the source and request but not the desired target.
+
+00:11:55.819 --> 00:11:57.542
+The model must generate it.
+
+00:11:57.703 --> 00:11:59.499
+That difference is essential.
+
+00:12:00.418 --> 00:12:05.689
+The architecture does not quietly receive the answer when you ask it to edit your photograph.
+
+00:12:06.290 --> 00:12:12.232
+There is a piece of information on the left that we do not possess on the right: the desired edited image.
+
+00:12:12.817 --> 00:12:19.957
+During supervised training, a source, an instruction, and a target show the model what a successful change looks like.
+
+00:12:20.629 --> 00:12:25.520
+During use, we provide the request because that target does not yet exist.
+
+00:12:26.032 --> 00:12:29.828
+This distinction explains a surprisingly common confusion.
+
+00:12:29.828 --> 00:12:33.829
+Showing a reference to an editor is not automatically teaching new weights.
+
+00:12:34.339 --> 00:12:37.553
+It may simply be conditioning this particular generation.
+
+00:12:38.136 --> 00:12:43.116
+Adaptation, which we will reach with LoRA, changes trainable parameters.
+
+00:12:43.539 --> 00:12:50.212
+It is available when we construct the learning signal, and absent when we ask the trained model to make our ceramic pear.
+
+00:12:50.812 --> 00:12:53.675
+Think of these two representations using our pear.
+
+00:12:54.346 --> 00:13:04.129
+Semantic features help with questions such as: which object is the pear, what does ceramic mean, and what does 'it' refer to in the instruction?
+
+00:13:05.049 --> 00:13:12.423
+Visual latents provide appearance information, including shapes and textures that help keep the particular source recognizable.
+
+00:13:13.343 --> 00:13:20.308
+This is a conceptual distinction, not a claim that the branches have perfectly isolated responsibilities.
+
+00:13:20.308 --> 00:13:23.549
+Learned representations can overlap in what they encode.
+
+00:13:24.134 --> 00:13:31.113
+If an edit fails, ask whether the model misunderstood the request or lost important visual information.
+
+00:13:31.713 --> 00:13:35.626
+How do you teach a system the difference between a pear and this particular pear?
+
+00:13:36.708 --> 00:13:42.577
+That question connects to OpenSubject, research I coauthored with Yexin Liu and our collaborators.
+
+00:13:43.161 --> 00:13:49.499
+A video offers something valuable: repeated observations of a subject as the view changes.
+
+00:13:49.922 --> 00:13:52.580
+The shared identity is a learning opportunity.
+
+00:13:53.252 --> 00:13:55.661
+Follow the main path in the figure.
+
+00:13:55.661 --> 00:14:01.194
+We curate clips, verify subjects across frames, and select diverse pairs.
+
+00:14:01.706 --> 00:14:07.590
+Inpainting or outpainting helps synthesize reference inputs, followed by verification.
+
+00:14:08.175 --> 00:14:14.775
+The corpus contains 2.5 million samples; the contribution is training data and a benchmark.
+
+00:14:15.359 --> 00:14:19.622
+For our exhibition, imagine the same sculpture photographed in several rooms.
+
+00:14:20.206 --> 00:14:24.513
+We want freedom to change the setting without losing its distinctive features.
+
+00:14:24.514 --> 00:14:31.757
+That is a classroom application of the identity problem, rather than a claim that our fictional pear was tested in the paper.
+
+00:14:32.356 --> 00:14:36.080
+The editor needs a way to learn how to move from noise toward an image.
+
+00:14:36.664 --> 00:14:46.638
+In this simple flow-matching setup, we construct an intermediate latent by mixing noise, epsilon, with a known target latent, z one.
+
+00:14:47.557 --> 00:14:51.573
+The mixing variable t tells us where we are along that training path.
+
+00:14:52.492 --> 00:14:57.880
+For this straight interpolation, the target velocity is the target latent minus the noise.
+
+00:14:57.881 --> 00:15:03.443
+The model sees an intermediate state and learns to predict that direction, given the source and instruction.
+
+00:15:04.115 --> 00:15:09.255
+There is also an important clock distinction: t here is the generative process's time.
+
+00:15:09.840 --> 00:15:15.111
+Later, our video will have another time axis—the seconds that pass in the scene.
+
+00:15:15.711 --> 00:15:18.996
+Before trusting an equation, check its easiest cases.
+
+00:15:19.581 --> 00:15:25.874
+At t equals zero, the coefficient on the target becomes zero, so we recover the noise.
+
+00:15:26.546 --> 00:15:33.423
+At t equals one, the coefficient on noise vanishes, so we recover the target latent.
+
+00:15:34.344 --> 00:15:41.293
+Along this simple straight path, the difference between target and noise gives the direction we train the model to predict.
+
+00:15:41.293 --> 00:15:46.915
+You do not need to imagine a recognizable half-finished image at every intermediate point.
+
+00:15:47.587 --> 00:15:56.947
+The calculation takes place in a learned representation, and this path is a teaching construction rather than the only possible design.
+
+00:15:57.547 --> 00:16:00.569
+Here is the smallest possible sampling calculation.
+
+00:16:01.081 --> 00:16:04.249
+One coordinate currently equals 0.20.
+
+00:16:04.832 --> 00:16:11.506
+Its predicted velocity is 0.60, and the next step has size 0.10.
+
+00:16:12.762 --> 00:16:16.909
+Before looking at the result, say what operation should happen.
+
+00:16:17.492 --> 00:16:27.261
+We add a small amount of motion to the current state: 0.20 plus 0.10 times 0.60, giving 0.26.
+
+00:16:27.685 --> 00:16:31.189
+In a real latent, many coordinates update together.
+
+00:16:31.189 --> 00:16:36.957
+These numbers are invented to show an Euler step, and practical samplers can use more elaborate solvers.
+
+00:16:37.541 --> 00:16:44.974
+But the sequence is now less mysterious: predict a direction, take a step, repeat, then decode.
+
+00:16:45.574 --> 00:16:49.954
+Imagine following a beautifully accurate set of directions to the wrong gallery.
+
+00:16:50.378 --> 00:16:53.561
+Taking smaller steps will not repair the destination.
+
+00:16:54.145 --> 00:16:56.948
+The same distinction helps with generative sampling.
+
+00:16:57.620 --> 00:17:01.519
+A better numerical solver can follow a learned field more accurately.
+
+00:17:02.104 --> 00:17:05.623
+That alone does not settle an ambiguous editing request.
+
+00:17:06.294 --> 00:17:13.317
+If the pear's boundary is unstable across sampling settings, numerical or model behavior may matter.
+
+00:17:13.317 --> 00:17:19.246
+If we never specified whether the glass reflection should become ceramic, we also have a brief problem.
+
+00:17:20.048 --> 00:17:26.678
+Ask whether the system struggled to realize a clear instruction, or whether we have not agreed on what success means.
+
+00:17:27.263 --> 00:17:30.431
+Those situations call for different next actions.
+
+00:17:31.031 --> 00:17:34.185
+Where does the ability to follow an edit instruction come from?
+
+00:17:35.104 --> 00:17:41.398
+A training example can contain a source image, an instruction, and the corresponding edited target.
+
+00:17:42.202 --> 00:17:48.202
+InstructPix2Pix is an early example that used synthetic editing data to teach this relationship.
+
+00:17:48.874 --> 00:17:56.320
+Suppose a training pair says 'make the object ceramic,' but its target also moves the camera and replaces the background.
+
+00:17:56.321 --> 00:18:00.921
+The learning signal no longer cleanly identifies the requested transformation.
+
+00:18:01.505 --> 00:18:04.484
+The model may learn unwanted associations.
+
+00:18:05.155 --> 00:18:13.274
+This gives us an important data-quality question: did the target accomplish the requested change while preserving what should remain?
+
+00:18:14.077 --> 00:18:18.224
+Attractive targets alone are not enough to teach dependable editing.
+
+00:18:18.824 --> 00:18:22.869
+A training pair is a lesson, and lessons can accidentally teach the wrong thing.
+
+00:18:23.452 --> 00:18:28.491
+Imagine a source glass pear and a target ceramic pear that also has a different background.
+
+00:18:29.162 --> 00:18:32.096
+The written request says only to change the material.
+
+00:18:32.608 --> 00:18:36.404
+Which visible changes should the model associate with that request?
+
+00:18:36.405 --> 00:18:44.304
+If this mismatch recurs in the training data, the model can learn an unwanted association between a material change and a scene change.
+
+00:18:44.976 --> 00:18:48.787
+Compare the instruction with the actual difference between source and target.
+
+00:18:49.458 --> 00:18:53.913
+Ask what supervision is rewarding, including changes nobody meant to label.
+
+00:18:54.497 --> 00:18:58.775
+The preservation contract begins in the examples used to teach the editor.
+
+00:18:59.375 --> 00:19:03.565
+Sometimes a conditioned prediction moves in the right direction but too weakly.
+
+00:19:04.149 --> 00:19:11.465
+Classifier-free guidance uses the difference between a conditioned prediction and a baseline prediction to steer the result.
+
+00:19:12.137 --> 00:19:16.093
+Read the formula as baseline, plus a scaled change in direction.
+
+00:19:16.678 --> 00:19:22.212
+When s equals one, the baseline terms cancel and we recover the conditioned prediction.
+
+00:19:22.796 --> 00:19:25.891
+Above one, we extrapolate beyond it.
+
+00:19:25.892 --> 00:19:30.111
+That can strengthen the requested change, but it can strengthen errors as well.
+
+00:19:30.783 --> 00:19:38.596
+In an editing system, the baseline may still retain image information; baseline does not always mean no information at all.
+
+00:19:39.398 --> 00:19:45.692
+Think of guidance as a specific operation on predictions, rather than a universal quality dial.
+
+00:19:46.292 --> 00:19:51.958
+The baseline predicts 0.2 and the conditioned version predicts 0.5.
+
+00:19:52.381 --> 00:19:56.776
+With guidance scale two, do we get a value somewhere between them?
+
+00:19:57.448 --> 00:19:58.062
+No.
+
+00:19:58.572 --> 00:20:05.027
+We take 0.2 plus twice the difference of 0.3, which gives 0.8.
+
+00:20:05.537 --> 00:20:08.093
+We have moved beyond the conditioned prediction.
+
+00:20:08.517 --> 00:20:13.043
+If the useful direction includes a slight mistake, we can amplify both.
+
+00:20:13.043 --> 00:20:19.175
+For the pear, the new material might become clearer while the stem or boundary becomes less faithful.
+
+00:20:19.979 --> 00:20:23.454
+Compare the requested change and preservation separately.
+
+00:20:24.038 --> 00:20:31.266
+One slider can move those judgments in opposite directions; a single overall impression can hide the tradeoff.
+
+00:20:31.866 --> 00:20:35.093
+Different controls communicate different kinds of information.
+
+00:20:35.765 --> 00:20:38.086
+Text describes a requested change.
+
+00:20:38.758 --> 00:20:40.685
+A mask specifies a region.
+
+00:20:41.197 --> 00:20:45.606
+A spatial condition can describe pose, depth, or edges.
+
+00:20:46.190 --> 00:20:51.797
+An image reference can supply appearance information that would be difficult to express precisely in words.
+
+00:20:52.309 --> 00:20:56.601
+These are not interchangeable knobs, and every product does not expose all of them.
+
+00:20:57.186 --> 00:21:01.829
+ControlNet and IP-Adapter are examples of distinct architectural approaches.
+
+00:21:01.829 --> 00:21:11.394
+If exact untouched pixels are essential, a generation mask alone may be insufficient; explicit copying or compositing can enforce that requirement.
+
+00:21:12.065 --> 00:21:18.066
+Choose a control by asking what information is missing, then check whether the resulting image actually respected it.
+
+00:21:18.738 --> 00:21:25.659
+A mask indicates a permitted region; it does not by itself solve seams or the reflection of a changed material.
+
+00:21:25.659 --> 00:21:29.806
+The next slide names an architecture that learns to use a spatial condition.
+
+00:21:30.406 --> 00:21:34.027
+Suppose your sentence is understood, but the pear keeps changing shape.
+
+00:21:34.612 --> 00:21:39.079
+You can describe its outline with more adjectives, or supply spatial evidence.
+
+00:21:39.883 --> 00:21:45.695
+ControlNet gives an edge map, depth map, or pose a learned route into a compatible diffusion model.
+
+00:21:46.278 --> 00:21:48.936
+Trace the two paths in this original architecture.
+
+00:21:49.141 --> 00:21:51.550
+The pretrained path stays frozen.
+
+00:21:51.550 --> 00:21:59.975
+A trainable copy processes the added condition, and zero-initialized one-by-one convolutions connect its features to the main path.
+
+00:22:00.559 --> 00:22:05.816
+Initially those connections contribute zero; training learns their contribution.
+
+00:22:06.326 --> 00:22:10.605
+The copied branch itself starts from pretrained weights, not all zeros.
+
+00:22:11.189 --> 00:22:12.942
+Now return to our request.
+
+00:22:13.526 --> 00:22:16.139
+Edges can help specify the outline.
+
+00:22:16.139 --> 00:22:23.732
+They cannot, by themselves, tell us whether the reflected ceramic looks convincing or the blue stem retains its identity.
+
+00:22:24.332 --> 00:22:29.881
+With several references, the system must know which reference contributes which information.
+
+00:22:30.684 --> 00:22:36.262
+Imagine asking for the sculpture from image one and the atmosphere from image two.
+
+00:22:37.065 --> 00:22:42.526
+If the references become confused, you may get the wrong object with the right lighting.
+
+00:22:43.110 --> 00:22:48.980
+The illustrated research approach uses separators and image-index information to distinguish inputs.
+
+00:22:48.980 --> 00:22:54.704
+In an art brief, name the role of each image rather than presenting a pile of vaguely related inspiration.
+
+00:22:55.376 --> 00:23:01.042
+Then inspect for leakage: did a composition reference accidentally replace the subject?
+
+00:23:02.122 --> 00:23:07.846
+This figure describes one proposed mechanism, not a universal design used by every editor.
+
+00:23:08.446 --> 00:23:12.549
+Look at these published multi-image examples with reference roles in mind.
+
+00:23:13.133 --> 00:23:17.835
+Before judging the output, identify what each input was supposed to contribute.
+
+00:23:18.420 --> 00:23:22.566
+Then trace the subject and the requested transformation into the result.
+
+00:23:23.370 --> 00:23:26.699
+A reference-role failure can look superficially attractive.
+
+00:23:27.283 --> 00:23:33.094
+The system may borrow the wrong object's appearance or import a background that was never intended.
+
+00:23:33.094 --> 00:23:39.723
+We are examining qualitative examples from a particular paper, not conducting a broad comparison between products.
+
+00:23:40.395 --> 00:23:49.039
+The figure helps us practice an inspection method: follow the intended contribution of each input and look for unintended transfers between them.
+
+00:23:49.639 --> 00:23:54.458
+Attention lets a token gather information from other tokens with different weights.
+
+00:23:55.261 --> 00:24:04.387
+Our simplified scalar example gives weight 0.8 to a value of 0.9, and weight 0.2 to a value of 0.1.
+
+00:24:05.191 --> 00:24:08.125
+The weighted result is 0.74.
+
+00:24:08.797 --> 00:24:17.558
+The real mechanism operates on learned vectors, so this is arithmetic intuition rather than a literal description of artistic decision-making.
+
+00:24:17.558 --> 00:24:22.990
+The important structure is selective combination: every available source need not contribute equally.
+
+00:24:23.662 --> 00:24:28.583
+In a multi-reference edit, the system also needs to distinguish where information came from.
+
+00:24:29.386 --> 00:24:36.249
+Otherwise, gathering information successfully can still produce the wrong mixture of subject identity and visual style.
+
+00:24:36.849 --> 00:24:40.441
+The weights in this simplified attention example sum to one.
+
+00:24:41.024 --> 00:24:44.777
+That makes the result a weighted combination of the values.
+
+00:24:45.362 --> 00:24:50.574
+A larger weight makes the associated value contribute more to this particular calculation.
+
+00:24:51.495 --> 00:24:56.605
+Now be cautious about jumping from the calculation to an explanation of the final image.
+
+00:24:57.408 --> 00:25:01.847
+Real networks contain many layers, heads, and transformations.
+
+00:25:01.847 --> 00:25:06.358
+A high weight at one point may not tell us why a visible feature ultimately appeared.
+
+00:25:06.943 --> 00:25:17.617
+For practical reference editing, the useful question remains whether the intended information survives in the output, regardless of how compelling an attention visualization looks.
+
+00:25:18.217 --> 00:25:21.648
+What if a useful concept must recur across many requests?
+
+00:25:22.320 --> 00:25:28.876
+A reference can condition a generation, while LoRA adapts selected learned weights using a low-rank update.
+
+00:25:29.461 --> 00:25:32.483
+The update is a product of two smaller matrices.
+
+00:25:33.067 --> 00:25:41.230
+Instead of learning every entry of a large update matrix independently, we express that update as a product of two smaller matrices.
+
+00:25:41.230 --> 00:25:52.108
+For a 4096 by 4096 weight matrix and rank sixteen, the full matrix has 16,777,216 entries.
+
+00:25:52.663 --> 00:26:00.548
+The two factors together have 131,072, a factor of 128 fewer for this update.
+
+00:26:01.191 --> 00:26:05.090
+That is not a claim that the entire model shrinks by 128.
+
+00:26:05.644 --> 00:26:07.572
+The base weights still exist.
+
+00:26:08.346 --> 00:26:14.931
+Low rank makes adaptation economical, but does not certify that the learned subject survives a new pose.
+
+00:26:14.931 --> 00:26:19.137
+That question requires examples the adaptation did not already see.
+
+00:26:19.736 --> 00:26:23.503
+An adapted model reproduces your favorite training portrait perfectly.
+
+00:26:24.015 --> 00:26:26.527
+Is that enough to use the character in a new film?
+
+00:26:27.110 --> 00:26:35.098
+Consider what else it may have learned: the familiar camera angle, the background, even the lighting that always accompanied the subject.
+
+00:26:35.769 --> 00:26:39.229
+A held-out check deliberately changes those circumstances.
+
+00:26:39.901 --> 00:26:45.085
+Ask for a new view or a different setting and inspect the distinctive features.
+
+00:26:45.085 --> 00:26:50.838
+We want a reusable concept, rather than a narrow ability to reproduce familiar combinations.
+
+00:26:51.350 --> 00:26:56.621
+For the pear, keep the blue stem recognizable while moving the exhibition outdoors.
+
+00:26:57.204 --> 00:27:02.433
+If identity collapses there, more praise for the training examples will not solve the problem.
+
+00:27:03.032 --> 00:27:06.902
+A reward tells a learning process what kinds of outputs to favor.
+
+00:27:07.486 --> 00:27:13.560
+The figure shows a recent approach that separates task-specific reward training and then distills what is learned.
+
+00:27:14.363 --> 00:27:20.219
+Look at the categories: editing quality involves more than a single judgment of attractiveness.
+
+00:27:21.022 --> 00:27:25.285
+Now imagine an artwork whose purpose is to feel awkward or disturbing.
+
+00:27:25.285 --> 00:27:29.155
+A generic preference for polished images could work against that purpose.
+
+00:27:29.827 --> 00:27:35.302
+Human preference signals are useful, but they do not define artistic merit for every project.
+
+00:27:35.814 --> 00:27:45.611
+This is the bridge to the next section: technical optimization can help produce candidates, while an artist still needs to decide which properties serve the work.
+
+00:27:46.211 --> 00:27:50.051
+These edit examples invite a question about evaluation.
+
+00:27:50.563 --> 00:27:53.205
+Which properties would you reward separately?
+
+00:27:53.790 --> 00:28:01.149
+You might ask whether the instruction was carried out, whether identity survived, and whether the image is visually convincing.
+
+00:28:01.734 --> 00:28:03.676
+Those judgments can disagree.
+
+00:28:04.259 --> 00:28:09.458
+A highly polished output might erase an awkward feature that is central to the artwork.
+
+00:28:09.458 --> 00:28:14.598
+An unusual composition might serve the brief while attracting a lower generic preference score.
+
+00:28:15.269 --> 00:28:20.293
+We should understand what a reward encourages before treating a high score as artistic approval.
+
+00:28:20.876 --> 00:28:30.076
+The published examples illustrate the research setting; our classroom task is to articulate the intention against which we would judge a particular result.
+
+00:28:30.675 --> 00:28:32.865
+Which failure would you notice first?
+
+00:28:33.669 --> 00:28:40.254
+On one side, the output is beautiful, but it has quietly replaced our particular sculpture with a generic decorative pear.
+
+00:28:40.839 --> 00:28:45.949
+On the other, the right sculpture is present, but its reflection still behaves like the old material.
+
+00:28:46.870 --> 00:28:48.971
+The first may win a quick aesthetic vote.
+
+00:28:49.001 --> 00:28:53.922
+The second may pass a checklist that only asks whether the requested object changed.
+
+00:28:53.922 --> 00:28:56.009
+Neither satisfies the full brief.
+
+00:28:56.681 --> 00:29:01.909
+Has the editor lost identity, broken the scene's optical logic, or missed the work's intention?
+
+00:29:02.712 --> 00:29:05.296
+Naming the mismatch gives us a next action.
+
+00:29:05.968 --> 00:29:10.801
+Saying only that an output looks a little wrong leaves the diagnosis unfinished.
+
+00:29:11.401 --> 00:29:14.876
+A diagnosis becomes useful when it changes the next action.
+
+00:29:15.548 --> 00:29:21.375
+If the wrong object changes, first suspect an ambiguous reference or region specification.
+
+00:29:22.177 --> 00:29:27.391
+If the correct object becomes another instance, appearance grounding may be the issue.
+
+00:29:28.062 --> 00:29:33.567
+If the material looks disconnected from its reflection, the dependent change may be missing.
+
+00:29:34.151 --> 00:29:38.211
+These are candidate explanations, not automatic conclusions.
+
+00:29:38.211 --> 00:29:40.620
+Choose a small revision that tests one of them.
+
+00:29:40.678 --> 00:29:43.788
+If it does not help, reconsider the hypothesis.
+
+00:29:44.299 --> 00:29:54.390
+This is more informative than changing the prompt, seed, reference, and model all at once, because then a successful result would leave us unsure which intervention mattered.
+
+00:29:54.989 --> 00:29:57.559
+We now have several ways to communicate an edit.
+
+00:29:58.144 --> 00:30:01.911
+Would you preserve the reflection or let it change, and why?
+
+00:30:02.714 --> 00:30:05.372
+When would a mask help more than a longer prompt?
+
+00:30:06.043 --> 00:30:09.386
+What would edges or depth control still leave uncertain?
+
+00:30:10.307 --> 00:30:13.899
+Discuss these three questions using the pear already on screen.
+
+00:30:14.484 --> 00:30:19.754
+For each control you favor, name the failure it addresses and something it cannot settle.
+
+00:30:19.754 --> 00:30:21.084
+Pause the video here.
+
+00:30:21.594 --> 00:30:29.567
+The next slide offers one possible contract; compare it with your reasoning rather than treating it as the only artistic answer.
+
+00:30:33.567 --> 00:30:36.618
+Here is one defensible answer to the ceramic puzzle.
+
+00:30:37.203 --> 00:30:40.415
+Preserve the blue stem and recognizable silhouette.
+
+00:30:40.999 --> 00:30:46.373
+Allow transmission, highlights, and the reflection to change with the new material.
+
+00:30:47.175 --> 00:30:52.782
+Then inspect the boundary and water, because that is where the request reaches beyond the object.
+
+00:30:53.367 --> 00:30:58.682
+Notice the wording: allow a justified consequence, rather than permit arbitrary drift.
+
+00:30:58.682 --> 00:31:02.011
+We have not given the model permission to redesign the gallery.
+
+00:31:02.595 --> 00:31:07.092
+We have named the changes necessary to make this material transformation coherent.
+
+00:31:07.764 --> 00:31:14.510
+A mask could help localize work, while compositing might protect a region that truly must remain exact.
+
+00:31:15.314 --> 00:31:18.365
+The contract tells us how to use those tools.
+
+00:31:18.965 --> 00:31:21.901
+We can now explain our opening puzzle at three levels.
+
+00:31:22.412 --> 00:31:25.697
+The brief decides what should change and what should survive.
+
+00:31:26.281 --> 00:31:31.188
+The model uses representations, conditioning, and sampling to propose a result.
+
+00:31:31.859 --> 00:31:35.451
+Our review checks whether that proposal actually satisfies the brief.
+
+00:31:36.123 --> 00:31:38.986
+Keep those levels separate when you diagnose a failure.
+
+00:31:39.788 --> 00:31:43.380
+Stronger guidance will not choose the exhibition's purpose.
+
+00:31:43.380 --> 00:31:47.643
+A more eloquent artistic statement will not enforce identical pixels.
+
+00:31:48.154 --> 00:31:50.944
+A beautiful preview will not prove preservation.
+
+00:31:51.454 --> 00:31:55.733
+The useful skill is connecting the right intervention to the observed problem.
+
+00:31:56.244 --> 00:32:02.712
+If your partner can tell when to use it and what it leaves uncertain, you have understood more than its name.
+
+00:32:03.313 --> 00:32:06.277
+We can now explain our controls rather than just name them.
+
+00:32:06.861 --> 00:32:10.205
+How does ControlNet differ from a mask or a text prompt?
+
+00:32:10.788 --> 00:32:13.476
+Why can stronger guidance make an edit worse?
+
+00:32:14.060 --> 00:32:17.141
+What evidence would show that an edit preserved identity?
+
+00:32:18.061 --> 00:32:19.828
+Discuss these three questions.
+
+00:32:20.002 --> 00:32:27.902
+Choose a concrete requirement—a silhouette, an untouched region, or a distinctive stem—and connect your explanation to it.
+
+00:32:27.902 --> 00:32:32.429
+Then consider whether the control guarantees that requirement or only helps express it.
+
+00:32:32.939 --> 00:32:35.320
+Pause the video here before the break.
+
+00:32:39.320 --> 00:32:42.532
+We will take ten minutes and resume when the class is ready.
+
+00:32:43.117 --> 00:32:48.315
+When you come back, think about a series of images you would recognize as belonging to one artwork.
+
+00:32:48.899 --> 00:32:56.259
+What makes them belong together: the subject, the palette, the treatment of space, or something else?
+
+00:32:56.842 --> 00:32:59.120
+Leave that question open for now.
+
+00:32:59.120 --> 00:33:04.552
+We will use it to move from individual editing operations to a coherent visual language.
+
+00:33:08.552 --> 00:33:12.100
+Look again at the artwork we have been using as a technical test.
+
+00:33:12.685 --> 00:33:14.948
+After the break, it has a different job.
+
+00:33:15.459 --> 00:33:19.197
+We are no longer asking only whether the edit obeys a request.
+
+00:33:19.781 --> 00:33:25.389
+We are asking what a visitor might feel, and which visual decisions create that feeling.
+
+00:33:26.061 --> 00:33:30.397
+Two images can have different surfaces and still belong to one exhibition.
+
+00:33:30.397 --> 00:33:33.361
+Two images can share a palette and feel unrelated.
+
+00:33:33.945 --> 00:33:35.959
+The difference is worth arguing about.
+
+00:33:36.631 --> 00:33:40.939
+In the next section, I will show prepared alternatives for AFTER RAIN.
+
+00:33:41.742 --> 00:33:45.831
+Choose a direction in your mind, and be ready to explain a visible reason.
+
+00:33:46.415 --> 00:33:48.562
+Your neighbor may choose the other one.
+
+00:33:49.161 --> 00:33:50.913
+Now take the art director’s seat.
+
+00:33:51.030 --> 00:33:57.163
+The model can produce many plausible outputs; we decide which differences matter for AFTER RAIN.
+
+00:33:57.967 --> 00:34:02.975
+As we compare the prepared images, name the visible relationship that carries the idea.
+
+00:34:03.558 --> 00:34:07.924
+That could be scale, light, or the treatment of space.
+
+00:34:09.005 --> 00:34:13.342
+Your explanation will be more useful than simply calling an image impressive.
+
+00:34:13.942 --> 00:34:18.250
+Before seeing the poster alternatives, consider what you want a visitor to experience.
+
+00:34:18.760 --> 00:34:22.222
+What makes an image feel fragile rather than merely attractive?
+
+00:34:22.805 --> 00:34:26.470
+Can very different images belong to the same artwork, and why?
+
+00:34:27.142 --> 00:34:30.121
+Which artistic decisions would you keep for yourself?
+
+00:34:31.378 --> 00:34:33.086
+Discuss these three questions.
+
+00:34:33.203 --> 00:34:37.831
+You might disagree about the effect of empty space or the meaning of a material.
+
+00:34:37.831 --> 00:34:40.663
+Locate the visual evidence behind that disagreement.
+
+00:34:41.248 --> 00:34:42.591
+Pause the video here.
+
+00:34:43.263 --> 00:34:47.584
+Keep your starting position in mind when we compare the prepared directions.
+
+00:34:51.585 --> 00:34:59.542
+Here is our commission: AFTER RAIN, a fictional exhibition about fragile objects in changing environments.
+
+00:35:00.127 --> 00:35:06.728
+Imagine a visitor seeing its poster across a corridor before encountering a five-second moving image inside.
+
+00:35:07.311 --> 00:35:09.662
+What should that visitor expect to feel?
+
+00:35:10.172 --> 00:35:14.480
+The prepared examples keep the amber pear and blue stem recognizable.
+
+00:35:14.992 --> 00:35:22.482
+We will examine photographic and collage directions, then consider how a moving reveal changes the experience.
+
+00:35:22.483 --> 00:35:25.359
+Nobody needs to generate an image during this lecture.
+
+00:35:25.944 --> 00:35:29.841
+Fragile is a useful beginning, but it is not yet an art direction.
+
+00:35:30.513 --> 00:35:36.384
+We need to translate that word into something visible enough to compare and precise enough to revise.
+
+00:35:36.984 --> 00:35:39.875
+Try replacing fragile with expensive in the brief.
+
+00:35:40.459 --> 00:35:43.993
+You might still choose glass, but would you use the same composition?
+
+00:35:44.664 --> 00:35:48.986
+A large centered object and assertive lighting might suggest a luxury product.
+
+00:35:49.571 --> 00:35:53.951
+A small object surrounded by quiet space might instead seem exposed.
+
+00:35:54.272 --> 00:35:56.594
+Scale can make the pear feel vulnerable.
+
+00:35:57.265 --> 00:35:59.821
+Restrained light can make us look closely.
+
+00:35:59.821 --> 00:36:03.954
+A reflection can suggest a world less stable than the object itself.
+
+00:36:04.625 --> 00:36:12.086
+These are artistic hypotheses to test against an audience's reading, not a formula that makes every image fragile.
+
+00:36:12.890 --> 00:36:14.949
+Point to the feature doing the work.
+
+00:36:15.620 --> 00:36:20.672
+If nobody can locate it in the image, the intention may still be living only in the prompt.
+
+00:36:21.272 --> 00:36:24.208
+In Hokusai's Great Wave, look first for Mount Fuji.
+
+00:36:24.630 --> 00:36:26.106
+It is small and distant.
+
+00:36:26.777 --> 00:36:29.815
+Now follow the curves of the wave and the boats beneath it.
+
+00:36:30.398 --> 00:36:35.698
+Scale and rhythm create a tension we can discuss without turning the artwork into a style label.
+
+00:36:36.283 --> 00:36:43.116
+For AFTER RAIN, we might borrow a relationship: a small, vulnerable form facing a much larger environment.
+
+00:36:43.117 --> 00:36:47.643
+We do not need to reproduce the wave or ask for a generic imitation of the artist.
+
+00:36:48.227 --> 00:36:52.550
+The reference becomes useful when we can say which visual decision we are studying.
+
+00:36:53.133 --> 00:36:55.222
+Then we must test its translation.
+
+00:36:55.806 --> 00:37:00.171
+Our quiet flooded gallery has a different subject and emotional register.
+
+00:37:00.772 --> 00:37:05.868
+Instead of using a reference as a label, describe a relationship you can observe.
+
+00:37:06.452 --> 00:37:13.520
+You might want a small stable form beneath a large dynamic curve, or a rhythm that moves the eye through the composition.
+
+00:37:14.192 --> 00:37:17.768
+Then translate that relationship into the new subject and brief.
+
+00:37:18.440 --> 00:37:23.784
+The result should be judged as its own artwork, not as a contest to resemble the reference.
+
+00:37:23.784 --> 00:37:29.188
+This approach makes references more useful to collaborators because they can understand what you are borrowing.
+
+00:37:29.771 --> 00:37:40.898
+It also makes iteration more focused: if the intended tension is missing, you can revise scale or rhythm rather than vaguely asking for more influence from the source.
+
+00:37:41.498 --> 00:37:45.222
+Before admiring the surface detail, decide where your eye arrives.
+
+00:37:45.806 --> 00:37:49.865
+Is it the pear, the reflection, or the space waiting above them?
+
+00:37:50.668 --> 00:37:53.515
+A poster has to organize that first encounter.
+
+00:37:54.187 --> 00:37:59.619
+If every region is equally busy, the audience has to invent a hierarchy we have not provided.
+
+00:38:00.204 --> 00:38:05.211
+Here, the open area can make the object feel small and give the title somewhere to live.
+
+00:38:05.211 --> 00:38:12.921
+We can ruin the sense of quiet by filling every available gap with decorative detail, even if each addition is attractive on its own.
+
+00:38:13.842 --> 00:38:19.886
+When revising this image, I would first ask whether the composition expresses the intended scale and silence.
+
+00:38:20.690 --> 00:38:23.668
+More texture comes later, if the work needs it.
+
+00:38:24.268 --> 00:38:27.189
+Negative space does two jobs in this poster.
+
+00:38:27.699 --> 00:38:33.613
+It changes how large or isolated the object feels, and it creates a place for typography.
+
+00:38:34.285 --> 00:38:38.534
+These are connected design decisions rather than separate finishing steps.
+
+00:38:39.045 --> 00:38:47.047
+If you fill the pale area with dramatic detail, the image may become more visually active but leave no calm route for reading the title.
+
+00:38:47.047 --> 00:38:51.077
+If you reserve too much space, the subject might lose the presence you wanted.
+
+00:38:51.662 --> 00:38:54.713
+Evaluate the space in relation to the finished use.
+
+00:38:55.298 --> 00:39:02.934
+A generative background is part of a larger composition when it must carry text, branding, or other exact elements.
+
+00:39:03.534 --> 00:39:06.293
+The collage direction changes the rules of the world.
+
+00:39:06.878 --> 00:39:09.360
+Torn edges replace smooth contours.
+
+00:39:09.872 --> 00:39:12.120
+Flat layers replace optical depth.
+
+00:39:12.704 --> 00:39:16.515
+Amber and indigo keep a connection to our recurring subject.
+
+00:39:17.318 --> 00:39:21.670
+Look at how those decisions affect the pear's apparent weight and vulnerability.
+
+00:39:22.254 --> 00:39:28.474
+If the body looks like paper but the water behaves like a photograph, do we accept that collision?
+
+00:39:28.474 --> 00:39:31.278
+We might, if it is deliberate and supports the work.
+
+00:39:31.862 --> 00:39:34.549
+We might reject it as an unresolved mixture.
+
+00:39:35.220 --> 00:39:38.009
+The answer depends on the intended visual language.
+
+00:39:38.594 --> 00:39:44.011
+The next comparison asks you to locate precisely where that language holds together or breaks.
+
+00:39:44.611 --> 00:39:51.401
+A photographic reflection inside a paper collage can be a mistake, or the most interesting decision in the image.
+
+00:39:51.984 --> 00:39:58.351
+We need to know whether the mismatch is an intentional disruption and whether it produces the intended effect.
+
+00:39:59.153 --> 00:40:02.089
+Suppose the exhibition explores unstable memories.
+
+00:40:02.513 --> 00:40:05.695
+An impossibly photographic reflection could make sense.
+
+00:40:06.279 --> 00:40:10.601
+Suppose the brief calls for a coherent world assembled from torn paper.
+
+00:40:10.602 --> 00:40:12.836
+The same reflection might weaken it.
+
+00:40:13.420 --> 00:40:17.509
+This does not mean every accident deserves an explanation after the fact.
+
+00:40:18.181 --> 00:40:24.780
+Make the intention specific, examine what the viewer can actually see, and compare alternatives.
+
+00:40:25.452 --> 00:40:31.570
+A strong critique can distinguish a productive contradiction from an excuse for an unresolved result.
+
+00:40:32.170 --> 00:40:35.689
+A reference becomes easier to use when we assign it a role.
+
+00:40:36.200 --> 00:40:42.363
+One image might define the subject, another the composition, and another the material treatment.
+
+00:40:43.034 --> 00:40:45.239
+Name the property you want from each.
+
+00:40:45.823 --> 00:40:48.831
+The model may not isolate those roles perfectly.
+
+00:40:49.415 --> 00:40:56.700
+That is why you should look for unwanted transfers, such as importing a reference's background when you only wanted its palette.
+
+00:40:56.701 --> 00:41:00.046
+Try removing one reference and observing what disappears.
+
+00:41:00.629 --> 00:41:02.747
+Start with the smallest useful set.
+
+00:41:03.331 --> 00:41:10.895
+If five references contradict one another, adding a sixth may make the problem harder to diagnose rather than solve it.
+
+00:41:11.494 --> 00:41:13.991
+We have added a reference because we think it helps.
+
+00:41:14.503 --> 00:41:16.794
+How would we discover whether it actually does?
+
+00:41:16.882 --> 00:41:18.328
+Remove it and compare.
+
+00:41:19.131 --> 00:41:25.308
+First state its intended role: perhaps the pear's silhouette, perhaps the composition's sense of scale.
+
+00:41:26.112 --> 00:41:29.688
+Then look for that quality in outputs with and without the reference.
+
+00:41:30.200 --> 00:41:33.047
+Also inspect what came along uninvited.
+
+00:41:33.047 --> 00:41:37.734
+A useful subject reference can carry a background or lighting scheme we did not want.
+
+00:41:38.406 --> 00:41:43.575
+This is an ablation: change one component to understand its contribution.
+
+00:41:44.655 --> 00:41:50.803
+Random generation makes one lucky comparison weak evidence, so several samples can help.
+
+00:41:51.475 --> 00:41:59.388
+If we cannot explain what a reference contributes, we may be making the request more complicated without making the direction clearer.
+
+00:41:59.989 --> 00:42:02.763
+Listen to how this prompt distributes responsibility.
+
+00:42:03.274 --> 00:42:06.355
+The pear reference supplies silhouette and the blue stem.
+
+00:42:06.939 --> 00:42:09.932
+Placement low on the right organizes the composition.
+
+00:42:10.517 --> 00:42:13.524
+A pale upper-left area reserves space for the title.
+
+00:42:14.036 --> 00:42:17.233
+Soft daylight and restrained reflections support the mood.
+
+00:42:17.905 --> 00:42:21.512
+Every phrase points toward something we could inspect in an output.
+
+00:42:22.183 --> 00:42:26.447
+Compare that with asking for a stunning masterpiece with beautiful lighting.
+
+00:42:26.447 --> 00:42:30.886
+This prompt is still a proposal, not a binding contract enforced by the model.
+
+00:42:31.471 --> 00:42:43.327
+If an output fails, we can now name the failed relationship: the title area is crowded, the light is too assertive, or the reference's background has leaked into the scene.
+
+00:42:43.927 --> 00:42:46.337
+A single poster can look coherent by itself.
+
+00:42:47.009 --> 00:42:52.703
+A series exposes a harder problem: does the same material decision survive across viewpoints?
+
+00:42:53.375 --> 00:42:58.091
+Our Group Editing collaboration studies related images that should be edited consistently.
+
+00:42:58.763 --> 00:43:03.362
+Treating each image independently can produce slightly different costumes or materials.
+
+00:43:03.946 --> 00:43:09.875
+The method arranges related images as pseudo-video frames to use a video model's consistency prior.
+
+00:43:10.679 --> 00:43:14.533
+VGGT provides geometric correspondences.
+
+00:43:14.533 --> 00:43:23.513
+Geometry-enhanced rotary positional embeddings connect geometry features with image latents, while Identity-RoPE supports identity preservation.
+
+00:43:24.184 --> 00:43:28.171
+Follow the penguin examples through the figure before reading every label.
+
+00:43:28.843 --> 00:43:39.590
+Reliable correspondence is part of the technical problem: when views cannot be matched well, repeating the same instruction alone does not establish a coherent series.
+
+00:43:40.190 --> 00:43:44.102
+Iteration becomes informative when we know what changed between attempts.
+
+00:43:44.687 --> 00:43:47.213
+Suppose we compare two lighting treatments.
+
+00:43:47.725 --> 00:43:53.755
+Keep the subject and composition instructions stable, and record the references and model version.
+
+00:43:54.427 --> 00:43:58.792
+If a seed control exists, holding it fixed can help the first comparison.
+
+00:43:59.464 --> 00:44:04.779
+A shared seed still does not guarantee identical composition after a prompt change.
+
+00:44:04.779 --> 00:44:08.707
+If results vary widely, examine several outputs for each condition.
+
+00:44:09.379 --> 00:44:12.635
+Otherwise, one lucky sample may decide the whole direction.
+
+00:44:13.220 --> 00:44:16.490
+The table is a proposed experiment, not measured results.
+
+00:44:17.075 --> 00:44:21.308
+Its purpose is to make each generation answer a question about the artwork.
+
+00:44:21.909 --> 00:44:26.932
+Imagine you compare two prompts once, and the second gives a wonderful poster.
+
+00:44:28.187 --> 00:44:33.020
+Did its wording cause the improvement, or did it receive a favorable random sample?
+
+00:44:33.692 --> 00:44:36.263
+From one output, it can be difficult to tell.
+
+00:44:36.934 --> 00:44:41.854
+Several outputs per condition reveal whether the direction is stable or merely fortunate.
+
+00:44:42.526 --> 00:44:45.462
+For art direction, we can ask two different questions.
+
+00:44:45.740 --> 00:44:48.134
+Would I exhibit this particular image?
+
+00:44:48.134 --> 00:44:51.375
+Could I reliably develop a series using this direction?
+
+00:44:52.046 --> 00:44:56.486
+One exceptional output may answer the first while leaving the second unresolved.
+
+00:44:57.288 --> 00:45:07.935
+Repeating generations is helpful when it reveals a pattern relevant to the brief; it becomes a distraction when we keep browsing alternatives to avoid deciding what we value.
+
+00:45:08.534 --> 00:45:10.462
+Now the image becomes a poster.
+
+00:45:11.045 --> 00:45:19.149
+The title is an editable typographic layer, which lets us choose its wording, line breaks, and placement exactly.
+
+00:45:20.069 --> 00:45:27.328
+That matters when a work has to carry an exhibition name rather than merely resemble a poster in a generated preview.
+
+00:45:28.130 --> 00:45:31.824
+Look at how the title occupies the area we deliberately left open.
+
+00:45:32.628 --> 00:45:35.460
+The image and type were designed to cooperate.
+
+00:45:35.460 --> 00:45:40.614
+We can adjust hierarchy without asking the model to regenerate the sculpture and risk changing it.
+
+00:45:41.285 --> 00:45:49.098
+This is a useful division of labor: generation develops the visual material, and direct layout controls exact communication.
+
+00:45:49.770 --> 00:45:51.902
+The audience sees one composition.
+
+00:45:52.414 --> 00:45:55.728
+It does not need to know which parts came from which tool.
+
+00:45:56.327 --> 00:45:59.190
+Typography establishes a sequence of attention.
+
+00:45:59.700 --> 00:46:04.505
+Ask what the viewer should read first, what comes next, and where their eye returns to the artwork.
+
+00:46:05.307 --> 00:46:10.286
+In our poster, reserved space allows the title to be clear without covering the sculpture.
+
+00:46:10.870 --> 00:46:12.871
+This is also a production decision.
+
+00:46:13.382 --> 00:46:18.756
+Exact text can remain editable, while the image carries the material and atmosphere.
+
+00:46:18.756 --> 00:46:25.078
+If the title feels too dominant, change size, placement, or contrast and inspect the whole composition again.
+
+00:46:25.663 --> 00:46:28.612
+Do not judge the text in isolation from the image.
+
+00:46:29.123 --> 00:46:35.284
+The poster is the relationship between them, including the empty space that lets each element do its job.
+
+00:46:35.885 --> 00:46:39.097
+Take a few seconds with both directions before I describe them.
+
+00:46:40.018 --> 00:46:42.207
+Which would you put outside AFTER RAIN?
+
+00:46:42.631 --> 00:46:46.895
+Choose privately first, so your answer is not just a response to mine.
+
+00:46:47.479 --> 00:46:50.486
+Then identify the visible feature that made you choose.
+
+00:46:51.289 --> 00:46:55.480
+The photographic direction can invite attention to material and atmosphere.
+
+00:46:56.152 --> 00:47:01.584
+The collage direction can make fragility feel constructed through paper edges and layers.
+
+00:47:01.584 --> 00:47:05.454
+Both can serve the brief, but they make different promises to a visitor.
+
+00:47:06.038 --> 00:47:09.747
+A useful defense goes beyond realism versus abstraction.
+
+00:47:10.330 --> 00:47:16.230
+Tell us what the audience is likely to notice or feel, and how the composition produces that reading.
+
+00:47:17.033 --> 00:47:23.604
+We will use the disagreement to decide what to revise, rather than vote for a universally better image.
+
+00:47:24.204 --> 00:47:26.526
+Selection is an artistic decision.
+
+00:47:27.109 --> 00:47:33.549
+Once generation gives us many plausible alternatives, choosing one determines what the work becomes.
+
+00:47:34.134 --> 00:47:43.100
+The reason should connect to the brief: perhaps the small object feels more exposed, or the torn edge makes fragility physically legible.
+
+00:47:43.771 --> 00:47:46.736
+The rejected direction is useful evidence too.
+
+00:47:47.538 --> 00:47:52.181
+Explain what it does well and why you are choosing something else for this exhibition.
+
+00:47:52.181 --> 00:47:57.744
+An unexpected model output can also change the direction, if you choose to develop it deliberately.
+
+00:47:58.329 --> 00:48:04.695
+The key question is whether you can now articulate the intention and carry it through subsequent decisions.
+
+00:48:05.498 --> 00:48:10.404
+Surprise can begin a work; it does not finish the artist's judgment.
+
+00:48:11.004 --> 00:48:15.750
+A useful critique names a visible feature, explains its effect, and proposes a revision.
+
+00:48:16.335 --> 00:48:23.927
+For example: the crisp reflection makes the collage feel photographic, so I would simplify its shape to match the flatter layers.
+
+00:48:24.511 --> 00:48:33.549
+Compare that with 'I do not like the reflection.' The first comment gives the artist a relationship to inspect and a possible next move.
+
+00:48:33.550 --> 00:48:38.602
+You can disagree about the intended effect, but make the disagreement specific.
+
+00:48:39.274 --> 00:48:43.683
+This is a classroom critique framework rather than an official grading rubric.
+
+00:48:44.487 --> 00:48:49.378
+Use it to connect evidence in the image to the idea the work is trying to communicate.
+
+00:48:49.978 --> 00:48:54.856
+A curator asks, can the same sculpture feel more vulnerable without changing its shape?
+
+00:48:55.658 --> 00:48:57.498
+Lighting is one way to answer.
+
+00:48:58.170 --> 00:49:07.107
+Our LightCtrl collaboration studies controllable relighting from a single image, including light direction, intensity, and color temperature.
+
+00:49:07.690 --> 00:49:09.502
+Follow the chair through the figure.
+
+00:49:09.778 --> 00:49:13.692
+The latent proxy encoder extracts compact physical cues.
+
+00:49:13.692 --> 00:49:23.825
+A lighting-aware mask guides the denoiser toward regions affected by the change, and preference optimization in the proxy branch supports physical consistency.
+
+00:49:24.746 --> 00:49:29.126
+The method connects an interpretable lighting request with image generation.
+
+00:49:29.798 --> 00:49:40.384
+For our pear, look for consequences rather than the word dramatic: where do highlights move, what happens to shadow, and how does the material read?
+
+00:49:40.384 --> 00:49:46.605
+Inferring geometry and material from one photograph is ambiguous, so the result still needs inspection.
+
+00:49:47.188 --> 00:49:53.760
+The exhibition example is our application of the idea, not an additional result reported by the paper.
+
+00:49:54.359 --> 00:49:57.587
+Choose between the two prepared directions for AFTER RAIN.
+
+00:49:58.097 --> 00:50:01.806
+Which poster communicates fragility more clearly, and why?
+
+00:50:02.317 --> 00:50:05.617
+What does the rejected direction reveal about your choice?
+
+00:50:06.421 --> 00:50:09.896
+Which single revision would most change the audience’s reading?
+
+00:50:10.567 --> 00:50:14.495
+Discuss these three questions with a specific visual feature in view.
+
+00:50:15.006 --> 00:50:22.219
+You can prefer quiet space or the instability of torn paper, but explain how that choice serves the exhibition.
+
+00:50:22.220 --> 00:50:23.549
+Pause the video here.
+
+00:50:23.972 --> 00:50:28.352
+Listen for a persuasive reason to choose the direction you initially rejected.
+
+00:50:32.353 --> 00:50:35.419
+Consider what a process record lets us discuss.
+
+00:50:35.843 --> 00:50:44.063
+An artist can record the intention and invariants, the prompt and reference roles, and one observation about a rejected result.
+
+00:50:44.648 --> 00:50:47.509
+That record explains what an attempt was testing.
+
+00:50:48.020 --> 00:50:52.678
+Without that context, a folder of attractive images can be difficult to interpret.
+
+00:50:53.262 --> 00:50:57.409
+We may not know which input changed or why a version was rejected.
+
+00:50:57.409 --> 00:51:00.798
+A few precise notes make a comparison more informative.
+
+00:51:01.381 --> 00:51:08.930
+In a critique, this lets us ask about the artist’s decisions and the evidence behind them rather than guessing only from the final image.
+
+00:51:09.602 --> 00:51:14.289
+It also helps distinguish an intentional departure from an accidental change.
+
+00:51:14.889 --> 00:51:18.919
+Imagine we are standing between the two finished posters in a gallery review.
+
+00:51:19.591 --> 00:51:28.425
+I would begin with a visible decision that carries the idea, then locate an unintended change, then propose one revision worth discussing.
+
+00:51:29.096 --> 00:51:34.689
+The order matters: the critique begins by understanding the work before prescribing a repair.
+
+00:51:35.273 --> 00:51:38.719
+We can hear two contrasting readings of the same poster.
+
+00:51:38.720 --> 00:51:43.641
+One person may find the empty space quiet; another may find it emotionally distant.
+
+00:51:44.152 --> 00:51:46.546
+Ask which details support each reading.
+
+00:51:46.970 --> 00:51:49.306
+There is no image-making task here.
+
+00:51:49.729 --> 00:51:53.467
+We are practicing how to make feedback useful to the next decision.
+
+00:51:54.052 --> 00:52:02.024
+A good proposal names what would change and what effect we expect, so that a later version could confirm or challenge the reasoning.
+
+00:52:02.024 --> 00:52:07.573
+Discuss these three questions, then pause the video for the gallery conversation.
+
+00:52:11.573 --> 00:52:16.421
+Before the artwork begins to move, defend a decision about the images.
+
+00:52:17.005 --> 00:52:20.144
+How can a technically correct image fail as an artwork?
+
+00:52:20.816 --> 00:52:23.780
+Which visual rule should remain across a series?
+
+00:52:24.364 --> 00:52:27.737
+What evidence makes a critique useful for the next revision?
+
+00:52:28.409 --> 00:52:31.956
+Discuss these three questions through one of the prepared posters.
+
+00:52:31.957 --> 00:52:40.689
+Make words such as coherent or expressive concrete: locate the feature, describe its effect, and explain what changing it would do.
+
+00:52:41.361 --> 00:52:42.675
+Pause the video here.
+
+00:52:43.259 --> 00:52:46.793
+We will carry those artistic rules into the video section.
+
+00:52:50.793 --> 00:52:52.940
+Our image now has to survive time.
+
+00:52:53.523 --> 00:52:56.735
+The subject can move, disappear, and return.
+
+00:52:57.992 --> 00:53:08.972
+We will examine selected frames from published research, follow the technical representations, and use a prepared AFTER RAIN scenario to decide what a convincing edit requires.
+
+00:53:09.775 --> 00:53:13.747
+Keep the preservation contract, but add an event that could break it.
+
+00:53:14.347 --> 00:53:17.311
+A moving image creates new ways to break our contract.
+
+00:53:17.895 --> 00:53:21.049
+What new failures become possible when an image moves?
+
+00:53:21.560 --> 00:53:24.583
+What should happen when the pear disappears behind a column?
+
+00:53:25.167 --> 00:53:28.306
+Can four convincing frames prove that a video works?
+
+00:53:28.890 --> 00:53:30.803
+Discuss these three questions.
+
+00:53:31.606 --> 00:53:36.425
+Separate a correct change in visibility from an unwanted change in identity.
+
+00:53:36.425 --> 00:53:40.894
+Name a moment you would need to see between the selected frames before accepting the shot.
+
+00:53:41.477 --> 00:53:42.864
+Pause the video here.
+
+00:53:43.375 --> 00:53:47.230
+Your prediction will give us a concrete test for the methods that follow.
+
+00:53:51.230 --> 00:53:53.961
+A still image lets us choose a flattering instant.
+
+00:53:54.544 --> 00:53:57.904
+A video makes the object keep its promises in the next frame.
+
+00:53:58.575 --> 00:54:00.239
+Look at the source sequence.
+
+00:54:00.824 --> 00:54:05.832
+As viewpoint and visibility change, we continue to recognize the subject.
+
+00:54:06.504 --> 00:54:11.366
+An edit has to preserve that relationship while introducing its requested transformation.
+
+00:54:12.169 --> 00:54:13.819
+Remember our two clocks.
+
+00:54:14.331 --> 00:54:17.980
+The sampling steps describe how a model generates a result.
+
+00:54:17.981 --> 00:54:21.471
+The frames here describe time passing in the depicted scene.
+
+00:54:22.055 --> 00:54:28.728
+A system may use many sampling steps to produce a short clip, but those steps are not extra seconds of action.
+
+00:54:29.400 --> 00:54:35.035
+Now the preservation contract must hold across an event, not just inside a frame.
+
+00:54:35.636 --> 00:54:39.316
+Would a video be perfectly consistent if every frame were identical?
+
+00:54:39.988 --> 00:54:42.732
+Only if the intended scene were perfectly still.
+
+00:54:43.653 --> 00:54:51.289
+In our moving shot, pose, viewpoint, illumination, and visibility should change.
+
+00:54:52.209 --> 00:54:56.384
+Consistency means that those changes remain coherent with the scene.
+
+00:54:56.969 --> 00:54:59.830
+The blue stem may become hidden during a turn.
+
+00:55:00.342 --> 00:55:04.664
+That is different from its color changing without a lighting explanation.
+
+00:55:04.665 --> 00:55:09.264
+A texture should move with its surface, rather than crawl independently across it.
+
+00:55:09.936 --> 00:55:14.040
+If there is no convincing explanation, you may have found instability.
+
+00:55:14.842 --> 00:55:20.026
+This is why the goal cannot simply be to minimize change from one frame to the next.
+
+00:55:20.626 --> 00:55:24.043
+Here is a prepared storyboard, not a generated video result.
+
+00:55:24.554 --> 00:55:28.671
+In the first view, the reflection suggests an object we have not fully seen.
+
+00:55:29.182 --> 00:55:32.541
+A partial view then gives us enough evidence to make a guess.
+
+00:55:33.052 --> 00:55:36.439
+The wide view finally changes our understanding of the setting.
+
+00:55:36.951 --> 00:55:44.105
+The audience is doing something during those five seconds: forming an expectation, testing it, and revising it.
+
+00:55:44.106 --> 00:55:47.567
+Compare this sequence with revealing everything in the first frame.
+
+00:55:48.150 --> 00:55:51.612
+The same sculpture could be present, but the experience would differ.
+
+00:55:52.531 --> 00:55:58.123
+For AFTER RAIN, the timing of information can carry fragility as strongly as material or lighting.
+
+00:55:58.708 --> 00:56:02.679
+We should decide that structure before asking a tool to fill in motion.
+
+00:56:03.279 --> 00:56:06.171
+Five seconds is short, but it can still have a structure.
+
+00:56:06.842 --> 00:56:10.901
+Our proposed first interval shows a reflection, giving the viewer clues.
+
+00:56:11.325 --> 00:56:13.296
+The second offers a partial view.
+
+00:56:13.662 --> 00:56:18.173
+The final interval reveals the wider setting and changes how the object is understood.
+
+00:56:18.685 --> 00:56:21.794
+Try another allocation and predict the effect.
+
+00:56:21.795 --> 00:56:28.278
+A longer reflection might create uncertainty; a quick reveal might make the piece feel like a product shot.
+
+00:56:28.950 --> 00:56:33.593
+These timings are artistic proposals, not measured outputs from a video model.
+
+00:56:34.265 --> 00:56:39.726
+By deciding the experience first, we can evaluate whether the generated motion and cuts support it.
+
+00:56:40.309 --> 00:56:44.048
+A technically smooth sequence can still have the wrong rhythm.
+
+00:56:44.648 --> 00:56:53.102
+The research begins with a surprisingly simple experiment: arrange video frames into a contact sheet and give that image to an image editor.
+
+00:56:53.906 --> 00:57:00.257
+This asks whether an existing image-editing capability can transfer across multiple views presented together.
+
+00:57:01.061 --> 00:57:05.032
+Treat the result as evidence that motivates a research direction.
+
+00:57:05.032 --> 00:57:12.216
+A grid can make frames available in a shared context, but a successful-looking selection does not prove reliable video editing.
+
+00:57:12.888 --> 00:57:15.589
+There may be flicker between the sampled frames.
+
+00:57:16.013 --> 00:57:24.189
+The next steps investigate how to represent video more effectively and adapt the model, rather than assuming a contact sheet alone solves time.
+
+00:57:24.790 --> 00:57:28.455
+But the missing intervals are where some of the most revealing failures live.
+
+00:57:29.040 --> 00:57:33.317
+A feature can jump, disappear, and return between the frames on this page.
+
+00:57:33.989 --> 00:57:40.896
+Use the contact sheet for what it does well: compare appearance across selected moments and locate regions to inspect.
+
+00:57:41.407 --> 00:57:45.875
+Then review full playback, with closer attention around turns and occlusion.
+
+00:57:45.875 --> 00:57:49.116
+Think of a film review based only on publicity stills.
+
+00:57:49.540 --> 00:57:54.344
+You might judge the costume and lighting, but you have not yet seen the performance.
+
+00:57:55.264 --> 00:58:03.572
+In generative video, that missing performance includes whether the same object continues to exist convincingly from moment to moment.
+
+00:58:04.172 --> 00:58:07.093
+The grid can also be constructed in latent space.
+
+00:58:07.676 --> 00:58:15.372
+Instead of only combining visible pixel images, the method encodes frames and arranges their tokens into a virtual image grid.
+
+00:58:16.044 --> 00:58:19.504
+The published example changes a bus into a graphics card.
+
+00:58:20.308 --> 00:58:25.141
+The key idea is shared treatment of positions within that constructed representation.
+
+00:58:25.141 --> 00:58:30.602
+Do not confuse this step with using a video VAE; they are different design decisions.
+
+00:58:31.112 --> 00:58:39.933
+Putting frames near one another in a representation can help the model exchange information, but it does not impose a guarantee of physical continuity.
+
+00:58:40.604 --> 00:58:44.473
+We still need to inspect what survives across changing views.
+
+00:58:45.074 --> 00:58:50.462
+A virtual grid provides a way to arrange information for a model trained around image-like structure.
+
+00:58:51.045 --> 00:58:55.996
+It creates shared context and positional relationships among frame representations.
+
+00:58:56.580 --> 00:58:59.661
+That can be a useful bridge when reusing an image editor.
+
+00:59:00.172 --> 00:59:05.808
+But arrangement alone does not enforce the laws of motion or the persistence of a hidden object.
+
+00:59:05.808 --> 00:59:12.043
+Those abilities depend on the model, adaptation, data, and other parts of the workflow.
+
+00:59:12.628 --> 00:59:16.147
+Separate the representation choice from the capability claim.
+
+00:59:16.818 --> 00:59:23.112
+A diagram can explain how frames enter a system without proving that the system handles every difficult event.
+
+00:59:23.695 --> 00:59:27.477
+That proof would require appropriate outputs and evaluation.
+
+00:59:28.078 --> 00:59:32.867
+This architecture asks whether an image editor's abilities can be reused for video.
+
+00:59:33.539 --> 00:59:38.430
+The video VAE encodes a clip into a compressed latent representation.
+
+00:59:39.015 --> 00:59:47.528
+Learned projections connect those video latents with the image-editing transformer, so the model can operate on a compatible arrangement of information.
+
+00:59:48.200 --> 00:59:51.616
+Trace that main route before reading the smaller branches.
+
+00:59:51.616 --> 00:59:58.990
+Adaptation connects them; the paper explores LoRA and full training choices, with an optional enhancement stage.
+
+00:59:59.573 --> 01:00:02.611
+The attractive idea is reuse of editing knowledge.
+
+01:00:03.196 --> 01:00:07.868
+The test is whether that reuse preserves the temporal relationships our shot needs.
+
+01:00:08.380 --> 01:00:15.388
+Architecture explains where information flows; the edited clip shows whether the intended event survives.
+
+01:00:15.988 --> 01:00:21.581
+The image model and video VAE do not necessarily speak the same representational language.
+
+01:00:22.252 --> 01:00:24.340
+Learned projections help connect them.
+
+01:00:25.260 --> 01:00:30.809
+Adaptation then allows the editing transformer to operate usefully with the video representation.
+
+01:00:31.480 --> 01:00:39.073
+This is a common engineering pattern: reuse a capable component while learning the interface and behavior needed for another task.
+
+01:00:39.584 --> 01:00:41.920
+The benefit is not automatic.
+
+01:00:41.921 --> 01:00:49.061
+A projection must preserve useful information, and the adapted model must learn how the new structure relates to edits.
+
+01:00:49.732 --> 01:00:55.369
+In the published pipeline, decoding returns the edited representation to video.
+
+01:00:56.172 --> 01:01:03.473
+Follow the information through every stage rather than treating the name of the reused model as an explanation by itself.
+
+01:01:04.073 --> 01:01:06.512
+Here is a counting puzzle with a small trap.
+
+01:01:06.936 --> 01:01:15.098
+In this example, forty-five pixel frames are compressed with a special first frame and a factor of four for the remaining temporal groups.
+
+01:01:15.770 --> 01:01:18.733
+Forty-five is four times eleven, plus one.
+
+01:01:19.537 --> 01:01:23.800
+The latent sequence therefore has eleven plus one, or twelve frames.
+
+01:01:24.311 --> 01:01:29.305
+Those twelve latent frames can be arranged in the illustrated three-by-four virtual grid.
+
+01:01:29.305 --> 01:01:33.496
+Simply dividing forty-five by four would miss the first-frame convention.
+
+01:01:34.168 --> 01:01:40.812
+This arithmetic belongs to the representation used in this example; it is not a rule for every video model.
+
+01:01:41.484 --> 01:01:46.594
+A small detail in temporal compression changes what the editing model actually receives.
+
+01:01:47.194 --> 01:01:50.143
+Solve the frame-count relationship step by step.
+
+01:01:50.728 --> 01:01:53.969
+Start with four k plus one equals forty-five.
+
+01:01:54.553 --> 01:02:00.409
+Subtract one to obtain forty-four, then divide by four to get k equals eleven.
+
+01:02:00.992 --> 01:02:06.059
+The latent sequence contains k plus one frames, so its length is twelve.
+
+01:02:06.644 --> 01:02:11.842
+This arithmetic encodes the special handling of the first frame in the stated convention.
+
+01:02:11.842 --> 01:02:16.412
+It is different from simply dividing the total number of pixel frames by four.
+
+01:02:17.332 --> 01:02:26.386
+Understanding them can prevent mistakes when arranging latent frames into a virtual grid or comparing the representation with the original clip.
+
+01:02:26.985 --> 01:02:32.067
+The requested edit turns the scene into a cyberpunk workshop with holographic documents.
+
+01:02:32.738 --> 01:02:35.908
+Compare the results before focusing on the setting labels.
+
+01:02:36.579 --> 01:02:43.281
+Which version carries out the requested transformation more completely, and what visible evidence supports your answer?
+
+01:02:43.953 --> 01:02:49.808
+The paper presents this case as an example where classifier-free guidance improves edit completeness.
+
+01:02:50.393 --> 01:02:55.547
+Its baseline retains source latents, and its implementation includes rescaling.
+
+01:02:55.547 --> 01:02:59.154
+This does not establish one universally best guidance value.
+
+01:02:59.825 --> 01:03:04.337
+Guidance also has a computation cost when it requires another model pass.
+
+01:03:05.008 --> 01:03:12.952
+Relate the example back to our equation: changing a prediction combination affects how strongly the result follows the condition.
+
+01:03:13.552 --> 01:03:16.940
+An ablation asks what changes when one component is removed.
+
+01:03:17.524 --> 01:03:22.240
+In the displayed example, guidance makes more of the requested transformation visible.
+
+01:03:22.824 --> 01:03:25.439
+That is useful evidence about this comparison.
+
+01:03:26.022 --> 01:03:31.410
+It is not yet a measurement of reliability across the kinds of shots we might produce for an exhibition.
+
+01:03:32.082 --> 01:03:35.922
+As a reader, separate the observation from the next question.
+
+01:03:35.922 --> 01:03:38.244
+We can observe a more complete edit here.
+
+01:03:38.755 --> 01:03:46.378
+We would still want to know what happens across other clips, how often preservation suffers, and what the computation costs.
+
+01:03:46.961 --> 01:03:54.437
+You can learn a mechanism from a selected example while designing a stronger test for the decision you actually need to make.
+
+01:03:55.038 --> 01:04:00.017
+This is a local edit: the sheep's face changes and receives a white star-shaped patch.
+
+01:04:00.600 --> 01:04:02.616
+Look at the patch across poses.
+
+01:04:03.127 --> 01:04:09.580
+Does it remain attached to the same facial region, with a plausible change in apparent shape as the head turns?
+
+01:04:10.091 --> 01:04:12.311
+The most attractive frame is not enough.
+
+01:04:12.896 --> 01:04:17.933
+An identity marker can slide, disappear, or change shape at another moment.
+
+01:04:17.933 --> 01:04:24.592
+Selected frames let us ask the right questions, but the full clip is needed to check continuity between them.
+
+01:04:25.176 --> 01:04:32.652
+For our discussion, identify a small recognizable feature that will make identity drift easier to notice.
+
+01:04:33.252 --> 01:04:42.904
+Choose a distinctive feature and follow it through the shot: its attachment to the subject, its shape, and its reappearance after partial visibility.
+
+01:04:43.488 --> 01:04:46.642
+For our pear, the blue stem is a useful witness.
+
+01:04:47.226 --> 01:04:50.818
+It may become hidden as the camera moves; we should allow that.
+
+01:04:51.402 --> 01:04:54.629
+When it returns, it should still belong to the same object.
+
+01:04:54.629 --> 01:05:02.105
+A marker that slides across the surface or reappears in a new shape tells us something a general impression of smooth motion might miss.
+
+01:05:02.777 --> 01:05:11.158
+We are using the marker as a diagnostic aid, while still judging the whole object's identity and the shot's intended motion.
+
+01:05:11.759 --> 01:05:16.139
+Here the instruction changes the whole sequence into a minimal monochrome sketch.
+
+01:05:16.943 --> 01:05:22.287
+Local object replacement and global stylization allow different degrees of visual freedom.
+
+01:05:22.958 --> 01:05:27.924
+Even with a large style change, motion and scene structure should remain readable.
+
+01:05:28.595 --> 01:05:34.962
+Look for rules across frames: line density, silhouette treatment, and the handling of depth.
+
+01:05:35.764 --> 01:05:38.188
+Do they feel like one visual language?
+
+01:05:38.992 --> 01:05:42.014
+This connects directly to our collage discussion.
+
+01:05:42.014 --> 01:05:48.219
+A style is more useful to an art director when described through operations that can persist through time.
+
+01:05:48.891 --> 01:05:56.032
+If every frame reinvents those operations, the result may feel unstable even when each still is appealing.
+
+01:05:56.632 --> 01:05:59.903
+A video can preserve object motion while its style flickers.
+
+01:06:00.486 --> 01:06:09.058
+Line density may jump, a paper texture may crawl, or shading may switch between flat and volumetric treatments without a scene explanation.
+
+01:06:09.729 --> 01:06:15.088
+Review style as a set of temporal rules, just as we reviewed it across surfaces in the collage.
+
+01:06:15.760 --> 01:06:19.819
+Some variation is appropriate when the camera or light changes.
+
+01:06:19.819 --> 01:06:23.060
+The question is whether the material language remains coherent.
+
+01:06:23.645 --> 01:06:32.056
+If your artwork depends on a particular drawing or collage treatment, this check is as important as whether the subject stays in the same place.
+
+01:06:32.859 --> 01:06:36.874
+Motion correctness alone does not establish visual consistency.
+
+01:06:37.474 --> 01:06:44.177
+If we subtract one frame from the next, a perfectly correct camera movement can create a large difference.
+
+01:06:44.760 --> 01:06:48.440
+The same surface has simply moved to another pixel location.
+
+01:06:49.361 --> 01:06:56.807
+A more meaningful comparison first aligns corresponding visible content, then measures the remaining appearance difference.
+
+01:06:57.230 --> 01:07:04.633
+The teaching equation uses a motion warp for that alignment and a visibility mask to exclude occluded regions.
+
+01:07:04.634 --> 01:07:08.752
+We should not demand agreement for content that is hidden or newly revealed.
+
+01:07:09.423 --> 01:07:14.826
+This is an illustrative metric, not a claim about the exact evaluation used by the paper.
+
+01:07:15.629 --> 01:07:19.061
+A low difference can also reward a video that barely moves.
+
+01:07:19.572 --> 01:07:23.616
+A metric must be checked against the task it is supposed to represent.
+
+01:07:24.216 --> 01:07:27.049
+Imagine two candidates for our five-second shot.
+
+01:07:27.720 --> 01:07:32.087
+One shows a coherent camera move around the pear with modest frame differences.
+
+01:07:32.759 --> 01:07:35.197
+The other repeats a single beautiful frame.
+
+01:07:35.781 --> 01:07:38.877
+A naive difference score might prefer the frozen version.
+
+01:07:39.549 --> 01:07:43.272
+Our audience would immediately notice that the intended reveal never happened.
+
+01:07:43.784 --> 01:07:48.163
+That is a useful example of optimizing the measurement while missing the purpose.
+
+01:07:48.163 --> 01:07:52.106
+We need evidence for both coherent appearance and requested motion.
+
+01:07:52.690 --> 01:07:54.691
+Neither can substitute for the other.
+
+01:07:55.202 --> 01:08:00.137
+Each time, one easy-to-observe quality tempted us to stand in for the whole brief.
+
+01:08:00.808 --> 01:08:07.672
+Good evaluation keeps the intended result in view, especially when a convenient score seems reassuring.
+
+01:08:08.272 --> 01:08:11.952
+An edited keyframe can make an art direction easier to approve.
+
+01:08:12.462 --> 01:08:20.479
+Instead of describing every material and lighting choice in words, we can point to an image and say, this is the appearance we want.
+
+01:08:21.062 --> 01:08:24.800
+The workflow then carries that approved look through the source clip.
+
+01:08:24.801 --> 01:08:35.782
+Follow the four stages: select a representative frame, edit and inspect its appearance, propagate the look, and review the resulting motion.
+
+01:08:36.366 --> 01:08:38.819
+Will the material persist during a turn?
+
+01:08:39.403 --> 01:08:42.746
+Will the identity survive a column passing in front of it?
+
+01:08:44.002 --> 01:08:52.077
+This distinction is central to the Runway reading later: an appealing interaction pattern still needs a shot review suited to the artwork.
+
+01:08:52.677 --> 01:08:57.204
+What if the approved image is so influential that the requested event never happens?
+
+01:08:57.787 --> 01:09:02.358
+Our AlignVid collaboration studies that tension in image-to-video generation.
+
+01:09:02.943 --> 01:09:12.433
+In the published examples, a baseline omits a sunflower or leaves a person standing; the corresponding AlignVid results implement more of the requested event.
+
+01:09:13.105 --> 01:09:19.310
+The intervention scales queries or keys in selected attention blocks and denoising steps without retraining.
+
+01:09:19.311 --> 01:09:27.940
+In a scalar form, scaling Q by gamma changes the weights to softmax of gamma times Q K transpose over square root d.
+
+01:09:28.525 --> 01:09:30.847
+It changes attention concentration.
+
+01:09:31.357 --> 01:09:38.148
+Classifier-free guidance instead combines predictions with different conditioning; these are distinct operations.
+
+01:09:38.731 --> 01:09:44.602
+For an artist, the interesting failure is a faithful-looking image that refuses to do what the scene requires.
+
+01:09:44.602 --> 01:09:49.625
+The published frames illustrate that tension; a finished shot still needs temporal review.
+
+01:09:50.225 --> 01:09:57.614
+Our five-second brief changes the pear's body to ivory ceramic while retaining the blue stem, camera movement, and position.
+
+01:09:58.197 --> 01:10:00.592
+Reflections may adapt to the new material.
+
+01:10:00.957 --> 01:10:04.784
+The pear must remain the same object after passing behind a column.
+
+01:10:05.368 --> 01:10:07.733
+Which clause is hardest to verify?
+
+01:10:08.536 --> 01:10:14.931
+The reappearance is a strong candidate, because the system must maintain identity through a period of invisibility.
+
+01:10:14.931 --> 01:10:19.327
+This is more demanding than transferring a visible color from frame to frame.
+
+01:10:19.910 --> 01:10:23.036
+Begin with one clear transformation in a short clip.
+
+01:10:23.619 --> 01:10:31.227
+Then make the critical visibility event part of the review, rather than discovering it only after choosing a favorite result.
+
+01:10:31.827 --> 01:10:33.930
+The column is the moment of truth.
+
+01:10:34.732 --> 01:10:39.303
+Before the pear disappears, we can inspect its silhouette, material, and stem.
+
+01:10:39.888 --> 01:10:42.968
+During occlusion, there may be nothing visible to compare.
+
+01:10:43.480 --> 01:10:47.465
+When it returns, the model has to make the same object convincing again.
+
+01:10:48.050 --> 01:10:51.335
+Do not reject correct invisibility as a failure.
+
+01:10:51.335 --> 01:10:57.979
+Instead, compare the identity before and after the event, including how the object emerges at the boundary.
+
+01:10:58.490 --> 01:11:03.381
+A smooth-looking clip can still reveal a subtly redesigned pear on the other side.
+
+01:11:03.966 --> 01:11:12.246
+We are not merely watching for anything strange; we are testing the preservation requirement at the point where the shot makes it hardest to satisfy.
+
+01:11:12.845 --> 01:11:16.043
+Adding a small object creates several new relationships.
+
+01:11:16.627 --> 01:11:19.576
+In this published example, the edit adds a drone.
+
+01:11:20.161 --> 01:11:26.687
+Even if the drone looks convincing by itself, its scale, placement, and movement must fit the scene.
+
+01:11:27.359 --> 01:11:32.265
+Imagine a camera moving forward while the added object changes size in the wrong direction.
+
+01:11:32.937 --> 01:11:38.311
+The object might be beautifully rendered, but its relationship with the camera would expose the edit.
+
+01:11:38.311 --> 01:11:42.486
+Or it might hover at an unintended location relative to other objects.
+
+01:11:42.998 --> 01:11:47.160
+When you review an addition, evaluate those relationships across time.
+
+01:11:47.671 --> 01:11:52.679
+A close-up of the inserted object cannot answer every question about whether it belongs.
+
+01:11:53.279 --> 01:11:56.477
+An added object must fit the camera as well as the scene.
+
+01:11:57.061 --> 01:12:02.171
+A convincing texture and shape in one still do not establish a coherent trajectory.
+
+01:12:02.844 --> 01:12:09.122
+If the camera approaches, the apparent size and position of the addition should evolve in a compatible way.
+
+01:12:09.926 --> 01:12:15.999
+The exact expectation depends on whether the object is stationary or moving independently.
+
+01:12:16.000 --> 01:12:19.417
+That is why the brief should specify the intended relationship.
+
+01:12:19.927 --> 01:12:25.549
+Inspect the addition relative to nearby objects and the background, not only in a crop.
+
+01:12:26.352 --> 01:12:35.391
+A production-quality edit is a collection of relationships that survive over time, rather than a new object that looks impressive in isolation.
+
+01:12:35.991 --> 01:12:40.429
+Review the whole shot at normal speed, then inspect moments where failure is most likely.
+
+01:12:41.014 --> 01:12:45.847
+Pay attention to identity, intended motion, occlusion, boundaries, and the ending.
+
+01:12:46.431 --> 01:12:50.900
+High-motion content is a limitation the research authors specifically identify.
+
+01:12:51.410 --> 01:12:54.915
+If a clip fails, choose a revision based on the failure.
+
+01:12:54.915 --> 01:13:04.450
+You might reduce the transformation, shorten the segment, add a reference frame where supported, or repair part of the result through conventional compositing.
+
+01:13:05.253 --> 01:13:09.079
+Another generation is useful when it tests a reasoned hypothesis.
+
+01:13:09.502 --> 01:13:16.350
+Do not let repeated attempts distract you from whether the piece still communicates the artistic intention you began with.
+
+01:13:16.951 --> 01:13:19.550
+A failed shot is information about the workflow.
+
+01:13:20.222 --> 01:13:25.873
+If the appearance is wrong from the beginning, revising the keyframe or the material direction may help.
+
+01:13:26.675 --> 01:13:35.918
+If the first frame is convincing but identity breaks after occlusion, the problem calls for temporal review and a more suitable propagation or editing approach.
+
+01:13:36.503 --> 01:13:41.189
+If a region must remain exact, direct compositing may be part of the solution.
+
+01:13:41.190 --> 01:13:47.994
+We can also split a complicated transformation into stages, provided the transitions remain coherent.
+
+01:13:48.798 --> 01:13:52.915
+The important move is to connect the observed failure to the next intervention.
+
+01:13:53.718 --> 01:13:59.063
+Repeating a vague request with more enthusiasm does not use what the failed shot has taught us.
+
+01:13:59.662 --> 01:14:02.641
+Return to the proposed five-second ceramic-pear shot.
+
+01:14:03.153 --> 01:14:05.459
+Which moment would you inspect most closely?
+
+01:14:05.824 --> 01:14:08.380
+What should remain recognizable after the column?
+
+01:14:08.803 --> 01:14:11.607
+What failure would make you reject an attractive clip?
+
+01:14:12.410 --> 01:14:16.834
+Discuss these three questions by describing an event and the evidence you would seek.
+
+01:14:17.505 --> 01:14:27.230
+If your answer is temporal consistency, make it visible: what changes, when, and why would that violate the intended shot?
+
+01:14:27.231 --> 01:14:28.618
+Pause the video here.
+
+01:14:29.290 --> 01:14:34.766
+Compare your acceptance criteria with another person’s before we examine the compact review plan.
+
+01:14:38.765 --> 01:14:40.517
+Here is a compact test plan.
+
+01:14:41.029 --> 01:14:44.708
+The request is an ivory ceramic body with the blue stem retained.
+
+01:14:45.293 --> 01:14:48.461
+Camera motion and object motion should follow the source.
+
+01:14:49.045 --> 01:14:53.120
+The clip includes a column so that we can inspect a difficult reappearance.
+
+01:14:53.791 --> 01:14:58.523
+The evidence includes normal-speed playback and a closer look before and after that event.
+
+01:14:59.194 --> 01:15:04.173
+We also inspect reflections because a material change has optical consequences.
+
+01:15:04.173 --> 01:15:07.356
+This plan does not require a long benchmark suite.
+
+01:15:08.028 --> 01:15:13.678
+It simply makes the request, the likely failure, and the acceptance evidence explicit.
+
+01:15:14.482 --> 01:15:19.241
+You can use the same structure to test a different subject or visual transformation.
+
+01:15:19.842 --> 01:15:24.017
+Let us check whether the mechanisms are now useful without a model in front of us.
+
+01:15:24.602 --> 01:15:26.807
+Consider the three questions on screen.
+
+01:15:27.391 --> 01:15:31.625
+A material change reaches the reflection: explain why.
+
+01:15:32.297 --> 01:15:38.182
+A subject reference and LoRA both help represent a concept: explain the difference.
+
+01:15:39.263 --> 01:15:43.629
+Four frames look excellent: explain why the clip can still fail.
+
+01:15:44.548 --> 01:15:47.293
+Take a short silent beat before answering.
+
+01:15:47.293 --> 01:15:50.870
+The next slide names the decisions hiding inside the questions.
+
+01:15:51.455 --> 01:15:59.472
+If you get stuck, locate the type of problem first: the physical scene, the model's information, or evidence across time.
+
+01:16:00.055 --> 01:16:02.888
+That is often enough to begin a clear answer.
+
+01:16:03.488 --> 01:16:06.146
+Here are the decisions those questions conceal.
+
+01:16:06.729 --> 01:16:13.871
+If the reflection must change with the new material, we need to define the permitted region and consequences of the edit.
+
+01:16:14.673 --> 01:16:24.836
+If we want a concept for this request, a reference can condition generation; if we want learned adaptation, LoRA changes selected weights.
+
+01:16:25.420 --> 01:16:30.998
+If continuity matters, the evidence must include the intervals between our chosen stills.
+
+01:16:30.998 --> 01:16:33.641
+Each decision rules out a tempting shortcut.
+
+01:16:34.225 --> 01:16:37.875
+Freezing every surrounding pixel may freeze the wrong reflection.
+
+01:16:38.547 --> 01:16:43.133
+Calling every supplied image training confuses conditioning with adaptation.
+
+01:16:43.804 --> 01:16:47.091
+Calling four stills a successful video omits time.
+
+01:16:47.893 --> 01:16:53.310
+Use this slide to repair your explanation, rather than memorize a preferred sentence.
+
+01:16:53.910 --> 01:17:00.612
+The material changes how light interacts with the pear, so its visible consequences can extend into the reflection.
+
+01:17:01.416 --> 01:17:07.140
+A reference conditions an output; LoRA learns a low-rank update to selected model weights.
+
+01:17:07.723 --> 01:17:14.251
+Four good frames leave unobserved transitions, including events such as occlusion where identity can fail.
+
+01:17:14.922 --> 01:17:18.382
+Those are compact answers, but each has an application.
+
+01:17:18.383 --> 01:17:26.267
+They help us write a better preservation contract, choose between two kinds of intervention, and design a more revealing review.
+
+01:17:26.852 --> 01:17:31.160
+If your answer used different words and preserved those distinctions, it works.
+
+01:17:31.743 --> 01:17:41.103
+Tomorrow's interface may rename its controls, but the difference between specifying a request, adapting a model, and checking its result will still matter.
+
+01:17:41.703 --> 01:17:43.762
+We can check an edit at three levels.
+
+01:17:43.923 --> 01:17:46.901
+First, did the requested transformation occur?
+
+01:17:47.486 --> 01:17:50.259
+Second, did the necessary invariants survive?
+
+01:17:50.932 --> 01:17:54.231
+Third, does the result serve the artwork's intention?
+
+01:17:54.816 --> 01:18:01.971
+A result can pass the first level and fail the second, as when the correct material appears on a different object.
+
+01:18:01.971 --> 01:18:09.579
+It can pass both technical levels and still fail the artistic one, as when the chosen effect undermines the intended mood.
+
+01:18:10.250 --> 01:18:13.594
+Keeping the levels separate makes critique more precise.
+
+01:18:14.178 --> 01:18:22.122
+It also explains why neither a generic aesthetic score nor a strict pixel comparison can answer every question we care about.
+
+01:18:22.721 --> 01:18:26.532
+We have spent the lecture making the editing request more precise.
+
+01:18:27.204 --> 01:18:30.548
+Now consider who gets to choose the request in the first place.
+
+01:18:31.132 --> 01:18:40.303
+A system can offer convincing alternatives, but somebody still decides which intention matters and which evidence counts as success.
+
+01:18:41.105 --> 01:18:45.399
+The three readings let us examine that responsibility from different positions.
+
+01:18:46.071 --> 01:18:51.107
+Pachocki raises questions about capable AI systems and human values.
+
+01:18:51.107 --> 01:18:54.554
+Koe asks readers to reconsider their own goals and habits.
+
+01:18:55.064 --> 01:18:59.255
+Runway presents a workflow for turning an approved image into a video edit.
+
+01:18:59.840 --> 01:19:07.578
+Keep our pear in mind as we read them: we can delegate parts of its production while still arguing about what the artwork should become.
+
+01:19:08.178 --> 01:19:11.245
+We have an approved appearance and a moving shot to judge.
+
+01:19:11.916 --> 01:19:15.552
+What can an approved keyframe establish, and what can it not?
+
+01:19:16.224 --> 01:19:19.670
+Why might a low frame-difference score reward a bad video?
+
+01:19:20.094 --> 01:19:23.554
+Which evidence would convince you that identity survived motion?
+
+01:19:24.357 --> 01:19:26.125
+Discuss these three questions.
+
+01:19:26.284 --> 01:19:30.841
+Your answer should account for the requested event as well as the subject’s appearance.
+
+01:19:30.841 --> 01:19:34.651
+Use the column, a turn, or the sketch treatment as a concrete example.
+
+01:19:35.236 --> 01:19:36.506
+Pause the video here.
+
+01:19:36.666 --> 01:19:41.296
+We will next ask how the readings change our view of responsibility for those decisions.
+
+01:19:45.296 --> 01:19:49.020
+These first two readings ask about direction from different sides.
+
+01:19:49.530 --> 01:19:56.948
+An Alien Mind considers the relationship between an AI system achieving a goal and respecting human values.
+
+01:19:57.532 --> 01:20:02.365
+Dan Koe's essay invites people to examine the goals and habits directing their own lives.
+
+01:20:02.526 --> 01:20:07.373
+We will use its proposal as material for critical discussion of creative practice.
+
+01:20:07.374 --> 01:20:13.331
+Find a specific claim, explain your interpretation, and connect it to a decision from the lecture.
+
+01:20:14.003 --> 01:20:17.624
+A fictional artist is fine for discussing personal direction.
+
+01:20:18.295 --> 01:20:22.398
+The fifth quiz question asks you to reflect on one reading of your choice.
+
+01:20:23.071 --> 01:20:29.860
+Our class discussion can compare all three perspectives without requiring everyone to disclose personal experiences.
+
+01:20:30.461 --> 01:20:35.221
+The third reading moves from questions about direction to a concrete editing workflow.
+
+01:20:36.023 --> 01:20:45.295
+Runway's announcement of Aleph 2.0 and Edit Studio describes establishing an appearance in an edited image and applying that change through video.
+
+01:20:45.880 --> 01:20:48.421
+It connects directly to our keyframe discussion.
+
+01:20:48.581 --> 01:20:51.297
+Read it with the ceramic pear and column in mind.
+
+01:20:51.968 --> 01:20:55.576
+Which decision does the interface make easier to express?
+
+01:20:55.576 --> 01:20:58.554
+Which result would you still need to watch before approval?
+
+01:20:59.139 --> 01:21:08.309
+The page is a vendor's account, so its demonstrations illustrate claimed capabilities rather than supply an independent comparative evaluation.
+
+01:21:08.980 --> 01:21:17.012
+We can learn from the interaction design and still propose an occlusion test that asks whether the workflow meets this exhibition's particular needs.
+
+01:21:17.611 --> 01:21:21.320
+These technical papers are optional companions to the discussion readings.
+
+01:21:21.831 --> 01:21:24.402
+Choose according to the question you want to investigate.
+
+01:21:24.985 --> 01:21:31.703
+InstructPix2Pix helps explain edit supervision; Flow Matching develops the generative training framework.
+
+01:21:32.374 --> 01:21:37.718
+Qwen-Image-2.0 and Qwen-Video-Edit provide recent architecture examples.
+
+01:21:38.230 --> 01:21:42.026
+You do not need to read all of them before trying the class discussion.
+
+01:21:42.026 --> 01:21:49.561
+Start with a question, locate the part of the paper that addresses it, and distinguish the proposed method from the authors' evidence.
+
+01:21:50.480 --> 01:21:58.205
+The slide notes retain the other references on multi-image inputs, rewards, composition, and video editing.
+
+01:21:58.805 --> 01:22:01.608
+The three readings provide different kinds of material.
+
+01:22:02.280 --> 01:22:07.055
+A research leader's perspective develops an argument about alignment and future development.
+
+01:22:07.727 --> 01:22:11.392
+A reflective essay offers a way to examine personal direction.
+
+01:22:12.063 --> 01:22:15.932
+A vendor announcement presents a workflow and promotes its capabilities.
+
+01:22:16.604 --> 01:22:18.795
+Read each according to what it can support.
+
+01:22:19.466 --> 01:22:27.249
+Identify forecasts, personal claims, and demonstrations rather than treating every sentence as the same kind of evidence.
+
+01:22:27.249 --> 01:22:30.739
+You may disagree with an author and still find a useful question.
+
+01:22:31.250 --> 01:22:42.318
+Our synthesis is practical: what do you want to make, what will you delegate, and what evidence will you use to decide whether the collaboration served that intention?
+
+01:22:42.918 --> 01:22:48.423
+This technical extension separates image guidance and text guidance in InstructPix2Pix.
+
+01:22:49.095 --> 01:22:51.752
+Begin with the prediction using neither condition.
+
+01:22:52.336 --> 01:22:59.113
+Add a scaled difference for including the image, then another scaled difference for adding the text alongside that image.
+
+01:22:59.623 --> 01:23:07.566
+Set both scales to one and follow the cancellation: the intermediate terms disappear, leaving the fully conditioned noise prediction.
+
+01:23:07.566 --> 01:23:10.735
+This is a useful check that you understand the expression.
+
+01:23:11.406 --> 01:23:17.437
+Epsilon here denotes a noise prediction, unlike the velocity in our flow-matching slides.
+
+01:23:18.108 --> 01:23:25.965
+These controls belong to this formulation and should not be assumed to map directly onto every current editor's interface.
+
+01:23:26.565 --> 01:23:30.011
+Now set both guidance scales to one and follow the cancellation.
+
+01:23:30.815 --> 01:23:35.560
+The initial no-condition prediction cancels its negative copy in the first difference.
+
+01:23:36.143 --> 01:23:40.787
+The image-only prediction then cancels its negative copy in the second difference.
+
+01:23:41.458 --> 01:23:45.227
+The result is the prediction with both image and text conditions.
+
+01:23:45.737 --> 01:23:49.519
+That gives us a reference point for understanding the two controls.
+
+01:23:49.519 --> 01:23:56.484
+If the text scale were zero while the image scale stayed one, we would instead recover the image-only prediction.
+
+01:23:57.068 --> 01:23:59.901
+It shows what information each difference adds.
+
+01:24:00.485 --> 01:24:10.896
+Keep epsilon's meaning explicit here: this InstructPix2Pix expression predicts noise, whereas the earlier flow-matching example predicted velocity.
+
+01:24:11.496 --> 01:24:13.540
+Read the pseudocode in two groups.
+
+01:24:14.211 --> 01:24:22.345
+First we prepare an example: source, instruction, target, conditions, and target latent.
+
+01:24:23.149 --> 01:24:32.334
+Then we sample noise and time, construct the intermediate latent, predict velocity, and compare that prediction with the known training target.
+
+01:24:32.917 --> 01:24:36.495
+The final update changes trainable weights based on the loss.
+
+01:24:37.079 --> 01:24:41.342
+At inference, there is no known edited target to supply in this way.
+
+01:24:41.342 --> 01:24:45.358
+We instead follow the learned generative predictions from a starting state.
+
+01:24:46.161 --> 01:24:54.279
+This pseudocode explains the conceptual loop; it omits practical engineering such as batches, precision, and scheduling.
+
+01:24:55.083 --> 01:25:00.617
+Its most important distinction is what information is available during learning versus use.
+
+01:25:01.217 --> 01:25:02.984
+Look for the line that disappeared.
+
+01:25:03.349 --> 01:25:07.963
+The inference loop has no known edited target and no loss that updates weights.
+
+01:25:08.474 --> 01:25:18.083
+Instead, we encode the source and instruction, begin with noise, repeatedly predict a velocity and move the latent, then decode the result.
+
+01:25:18.666 --> 01:25:21.776
+Training uses examples to adjust the learned model.
+
+01:25:21.776 --> 01:25:27.602
+In this simplified inference loop, we use that model to construct an output we do not yet possess.
+
+01:25:28.026 --> 01:25:34.670
+The code is conceptual; practical systems use their own representations and sampling schedules.
+
+01:25:35.254 --> 01:25:44.964
+But you can now explain why providing another reference changes the information available for a request without automatically becoming a model-training operation.
+
+01:25:44.964 --> 01:25:49.696
+It is the same distinction we used when choosing between references and LoRA.
+
+01:25:50.295 --> 01:25:55.625
+Before we turn to the readings' discussion questions, use this table as a compact decision aid.
+
+01:25:56.209 --> 01:26:00.385
+Exact untouched pixels suggest a role for masks and compositing.
+
+01:26:00.969 --> 01:26:04.387
+A new visual language may benefit from reference conditioning.
+
+01:26:04.970 --> 01:26:08.314
+A reusable learned concept may motivate adaptation.
+
+01:26:08.825 --> 01:26:14.009
+A transformation that must survive motion needs a video workflow and temporal evidence.
+
+01:26:14.681 --> 01:26:17.864
+These approaches can cooperate in the same artwork.
+
+01:26:17.864 --> 01:26:22.565
+Choose according to the contract, then inspect the failure most likely to undermine it.
+
+01:26:23.150 --> 01:26:33.984
+That leaves us with a larger question for the readings: once production becomes easier, how do we choose a worthwhile direction and retain meaningful judgment over the result?
+
+01:26:34.584 --> 01:26:41.242
+An Alien Mind distinguishes achieving an assigned goal from generalizing human values in unfamiliar circumstances.
+
+01:26:41.914 --> 01:26:46.456
+Pachocki also raises questions about monitoring increasingly capable systems.
+
+01:26:47.039 --> 01:26:51.508
+Treat the essay as an argument containing claims and forecasts that we can examine.
+
+01:26:52.018 --> 01:27:00.517
+For our discussion, imagine an exhibition team delegating production while retaining responsibility for what the work communicates.
+
+01:27:00.517 --> 01:27:11.132
+Discuss the three questions on screen: explain the goal-and-values distinction, identify a forecast and the evidence it would need, and defend a boundary for human control.
+
+01:27:12.389 --> 01:27:13.761
+Pause the video here.
+
+01:27:14.346 --> 01:27:23.354
+Our art-direction example is an analogy; it does not give an image editor the same agency or risk profile as an autonomous research system.
+
+01:27:27.354 --> 01:27:32.100
+Koe's title makes a dramatic promise: How to fix your entire life in one day.
+
+01:27:32.771 --> 01:27:40.277
+The essay proposes examining identity and goals, interrupting habitual behavior, and turning reflection into action.
+
+01:27:41.080 --> 01:27:45.942
+We can discuss the usefulness of that proposal without accepting the title as a guarantee.
+
+01:27:46.746 --> 01:27:52.295
+Imagine an artist who can generate a hundred attractive images but cannot choose what to make.
+
+01:27:52.295 --> 01:27:57.771
+Does easy production help clarify a direction, or make avoiding the decision easier?
+
+01:27:58.354 --> 01:28:00.603
+Discuss the three questions on screen.
+
+01:28:01.186 --> 01:28:07.656
+Choose an idea worth using or challenging, explain the reason, and connect it to creative intention.
+
+01:28:08.328 --> 01:28:09.744
+Pause the video here.
+
+01:28:10.329 --> 01:28:16.125
+You can use a fictional artist or public example; no personal disclosure is needed.
+
+01:28:20.125 --> 01:28:25.542
+Runway's reading proposes approving an edited image before applying its appearance through a video.
+
+01:28:26.054 --> 01:28:34.654
+It offers a concrete answer to a communication problem: an art director can point to the desired look, rather than describe every feature in words.
+
+01:28:35.239 --> 01:28:36.684
+Now bring back the column.
+
+01:28:37.267 --> 01:28:42.261
+A convincing keyframe does not tell us what the pear will look like after it reappears.
+
+01:28:42.261 --> 01:28:52.337
+Discuss the three questions on screen: what the frame establishes, which claim deserves a harder test, and how the workflow serves AFTER RAIN's intention.
+
+01:28:52.920 --> 01:28:54.148
+Pause the video.
+
+01:28:54.570 --> 01:29:03.755
+The source is a vendor announcement; our job is to distinguish a useful demonstrated workflow from a reliability claim still needing evaluation.
+
+01:29:07.755 --> 01:29:10.413
+Return to your first judgment of the glass pear.
+
+01:29:11.217 --> 01:29:20.124
+We began with a small request and discovered that it touched the scene's physics, the artwork's intention, and the audience's experience over time.
+
+01:29:20.926 --> 01:29:26.928
+You now have more precise ways to say what should change, what should survive, and how to judge the result.
+
+01:29:27.599 --> 01:29:30.009
+Finish with the three questions on screen.
+
+01:29:30.009 --> 01:29:33.250
+Where would you place the boundary between control and surprise?
+
+01:29:33.835 --> 01:29:37.310
+How would you balance technical success and artistic purpose?
+
+01:29:37.893 --> 01:29:40.990
+What would you delegate, and what evidence would you require?
+
+01:29:41.573 --> 01:29:44.026
+Pause the video for the final discussion.
+
+01:29:44.697 --> 01:29:48.450
+Connect one mechanism or reading to a concrete artistic decision.
+
+01:29:49.034 --> 01:29:52.144
+Listen for an answer that makes you revise your own.
+
+01:29:52.145 --> 01:29:56.000
+That revision is a fitting last act for a class about editing.
