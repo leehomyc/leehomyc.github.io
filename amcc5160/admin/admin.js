@@ -8,6 +8,9 @@
     'Describe the basic latent-diffusion process from noise through denoising to decoding.',
     'Choose one Lecture 01 reading and critique one central claim in a short paragraph.'
   ];
+  const lecture2Questions = ["A glass pear becomes ceramic. Which edit contract is most coherent?", "A 1024 x 1024 RGB image becomes a 64 x 64 x 64 latent. What follows from counting scalar values?", "For v_guided = v_base + s(v_cond - v_base), what happens when s = 1?", "Which statement best distinguishes an image reference from LoRA?", "Why can four attractive frames be insufficient evidence of video-edit quality?", "After approving an edited keyframe in the Runway reading’s workflow, which claim still needs testing?", "One Euler update uses z = 0.20, step size = 0.10, and velocity = 0.60. Show the calculation, give the next z, and explain what one update does not prove about the final edit.", "An illustrative tokenization reduces N from 4096 to 1024. Calculate the token reduction factor and the dense self-attention pair-score reduction factor. Explain why this does not establish an equal end-to-end speedup.", "Your AFTER RAIN collage uses flat paper layers, but the reflection is sharply photographic. Give a critique tied to the visual language, propose one revision, and explain how you would compare versions.", "A five-second ceramic-pear edit passes behind a column. State two invariants, identify a high-risk event, and describe evidence you would inspect before accepting the clip.", "Using An Alien Mind, explain goal alignment and value alignment in your own words. Apply the distinction to a creative task and name one piece of evidence you would seek before trusting delegation.", "Using Dan Koe’s essay, propose a small experiment to clarify a creative direction. Explain its connection to the reading, state an observable outcome, and identify one limitation of treating the essay’s promise as a general rule."];
+  const quizQuestions = item => item.quizId === 'week-02' ? lecture2Questions : questions;
+  const quizMax = item => item.quizId === 'week-02' ? 30 : 20;
   let adminCode = '';
   let records = { signups: [], quizzes: [] };
   let students = [];
@@ -129,7 +132,7 @@
   }
 
   function renderQuiz(selector, items) {
-    $(selector).innerHTML = items.length ? items.map(item => `<article class="record" data-id="${escapeHtml(item.recordId)}"><div class="record-identity"><h3>${escapeHtml(person(item))}</h3><p>${escapeHtml(item.title)} · Updated ${new Date(item.submittedAt).toLocaleString()}</p></div><div class="record-content"><strong>Five current responses</strong><div class="answers">${item.answers.map((answer, index) => `<details><summary>Question ${index + 1}</summary><p><b>${escapeHtml(questions[index])}</b><br>${escapeHtml(answer)}</p></details>`).join('')}</div></div>${gradeForm(item, 20)}</article>`).join('') : '<div class="empty">No quiz submissions yet. New responses will appear here automatically.</div>';
+    $(selector).innerHTML = items.length ? items.map(item => `<article class="record" data-id="${escapeHtml(item.recordId)}"><div class="record-identity"><h3>${escapeHtml(person(item))}</h3><p>${escapeHtml(item.title)} · Updated ${new Date(item.submittedAt).toLocaleString()}</p></div><div class="record-content"><strong>${item.answers.length} current responses</strong><div class="answers">${item.answers.map((answer, index) => `<details><summary>Question ${index + 1}</summary><p><b>${escapeHtml(quizQuestions(item)[index] || `Question ${index + 1}`)}</b><br>${escapeHtml(answer)}</p></details>`).join('')}</div></div>${gradeForm(item, quizMax(item))}</article>`).join('') : '<div class="empty">No quiz submissions yet. New responses will appear here automatically.</div>';
   }
 
   function gradeForm(item, maxScore) {
@@ -154,7 +157,7 @@
     const rows = type === 'students'
       ? [['Student name','Student ID','Weekly slots','Quiz weeks','Final slots','Last activity'], ...students.map(i => [i.name,i.studentId,i.weekly.join('; '),i.quizzes.join('; '),i.finals.join('; '),i.lastActivity])]
       : type === 'quiz'
-        ? [['Week','Updated at','Student name','Student ID',...questions.map((_, i) => `Answer ${i + 1}`),'Score / 20','Feedback'], ...items.map(i => [i.week,i.submittedAt,studentName(i),studentId(i),...i.answers,i.score,i.feedback])]
+        ? [['Week','Updated at','Student name','Student ID',...Array.from({length:12},(_, i) => `Answer ${i + 1}`),'Score','Maximum score','Feedback'], ...items.map(i => [i.week,i.submittedAt,studentName(i),studentId(i),...Array.from({length:12},(_,n) => i.answers[n] || ''),i.score,quizMax(i),i.feedback])]
         : [['Slot','Student name','Student ID','Topic','Slides link',`Score / ${type === 'final' ? 25 : 10}`,'Feedback'], ...items.map(i => { const details = presentationDetails(i.topic); return [i.slotId,studentName(i),studentId(i),details.topic,details.slidesUrl,i.score,i.feedback]; })];
     const blob = new Blob([rows.map(row => row.map(csvValue).join(',')).join('\n')], { type: 'text/csv;charset=utf-8' });
     const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = `amcc5160-${type}.csv`; link.click(); URL.revokeObjectURL(link.href);
