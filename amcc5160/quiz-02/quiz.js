@@ -75,7 +75,7 @@
     form.elements.name.value = submission.name || '';
     form.elements.studentId.value = studentId;
     const answerFields = [...form.querySelectorAll('textarea[name="answer"]')];
-    answerFields.forEach((field, index) => { field.value = submission.answers[index] || ''; });
+    answerFields.forEach((field, index) => { field.value = (submission.answers.length === 12 ? ["", ...submission.answers.slice(8,12)] : submission.answers)[index] || ''; });
     isEditing = true;
     form.hidden = false;
     document.getElementById('identity-kicker').textContent = 'Current submission retrieved';
