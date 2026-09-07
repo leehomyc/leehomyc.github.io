@@ -8,11 +8,9 @@ let current=0;
 const hashNumber=()=>{const match=location.hash.match(/^#slide-(\d+)$/);return match?Math.max(1,Math.min(slides.length,Number(match[1]))):1;};
 function render(n,updateHash=true){
  current=Math.max(1,Math.min(slides.length,Math.trunc(n)||1));const s=slides[current-1];
- byId('discussion-cue').hidden=!s.discussion;
  byId('slide-image').src=s.image+'?v=20260907-polished';byId('slide-image').alt=`Slide ${current}: ${s.title}`;byId('slide-number').value=current;
  byId('script-title').textContent=s.title;byId('script-section').textContent=s.section;
- byId('script-time').textContent=`Pacing estimate ${s.time} · approximately ${s.duration_seconds} seconds`;
- byId('script-source').textContent=s.source||'Original teaching framework or exercise.';
+ byId('script-source').textContent=s.source||'Lecture example.';
  byId('script-body').replaceChildren(...s.spoken.split(/\n\n/).map(t=>{const p=document.createElement('p');p.textContent=t;return p;}));
  byId('prev').disabled=current===1;byId('next').disabled=current===slides.length;
  byId('now-slide').textContent=`SLIDE ${String(current).padStart(3,'0')} OF ${slides.length}`;
