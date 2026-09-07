@@ -2,14 +2,14 @@
 'use strict';
 const byId=id=>document.getElementById(id),error=byId('load-error');
 let slides;
-try {const r=await fetch('./slides.json?v=20260907-discussion');if(!r.ok)throw Error();slides=await r.json();if(slides.length!==120)throw Error();}
+try {const r=await fetch('./slides.json?v=20260907-research');if(!r.ok)throw Error();slides=await r.json();if(slides.length!==120)throw Error();}
 catch {error.hidden=false;error.textContent='The slide viewer could not load. Please open the slide PDF or full transcript above.';return;}
 let current=0;
 const hashNumber=()=>{const match=location.hash.match(/^#slide-(\d+)$/);return match?Math.max(1,Math.min(120,Number(match[1]))):1;};
 function render(n,updateHash=true){
  current=Math.max(1,Math.min(120,Math.trunc(n)||1));const s=slides[current-1];
  byId('discussion-cue').hidden=!s.discussion;
- byId('slide-image').src=s.image+'?v=20260907-discussion';byId('slide-image').alt=`Slide ${current}: ${s.title}`;byId('slide-number').value=current;
+ byId('slide-image').src=s.image+'?v=20260907-research';byId('slide-image').alt=`Slide ${current}: ${s.title}`;byId('slide-number').value=current;
  byId('script-title').textContent=s.title;byId('script-section').textContent=s.section;
  byId('script-time').textContent=`Pacing estimate ${s.time} · approximately ${s.duration_seconds} seconds`;
  byId('script-source').textContent=s.source||'Original teaching framework or exercise.';
