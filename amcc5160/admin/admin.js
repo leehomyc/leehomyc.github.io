@@ -9,9 +9,10 @@
     'Choose one Lecture 01 reading and critique one central claim in a short paragraph.'
   ];
   const legacyLecture2Questions = ["A glass pear becomes ceramic. Which edit contract is most coherent?", "A 1024 x 1024 RGB image becomes a 64 x 64 x 64 latent. What follows from counting scalar values?", "For v_guided = v_base + s(v_cond - v_base), what happens when s = 1?", "Which statement best distinguishes an image reference from LoRA?", "Why can four attractive frames be insufficient evidence of video-edit quality?", "After approving an edited keyframe in the Runway reading’s workflow, which claim still needs testing?", "One Euler update uses z = 0.20, step size = 0.10, and velocity = 0.60. Show the calculation, give the next z, and explain what one update does not prove about the final edit.", "An illustrative tokenization reduces N from 4096 to 1024. Calculate the token reduction factor and the dense self-attention pair-score reduction factor. Explain why this does not establish an equal end-to-end speedup.", "Your AFTER RAIN collage uses flat paper layers, but the reflection is sharply photographic. Give a critique tied to the visual language, propose one revision, and explain how you would compare versions.", "A five-second ceramic-pear edit passes behind a column. State two invariants, identify a high-risk event, and describe evidence you would inspect before accepting the clip.", "Using An Alien Mind, explain goal alignment and value alignment in your own words. Apply the distinction to a creative task and name one piece of evidence you would seek before trusting delegation.", "Using Dan Koe’s essay, propose a small experiment to clarify a creative direction. Explain its connection to the reading, state an observable outcome, and identify one limitation of treating the essay’s promise as a general rule."];
-  const lecture2Questions = ["You want to change a glass pear into ceramic while keeping its outline. Explain how ControlNet could help and name one aspect of the edit that an edge map cannot guarantee.", "Your AFTER RAIN collage uses flat paper layers, but the reflection is sharply photographic. Give a critique tied to the visual language, propose one revision, and explain how you would compare versions.", "A five-second ceramic-pear edit passes behind a column. State two invariants, identify a high-risk event, and describe evidence you would inspect before accepting the clip.", "In classifier-free guidance, what does increasing the guidance scale change? Explain why stronger guidance does not always produce a better edit.", "Choose one Lecture 02 reading and write a short reflection paragraph. Identify one central claim, then explain what you find convincing, limited, or worth challenging. Connect your reflection to one idea or example from the lecture."];
-  const quizQuestions = item => item.quizId === 'week-02' ? (item.answers.length === 12 ? legacyLecture2Questions : lecture2Questions) : questions;
+  const lecture2Questions = ["You want to change a glass pear into ceramic while keeping its outline. Explain how ControlNet could help and name one aspect of the edit that an edge map cannot guarantee.", "What is artistic intention, and how does it guide the use of generative AI in making an artwork? Explain how composition and lighting can communicate an intended mood or meaning.", "What is visual coherence in an artwork? Explain how you would assess whether an AI-generated edit supports the work’s visual language and meaning, rather than judging it only by realism or technical polish.", "In classifier-free guidance, what does increasing the guidance scale change? Explain why stronger guidance does not always produce a better edit.", "Choose one Lecture 02 reading and write a short reflection paragraph. Identify one central claim, then explain what you find convincing, limited, or worth challenging. Connect your reflection to one idea or example from the lecture."];
+  const quizQuestions = item => item.quizId === 'week-02' ? (item.answers.length === 12 ? legacyLecture2Questions : lecture2Questions) : item.quizId === 'week-01' ? questions : [];
   const quizMax = item => item.quizId === 'week-02' && item.answers.length === 12 ? 30 : 20;
+  let selectedQuizId = 'week-02';
   let adminCode = '';
   let records = { signups: [], quizzes: [] };
   let students = [];
@@ -76,7 +77,7 @@
     $('#metric-graded').textContent = graded;
     renderStudents();
     renderPresentation('#weekly-list', weekly, 10);
-    renderQuiz('#quiz-list', quizzes);
+    renderQuizSession();
     renderPresentation('#final-list', finals, 25);
   }
 
@@ -132,8 +133,30 @@
     }).join('') : '<div class="empty">No reservations yet. New sign-ups will appear here automatically.</div>';
   }
 
+  function quizSessionLabel(id) {
+    const match = /^week-(\d+)$/.exec(id);
+    return match ? `Quiz ${match[1].padStart(2, '0')} · Session ${Number(match[1])}` : `Unrecognized session (${id || 'missing ID'})`;
+  }
+
+  function selectedQuizzes() {
+    return records.quizzes.filter(item => (item.quizId || '') === selectedQuizId);
+  }
+
+  function renderQuizSession() {
+    const ids = [...new Set(['week-01', 'week-02', ...records.quizzes.map(item => item.quizId || '')])]
+      .sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
+    const select = $('#quiz-session');
+    select.innerHTML = ids.map(id => `<option value="${escapeHtml(id)}">${escapeHtml(quizSessionLabel(id))}</option>`).join('');
+    if (!ids.includes(selectedQuizId)) selectedQuizId = 'week-02';
+    select.value = selectedQuizId;
+    const items = selectedQuizzes();
+    $('#quiz-session-title').textContent = `${quizSessionLabel(selectedQuizId)} submissions`;
+    $('#quiz-session-count').textContent = `${items.length} submission${items.length === 1 ? '' : 's'} in this session`;
+    renderQuiz('#quiz-list', items);
+  }
+
   function renderQuiz(selector, items) {
-    $(selector).innerHTML = items.length ? items.map(item => `<article class="record" data-id="${escapeHtml(item.recordId)}"><div class="record-identity"><h3>${escapeHtml(person(item))}</h3><p>${escapeHtml(item.title)} · Updated ${new Date(item.submittedAt).toLocaleString()}</p></div><div class="record-content"><strong>${item.answers.length} current responses</strong><div class="answers">${item.answers.map((answer, index) => `<details><summary>Question ${index + 1}</summary><p><b>${escapeHtml(quizQuestions(item)[index] || `Question ${index + 1}`)}</b><br>${escapeHtml(answer)}</p></details>`).join('')}</div></div>${gradeForm(item, quizMax(item))}</article>`).join('') : '<div class="empty">No quiz submissions yet. New responses will appear here automatically.</div>';
+    $(selector).innerHTML = items.length ? items.map(item => `<article class="record" data-id="${escapeHtml(item.recordId)}"><div class="record-identity"><h3>${escapeHtml(person(item))}</h3><p>${escapeHtml(quizSessionLabel(item.quizId))} · ${escapeHtml(item.title)} · Updated ${new Date(item.submittedAt).toLocaleString()}</p></div><div class="record-content"><strong>${item.answers.length} current responses</strong><div class="answers">${item.answers.map((answer, index) => `<details><summary>Question ${index + 1}</summary><p><b>${escapeHtml(quizQuestions(item)[index] || `Question ${index + 1}`)}</b><br>${escapeHtml(answer)}</p></details>`).join('')}</div></div>${gradeForm(item, quizMax(item))}</article>`).join('') : '<div class="empty">No submissions for this session yet.</div>';
   }
 
   function gradeForm(item, maxScore) {
@@ -154,14 +177,14 @@
 
   function csvValue(value) { return `"${String(value == null ? '' : value).replaceAll('"', '""')}"`; }
   function exportCsv(type) {
-    const items = type === 'quiz' ? records.quizzes : records.signups.filter(item => item.type === type);
+    const items = type === 'quiz' ? selectedQuizzes() : records.signups.filter(item => item.type === type);
     const rows = type === 'students'
       ? [['Student name','Student ID','Weekly slots','Quiz weeks','Final slots','Last activity'], ...students.map(i => [i.name,i.studentId,i.weekly.join('; '),i.quizzes.join('; '),i.finals.join('; '),i.lastActivity])]
       : type === 'quiz'
-        ? [['Week','Updated at','Student name','Student ID',...Array.from({length:12},(_, i) => `Answer ${i + 1}`),'Score','Maximum score','Feedback'], ...items.map(i => [i.week,i.submittedAt,studentName(i),studentId(i),...Array.from({length:12},(_,n) => i.answers[n] || ''),i.score,quizMax(i),i.feedback])]
+        ? [['Quiz ID','Session','Updated at','Student name','Student ID',...Array.from({length:12},(_, i) => `Answer ${i + 1}`),'Score','Maximum score','Feedback'], ...items.map(i => [i.quizId,quizSessionLabel(i.quizId),i.submittedAt,studentName(i),studentId(i),...Array.from({length:12},(_,n) => i.answers[n] || ''),i.score,quizMax(i),i.feedback])]
         : [['Slot','Student name','Student ID','Topic','Slides link',`Score / ${type === 'final' ? 25 : 10}`,'Feedback'], ...items.map(i => { const details = presentationDetails(i.topic); return [i.slotId,studentName(i),studentId(i),details.topic,details.slidesUrl,i.score,i.feedback]; })];
     const blob = new Blob([rows.map(row => row.map(csvValue).join(',')).join('\n')], { type: 'text/csv;charset=utf-8' });
-    const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = `amcc5160-${type}.csv`; link.click(); URL.revokeObjectURL(link.href);
+    const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = `amcc5160-${type}${type === 'quiz' ? '-' + (selectedQuizId.replace(/[^a-z0-9-]/gi, '-') || 'unknown') : ''}.csv`; link.click(); URL.revokeObjectURL(link.href);
   }
 
   $('#login-form').addEventListener('submit', async event => {
@@ -172,6 +195,7 @@
   document.addEventListener('submit', event => { if (event.target.matches('.record-grade')) { event.preventDefault(); saveGrade(event.target); } });
   $('.tabs').addEventListener('click', event => { const button = event.target.closest('button[data-panel]'); if (!button) return; document.querySelectorAll('.tabs button').forEach(item => item.classList.toggle('active', item === button)); document.querySelectorAll('.panel').forEach(panel => { panel.hidden = panel.id !== `panel-${button.dataset.panel}`; }); });
   document.addEventListener('click', event => { const button = event.target.closest('[data-export]'); if (button) exportCsv(button.dataset.export); });
+  $('#quiz-session').addEventListener('change', event => { selectedQuizId = event.target.value; renderQuizSession(); });
   $('#student-search').addEventListener('input', event => { studentFilter = event.target.value; renderStudents(); });
   $('#refresh').addEventListener('click', () => load(true));
   window.addEventListener('beforeunload', () => clearInterval(refreshTimer));

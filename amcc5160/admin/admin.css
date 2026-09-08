@@ -101,6 +101,7 @@ main {
   color: var(--muted);
 }
 input,
+select,
 textarea {
   display: block;
   width: 100%;
@@ -114,6 +115,7 @@ textarea {
   outline: none;
 }
 input:focus,
+select:focus,
 textarea:focus {
   border-color: var(--blue);
   box-shadow: 0 0 0 3px rgba(107, 184, 255, 0.12);
@@ -508,4 +510,12 @@ button:disabled {
   .student-table td {
     grid-template-columns: 92px 1fr;
   }
+}
+
+.quiz-tools { display: flex; align-items: end; gap: 12px; }
+.quiz-tools label { color: var(--muted); font-size: 12px; }
+#quiz-session-count { margin-top: 8px; color: var(--muted); font-size: 13px; }
+#panel-quiz .panel-head { flex-wrap: wrap; gap: 20px; }
+@media (max-width: 560px) {
+  .quiz-tools { width: 100%; flex-direction: column; align-items: stretch; }
 }

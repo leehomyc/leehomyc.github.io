@@ -9,7 +9,7 @@
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
   <title>Instructor Dashboard — AMCC 5160</title>
-  <link rel="stylesheet" href="./admin.css?v=20260901-tight">
+  <link rel="stylesheet" href="./admin.css?v=20260908-sessions">
 </head>
 <body>
   <header class="topbar"><a href="../">AMCC <span>5160</span></a><p>Instructor dashboard</p><button id="refresh" type="button" hidden>Refresh data</button></header>
@@ -17,7 +17,7 @@
     <section id="login" class="login-card">
       <p class="eyebrow">Private course workspace</p>
       <h1>See the class at a glance.</h1>
-      <p>Live presentation reservations, Quiz 01 responses, and grading in one place.</p>
+      <p>Live presentation reservations, quiz responses, and grading in one place.</p>
       <form id="login-form"><label>Instructor code<input id="admin-code" type="password" autocomplete="off" required autofocus placeholder="Enter instructor code"></label><button type="submit">Open dashboard →</button></form>
       <p id="login-status" class="status" role="status"></p>
     </section>
@@ -27,7 +27,7 @@
       <section class="metrics" aria-label="Course summary">
         <article><span>Students</span><strong id="metric-students">0</strong><small>enrolled students</small></article>
         <article><span>Weekly</span><strong id="metric-weekly">0</strong><small>of 80 slots reserved</small></article>
-        <article><span>Quiz 01</span><strong id="metric-quiz">0</strong><small>submissions</small></article>
+        <article><span>All quizzes</span><strong id="metric-quiz">0</strong><small>submissions across sessions</small></article>
         <article><span>Final</span><strong id="metric-final">0</strong><small>of 80 slots reserved</small></article>
         <article><span>Graded</span><strong id="metric-graded">0</strong><small>across all records</small></article>
       </section>
@@ -35,18 +35,18 @@
       <nav class="tabs" aria-label="Dashboard sections">
         <button class="active" data-panel="students" type="button">Students <span id="count-students">0</span></button>
         <button data-panel="weekly" type="button">Weekly presentations <span id="count-weekly">0</span></button>
-        <button data-panel="quiz" type="button">Quiz 01 <span id="count-quiz">0</span></button>
+        <button data-panel="quiz" type="button">Quizzes <span id="count-quiz">0</span></button>
         <button data-panel="final" type="button">Final presentations <span id="count-final">0</span></button>
       </nav>
 
       <section id="panel-students" class="panel"><div class="panel-head student-panel-head"><div><p class="eyebrow">Private class directory</p><h2>Student activity</h2><p>80 students are enrolled. <span id="activity-student-count">0</span> currently have a sign-up or quiz record.</p></div><div class="student-tools"><label>Search students<input id="student-search" type="search" autocomplete="off" placeholder="Name or student ID"></label><button class="export" data-export="students" type="button">Export activity CSV</button></div></div><div class="student-table-wrap"><table class="student-table"><thead><tr><th>Student</th><th>Student ID</th><th>Course activity</th><th>Last activity</th></tr></thead><tbody id="student-list"></tbody></table></div><div id="student-empty" class="empty" hidden>No students found.</div></section>
       <section id="panel-weekly" class="panel" hidden><div class="panel-head"><div><p class="eyebrow">10% of course grade</p><h2>Weekly presentations</h2></div><button class="export" data-export="weekly" type="button">Export CSV</button></div><div id="weekly-list" class="records"></div></section>
-      <section id="panel-quiz" class="panel" hidden><div class="panel-head"><div><p class="eyebrow">Quiz series · 20% combined</p><h2>Quiz 01 submissions</h2></div><button class="export" data-export="quiz" type="button">Export CSV</button></div><div id="quiz-list" class="records"></div></section>
+      <section id="panel-quiz" class="panel" hidden><div class="panel-head"><div><p class="eyebrow">Quiz series · 20% combined</p><h2 id="quiz-session-title">Quiz submissions</h2><p id="quiz-session-count"></p></div><div class="quiz-tools"><label>Course session<select id="quiz-session" aria-label="Quiz course session"></select></label><button class="export" data-export="quiz" type="button">Export session CSV</button></div></div><div id="quiz-list" class="records"></div></section>
       <section id="panel-final" class="panel" hidden><div class="panel-head"><div><p class="eyebrow">25% of course grade</p><h2>Final presentations</h2></div><button class="export" data-export="final" type="button">Export CSV</button></div><div id="final-list" class="records"></div></section>
       <p id="dashboard-status" class="status" role="status"></p>
     </section>
   </main>
   <script src="../signup/config.js?v=20260901-tight"></script>
-  <script src="./admin.js?v=20260907-structure"></script>
+  <script src="./admin.js?v=20260908-sessions"></script>
 </body>
 </html>
