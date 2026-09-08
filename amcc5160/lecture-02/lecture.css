@@ -20,3 +20,18 @@
 @media(max-width:900px){.reading-cards{grid-template-columns:1fr}.reading h3{margin-top:20px}.reading-heading{gap:24px}.download-section{gap:32px}}
 @media(max-width:620px){.slide-number-strip,.research-grid{grid-template-columns:1fr}.lecture-summary{font-size:14px}.transcript-heading{flex-direction:column;gap:12px}.transcript-heading #script-time{text-align:left;max-width:none}.quiz-section{flex-direction:column;align-items:flex-start}.reading{padding:24px}.discussion-jumps{font-size:11px}.timing-note{padding:0 16px}.lecture-footer{line-height:1.6}}
 .slide-stage img{height:auto}
+
+/* Discussion questions and expandable suggested answers. */
+.discussion-entry{margin-top:20px;font-size:16px}.discussion-entry a{color:#8ec8ff}
+.discussion-section{background:#fff;color:#1d1d1f;scroll-margin-top:90px}
+.discussion-topics{display:flex;flex-wrap:wrap;gap:12px;margin:0 0 30px}.discussion-topics a{padding:10px 16px;border:1px solid #d2d2d7;border-radius:999px;color:#0064c8;font-size:14px}
+.discussion-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px;align-items:start}
+.discussion-group{min-width:0;background:#f5f5f7;border:1px solid #dedee4;border-radius:24px;padding:28px;scroll-margin-top:90px}
+.discussion-slide{margin:0 0 14px;font-size:13px;font-weight:650}.discussion-slide a{color:#0064c8}
+.discussion-group h3{font-size:25px;line-height:1.2;letter-spacing:-.025em;margin:0 0 24px}
+.discussion-group ol{padding-left:24px;margin:0}.discussion-group li{padding-left:4px}.discussion-group li+li{margin-top:24px}
+.discussion-question{font-size:16px;font-weight:600;line-height:1.55;margin:0 0 10px}
+.discussion-group summary{cursor:pointer;color:#0064c8;font-size:14px;font-weight:600;padding:7px 0}
+.discussion-group details p{font-size:15px;line-height:1.7;color:#424245;margin:10px 0 0}
+@media(max-width:760px){.discussion-grid{grid-template-columns:1fr}.discussion-group{padding:22px}.discussion-group h3{font-size:23px}}
+@media print{.discussion-grid{display:block}.discussion-group{break-inside:avoid;margin-bottom:20px}.discussion-group details::details-content{content-visibility:visible;height:auto}.discussion-topics{display:none}}
