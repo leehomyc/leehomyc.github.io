@@ -129,7 +129,7 @@
       const details = presentationDetails(item.topic);
       const slidesUrl = safeSlidesUrl(details.slidesUrl);
       const slides = slidesUrl ? `<p><a href="${escapeHtml(slidesUrl)}" target="_blank" rel="noreferrer">Open slides ↗</a></p>` : '<p>Slides not added yet</p>';
-      return `<article class="record" data-id="${escapeHtml(item.recordId)}"><div class="record-identity"><h3>${escapeHtml(item.slotId.replaceAll('-', ' · '))}</h3><p>${escapeHtml(person(item))}</p></div><div class="record-content"><strong>${escapeHtml(details.topic)}</strong>${slides}<p>Updated ${new Date(item.updatedAt).toLocaleString()}</p></div>${gradeForm(item, maxScore)}</article>`;
+      return `<article class="record" data-id="${escapeHtml(item.recordId)}"><div class="record-identity"><h3>${escapeHtml(item.slotId.replace(/^weekly-(\d+)-9$/, 'Week $1 · Backup spot').replaceAll('-', ' · '))}</h3><p>${escapeHtml(person(item))}</p></div><div class="record-content"><strong>${escapeHtml(details.topic)}</strong>${slides}<p>Updated ${new Date(item.updatedAt).toLocaleString()}</p></div>${gradeForm(item, maxScore)}</article>`;
     }).join('') : '<div class="empty">No reservations yet. New sign-ups will appear here automatically.</div>';
   }
 

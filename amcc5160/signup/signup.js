@@ -5,7 +5,7 @@
   const weeklySessions = [
     ['02', 'Sep 8'], ['03', 'Sep 15'], ['04', 'Sep 22'], ['05', 'Sep 29'], ['06', 'Oct 6'],
     ['07', 'Oct 13'], ['08', 'Oct 20'], ['09', 'Oct 27'], ['10', 'Nov 3'], ['11', 'Nov 10']
-  ].map(([week, date]) => ({ id: `weekly-${week}`, type: 'weekly', eyebrow: `Week ${week}`, title: date, slotCount: 8 }));
+  ].map(([week, date]) => ({ id: `weekly-${week}`, type: 'weekly', eyebrow: `Week ${week}`, title: date, slotCount: 9, backupSlot: 9 }));
   const finalSessions = [
     { id: 'final-12', type: 'final', eyebrow: 'Final presentations I', title: 'Nov 17', slotCount: 40 },
     { id: 'final-13', type: 'final', eyebrow: 'Final presentations II', title: 'Nov 24', slotCount: 40 }
@@ -51,11 +51,15 @@
     return result;
   }
 
+  function spotName(session, number) {
+    return session.backupSlot === Number(number) ? 'Backup spot' : `Slot ${Number(number)}`;
+  }
+
   function slotLabel(slotId) {
     const [type, sessionNumber, slotNumber] = slotId.split('-');
     const sessions = type === 'weekly' ? weeklySessions : finalSessions;
     const session = sessions.find(item => item.id.endsWith(sessionNumber));
-    return session ? `${session.eyebrow} · ${session.title} · Slot ${Number(slotNumber)}` : slotId;
+    return session ? `${session.eyebrow} · ${session.title} · ${spotName(session, slotNumber)}` : slotId;
   }
 
   function presentationDetails(value) {
@@ -122,6 +126,11 @@
       const remaining = session.slotCount - takenCount;
       count.className = `capacity-badge${remaining === 0 ? ' full' : ''}`;
       count.innerHTML = remaining === 0 ? '<strong>Full</strong><small>0 slots left</small>' : `<strong>${remaining}</strong><small>${remaining === 1 ? 'slot' : 'slots'} left</small>`;
+      if (session.backupSlot) {
+        const backupStatus = occupied.has(`${session.id}-${session.backupSlot}`) ? 'reserved' : 'available';
+        const regularRemaining = remaining - (backupStatus === 'available' ? 1 : 0);
+        count.innerHTML = `<strong>${regularRemaining} regular</strong><small>Backup spot ${backupStatus}</small>`;
+      }
       heading.append(eyebrow, title, count);
 
       const grid = document.createElement('div');
@@ -136,9 +145,10 @@
         button.dataset.slotId = slotId;
         const publicIdentity = signup ? `${signup.familyName} · ID ending ${signup.idLastFour}` : '';
         const details = presentationDetails(signup && signup.topic);
-        button.setAttribute('aria-label', signup ? `Slot ${index}, reserved by ${publicIdentity}, topic ${details.topic}` : `Slot ${index}, available`);
+        const label = spotName(session, index);
+        button.setAttribute('aria-label', signup ? `${label}, reserved by ${publicIdentity}, topic ${details.topic}` : `${label}, available`);
         const number = document.createElement('strong');
-        number.textContent = `Slot ${index}`;
+        number.textContent = label;
         const detail = document.createElement('span');
         detail.textContent = signup ? `${signup.familyName} · •••• ${signup.idLastFour}` : 'Available';
         button.append(number, detail);
