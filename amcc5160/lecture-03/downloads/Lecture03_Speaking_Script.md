@@ -1,6 +1,6 @@
-# AMCC5160 Lecture 3 — Speaking Script
+# AMCC5160 Lecture 3 — Lecture Transcript
 
-100 slides · Voice B · 01:16:58
+100 slides · 01:16:58
 
 ## Slide 1 — Inside the generator
 
