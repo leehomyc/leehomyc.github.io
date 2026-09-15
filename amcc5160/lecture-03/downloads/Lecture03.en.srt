@@ -1,0 +1,2839 @@
+1
+00:00:00,000 --> 00:00:06,640
+Image generators make a series of numerical choices. A prompt describes part of the target, a random state supplies a starting point,
+
+2
+00:00:06,640 --> 00:00:10,920
+and a trained model guides the output. Changing any of those can change the picture.
+
+3
+00:00:10,920 --> 00:00:19,780
+This lecture connects those mechanisms to image-making decisions. We will cover diffusion, compressed representations, attention, seeds, guidance, sampling, and editing.
+
+4
+00:00:19,780 --> 00:00:24,920
+The later section extends the same ideas to video, assistants, world models, and robot actions.
+
+5
+00:00:24,920 --> 00:00:33,400
+The art content is equally specific: camera perspective, depth cues, lightness and color, character continuity, and local image repair. Small calculations will show what a setting
+
+6
+00:00:33,400 --> 00:00:40,015
+changes. Published figures will provide examples, and controlled comparisons will separate a setting effect from a lucky result.
+
+7
+00:00:40,315 --> 00:00:48,375
+The first question is why one prompt can produce many images. The answer involves both incomplete instructions and randomness. A sentence rarely specifies every position,
+
+8
+00:00:48,375 --> 00:00:51,595
+surface, and lighting condition, so many images may fit it.
+
+9
+00:00:51,595 --> 00:01:00,375
+The second question is why stronger guidance can reduce quality. Guidance changes how predictions are combined. It can strengthen requested features while exaggerating unwanted ones or
+
+10
+00:01:00,375 --> 00:01:05,755
+reducing variation. We will calculate a simple example before looking at actual sample grids.
+
+11
+00:01:05,755 --> 00:01:13,495
+The third question is which control matches a problem. A wrong layout, a damaged local detail, and an inconsistent character are different failures.
+
+12
+00:01:13,495 --> 00:01:21,653
+Seeds, reference images, spatial controls, masks, and trained adapters act at different parts of the system. Knowing that difference makes a test more informative.
+
+13
+00:01:21,953 --> 00:01:30,013
+An image request has several parts. Content names the objects and their relations. Layout specifies where they appear and how much space they occupy.
+
+14
+00:01:30,013 --> 00:01:35,533
+Appearance covers edges, color, light, and material. Intended use determines which details need to remain clear.
+
+15
+00:01:35,533 --> 00:01:42,633
+For example, a poster may need open space for a title. An animation frame may need a character whose costume matches the previous shot.
+
+16
+00:01:42,633 --> 00:01:48,813
+A small thumbnail may need a simple silhouette. These can use similar subjects while requiring different compositions.
+
+17
+00:01:48,813 --> 00:01:55,233
+The station image is one example for a few comparisons. Its yellow coat, red prop, and long platform make color,
+
+18
+00:01:55,233 --> 00:02:01,435
+identity, and perspective easy to identify. They are separate variables that can be specified, changed, and checked.
+
+19
+00:02:01,735 --> 00:02:07,435
+Look at these three pictures for a moment. They came from the same description of an astronaut riding a horse.
+
+20
+00:02:07,435 --> 00:02:14,935
+The subject stays roughly the same, but many choices change. Look at the horse’s pose, the background, and where the rider sits in the frame.
+
+21
+00:02:14,935 --> 00:02:20,255
+The words don’t settle all of those choices. So there can be several different pictures that fit the request.
+
+22
+00:02:20,255 --> 00:02:25,915
+These are older published examples, but the question they raise is still useful: what did the prompt actually specify?
+
+23
+00:02:25,915 --> 00:02:33,335
+Try describing the differences without saying better or worse yet. One image may place the traveler near the edge. Another may make the platform wider.
+
+24
+00:02:33,335 --> 00:02:39,383
+If we first name the changes, we can later decide which ones matter for the story, instead of choosing only by first impression.
+
+25
+00:02:39,683 --> 00:02:46,783
+Recognizing a picture and making a picture are different jobs. If I show you a chair, you might say, “That’s a red chair.”
+
+26
+00:02:46,783 --> 00:02:52,503
+But if I ask you to draw one, you need to choose its shape, the viewing angle, the light, and what sits behind it.
+
+27
+00:02:52,503 --> 00:02:55,883
+A generator has to fill in those missing choices too.
+
+28
+00:02:55,883 --> 00:03:04,783
+Recognition can leave many details undecided. A label doesn't need to describe every window in the station. Generation has to put something there,
+
+29
+00:03:04,783 --> 00:03:12,509
+even when we never asked about the windows. This is one reason a short prompt leaves so much room for the model to make choices.
+
+30
+00:03:12,809 --> 00:03:18,389
+“A traveler at a station” leaves a lot open. Are we close enough to see their face? Is it morning or evening?
+
+31
+00:03:18,389 --> 00:03:19,589
+Is the station busy?
+
+32
+00:03:19,589 --> 00:03:27,009
+The model has learned patterns from training examples, and those patterns influence what it produces. Adding more words can narrow the possibilities.
+
+33
+00:03:27,009 --> 00:03:31,669
+It still doesn’t describe every part of the picture, and the model may miss some of what we ask for.
+
+34
+00:03:31,669 --> 00:03:40,889
+Suppose we add the words quiet and lonely. Those words might influence color, empty space, posture, or lighting. They don't specify one exact arrangement.
+
+35
+00:03:40,889 --> 00:03:49,560
+If one arrangement matters, describe it directly. We can then judge whether the image follows that request and whether it creates the intended feeling.
+
+36
+00:03:49,860 --> 00:03:55,160
+Words are useful for saying what we want. A reference image can be useful for showing it.
+
+37
+00:03:55,160 --> 00:04:04,220
+For example, “make the traveler small” leaves room for interpretation. A sketch with a small figure in the corner gives more direct information about the layout.
+
+38
+00:04:04,220 --> 00:04:11,580
+We call these extra inputs conditions. They guide generation, but they don’t guarantee that every detail will stay exactly as supplied.
+
+39
+00:04:11,580 --> 00:04:16,920
+Words and references also have to agree. If the reference shows a close-up while the prompt asks for a distant figure,
+
+40
+00:04:16,920 --> 00:04:25,180
+the system receives competing directions. Before adding more words, check whether your inputs are asking for the same picture. Sometimes simplifying the input makes the test
+
+41
+00:04:25,180 --> 00:04:26,099
+much clearer.
+
+42
+00:04:26,399 --> 00:04:35,939
+Perspective depends on the camera's position relative to the scene. A nearby object occupies more of the image than an otherwise similar object farther away.
+
+43
+00:04:35,939 --> 00:04:44,599
+Moving the camera changes those distance relationships. That is why a close viewpoint can exaggerate a face, a hand, or the front of a building.
+
+44
+00:04:44,599 --> 00:04:54,199
+In a simple pinhole camera, projected size is proportional to focal length and inversely proportional to distance. If the object and focal length stay fixed,
+
+45
+00:04:54,199 --> 00:05:01,179
+doubling the distance halves its projected size. This is a geometric relationship, not an artistic rule.
+
+46
+00:05:01,179 --> 00:05:10,159
+Changing the crop at one fixed viewpoint changes framing but preserves perspective. Moving backward and choosing a longer lens can keep the foreground subject similar in
+
+47
+00:05:10,159 --> 00:05:19,742
+size while changing its relation to the background. Generated images may imitate these effects, but a camera word in a prompt does not guarantee calibrated optics.
+
+48
+00:05:20,042 --> 00:05:28,182
+A flat image can suggest depth without containing an explicit three-dimensional model. Overlap establishes a front-to-back relationship: if one shape blocks another,
+
+49
+00:05:28,182 --> 00:05:32,682
+we usually read the blocking shape as closer. The cue gives an ordering, not a measured distance.
+
+50
+00:05:32,682 --> 00:05:40,482
+Relative size supplies another cue when we assume objects have similar real-world sizes. Repeated columns that get smaller can suggest distance.
+
+51
+00:05:40,482 --> 00:05:48,062
+If the objects are actually different sizes, that inference can be wrong. The cue depends on both image geometry and our expectation about the objects.
+
+52
+00:05:48,062 --> 00:05:58,282
+Linear perspective adds a directional structure. Projections of parallel lines can converge toward a vanishing point. Rails, floor edges, and roof beams can organize a picture
+
+53
+00:05:58,282 --> 00:06:02,782
+around those directions. Different sets of parallel lines may have different vanishing points.
+
+54
+00:06:02,782 --> 00:06:12,022
+In a generated scene, these cues can disagree. A prop may overlap correctly while its scale changes implausibly. A visually attractive corridor can have inconsistent convergence.
+
+55
+00:06:12,022 --> 00:06:19,529
+Checking overlap, scale, and line directions separately gives a more precise geometric critique than saying the space looks strange.
+
+56
+00:06:19,829 --> 00:06:24,889
+When you get a picture you want to keep, save how you made it. The prompt is only part of the record.
+
+57
+00:06:24,889 --> 00:06:29,569
+You also need the model, any reference images, the seed, and the generation settings.
+
+58
+00:06:29,569 --> 00:06:33,809
+Think about sending the picture to a classmate and asking them to continue the work.
+
+59
+00:06:33,809 --> 00:06:37,269
+If all they have is your sentence, they’ll have to guess much of the setup.
+
+60
+00:06:37,269 --> 00:06:42,349
+A model checkpoint just means a saved version of the model’s learned values. Keep its name too.
+
+61
+00:06:42,349 --> 00:06:47,569
+A record is most useful when another person can follow it. Give the image a version number, save the exact prompt,
+
+62
+00:06:47,569 --> 00:06:54,769
+and keep the unedited output as well as your final edit. Otherwise, you may later compare a raw model result with a picture that has already
+
+63
+00:06:54,769 --> 00:06:56,068
+been heavily changed.
+
+64
+00:06:56,368 --> 00:07:03,808
+Before we go further, we need to separate training from making one image. During training, the model’s internal values change as it learns from examples.
+
+65
+00:07:03,808 --> 00:07:09,708
+During normal image generation, those values usually stay fixed. What changes is the image being generated.
+
+66
+00:07:09,708 --> 00:07:17,008
+So, if you increase the sampling steps, you haven’t taught the model more about hands or faces. You’ve given the generation process more updates.
+
+67
+00:07:17,008 --> 00:07:19,588
+That can affect the result, but it’s a different kind of change.
+
+68
+00:07:19,588 --> 00:07:26,948
+The two stages also run on different timescales. Training can involve a large collection of images and many updates. Making one image uses the trained model
+
+69
+00:07:26,948 --> 00:07:33,781
+for a much shorter computation. When you change a seed in an ordinary generation tool, you aren't asking it to learn the subject again.
+
+70
+00:07:34,081 --> 00:07:39,621
+Read this strip from left to right. We start with a recognizable picture and add more and more noise.
+
+71
+00:07:39,621 --> 00:07:47,561
+Eventually, it becomes difficult to tell what was there. Here, noise means random changes in the image values. We add it deliberately during training.
+
+72
+00:07:47,561 --> 00:07:52,281
+Why create this problem? Because we have the original picture, and we know the noise we added.
+
+73
+00:07:52,281 --> 00:07:56,481
+That gives us something we can ask the model to predict, and an answer we can compare its prediction with.
+
+74
+00:07:56,481 --> 00:08:03,081
+At a small amount of noise, you can still recognize the station. At a large amount, it becomes difficult to say what was there.
+
+75
+00:08:03,081 --> 00:08:10,981
+The learning problem changes with the noise level. Recovering a tiny edge detail is different from making a useful prediction when almost all visual evidence is
+
+76
+00:08:10,981 --> 00:08:11,515
+gone.
+
+77
+00:08:11,815 --> 00:08:18,515
+This equation describes adding noise to a clean image. Read it as: a weighted amount of the clean image, plus a weighted amount of random noise.
+
+78
+00:08:18,515 --> 00:08:23,055
+The letters a and b control how much of each we use at this noise level. If the image weight is zero and the noise weight
+
+79
+00:08:23,055 --> 00:08:28,615
+is one, we have only noise. If the noise weight is small, more of the image remains visible. This is a useful formula for the diffusion
+
+80
+00:08:28,615 --> 00:08:32,895
+setup we discussed. Other generation methods may describe their states differently.
+
+81
+00:08:32,895 --> 00:08:39,315
+For one coordinate, suppose the clean value is point eight and the sampled noise value is minus point two. With weights point six and point eight,
+
+82
+00:08:39,315 --> 00:08:45,355
+the noisy value is point six times point eight, plus point eight times minus point two. The result is point three two.
+
+83
+00:08:45,355 --> 00:08:51,475
+These weights have squared values that sum to one, a common normalization for this example. The arithmetic applies to every coordinate,
+
+84
+00:08:51,475 --> 00:08:53,046
+not just one visible pixel.
+
+85
+00:08:53,346 --> 00:09:01,646
+We can choose how noisy each training example should be. One example might have a little noise. Another might be almost entirely noise.
+
+86
+00:09:01,646 --> 00:09:07,786
+We don’t have to create every earlier stage first. We can calculate a noisy example at the level we want.
+
+87
+00:09:07,786 --> 00:09:15,026
+That lets the model practice across different noise levels. It doesn’t mean that making a finished image will always take only one step.
+
+88
+00:09:15,026 --> 00:09:22,486
+The noise level is information the network needs. Without it, a small fuzzy patch might be interpreted differently at different stages.
+
+89
+00:09:22,486 --> 00:09:28,886
+Think of the level as telling the model how much damage to expect. It still has to work out a prediction from the image and any
+
+90
+00:09:28,886 --> 00:09:29,863
+other inputs.
+
+91
+00:09:30,163 --> 00:09:35,763
+Let’s follow this figure. Start with the clean picture on the left. Add noise, and give the noisy picture to the network.
+
+92
+00:09:35,763 --> 00:09:41,463
+In this version of the training task, the network tries to predict the noise we added. Then we compare its answer with the actual noise.
+
+93
+00:09:41,463 --> 00:09:49,843
+When the prediction is wrong, training adjusts the model’s internal values. This happens over many examples. The model also gets information about the noise level.
+
+94
+00:09:49,843 --> 00:09:53,743
+I’ve left that input out of the drawing so the main sequence is easier to see.
+
+95
+00:09:53,743 --> 00:10:02,443
+Across training examples, the network sees many ways that useful image structure survives under noise. It changes its internal numbers when its prediction is wrong.
+
+96
+00:10:02,443 --> 00:10:09,261
+No one writes a separate rule for every coat or platform. The behavior comes from learning patterns across the examples it was given.
+
+97
+00:10:09,561 --> 00:10:15,521
+During noise-prediction training, we know the noise that was added. We subtract the model’s prediction from that known answer, square the differences,
+
+98
+00:10:15,521 --> 00:10:23,341
+and average them. Squaring makes large errors count more strongly. Training tries to bring this error down across examples. Notice what this score measures.
+
+99
+00:10:23,341 --> 00:10:30,341
+It measures the noise-prediction error. It doesn’t directly score whether the picture tells a good story or whether its composition suits this image.
+
+100
+00:10:30,341 --> 00:10:32,001
+Those need separate judgments.
+
+101
+00:10:32,001 --> 00:10:38,001
+For a two-coordinate example, let the known noise be one and minus one. Suppose the prediction is point eight and minus point five.
+
+102
+00:10:38,001 --> 00:10:44,701
+The errors are point two and minus point five. Squaring gives point zero four and point two five, and their mean is point one four five.
+
+103
+00:10:44,701 --> 00:10:50,515
+Training uses many coordinates and examples, but this small calculation shows exactly what the error score measures.
+
+104
+00:10:50,815 --> 00:10:57,995
+There’s an important difference between this training example and generating a new picture. During training, we began with a known image.
+
+105
+00:10:57,995 --> 00:11:05,175
+During generation, we can begin with random noise. There isn’t a particular photograph hidden inside it, waiting to be uncovered.
+
+106
+00:11:05,175 --> 00:11:09,095
+The model uses patterns it learned to help produce a possible image.
+
+107
+00:11:09,095 --> 00:11:14,195
+That doesn’t rule out copying or memorization; it just explains what this generation process is doing.
+
+108
+00:11:14,195 --> 00:11:20,635
+This is why generation is more than uncovering a picture that was waiting inside the noise. At the start, many outcomes are possible.
+
+109
+00:11:20,635 --> 00:11:27,355
+The learned model and the inputs guide a sequence of choices. By the end, those choices have become one particular arrangement of objects,
+
+110
+00:11:27,355 --> 00:11:28,462
+surfaces, and light.
+
+111
+00:11:28,762 --> 00:11:34,182
+Separate these two actions. In the first, a model is trained using a new collection of images. In the second,
+
+112
+00:11:34,182 --> 00:11:39,062
+the same trained model generates another image with a different seed. Which values change in each case?
+
+113
+00:11:39,062 --> 00:11:48,082
+Training changes learned weights. Generation changes the current sampled state while normally keeping those weights fixed. A new seed changes the random starting process.
+
+114
+00:11:48,082 --> 00:11:52,482
+It does not add the new output to the training set or teach the model a new subject by itself.
+
+115
+00:11:52,482 --> 00:12:00,982
+This distinction matters when choosing an intervention. A different sample may solve a particular composition by chance. Subject adaptation aims to change learned behavior across future
+
+116
+00:12:00,982 --> 00:12:08,372
+samples. They have different costs and different purposes. The later LoRA and reference-conditioning examples will make that difference more specific.
+
+117
+00:12:08,672 --> 00:12:15,292
+The main distinction is this: training changes the model. Sampling uses the model to change the current image.
+
+118
+00:12:15,292 --> 00:12:21,812
+More steps may change how the result develops, but they don’t directly tell the model to move the traveler farther away.
+
+119
+00:12:21,812 --> 00:12:26,732
+For that, a wider-view instruction or a layout reference may be a better thing to test.
+
+120
+00:12:26,732 --> 00:12:30,472
+A sharper version of the wrong composition is still the wrong composition.
+
+121
+00:12:30,472 --> 00:12:36,452
+The word update can make these stages sound alike. In training, it means changing what the network has learned. In sampling,
+
+122
+00:12:36,452 --> 00:12:44,252
+it usually means changing the current state being generated. Keep asking what is being updated. That small question prevents a lot of confusion when you read
+
+123
+00:12:44,252 --> 00:12:45,594
+a technical diagram.
+
+124
+00:12:45,894 --> 00:12:52,334
+Now let’s run the process toward an image. In this diagram, the noisy state is on the left and the cleaner image is on the right.
+
+125
+00:12:52,334 --> 00:12:57,354
+We start with noise, ask the model for a prediction, and use that prediction to make an update. Then we repeat.
+
+126
+00:12:57,354 --> 00:13:00,834
+You don’t need to follow every symbol here. Follow the changing state.
+
+127
+00:13:00,834 --> 00:13:04,554
+Each prediction depends on what is currently there and where we are in the process.
+
+128
+00:13:04,554 --> 00:13:08,254
+There is no finished target picture supplied at the end for the model to copy.
+
+129
+00:13:08,254 --> 00:13:15,354
+Don't expect every intermediate image to be a useful draft. Some states are hard to interpret, especially early on. For a design review,
+
+130
+00:13:15,354 --> 00:13:23,554
+finished samples are often easier to compare. Intermediate pictures are useful when we specifically want to understand how the computation changes over the course of a
+
+131
+00:13:23,554 --> 00:13:24,032
+run.
+
+132
+00:13:24,332 --> 00:13:29,892
+The model and the sampler have different jobs. The model makes a prediction from the current noisy state.
+
+133
+00:13:29,892 --> 00:13:33,092
+The sampler uses that prediction to calculate the next state.
+
+134
+00:13:33,092 --> 00:13:38,172
+That calculation is why changing the sampler can change the result even when we keep the model.
+
+135
+00:13:38,172 --> 00:13:42,252
+We’re using the same learned network, but changing how we follow its predictions.
+
+136
+00:13:42,252 --> 00:13:49,232
+Imagine the network says which direction to move, while the sampler decides how to take that move. If we change the sampler,
+
+137
+00:13:49,232 --> 00:13:57,672
+the network can remain the same, but the route through intermediate states can differ. So two tools can use similar models and still behave differently during
+
+138
+00:13:57,672 --> 00:13:58,587
+generation.
+
+139
+00:13:58,887 --> 00:14:04,447
+The amount of noise changes during generation. Near the noisy end, very little image information is visible.
+
+140
+00:14:04,447 --> 00:14:09,807
+Near the end of the process, the picture is easier to recognize. A schedule chooses which noise levels we visit.
+
+141
+00:14:09,807 --> 00:14:13,347
+So step ten in one setup may not mean the same thing as step ten in another.
+
+142
+00:14:13,347 --> 00:14:18,067
+Don’t assume every model follows a fixed “composition first, details later” sequence.
+
+143
+00:14:18,067 --> 00:14:26,947
+Equal numbers of steps don't necessarily mean equal spacing along the noise levels. One schedule may spend more updates near a particular part of the process.
+
+144
+00:14:26,947 --> 00:14:35,703
+That changes where the model's predictions are evaluated. When a tool offers a schedule option, it is changing more than the label on the step counter.
+
+145
+00:14:36,003 --> 00:14:41,323
+We’ve explained this using a model that predicts noise. That’s one common training choice.
+
+146
+00:14:41,323 --> 00:14:48,903
+Other models can predict a clean image, or a direction in which the current state should change. You don’t need to memorize all the versions.
+
+147
+00:14:48,903 --> 00:14:54,143
+The useful point is that the sampler has to use the prediction in the way the model was trained for.
+
+148
+00:14:54,143 --> 00:14:56,823
+These outputs aren’t interchangeable labels.
+
+149
+00:14:56,823 --> 00:15:03,343
+These prediction targets can sometimes be converted into one another when we know the noise level and the formula connecting them.
+
+150
+00:15:03,343 --> 00:15:10,963
+But the network was trained for a particular target. Copying a formula from another model without checking that target can give an update that doesn't mean
+
+151
+00:15:10,963 --> 00:15:12,242
+what you think it means.
+
+152
+00:15:12,542 --> 00:15:19,682
+Working directly on every pixel can take a lot of computation. Some models do most of the work in a smaller representation of the image.
+
+153
+00:15:19,682 --> 00:15:24,122
+That representation is called a latent. It’s a collection of learned numerical values.
+
+154
+00:15:24,122 --> 00:15:32,082
+In this older Stable Diffusion example, the image and its working representation have the sizes shown here. There are far fewer values in the smaller one.
+
+155
+00:15:32,082 --> 00:15:38,022
+That reduces the amount of information the image model has to handle, though it doesn’t give us an exact speedup from the numbers alone.
+
+156
+00:15:38,022 --> 00:15:44,582
+The smaller representation saves work, but it changes where that work happens. We still need an encoder for images we supply and a decoder for visible
+
+157
+00:15:44,582 --> 00:15:52,387
+output. A fast denoising loop doesn't remove those other parts. For an interactive artwork, measure the whole wait that a visitor actually experiences.
+
+158
+00:15:52,687 --> 00:15:59,307
+The encoder turns an image into that smaller representation. The decoder turns it back into pixels. Look at the middle of the figure.
+
+159
+00:15:59,307 --> 00:16:02,467
+The little grid is just a way to show that the model works with numbers.
+
+160
+00:16:02,467 --> 00:16:07,727
+It isn’t actual data from this picture, and there isn’t one square meaning “coat” and another meaning “suitcase.”
+
+161
+00:16:07,727 --> 00:16:14,987
+In a latent diffusion model, the repeated generation steps happen in this smaller form. We use the decoder to get the image we can see.
+
+162
+00:16:14,987 --> 00:16:22,847
+A useful way to picture the decoder is as a learned way of turning compact information into visible structure. It doesn't simply enlarge each colored square
+
+163
+00:16:22,847 --> 00:16:31,422
+in this drawing. The actual representation spreads information across numbers, and the decoder combines them using patterns learned during its own training.
+
+164
+00:16:31,722 --> 00:16:35,662
+Rebuilding an existing image and making a new image test different things.
+
+165
+00:16:35,662 --> 00:16:41,602
+If I encode this picture and decode it again, I can check how much survives. That tests the compression part.
+
+166
+00:16:41,602 --> 00:16:45,642
+It doesn’t show that any random set of numbers will turn into a good picture.
+
+167
+00:16:45,642 --> 00:16:50,882
+The generation model still has to produce a useful representation for the decoder to work with.
+
+168
+00:16:50,882 --> 00:17:01,782
+Try the two checks separately. First, pass an existing image through compression and reconstruction. Then examine newly generated samples. If the first test loses thin lettering,
+
+169
+00:17:01,782 --> 00:17:08,601
+that gives one possible cause of poor lettering in the second test. It doesn't explain every failure, but it narrows the question.
+
+170
+00:17:08,901 --> 00:17:17,441
+A VAE is a variational autoencoder. The full name matters less than the extra idea it adds to compression. Its encoder describes a range of possible
+
+171
+00:17:17,441 --> 00:17:26,761
+values for the smaller representation. Training asks it to reconstruct images while also keeping those values organized in a way that supports sampling.
+
+172
+00:17:26,761 --> 00:17:34,581
+Those two aims can pull in different directions. Keeping every detail and making a useful space of representations aren’t exactly the same task.
+
+173
+00:17:34,581 --> 00:17:41,821
+Image models can use related autoencoders with additional training losses, so this is an introduction to the idea rather than a description of every system.
+
+174
+00:17:41,821 --> 00:17:50,221
+The reconstruction term asks whether the decoded image resembles the input. The regularization term compares the encoder's distribution with a chosen prior distribution.
+
+175
+00:17:50,221 --> 00:17:59,141
+That second term discourages every image from being encoded into an arbitrary isolated region. The balance affects the usefulness of the latent space.
+
+176
+00:17:59,141 --> 00:18:09,732
+In image-generation systems, additional perceptual or adversarial losses may change the reconstruction behavior, so the simple VAE objective is a starting model of the idea.
+
+177
+00:18:10,032 --> 00:18:14,052
+Think about a thin railing, a tiny logo, or the handle of our suitcase.
+
+178
+00:18:14,052 --> 00:18:20,252
+If that detail disappears when we simply encode and decode the picture, changing the prompt won’t tell us much about the cause.
+
+179
+00:18:20,252 --> 00:18:23,832
+We already know some information is being lost in that part of the system.
+
+180
+00:18:23,832 --> 00:18:28,972
+It helps to check where a problem appears, rather than treating every failure as a wording problem.
+
+181
+00:18:28,972 --> 00:18:37,912
+This matters for work that people view at different sizes. A tiny suitcase handle might disappear in a projection even if it survived generation.
+
+182
+00:18:37,912 --> 00:18:46,392
+Check the actual display size as well as the original file. Image quality is partly about whether the important details remain visible where the work will
+
+183
+00:18:46,392 --> 00:18:47,167
+be shown.
+
+184
+00:18:47,467 --> 00:18:54,747
+Edges help organize an illustration. A hard edge creates a clear boundary. A soft edge allows neighboring shapes or tones to merge.
+
+185
+00:18:54,747 --> 00:19:00,867
+A lost edge occurs where the boundary becomes difficult to separate from its surroundings. Artists can use all three within one image.
+
+186
+00:19:00,867 --> 00:19:09,167
+The cut-paper example emphasizes separate shapes. The paint example uses softer transitions. The ink example emphasizes line weight and marks.
+
+187
+00:19:09,167 --> 00:19:14,207
+These differences affect which forms remain readable at a small size and which areas attract attention through contrast.
+
+188
+00:19:14,207 --> 00:19:21,427
+A style prompt can influence several of these properties at once. If the goal is a clear silhouette, simply adding more surface detail may work against
+
+189
+00:19:21,427 --> 00:19:29,936
+it. Specify the edge behavior or value separation that the image needs. The three illustrations are teaching examples, not controlled measurements of a style setting.
+
+190
+00:19:30,236 --> 00:19:36,436
+Here is how the parts fit together in one image generator. The random starting values come from the seeded random-number generator.
+
+191
+00:19:36,436 --> 00:19:42,776
+The text encoder turns the prompt into information the image network can use. The network makes predictions, and the sampler applies updates.
+
+192
+00:19:42,776 --> 00:19:49,696
+At the end, the decoder produces pixels. Follow the loop in the middle. That’s the repeated work. Later models can replace some of these parts.
+
+193
+00:19:49,696 --> 00:19:55,216
+This diagram is useful because it shows where the controls enter, not because every current product has exactly this structure.
+
+194
+00:19:55,216 --> 00:20:04,136
+When a result fails, this diagram gives us places to investigate. A prompt misunderstanding may involve text conditioning. Lost tiny detail may involve compression or decoding.
+
+195
+00:20:04,136 --> 00:20:10,785
+An unstable comparison may involve the random setup. We won't diagnose everything from one picture, but we can choose a more focused next test.
+
+196
+00:20:11,085 --> 00:20:17,665
+The model can’t use a sentence in the same form that we read it. First, the sentence is divided into small pieces called tokens.
+
+197
+00:20:17,665 --> 00:20:23,285
+A token can be a word or part of a word. A text encoder turns those pieces into numerical features.
+
+198
+00:20:23,285 --> 00:20:25,365
+The image model uses those features.
+
+199
+00:20:25,365 --> 00:20:31,125
+But having information about “red” and “suitcase” doesn’t guarantee that red will end up on the right object.
+
+200
+00:20:31,125 --> 00:20:41,165
+Adding words also changes the input representation. More words don't always make the request clearer. If several phrases repeat the same idea while another phrase conflicts
+
+201
+00:20:41,165 --> 00:20:49,052
+with it, the result can be hard to interpret. Start with the subject, placement, and appearance that matter, then add a detail for a reason.
+
+202
+00:20:49,352 --> 00:20:54,292
+CLIP is one way to connect words and pictures. It learns from pictures paired with captions.
+
+203
+00:20:54,292 --> 00:21:00,792
+During training, it learns to give a matching picture and caption similar numerical descriptions, compared with pairs that don’t match.
+
+204
+00:21:00,792 --> 00:21:08,872
+Some image generators use CLIP’s text encoder to help interpret a prompt. Other systems use different encoders. CLIP itself isn’t drawing the image.
+
+205
+00:21:08,872 --> 00:21:14,172
+It helps connect what the words describe with visual information. The generator still has to make the picture.
+
+206
+00:21:14,172 --> 00:21:21,572
+Matching pictures and captions teaches useful associations, but the captions are not complete descriptions of everything in a picture. They may mention the person and leave
+
+207
+00:21:21,572 --> 00:21:29,047
+out the railing. That helps explain why a system can recognize the overall topic while missing a precise relation that was never easy to describe.
+
+208
+00:21:29,347 --> 00:21:34,027
+A picture can be broadly similar to the prompt and still be wrong in a way that matters.
+
+209
+00:21:34,027 --> 00:21:38,907
+We might get a station, a traveler, and a suitcase, but the suitcase could be on the wrong side.
+
+210
+00:21:38,907 --> 00:21:46,647
+Or we ask for two objects and get three. So don’t stop at “it looks about right.” Check the particular details the work depends on.
+
+211
+00:21:46,647 --> 00:21:54,807
+For a poster, a small relation can decide whether the image is usable. A hand holding a ticket is different from a ticket floating beside the
+
+212
+00:21:54,807 --> 00:22:02,408
+hand. When you write your checks, include the relations that carry the meaning, not only a list of nouns that should appear somewhere.
+
+213
+00:22:02,708 --> 00:22:10,228
+Attention is a way for the model to use information from different places. With self-attention, parts of the same input share information.
+
+214
+00:22:10,228 --> 00:22:16,848
+One area of an image can use information from another area. That can matter for things like an object and its reflection.
+
+215
+00:22:16,848 --> 00:22:22,928
+With cross-attention, information comes from another input. An image area can use information from the prompt.
+
+216
+00:22:22,928 --> 00:22:29,488
+The names sound complicated, but the distinction is simple: information from within the same input, or information from another input.
+
+217
+00:22:29,488 --> 00:22:36,228
+Attention doesn't make the model conscious of an object. Here it names a calculation that selects and mixes information. The useful design connection is that a
+
+218
+00:22:36,228 --> 00:22:42,937
+local feature can depend on distant features or words. Changing one instruction can therefore influence more than the small area you had in mind.
+
+219
+00:22:43,237 --> 00:22:45,937
+This drawing gives us a rough picture of cross-attention.
+
+220
+00:22:45,937 --> 00:22:53,237
+The area around the coat can use information linked to “yellow,” along with other words in the prompt. Different information receives different weights in the calculation.
+
+221
+00:22:53,237 --> 00:22:55,377
+The lines here are drawn to explain the idea.
+
+222
+00:22:55,377 --> 00:22:59,777
+They aren’t measurements from a model, and we can’t use them to prove which word caused a particular pixel.
+
+223
+00:22:59,777 --> 00:23:05,817
+What matters for now is that the text can influence image features during generation. It isn’t just read once and then put aside.
+
+224
+00:23:05,817 --> 00:23:11,570
+The word coat does not need to control only the pixels inside the coat. It can influence shape, shadows, and nearby areas through later layers.
+
+225
+00:23:11,570 --> 00:23:17,217
+A cross-attention map is therefore a clue about a calculation, not a clean selection mask. If we need to edit just the coat,
+
+226
+00:23:17,217 --> 00:23:24,148
+an explicit region mask gives a different kind of control. That distinction matters when a small wording change unexpectedly alters the face or the background.
+
+227
+00:23:24,448 --> 00:23:33,048
+Here is attention as a weighted mix. Suppose the weights are point seven, point two, and point one. We multiply each corresponding set of features by
+
+228
+00:23:33,048 --> 00:23:41,788
+its weight, then add the results. The weights here sum to one. The model is mixing numerical information. It isn’t necessarily choosing one word and ignoring
+
+229
+00:23:41,788 --> 00:23:49,348
+all the others. These numbers are invented to make the arithmetic easy to follow. They aren’t measurements from the coat image.
+
+230
+00:23:49,348 --> 00:23:54,188
+In a real network, many such calculations happen across different parts and layers.
+
+231
+00:23:54,188 --> 00:24:02,240
+Using scalar values makes the mixing easy to calculate. Let the three values be ten, twenty, and thirty. With weights point seven,
+
+232
+00:24:02,240 --> 00:24:10,928
+point two, and point one, the result is seven plus four plus three, which is fourteen. A neural network usually mixes feature vectors instead of these
+
+233
+00:24:10,928 --> 00:24:18,089
+three scalars. The weights come from comparisons involving queries and keys; the weighted information comes from the values.
+
+234
+00:24:18,389 --> 00:24:26,089
+Order matters. “Dog bites person” and “person bites dog” use the same words but describe different events. Position matters in images too.
+
+235
+00:24:26,089 --> 00:24:33,349
+A suitcase on the viewer’s left isn’t in the same place as one on the right. The model needs information about word order and image position.
+
+236
+00:24:33,349 --> 00:24:38,389
+Having that information helps it represent relationships, though it can still get a relationship wrong.
+
+237
+00:24:38,389 --> 00:24:43,979
+For a camera, left and right are usually screen coordinates. For a character, left and right can refer to their own body.
+
+238
+00:24:43,979 --> 00:24:50,229
+A character facing us has their right hand on our left. This simple reversal is a common source of ambiguous instructions.
+
+239
+00:24:50,229 --> 00:24:55,769
+Write the viewpoint into the request when it matters, such as the suitcase on the viewer's left, held in the traveler's right hand.
+
+240
+00:24:55,769 --> 00:24:57,871
+Then check those two relations separately.
+
+241
+00:24:58,171 --> 00:25:03,651
+Here’s our next check. We want a yellow coat, a red suitcase on the left, and the station roof on the right.
+
+242
+00:25:03,651 --> 00:25:09,211
+With a partner, make a short list of what you would inspect in the result. Be specific enough that another person could use your list.
+
+243
+00:25:09,211 --> 00:25:13,511
+Now compare your lists. Could an image look beautiful and still fail one of those checks?
+
+244
+00:25:13,511 --> 00:25:16,531
+Also, when we said “on the left,” whose left did we mean?
+
+245
+00:25:16,531 --> 00:25:22,831
+A useful answer could contain four checks: one traveler, a yellow coat, one red suitcase, and the roof on the requested side.
+
+246
+00:25:22,831 --> 00:25:29,531
+A fifth check could describe the relation between the hand and handle. These are observable requirements. Quietness is different: we might discuss empty space,
+
+247
+00:25:29,531 --> 00:25:37,248
+low contrast, or posture as evidence. Keeping those categories separate lets a group disagree about mood without losing track of a clear object error.
+
+248
+00:25:37,548 --> 00:25:45,008
+Hue and lightness describe different properties of color. Yellow and red name different hues. Lightness describes how light or dark a color appears.
+
+249
+00:25:45,008 --> 00:25:50,328
+Two visibly different hues can still be similar in lightness, making their boundary less clear in some viewing conditions.
+
+250
+00:25:50,328 --> 00:25:56,408
+A grayscale version can help inspect the value structure of a composition. If a coat and the wall behind it become nearly the same gray,
+
+251
+00:25:56,408 --> 00:26:03,748
+the silhouette may need another form of separation. Possible changes include a darker background, a lighter figure, or a controlled edge of light.
+
+252
+00:26:03,748 --> 00:26:11,588
+This is a diagnostic, not a rule that every artwork must have strong contrast. Low contrast can be intentional. The useful distinction is between an intended
+
+253
+00:26:11,588 --> 00:26:19,206
+soft boundary and a boundary that disappears accidentally. More saturated color alone does not necessarily solve a value problem.
+
+254
+00:26:19,506 --> 00:26:27,086
+A transformer can be part of a diffusion model. Look mainly at the left side of this figure. The noisy representation is split into patches.
+
+255
+00:26:27,086 --> 00:26:34,166
+The patches become tokens, pass through transformer layers, and are turned into a prediction. “Transformer” names the kind of network.
+
+256
+00:26:34,166 --> 00:26:36,726
+“Diffusion” describes the generation approach.
+
+257
+00:26:36,726 --> 00:26:44,086
+They can work together. This published diagram used class labels, such as an object category. It wasn’t originally a text-prompt model.
+
+258
+00:26:44,086 --> 00:26:48,266
+We’re using it to understand the network structure, rather than every detail of its original task.
+
+259
+00:26:48,266 --> 00:26:57,506
+The patch sequence carries both image information and position information. Without position, the same collection of patches could describe several different layouts.
+
+260
+00:26:57,506 --> 00:27:05,906
+Transformer layers then exchange information across that sequence. This is why a transformer denoiser can connect distant parts of the picture.
+
+261
+00:27:05,906 --> 00:27:15,006
+But full attention becomes expensive as the sequence grows. The cost is especially important for video, where adding frames also adds a time dimension to the
+
+262
+00:27:15,006 --> 00:27:16,539
+tokens being processed.
+
+263
+00:27:16,839 --> 00:27:23,679
+Smaller patches give the model more tokens to process. In full self-attention, each token is compared with every other token.
+
+264
+00:27:23,679 --> 00:27:29,679
+That means the number of comparisons grows quickly. Twice as many tokens gives four times as many pairwise scores.
+
+265
+00:27:29,679 --> 00:27:37,479
+That doesn’t mean the whole program always takes exactly four times longer. It explains why this part of the calculation can become expensive.
+
+266
+00:27:37,479 --> 00:27:45,259
+Take a square latent grid with sixty-four positions along each side. With four-by-four patches, it becomes sixteen by sixteen, or two hundred and fifty-six tokens.
+
+267
+00:27:45,259 --> 00:27:52,639
+With two-by-two patches, it becomes thirty-two by thirty-two, or one thousand and twenty-four tokens. That is four times as many tokens and sixteen times as many
+
+268
+00:27:52,639 --> 00:27:58,796
+pairwise scores in full attention. These numbers describe one attention calculation, not the total runtime of the model.
+
+269
+00:27:59,096 --> 00:28:05,596
+There are also different ways to generate the output. An autoregressive model predicts the next token using the tokens that came before it.
+
+270
+00:28:05,596 --> 00:28:09,476
+You’ve seen that idea with text: “The cup is on the…” and then a possible next word.
+
+271
+00:28:09,476 --> 00:28:14,236
+A diffusion model instead updates a noisy state over several steps. Both can use transformers.
+
+272
+00:28:14,236 --> 00:28:19,216
+So when you read a model description, separate the network it uses from the order in which it generates the result.
+
+273
+00:28:19,216 --> 00:28:21,216
+Those names answer different questions.
+
+274
+00:28:21,216 --> 00:28:26,996
+Think of these as answers to two different engineering questions. The network describes how information is processed at one call.
+
+275
+00:28:26,996 --> 00:28:32,536
+The generation method describes how those calls are arranged to produce an output. A transformer can predict the next text token,
+
+276
+00:28:32,536 --> 00:28:38,756
+the next image token, or an update to a noisy image. Seeing the word transformer on a model page is not enough to know which process
+
+277
+00:28:38,756 --> 00:28:39,943
+the product uses.
+
+278
+00:28:40,243 --> 00:28:43,343
+An image can also be represented as a sequence of tokens.
+
+279
+00:28:43,343 --> 00:28:48,063
+One kind of image generator predicts those tokens one after another, using the earlier ones as context.
+
+280
+00:28:48,063 --> 00:28:52,183
+Once it has the sequence, another part turns it into pixels. That’s the basic idea here.
+
+281
+00:28:52,183 --> 00:28:56,963
+It doesn’t mean all image generators draw from the top-left corner to the bottom-right, pixel by pixel.
+
+282
+00:28:56,963 --> 00:29:04,643
+A sequence model learns a conditional distribution for the next token. At each position, it assigns different probabilities to possible choices.
+
+283
+00:29:04,643 --> 00:29:12,343
+Sampling selects among those choices according to a rule. Taking the highest-probability token every time is another rule and can reduce variation.
+
+284
+00:29:12,343 --> 00:29:20,259
+In image systems, the tokens may describe learned visual units rather than ordinary words. The order of prediction and the meaning of the tokens both matter.
+
+285
+00:29:20,559 --> 00:29:28,599
+Flow matching gives us another way to describe learning a generation process. For this simple training example, imagine a path joining noise to a known image.
+
+286
+00:29:28,599 --> 00:29:33,679
+We can pick a point on the path and ask the model to predict the direction of movement there. At generation time,
+
+287
+00:29:33,679 --> 00:29:41,079
+the final image isn’t supplied. The model has learned directions from many training examples, and we follow its predictions. In this equation,
+
+288
+00:29:41,079 --> 00:29:48,899
+time starts at noise and ends at the image. That is the opposite direction from the earlier equation where we added noise to an image.
+
+289
+00:29:48,899 --> 00:29:51,359
+Keep that change of convention in mind.
+
+290
+00:29:51,359 --> 00:29:59,299
+For a straight training path, write the state as one minus time multiplied by the starting noise, plus time multiplied by the target data.
+
+291
+00:29:59,299 --> 00:30:07,179
+Differentiating with respect to time gives target data minus starting noise. That supplies a known direction for a training example.
+
+292
+00:30:07,179 --> 00:30:16,579
+The learned field combines information across many examples; it is not handed the desired final image during generation. The choice of path and target is part
+
+293
+00:30:16,579 --> 00:30:17,848
+of the training design.
+
+294
+00:30:18,148 --> 00:30:25,948
+Once the model predicts a direction, we need a method for following it. A simple update takes the current state and adds the predicted direction multiplied
+
+295
+00:30:25,948 --> 00:30:34,268
+by a small step size. Then we ask for another direction from the new state and repeat. That is the idea behind the example on this
+
+296
+00:30:34,268 --> 00:30:42,508
+slide. Real systems can use more involved solvers. The important point is the same one we saw earlier: the model makes a prediction,
+
+297
+00:30:42,508 --> 00:30:45,928
+and a numerical method uses it to calculate the next state.
+
+298
+00:30:45,928 --> 00:30:54,968
+Suppose the current coordinate is two, the predicted velocity is three, and the step size is point one. Euler's update gives two plus point one times
+
+299
+00:30:54,968 --> 00:31:02,948
+three, or two point three. Then the model evaluates the direction again at the new point. A large step can miss curvature in the field.
+
+300
+00:31:02,948 --> 00:31:10,509
+Smaller steps can reduce that numerical error, but they require more evaluations and cannot remove an error in the learned direction itself.
+
+301
+00:31:10,809 --> 00:31:17,929
+Randomness can enter in more than one place. There may be random noise at the start. Some samplers also add random noise during the run.
+
+302
+00:31:17,929 --> 00:31:21,529
+Others follow a fixed calculation once the starting state is fixed.
+
+303
+00:31:21,529 --> 00:31:26,929
+So a fixed sampling procedure can still produce different images if it begins from different starting values.
+
+304
+00:31:26,929 --> 00:31:29,549
+We need to know the full setup to repeat a result.
+
+305
+00:31:29,549 --> 00:31:37,849
+We can distinguish random initialization from random movement. An ordinary differential equation sampler can start at random noise and then follow a deterministic path.
+
+306
+00:31:37,849 --> 00:31:46,009
+A stochastic sampler also injects randomness along the path. Both can make varied images. Deterministic here describes the path after the initial state is fixed;
+
+307
+00:31:46,009 --> 00:31:50,035
+it does not mean that every run must start at the same state or produce the same picture.
+
+308
+00:31:50,335 --> 00:31:58,595
+This table puts the terms in order. Transformer or U-Net tells us about the network. Pixels or latents tells us what representation it works on.
+
+309
+00:31:58,595 --> 00:32:06,315
+Diffusion or flow matching tells us about the generation training approach. The sampler or solver tells us how updates are calculated.
+
+310
+00:32:06,315 --> 00:32:11,915
+Take a moment and explain one row to the person beside you. You don’t have to remember every name today.
+
+311
+00:32:11,915 --> 00:32:17,475
+I want you to recognize that these are different parts of a system, rather than competing names for the same thing.
+
+312
+00:32:17,475 --> 00:32:27,375
+A useful model description might say: transformer network, latent representation, flow-matching training, and a particular numerical solver. Those four phrases can all be true at the
+
+313
+00:32:27,375 --> 00:32:36,935
+same time. Another model can keep three of those choices and change the fourth. This vocabulary helps us compare systems without assuming every new name describes
+
+314
+00:32:36,935 --> 00:32:44,830
+a completely new invention. It also explains why a setting borrowed from one system may not transfer directly to another.
+
+315
+00:32:45,130 --> 00:32:49,270
+A seed sets the starting point for a repeatable sequence of random numbers.
+
+316
+00:32:49,270 --> 00:32:53,730
+Changing it can give us a different starting state, and that can lead to a different picture.
+
+317
+00:32:53,730 --> 00:33:00,990
+These illustrations show the kind of composition changes we might care about. They aren’t measured outputs from particular seed values.
+
+318
+00:33:00,990 --> 00:33:10,670
+A seed number has no fixed artistic meaning. Seed forty-two doesn’t mean “wide shot,” and forty-three doesn’t mean “slightly wider.” Use seeds to explore alternatives.
+
+319
+00:33:10,670 --> 00:33:13,530
+Use instructions or references when you need a particular layout.
+
+320
+00:33:13,530 --> 00:33:22,810
+A seed is an address into a repeatable random process, not an instruction about appearance. Adjacent seed numbers do not have to produce adjacent compositions.
+
+321
+00:33:22,810 --> 00:33:31,310
+If we want to study guidance, the useful arrangement is several guidance values crossed with the same seed list. Each seed then supplies a matched starting
+
+322
+00:33:31,310 --> 00:33:39,219
+condition. If we only change the seed until one image looks good, we have selected a result rather than measured the effect of guidance.
+
+323
+00:33:39,519 --> 00:33:44,659
+To repeat a result, keep more than the seed. Save the model, prompt, references, and other settings.
+
+324
+00:33:44,659 --> 00:33:52,379
+If you’re doing a comparison in code, reset the random generator before each matched run. Otherwise, it may simply continue to the next random numbers.
+
+325
+00:33:52,379 --> 00:33:58,459
+Exact matching can also depend on the software and hardware. The seed is part of the record, not the whole record.
+
+326
+00:33:58,459 --> 00:34:06,339
+Software can change the sequence even when a displayed seed stays the same. A new sampler, another model revision, or a different random-number implementation can alter
+
+327
+00:34:06,339 --> 00:34:13,359
+the computation. For a class experiment, a saved workflow file is often more useful than a screenshot of the seed box.
+
+328
+00:34:13,359 --> 00:34:18,724
+Record the model version and the full input settings, then keep the actual outputs together with that record.
+
+329
+00:34:19,024 --> 00:34:22,564
+For a story, we often need the same character in several shots.
+
+330
+00:34:22,564 --> 00:34:27,024
+Decide which features must stay: the coat, the hair, the suitcase, perhaps which hand is holding it.
+
+331
+00:34:27,024 --> 00:34:33,664
+The camera angle and pose can change while those features remain recognizable. A repeated seed doesn’t provide a full character description.
+
+332
+00:34:33,664 --> 00:34:38,904
+References can help, but we still need to compare the actual images and catch changes that break the scene.
+
+333
+00:34:38,904 --> 00:34:46,524
+Character continuity has several levels. The silhouette can stay recognizable while the face changes. The face can remain similar while the coat gains an extra pocket.
+
+334
+00:34:46,524 --> 00:34:53,684
+A prop can keep its color but switch hands between shots. A character sheet makes those separate requirements visible. It is especially useful before a sequence
+
+335
+00:34:53,684 --> 00:34:59,466
+is generated, because it defines what must remain stable instead of leaving every shot to invent those details again.
+
+336
+00:34:59,766 --> 00:35:07,746
+A character sheet defines the stable features of a subject across views. This illustration shows one costume and prop from three directions.
+
+337
+00:35:07,746 --> 00:35:15,326
+Its purpose is to make the requirements visible before generating a sequence, rather than inventing those requirements after the shots are complete.
+
+338
+00:35:15,326 --> 00:35:23,406
+The silhouette includes coat length, shoulder shape, and overall proportions. Surface details include buttons, pockets, hair, and the prop's shape.
+
+339
+00:35:23,406 --> 00:35:28,886
+Ownership includes which hand carries the prop. These features have different visibility in a front view, side view, and back view.
+
+340
+00:35:28,886 --> 00:35:36,806
+A reference method can help preserve these features, but the reference should also be internally consistent. If two source images disagree about the costume,
+
+341
+00:35:36,806 --> 00:35:44,646
+the generator receives conflicting evidence. A clean reference set reduces that ambiguity. It does not guarantee that every new view will be correct.
+
+342
+00:35:44,646 --> 00:35:51,726
+For evaluation, distinguish legitimate view changes from identity drift. The visible side of a suitcase should change when the camera moves.
+
+343
+00:35:51,726 --> 00:35:58,485
+Its handle should not switch construction for no reason. This distinction allows variation while keeping the subject recognizable.
+
+344
+00:35:58,785 --> 00:36:04,725
+Now we can look at guidance. In classic classifier-free guidance, we compare a prediction made with the condition to one made without it.
+
+345
+00:36:04,725 --> 00:36:10,125
+The condition might be a text prompt or a category label. Guidance pushes the result further in the direction of that difference.
+
+346
+00:36:10,125 --> 00:36:15,265
+This can make the requested subject more obvious. But turning up the strength doesn’t make the instruction more precise.
+
+347
+00:36:15,265 --> 00:36:19,805
+If the model’s direction is imperfect, a stronger push can make that problem more visible too.
+
+348
+00:36:19,805 --> 00:36:26,705
+During the classic training setup, the condition is sometimes dropped. That allows the same network to learn predictions with and without that information.
+
+349
+00:36:26,705 --> 00:36:33,425
+At sampling time, the difference between those predictions supplies a direction for guidance. This connects a training choice to a user-facing control.
+
+350
+00:36:33,425 --> 00:36:40,208
+The strength slider is not a universal measure of how well a model understands language; it controls a particular combination of predictions.
+
+351
+00:36:40,508 --> 00:36:48,528
+You can read this formula in words. Start with the prediction without the prompt. Then add a scaled difference between the prompted and unprompted predictions.
+
+352
+00:36:48,528 --> 00:36:55,568
+At a scale of one, this formula gives us the prompted prediction. Above one, we push beyond it. We aren’t simply averaging two answers.
+
+353
+00:36:55,568 --> 00:36:58,828
+Different papers and tools sometimes use different numbering.
+
+354
+00:36:58,828 --> 00:37:05,128
+In the paper we’ll use for the later exercise, their guidance number is shifted by one compared with this formula.
+
+355
+00:37:05,128 --> 00:37:08,768
+That’s why we should check the definition before comparing values.
+
+356
+00:37:08,768 --> 00:37:15,968
+The direction in this formula lives in a high-dimensional numerical space. It is not a single slider for yellow, sharpness,
+
+357
+00:37:15,968 --> 00:37:26,228
+or realism. Several visual properties can change together when the scale changes. The one-number example on the next slide is useful precisely because it shows extrapolation
+
+358
+00:37:26,228 --> 00:37:34,000
+clearly: we start from one prediction and continue past the other. In a full image, that happens across many coordinates at once.
+
+359
+00:37:34,300 --> 00:37:40,900
+Let’s make the guidance formula concrete with one number. Suppose the unprompted prediction is two and the prompted prediction is three.
+
+360
+00:37:40,900 --> 00:37:46,900
+Their difference is one. At guidance scale one, we get two plus one, which is three. At scale four, we get two plus four,
+
+361
+00:37:46,900 --> 00:37:55,460
+which is six. We have moved beyond the prompted prediction rather than taking an average between two and three. Those are made-up values for one coordinate,
+
+362
+00:37:55,460 --> 00:38:01,380
+not actual image measurements. They show why a larger guidance scale can exaggerate a direction.
+
+363
+00:38:01,380 --> 00:38:10,740
+The scale-four result is outside the interval between two and three. That is why guidance can amplify a feature rather than merely blend two plausible answers.
+
+364
+00:38:10,740 --> 00:38:21,260
+The numerical space has many coordinates, so several properties can be amplified together. A lower scale can be useful when that amplification damages color or detail.
+
+365
+00:38:21,260 --> 00:38:27,216
+The actual setting still depends on the model's training and the exact guidance convention used by the software.
+
+366
+00:38:27,516 --> 00:38:33,496
+Look at what happens to appearance when guidance becomes stronger. The subject may be easier to recognize.
+
+367
+00:38:33,496 --> 00:38:41,896
+But colors can become too strong, some details can look strange, and different samples may become more alike. Whether that is useful depends on the work.
+
+368
+00:38:41,896 --> 00:38:49,416
+A bold poster and a quiet scene may need different choices. These are examples from a published study using image categories.
+
+369
+00:38:49,416 --> 00:38:54,756
+They show a tradeoff worth checking. They don’t give us one best number for every current image model.
+
+370
+00:38:54,756 --> 00:39:04,996
+In an illustration, exaggerated contrast can make the silhouette read clearly at a small size. The same contrast may destroy a soft transition needed for fog
+
+371
+00:39:04,996 --> 00:39:12,876
+or dusk. We should therefore distinguish an artifact from an intentional graphic effect. The problem is not strong color by itself.
+
+372
+00:39:12,876 --> 00:39:19,835
+The problem is losing control over which shapes are emphasized and whether the effect remains consistent with the intended image.
+
+373
+00:39:20,135 --> 00:39:24,435
+A negative prompt changes the comparison in some image generators.
+
+374
+00:39:24,435 --> 00:39:30,235
+Instead of comparing with an empty prompt, the system can compare with the words in the negative prompt.
+
+375
+00:39:30,235 --> 00:39:36,905
+The calculation then pushes away from that prediction and toward the positive one. But it isn’t an exact removal tool.
+
+376
+00:39:36,905 --> 00:39:45,115
+Writing “people” in a negative prompt doesn’t guarantee an empty room. If something unwanted remains, inspect it and try a clear change.
+
+377
+00:39:45,115 --> 00:39:49,095
+Adding a very long list of negative words can make it harder to tell which part helped.
+
+378
+00:39:49,095 --> 00:39:58,695
+A negative prompt changes a conditioning input; a mask defines a spatial region. They solve different problems. If the unwanted element is one sign in the
+
+379
+00:39:58,695 --> 00:40:07,735
+corner, a local edit may give more direct control than a long list of negative terms. If the unwanted tendency appears across the entire picture,
+
+380
+00:40:07,735 --> 00:40:14,843
+changing the prompt or the model settings may be more relevant. Choose the control that matches the location and scale of the problem.
+
+381
+00:40:15,143 --> 00:40:23,363
+Here are three published examples at different guidance settings. The request describes an astronaut in a jungle, with cold, muted colors.
+
+382
+00:40:23,363 --> 00:40:27,483
+Look at the color, the size of the subject, and the feeling of the surroundings.
+
+383
+00:40:27,483 --> 00:40:33,043
+There’s something missing from this comparison: the displayed examples don’t document matched seeds.
+
+384
+00:40:33,043 --> 00:40:39,643
+So we can describe the differences, but we can’t confidently say that guidance caused every one of them. Keep that distinction in mind.
+
+385
+00:40:39,643 --> 00:40:43,483
+A useful-looking comparison still needs a clear record of what changed.
+
+386
+00:40:43,483 --> 00:40:51,843
+This is also a useful lesson about published figures. A page can show striking differences without providing every setting needed to reproduce them.
+
+387
+00:40:51,843 --> 00:40:59,003
+We should not fill those gaps with assumptions. We can say that one example has stronger color or a larger subject.
+
+388
+00:40:59,003 --> 00:41:06,643
+To attribute those differences to a single variable, we would need the missing controls. Description is valid evidence of appearance;
+
+389
+00:41:06,643 --> 00:41:09,829
+causal explanation requires a stronger comparison.
+
+390
+00:41:10,129 --> 00:41:12,969
+The coat is yellow, but the picture feels harsh and crowded.
+
+391
+00:41:12,969 --> 00:41:18,249
+It shows the right object, yet the mood is wrong. With a partner, describe how you would test different guidance settings.
+
+392
+00:41:18,249 --> 00:41:19,249
+What would you keep fixed?
+
+393
+00:41:19,249 --> 00:41:24,949
+What would you look for in the results? Now talk about judgment. How would you explain that one version feels quieter or less crowded?
+
+394
+00:41:24,949 --> 00:41:29,409
+Name something visible, such as contrast, figure size, or the space around the traveler.
+
+395
+00:41:29,409 --> 00:41:38,089
+Consider two possible changes. Lowering guidance tests whether the harsh colors depend on that prediction combination. Making the traveler smaller tests composition instead.
+
+396
+00:41:38,089 --> 00:41:43,969
+If we do both at once, the result may improve, but the explanation becomes unclear. A useful pair exercise is to give each person one of
+
+397
+00:41:43,969 --> 00:41:49,867
+those changes, keep the starting conditions matched, and compare which visible problem each change actually addresses.
+
+398
+00:41:50,167 --> 00:41:56,847
+For that test, keep the model, prompt, image size, sampler, and step count fixed. Change guidance, and use the same set of seeds at each value.
+
+399
+00:41:56,847 --> 00:42:01,567
+Several seeds are better than one, because a setting may work well for one starting point and poorly for another.
+
+400
+00:42:01,567 --> 00:42:07,407
+Then compare separate things: whether the image shows what we asked for, whether we like its appearance, and whether the set gives us useful variety.
+
+401
+00:42:07,407 --> 00:42:10,307
+You may find that no single setting wins on every question.
+
+402
+00:42:10,307 --> 00:42:17,087
+A small two-factor experiment might use three guidance values and four seeds, giving twelve images. Every guidance value appears with every seed.
+
+403
+00:42:17,087 --> 00:42:23,667
+That layout separates a setting effect from a lucky starting point more clearly than three unrelated favorite images. We can then mark prompt errors,
+
+404
+00:42:23,667 --> 00:42:31,612
+visible artifacts, and composition changes in separate columns. Twelve is only a classroom example, not a statistically sufficient sample for every research claim.
+
+405
+00:42:31,912 --> 00:42:40,772
+Now compare fifteen steps with fifty steps. These are two completed runs from an older Stable Diffusion example. The prompt and seed were kept the same.
+
+406
+00:42:40,772 --> 00:42:49,572
+They aren’t two snapshots taken during one run. Look at the horse and the astronaut’s clothing. What changed? Which changes would you actually call improvements?
+
+407
+00:42:49,572 --> 00:42:56,292
+More steps give a different generation path. They can help, but they don’t guarantee that every object becomes more correct.
+
+408
+00:42:56,292 --> 00:43:00,532
+And this older example doesn’t tell us that a newer model should use fifty steps.
+
+409
+00:43:00,532 --> 00:43:08,012
+More updates can reduce numerical approximation error for a suitable solver and model. But the learned prediction can still be wrong.
+
+410
+00:43:08,012 --> 00:43:14,812
+Taking a more accurate route through an imperfect learned field does not guarantee the object count or anatomy is correct.
+
+411
+00:43:14,812 --> 00:43:22,112
+This separates two sources of error: how well we follow the model, and how well the model represents the desired images.
+
+412
+00:43:22,112 --> 00:43:26,983
+Increasing steps mainly addresses the first computation, not every limitation of the second.
+
+413
+00:43:27,283 --> 00:43:30,003
+Step count tells us how many updates to take.
+
+414
+00:43:30,003 --> 00:43:35,603
+The sampler tells us how to calculate those updates, and the schedule tells us which noise levels to visit.
+
+415
+00:43:35,603 --> 00:43:40,603
+Those are related choices, but they aren’t the same choice. Think about following a route.
+
+416
+00:43:40,603 --> 00:43:45,863
+The number of stops doesn’t tell you where the stops are or how you travel between them. If you’re comparing speed,
+
+417
+00:43:45,863 --> 00:43:47,923
+measure the actual time.
+
+418
+00:43:47,923 --> 00:43:53,963
+A displayed step can involve different amounts of work in different systems, so step count alone isn’t enough.
+
+419
+00:43:53,963 --> 00:44:02,443
+Some numerical methods ask for more than one model prediction to calculate a single update. Others reuse information from earlier predictions.
+
+420
+00:44:02,443 --> 00:44:11,503
+This is why a comparison based only on a visible step count can be misleading. For an experiment, report both the settings and elapsed time.
+
+421
+00:44:11,503 --> 00:44:19,239
+For a software implementation, the number of network evaluations is another useful measure because the network often accounts for much of the work.
+
+422
+00:44:19,539 --> 00:44:26,539
+A progress image comes from partway through one run. A step-count comparison uses separate runs that each finish.
+
+423
+00:44:26,539 --> 00:44:32,199
+That difference matters because changing the total step count may also change the schedule from the beginning.
+
+424
+00:44:32,199 --> 00:44:38,099
+A finished fifteen-step image isn’t necessarily what a fifty-step run looks like after its fifteenth step.
+
+425
+00:44:38,099 --> 00:44:47,139
+So, when you show a comparison in your work, label it clearly. Are we watching a single image develop, or comparing finished results from different settings?
+
+426
+00:44:47,139 --> 00:44:49,759
+Those pictures answer different questions.
+
+427
+00:44:49,759 --> 00:44:57,119
+Imagine one run visits twenty noise levels and another visits fifty. Their fifteenth updates may occur at different noise levels,
+
+428
+00:44:57,119 --> 00:45:04,359
+so comparing those intermediate states does not compare equal points in the process. A progress sequence should identify its own run.
+
+429
+00:45:04,359 --> 00:45:12,339
+A final-result grid should identify the full settings of each completed run. This makes the figure answer a clear question rather than mixing two different kinds
+
+430
+00:45:12,339 --> 00:45:13,137
+of evidence.
+
+431
+00:45:13,437 --> 00:45:21,797
+Step count is not always the same as computational cost. In classic classifier-free guidance, one update uses a conditional prediction and an unconditional prediction.
+
+432
+00:45:21,797 --> 00:45:26,577
+With twenty sampling steps and one pair per step, the simple count is forty network evaluations.
+
+433
+00:45:26,577 --> 00:45:33,737
+An implementation may batch the pair together. That can reduce elapsed time compared with two separate calls, but it does not turn the calculation into one
+
+434
+00:45:33,737 --> 00:45:40,617
+unconditioned prediction. A different solver may request more evaluations, while a distilled model may implement guidance differently.
+
+435
+00:45:40,617 --> 00:45:45,937
+For an interactive display, the relevant time is the complete wait from input to visible result. It includes text encoding,
+
+436
+00:45:45,937 --> 00:45:54,257
+sampling, decoding, and any additional processing. Image size, model size, and hardware also affect that wait. Report measured seconds when comparing speed,
+
+437
+00:45:54,257 --> 00:45:56,375
+alongside the sampler and step settings.
+
+438
+00:45:56,675 --> 00:46:02,015
+Some models are trained specifically to work with very few steps. SD-Turbo is an example.
+
+439
+00:46:02,015 --> 00:46:07,875
+Its documented text-to-image setup uses one to four steps and turns off the usual classifier-free guidance.
+
+440
+00:46:07,875 --> 00:46:11,095
+That is a property of this trained model and its intended setup.
+
+441
+00:46:11,095 --> 00:46:15,395
+We can’t take those settings and assume they work the same way in an older model.
+
+442
+00:46:15,395 --> 00:46:20,735
+The training process called distillation helps a model learn a shorter generation process.
+
+443
+00:46:20,735 --> 00:46:28,255
+For our purposes, remember this: a model trained for one step is different from simply stopping another model after one step.
+
+444
+00:46:28,255 --> 00:46:36,015
+Distillation changes what the model learns to do in a limited number of calls. It may train a student using information from a more expensive teacher
+
+445
+00:46:36,015 --> 00:46:45,035
+or use related objectives to shorten generation. The resulting model can have a different recommended sampler and guidance behavior. We should use its documented operating range
+
+446
+00:46:45,035 --> 00:46:52,002
+first. A one-step model and a fifty-step model are different trained systems, not simply the same system with different patience.
+
+447
+00:46:52,302 --> 00:47:00,322
+Changing the model can change much more than the appearance. The training images, network, text encoder, and training method may all differ.
+
+448
+00:47:00,322 --> 00:47:06,102
+Even a setting with the same name may behave differently. For your own work, decide what you’re comparing.
+
+449
+00:47:06,102 --> 00:47:13,082
+Are you asking which complete tool helps you make the scene? Or are you asking which technical change caused an improvement?
+
+450
+00:47:13,082 --> 00:47:18,162
+The first is a useful design question. The second needs a more careful experiment.
+
+451
+00:47:18,162 --> 00:47:22,382
+One favorite picture from each model won’t tell us very much about either.
+
+452
+00:47:22,382 --> 00:47:29,502
+There is also a difference between comparing models and comparing complete workflows. A workflow may include a better reference interface,
+
+453
+00:47:29,502 --> 00:47:37,942
+automatic resizing, a face repair stage, or an upscaler. Those extra stages can matter to a designer even if the base model is unchanged.
+
+454
+00:47:37,942 --> 00:47:44,242
+If the question is which tool helps finish the poster, include them. If the question is which network change improved quality,
+
+455
+00:47:44,242 --> 00:47:46,498
+separate them from the model comparison.
+
+456
+00:47:46,798 --> 00:47:54,078
+LoRA represents a weight update as the product of two smaller matrices. The base weight remains available, and the learned product supplies an adjustment.
+
+457
+00:47:54,078 --> 00:48:00,778
+The rank sets the intermediate size of that factorization. A smaller rank reduces the number of values being trained, but also limits the form of the
+
+458
+00:48:00,778 --> 00:48:01,518
+update.
+
+459
+00:48:01,518 --> 00:48:07,278
+For one weight matrix of one thousand by one thousand, a full update contains one million values. With rank eight,
+
+460
+00:48:07,278 --> 00:48:14,538
+the two factors contain eight thousand values each. Their total is sixteen thousand, which is sixty-two and a half times fewer for this particular matrix.
+
+461
+00:48:14,538 --> 00:48:21,498
+That calculation does not describe every parameter in a real model. It explains the saving for one adapted weight. A style or subject LoRA must still
+
+462
+00:48:21,498 --> 00:48:27,389
+match the base model it was trained for. Rank, training data, and where the update is applied can all affect what it learns.
+
+463
+00:48:27,689 --> 00:48:39,529
+Reference conditioning and subject adaptation are different approaches. IP-Adapter supplies image features through a learned image-conditioning pathway, with text and image attention separated.
+
+464
+00:48:39,529 --> 00:48:46,249
+Once the adapter is trained, supplying a new reference image does not require training a new adapter for that subject.
+
+465
+00:48:46,249 --> 00:48:57,129
+DreamBooth instead fine-tunes a text-to-image model using examples of a particular subject. It associates that subject with a special identifier so the subject can be requested
+
+466
+00:48:57,129 --> 00:49:03,829
+in other contexts. The training step is part of the method, rather than just a reference supplied during one generation.
+
+467
+00:49:03,829 --> 00:49:12,789
+LoRA names a compact way to parameterize a weight update. It is not itself a particular character or style. These ideas can be combined,
+
+468
+00:49:12,789 --> 00:49:22,461
+so the categories are not always mutually exclusive. The important distinction is which information enters during generation and which information has changed the learned weights.
+
+469
+00:49:22,761 --> 00:49:30,221
+ControlNet adds spatial conditioning to a pretrained text-to-image diffusion model. The original paper studies controls such as edges, depth, segmentation,
+
+470
+00:49:30,221 --> 00:49:35,761
+and human pose. These maps specify structure in a form that is more explicit than a general appearance description.
+
+471
+00:49:35,761 --> 00:49:43,781
+An edge map can preserve a building outline without fixing its material. A depth map can communicate near and far surfaces without specifying exact color.
+
+472
+00:49:43,781 --> 00:49:49,741
+A pose map can locate joints while leaving costume and facial detail open. The choice of map depends on which property needs control.
+
+473
+00:49:49,741 --> 00:49:57,101
+The added network is trained to use that spatial information alongside the text condition. A control image is not simply pasted into the output.
+
+474
+00:49:57,101 --> 00:50:04,569
+It affects the learned generation process. Structure can become easier to specify, while identity, texture, and fine geometry still need their own checks.
+
+475
+00:50:04,869 --> 00:50:09,169
+We don’t always have to begin with random noise. We can begin with a drawing.
+
+476
+00:50:09,169 --> 00:50:15,589
+In one common approach, the system represents the drawing, adds some noise, and then generates from that starting point.
+
+477
+00:50:15,589 --> 00:50:23,169
+The original image still gives it some structure to work with. One stays close to the starting layout. Another makes larger changes.
+
+478
+00:50:23,169 --> 00:50:29,649
+Before choosing a result, decide what you wanted to preserve. Was it the pose? The roof line? The empty space?
+
+479
+00:50:29,649 --> 00:50:33,609
+A more detailed image may still lose the part of the drawing you cared about most.
+
+480
+00:50:33,609 --> 00:50:40,689
+A sketch is especially useful for shape and placement because it can show relations that would take many words to describe.
+
+481
+00:50:40,689 --> 00:50:47,089
+The outline of a roof, the size of the figure, and the gap between the suitcase and bench can be visible at once.
+
+482
+00:50:47,089 --> 00:50:56,569
+However, a rough sketch may not specify lighting or material. The generator still makes choices in those areas. Preserving structure and inventing appearance are therefore different
+
+483
+00:50:56,569 --> 00:50:57,955
+parts of this task.
+
+484
+00:50:58,255 --> 00:51:06,335
+In this kind of image editing, less added noise often leaves more of the starting image in place. More noise usually allows larger changes.
+
+485
+00:51:06,335 --> 00:51:12,055
+But the prompt and model still matter, and the meaning of a “strength” setting depends on the tool.
+
+486
+00:51:12,055 --> 00:51:15,155
+For our sketch, I would first decide what must stay.
+
+487
+00:51:15,155 --> 00:51:21,755
+If the traveler’s position is important, I’d compare that position across results before judging the clothing texture.
+
+488
+00:51:21,755 --> 00:51:27,355
+That gives me a clear reason to keep or reject an edit, instead of just choosing the most detailed one.
+
+489
+00:51:27,355 --> 00:51:33,915
+There is a tension between fidelity to the starting drawing and freedom to change it. If the starting pose is wrong,
+
+490
+00:51:33,915 --> 00:51:42,275
+preserving it too strongly can preserve the mistake. If the pose is right, adding too much noise may remove the feature we wanted to keep.
+
+491
+00:51:42,275 --> 00:51:49,678
+A useful comparison uses the same drawing at several strengths and names the exact structures to preserve before choosing a result.
+
+492
+00:51:49,978 --> 00:51:56,598
+A mask specifies where an image edit is allowed to appear. In simple compositing, a value of one selects the edited image and a value of
+
+493
+00:51:56,598 --> 00:52:03,898
+zero selects the original. Values between zero and one blend the two. The formula on the slide describes this blending operation.
+
+494
+00:52:03,898 --> 00:52:10,178
+For a pixel with a mask value of one quarter, the composite uses one quarter of the edit and three quarters of the original.
+
+495
+00:52:10,178 --> 00:52:17,978
+This can create a soft transition at an edge. But a wide soft boundary can also create a halo or mix incompatible lighting.
+
+496
+00:52:17,978 --> 00:52:26,878
+An inpainting model uses a region specification as part of generation. That is different from directly compositing a finished edit with the original pixels.
+
+497
+00:52:26,878 --> 00:52:36,338
+Some tools may alter unmasked areas internally. If exact preservation matters, compare the output outside the region or explicitly retain the original there.
+
+498
+00:52:36,338 --> 00:52:45,798
+The art problem remains at the boundary. The repaired region needs compatible perspective, edge treatment, color, and light. A technically correct mask can still produce an
+
+499
+00:52:45,798 --> 00:52:49,166
+obvious pasted-on result if those properties do not agree.
+
+500
+00:52:49,466 --> 00:52:56,686
+A layered workflow assigns different tasks to different operations. Composition can begin with a sketch, depth map, or other spatial reference.
+
+501
+00:52:56,686 --> 00:53:04,446
+Image generation supplies appearance and detail. A local mask can repair one region. Color adjustment and typography can remain in editable layers.
+
+502
+00:53:04,446 --> 00:53:11,546
+This is particularly useful when exact lettering or alignment matters. A poster title can be typeset independently of its background.
+
+503
+00:53:11,546 --> 00:53:18,046
+An edited prop can be composited over a generated base. The final image may therefore combine generated and directly controlled elements.
+
+504
+00:53:18,046 --> 00:53:25,806
+The technical connection is preservation. If every revision regenerates the whole image, all regions can change. A layered edit limits the scope of the revision.
+
+505
+00:53:25,806 --> 00:53:33,193
+It still requires checking edge seams, lighting, and color consistency. Keeping the base, masks, and final composite makes the work easier to revise later.
+
+506
+00:53:33,493 --> 00:53:42,373
+A video adds another problem: things need to remain consistent over time. In the top row, the coat and suitcase keep their appearance across shots.
+
+507
+00:53:42,373 --> 00:53:48,493
+In the bottom row, they change. Each frame could look acceptable on its own, but together they break the scene.
+
+508
+00:53:48,493 --> 00:53:51,653
+Video models can use information across frames.
+
+509
+00:53:51,653 --> 00:53:57,433
+Even so, you still need to watch for disappearing objects, changing faces, or walls that bend during a camera move.
+
+510
+00:53:57,433 --> 00:54:02,173
+These rows are illustrations of those problems. They aren’t test results from a particular video model.
+
+511
+00:54:02,173 --> 00:54:05,013
+The question is what we would check when watching a real output.
+
+512
+00:54:05,013 --> 00:54:16,353
+Temporal consistency has several meanings. Object identity concerns whether the same person or prop stays recognizable. Geometric consistency concerns whether surfaces keep their shape and position.
+
+513
+00:54:16,353 --> 00:54:23,273
+Motion consistency concerns how positions change between frames. A model can succeed at one and fail at another. For example,
+
+514
+00:54:23,273 --> 00:54:31,785
+a face can remain recognizable while the wall behind it bends. Separating those errors makes a video comparison more informative than a single realism score.
+
+515
+00:54:32,085 --> 00:54:39,205
+Let’s look at some examples from 2026. Google’s Nano Banana 2 includes image text and translation features.
+
+516
+00:54:39,205 --> 00:54:46,025
+This published example shows a sign being changed for another language. For a designer, that could help when trying different poster versions.
+
+517
+00:54:46,025 --> 00:54:51,285
+But changing the language can also change the length of the text, the line breaks, and how the page feels.
+
+518
+00:54:51,285 --> 00:54:56,665
+So I would check more than whether letters appeared. I’d read every word, check the meaning, and look at the spacing.
+
+519
+00:54:56,665 --> 00:55:00,565
+In a station scene, the same issue applies to signs, tickets, and notices.
+
+520
+00:55:00,565 --> 00:55:09,225
+Typography has both language requirements and visual requirements. A sign can spell the words correctly but use poor spacing. It can also look balanced while changing
+
+521
+00:55:09,225 --> 00:55:20,005
+an important word. For a poster, separate text accuracy, line breaks, alignment, and hierarchy. Generating lettering inside an image can help develop a concept.
+
+522
+00:55:20,005 --> 00:55:28,521
+For a final layout that needs exact wording, editable text remains useful because a correction does not require generating the entire image again.
+
+523
+00:55:28,821 --> 00:55:36,041
+Another useful development is keeping characters recognizable across a sequence. This is Google’s published storyboard example.
+
+524
+00:55:36,041 --> 00:55:43,701
+Look at the recurring characters as their poses and positions change. That’s closer to what we need for a story than making one attractive image.
+
+525
+00:55:43,701 --> 00:55:47,981
+We need enough variation for different shots while keeping the character recognizable.
+
+526
+00:55:47,981 --> 00:55:56,081
+For the character, I’d compare the shape of the coat, the hair, and the suitcase. Google reports improved consistency, but we should still inspect each shot.
+
+527
+00:55:56,081 --> 00:56:02,761
+A character can look similar at first glance while a small change becomes distracting when we cut between images.
+
+528
+00:56:02,761 --> 00:56:10,461
+Subject consistency is also different from pixel identity. A character viewed from behind should not have the same pixels as a front view.
+
+529
+00:56:10,461 --> 00:56:16,821
+The goal is to preserve the features that identify the subject while allowing a physically and visually plausible change of view.
+
+530
+00:56:16,821 --> 00:56:25,492
+In a storyboard, compare costume construction, body proportions, and prop ownership. A repeated face alone is not enough to make the whole sequence continuous.
+
+531
+00:56:25,792 --> 00:56:37,352
+The official OpenAI documentation lists September eighth, twenty twenty-six snapshots of GPT Image two point five Sunburst and Flare. Sunburst is described as the most capable
+
+532
+00:56:37,352 --> 00:56:44,712
+image model, while Flare is aimed at faster everyday image work. Both are image generation and editing models.
+
+533
+00:56:44,712 --> 00:56:52,512
+For a design comparison, use the same task and reference images. A product label about capability does not tell us whether it will preserve a particular
+
+534
+00:56:52,512 --> 00:57:00,572
+logo, maintain a character across shots, or reproduce exact lettering in our layout. Those require output-level checks.
+
+535
+00:57:00,572 --> 00:57:10,932
+Speed also matters differently at different stages. Fast alternatives can help during composition selection. A slower result may be worthwhile for a demanding final edit,
+
+536
+00:57:10,932 --> 00:57:20,692
+but only if the difference is visible and useful. The public model descriptions do not establish an independent ranking or reveal every internal architectural choice.
+
+537
+00:57:20,992 --> 00:57:29,452
+Video tools are also accepting more kinds of reference. Seedance 2.0, announced in February 2026, can use text, images, sound,
+
+538
+00:57:29,452 --> 00:57:31,152
+and video as inputs.
+
+539
+00:57:31,152 --> 00:57:33,532
+It can generate short video with sound.
+
+540
+00:57:33,532 --> 00:57:39,452
+Suppose we like the traveler’s appearance in one picture, and we have a separate clip showing the camera movement we want.
+
+541
+00:57:39,452 --> 00:57:46,472
+Those references communicate different parts of the scene. This could be useful when movement is difficult to describe in words.
+
+542
+00:57:46,472 --> 00:57:52,112
+We would still need to check the result. Did it follow the movement, and did that movement create the feeling we wanted?
+
+543
+00:57:52,112 --> 00:58:00,332
+Different references specify different variables. A character image can describe appearance. A motion clip can describe timing and camera behavior.
+
+544
+00:58:00,332 --> 00:58:08,192
+Audio can describe rhythm or an event sequence. Combining references is useful when these roles are clear. Conflicting references still need a decision:
+
+545
+00:58:08,192 --> 00:58:16,512
+a slow camera reference and a rapid musical beat may suggest different editing choices. The model cannot determine the intended relationship from the existence of the
+
+546
+00:58:16,512 --> 00:58:17,471
+files alone.
+
+547
+00:58:17,771 --> 00:58:25,911
+Another change is being able to describe an edit to an existing video. Google introduced Gemini Omni Flash in public preview in June 2026.
+
+548
+00:58:25,911 --> 00:58:32,911
+Its examples include changing lighting and replacing objects through spoken or written instructions. For this image, we might say, “Keep the traveler.
+
+549
+00:58:32,911 --> 00:58:38,911
+Make the station lights warmer.” Then we need to watch the whole result. Did the face change? Did an object disappear?
+
+550
+00:58:38,911 --> 00:58:40,051
+Did the sound stay right?
+
+551
+00:58:40,051 --> 00:58:43,211
+An edit that works in one frame may cause problems elsewhere.
+
+552
+00:58:43,211 --> 00:58:48,491
+Also, available controls can differ between a demonstration and the version of a tool you can access.
+
+553
+00:58:48,491 --> 00:58:55,631
+Video editing introduces a preservation problem. The request specifies what should change, but the rest of the clip also matters.
+
+554
+00:58:55,631 --> 00:59:04,731
+Relighting should be checked across moving surfaces and shadows, not only at the first frame. Object replacement should preserve occlusion when something passes in front of
+
+555
+00:59:04,731 --> 00:59:13,332
+it. These are concrete tests of edit behavior. They are more useful than assuming that a fluent natural-language instruction guarantees a localized change.
+
+556
+00:59:13,632 --> 00:59:21,472
+Video quality needs tests at more than one timescale. At the frame level, inspect object count, anatomy, lettering, and composition.
+
+557
+00:59:21,472 --> 00:59:29,372
+These are similar to still-image checks. At the sequence level, inspect whether objects persist and whether their motion remains continuous.
+
+558
+00:59:29,372 --> 00:59:36,712
+Camera motion is a useful stress test for geometry. A wall can look plausible in one frame and bend as the viewpoint changes.
+
+559
+00:59:36,712 --> 00:59:42,392
+Occlusion is another test: an object passing behind a foreground shape should reappear with a consistent identity and position.
+
+560
+00:59:42,392 --> 00:59:52,072
+Sound adds event timing. A visible impact and its sound should have a deliberate relationship. Dialogue needs a relationship between speech timing and mouth movement.
+
+561
+00:59:52,072 --> 00:59:57,752
+The goal is not simply to have an audio track, but to make the audiovisual events agree with the intended scene.
+
+562
+00:59:57,752 --> 01:00:04,352
+At an edit, screen direction and prop position affect continuity. An object moving to the right in one shot and left in the next can imply
+
+563
+01:00:04,352 --> 01:00:11,391
+a reversal. That may be intentional, but it should be a choice supported by the spatial setup rather than an accidental generation change.
+
+564
+01:00:11,691 --> 01:00:21,531
+FLUX 3 illustrates the move from separate image and sound generation toward joint audiovisual generation. Black Forest Labs released an initial version of FLUX 3 Video
+
+565
+01:00:21,531 --> 01:00:30,551
+on August fourth, twenty twenty-six. Its announcement describes clips up to twenty seconds with audio, image inputs, keyframes, and continuation.
+
+566
+01:00:30,551 --> 01:00:39,851
+Keyframes specify important visible moments, while the model generates the transition between them. They can provide more concrete temporal control than a style adjective.
+
+567
+01:00:39,851 --> 01:00:48,491
+They still leave intermediate motion to be generated, so a correct first and last frame do not establish that the movement between them is correct.
+
+568
+01:00:48,491 --> 01:00:56,731
+The same company's August upscaling announcement provides another useful example of a tradeoff: a more creative repair mode can change identity.
+
+569
+01:00:56,731 --> 01:01:07,807
+Higher resolution and stronger reconstruction are therefore separate choices from preservation. These are developer descriptions; an independent comparison needs matched inputs and recorded outputs.
+
+570
+01:01:08,107 --> 01:01:15,967
+OpenAI's GPT-six Astra is a general assistant model for reasoning, coding, and work with tools. It can accept text and image inputs.
+
+571
+01:01:15,967 --> 01:01:22,927
+In a design workflow, the relevant example is building an interactive artifact from a specification, then inspecting and revising the result.
+
+572
+01:01:22,927 --> 01:01:30,547
+An assistant might write the code for a light transition, inspect a screenshot, and change the timing after feedback. The image-generation tool used within that workflow
+
+573
+01:01:30,547 --> 01:01:36,747
+can be a separate model. It is useful to distinguish the assistant that coordinates the work from the specialized tool that produces an image.
+
+574
+01:01:36,747 --> 01:01:44,287
+This is also different from a world model predicting the next view, or a VLA producing robot commands. Those systems have different outputs and different tests.
+
+575
+01:01:44,287 --> 01:01:49,103
+The next example makes the assistant's role concrete by turning an interaction request into observable behavior.
+
+576
+01:01:49,403 --> 01:01:55,983
+An interaction can be specified as an input, a state change, and an output over time. Here the input is a click on a prop.
+
+577
+01:01:55,983 --> 01:02:02,303
+The intended output is a light fade lasting two seconds. The camera and character should remain fixed while that change occurs.
+
+578
+01:02:02,303 --> 01:02:08,683
+Astra can help write and revise the code for that behavior using tools. The important test is the built artifact.
+
+579
+01:02:08,683 --> 01:02:14,923
+Does one click start one transition? Does the final light level match the instruction? Does a second click restart the transition,
+
+580
+01:02:14,923 --> 01:02:16,703
+reverse it, or do nothing?
+
+581
+01:02:16,703 --> 01:02:26,343
+Those alternatives are design decisions about state. They should be stated explicitly. Otherwise, a generated implementation can look correct in a screenshot while behaving unpredictably during
+
+582
+01:02:26,343 --> 01:02:31,083
+repeated use. A static image cannot show all the states of an interaction.
+
+583
+01:02:31,083 --> 01:02:40,563
+The assistant's role is to help construct and inspect the implementation. The test still needs observable input and output. This separates a convincing explanation of an
+
+584
+01:02:40,563 --> 01:02:46,629
+interaction from a working interaction, and connects language-based assistance to a concrete design workflow.
+
+585
+01:02:46,929 --> 01:02:54,669
+A world model predicts how an environment changes, often conditioned on an action. The representation can differ. One model predicts a compact state,
+
+586
+01:02:54,669 --> 01:03:01,029
+another generates future video, and another works with an explicit three-dimensional scene that can be rendered from different viewpoints.
+
+587
+01:03:01,029 --> 01:03:10,469
+CMU's world-model lecture separates these approaches because they support different operations. A learned latent state can be useful for control without producing a picture.
+
+588
+01:03:10,469 --> 01:03:18,869
+An interactive video model produces visible views but may not expose editable three-dimensional geometry. A scene representation can support rendering,
+
+589
+01:03:18,869 --> 01:03:21,469
+while its physical behavior still needs a model.
+
+590
+01:03:21,469 --> 01:03:29,669
+The term world model therefore does not name one fixed architecture. The practical question is what state it represents, what action it accepts,
+
+591
+01:03:29,669 --> 01:03:39,098
+and what it predicts. A plausible image is evidence about appearance, not automatically evidence of accurate distance, dynamics, or a persistent environment.
+
+592
+01:03:39,398 --> 01:03:51,438
+This Astra is the world-model research project presented at ICLR 2026. Its first preprint appeared in December 2025. It’s separate from OpenAI’s GPT-6 Astra.
+
+593
+01:03:51,438 --> 01:03:59,618
+Look at the green-bordered pictures on the left. Those are starting images. The later columns show generated views, with movement controls marked on them.
+
+594
+01:03:59,618 --> 01:04:03,998
+The model uses earlier observations and action inputs to predict the next part of the video.
+
+595
+01:04:03,998 --> 01:04:12,178
+That connects to our earlier discussion of conditions: now a movement command helps guide generation. For an interactive scene, we care about both response and consistency.
+
+596
+01:04:12,178 --> 01:04:15,458
+Does the view change when we ask, and does the place still make sense afterward?
+
+597
+01:04:15,458 --> 01:04:24,938
+An action-conditioned video model receives information about intended movement, along with earlier observations. That input changes the prediction task: it must produce a plausible continuation that
+
+598
+01:04:24,938 --> 01:04:32,478
+also responds to the action. A prerecorded video only needs to play its next frame. An interactive model must handle different possible actions from the same
+
+599
+01:04:32,478 --> 01:04:40,357
+current view. Evaluation therefore needs response tests as well as visual tests, including repeated actions and movement back toward an earlier view.
+
+600
+01:04:40,657 --> 01:04:47,537
+A round trip tests whether a generated environment stays consistent over time. Begin outside a doorway, enter, turn away, turn back,
+
+601
+01:04:47,537 --> 01:04:54,837
+and leave again. The sequence revisits earlier geometry rather than continually generating new views that never need to agree with the past.
+
+602
+01:04:54,837 --> 01:05:02,957
+A model can generate a plausible next frame while gradually changing the doorway's size or location. If its own generated frames become later inputs,
+
+603
+01:05:02,957 --> 01:05:09,977
+small errors can accumulate. Short-term realism and long-term consistency are therefore different evaluation targets.
+
+604
+01:05:09,977 --> 01:05:18,597
+Object persistence is related. A chair that moves outside the camera view should not automatically cease to exist. Turning back provides a test of what the
+
+605
+01:05:18,597 --> 01:05:25,817
+model retains. An explicit three-dimensional scene, a video history, and a learned hidden state can support persistence in different ways.
+
+606
+01:05:25,817 --> 01:05:32,637
+This test does not establish all aspects of physics. It specifically checks spatial and temporal agreement under a short sequence of actions.
+
+607
+01:05:32,637 --> 01:05:39,418
+Additional tests would be needed for contact, material behavior, or control accuracy. The test should match the capability being claimed.
+
+608
+01:05:39,718 --> 01:05:47,658
+VLA stands for vision-language-action. The model receives visual information and an instruction, often along with information about the robot’s current position.
+
+609
+01:05:47,658 --> 01:05:54,358
+It produces actions for the robot, such as moving an arm or closing a gripper. Gemini Robotics 2, announced in July 2026,
+
+610
+01:05:54,358 --> 01:05:55,538
+is one example.
+
+611
+01:05:55,538 --> 01:05:59,878
+It includes whole-body control, so movement can involve more than an arm at a table.
+
+612
+01:05:59,878 --> 01:06:06,138
+For an installation, we might imagine a robot moving props as visitors interact. That would require a complete working system.
+
+613
+01:06:06,138 --> 01:06:11,118
+The model’s action output is one part; observing the result and dealing with mistakes also matter.
+
+614
+01:06:11,118 --> 01:06:17,478
+Robot actions can be represented in several ways, such as joint targets, end-effector movement, or a sequence of future controls.
+
+615
+01:06:17,478 --> 01:06:25,958
+The model's output must match the robot interface. A language instruction saying pick up the cup is much less specific than those low-level actions.
+
+616
+01:06:25,958 --> 01:06:37,478
+A complete system needs observations, a policy, motor execution, and updated feedback. The VLA is the learned link between visual-language information and the action representation used
+
+617
+01:06:37,478 --> 01:06:38,607
+by that system.
+
+618
+01:06:38,907 --> 01:06:46,347
+An image location and a robot movement use different coordinate systems. A prop appearing forty pixels left of the image center does not directly specify how
+
+619
+01:06:46,347 --> 01:06:52,707
+many centimeters a robot hand should move. The relationship depends on camera geometry, depth, and the robot's current configuration.
+
+620
+01:06:52,707 --> 01:06:58,927
+A command also needs a reference frame. Left can mean the camera's left, the robot's left, or a direction in the workspace.
+
+621
+01:06:58,927 --> 01:07:06,847
+A movement can be expressed as a change in joint angles or as a target for the end effector. The controller must interpret the representation correctly.
+
+622
+01:07:06,847 --> 01:07:17,047
+A VLA learns a mapping from observations and language into actions, often with robot-state information. The surrounding system still determines which action representation is used and
+
+623
+01:07:17,047 --> 01:07:24,107
+how the motor commands are executed. A model that predicts the right-looking motion is not by itself a calibrated physical installation.
+
+624
+01:07:24,107 --> 01:07:32,807
+After movement, new observations close the feedback loop. For a prop-handling installation, the stopping condition might be reaching a marked location or achieving a stable grasp.
+
+625
+01:07:32,807 --> 01:07:38,863
+Defining the frame, distance, feedback, and stop condition turns a vague movement request into a testable task.
+
+626
+01:07:39,163 --> 01:07:46,263
+These systems have different jobs. An assistant might write code for the suitcase interaction. A world model might predict what would happen if it moved.
+
+627
+01:07:46,263 --> 01:07:51,923
+A VLA might produce commands to move a real suitcase. A system could combine those jobs, then look again after acting.
+
+628
+01:07:51,923 --> 01:07:59,023
+But a VLA doesn’t necessarily contain a separate world model. And generating a video of an action doesn’t mean a robot has actually performed it.
+
+629
+01:07:59,023 --> 01:08:04,903
+A planner may ask a world model to predict several candidate outcomes before choosing an action. That is one possible arrangement.
+
+630
+01:08:04,903 --> 01:08:13,563
+Another policy can map observations directly to action commands without generating future images. Neither architecture is proved by watching a successful demonstration.
+
+631
+01:08:13,563 --> 01:08:19,392
+We need a system description to know which components are present, and a task test to know whether their combination works reliably.
+
+632
+01:08:19,692 --> 01:08:27,112
+Let’s turn that into a design choice. Imagine a visitor moves the red suitcase in a station scene. What should the experience do?
+
+633
+01:08:27,112 --> 01:08:32,192
+Explain something, generate a changed scene, or move a real prop? Choose one with your partner.
+
+634
+01:08:32,192 --> 01:08:38,472
+Say what the visitor does and what they should notice in response. Include what happens if the system misunderstands them.
+
+635
+01:08:38,472 --> 01:08:46,492
+For an installation, specify four things: the visitor input, the visible response, the response time, and the recovery behavior. A click that changes light is different
+
+636
+01:08:46,492 --> 01:08:54,292
+from a camera movement that generates a new view, and both differ from moving a physical prop. The input and output determine which technology is needed.
+
+637
+01:08:54,292 --> 01:08:58,129
+This is the point where interaction design becomes a concrete system requirement.
+
+638
+01:08:58,429 --> 01:09:02,389
+If the traveler is too large, try a wider-view instruction or a layout reference.
+
+639
+01:09:02,389 --> 01:09:06,249
+If the colors feel too strong, guidance may be worth testing where the model supports it.
+
+640
+01:09:06,249 --> 01:09:12,029
+If one small area is wrong, a local edit may be enough. These are starting points for a test. They aren’t guaranteed fixes.
+
+641
+01:09:12,029 --> 01:09:13,749
+Describe the visible problem first.
+
+642
+01:09:13,749 --> 01:09:19,489
+That makes it easier to choose a change that could actually address it, rather than changing everything and hoping the next image works.
+
+643
+01:09:19,489 --> 01:09:26,409
+The location of an error helps select a control. A wrong global viewpoint may call for a layout reference. A correct scene with one broken hand
+
+644
+01:09:26,409 --> 01:09:34,569
+may call for a local region edit. A repeated style across a large collection may justify a trained adapter. These choices differ in scope and cost.
+
+645
+01:09:34,569 --> 01:09:39,447
+Starting with the smallest relevant intervention makes it easier to preserve the parts that already work.
+
+646
+01:09:39,747 --> 01:09:45,207
+Here is a simple comparison we could run. Our question is whether guidance changes subject clarity and variety.
+
+647
+01:09:45,207 --> 01:09:51,607
+We keep the model, prompt, size, sampler, and steps fixed. We try different guidance values using the same set of seeds at each value.
+
+648
+01:09:51,607 --> 01:09:55,907
+Then we judge the results using questions we chose beforehand. That last part matters.
+
+649
+01:09:55,907 --> 01:10:01,167
+If we decide what counts as success only after seeing the images, it’s easy to favor the result we happened to like.
+
+650
+01:10:01,167 --> 01:10:03,737
+A clear test helps us explain our choice to someone else.
+
+651
+01:10:03,737 --> 01:10:09,067
+Write the comparison as a small table before running it. The rows can be seeds and the columns guidance values.
+
+652
+01:10:09,067 --> 01:10:15,787
+Every cell gets the same prompt and model. Record failures as well as successful images, because omitting failures changes what the grid represents.
+
+653
+01:10:15,787 --> 01:10:22,045
+If image generation fails for a cell, mark it as missing and rerun that condition rather than silently replacing it with a different seed.
+
+654
+01:10:22,345 --> 01:10:31,785
+Image evaluation can separate content, form, variation, and purpose. Content includes object count, attributes, and relationships. These can often be checked directly against the request.
+
+655
+01:10:31,785 --> 01:10:35,405
+A hand holding a cup is a different relation from a hand merely appearing near a cup.
+
+656
+01:10:35,405 --> 01:10:43,885
+Form concerns how the image is organized: silhouette, value structure, edge contrast, and the main focus. These properties connect technical output to art decisions.
+
+657
+01:10:43,885 --> 01:10:47,805
+They can be described specifically even when people prefer different compositions.
+
+658
+01:10:47,805 --> 01:10:54,425
+Variation concerns the group rather than one image. A set can contain one attractive result and many nearly identical alternatives.
+
+659
+01:10:54,425 --> 01:11:03,025
+Purpose determines which of those properties matter most. A clear instructional poster and an ambiguous dream sequence can reasonably favor different results without making the comparison
+
+660
+01:11:03,025 --> 01:11:04,045
+meaningless.
+
+661
+01:11:04,345 --> 01:11:09,465
+We’ll spend six minutes on these grids. They come from a published study of guidance using dog images.
+
+662
+01:11:09,465 --> 01:11:17,785
+This was generation from a category label, rather than a written prompt. Corresponding positions use matched seeds, so compare the same position across the groups.
+
+663
+01:11:17,785 --> 01:11:28,065
+First, look silently. Then choose two corresponding sets and write down what changes. Look at recognizable features, unwanted details, and variety within each group.
+
+664
+01:11:28,065 --> 01:11:35,565
+Finally, choose a group for a particular use. Would your choice change for a clear introduction compared with a strange dream scene?
+
+665
+01:11:35,565 --> 01:11:42,405
+The task is to make a defensible comparison, not to guess the setting with the biggest number. Select corresponding positions,
+
+666
+01:11:42,405 --> 01:11:52,225
+describe shape and color changes, and then inspect variation across each group. A picture can become more recognizable while losing unusual but useful alternatives.
+
+667
+01:11:52,225 --> 01:11:59,693
+That tradeoff is central to generative design: the setting that helps one final image may not be the best setting for exploring possibilities.
+
+668
+01:11:59,993 --> 01:12:07,953
+A controlled grid supports two kinds of reading. Across guidance conditions, follow the same seed and describe what changes. Within one guidance condition,
+
+669
+01:12:07,953 --> 01:12:15,193
+compare different seeds and describe the range of outputs. The first comparison focuses on the setting; the second focuses on variation.
+
+670
+01:12:15,193 --> 01:12:23,073
+For a face, useful observations include outline, eye placement, texture, and exaggerated edges. For a full scene, include camera distance,
+
+671
+01:12:23,073 --> 01:12:28,773
+figure size, and repeated layout patterns. Record what is visible rather than assuming that a stronger setting improved every property.
+
+672
+01:12:28,773 --> 01:12:36,453
+A grid is strongest when its labels make the comparison unambiguous. Keep model, prompt, and sampling settings beside it. If images have been selected or cropped,
+
+673
+01:12:36,453 --> 01:12:42,483
+state that too. Otherwise, the display can appear more controlled or more diverse than the underlying experiment really was.
+
+674
+01:12:42,783 --> 01:12:47,043
+For this last discussion, choose a camera view and a drawing style for a station scene.
+
+675
+01:12:47,043 --> 01:12:52,443
+Think back to the wide and close views, and the paper, paint, and ink examples. Take thirty seconds to choose.
+
+676
+01:12:52,443 --> 01:12:59,003
+Then explain your choice to your partner using two details you can point to in the pictures. Finish by naming one change you would try next.
+
+677
+01:12:59,003 --> 01:13:02,503
+Keep the change specific enough that you could recognize whether it worked.
+
+678
+01:13:02,503 --> 01:13:08,463
+Use a formal reason for the choice. A low camera position can increase the apparent scale of a nearby figure.
+
+679
+01:13:08,463 --> 01:13:16,703
+A diagonal edge can connect two regions or create tension. A large quiet area can reserve space for text. These are specific compositional effects.
+
+680
+01:13:16,703 --> 01:13:23,289
+A style label such as cinematic is less useful unless it is translated into decisions about camera, light, color, or editing.
+
+681
+01:13:23,589 --> 01:13:29,529
+Before we finish, write a short answer to each of these questions. Why can the same prompt give different pictures?
+
+682
+01:13:29,529 --> 01:13:34,789
+Why might stronger guidance make a picture worse? And what would you save so you could try to repeat a result?
+
+683
+01:13:34,789 --> 01:13:35,689
+Use your own words.
+
+684
+01:13:35,689 --> 01:13:40,669
+You don’t need an equation. If it helps, explain each answer using the character and station.
+
+685
+01:13:40,669 --> 01:13:47,549
+A complete answer should name a mechanism and its consequence. For seed, name the changed random state and the resulting variation.
+
+686
+01:13:47,549 --> 01:13:55,709
+For guidance, name the combined predictions and the risk of exaggeration. For reproducibility, name the inputs and model settings that must be recorded.
+
+687
+01:13:55,709 --> 01:13:59,743
+This is a short check that the terms connect to something the system actually does.
+
+688
+01:14:00,043 --> 01:14:06,103
+Here are the main answers. Different random starting states can lead to different pictures, even with the same prompt.
+
+689
+01:14:06,103 --> 01:14:12,983
+Depending on the sampler, randomness can also enter later. Stronger guidance pushes harder along the difference between predictions.
+
+690
+01:14:12,983 --> 01:14:19,063
+That may make the subject clearer, but it can also create unwanted colors or details and reduce variety.
+
+691
+01:14:19,063 --> 01:14:25,123
+To repeat a result, save the full setup: the model, prompt, references, seed, and generation settings. Include any adapters.
+
+692
+01:14:25,123 --> 01:14:33,763
+Exact matching can still depend on software and hardware. Your wording can be different. What matters is whether your explanation connects the setting to what happens.
+
+693
+01:14:33,763 --> 01:14:40,763
+These answers also explain why a beautiful result is not enough to understand a model. One sample shows an outcome.
+
+694
+01:14:40,763 --> 01:14:50,923
+A matched comparison shows how a controlled change affects outcomes. A saved setup makes that comparison repeatable. Together, these give us a method for discussing generation
+
+695
+01:14:50,923 --> 01:14:57,077
+in concrete terms rather than relying on impressions about a tool's personality or creativity.
+
+696
+01:14:57,377 --> 01:15:03,997
+The main controls now have distinct meanings. A prompt and references describe conditions. A seed fixes a random starting process.
+
+697
+01:15:03,997 --> 01:15:11,957
+Guidance combines predictions. A sampler calculates updates. Adapters and fine-tuning change learned behavior. Masks and compositing limit where an edit appears.
+
+698
+01:15:11,957 --> 01:15:20,397
+The art decisions are just as concrete. Camera position changes perspective. Overlap and converging lines provide depth cues. Hue and lightness affect separation.
+
+699
+01:15:20,397 --> 01:15:25,917
+Edge treatment controls which shapes remain clear. Character and motion continuity connect individual images into a sequence.
+
+700
+01:15:25,917 --> 01:15:32,537
+A useful experiment changes a relevant variable, preserves the other conditions, and records the results. That method applies to an image edit,
+
+701
+01:15:32,537 --> 01:15:40,592
+a video comparison, or an interactive system. The following source slides point to the university lectures, papers, and official announcements used in this lesson.
+
+702
+01:15:40,892 --> 01:15:53,532
+The technical structure draws on CMU's Generative AI course, including diffusion, text-to-image generation, parameter-efficient adaptation, and world models. MIT's flow and diffusion course provides a clear
+
+703
+01:15:53,532 --> 01:16:01,052
+connection between training targets and numerical sampling. The small numerical examples in this lecture were written for this class.
+
+704
+01:16:01,052 --> 01:16:11,152
+Stanford's generative-model lectures provide additional technical context. Its graphics and photography materials support the discussion of color, cameras, and composition.
+
+705
+01:16:11,152 --> 01:16:19,990
+These established art and imaging principles are presented alongside recent tools because they explain decisions that remain useful when the product names change.
+
+706
+01:16:20,290 --> 01:16:32,750
+The primary papers explain the mechanisms behind diffusion, latent representations, guidance, LoRA, image-to-image editing, and spatial conditioning. Related methods such as IP-Adapter and DreamBooth show different
+
+707
+01:16:32,750 --> 01:16:39,550
+ways to use reference information. Their publication dates are kept distinct from the twenty twenty-six product updates.
+
+708
+01:16:39,550 --> 01:16:48,190
+The recent section uses official model documentation and developer announcements. Those sources establish what was announced and how the developer describes it.
+
+709
+01:16:48,190 --> 01:16:55,590
+They are not independent proof that a model is best for every task. A practical comparison still needs a defined task,
+
+710
+01:16:55,590 --> 01:16:57,873
+matched inputs, and the actual outputs.

@@ -10,9 +10,10 @@
   ];
   const legacyLecture2Questions = ["A glass pear becomes ceramic. Which edit contract is most coherent?", "A 1024 x 1024 RGB image becomes a 64 x 64 x 64 latent. What follows from counting scalar values?", "For v_guided = v_base + s(v_cond - v_base), what happens when s = 1?", "Which statement best distinguishes an image reference from LoRA?", "Why can four attractive frames be insufficient evidence of video-edit quality?", "After approving an edited keyframe in the Runway reading’s workflow, which claim still needs testing?", "One Euler update uses z = 0.20, step size = 0.10, and velocity = 0.60. Show the calculation, give the next z, and explain what one update does not prove about the final edit.", "An illustrative tokenization reduces N from 4096 to 1024. Calculate the token reduction factor and the dense self-attention pair-score reduction factor. Explain why this does not establish an equal end-to-end speedup.", "Your AFTER RAIN collage uses flat paper layers, but the reflection is sharply photographic. Give a critique tied to the visual language, propose one revision, and explain how you would compare versions.", "A five-second ceramic-pear edit passes behind a column. State two invariants, identify a high-risk event, and describe evidence you would inspect before accepting the clip.", "Using An Alien Mind, explain goal alignment and value alignment in your own words. Apply the distinction to a creative task and name one piece of evidence you would seek before trusting delegation.", "Using Dan Koe’s essay, propose a small experiment to clarify a creative direction. Explain its connection to the reading, state an observable outcome, and identify one limitation of treating the essay’s promise as a general rule."];
   const lecture2Questions = ["You want to change a glass pear into ceramic while keeping its outline. Explain how ControlNet could help and name one aspect of the edit that an edge map cannot guarantee.", "What is artistic intention, and how does it guide the use of generative AI in making an artwork? Explain how composition and lighting can communicate an intended mood or meaning.", "What is visual coherence in an artwork? Explain how you would assess whether an AI-generated edit supports the work’s visual language and meaning, rather than judging it only by realism or technical polish.", "In classifier-free guidance, what does increasing the guidance scale change? Explain why stronger guidance does not always produce a better edit.", "Choose one Lecture 02 reading and write a short reflection paragraph. Identify one central claim, then explain what you find convincing, limited, or worth challenging. Connect your reflection to one idea or example from the lecture."];
-  const quizQuestions = item => item.quizId === 'week-02' ? (item.answers.length === 12 ? legacyLecture2Questions : lecture2Questions) : item.quizId === 'week-01' ? questions : [];
+  const lecture3Questions = ["How does a diffusion model turn noise into an image?", "What does the seed control, and why can changing it give a different image with the same prompt?", "What does increasing guidance do? Why might very strong guidance make an image worse?", "What is a mask used for when editing an image? Give one example.", "Choose one Lecture 3 reading. What is its main idea? Give one reason you agree or disagree with it."];
+  const quizQuestions = item => item.quizId === 'week-03' ? lecture3Questions : item.quizId === 'week-02' ? (item.answers.length === 12 ? legacyLecture2Questions : lecture2Questions) : item.quizId === 'week-01' ? questions : [];
   const quizMax = item => item.quizId === 'week-02' && item.answers.length === 12 ? 30 : 20;
-  let selectedQuizId = 'week-02';
+  let selectedQuizId = 'week-03';
   let adminCode = '';
   let records = { signups: [], quizzes: [] };
   let students = [];
@@ -143,7 +144,7 @@
   }
 
   function renderQuizSession() {
-    const ids = [...new Set(['week-01', 'week-02', ...records.quizzes.map(item => item.quizId || '')])]
+    const ids = [...new Set(['week-01', 'week-02', 'week-03', ...records.quizzes.map(item => item.quizId || '')])]
       .sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
     const select = $('#quiz-session');
     select.innerHTML = ids.map(id => `<option value="${escapeHtml(id)}">${escapeHtml(quizSessionLabel(id))}</option>`).join('');
