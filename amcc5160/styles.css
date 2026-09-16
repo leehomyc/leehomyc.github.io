@@ -448,3 +448,31 @@ footer > p { margin: 8px 0 46px; color: #86868b; }
 .suggested-workflows .workflow-tip { font-size: 15px; color: #454759; }
 .workflow-links { font-size: 15px; }
 @media (max-width: 760px) { .suggested-workflows details { padding: 16px; } }
+
+/* Assignment diagrams and learning resources */
+.a1-figure { margin: 28px 0; padding: 28px; border: 1px solid #d7d9e2; border-radius: 20px; background: #fff; }
+.a1-figure figcaption { margin-bottom: 24px; }
+.a1-figure figcaption strong { display: block; font-size: 20px; }
+.a1-figure figcaption span { display: block; margin-top: 8px; color: #53566a; line-height: 1.6; }
+.a1-flow-row { display: grid; grid-template-columns: 1fr 24px 1fr 24px 1fr; align-items: center; gap: 12px; }
+.a1-node { min-height: 130px; padding: 20px; background: #eef0fc; border-radius: 14px; }
+.a1-node small, .a1-node strong, .a1-node span { display: block; }
+.a1-node small { color: #535075; font-size: 12px; letter-spacing: .08em; }
+.a1-node strong { font-size: 18px; margin: 10px 0; }
+.a1-node span { font-size: 14px; line-height: 1.5; }
+.a1-arrow { text-align: center; font-size: 24px; }
+.a1-audio-routes { display: grid; grid-template-columns: 1fr 40px 1fr; align-items: center; gap: 16px; margin: 24px 0; }
+.a1-audio-routes > div { padding: 18px; background: #eaf5ef; border-radius: 14px; }
+.a1-audio-routes > span { text-align: center; font-size: 13px; color: #53566a; }
+.a1-audio-routes p { margin: 8px 0 0; font-size: 15px; }
+.a1-finish { display: grid; gap: 8px; text-align: center; padding: 18px; background: #fff5e5; border-radius: 14px; line-height: 1.5; }
+.a1-storyboard { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 16px; }
+.a1-shot svg { display: block; width: 100%; height: auto; border-radius: 10px; margin-bottom: 12px; }
+.a1-shot strong { display: block; font-size: 16px; }
+.a1-shot p { font-size: 15px; margin: 8px 0; }
+.a1-shot small { display: block; color: #53566a; line-height: 1.5; }
+.a1-resources { padding-left: 22px; }
+.a1-resources li { margin-bottom: 18px; }
+.a1-resources span { display: block; font-size: 15px; color: #53566a; }
+@media(max-width:760px) { .a1-figure { padding: 18px; } .a1-flow-row { grid-template-columns: 1fr; } .a1-arrow { transform: rotate(90deg); } .a1-node { min-height: auto; } .a1-audio-routes { grid-template-columns: 1fr; gap: 10px; } .a1-storyboard { grid-template-columns: repeat(2,minmax(0,1fr)); } }
+@media(max-width:420px) { .a1-storyboard { grid-template-columns: 1fr; } }

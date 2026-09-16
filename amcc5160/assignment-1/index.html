@@ -9,7 +9,7 @@
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
   <title>Assignment 1: From Images to Film — AMCC 5160</title>
-  <link rel="stylesheet" href="../styles.css?v=20260916-workflows">
+  <link rel="stylesheet" href="../styles.css?v=20260916-china-figures">
   <script src="../site.js?v=20260901-tight" defer></script>
 </head>
 <body id="top">
@@ -27,7 +27,7 @@
     <p class="assignment-intro">Make a <strong>30–60-second video with sound</strong>. Use generative AI to create images, turn them into video clips, and create at least one audio element. Edit these into a finished piece that tells a story, expresses an idea, or creates a mood.</p>
     <p class="assignment-due">Due <time datetime="2026-09-30T23:59:00+08:00">September 30, 2026 · 23:59 HKT</time></p>
     <p class="assignment-flow" aria-label="Workflow">Plan <span aria-hidden="true">→</span> Generate images <span aria-hidden="true">→</span> Animate <span aria-hidden="true">→</span> Add sound <span aria-hidden="true">→</span> Edit</p>
-    <p class="workflow-jump"><a href="#suggested-workflows">Need a starting point? Explore workflow tools and creation websites ↓</a></p>
+    <p class="workflow-jump"><a href="#suggested-workflows">Need a starting point? Explore workflow tools and creation websites ↓</a> · <a href="#workflow-figures">Workflow figures</a> · <a href="#technical-resources">Technical resources</a></p>
     <div class="assignment-columns">
       <div>
         <h2 style="font-size:24px;margin:0 0 24px">Follow these five steps</h2>
@@ -70,8 +70,34 @@
     <section class="suggested-workflows" id="suggested-workflows" aria-labelledby="workflow-title">
       <h2 id="workflow-title">Suggested workflow tools and websites</h2>
       <p>Choose one workspace to organize your images, video, and sound. The options below link to actual creation tools, with a suggested route for this assignment. A <strong>node</strong> is simply one step in a visual workflow, such as generating an image or animating it.</p>
-      <p><strong>Where to start:</strong> Try Freepik Spaces for a browser canvas, LTX Studio for a storyboard and editing workflow, or ComfyUI for more control. You only need one route.</p>
+      <p><strong>Where to start:</strong> For Chinese-language tools, try RunningHub for ComfyUI workflows, TapNow for a creative canvas, Jimeng for a simple image-to-video route, or LiblibAI for image workflows. International options are listed below too. You only need one route.</p>
+      <h3>Chinese-language platforms</h3>
       <details open>
+        <summary><strong>RunningHub</strong><span>Run and adapt ComfyUI workflows online</span></summary>
+        <p class="workflow-links"><a href="https://www.runninghub.cn/" target="_blank" rel="noreferrer">Open RunningHub ↗</a> · <a href="https://rhtv.runninghub.cn/" target="_blank" rel="noreferrer">rhTV canvas and templates ↗</a></p>
+        <ol><li>Browse ComfyUI workflows or AI applications. Start with an image-generation template and make your shot images.</li><li>Choose an image-to-video workflow, upload one selected image, and describe the movement. Run a short test before repeating it for the other shots.</li><li>Use a supported audio workflow or generate audio separately. Download the clips and sound, then assemble your final edit.</li></ol>
+        <p class="workflow-tip">Search terms to try: 文生图, 图生视频, 分镜, 音效. Save a screenshot of the workflow and the settings you changed.</p>
+      </details>
+      <details>
+        <summary><strong>LiblibAI / 哩布哩布</strong><span>Find image models and reusable community workflows</span></summary>
+        <p class="workflow-links"><a href="https://www.liblib.art/" target="_blank" rel="noreferrer">Open LiblibAI ↗</a> · <a href="https://insight.liblib.art/teaching/54eb95c2d65645c8ab712feba9b0d96d" target="_blank" rel="noreferrer">Image-editing workflow tutorial (中文) ↗</a></p>
+        <ol><li>Find an image-generation or editing workflow. Choose one that explicitly supports online running.</li><li>Open “在ComfyUI中运行” where available, upload your reference image, and edit the prompt. Create a consistent set of shot images.</li><li>Save the images and animate them in Jimeng, Vidu, RunningHub, or another accessible image-to-video tool. Add sound and finish the edit.</li></ol>
+        <p class="workflow-tip">Some community workflows require local installation or additional models. Read the workflow description before choosing it.</p>
+      </details>
+      <details>
+        <summary><strong>Jimeng / 即梦</strong><span>Generate images, refine them on a canvas, and animate them</span></summary>
+        <p class="workflow-links"><a href="https://jimeng.jianying.com/" target="_blank" rel="noreferrer">Open Jimeng ↗</a> · <a href="https://seed.bytedance.com/zh/blog/official-launch-of-seedance-2-0" target="_blank" rel="noreferrer">Official reference and audio-video examples (中文) ↗</a></p>
+        <ol><li>Use image generation to create your shot images. Use the smart canvas to refine composition or edit selected areas.</li><li>Open video generation, upload a starting image, and describe the subject and camera movement. Use an ending frame if that mode is available and useful.</li><li>Review each clip. Keep generated sound if suitable, or add generated audio separately. Assemble the shots in your video editor.</li></ol>
+        <p class="workflow-tip">Keep the character description, visual style, and aspect ratio consistent across shots.</p>
+      </details>
+      <details>
+        <summary><strong>TapNow</strong><span>Connect text, images, video, and audio on one canvas</span></summary>
+        <p class="workflow-links"><a href="https://www.tapnow.ai/zh" target="_blank" rel="noreferrer">Open TapNow ↗</a> · <a href="https://docs.tapnow.ai/zh/docs" target="_blank" rel="noreferrer">Chinese user guide ↗</a> · <a href="https://docs.tapnow.ai/zh/docs/canvas/understand-nodes-and-connections" target="_blank" rel="noreferrer">Nodes and connections ↗</a></p>
+        <ol><li>Create a canvas or copy a template. Add your idea and references as nodes.</li><li>Generate a shot image, then connect it as a reference for a video node. Repeat for your other shots.</li><li>Generate audio using an available audio node. Download the selected outputs, assemble the final sequence, and save a screenshot of your canvas.</li></ol>
+        <p class="workflow-tip">A connection passes a reference to the next step. Check the selected model’s supported inputs before running it.</p>
+      </details>
+      <h3>More workflow platforms</h3>
+      <details>
         <summary><strong>Freepik Spaces</strong><span>Connect image, video, and audio steps in your browser</span></summary>
         <p class="workflow-links"><a href="https://www.freepik.com/spaces" target="_blank" rel="noreferrer">Open Spaces ↗</a> · <a href="https://www.freepik.com/ai/docs/introduction-to-spaces" target="_blank" rel="noreferrer">Official getting-started guide ↗</a></p>
         <ol>
@@ -116,13 +142,41 @@
         <summary><strong>Other creation websites</strong><span>Useful when you prefer a guided interface for individual steps</span></summary>
         <ul>
           <li><a href="https://www.lovart.ai/" target="_blank" rel="noreferrer"><strong>Lovart</strong> ↗</a> — Develop visual ideas, edit images, and generate video in a design workspace. Suggested route: brief → shot images → revisions → animation → final edit.</li>
-          <li><a href="https://jimeng.jianying.com/" target="_blank" rel="noreferrer"><strong>Jimeng / 即梦</strong> ↗</a> — Use image generation and the canvas to prepare your frames, then use video generation to animate them. This is a creation website where Seedance is available.</li>
           <li><a href="https://hailuoai.video/" target="_blank" rel="noreferrer"><strong>Hailuo AI / 海螺</strong> ↗</a> — MiniMax’s video creation website. Upload your generated image, describe the motion, and review the clip. Explore its <a href="https://www.minimax.io/news/video-agent" target="_blank" rel="noreferrer">Video Agent workflow</a> if available in your account.</li>
           <li><a href="https://www.vidu.com/" target="_blank" rel="noreferrer"><strong>Vidu</strong> ↗</a> — Use Image to Video or Reference to Video to animate your shot images. Download your selected clips and assemble them with sound.</li>
         </ul>
       </details>
       <p class="workflow-tip"><strong>For every route:</strong> Keep your generated images, save two before-and-after examples, and show the tools and steps in your report. Audio may be generated with the video or separately.</p>
       <p class="workflow-tip"><strong>Check access before starting.</strong> Features, supported models, export options, and credits vary by account and region. These tools are optional; use an accessible alternative if needed. A more expensive platform does not earn higher marks.</p>
+    </section>
+
+
+    <section class="suggested-workflows" id="workflow-figures" aria-labelledby="figures-title">
+      <h2 id="figures-title">See how the pieces fit together</h2>
+      <figure class="a1-figure">
+        <figcaption><strong>Figure 1 · A complete workflow</strong><span>Use one platform or combine tools. Both audio routes below are valid.</span></figcaption>
+        <div class="a1-flow-row"><div class="a1-node"><small>01 · PLAN</small><strong>Idea + shot list</strong><span>What happens in 4–6 shots?</span></div><span class="a1-arrow" aria-hidden="true">→</span><div class="a1-node"><small>02 · IMAGE</small><strong>Generate + refine</strong><span>Save one image per shot</span></div><span class="a1-arrow" aria-hidden="true">→</span><div class="a1-node"><small>03 · MOTION</small><strong>Image → video</strong><span>Add action + camera direction</span></div></div>
+        <div class="a1-audio-routes"><div><strong>Route A · Sound with video</strong><p>Use the generated clip and its audio.</p></div><span aria-hidden="true">OR</span><div><strong>Route B · Separate sound</strong><p>Generate music, effects, or narration and align it in the edit.</p></div></div>
+        <div class="a1-finish"><span aria-hidden="true">↓</span><strong>EDIT → EXPORT</strong><span>Arrange shots · trim timing · balance sound · export a 30–60-second MP4</span></div>
+      </figure>
+      <figure class="a1-figure">
+        <figcaption><strong>Figure 2 · One idea, four connected shots</strong><span>Illustrative storyboard: “A paper boat finds its way home.” These are planning sketches, not generated outputs.</span></figcaption>
+        <div class="a1-storyboard"><div class="a1-shot"><svg viewBox="0 0 320 180" role="img" aria-label="Storyboard sketch 1: A boat rests in a rainy alley."><rect width="320" height="180" fill="#dce7ef"/><path d="M0 115L100 60L210 60L320 115V180H0Z" fill="#b2c9d6"/><path d="M0 147Q80 133 160 147T320 147M0 168Q80 154 160 168T320 168" fill="none" stroke="#789aa9" stroke-width="3"/><rect x="240" y="25" width="50" height="91" rx="4" fill="#a5bacb"/><g transform="translate(80 108) scale(0.7)"><path d="M-45 0L0 24L45 0Z" fill="#fff" stroke="#526779" stroke-width="2"/><path d="M-20 0L0 -35L22 0Z" fill="#f6eddc" stroke="#526779" stroke-width="2"/></g></svg><strong>Establish · 0–10 s</strong><p>A boat rests in a rainy alley.</p><small>Sound: Rain + distant street ambience</small></div><div class="a1-shot"><svg viewBox="0 0 320 180" role="img" aria-label="Storyboard sketch 2: It drifts forward; the camera follows."><rect width="320" height="180" fill="#dce7ef"/><path d="M0 115L100 60L210 60L320 115V180H0Z" fill="#b2c9d6"/><path d="M0 147Q80 133 160 147T320 147M0 168Q80 154 160 168T320 168" fill="none" stroke="#789aa9" stroke-width="3"/><rect x="240" y="25" width="50" height="91" rx="4" fill="#a5bacb"/><g transform="translate(150 108) scale(0.9)"><path d="M-45 0L0 24L45 0Z" fill="#fff" stroke="#526779" stroke-width="2"/><path d="M-20 0L0 -35L22 0Z" fill="#f6eddc" stroke="#526779" stroke-width="2"/></g></svg><strong>Follow · 10–20 s</strong><p>It drifts forward; the camera follows.</p><small>Sound: Water + light rain</small></div><div class="a1-shot"><svg viewBox="0 0 320 180" role="img" aria-label="Storyboard sketch 3: A warm doorway appears ahead."><rect width="320" height="180" fill="#dce7ef"/><path d="M0 115L100 60L210 60L320 115V180H0Z" fill="#b2c9d6"/><path d="M0 147Q80 133 160 147T320 147M0 168Q80 154 160 168T320 168" fill="none" stroke="#789aa9" stroke-width="3"/><rect x="240" y="25" width="50" height="91" rx="4" fill="#efc77e"/><g transform="translate(210 108) scale(0.65)"><path d="M-45 0L0 24L45 0Z" fill="#fff" stroke="#526779" stroke-width="2"/><path d="M-20 0L0 -35L22 0Z" fill="#f6eddc" stroke="#526779" stroke-width="2"/></g></svg><strong>Discover · 20–30 s</strong><p>A warm doorway appears ahead.</p><small>Sound: Water + a soft musical cue</small></div><div class="a1-shot"><svg viewBox="0 0 320 180" role="img" aria-label="Storyboard sketch 4: The boat settles beside the doorstep."><rect width="320" height="180" fill="#dce7ef"/><path d="M0 115L100 60L210 60L320 115V180H0Z" fill="#b2c9d6"/><path d="M0 147Q80 133 160 147T320 147M0 168Q80 154 160 168T320 168" fill="none" stroke="#789aa9" stroke-width="3"/><rect x="240" y="25" width="50" height="91" rx="4" fill="#efc77e"/><g transform="translate(220 108) scale(0.9)"><path d="M-45 0L0 24L45 0Z" fill="#fff" stroke="#526779" stroke-width="2"/><path d="M-20 0L0 -35L22 0Z" fill="#f6eddc" stroke="#526779" stroke-width="2"/></g></svg><strong>Arrive · 30–40 s</strong><p>The boat settles beside the doorstep.</p><small>Sound: Rain fades; music resolves</small></div></div>
+        <p class="workflow-tip">This example totals 40 seconds. Keep the same boat, palette, and lighting; change the framing and action. You may use any subject or style.</p>
+      </figure>
+    </section>
+    <section class="suggested-workflows" id="technical-resources" aria-labelledby="resources-title">
+      <h2 id="resources-title">Technical resources · use what you need</h2>
+      <p>These are optional references. Start with the guide for your chosen tool; you do not need to read everything.</p>
+      <ul class="a1-resources">
+        <li><a href="https://docs.comfy.org/get_started/first_generation" target="_blank" rel="noreferrer"><strong>ComfyUI: your first image</strong> ↗</a><span>Load a template, run it, save an image, and export the workflow.</span></li>
+        <li><a href="https://docs.comfy.org/tutorials/video/wan/wan2_2" target="_blank" rel="noreferrer"><strong>ComfyUI: image-to-video with Wan 2.2</strong> ↗</a><span>Workflow examples, model requirements, input images, and settings. Choose a workflow supported by your machine or cloud service.</span></li>
+        <li><a href="https://www.liblib.art/activities/388fcb1b3f5b42838bc20af2cfdf9351/Confyui_Expand" target="_blank" rel="noreferrer"><strong>LiblibAI: extend an image (中文)</strong> ↗</a><span>Learn outpainting when a shot needs more space around its subject.</span></li>
+        <li><a href="https://docs.tapnow.ai/zh/docs/canvas/understand-nodes-and-connections" target="_blank" rel="noreferrer"><strong>TapNow: connect nodes (中文)</strong> ↗</a><span>Understand how text, image, video, and audio references move between steps.</span></li>
+        <li><a href="https://docs.tapnow.ai/zh/docs" target="_blank" rel="noreferrer"><strong>TapNow: image, video, and audio guides (中文)</strong> ↗</a><span>In “在画布中制作,” choose the media type you want to generate or edit.</span></li>
+        <li><a href="https://docs.comfy.org/tutorials/partner-nodes/bytedance/seedance-2-0" target="_blank" rel="noreferrer"><strong>Seedance in ComfyUI: reference workflows</strong> ↗</a><span>Examples for using references and first/last frames, including audio-video generation.</span></li>
+      </ul>
+      <details><summary><strong>Quick tips for your first experiment</strong><span>Small changes make results easier to understand</span></summary><ul><li><strong>Image prompt:</strong> Describe the subject, setting, composition, lighting, and style.</li><li><strong>Motion prompt:</strong> Describe what moves and how the camera moves. Start with one clear action.</li><li><strong>Consistency:</strong> Reuse references and keep the aspect ratio the same across shots.</li><li><strong>Comparison:</strong> Change one thing at a time. Keep the model and available settings fixed; if seeds cannot be fixed, note that randomness can affect the result.</li><li><strong>Sound:</strong> Listen to the full edit. Keep narration clear and avoid abrupt changes in volume.</li></ul></details>
     </section>
 
     <p class="assignment-note"><strong>Keep it simple.</strong> Use any accessible tools. Coding and paid subscriptions are not required. We value thoughtful choices and what you learn; expensive tools or high resolution do not automatically earn higher marks.</p>
