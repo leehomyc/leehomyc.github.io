@@ -433,3 +433,18 @@ footer > p { margin: 8px 0 46px; color: #86868b; }
 .assignment-note { padding: 24px; border-left: 3px solid #8272d1; background: #fff; line-height: 1.7; margin-top: 30px; }
 .deadline-strip a { text-decoration: underline; text-underline-offset: 4px; }
 @media (max-width: 760px) { .assignment-columns { grid-template-columns: 1fr; gap: 30px; } .assignment-flow { padding: 18px; gap: 8px; } }
+
+/* Optional assignment workflows */
+.workflow-jump { margin: 20px 0; line-height: 1.6; }
+.workflow-jump a, .suggested-workflows a { text-decoration: underline; text-underline-offset: 3px; }
+.suggested-workflows { margin-top: 48px; padding-top: 32px; border-top: 1px solid #d7d9e2; scroll-margin-top: 90px; }
+.suggested-workflows h2 { font-size: 28px; margin-bottom: 16px; }
+.suggested-workflows p, .suggested-workflows li { line-height: 1.7; }
+.suggested-workflows details { background: #fff; border: 1px solid #d7d9e2; border-radius: 16px; margin: 16px 0; padding: 20px 24px; }
+.suggested-workflows summary { cursor: pointer; font-size: 18px; line-height: 1.6; }
+.suggested-workflows summary span { display: block; font-size: 15px; color: #53566a; margin-left: 20px; }
+.suggested-workflows ol { padding-left: 24px; margin-top: 20px; }
+.suggested-workflows li { margin-bottom: 10px; }
+.suggested-workflows .workflow-tip { font-size: 15px; color: #454759; }
+.workflow-links { font-size: 15px; }
+@media (max-width: 760px) { .suggested-workflows details { padding: 16px; } }

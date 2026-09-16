@@ -9,7 +9,7 @@
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
   <title>Assignment 1: From Images to Film — AMCC 5160</title>
-  <link rel="stylesheet" href="../styles.css?v=20260916-assignment1">
+  <link rel="stylesheet" href="../styles.css?v=20260916-workflows">
   <script src="../site.js?v=20260901-tight" defer></script>
 </head>
 <body id="top">
@@ -27,6 +27,7 @@
     <p class="assignment-intro">Make a <strong>30–60-second video with sound</strong>. Use generative AI to create images, turn them into video clips, and create at least one audio element. Edit these into a finished piece that tells a story, expresses an idea, or creates a mood.</p>
     <p class="assignment-due">Due <time datetime="2026-09-30T23:59:00+08:00">September 30, 2026 · 23:59 HKT</time></p>
     <p class="assignment-flow" aria-label="Workflow">Plan <span aria-hidden="true">→</span> Generate images <span aria-hidden="true">→</span> Animate <span aria-hidden="true">→</span> Add sound <span aria-hidden="true">→</span> Edit</p>
+    <p class="workflow-jump"><a href="#suggested-workflows">Need a starting point? See suggested ComfyUI, Seedance, and Vidu workflows ↓</a></p>
     <div class="assignment-columns">
       <div>
         <h2 style="font-size:24px;margin:0 0 24px">Follow these five steps</h2>
@@ -65,6 +66,45 @@
         </table>
       </div>
     </div>
+
+    <section class="suggested-workflows" id="suggested-workflows" aria-labelledby="workflow-title">
+      <h2 id="workflow-title">Suggested workflows</h2>
+      <p>Choose <strong>one route</strong> below, or use tools you already know. These are starting points, not extra assignment requirements. In every route, generate your images first, animate them, and edit the results into your final video.</p>
+      <details open>
+        <summary><strong>1. ComfyUI → Seedance or Vidu → final edit</strong><span>For a visual, reusable workflow</span></summary>
+        <ol>
+          <li>Open ComfyUI and load an <strong>Image Generation</strong> template. Follow the model setup in the beginner guide, then generate and save an image for each planned shot.</li>
+          <li>For video, load the official <strong>Seedance reference-to-video template</strong>, attach your saved images, describe the movement and sound, and run it. Alternatively, upload the images to Vidu using route 3 below.</li>
+          <li>Review the generated sound if included. Add or replace audio where needed, then assemble the clips in your usual video editor.</li>
+          <li>Save a screenshot of your workflow for the report. You can also export the ComfyUI workflow as JSON for your own records.</li>
+        </ol>
+        <p class="workflow-links"><a href="https://docs.comfy.org/get_started/first_generation" target="_blank" rel="noreferrer">ComfyUI beginner guide ↗</a> · <a href="https://blog.comfy.org/p/seedance-25-is-now-available-via" target="_blank" rel="noreferrer">Seedance 2.5 templates ↗</a> · <a href="https://docs.comfy.org/tutorials/partner-nodes/bytedance/seedance-2-0" target="_blank" rel="noreferrer">Seedance 2.0 guide ↗</a></p>
+        <p class="workflow-tip">ComfyUI is the workflow interface. Seedance Partner Nodes run through a hosted service and require a Comfy account and paid credits; they do not run Seedance locally. <a href="https://docs.comfy.org/tutorials/partner-nodes/overview" target="_blank" rel="noreferrer">Account and credit requirements ↗</a></p>
+      </details>
+      <details>
+        <summary><strong>2. Image generator → Seedance → final edit</strong><span>For a browser-based workflow</span></summary>
+        <ol>
+          <li>Create your shot images with an image generator you can access. Use a consistent character description, style, and aspect ratio.</li>
+          <li>Open a service offering Seedance, such as Jimeng. Choose an available image/reference-to-video mode and upload your generated image.</li>
+          <li>Describe the subject action, camera movement, and desired sound. Start with one short shot, review it, and repeat for the remaining shots.</li>
+          <li>Keep or revise the generated audio, then trim and combine the clips in a video editor to reach 30–60 seconds.</li>
+        </ol>
+        <p class="workflow-links"><a href="https://seed.bytedance.com/en/blog/one-take-creation-flexible-referencing-introducing-seedance-2-5" target="_blank" rel="noreferrer">Official Seedance 2.5 guide and access options ↗</a></p>
+      </details>
+      <details>
+        <summary><strong>3. Image generator → Vidu → final edit</strong><span>For animating one shot at a time</span></summary>
+        <ol>
+          <li>Create and save your shot images using ComfyUI or another image generator.</li>
+          <li>In Vidu, choose <strong>Image to Video</strong>, upload one image, and describe the movement. Use <strong>Reference to Video</strong> when you want reference images to guide a recurring subject or scene.</li>
+          <li>Generate and review each shot. Use audio generation if your selected model and interface support it. Otherwise, generate music, sound effects, or narration separately and add it in the edit.</li>
+          <li>Download your selected clips, arrange them in order, and balance the audio before exporting.</li>
+        </ol>
+        <p class="workflow-links"><a href="https://www.vidu.com/" target="_blank" rel="noreferrer">Open Vidu ↗</a> · <a href="https://platform.vidu.com/docs/function-list" target="_blank" rel="noreferrer">Official feature guide ↗</a> · <a href="https://platform.vidu.com/docs/image-to-video" target="_blank" rel="noreferrer">Image-to-video and audio reference ↗</a></p>
+      </details>
+      <p class="workflow-tip"><strong>Try one shot first.</strong> Example motion prompt: “The paper boat drifts across the puddle. The camera slowly follows it at water level. Keep the soft blue evening light. Sound: gentle rain and quiet street ambience.” Adjust one part, compare the result, and save the comparison for your report.</p>
+      <p class="workflow-tip"><strong>Audio can be generated with the video or separately.</strong> Either approach meets the audio requirement. Tool versions, availability, and credits vary; check the service before generating. These specific tools are optional, and you do not need to buy a subscription for this assignment.</p>
+    </section>
+
     <p class="assignment-note"><strong>Keep it simple.</strong> Use any accessible tools. Coding and paid subscriptions are not required. We value thoughtful choices and what you learn; expensive tools or high resolution do not automatically earn higher marks.</p>
   </section>
   <footer><div class="footer-title">AMCC 5160</div><p>Assignment 1 · From Images to Film</p><div class="footer-links"><a href="../#assessment">← Course assessment</a><a href="https://canvas.ust.hk/courses/71833" target="_blank" rel="noreferrer">HKUST Canvas ↗</a><a href="#top">Back to top ↑</a></div></footer>
