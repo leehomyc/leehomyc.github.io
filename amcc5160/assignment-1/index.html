@@ -27,7 +27,7 @@
     <p class="assignment-intro">Make a <strong>30–60-second video with sound</strong>. Use generative AI to create images, turn them into video clips, and create at least one audio element. Edit these into a finished piece that tells a story, expresses an idea, or creates a mood.</p>
     <p class="assignment-due">Due <time datetime="2026-09-30T23:59:00+08:00">September 30, 2026 · 23:59 HKT</time></p>
     <p class="assignment-flow" aria-label="Workflow">Plan <span aria-hidden="true">→</span> Generate images <span aria-hidden="true">→</span> Animate <span aria-hidden="true">→</span> Add sound <span aria-hidden="true">→</span> Edit</p>
-    <p class="workflow-jump"><a href="#suggested-workflows">Need a starting point? See suggested ComfyUI, Seedance, and Vidu workflows ↓</a></p>
+    <p class="workflow-jump"><a href="#suggested-workflows">Need a starting point? Explore workflow tools and creation websites ↓</a></p>
     <div class="assignment-columns">
       <div>
         <h2 style="font-size:24px;margin:0 0 24px">Follow these five steps</h2>
@@ -68,41 +68,61 @@
     </div>
 
     <section class="suggested-workflows" id="suggested-workflows" aria-labelledby="workflow-title">
-      <h2 id="workflow-title">Suggested workflows</h2>
-      <p>Choose <strong>one route</strong> below, or use tools you already know. These are starting points, not extra assignment requirements. In every route, generate your images first, animate them, and edit the results into your final video.</p>
+      <h2 id="workflow-title">Suggested workflow tools and websites</h2>
+      <p>Choose one workspace to organize your images, video, and sound. The options below link to actual creation tools, with a suggested route for this assignment. A <strong>node</strong> is simply one step in a visual workflow, such as generating an image or animating it.</p>
+      <p><strong>Where to start:</strong> Try Freepik Spaces for a browser canvas, LTX Studio for a storyboard and editing workflow, or ComfyUI for more control. You only need one route.</p>
       <details open>
-        <summary><strong>1. ComfyUI → Seedance or Vidu → final edit</strong><span>For a visual, reusable workflow</span></summary>
+        <summary><strong>Freepik Spaces</strong><span>Connect image, video, and audio steps in your browser</span></summary>
+        <p class="workflow-links"><a href="https://www.freepik.com/spaces" target="_blank" rel="noreferrer">Open Spaces ↗</a> · <a href="https://www.freepik.com/ai/docs/introduction-to-spaces" target="_blank" rel="noreferrer">Official getting-started guide ↗</a></p>
         <ol>
-          <li>Open ComfyUI and load an <strong>Image Generation</strong> template. Follow the model setup in the beginner guide, then generate and save an image for each planned shot.</li>
-          <li>For video, load the official <strong>Seedance reference-to-video template</strong>, attach your saved images, describe the movement and sound, and run it. Alternatively, upload the images to Vidu using route 3 below.</li>
-          <li>Review the generated sound if included. Add or replace audio where needed, then assemble the clips in your usual video editor.</li>
-          <li>Save a screenshot of your workflow for the report. You can also export the ComfyUI workflow as JSON for your own records.</li>
+          <li>Create a Space or start from a template. Add your idea and reference images.</li>
+          <li>Connect a prompt to an image-generation node. Review the image, then feed your chosen result into a video-generation node.</li>
+          <li>Repeat for your planned shots. Add an audio step, such as voiceover, where available.</li>
+          <li>Export your clips and audio, then assemble the final 30–60-second video in your editor. Save a screenshot of the connected steps.</li>
         </ol>
-        <p class="workflow-links"><a href="https://docs.comfy.org/get_started/first_generation" target="_blank" rel="noreferrer">ComfyUI beginner guide ↗</a> · <a href="https://blog.comfy.org/p/seedance-25-is-now-available-via" target="_blank" rel="noreferrer">Seedance 2.5 templates ↗</a> · <a href="https://docs.comfy.org/tutorials/partner-nodes/bytedance/seedance-2-0" target="_blank" rel="noreferrer">Seedance 2.0 guide ↗</a></p>
-        <p class="workflow-tip">ComfyUI is the workflow interface. Seedance Partner Nodes run through a hosted service and require a Comfy account and paid credits; they do not run Seedance locally. <a href="https://docs.comfy.org/tutorials/partner-nodes/overview" target="_blank" rel="noreferrer">Account and credit requirements ↗</a></p>
       </details>
       <details>
-        <summary><strong>2. Image generator → Seedance → final edit</strong><span>For a browser-based workflow</span></summary>
+        <summary><strong>LTX Studio / Flows</strong><span>Develop a storyboard, generate shots, and edit a sequence</span></summary>
+        <p class="workflow-links"><a href="https://website.ltx.studio/" target="_blank" rel="noreferrer">Open LTX Studio ↗</a> · <a href="https://ltx.io/blog/ltx-studio-flows" target="_blank" rel="noreferrer">Build your first Flow ↗</a></p>
         <ol>
-          <li>Create your shot images with an image generator you can access. Use a consistent character description, style, and aspect ratio.</li>
-          <li>Open a service offering Seedance, such as Jimeng. Choose an available image/reference-to-video mode and upload your generated image.</li>
-          <li>Describe the subject action, camera movement, and desired sound. Start with one short shot, review it, and repeat for the remaining shots.</li>
-          <li>Keep or revise the generated audio, then trim and combine the clips in a video editor to reach 30–60 seconds.</li>
+          <li>Start with your concept or script and develop a 4–6-shot storyboard.</li>
+          <li>Generate and refine the shot images, then animate the selected images. Reuse character and setting references across shots.</li>
+          <li>Arrange the clips in the timeline and work on pacing and sound. If a feature is unavailable on your plan, finish that step in your usual editor.</li>
+          <li>For a visible workflow diagram, explore Flows: connect prompts, image generation, and video generation, and save a screenshot for your report.</li>
         </ol>
-        <p class="workflow-links"><a href="https://seed.bytedance.com/en/blog/one-take-creation-flexible-referencing-introducing-seedance-2-5" target="_blank" rel="noreferrer">Official Seedance 2.5 guide and access options ↗</a></p>
       </details>
       <details>
-        <summary><strong>3. Image generator → Vidu → final edit</strong><span>For animating one shot at a time</span></summary>
+        <summary><strong>ComfyUI / Comfy Cloud</strong><span>Build or adapt a reusable node workflow</span></summary>
+        <p class="workflow-links"><a href="https://cloud.comfy.org/" target="_blank" rel="noreferrer">Open Comfy Cloud ↗</a> · <a href="https://comfy.org/" target="_blank" rel="noreferrer">ComfyUI and workflow gallery ↗</a> · <a href="https://docs.comfy.org/get_started/first_generation" target="_blank" rel="noreferrer">Beginner tutorial ↗</a></p>
         <ol>
-          <li>Create and save your shot images using ComfyUI or another image generator.</li>
-          <li>In Vidu, choose <strong>Image to Video</strong>, upload one image, and describe the movement. Use <strong>Reference to Video</strong> when you want reference images to guide a recurring subject or scene.</li>
-          <li>Generate and review each shot. Use audio generation if your selected model and interface support it. Otherwise, generate music, sound effects, or narration separately and add it in the edit.</li>
-          <li>Download your selected clips, arrange them in order, and balance the audio before exporting.</li>
+          <li>Open Comfy Cloud, or install ComfyUI on a suitable computer. Start with an image-generation template.</li>
+          <li>Generate and save your shot images. Load an image-to-video template and use your chosen image as its input.</li>
+          <li>Run one shot, inspect the result, and adjust the prompt or settings. Generate sound with a supported workflow or add it separately.</li>
+          <li>Save the workflow and selected outputs. Assemble the clips and sound in your video editor.</li>
         </ol>
-        <p class="workflow-links"><a href="https://www.vidu.com/" target="_blank" rel="noreferrer">Open Vidu ↗</a> · <a href="https://platform.vidu.com/docs/function-list" target="_blank" rel="noreferrer">Official feature guide ↗</a> · <a href="https://platform.vidu.com/docs/image-to-video" target="_blank" rel="noreferrer">Image-to-video and audio reference ↗</a></p>
+        <p class="workflow-tip">Choose templates supported by your setup. Local workflows need suitable hardware and model files; Cloud and hosted Partner Nodes may require credits. <a href="https://docs.comfy.org/tutorials/partner-nodes/overview" target="_blank" rel="noreferrer">Partner Node requirements ↗</a></p>
       </details>
-      <p class="workflow-tip"><strong>Try one shot first.</strong> Example motion prompt: “The paper boat drifts across the puddle. The camera slowly follows it at water level. Keep the soft blue evening light. Sound: gentle rain and quiet street ambience.” Adjust one part, compare the result, and save the comparison for your report.</p>
-      <p class="workflow-tip"><strong>Audio can be generated with the video or separately.</strong> Either approach meets the audio requirement. Tool versions, availability, and credits vary; check the service before generating. These specific tools are optional, and you do not need to buy a subscription for this assignment.</p>
+      <details>
+        <summary><strong>Figma Weave (formerly Weavy)</strong><span>Combine generation and visual editing on a node canvas</span></summary>
+        <p class="workflow-links"><a href="https://weave.figma.com/" target="_blank" rel="noreferrer">Explore Weave and workflow examples ↗</a> · <a href="https://app.weavy.ai/" target="_blank" rel="noreferrer">Open the workspace ↗</a></p>
+        <ol>
+          <li>Start from a workflow example and add your reference image or prompt.</li>
+          <li>Generate image variations and refine the selected image with editing steps such as cropping, masking, or relighting.</li>
+          <li>Use an available video-generation step to animate it, or export the image to one of the video websites below.</li>
+          <li>Repeat for your shots, then add generated audio and finish the sequence in a video editor. Capture the workflow for your report.</li>
+        </ol>
+      </details>
+      <details>
+        <summary><strong>Other creation websites</strong><span>Useful when you prefer a guided interface for individual steps</span></summary>
+        <ul>
+          <li><a href="https://www.lovart.ai/" target="_blank" rel="noreferrer"><strong>Lovart</strong> ↗</a> — Develop visual ideas, edit images, and generate video in a design workspace. Suggested route: brief → shot images → revisions → animation → final edit.</li>
+          <li><a href="https://jimeng.jianying.com/" target="_blank" rel="noreferrer"><strong>Jimeng / 即梦</strong> ↗</a> — Use image generation and the canvas to prepare your frames, then use video generation to animate them. This is a creation website where Seedance is available.</li>
+          <li><a href="https://hailuoai.video/" target="_blank" rel="noreferrer"><strong>Hailuo AI / 海螺</strong> ↗</a> — MiniMax’s video creation website. Upload your generated image, describe the motion, and review the clip. Explore its <a href="https://www.minimax.io/news/video-agent" target="_blank" rel="noreferrer">Video Agent workflow</a> if available in your account.</li>
+          <li><a href="https://www.vidu.com/" target="_blank" rel="noreferrer"><strong>Vidu</strong> ↗</a> — Use Image to Video or Reference to Video to animate your shot images. Download your selected clips and assemble them with sound.</li>
+        </ul>
+      </details>
+      <p class="workflow-tip"><strong>For every route:</strong> Keep your generated images, save two before-and-after examples, and show the tools and steps in your report. Audio may be generated with the video or separately.</p>
+      <p class="workflow-tip"><strong>Check access before starting.</strong> Features, supported models, export options, and credits vary by account and region. These tools are optional; use an accessible alternative if needed. A more expensive platform does not earn higher marks.</p>
     </section>
 
     <p class="assignment-note"><strong>Keep it simple.</strong> Use any accessible tools. Coding and paid subscriptions are not required. We value thoughtful choices and what you learn; expensive tools or high resolution do not automatically earn higher marks.</p>
