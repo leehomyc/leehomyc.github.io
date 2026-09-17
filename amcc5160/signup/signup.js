@@ -5,7 +5,7 @@
   const weeklySessions = [
     ['02', 'Sep 8'], ['03', 'Sep 15'], ['04', 'Sep 22'], ['05', 'Sep 29'], ['06', 'Oct 6'],
     ['07', 'Oct 13'], ['08', 'Oct 20'], ['09', 'Oct 27'], ['10', 'Nov 3'], ['11', 'Nov 10']
-  ].map(([week, date]) => ({ id: `weekly-${week}`, type: 'weekly', eyebrow: `Week ${week}`, title: date, slotCount: 9, backupSlot: 9 }));
+  ].map(([week, date]) => ({ id: `weekly-${week}`, type: 'weekly', eyebrow: `Week ${week}`, title: date, slotCount: 10, backupSlots: [9, 10] }));
   const finalSessions = [
     { id: 'final-12', type: 'final', eyebrow: 'Final presentations I', title: 'Nov 17', slotCount: 40 },
     { id: 'final-13', type: 'final', eyebrow: 'Final presentations II', title: 'Nov 24', slotCount: 40 }
@@ -52,7 +52,7 @@
   }
 
   function spotName(session, number) {
-    return session.backupSlot === Number(number) ? 'Backup spot' : `Slot ${Number(number)}`;
+    return session.backupSlots?.includes(Number(number)) ? `Backup spot ${Number(number) - 8}` : `Slot ${Number(number)}`;
   }
 
   function slotLabel(slotId) {
@@ -126,10 +126,10 @@
       const remaining = session.slotCount - takenCount;
       count.className = `capacity-badge${remaining === 0 ? ' full' : ''}`;
       count.innerHTML = remaining === 0 ? '<strong>Full</strong><small>0 slots left</small>' : `<strong>${remaining}</strong><small>${remaining === 1 ? 'slot' : 'slots'} left</small>`;
-      if (session.backupSlot) {
-        const backupStatus = occupied.has(`${session.id}-${session.backupSlot}`) ? 'reserved' : 'available';
-        const regularRemaining = remaining - (backupStatus === 'available' ? 1 : 0);
-        count.innerHTML = `<strong>${regularRemaining} regular</strong><small>Backup spot ${backupStatus}</small>`;
+      if (session.backupSlots) {
+        const backupRemaining = session.backupSlots.filter(number => !occupied.has(`${session.id}-${number}`)).length;
+        const regularRemaining = remaining - backupRemaining;
+        count.innerHTML = `<strong>${regularRemaining} regular</strong><small>${backupRemaining} of 2 backup spots available</small>`;
       }
       heading.append(eyebrow, title, count);
 
