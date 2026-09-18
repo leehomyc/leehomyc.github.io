@@ -4,16 +4,16 @@
   const API_URL = window.AMCC6090_ATTENDANCE_API || '';
   const sessions = [
     ['01', 'Sep 04', '2026-09-04T18:30:00+08:00', '2026-09-04T19:20:00+08:00', '2026-09-04T23:59:59+08:00', 'Dengyang Jiang — Self-distillation in generative AI, towards native self-evolving in all training stages'],
-    ['02', 'Sep 11', '2026-09-11T18:30:00+08:00', '2026-09-11T19:20:00+08:00', '2026-09-11T23:59:59+08:00', 'Speaker to be announced'],
-    ['03', 'Sep 18', '2026-09-18T18:30:00+08:00', '2026-09-18T19:20:00+08:00', '2026-09-18T23:59:59+08:00', 'Speaker to be announced'],
+    ['02', 'Sep 11', '2026-09-11T18:30:00+08:00', '2026-09-11T19:20:00+08:00', '2026-09-11T23:59:59+08:00', 'Yexin Liu — Research and internship experience'],
+    ['03', 'Sep 18', '2026-09-18T18:30:00+08:00', '2026-09-18T19:20:00+08:00', '2026-09-18T23:59:59+08:00', 'Taehwan Kim — Towards Human-like Multimodal Generative and Interactive AI'],
     ['04', 'Sep 25', '2026-09-25T18:30:00+08:00', '2026-09-25T19:20:00+08:00', '2026-09-25T23:59:59+08:00', 'Speaker to be announced'],
     ['05', 'Oct 02', '2026-10-02T18:30:00+08:00', '2026-10-02T19:20:00+08:00', '2026-10-02T23:59:59+08:00', 'Speaker to be announced'],
     ['06', 'Oct 09', '2026-10-09T18:30:00+08:00', '2026-10-09T19:20:00+08:00', '2026-10-09T23:59:59+08:00', 'Speaker to be announced'],
-    ['07', 'Oct 16', '2026-10-16T18:30:00+08:00', '2026-10-16T19:20:00+08:00', '2026-10-16T23:59:59+08:00', 'Speaker to be announced'],
+    ['07', 'Oct 16', '2026-10-16T18:30:00+08:00', '2026-10-16T19:20:00+08:00', '2026-10-16T23:59:59+08:00', 'Jiajun Zha — HKUST · Talk title to be announced'],
     ['08', 'Oct 23', '2026-10-23T18:30:00+08:00', '2026-10-23T19:20:00+08:00', '2026-10-23T23:59:59+08:00', 'Speaker to be announced'],
     ['09', 'Oct 30', '2026-10-30T18:30:00+08:00', '2026-10-30T19:20:00+08:00', '2026-10-30T23:59:59+08:00', 'Speaker to be announced'],
-    ['10', 'Nov 06', '2026-11-06T18:30:00+08:00', '2026-11-06T19:20:00+08:00', '2026-11-06T23:59:59+08:00', 'Speaker to be announced'],
-    ['11', 'Nov 13', '2026-11-13T18:30:00+08:00', '2026-11-13T19:20:00+08:00', '2026-11-13T23:59:59+08:00', 'Speaker to be announced'],
+    ['10', 'Nov 06', '2026-11-06T18:30:00+08:00', '2026-11-06T19:20:00+08:00', '2026-11-06T23:59:59+08:00', 'Tae-Hyun Oh — KAIST · Talk title to be announced'],
+    ['11', 'Nov 13', '2026-11-13T18:30:00+08:00', '2026-11-13T19:20:00+08:00', '2026-11-13T23:59:59+08:00', 'Sunil Manghani — University of Southampton · Talk title to be announced'],
     ['12', 'Nov 20', '2026-11-20T18:30:00+08:00', '2026-11-20T19:20:00+08:00', '2026-11-20T23:59:59+08:00', 'Speaker to be announced'],
     ['13', 'Nov 27', '2026-11-27T18:30:00+08:00', '2026-11-27T19:20:00+08:00', '2026-11-27T23:59:59+08:00', 'Speaker to be announced']
   ].map(([id, date, opensAt, endsAt, closesAt, title]) => ({ id, date, opensAt, endsAt, closesAt, title }));
@@ -51,10 +51,12 @@
     return label;
   }
 
+  const escapeHtml = value => String(value).replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
+
   function optionMarkup(items, emptyLabel = 'Choose a seminar…', includeWindow = false) {
     return `<option value="">${emptyLabel}</option>` + items.map(session => {
       // Keep sessions selectable; the attendance window gates the entry fields.
-      return `<option value="${session.id}">${sessionLabel(session, includeWindow)}</option>`;
+      return `<option value="${session.id}">${escapeHtml(sessionLabel(session, includeWindow))}</option>`;
     }).join('');
   }
 
@@ -175,7 +177,9 @@
     if (pastSessions.some(session => session.id === lookupSelected)) lookupSession.value = lookupSelected;
     lookupSession.disabled = pastSessions.length === 0;
     lookupSubmitButton.disabled = pastSessions.length === 0;
-    if (!editing) setNewAttendanceAvailability(sessions.find(session => session.id === selected));
+    const selectedSession = sessions.find(session => session.id === selected);
+    document.getElementById('session-summary').textContent = selectedSession ? sessionLabel(selectedSession) : 'Choose the seminar you attended.';
+    if (!editing) setNewAttendanceAvailability(selectedSession);
   }
 
   function showStatus(message, kind = '') {
@@ -200,6 +204,25 @@
   }
 
   async function refreshSpeakerTitles() {
+    // The published course page is the source for manually confirmed speakers.
+    // Apply the public service afterwards, just as the course page does.
+    try {
+      const response = await fetch('../', { cache: 'no-cache' });
+      if (!response.ok) throw new Error('Course schedule unavailable');
+      const schedule = new DOMParser().parseFromString(await response.text(), 'text/html');
+      schedule.querySelectorAll('.session').forEach(card => {
+        const id = card.querySelector('.session-date b')?.textContent.trim();
+        const session = sessions.find(item => item.id === id);
+        const name = card.querySelector('.session-main h3')?.textContent.trim();
+        const title = card.querySelector('.session-main > span')?.textContent.trim();
+        if (session && name) {
+          session.title = name + (name !== 'Speaker to be announced' && title ? ` — ${title}` : '');
+        }
+      });
+      refreshSessionOptions();
+    } catch (_) {
+      // Keep the bundled labels if the course page cannot be loaded.
+    }
     try {
       const result = await request({ action: 'speaker-public-list' });
       (result.speakers || []).forEach(speaker => {
