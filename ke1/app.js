@@ -208,7 +208,7 @@
     const index = bank.questions.findIndex(item => item.id === q.id);
     const saved = displayedAnswer();
     $('total').textContent = bank.questions.length.toLocaleString() + ' 道题 · 全部连续练习';
-    $('type').textContent = q.supplemental ? '补充练习 · ' + (q.type === 'judgement' ? '判断题' : '单选题') : q.newRuleFlag ? '2026新规题' : q.type === 'judgement' ? '判断题' : '单选题';
+    $('type').textContent = q.supplemental ? (q.originalPractice ? '原创练习 · ' : '补充练习 · ') + (q.type === 'judgement' ? '判断题' : '单选题') : q.newRuleFlag ? '2026新规题' : q.type === 'judgement' ? '判断题' : '单选题';
     $('number').textContent = String(index + 1).padStart(4, '0') + ' / ' + bank.questions.length;
     $('question').textContent = q.question_zh;
     renderImage(q);
@@ -470,7 +470,7 @@
     bankLoading = true; $('retry-bank').hidden = true;
     try {
       const raw = await deadline((async () => {
-        const response = await fetch('data/questions.json?v=20260920-reviewed73', {cache:'no-cache'});
+        const response = await fetch('data/questions.json?v=20260920-original60', {cache:'no-cache'});
         if (!response.ok) throw new Error('题库不可用');
         return response.json();
       })(), 12000, '题库加载超时');

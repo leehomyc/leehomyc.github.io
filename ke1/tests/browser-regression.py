@@ -45,8 +45,8 @@ check('guest answer survives refresh',await page.locator('#done').innerText()===
 check('answer remains visible after refresh',(await page.locator('#feedback-label').innerText()).includes('回答正确'));
 await page.locator('#next').click();
 check('no stale image on text-only question',await page.locator('#question-image').isHidden());
-for(const value of ['1.5','0','-1','999999']){await page.locator('#jump-input').fill(value);await page.locator('#jump').click();check('reject '+value,await page.locator('#number').innerText()==='0002 / 2847');}
-await page.locator('#jump-input').fill('2847');await page.locator('#jump').click();await page.locator('.option').first().click();await page.locator('#next').click();
+for(const value of ['1.5','0','-1','999999']){await page.locator('#jump-input').fill(value);await page.locator('#jump').click();check('reject '+value,await page.locator('#number').innerText()==='0002 / 2907');}
+await page.locator('#jump-input').fill('2907');await page.locator('#jump').click();await page.locator('.option').first().click();await page.locator('#next').click();
 check('last question is not all complete',(await page.locator('#practice-message').innerText()).includes('题未答'));
 ''')
 setup()
@@ -80,11 +80,11 @@ check('no empty answer maps',await page.evaluate(()=>__mock.writes.every(w=>!('a
 ''')
 setup({'user':{'uid':'audit-user','email':'audit@example.invalid','emailVerified':True},'documents':{'audit-user':{'ke1Progress':{'index':123,'answers':{}}}}},delay=700)
 run('restore_and_logout', '''
-check('restore waits for bank',await page.locator('#number').innerText()==='0124 / 2847');
+check('restore waits for bank',await page.locator('#number').innerText()==='0124 / 2907');
 await page.locator('.option').first().click();await page.evaluate(()=>__mock.writePending=true);await page.waitForTimeout(1500);
 await page.locator('#logout').click();
 check('logout not blocked by pending write',await page.locator('#account-button').innerText()==='登录同步');
-check('logout resets displayed question',await page.locator('#number').innerText()==='0001 / 2847');
+check('logout resets displayed question',await page.locator('#number').innerText()==='0001 / 2907');
 check('logout clears displayed account stats',await page.locator('#done').innerText()==='0');
 await page.locator('.option:not(:disabled)').first().waitFor();check('guest can answer after logout',await page.locator('.option:not(:disabled)').count()===2);
 ''')
@@ -111,7 +111,7 @@ setup(block_images=True)
 run('image_failure', '''
 check('image failure explained',(await page.locator('#image-message').innerText()).includes('加载失败'));
 check('cannot blindly answer',await page.locator('.option:not(:disabled)').count()===0);
-await page.locator('#skip').click();check('can skip failed image',await page.locator('#number').innerText()==='0002 / 2847');
+await page.locator('#skip').click();check('can skip failed image',await page.locator('#number').innerText()==='0002 / 2907');
 ''')
 setup({'user':{'uid':'audit-user','email':'audit@example.invalid','emailVerified':True}})
 run('remote_updates_and_transaction_merge','''
@@ -136,14 +136,14 @@ setup({'user':{'uid':'user-A','email':'a@example.invalid','emailVerified':True},
 run('account_switch_cancels_old_restore','''
 await page.evaluate(()=>{__mock.readDelayMs=0;__mock.user={uid:'user-B',email:'b@example.invalid',emailVerified:true};__mock.authCallback(__mock.user);});await page.waitForTimeout(650);
 check('new account identity stays active',await page.locator('#account-button').innerText()==='b@example.invalid');
-check('old delayed read cannot replace new position',await page.locator('#number').innerText()==='0008 / 2847');
+check('old delayed read cannot replace new position',await page.locator('#number').innerText()==='0008 / 2907');
 await page.evaluate(()=>{__mock.user=null;__mock.authCallback(null);});await page.waitForTimeout(50);
 check('external signout updates UI',await page.locator('#account-button').innerText()==='登录同步');
 check('external signout removes user data',await page.locator('#done').innerText()==='0');
 ''')
 setup({'user':{'uid':'audit-user','email':'audit@example.invalid','emailVerified':True},'documents':{'audit-user':{'ke1Progress':{'index':-5,'answers':{'junk':{'choice':'Z'}},'correct':999999}}}})
 run('corrupt_progress','''
-check('negative saved index recovers',await page.locator('#number').innerText()==='0001 / 2847');
+check('negative saved index recovers',await page.locator('#number').innerText()==='0001 / 2907');
 check('invalid answer IDs filtered',await page.locator('#done').innerText()==='0');
 check('stored total not trusted',await page.locator('#score').innerText()==='首次正确率 —');
 ''')
@@ -171,7 +171,7 @@ run('legacy_position_after_first_save','''
 await page.locator('.option').first().click();await page.waitForTimeout(1500);
 const data=await page.evaluate(()=>({remote:__mock.documents['audit-user'].ke1Progress,local:JSON.parse(localStorage.getItem('ke1:v2:user:audit-user'))}));
 check('first write upgrades position to stable ID',data.remote.schemaVersion===2&&data.remote.currentId===data.local.currentId,data.remote.currentId);
-check('restored question stays stable after sync',await page.locator('#number').innerText()==='0124 / 2847');
+check('restored question stays stable after sync',await page.locator('#number').innerText()==='0124 / 2907');
 ''')
 setup({'user':{'uid':'audit-user','email':'audit@example.invalid','emailVerified':True},'writePending':True})
 run('new_answer_during_inflight_sync','''

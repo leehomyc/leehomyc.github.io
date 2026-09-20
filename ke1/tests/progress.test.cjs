@@ -7,9 +7,9 @@ const bank = P.prepareBank(raw);
 const q = bank.questions[0];
 const entry = (choice, updatedAt, firstAt = updatedAt, operationId = String(updatedAt)) => ({choice, firstChoice:choice, updatedAt, firstAt, operationId});
 test('real bank: deduplicate exact content while retaining all old ID aliases', () => {
-  assert.equal(bank.questions.length, 2847);
-  assert.equal(bank.aliases.size, 2849);
-  assert.equal(bank.rawIds.length, 2849);
+  assert.equal(bank.questions.length, 2907);
+  assert.equal(bank.aliases.size, 2909);
+  assert.equal(bank.rawIds.length, 2909);
   assert.equal(bank.aliases.get(raw[1445].id), raw[545].id);
   assert.equal(bank.aliases.get(raw[1762].id), raw[1423].id);
 });

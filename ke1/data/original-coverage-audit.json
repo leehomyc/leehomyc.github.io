@@ -1,0 +1,507 @@
+{
+  "originalCount": 2849,
+  "addedCount": 60,
+  "resultCount": 2909,
+  "authorship": "Independently authored from public legal rules and official guidance. No proprietary question bank used for drafting.",
+  "coverage": {
+    "年龄与延期": 8,
+    "电子证照": 6,
+    "记分与减免": 12,
+    "考试与驾驶资格": 12,
+    "通行与让行": 9,
+    "高速与应急": 8,
+    "停车与安全": 5
+  },
+  "limitations": "Adds topic coverage and applied scenarios, not a guarantee of complete official exam coverage. Existing 2849 records not re-audited.",
+  "questions": [
+    {
+      "id": "original-ke1-1605853d6fc21397",
+      "topic": "年龄与延期",
+      "basis": "第六十五条",
+      "source": "https://www.beijing.gov.cn/zhengce/zhengcefagui/qtwj/202412/t20241231_3978134.html",
+      "closestMatchId": "20220420094351bbggcrwzcmiezreeweb7wa",
+      "similarity": 0.3158
+    },
+    {
+      "id": "original-ke1-3c17cc88034fa95a",
+      "topic": "年龄与延期",
+      "basis": "第六十五条",
+      "source": "https://www.beijing.gov.cn/zhengce/zhengcefagui/qtwj/202412/t20241231_3978134.html",
+      "closestMatchId": "2019041010252922utpyw2wqab8cxs29urkh",
+      "similarity": 0.4068
+    },
+    {
+      "id": "original-ke1-b4239118bfc84029",
+      "topic": "年龄与延期",
+      "basis": "第六十五条",
+      "source": "https://www.beijing.gov.cn/zhengce/zhengcefagui/qtwj/202412/t20241231_3978134.html",
+      "closestMatchId": "20220420094351bbggcrwzcmiezreeweb7wa",
+      "similarity": 0.3582
+    },
+    {
+      "id": "original-ke1-e91d04e69974e35f",
+      "topic": "年龄与延期",
+      "basis": "第六十五条",
+      "source": "https://www.beijing.gov.cn/zhengce/zhengcefagui/qtwj/202412/t20241231_3978134.html",
+      "closestMatchId": "20190410102525bahm9dudrg4tsmjgcfbies",
+      "similarity": 0.3014
+    },
+    {
+      "id": "original-ke1-6555cf18b8b6185d",
+      "topic": "年龄与延期",
+      "basis": "第十四条",
+      "source": "https://www.beijing.gov.cn/zhengce/zhengcefagui/qtwj/202412/t20241231_3978134.html",
+      "closestMatchId": "20220412175301pqdaxfqp492gkfmzj4fe6z",
+      "similarity": 0.2941
+    },
+    {
+      "id": "original-ke1-4fef039cfcdf6aad",
+      "topic": "年龄与延期",
+      "basis": "第七十二条",
+      "source": "https://www.beijing.gov.cn/zhengce/zhengcefagui/qtwj/202412/t20241231_3978134.html",
+      "closestMatchId": "202203311603523qiudjgnjgjuggvzhrjch7",
+      "similarity": 0.5825
+    },
+    {
+      "id": "original-ke1-f2d2a91ee0954039",
+      "topic": "年龄与延期",
+      "basis": "第七十三条",
+      "source": "https://www.beijing.gov.cn/zhengce/zhengcefagui/qtwj/202412/t20241231_3978134.html",
+      "closestMatchId": "20220408192505mj5umaue1gv5zyjwpfh2iq",
+      "similarity": 0.6818
+    },
+    {
+      "id": "original-ke1-280aed267eebbaf7",
+      "topic": "年龄与延期",
+      "basis": "第八十五条",
+      "source": "https://www.beijing.gov.cn/zhengce/zhengcefagui/qtwj/202412/t20241231_3978134.html",
+      "closestMatchId": "20220408192504eyehw3jxdom74tfmifpxfd",
+      "similarity": 0.5195
+    },
+    {
+      "id": "original-ke1-33bae299612968f6",
+      "topic": "电子证照",
+      "basis": "电子驾驶证效力",
+      "source": "https://jtgl.beijing.gov.cn/jgj/qaknowledge/325750668/325750918/325731300/744095129/index.html",
+      "closestMatchId": "20190410102521jjpn9cbxxxqpnp9luwwbeu",
+      "similarity": 0.3462
+    },
+    {
+      "id": "original-ke1-fbebeb56067ff91a",
+      "topic": "电子证照",
+      "basis": "纸质驾驶证适用情形",
+      "source": "https://jtgl.beijing.gov.cn/jgj/qaknowledge/325750668/325750918/325731300/744095129/index.html",
+      "closestMatchId": "20190410102521pvw4w8nsxgzkmj4nrlsud",
+      "similarity": 0.3582
+    },
+    {
+      "id": "original-ke1-39afae33a02663b1",
+      "topic": "电子证照",
+      "basis": "事故取证",
+      "source": "https://jtgl.beijing.gov.cn/jgj/qaknowledge/325750668/325750918/325731300/744095129/index.html",
+      "closestMatchId": "supp-trllm-b1d1208b8966e4b4",
+      "similarity": 0.3871
+    },
+    {
+      "id": "original-ke1-4908f1b50681e517",
+      "topic": "电子证照",
+      "basis": "公共服务应用",
+      "source": "https://jtgl.beijing.gov.cn/jgj/qaknowledge/325750668/325750918/325731300/744095129/index.html",
+      "closestMatchId": "supp-trllm-d4cd02028d84b542",
+      "similarity": 0.3462
+    },
+    {
+      "id": "original-ke1-49ab9f63da225346",
+      "topic": "电子证照",
+      "basis": "第十条第九项",
+      "source": "https://www.beijing.gov.cn/zhengce/zhengcefagui/202204/t20220401_2645851.html",
+      "closestMatchId": "supp-trllm-f17d9973da4e5a98",
+      "similarity": 0.4314
+    },
+    {
+      "id": "original-ke1-b2509ca0fd3db1a3",
+      "topic": "电子证照",
+      "basis": "第四十一条",
+      "source": "https://www.beijing.gov.cn/zhengce/zhengcefagui/qtwj/202412/t20241231_3978134.html",
+      "closestMatchId": "202203311603528syevtg63lsjzrgkhb9a8d",
+      "similarity": 0.3
+    },
+    {
+      "id": "original-ke1-c0bfed2965539d83",
+      "topic": "记分与减免",
+      "basis": "第十四条",
+      "source": "https://www.beijing.gov.cn/zhengce/zhengcefagui/202204/t20220401_2645851.html",
+      "closestMatchId": "20190410102550rflvzfybmmcfhlxzgy3aap",
+      "similarity": 0.3871
+    },
+    {
+      "id": "original-ke1-36f2c6137fba1137",
+      "topic": "记分与减免",
+      "basis": "第十五条",
+      "source": "https://www.beijing.gov.cn/zhengce/zhengcefagui/202204/t20220401_2645851.html",
+      "closestMatchId": "202204081925036qmw6jdkyqrcaeycy3xmdf",
+      "similarity": 0.386
+    },
+    {
+      "id": "original-ke1-d670ef66a7608007",
+      "topic": "记分与减免",
+      "basis": "第十六条",
+      "source": "https://www.beijing.gov.cn/zhengce/zhengcefagui/202204/t20220401_2645851.html",
+      "closestMatchId": "20220408192504kkaohhf7cavqvdaot8shra",
+      "similarity": 0.4262
+    },
+    {
+      "id": "original-ke1-deb0d3b827c42cfa",
+      "topic": "记分与减免",
+      "basis": "第二十五条",
+      "source": "https://www.beijing.gov.cn/zhengce/zhengcefagui/202204/t20220401_2645851.html",
+      "closestMatchId": "202009141806306245fnstzv2ctz8r9ocnvj",
+      "similarity": 0.338
+    },
+    {
+      "id": "original-ke1-ee9c2089e0c1272d",
+      "topic": "记分与减免",
+      "basis": "第二十五条",
+      "source": "https://www.beijing.gov.cn/zhengce/zhengcefagui/202204/t20220401_2645851.html",
+      "closestMatchId": "supp-trllm-63feb22663735aff",
+      "similarity": 0.4938
+    },
+    {
+      "id": "original-ke1-8ab25b886f49a83e",
+      "topic": "记分与减免",
+      "basis": "第二十六条第三项",
+      "source": "https://www.beijing.gov.cn/zhengce/zhengcefagui/202204/t20220401_2645851.html",
+      "closestMatchId": "20220412175301r9tutvwfq9vhfymw3e23dp",
+      "similarity": 0.5507
+    },
+    {
+      "id": "original-ke1-034c5774f066dd65",
+      "topic": "记分与减免",
+      "basis": "第二十六条第四项",
+      "source": "https://www.beijing.gov.cn/zhengce/zhengcefagui/202204/t20220401_2645851.html",
+      "closestMatchId": "20220415112626wu2z63dgg23lynhhevxbhn",
+      "similarity": 0.3373
+    },
+    {
+      "id": "original-ke1-0918fa8458b55721",
+      "topic": "记分与减免",
+      "basis": "第十八条",
+      "source": "https://www.beijing.gov.cn/zhengce/zhengcefagui/202204/t20220401_2645851.html",
+      "closestMatchId": "supp-trllm-b958ed89f41ed5d6",
+      "similarity": 0.6522
+    },
+    {
+      "id": "original-ke1-351c45ad504354ec",
+      "topic": "记分与减免",
+      "basis": "第十八条",
+      "source": "https://www.beijing.gov.cn/zhengce/zhengcefagui/202204/t20220401_2645851.html",
+      "closestMatchId": "supp-trllm-63feb22663735aff",
+      "similarity": 0.5915
+    },
+    {
+      "id": "original-ke1-ccfea9326268bc9f",
+      "topic": "记分与减免",
+      "basis": "第二十二条",
+      "source": "https://www.beijing.gov.cn/zhengce/zhengcefagui/202204/t20220401_2645851.html",
+      "closestMatchId": "20220412175301cbtgnrylr3mrqymeb9bfm2",
+      "similarity": 0.6168
+    },
+    {
+      "id": "original-ke1-5c05a30f492610bb",
+      "topic": "记分与减免",
+      "basis": "第二十二条",
+      "source": "https://www.beijing.gov.cn/zhengce/zhengcefagui/202204/t20220401_2645851.html",
+      "closestMatchId": "20220412175301cbtgnrylr3mrqymeb9bfm2",
+      "similarity": 0.5577
+    },
+    {
+      "id": "original-ke1-6ba04bc034b16888",
+      "topic": "记分与减免",
+      "basis": "第二十八条",
+      "source": "https://www.beijing.gov.cn/zhengce/zhengcefagui/202204/t20220401_2645851.html",
+      "closestMatchId": "20190410102529xamo65jrcmzougxean7hom",
+      "similarity": 0.3235
+    },
+    {
+      "id": "original-ke1-3d0eccde64e7cc79",
+      "topic": "考试与驾驶资格",
+      "basis": "第四十七条",
+      "source": "https://www.beijing.gov.cn/zhengce/zhengcefagui/qtwj/202412/t20241231_3978134.html",
+      "closestMatchId": "20190410102530cd5nvxw1zg831v5yjm7hcs",
+      "similarity": 0.439
+    },
+    {
+      "id": "original-ke1-aecab89c34d77f7f",
+      "topic": "考试与驾驶资格",
+      "basis": "第四十七条",
+      "source": "https://www.beijing.gov.cn/zhengce/zhengcefagui/qtwj/202412/t20241231_3978134.html",
+      "closestMatchId": "20190410102523lwpgwoqejzfz1g5wkdahb",
+      "similarity": 0.56
+    },
+    {
+      "id": "original-ke1-40f6135e24890b16",
+      "topic": "考试与驾驶资格",
+      "basis": "第四十七条",
+      "source": "https://www.beijing.gov.cn/zhengce/zhengcefagui/qtwj/202412/t20241231_3978134.html",
+      "closestMatchId": "20191126190218d7dgqur34ktpdsxuu8trkf",
+      "similarity": 0.2817
+    },
+    {
+      "id": "original-ke1-0d924436329dccb9",
+      "topic": "考试与驾驶资格",
+      "basis": "第十条、第四十条",
+      "source": "https://www.beijing.gov.cn/zhengce/zhengcefagui/qtwj/202412/t20241231_3978134.html",
+      "closestMatchId": "20190410102528kkqewhyix2os2r58iod1c7",
+      "similarity": 0.4074
+    },
+    {
+      "id": "original-ke1-410ded697fb0d0e9",
+      "topic": "考试与驾驶资格",
+      "basis": "第七十六条",
+      "source": "https://www.beijing.gov.cn/zhengce/zhengcefagui/qtwj/202412/t20241231_3978134.html",
+      "closestMatchId": "20220415112627ffnd5qdmbxu3hhcdkacpvg",
+      "similarity": 0.3947
+    },
+    {
+      "id": "original-ke1-2cda562b8dd506e0",
+      "topic": "考试与驾驶资格",
+      "basis": "第七十六条",
+      "source": "https://www.beijing.gov.cn/zhengce/zhengcefagui/qtwj/202412/t20241231_3978134.html",
+      "closestMatchId": "202204082040389a7bwto2mo4fut1s2h5cxi",
+      "similarity": 0.5122
+    },
+    {
+      "id": "original-ke1-a34038f737370cdd",
+      "topic": "考试与驾驶资格",
+      "basis": "第七十九条",
+      "source": "https://www.beijing.gov.cn/zhengce/zhengcefagui/qtwj/202412/t20241231_3978134.html",
+      "closestMatchId": "20190410102528q4zpue3smjg1vfmgggfljo",
+      "similarity": 0.4478
+    },
+    {
+      "id": "original-ke1-a58e3186c77379bc",
+      "topic": "考试与驾驶资格",
+      "basis": "第七十九条",
+      "source": "https://www.beijing.gov.cn/zhengce/zhengcefagui/qtwj/202412/t20241231_3978134.html",
+      "closestMatchId": "20190410102531yracslo84cwpsseyzgu4ae",
+      "similarity": 0.3429
+    },
+    {
+      "id": "original-ke1-690f92418e91b3ca",
+      "topic": "考试与驾驶资格",
+      "basis": "第一百零五条",
+      "source": "https://www.beijing.gov.cn/zhengce/zhengcefagui/qtwj/202412/t20241231_3978134.html",
+      "closestMatchId": "supp-trllm-review-fe59acd4fe5bdeb4",
+      "similarity": 0.2529
+    },
+    {
+      "id": "original-ke1-5f543f838a611d91",
+      "topic": "考试与驾驶资格",
+      "basis": "第一百零五条",
+      "source": "https://www.beijing.gov.cn/zhengce/zhengcefagui/qtwj/202412/t20241231_3978134.html",
+      "closestMatchId": "20190410102539x5qtfiszb1qfpkybvh4qt9",
+      "similarity": 0.2759
+    },
+    {
+      "id": "original-ke1-c524942989dd9c85",
+      "topic": "考试与驾驶资格",
+      "basis": "第六十九条",
+      "source": "https://www.beijing.gov.cn/zhengce/zhengcefagui/qtwj/202412/t20241231_3978134.html",
+      "closestMatchId": "20190410102528urxfnz6utbzhsajh4g6buq",
+      "similarity": 0.2857
+    },
+    {
+      "id": "original-ke1-dd292742b51496e2",
+      "topic": "考试与驾驶资格",
+      "basis": "第八十条",
+      "source": "https://www.beijing.gov.cn/zhengce/zhengcefagui/qtwj/202412/t20241231_3978134.html",
+      "closestMatchId": "201904101025224qmeqkntwkaxhzwggrmhmd",
+      "similarity": 0.6567
+    },
+    {
+      "id": "original-ke1-f9ff16888fddc2e7",
+      "topic": "通行与让行",
+      "basis": "第三十八条",
+      "source": "https://www.samr.gov.cn/zw/zfxxgk/fdzdgknr/bgt/art/2023/art_92d27a3736be4585af2357930349374c.html",
+      "closestMatchId": "20190410102553shqqztyudexiraogdobqqx",
+      "similarity": 0.3636
+    },
+    {
+      "id": "original-ke1-a71e2815acb3c118",
+      "topic": "通行与让行",
+      "basis": "第五十三条",
+      "source": "https://www.samr.gov.cn/zw/zfxxgk/fdzdgknr/bgt/art/2023/art_92d27a3736be4585af2357930349374c.html",
+      "closestMatchId": "20190410102520wdjaqmfwno7zz3ejrjak9y",
+      "similarity": 0.2817
+    },
+    {
+      "id": "original-ke1-163aeae1798a5be6",
+      "topic": "通行与让行",
+      "basis": "第五十二条",
+      "source": "https://www.samr.gov.cn/zw/zfxxgk/fdzdgknr/bgt/art/2023/art_92d27a3736be4585af2357930349374c.html",
+      "closestMatchId": "2022010416542487gwmvvfgrduatje4zalz4",
+      "similarity": 0.3226
+    },
+    {
+      "id": "original-ke1-50c0c0ced14d823c",
+      "topic": "通行与让行",
+      "basis": "第五十二条",
+      "source": "https://www.samr.gov.cn/zw/zfxxgk/fdzdgknr/bgt/art/2023/art_92d27a3736be4585af2357930349374c.html",
+      "closestMatchId": "20190410102528nfds943nlby2ify8ptgc3w",
+      "similarity": 0.2609
+    },
+    {
+      "id": "original-ke1-37929e53156d3eaa",
+      "topic": "通行与让行",
+      "basis": "第五十二条",
+      "source": "https://www.samr.gov.cn/zw/zfxxgk/fdzdgknr/bgt/art/2023/art_92d27a3736be4585af2357930349374c.html",
+      "closestMatchId": "20190410102812hdzuvjrrginv8s6gkzgqae",
+      "similarity": 0.3896
+    },
+    {
+      "id": "original-ke1-2966ec96fe06ee74",
+      "topic": "通行与让行",
+      "basis": "第四十八条",
+      "source": "https://www.samr.gov.cn/zw/zfxxgk/fdzdgknr/bgt/art/2023/art_92d27a3736be4585af2357930349374c.html",
+      "closestMatchId": "supp-trllm-d533636779aad254",
+      "similarity": 0.4318
+    },
+    {
+      "id": "original-ke1-e2b385680cf8b689",
+      "topic": "通行与让行",
+      "basis": "第四十八条",
+      "source": "https://www.samr.gov.cn/zw/zfxxgk/fdzdgknr/bgt/art/2023/art_92d27a3736be4585af2357930349374c.html",
+      "closestMatchId": "20190410102552vtjqcdswdhxyplsdzabyaa",
+      "similarity": 0.3333
+    },
+    {
+      "id": "original-ke1-ef003b5f986f4ad3",
+      "topic": "通行与让行",
+      "basis": "第四十八条",
+      "source": "https://www.samr.gov.cn/zw/zfxxgk/fdzdgknr/bgt/art/2023/art_92d27a3736be4585af2357930349374c.html",
+      "closestMatchId": "20190410102554ei15krpn7wtq97nprlszc4",
+      "similarity": 0.3636
+    },
+    {
+      "id": "original-ke1-27465588f7a21db9",
+      "topic": "通行与让行",
+      "basis": "第五十一条",
+      "source": "https://www.samr.gov.cn/zw/zfxxgk/fdzdgknr/bgt/art/2023/art_92d27a3736be4585af2357930349374c.html",
+      "closestMatchId": "20190410102553shqqztyudexiraogdobqqx",
+      "similarity": 0.3929
+    },
+    {
+      "id": "original-ke1-b02c315161cf5ba1",
+      "topic": "高速与应急",
+      "basis": "第十条第三项",
+      "source": "https://www.beijing.gov.cn/zhengce/zhengcefagui/202204/t20220401_2645851.html",
+      "closestMatchId": "supp-trllm-review-686ac679042cf32d",
+      "similarity": 0.5275
+    },
+    {
+      "id": "original-ke1-cd171100cb7d0b9e",
+      "topic": "高速与应急",
+      "basis": "第十条第三项、第十一条第二项",
+      "source": "https://www.beijing.gov.cn/zhengce/zhengcefagui/202204/t20220401_2645851.html",
+      "closestMatchId": "20220415113439mjzp8pwvs4vujt7gyq4tr2",
+      "similarity": 0.4337
+    },
+    {
+      "id": "original-ke1-7107f6e325998940",
+      "topic": "高速与应急",
+      "basis": "第八条第五项",
+      "source": "https://www.beijing.gov.cn/zhengce/zhengcefagui/202204/t20220401_2645851.html",
+      "closestMatchId": "202201061432544g42pbe8qe1tsdjythgl6y",
+      "similarity": 0.4242
+    },
+    {
+      "id": "original-ke1-9d6284f0c38e722c",
+      "topic": "高速与应急",
+      "basis": "第八条第六项",
+      "source": "https://www.beijing.gov.cn/zhengce/zhengcefagui/202204/t20220401_2645851.html",
+      "closestMatchId": "201904101025338sctrsbldwzehep3qgvtj6",
+      "similarity": 0.3143
+    },
+    {
+      "id": "original-ke1-aeb1e6c43421f936",
+      "topic": "高速与应急",
+      "basis": "第六十八条",
+      "source": "https://jtgl.beijing.gov.cn/jgj/jgxx/flfg/fl/205308/index.html",
+      "closestMatchId": "20190410102535hzcjfcwft4dvtjnexnzdk",
+      "similarity": 0.5333
+    },
+    {
+      "id": "original-ke1-2bc7ffa71ecabd96",
+      "topic": "高速与应急",
+      "basis": "第八十一条",
+      "source": "https://www.samr.gov.cn/zw/zfxxgk/fdzdgknr/bgt/art/2023/art_92d27a3736be4585af2357930349374c.html",
+      "closestMatchId": "20191126190216csmtjkhiywdpr33kpfnm1o",
+      "similarity": 0.3434
+    },
+    {
+      "id": "original-ke1-c26f491dc218cbf2",
+      "topic": "高速与应急",
+      "basis": "第八十一条",
+      "source": "https://www.samr.gov.cn/zw/zfxxgk/fdzdgknr/bgt/art/2023/art_92d27a3736be4585af2357930349374c.html",
+      "closestMatchId": "201904101025475lxryiyxjb9tauetwhpoee",
+      "similarity": 0.4658
+    },
+    {
+      "id": "original-ke1-274ee89a3fdd2bff",
+      "topic": "高速与应急",
+      "basis": "第六十八条",
+      "source": "https://jtgl.beijing.gov.cn/jgj/jgxx/flfg/fl/205308/index.html",
+      "closestMatchId": "supp-trllm-2ebc5badcfb68a3b",
+      "similarity": 0.5
+    },
+    {
+      "id": "original-ke1-0a702187ea28238e",
+      "topic": "停车与安全",
+      "basis": "第六十三条",
+      "source": "https://www.samr.gov.cn/zw/zfxxgk/fdzdgknr/bgt/art/2023/art_92d27a3736be4585af2357930349374c.html",
+      "closestMatchId": "20210125171551sdbhrpjcuwi97ddxcvhhgp",
+      "similarity": 0.2909
+    },
+    {
+      "id": "original-ke1-ba7a01687e3de768",
+      "topic": "停车与安全",
+      "basis": "第六十三条",
+      "source": "https://www.samr.gov.cn/zw/zfxxgk/fdzdgknr/bgt/art/2023/art_92d27a3736be4585af2357930349374c.html",
+      "closestMatchId": "20190410102527syhkkqqttbzm9gfs8p15sh",
+      "similarity": 0.4528
+    },
+    {
+      "id": "original-ke1-b5b30634a539ab81",
+      "topic": "停车与安全",
+      "basis": "第四十八条",
+      "source": "https://www.samr.gov.cn/zw/zfxxgk/fdzdgknr/bgt/art/2023/art_92d27a3736be4585af2357930349374c.html",
+      "closestMatchId": "20211201141456cm5dwjavsnpnozpaai92gq",
+      "similarity": 0.4898
+    },
+    {
+      "id": "original-ke1-c606aeb62f77fa2e",
+      "topic": "停车与安全",
+      "basis": "第六十二条第三项",
+      "source": "https://www.samr.gov.cn/zw/zfxxgk/fdzdgknr/bgt/art/2023/art_92d27a3736be4585af2357930349374c.html",
+      "closestMatchId": "20190410102532p3per1v3sjjbq99ag89mqr",
+      "similarity": 0.2667
+    },
+    {
+      "id": "original-ke1-0b24478fc1b745b0",
+      "topic": "停车与安全",
+      "basis": "第六十二条第七项",
+      "source": "https://www.samr.gov.cn/zw/zfxxgk/fdzdgknr/bgt/art/2023/art_92d27a3736be4585af2357930349374c.html",
+      "closestMatchId": "2019041010281261je2fmgskiftv7tgwiw1p",
+      "similarity": 0.4096
+    }
+  ],
+  "displayedTotal": 2907,
+  "displayedRange": [
+    2848,
+    2907
+  ],
+  "rawRange": [
+    2850,
+    2909
+  ]
+}

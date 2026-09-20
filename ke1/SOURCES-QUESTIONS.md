@@ -78,10 +78,10 @@ Import counts and explicit manual exclusions are recorded in
 
 ## 1.3 Reviewed answer-only additions, 2026-09-20
 
-The bank now contains **2,849 questions**, including **304 supplemental questions**.
+The second supplemental batch brought the bank to **2,849 questions**, including **304 supplemental questions**.
 This second batch adds **73 edited text-only practice questions** at positions
 **2777–2849**, preserving all previous records, IDs, and positions.
-The **练习本次新增 73 题** button opens this batch directly.
+These questions remain available by jumping to question 2777.
 
 We reviewed all **176 distinct unmatched stems** from TRLLM's
 [answer-only Subject 1 JSON](https://github.com/lindsey-chang/TRLLM-Traffic-Rules-Assistant/blob/2c10e9d1d4051b283cbdfba2b086d2aaa9fe37ed/dataset/json/struc_json/course1_without_exp.json).
@@ -108,6 +108,42 @@ and [wet-road rear-wheel skid guidance](https://jtgl.beijing.gov.cn/jgj/jgxx/942
 The complete 176-candidate disposition log, including corrections and duplicate matches, is in
 [data/answer-only-import-audit.json](data/answer-only-import-audit.json).
 This review covers the new batch; it does not constitute a fresh audit of the existing bank.
+
+## 1.4 Original coverage practice, 2026-09-20
+
+The bank now contains **2,909 questions**, including **364 supplemental questions**.
+This batch adds **60 independently authored practice questions** at positions
+**2850–2909**, with answers, explanations, topic tags, official reference URLs and
+article-level legal bases. Earlier records and question positions are unchanged.
+In the deduplicated practice interface, jump to **2848** to start this batch; its displayed range is **2848–2907**.
+
+These questions were written from public legal rules and official guidance. No
+proprietary question collection was used as drafting input or bulk paraphrased.
+They are labelled **原创练习**, not represented as official examination questions.
+
+Coverage includes:
+
+| Topic | Added questions |
+| --- | ---: |
+| Updated age limits and licence extensions | 8 |
+| Electronic credentials and paper-document exceptions | 6 |
+| Points, reductions, and full-points procedures | 12 |
+| Examinations and driving qualifications | 12 |
+| Junctions, meeting traffic, and right of way | 9 |
+| Highway scenarios and emergencies | 8 |
+| Parking, lighting, and driver attention | 5 |
+
+The existing bank had no explicit 63-year age-rule or electronic-driving-licence
+questions. Other additions apply existing rules to scenarios or distinguish commonly
+confused exceptions; shared concepts are intentional. Exact normalized duplicates and
+close wording matches were screened, but this is not a claim that all concepts are new.
+
+Sources are the licence, points, Road Traffic Safety Law and implementing-regulation
+links above, plus the official
+[electronic driving licence guidance, 2026-08-14](https://jtgl.beijing.gov.cn/jgj/qaknowledge/325750668/325750918/325731300/744095129/index.html).
+The [coverage audit](data/original-coverage-audit.json) lists the topic and legal basis
+for each question. This expands practice coverage; it does not guarantee complete
+coverage of the current official exam pool or revalidate all earlier questions.
 
 ## 2. Images
 
@@ -149,8 +185,8 @@ specifics against a current official-partnered source before your exam.
 
 ## Practice display and saved-progress compatibility (2026-09-20)
 
-The raw 2,849-record file is preserved. The practice interface groups exact matches of
+The raw bank now contains 2,909 records; all earlier 2,849 records are preserved. The practice interface groups exact matches of
 question text, options, image and answer: original positions 546/1446 and 1424/1763.
-It therefore displays 2,847 distinct practice questions, including all 304 supplemental
+It therefore displays 2,907 distinct practice questions, including all 364 supplemental
 exercises. Every original question ID remains mapped to its displayed question so that
 existing answer history and old saved positions can be migrated without deleting records.
