@@ -1,0 +1,1991 @@
+{
+  "reviewed": 176,
+  "added": 73,
+  "excluded": 103,
+  "originalCount": 2776,
+  "resultCount": 2849,
+  "source": "https://github.com/lindsey-chang/TRLLM-Traffic-Rules-Assistant/blob/2c10e9d1d4051b283cbdfba2b086d2aaa9fe37ed/dataset/json/struc_json/course1_without_exp.json",
+  "method": "Individual editorial review; corrected old rules and malformed questions; adapted multiple-answer items into single-answer practice; exact and >=92% near-stem deduplication. Existing questions are unchanged.",
+  "candidates": [
+    {
+      "candidate": 1,
+      "sourceRow": 17,
+      "originalQuestion": "上路行驶的机动车未放置检验合格标志的，交通警察可依法扣留机动车。",
+      "originalAnswer": "A",
+      "status": "added",
+      "id": "supp-trllm-review-d111ec66f9305cfc",
+      "questionNumber": 2777,
+      "correctedQuestion": "车辆已有有效的检验标志电子凭证，仍必须在前风窗粘贴纸质检验合格标志。",
+      "correctedAnswer": "B",
+      "validationSources": [
+        "https://www.cac.gov.cn/2020-04/23/c_1589192367815895.htm"
+      ]
+    },
+    {
+      "candidate": 2,
+      "sourceRow": 29,
+      "originalQuestion": "下列哪种标志是驾驶机动车上路行驶应当在车上放置的标志？",
+      "originalAnswer": "D",
+      "status": "excluded",
+      "reason": "Paper inspection-sticker premise superseded; electronic-certificate topic covered by candidate 1."
+    },
+    {
+      "candidate": 3,
+      "sourceRow": 52,
+      "originalQuestion": "驾驶机动车在道路上超车完毕驶回原车道时开启右转向灯。",
+      "originalAnswer": "A",
+      "status": "excluded",
+      "reason": "Duplicate or near-duplicate after cleanup",
+      "similarity": 0.9434,
+      "matchingId": "20190410102528aaq3fvpwcbpsxl9gucike",
+      "correctedQuestion": "驾驶机动车在道路上超车完毕驶回原车道时开启右转向灯。"
+    },
+    {
+      "candidate": 4,
+      "sourceRow": 159,
+      "originalQuestion": "小型汽车科目二考试内容包括倒车入库、坡道定点停车和起步、侧方停车、曲线行驶、直角转弯。",
+      "originalAnswer": "A",
+      "status": "added",
+      "id": "supp-trllm-review-410ab08aef0cd6d3",
+      "questionNumber": 2778,
+      "correctedQuestion": "小型汽车（C1）科目二考试的国家规定项目包括倒车入库、坡道定点停车和起步、侧方停车、曲线行驶、直角转弯。",
+      "correctedAnswer": "A",
+      "validationSources": [
+        "https://www.beijing.gov.cn/zhengce/zhengcefagui/qtwj/202412/t20241231_3978134.html"
+      ]
+    },
+    {
+      "candidate": 5,
+      "sourceRow": 162,
+      "originalQuestion": "在驾驶技能准考证明的有效期内，科目二和科目三道路驾驶技能考试预约次数不得超过多少次？",
+      "originalAnswer": "C",
+      "status": "added",
+      "id": "supp-trllm-review-b5eeebcd84945919",
+      "questionNumber": 2779,
+      "correctedQuestion": "在学习驾驶证明有效期内，科目二和科目三道路驾驶技能考试各自的预约次数最多是多少？",
+      "correctedAnswer": "C",
+      "validationSources": [
+        "https://www.beijing.gov.cn/zhengce/zhengcefagui/qtwj/202412/t20241231_3978134.html"
+      ]
+    },
+    {
+      "candidate": 6,
+      "sourceRow": 163,
+      "originalQuestion": "驾驶技能准考证明的有效期是多久？",
+      "originalAnswer": "C",
+      "status": "excluded",
+      "reason": "Duplicate or near-duplicate after cleanup",
+      "similarity": 1,
+      "matchingId": "201904101025333tl9rp36zqq4zkupz17wv4",
+      "correctedQuestion": "学习驾驶证明的有效期是多久？"
+    },
+    {
+      "candidate": 7,
+      "sourceRow": 165,
+      "originalQuestion": "机动车驾驶证遗失、损毁无法辨认时，机动车驾驶人应当向机动车驾驶证核发地车辆管理所申请补发。",
+      "originalAnswer": "A",
+      "status": "excluded",
+      "reason": "Repaired licence replacement rule already included in prior batch."
+    },
+    {
+      "candidate": 8,
+      "sourceRow": 166,
+      "originalQuestion": "有吸食、注射毒品后驾驶驾车行为的机动车驾驶人，不会被注销驾驶证。",
+      "originalAnswer": "B",
+      "status": "excluded",
+      "reason": "OCR repair duplicates prior batch drug-driving item."
+    },
+    {
+      "candidate": 9,
+      "sourceRow": 193,
+      "originalQuestion": "对未放置检验合格标志上道路行驶的车辆，交通警察可依法予以扣留。",
+      "originalAnswer": "A",
+      "status": "excluded",
+      "reason": "Duplicate inspection-sticker premise; candidate 1 covers current electronic credential."
+    },
+    {
+      "candidate": 10,
+      "sourceRow": 194,
+      "originalQuestion": "交通警察对未放置保险标志上道路行驶的车辆可依法扣留行驶证。",
+      "originalAnswer": "B",
+      "status": "excluded",
+      "reason": "Insurance-sticker premise requires electronic-policy qualification; no reliable general question retained."
+    },
+    {
+      "candidate": 11,
+      "sourceRow": 204,
+      "originalQuestion": "驾驶人将机动车交由什么样的人驾驶的，交通警察可依法扣留机动车驾驶证？",
+      "originalAnswer": "C",
+      "status": "excluded",
+      "reason": "Duplicate or near-duplicate after cleanup",
+      "similarity": 0.9375,
+      "matchingId": "20190410102536miqj4awjjyfmgkufqapw13",
+      "correctedQuestion": "驾驶人将机动车交由什么样的人驾驶的，交通警察可依法扣留机动车驾驶证？"
+    },
+    {
+      "candidate": 12,
+      "sourceRow": 205,
+      "originalQuestion": "驾驶人将机动车交给驾驶证被吊销的人驾驶的，交通警察依法扣留驾驶证。",
+      "originalAnswer": "A",
+      "status": "excluded",
+      "reason": "Same licence-lending fact as candidate 11."
+    },
+    {
+      "candidate": 13,
+      "sourceRow": 223,
+      "originalQuestion": "驾驶人户籍迁出原车辆管理所需要向什么地方的车辆管所提出申请？",
+      "originalAnswer": "D",
+      "status": "added",
+      "id": "supp-trllm-review-931ed5288f5f14d3",
+      "questionNumber": 2780,
+      "correctedQuestion": "驾驶人户籍迁出原车辆管理所管辖区，需要办理迁入换证时，应向哪里的车辆管理所申请？",
+      "correctedAnswer": "D",
+      "validationSources": [
+        "https://www.beijing.gov.cn/zhengce/zhengcefagui/qtwj/202412/t20241231_3978134.html"
+      ]
+    },
+    {
+      "candidate": 14,
+      "sourceRow": 232,
+      "originalQuestion": "年龄在60周岁以上的驾驶人多长时间提交一次身体条件证明？",
+      "originalAnswer": "C",
+      "status": "added",
+      "id": "supp-trllm-review-fe59acd4fe5bdeb4",
+      "questionNumber": 2781,
+      "correctedQuestion": "年龄在70周岁以上的机动车驾驶人，应当多长时间进行一次身体检查并按规定提交身体条件证明？",
+      "correctedAnswer": "C",
+      "validationSources": [
+        "https://www.beijing.gov.cn/zhengce/zhengcefagui/qtwj/202412/t20241231_3978134.html"
+      ]
+    },
+    {
+      "candidate": 15,
+      "sourceRow": 233,
+      "originalQuestion": "大型客车、牵引车、城市公交车、中型客车、大型货车驾驶人应当每两年提交一次身体条件证明.",
+      "originalAnswer": "B",
+      "status": "excluded",
+      "reason": "Legacy physical-certificate premise; avoid mixing periodic review and examination obligations."
+    },
+    {
+      "candidate": 16,
+      "sourceRow": 234,
+      "originalQuestion": "机动车驾驶人初次申请机动车驾驶证和增加准驾车型后的多长时间为实习期？",
+      "originalAnswer": "B",
+      "status": "added",
+      "id": "supp-trllm-review-f7a7ecde4ca8551f",
+      "questionNumber": 2782,
+      "correctedQuestion": "机动车驾驶人初次取得汽车类准驾车型或者初次取得摩托车类准驾车型后，多长时间为实习期？",
+      "correctedAnswer": "B",
+      "validationSources": [
+        "https://www.beijing.gov.cn/zhengce/zhengcefagui/qtwj/202412/t20241231_3978134.html"
+      ]
+    },
+    {
+      "candidate": 17,
+      "sourceRow": 243,
+      "originalQuestion": "造成交通事故后逃逸，尚不构成犯罪的一次记几分？",
+      "originalAnswer": "A",
+      "status": "added",
+      "id": "supp-trllm-review-ba2107d44ec7345d",
+      "questionNumber": 2783,
+      "correctedQuestion": "造成致人轻微伤或者财产损失的交通事故后逃逸，尚不构成犯罪的，一次记几分？",
+      "correctedAnswer": "B",
+      "validationSources": [
+        "https://www.beijing.gov.cn/zhengce/zhengcefagui/202204/t20220401_2645851.html"
+      ]
+    },
+    {
+      "candidate": 18,
+      "sourceRow": 245,
+      "originalQuestion": "上道路行驶的机动车故意遮挡、污损、不按规定安装机动车号牌的一次记几分？",
+      "originalAnswer": "A",
+      "status": "added",
+      "id": "supp-trllm-review-12979ac2043b691d",
+      "questionNumber": 2784,
+      "correctedQuestion": "驾驶故意遮挡、污损机动车号牌的机动车上道路行驶，一次记几分？",
+      "correctedAnswer": "A",
+      "validationSources": [
+        "https://www.beijing.gov.cn/zhengce/zhengcefagui/202204/t20220401_2645851.html"
+      ]
+    },
+    {
+      "candidate": 19,
+      "sourceRow": 249,
+      "originalQuestion": "驾驶人驾驶机动车违反道路交通信号灯通行一次记多少分?",
+      "originalAnswer": "C",
+      "status": "added",
+      "id": "supp-trllm-review-00bf830a3b382be8",
+      "questionNumber": 2785,
+      "correctedQuestion": "驾驶人驾驶机动车违反道路交通信号灯通行一次记多少分?",
+      "correctedAnswer": "C",
+      "validationSources": [
+        "https://www.beijing.gov.cn/zhengce/zhengcefagui/202204/t20220401_2645851.html"
+      ]
+    },
+    {
+      "candidate": 20,
+      "sourceRow": 251,
+      "originalQuestion": "有下列哪种违法行为的机动车驾驶人将被一次记12分？",
+      "originalAnswer": "A",
+      "status": "excluded",
+      "reason": "Duplicate or near-duplicate after cleanup",
+      "similarity": 1,
+      "matchingId": "201904101025346qgeyyrepfs5f7efm5vhmr",
+      "correctedQuestion": "有下列哪种违法行为的机动车驾驶人将被一次记9分？"
+    },
+    {
+      "candidate": 21,
+      "sourceRow": 252,
+      "originalQuestion": "造成交通事故后逃逸，尚不构成犯罪的一次记12分。",
+      "originalAnswer": "A",
+      "status": "excluded",
+      "reason": "Duplicate or near-duplicate after cleanup",
+      "similarity": 1,
+      "matchingId": "20190410102527kk6qu3uhkawjvphjdj4dog",
+      "correctedQuestion": "造成致人轻伤以上或者死亡的交通事故后逃逸，尚不构成犯罪的，一次记12分。"
+    },
+    {
+      "candidate": 22,
+      "sourceRow": 256,
+      "originalQuestion": "驾驶机动车在高速公路上倒车、逆行、穿越中央分隔带掉头的一次记6分。",
+      "originalAnswer": "B",
+      "status": "excluded",
+      "reason": "Duplicate or near-duplicate after cleanup",
+      "similarity": 0.9231,
+      "matchingId": "201904101025263w6k5yhefto6okev6jnga9",
+      "correctedQuestion": "驾驶机动车在高速公路上倒车、逆行、穿越中央分隔带掉头的一次记6分。"
+    },
+    {
+      "candidate": 23,
+      "sourceRow": 257,
+      "originalQuestion": "违反交通信号灯通行的一次记6分。",
+      "originalAnswer": "A",
+      "status": "excluded",
+      "reason": "Same signal-light scoring fact as candidate 19."
+    },
+    {
+      "candidate": 24,
+      "sourceRow": 258,
+      "originalQuestion": "车速超过规定时速50%以上的一次记12分。",
+      "originalAnswer": "A",
+      "status": "added",
+      "id": "supp-trllm-review-4572d75bb670d84b",
+      "questionNumber": 2786,
+      "correctedQuestion": "驾驶普通小型载客汽车在高速公路上超过规定时速50%以上，一次记12分。",
+      "correctedAnswer": "A",
+      "validationSources": [
+        "https://www.beijing.gov.cn/zhengce/zhengcefagui/202204/t20220401_2645851.html"
+      ]
+    },
+    {
+      "candidate": 25,
+      "sourceRow": 259,
+      "originalQuestion": "车速超过规定时速达到50%的一次记3分。",
+      "originalAnswer": "B",
+      "status": "excluded",
+      "reason": "Underspecified speed, vehicle and road category; candidate 24 covers qualified rule."
+    },
+    {
+      "candidate": 26,
+      "sourceRow": 273,
+      "originalQuestion": "遇前方路段车道减少，车辆行驶缓慢，为保证道路通畅，应借对向车道迅速通过。",
+      "originalAnswer": "B",
+      "status": "excluded",
+      "reason": "Duplicate or near-duplicate after cleanup",
+      "similarity": 0.9688,
+      "matchingId": "20190410102523p1xnnaacgsk5xagtdvnfnx",
+      "correctedQuestion": "遇前方路段车道减少，车辆行驶缓慢，为保证道路通畅，应借对向车道迅速通过。"
+    },
+    {
+      "candidate": 27,
+      "sourceRow": 274,
+      "originalQuestion": "机动车向左转弯、向左变更车道，驶离停车地点及掉头时，提前开启左转向灯是为了什么？",
+      "originalAnswer": "C",
+      "status": "excluded",
+      "reason": "Duplicate or near-duplicate after cleanup",
+      "similarity": 0.9444,
+      "matchingId": "20190410102534u3bcnausvxxh3qhxgzvdz7",
+      "correctedQuestion": "机动车向左转弯、向左变更车道，驶离停车地点及掉头时，提前开启左转向灯是为了什么？"
+    },
+    {
+      "candidate": 28,
+      "sourceRow": 275,
+      "originalQuestion": "超车时应从前车的左侧超越，是因为左侧超社便于观察，有利于安全。",
+      "originalAnswer": "A",
+      "status": "excluded",
+      "reason": "Duplicate or near-duplicate after cleanup",
+      "similarity": 0.9643,
+      "matchingId": "20190410102524htx5rf3pczbrc2pczhir8t",
+      "correctedQuestion": "超车时应从前车的左侧超越，是因为左侧超越便于观察，有利于安全。"
+    },
+    {
+      "candidate": 29,
+      "sourceRow": 278,
+      "originalQuestion": "在后方无来车的情况下，在隧道中倒车应靠边行驶。",
+      "originalAnswer": "B",
+      "status": "excluded",
+      "reason": "Duplicate or near-duplicate after cleanup",
+      "similarity": 0.9767,
+      "matchingId": "20190410102524ethc6rwbmejaqkpcdh3hda",
+      "correctedQuestion": "在后方无来车的情况下，在隧道中倒车应靠边行驶。"
+    },
+    {
+      "candidate": 30,
+      "sourceRow": 290,
+      "originalQuestion": "年龄在70周岁以上，在一个计分周期结束后一年内未提交身体条件证明的，其机动车驾驶证将会被车辆管理所注销。",
+      "originalAnswer": "A",
+      "status": "excluded",
+      "reason": "Duplicate or near-duplicate after cleanup",
+      "similarity": 1,
+      "matchingId": "20190410102527wcznsk1eainpvrogzsogdw",
+      "correctedQuestion": "年龄在70周岁以上，在一个记分周期结束后一年内未提交身体条件证明的，其机动车驾驶证将会被车辆管理所注销。"
+    },
+    {
+      "candidate": 31,
+      "sourceRow": 291,
+      "originalQuestion": "持有大型客车、牵引车、城市公交车、中型客车、大型货车驾驶证的驾驶人从业单位等信息发生变化的，应当在信息变更后三十日内，向驾驶证核发地车辆管理所备案。",
+      "originalAnswer": "A",
+      "status": "excluded",
+      "reason": "Duplicate or near-duplicate after cleanup",
+      "similarity": 1,
+      "matchingId": "2019041010252251eycn2av1ddjvbkgwwabh",
+      "correctedQuestion": "持有大型客车、重型牵引挂车、城市公交车、中型客车、大型货车驾驶证的驾驶人从业单位等信息发生变化的，应当在信息变更后三十日内，向驾驶证核发地车辆管理所备案。"
+    },
+    {
+      "candidate": 32,
+      "sourceRow": 292,
+      "originalQuestion": "持有小型汽车驾驶证的驾驶人，发生交通事故造成人员死亡承担同等以上责任未被吊销机动车驾驶证的，应当在本计分周期结束后三十日内到公安机关交通管理部门接受审验，同时应当申报身体条件情况。",
+      "originalAnswer": "A",
+      "status": "excluded",
+      "reason": "Existing fatal-accident licence-review topic; near-duplicate after OCR cleanup."
+    },
+    {
+      "candidate": 33,
+      "sourceRow": 293,
+      "originalQuestion": "发动机号码、车辆识别代码因磨损、锈蚀、事故等原因辨认不清或者损坏的，可以向登记地车辆管理所申请备案。",
+      "originalAnswer": "A",
+      "status": "excluded",
+      "reason": "Duplicate or near-duplicate after cleanup",
+      "similarity": 0.9412,
+      "matchingId": "20190410102520p5fcaghsm3u8fatnrx43f8",
+      "correctedQuestion": "发动机号码、车辆识别代号因磨损、锈蚀、事故等原因辨认不清或者损坏的，可以向登记地车辆管理所申请备案。"
+    },
+    {
+      "candidate": 34,
+      "sourceRow": 307,
+      "originalQuestion": "持有大型客车、牵引车、城市公交车、中型客车、大型货车驾驶证的驾驶人，记分周期内有记分的，应当在记分周期结束后三十日内到公安机关交通管理部门接受审验，同时还应当申报身体条件情况。",
+      "originalAnswer": "A",
+      "status": "excluded",
+      "reason": "Same heavy-licence review obligation as candidate 53."
+    },
+    {
+      "candidate": 35,
+      "sourceRow": 308,
+      "originalQuestion": "驾驶机动车行径漫水路或者漫水桥时，应当停车察明水情确认安全后再低速通过。",
+      "originalAnswer": "A",
+      "status": "added",
+      "id": "supp-trllm-review-bac209935d1db330",
+      "questionNumber": 2787,
+      "correctedQuestion": "驾驶机动车行经漫水路或者漫水桥时，应当停车查明水情确认安全后再低速通过。",
+      "correctedAnswer": "A",
+      "validationSources": [
+        "https://www.samr.gov.cn/zw/zfxxgk/fdzdgknr/bgt/art/2023/art_92d27a3736be4585af2357930349374c.html"
+      ]
+    },
+    {
+      "candidate": 36,
+      "sourceRow": 319,
+      "originalQuestion": "驾驶证丢失后，驾驶人可以继续驾驶机动车。",
+      "originalAnswer": "B",
+      "status": "excluded",
+      "reason": "Paper licence loss versus valid electronic licence is underspecified."
+    },
+    {
+      "candidate": 37,
+      "sourceRow": 325,
+      "originalQuestion": "持有大型客车、牵引车、城市公交车、中型客车、大型货车驾驶证的驾驶人联系电话、从业单位等信息发生变化未及时申报变更信息的，公安机关交通管理部门处二十元以上二百元以下罚款。",
+      "originalAnswer": "A",
+      "status": "excluded",
+      "reason": "Duplicate or near-duplicate after cleanup",
+      "similarity": 1,
+      "matchingId": "20190410102524kravlhhxhbzkujugym3gyc",
+      "correctedQuestion": "持有大型客车、重型牵引挂车、城市公交车、中型客车、大型货车驾驶证的驾驶人联系电话、从业单位等信息发生变化未及时申报变更信息的，公安机关交通管理部门处二十元以上二百元以下罚款。"
+    },
+    {
+      "candidate": 38,
+      "sourceRow": 328,
+      "originalQuestion": "驾驶机动车发生交通事故，仅造成财产损失的， 但是对交通事故事实及成因有争议的，",
+      "originalAnswer": "A",
+      "status": "added",
+      "id": "supp-trllm-review-e237bb401a2817ec",
+      "questionNumber": 2788,
+      "correctedQuestion": "驾驶机动车发生仅造成财产损失的交通事故，当事人对事故事实及成因有争议，应当怎么处理？",
+      "correctedAnswer": "A",
+      "validationSources": [
+        "https://www.samr.gov.cn/zw/zfxxgk/fdzdgknr/bgt/art/2023/art_92d27a3736be4585af2357930349374c.html"
+      ]
+    },
+    {
+      "candidate": 39,
+      "sourceRow": 333,
+      "originalQuestion": "下列哪种情况可以向机动车驾驶证核发地车辆管理所申请补发？",
+      "originalAnswer": "C",
+      "status": "excluded",
+      "reason": "Existing licence-replacement topic."
+    },
+    {
+      "candidate": 40,
+      "sourceRow": 335,
+      "originalQuestion": "机动车在抵押登记、质押备案期间不可以办理转移登记。",
+      "originalAnswer": "A",
+      "status": "added",
+      "id": "supp-trllm-review-621e084a9d9a41d9",
+      "questionNumber": 2789,
+      "correctedQuestion": "机动车处于抵押登记期间，一律不可以办理转让登记。",
+      "correctedAnswer": "B",
+      "validationSources": [
+        "https://jtgl.beijing.gov.cn/jgj/93950/jwgk/jdcgl/120170/index.html"
+      ]
+    },
+    {
+      "candidate": 41,
+      "sourceRow": 336,
+      "originalQuestion": "机动车所有人申请转移登记前， 应当将涉及该车的道路交通安全违法行为和交通事故处理完毕。",
+      "originalAnswer": "A",
+      "status": "excluded",
+      "reason": "Duplicate or near-duplicate after cleanup",
+      "similarity": 1,
+      "matchingId": "201904101025237w7ecmmjqhhxtpcpxpgjgw",
+      "correctedQuestion": "机动车所有人申请转让登记前，应当将涉及该车的道路交通安全违法行为和交通事故处理完毕。"
+    },
+    {
+      "candidate": 42,
+      "sourceRow": 338,
+      "originalQuestion": "驾驶机动车与行人之间发生交通事故造成人身伤亡、财产损失的， 机动车—方没有过错的，不承担赔偿责任。",
+      "originalAnswer": "B",
+      "status": "excluded",
+      "reason": "Duplicate or near-duplicate after cleanup",
+      "similarity": 1,
+      "matchingId": "20190410102521kgfnqtf7ykf1kescuxzuov",
+      "correctedQuestion": "驾驶机动车与行人之间发生交通事故造成人身伤亡、财产损失的，机动车一方没有过错的，不承担赔偿责任。"
+    },
+    {
+      "candidate": 43,
+      "sourceRow": 350,
+      "originalQuestion": "张某驾驶—辆大客车，乘载15人（核载35人），行驶途中察觉制动装置有异常但未处理，行至某转弯临崖路段因制动失灵坠入海中，造成10人死亡、4人受伤。张某的主要违法行为是驾驶具有安全隐患的机动车。",
+      "originalAnswer": "Y",
+      "status": "added",
+      "id": "supp-trllm-review-44d166cbbcd13504",
+      "questionNumber": 2790,
+      "correctedQuestion": "某驾驶人发现客车制动装置异常仍继续行驶，随后因制动失灵发生事故。其违法行为包括驾驶具有安全隐患的机动车。",
+      "correctedAnswer": "A",
+      "validationSources": [
+        "https://jtgl.beijing.gov.cn/jgj/jgxx/flfg/fl/205308/index.html"
+      ]
+    },
+    {
+      "candidate": 44,
+      "sourceRow": 352,
+      "originalQuestion": "有酒驾行为，机动车交通事故责任强制保险费率将上浮。",
+      "originalAnswer": "Y",
+      "status": "excluded",
+      "reason": "Insurance premium consequences vary by applicable scheme."
+    },
+    {
+      "candidate": 45,
+      "sourceRow": 353,
+      "originalQuestion": "机动车在高速公路上发生故障时，以下做法正确的是什么？",
+      "originalAnswer": "A",
+      "status": "added",
+      "id": "supp-trllm-review-30b0ec3425883b94",
+      "questionNumber": 2791,
+      "correctedQuestion": "机动车在高速公路上发生故障、无法继续行驶时，以下做法错误的是什么？",
+      "correctedAnswer": "D",
+      "validationSources": [
+        "https://jtgl.beijing.gov.cn/jgj/jgxx/flfg/fl/205308/index.html"
+      ]
+    },
+    {
+      "candidate": 46,
+      "sourceRow": 354,
+      "originalQuestion": "驾驶机动车发现轮胎漏气，将车辆驶离主车道时，不应采用紧急制动，以免造成翻车或后车制动不及时发生追尾事故。",
+      "originalAnswer": "Y",
+      "status": "added",
+      "id": "supp-trllm-review-12006277f8434fd9",
+      "questionNumber": 2792,
+      "correctedQuestion": "驾驶机动车发现轮胎漏气，将车辆驶离主车道时，不应采用紧急制动，以免造成翻车或后车制动不及时发生追尾事故。",
+      "correctedAnswer": "A",
+      "validationSources": []
+    },
+    {
+      "candidate": 47,
+      "sourceRow": 355,
+      "originalQuestion": "徐某驾驶一辆中型客车（实载 27人）行至上坡路段，车辆发生后溜驶出路外坠入山崖，造成11人死亡、7人受伤。徐某的主要违法行为是什么？",
+      "originalAnswer": "A",
+      "status": "excluded",
+      "reason": "Missing vehicle rated capacity; cannot establish source answer solely from scenario."
+    },
+    {
+      "candidate": 48,
+      "sourceRow": 356,
+      "originalQuestion": "驾驶机动车上道路行驶，如尚未取得机动车号牌或者已申领号牌但未悬挂、未粘贴时，将面临什么样的后果？",
+      "originalAnswer": "A",
+      "status": "added",
+      "id": "supp-trllm-review-4be769c9b0f367cb",
+      "questionNumber": 2793,
+      "correctedQuestion": "机动车未悬挂号牌，也无有效临时号牌上道路行驶，交通警察可以采取哪项车辆扣留措施？",
+      "correctedAnswer": "A",
+      "validationSources": [
+        "https://jtgl.beijing.gov.cn/jgj/jgxx/flfg/fl/205308/index.html"
+      ]
+    },
+    {
+      "candidate": 49,
+      "sourceRow": 357,
+      "originalQuestion": "道路划设专用车道的，在专用车道内，只准许规定的车辆通行，其他车辆不得进入专用车道内行驶。",
+      "originalAnswer": "Y",
+      "status": "added",
+      "id": "supp-trllm-review-bb9c3715267a2e98",
+      "questionNumber": 2794,
+      "correctedQuestion": "在专用车道规定的专用时段内，未被允许使用该车道的其他车辆不得进入行驶。",
+      "correctedAnswer": "A",
+      "validationSources": [
+        "https://jtgl.beijing.gov.cn/jgj/jgxx/flfg/fl/205308/index.html"
+      ]
+    },
+    {
+      "candidate": 50,
+      "sourceRow": 358,
+      "originalQuestion": "机动车着火，救火时不应张嘴呼吸或高声呐喊，以免烟火灼伤上呼吸道。",
+      "originalAnswer": "Y",
+      "status": "excluded",
+      "reason": "Emergency medical/fire advice outside this focused legal-practice cleanup."
+    },
+    {
+      "candidate": 51,
+      "sourceRow": 359,
+      "originalQuestion": "驾驶机动车进入交叉路口前，应降低行驶速度，注意观察，确认安全。",
+      "originalAnswer": "Y",
+      "status": "excluded",
+      "reason": "Duplicate or near-duplicate after cleanup",
+      "similarity": 0.9434,
+      "matchingId": "201904101025506jibpjr5twgb5159wdr9gl",
+      "correctedQuestion": "驾驶机动车进入交叉路口前，应降低行驶速度，注意观察，确认安全。"
+    },
+    {
+      "candidate": 52,
+      "sourceRow": 361,
+      "originalQuestion": "驾驶机动车时不应在前风窗玻璃处悬挂放置干扰视线的物品。",
+      "originalAnswer": "Y",
+      "status": "added",
+      "id": "supp-trllm-review-d6433c95a8c96258",
+      "questionNumber": 2795,
+      "correctedQuestion": "驾驶机动车时不应在前风窗玻璃处悬挂放置干扰视线的物品。",
+      "correctedAnswer": "A",
+      "validationSources": [
+        "https://www.samr.gov.cn/zw/zfxxgk/fdzdgknr/bgt/art/2023/art_92d27a3736be4585af2357930349374c.html"
+      ]
+    },
+    {
+      "candidate": 53,
+      "sourceRow": 362,
+      "originalQuestion": "持有大型客车、牵引车、城市公交车、中型客车、大型货车驾驶证的驾驶人，应当在每个记分周期结束后30日内到公安机关交通管理部门接受审验。但在1个记分周期内没有记分记录的，免予本记分周期审验。",
+      "originalAnswer": "Y",
+      "status": "added",
+      "id": "supp-trllm-review-6bfcfe3414598eab",
+      "questionNumber": 2796,
+      "correctedQuestion": "持有大型客车、重型牵引挂车、城市公交车、中型客车、大型货车驾驶证的驾驶人，应当在每个记分周期结束后30日内到公安机关交通管理部门接受审验。但在1个记分周期内没有记分记录的，免予本记分周期审验。",
+      "correctedAnswer": "A",
+      "validationSources": [
+        "https://www.beijing.gov.cn/zhengce/zhengcefagui/qtwj/202412/t20241231_3978134.html"
+      ]
+    },
+    {
+      "candidate": 54,
+      "sourceRow": 363,
+      "originalQuestion": "贾某驾车在高速公路上行驶，遇到大雾，能见度小于50米，贾某开启了雾灯、示廓灯、危险警报灯，以时速40公里行驶，并与同车道保持50米距离，经过三个出口驶离高速公路。贾某的主要违法行为是什么？",
+      "originalAnswer": "BCD",
+      "status": "added",
+      "id": "supp-trllm-review-7b9c29bfd81cadcd",
+      "questionNumber": 2797,
+      "correctedQuestion": "驾驶机动车在高速公路上遇能见度小于50米的大雾，以下做法正确的是什么？",
+      "correctedAnswer": "B",
+      "validationSources": [
+        "https://www.samr.gov.cn/zw/zfxxgk/fdzdgknr/bgt/art/2023/art_92d27a3736be4585af2357930349374c.html"
+      ]
+    },
+    {
+      "candidate": 55,
+      "sourceRow": 364,
+      "originalQuestion": "驾驶人在客车起步前，应检查行李是否装捆牢固，长、宽、高及重量是否符合规定。",
+      "originalAnswer": "Y",
+      "status": "added",
+      "id": "supp-trllm-review-c3c400c2acb39644",
+      "questionNumber": 2798,
+      "correctedQuestion": "驾驶人在客车起步前，应检查行李是否装捆牢固，长、宽、高及重量是否符合规定。",
+      "correctedAnswer": "A",
+      "validationSources": []
+    },
+    {
+      "candidate": 56,
+      "sourceRow": 366,
+      "originalQuestion": "驾驶机动车遇非机动车违法在机动车道上行驶，并阻碍机动车前进时，以下做法错误的是什么？",
+      "originalAnswer": "D",
+      "status": "added",
+      "id": "supp-trllm-review-492cbe9416467c0d",
+      "questionNumber": 2799,
+      "correctedQuestion": "驾驶机动车遇非机动车违法在机动车道上行驶，并阻碍机动车前进时，以下做法错误的是什么？",
+      "correctedAnswer": "D",
+      "validationSources": []
+    },
+    {
+      "candidate": 57,
+      "sourceRow": 367,
+      "originalQuestion": "你驾车遇高速公路收费口拥堵、较多车辆排队等候时，可以穿插等候车辆。",
+      "originalAnswer": "N",
+      "status": "added",
+      "id": "supp-trllm-review-ada779fb680648d6",
+      "questionNumber": 2800,
+      "correctedQuestion": "你驾车遇高速公路收费口拥堵、较多车辆排队等候时，可以穿插等候车辆。",
+      "correctedAnswer": "B",
+      "validationSources": [
+        "https://jtgl.beijing.gov.cn/jgj/jgxx/flfg/fl/205308/index.html"
+      ]
+    },
+    {
+      "candidate": 58,
+      "sourceRow": 368,
+      "originalQuestion": "当你驾驶的机动车发动机突然熄火无法启动时，你应及时靠边停车，检查熄火原因。",
+      "originalAnswer": "Y",
+      "status": "added",
+      "id": "supp-trllm-review-2921a4dedba02a1d",
+      "questionNumber": 2801,
+      "correctedQuestion": "行车中发动机突然熄火无法启动，应稳住方向，在能够安全移动的情况下靠边停车，并按规定采取警示、防护措施。",
+      "correctedAnswer": "A",
+      "validationSources": []
+    },
+    {
+      "candidate": 59,
+      "sourceRow": 369,
+      "originalQuestion": "如果你在普通道路驾车遇暴雨，刮水器无法改善你的视线，此时要采取什么样的安全驾驶措施？",
+      "originalAnswer": "C",
+      "status": "added",
+      "id": "supp-trllm-review-a65a4ca6dd66cd11",
+      "questionNumber": 2802,
+      "correctedQuestion": "如果你在普通道路驾车遇暴雨，刮水器无法改善你的视线，此时要采取什么样的安全驾驶措施？",
+      "correctedAnswer": "C",
+      "validationSources": []
+    },
+    {
+      "candidate": 60,
+      "sourceRow": 371,
+      "originalQuestion": "当你驾车在路口转弯过程时，应当持续开启转向灯，以提醒周围车辆和行人。",
+      "originalAnswer": "Y",
+      "status": "added",
+      "id": "supp-trllm-review-c782d801f564dcc2",
+      "questionNumber": 2803,
+      "correctedQuestion": "当你驾车在路口转弯过程时，应当持续开启转向灯，以提醒周围车辆和行人。",
+      "correctedAnswer": "A",
+      "validationSources": [
+        "https://www.samr.gov.cn/zw/zfxxgk/fdzdgknr/bgt/art/2023/art_92d27a3736be4585af2357930349374c.html"
+      ]
+    },
+    {
+      "candidate": 61,
+      "sourceRow": 372,
+      "originalQuestion": "驾驶机动车在高速公路上除遇障碍、发生故障等情形必须停车外，不得停车上下人员或者装卸货物。",
+      "originalAnswer": "Y",
+      "status": "added",
+      "id": "supp-trllm-review-4a886f72dec58cf5",
+      "questionNumber": 2804,
+      "correctedQuestion": "驾驶机动车在高速公路上除遇障碍、发生故障等情形必须停车外，不得停车上下人员或者装卸货物。",
+      "correctedAnswer": "A",
+      "validationSources": [
+        "https://www.samr.gov.cn/zw/zfxxgk/fdzdgknr/bgt/art/2023/art_92d27a3736be4585af2357930349374c.html"
+      ]
+    },
+    {
+      "candidate": 62,
+      "sourceRow": 373,
+      "originalQuestion": "驾驶机动车跟随多辆机动车行驶，为避免发生追尾事故应至少观察前方两到三辆车的行驶情况，从而能对减速或停车具有预见性的判断。",
+      "originalAnswer": "Y",
+      "status": "added",
+      "id": "supp-trllm-review-78bfc3b8993359f0",
+      "questionNumber": 2805,
+      "correctedQuestion": "驾驶机动车跟随多辆机动车行驶，为避免发生追尾事故应至少观察前方两到三辆车的行驶情况，从而能对减速或停车具有预见性的判断。",
+      "correctedAnswer": "A",
+      "validationSources": []
+    },
+    {
+      "candidate": 63,
+      "sourceRow": 375,
+      "originalQuestion": "关于分心驾驶，以下说法正确的是什么？",
+      "originalAnswer": "B",
+      "status": "added",
+      "id": "supp-trllm-review-ae379453ad134914",
+      "questionNumber": 2806,
+      "correctedQuestion": "关于分心驾驶，以下说法正确的是什么？",
+      "correctedAnswer": "B",
+      "validationSources": []
+    },
+    {
+      "candidate": 64,
+      "sourceRow": 376,
+      "originalQuestion": "驾驶机动车在高速公路上遇前方交通受阻时，应当跟随前车顺序排队，防止追尾。",
+      "originalAnswer": "Y",
+      "status": "added",
+      "id": "supp-trllm-review-0d47515964e95c98",
+      "questionNumber": 2807,
+      "correctedQuestion": "驾驶机动车在高速公路上遇前方交通受阻时，应当跟随前车顺序排队，防止追尾。",
+      "correctedAnswer": "A",
+      "validationSources": [
+        "https://jtgl.beijing.gov.cn/jgj/jgxx/flfg/fl/205308/index.html"
+      ]
+    },
+    {
+      "candidate": 65,
+      "sourceRow": 377,
+      "originalQuestion": "当你驾车过程中需要倒车时，应缓慢行驶，注意观察车辆两侧和后方的情况，随时做好停车准备。",
+      "originalAnswer": "Y",
+      "status": "added",
+      "id": "supp-trllm-review-650a85aca6ef79f4",
+      "questionNumber": 2808,
+      "correctedQuestion": "当你驾车过程中需要倒车时，应缓慢行驶，注意观察车辆两侧和后方的情况，随时做好停车准备。",
+      "correctedAnswer": "A",
+      "validationSources": [
+        "https://www.samr.gov.cn/zw/zfxxgk/fdzdgknr/bgt/art/2023/art_92d27a3736be4585af2357930349374c.html"
+      ]
+    },
+    {
+      "candidate": 66,
+      "sourceRow": 378,
+      "originalQuestion": "如图所示，你驾车行经此路段不用减速慢行。",
+      "originalAnswer": "N",
+      "status": "excluded",
+      "reason": "Required image missing."
+    },
+    {
+      "candidate": 67,
+      "sourceRow": 379,
+      "originalQuestion": "黄昏时分，光线若明若暗，容易产生视觉误差，你驾车时应提前打开什么灯以便被其他驾驶人发现？",
+      "originalAnswer": "D",
+      "status": "excluded",
+      "reason": "Ambiguous dusk light selection and existing equivalent."
+    },
+    {
+      "candidate": 68,
+      "sourceRow": 380,
+      "originalQuestion": "驾驶机动车上高速公路，以下说法是正确的是什么？",
+      "originalAnswer": "D",
+      "status": "added",
+      "id": "supp-trllm-review-77ae8235af40f6ac",
+      "questionNumber": 2809,
+      "correctedQuestion": "驾驶机动车在高速公路上行驶，以下说法正确的是什么？",
+      "correctedAnswer": "D",
+      "validationSources": [
+        "https://www.samr.gov.cn/zw/zfxxgk/fdzdgknr/bgt/art/2023/art_92d27a3736be4585af2357930349374c.html"
+      ]
+    },
+    {
+      "candidate": 69,
+      "sourceRow": 381,
+      "originalQuestion": "你驾驶的机动车后轮发生爆裂时，车尾会摇摆不定，应双手握稳转向盘，控制车辆直线行驶，并减速停车。",
+      "originalAnswer": "Y",
+      "status": "added",
+      "id": "supp-trllm-review-34213a3ae65144bb",
+      "questionNumber": 2810,
+      "correctedQuestion": "你驾驶的机动车后轮发生爆裂时，车尾会摇摆不定，应双手握稳转向盘，控制车辆直线行驶，并减速停车。",
+      "correctedAnswer": "A",
+      "validationSources": []
+    },
+    {
+      "candidate": 70,
+      "sourceRow": 382,
+      "originalQuestion": "机动车驾驶人累计记分达到12分，拒不参加公安机关交通管理部门通知的学习，也不接受考试的，由公安机关交通管理部门公告其驾驶证停止使用。",
+      "originalAnswer": "A",
+      "status": "added",
+      "id": "supp-trllm-review-00d0c51148012037",
+      "questionNumber": 2811,
+      "correctedQuestion": "机动车驾驶人一个记分周期内累积记满12分，收到满分教育通知书后三十日内拒不参加通知的满分学习、考试，将被公告驾驶证停止使用。",
+      "correctedAnswer": "A",
+      "validationSources": [
+        "https://www.beijing.gov.cn/zhengce/zhengcefagui/202204/t20220401_2645851.html"
+      ]
+    },
+    {
+      "candidate": 71,
+      "sourceRow": 383,
+      "originalQuestion": "车辆在一般道路上发生故障后，应开启危险报警闪光灯，并在车后50-100米设置警告标志，如不按规定使用灯光和设置警告标志的，将被—次记多少分？",
+      "originalAnswer": "C",
+      "status": "excluded",
+      "reason": "Duplicate or near-duplicate after cleanup",
+      "similarity": 1,
+      "matchingId": "20190410102529jvjwgjydzezy41rpq7y8ku",
+      "correctedQuestion": "车辆在一般道路上发生故障后，应开启危险报警闪光灯，并在车后50-100米设置警告标志，如不按规定使用灯光和设置警告标志的，将被一次记多少分？"
+    },
+    {
+      "candidate": 72,
+      "sourceRow": 384,
+      "originalQuestion": "违反交通管制的规定强行通行，不听劝阻的,由公安交通管理部门处两百元以上两千元以下罚款，可以并处十五日以下拘留。",
+      "originalAnswer": "A",
+      "status": "excluded",
+      "reason": "Duplicate or near-duplicate after cleanup",
+      "similarity": 0.9808,
+      "matchingId": "20190410102528khkygsbhkpu3weeg25fwb1",
+      "correctedQuestion": "违反交通管制的规定强行通行，不听劝阻的,由公安交通管理部门处两百元以上两千元以下罚款，可以并处十五日以下拘留。"
+    },
+    {
+      "candidate": 73,
+      "sourceRow": 386,
+      "originalQuestion": "机动车在高速公路上行驶，遇到能见度低200米的气象条件时，车速不得超过60公里／小时，如不按规定行驶，将被一次记6分。",
+      "originalAnswer": "A",
+      "status": "added",
+      "id": "supp-trllm-review-2a13805c5331b5e4",
+      "questionNumber": 2812,
+      "correctedQuestion": "机动车在高速公路上遇能见度小于200米的雾天，车速不得超过每小时60公里。",
+      "correctedAnswer": "A",
+      "validationSources": [
+        "https://www.samr.gov.cn/zw/zfxxgk/fdzdgknr/bgt/art/2023/art_92d27a3736be4585af2357930349374c.html"
+      ]
+    },
+    {
+      "candidate": 74,
+      "sourceRow": 389,
+      "originalQuestion": "在驾驶技能准考证明的有效期内，科目二和科目三驾驶技能考试预约次数都不能超过5次。",
+      "originalAnswer": "A",
+      "status": "excluded",
+      "reason": "Duplicate candidate 5 after terminology correction."
+    },
+    {
+      "candidate": 75,
+      "sourceRow": 390,
+      "originalQuestion": "驾驶机动车在没有道路中心线的狭窄山路，靠山体的一方要让不靠山体的—方先行。",
+      "originalAnswer": "A",
+      "status": "excluded",
+      "reason": "Duplicate or near-duplicate after cleanup",
+      "similarity": 1,
+      "matchingId": "201911261902166sspxowucw9bdq5lfzrzjr",
+      "correctedQuestion": "驾驶机动车在没有道路中心线的狭窄山路，靠山体的一方要让不靠山体的一方先行。"
+    },
+    {
+      "candidate": 76,
+      "sourceRow": 397,
+      "originalQuestion": "驾驶人将机动车交给驾驶证被吊销的人驾驶，交警会依法扣留什么？",
+      "originalAnswer": "C",
+      "status": "excluded",
+      "reason": "Duplicate licence-lending fact in candidate 11."
+    },
+    {
+      "candidate": 77,
+      "sourceRow": 401,
+      "originalQuestion": "如果想超越前方图中这辆慢速度行驶的小汽车，怎样做是正确的？[有图片]",
+      "originalAnswer": "D",
+      "status": "excluded",
+      "reason": "Required image missing."
+    },
+    {
+      "candidate": 78,
+      "sourceRow": 404,
+      "originalQuestion": "交通警察对未放置保险标志上道路行驶的车辆可依法扣留驾驶证。",
+      "originalAnswer": "B",
+      "status": "excluded",
+      "reason": "Legacy insurance-sticker premise; electronic-policy qualification unresolved."
+    },
+    {
+      "candidate": 79,
+      "sourceRow": 410,
+      "originalQuestion": "对驾驶人开展日常安全教育是增强_____意识，提高安全文明素质的重要手段。",
+      "originalAnswer": "A",
+      "status": "excluded",
+      "reason": "Duplicate or near-duplicate after cleanup",
+      "similarity": 0.9855,
+      "matchingId": "202005131544009j939y1cwm9lnktn6qqkgt",
+      "correctedQuestion": "对驾驶人开展日常安全教育是增强_____意识，提高安全文明素质的重要手段。"
+    },
+    {
+      "candidate": 80,
+      "sourceRow": 419,
+      "originalQuestion": "非机动车驾驶人、行人与处于静止状态的机动车发生交通事故造成损失，机动车—方无责任的，关于机动车—方的赔偿责任，下面说法哪种是正确的？",
+      "originalAnswer": "A",
+      "status": "excluded",
+      "reason": "Blanket no-liability assertion not generally valid without more facts."
+    },
+    {
+      "candidate": 81,
+      "sourceRow": 421,
+      "originalQuestion": "实习期内驾驶机动车未按规定粘贴、悬挂实习标志的，由公安机关交通管理部门处20元以上200元以下罚款。",
+      "originalAnswer": "A",
+      "status": "excluded",
+      "reason": "Source fine does not cleanly follow current licence-rule cross-reference; omit rather than assert."
+    },
+    {
+      "candidate": 82,
+      "sourceRow": 438,
+      "originalQuestion": "驾驶机动车不按规定使用灯光的，将被—次记多少分？",
+      "originalAnswer": "A",
+      "status": "excluded",
+      "reason": "Duplicate or near-duplicate after cleanup",
+      "similarity": 1,
+      "matchingId": "20200717152353l8ny8s53q58uuzthydfwvg",
+      "correctedQuestion": "驾驶机动车不按规定使用灯光的，将被一次记多少分？"
+    },
+    {
+      "candidate": 83,
+      "sourceRow": 442,
+      "originalQuestion": "上道路行驶的机动车不按规定年检，将被—次记多少分？",
+      "originalAnswer": "B",
+      "status": "added",
+      "id": "supp-trllm-review-8bdde49ebd868c03",
+      "questionNumber": 2813,
+      "correctedQuestion": "驾驶未按规定定期进行安全技术检验的小型非营运载客汽车上道路行驶，一次记多少分？",
+      "correctedAnswer": "A",
+      "validationSources": [
+        "https://www.beijing.gov.cn/zhengce/zhengcefagui/202204/t20220401_2645851.html"
+      ]
+    },
+    {
+      "candidate": 84,
+      "sourceRow": 443,
+      "originalQuestion": "驾驶机动车有拨打、接听手持电话的行为，—次记多少分？",
+      "originalAnswer": "A",
+      "status": "excluded",
+      "reason": "Duplicate or near-duplicate after cleanup",
+      "similarity": 1,
+      "matchingId": "20200727150248tnzjokq7syqyxw28s9hnty",
+      "correctedQuestion": "驾驶机动车有拨打、接听手持电话的行为，一次记多少分？"
+    },
+    {
+      "candidate": 85,
+      "sourceRow": 448,
+      "originalQuestion": "驾驶机动车闯红灯—次扣6分。",
+      "originalAnswer": "A",
+      "status": "excluded",
+      "reason": "Duplicate signal-light scoring fact in candidate 19."
+    },
+    {
+      "candidate": 86,
+      "sourceRow": 454,
+      "originalQuestion": "机动车驾驶人在—个记分周期内累积记分达到12分的，要在多少日内参加道路交通安全法律、法规和相关知识学习？",
+      "originalAnswer": "C",
+      "status": "excluded",
+      "reason": "Legacy full-points learning deadline; replaced by reviewed notice rule in candidate 70."
+    },
+    {
+      "candidate": 87,
+      "sourceRow": 458,
+      "originalQuestion": "机动车驾驶人在—个记分周期内有两次以上达到12分或者累积记分达到24分以上的，在道路交通安全法律、法规和相关知识考试合格后即可发还机动车驾驶证。",
+      "originalAnswer": "B",
+      "status": "added",
+      "id": "supp-trllm-review-e6e2ce844982b35e",
+      "questionNumber": 2814,
+      "correctedQuestion": "驾驶人在一个记分周期内两次累积记满12分，仅通过道路交通安全法律法规知识考试，就可以发还驾驶证。",
+      "correctedAnswer": "B",
+      "validationSources": [
+        "https://www.beijing.gov.cn/zhengce/zhengcefagui/202204/t20220401_2645851.html"
+      ]
+    },
+    {
+      "candidate": 88,
+      "sourceRow": 459,
+      "originalQuestion": "驾驶小型汽车在高速公路行驶，超过规定时速未达20%的 ，—次记多少分？",
+      "originalAnswer": "B",
+      "status": "added",
+      "id": "supp-trllm-review-686ac679042cf32d",
+      "questionNumber": 2815,
+      "correctedQuestion": "驾驶普通小型载客汽车在高速公路上超过规定时速，但未达到20%，仅就该超速行为按现行记分办法记多少分？",
+      "correctedAnswer": "A",
+      "validationSources": [
+        "https://www.beijing.gov.cn/zhengce/zhengcefagui/202204/t20220401_2645851.html"
+      ]
+    },
+    {
+      "candidate": 89,
+      "sourceRow": 460,
+      "originalQuestion": "驾驶机动车遇前方机动车停车排队或者缓慢行驶时，借道超车或者占用对面车道、穿插等候车辆的，将被—次记多少分？",
+      "originalAnswer": "A",
+      "status": "excluded",
+      "reason": "Duplicate or near-duplicate after cleanup",
+      "similarity": 1,
+      "matchingId": "20200818173250vttkwmuns3qnmcz4szyr2x",
+      "correctedQuestion": "驾驶机动车遇前方机动车停车排队或者缓慢行驶时，借道超车或者占用对面车道、穿插等候车辆的，将被一次记多少分？"
+    },
+    {
+      "candidate": 90,
+      "sourceRow": 462,
+      "originalQuestion": "机动车在公路上运载超限的不可解体的物品，只要不影晌交通安全，就可以随意上路行驶。",
+      "originalAnswer": "B",
+      "status": "excluded",
+      "reason": "Duplicate or near-duplicate after cleanup",
+      "similarity": 1,
+      "matchingId": "20200818173250kwepj5yu6kvslsyqk7msic",
+      "correctedQuestion": "机动车在公路上运载超限的不可解体的物品，只要不影响交通安全，就可以随意上路行驶。"
+    },
+    {
+      "candidate": 91,
+      "sourceRow": 463,
+      "originalQuestion": "机动车驾驶人在—个记分周期内两次以上达到12分的，车辆管理所应当在驾驶人科目—考试合格后多少日内对其进行科目三考试？",
+      "originalAnswer": "C",
+      "status": "excluded",
+      "reason": "Legacy exam scheduling deadline omitted."
+    },
+    {
+      "candidate": 92,
+      "sourceRow": 466,
+      "originalQuestion": "驾驶机动车在高速公路或者城市快速路以外的道路上行驶时，未按规定系安全带的，会受到什么处罚？",
+      "originalAnswer": "A",
+      "status": "added",
+      "id": "supp-trllm-review-cde8efda2f0de233",
+      "questionNumber": 2816,
+      "correctedQuestion": "驾驶人在高速公路、城市快速路以外的道路上驾驶机动车，未按规定系安全带，一次记多少分？",
+      "correctedAnswer": "A",
+      "validationSources": [
+        "https://www.beijing.gov.cn/zhengce/zhengcefagui/202204/t20220401_2645851.html"
+      ]
+    },
+    {
+      "candidate": 93,
+      "sourceRow": 468,
+      "originalQuestion": "驾驶机动车行经交叉路口不按规定行车或者停车的，将被—次记多少分？",
+      "originalAnswer": "B",
+      "status": "excluded",
+      "reason": "No single current point value for all junction driving/parking infringements."
+    },
+    {
+      "candidate": 94,
+      "sourceRow": 469,
+      "originalQuestion": "驾驶人驾驶机动车在高速公路或者城市快速路上行驶时，未按规定系安全带的，—次记多少分？",
+      "originalAnswer": "A",
+      "status": "added",
+      "id": "supp-trllm-review-4c690d223660760c",
+      "questionNumber": 2817,
+      "correctedQuestion": "驾驶人驾驶机动车在高速公路或者城市快速路上行驶时，未按规定系安全带的，一次记多少分？",
+      "correctedAnswer": "A",
+      "validationSources": [
+        "https://www.beijing.gov.cn/zhengce/zhengcefagui/202204/t20220401_2645851.html"
+      ]
+    },
+    {
+      "candidate": 95,
+      "sourceRow": 471,
+      "originalQuestion": "车速超过规定时速的20%但不到50%的—次记2分。",
+      "originalAnswer": "B",
+      "status": "added",
+      "id": "supp-trllm-review-156892b8a8e22775",
+      "questionNumber": 2818,
+      "correctedQuestion": "驾驶普通小型载客汽车在高速公路上超过规定时速20%以上但未达到50%，一次记2分。",
+      "correctedAnswer": "B",
+      "validationSources": [
+        "https://www.beijing.gov.cn/zhengce/zhengcefagui/202204/t20220401_2645851.html"
+      ]
+    },
+    {
+      "candidate": 96,
+      "sourceRow": 473,
+      "originalQuestion": "驾驶机动车不按照规定避让校车的，—次记多少分？",
+      "originalAnswer": "C",
+      "status": "excluded",
+      "reason": "Duplicate or near-duplicate after cleanup",
+      "similarity": 1,
+      "matchingId": "20200914180630tvcbeira7jaxznmfn6aswh",
+      "correctedQuestion": "驾驶机动车不按照规定避让校车的，一次记多少分？"
+    },
+    {
+      "candidate": 97,
+      "sourceRow": 478,
+      "originalQuestion": "属于申请增加准驾车型的，应当收回原机动车驾驶证。",
+      "originalAnswer": "A",
+      "status": "added",
+      "id": "supp-trllm-review-95a31a85bd8dd3cc",
+      "questionNumber": 2819,
+      "correctedQuestion": "属于申请增加准驾车型的，应当收回原机动车驾驶证。",
+      "correctedAnswer": "A",
+      "validationSources": [
+        "https://www.beijing.gov.cn/zhengce/zhengcefagui/qtwj/202412/t20241231_3978134.html"
+      ]
+    },
+    {
+      "candidate": 98,
+      "sourceRow": 480,
+      "originalQuestion": "在城市快速公路上违法占用应急车道，—次记多少分？",
+      "originalAnswer": "C",
+      "status": "excluded",
+      "reason": "Duplicate or near-duplicate after cleanup",
+      "similarity": 0.9545,
+      "matchingId": "20201016175724elutl8zy5eraefbqld6o5w",
+      "correctedQuestion": "在城市快速路上违法占用应急车道行驶，一次记多少分？"
+    },
+    {
+      "candidate": 99,
+      "sourceRow": 481,
+      "originalQuestion": "以隐瞒、欺骗手段补领机动车驾驶证的，—次记多少分？",
+      "originalAnswer": "C",
+      "status": "added",
+      "id": "supp-trllm-review-4089299ddd18eca7",
+      "questionNumber": 2820,
+      "correctedQuestion": "驾驶证被依法暂扣期间，采用隐瞒、欺骗手段补领驾驶证，依法处多少罚款？",
+      "correctedAnswer": "C",
+      "validationSources": [
+        "https://www.beijing.gov.cn/zhengce/zhengcefagui/qtwj/202412/t20241231_3978134.html"
+      ]
+    },
+    {
+      "candidate": 100,
+      "sourceRow": 484,
+      "originalQuestion": "驾驶机动车在高速公路或者城市快速路上不按规定车道行驶的，将被—次记多少分？",
+      "originalAnswer": "C",
+      "status": "added",
+      "id": "supp-trllm-review-e3f2e53250b591cf",
+      "questionNumber": 2821,
+      "correctedQuestion": "驾驶机动车在高速公路或者城市快速路上不按规定车道行驶的，将被一次记多少分？",
+      "correctedAnswer": "C",
+      "validationSources": [
+        "https://www.beijing.gov.cn/zhengce/zhengcefagui/202204/t20220401_2645851.html"
+      ]
+    },
+    {
+      "candidate": 101,
+      "sourceRow": 485,
+      "originalQuestion": "上道路行驶的机动车不按规定安装机动车号牌的，—次记12分。",
+      "originalAnswer": "A",
+      "status": "excluded",
+      "reason": "Duplicate or near-duplicate after cleanup",
+      "similarity": 1,
+      "matchingId": "20201016175724rmqbjukmwafkchd9cqutir",
+      "correctedQuestion": "上道路行驶的机动车不按规定安装机动车号牌的，一次记12分。"
+    },
+    {
+      "candidate": 102,
+      "sourceRow": 488,
+      "originalQuestion": "驾驶机动车在高速公路上倒车，—次记几分？",
+      "originalAnswer": "D",
+      "status": "excluded",
+      "reason": "Duplicate or near-duplicate after cleanup",
+      "similarity": 1,
+      "matchingId": "20201016175724lj3cwfbjgb5v1hyqcrer7x",
+      "correctedQuestion": "驾驶机动车在高速公路上倒车，一次记几分？"
+    },
+    {
+      "candidate": 103,
+      "sourceRow": 489,
+      "originalQuestion": "驾驶机动车行经人行横道，不按规定减速、停车、避让行人的，将被—次记多少分？",
+      "originalAnswer": "B",
+      "status": "excluded",
+      "reason": "Duplicate or near-duplicate after cleanup",
+      "similarity": 1,
+      "matchingId": "20201016175724nnejgemxbssicdhum9vr35",
+      "correctedQuestion": "驾驶机动车行经人行横道，不按规定减速、停车、避让行人的，将被一次记多少分？"
+    },
+    {
+      "candidate": 104,
+      "sourceRow": 492,
+      "originalQuestion": "在普通城市道路上逆向行驶，将被—次性扣多少分？",
+      "originalAnswer": "B",
+      "status": "added",
+      "id": "supp-trllm-review-42a9076a6446558b",
+      "questionNumber": 2822,
+      "correctedQuestion": "在普通城市道路（非城市快速路）上逆向行驶，一次记多少分？",
+      "correctedAnswer": "B",
+      "validationSources": [
+        "https://www.beijing.gov.cn/zhengce/zhengcefagui/202204/t20220401_2645851.html"
+      ]
+    },
+    {
+      "candidate": 105,
+      "sourceRow": 493,
+      "originalQuestion": "驾驶机动车在高速公路上行驶，超过规定时速10%以上不满20%的，—次记3分。",
+      "originalAnswer": "A",
+      "status": "excluded",
+      "reason": "Duplicate speed band in corrected candidate 88."
+    },
+    {
+      "candidate": 106,
+      "sourceRow": 494,
+      "originalQuestion": "机动车驾驶人造成事故后逃逸构成犯罪的，吊销驾驶证且5年内不得重新取得驾驶",
+      "originalAnswer": "B",
+      "status": "excluded",
+      "reason": "Duplicate or near-duplicate after cleanup",
+      "similarity": 1,
+      "matchingId": "20201016175724mjxwhpjp6rzgxz7y1xe4jo",
+      "correctedQuestion": "机动车驾驶人造成事故后逃逸构成犯罪的，吊销驾驶证且5年内不得重新取得驾驶证。"
+    },
+    {
+      "candidate": 107,
+      "sourceRow": 498,
+      "originalQuestion": "驾驶机动车不按规定超车、让行的，或者逆向行驶的，将被—次记多少分？",
+      "originalAnswer": "B",
+      "status": "excluded",
+      "reason": "Duplicate or near-duplicate after cleanup",
+      "similarity": 0.9487,
+      "matchingId": "202204081925045ygu56rapkti3dszzq6sbg",
+      "correctedQuestion": "驾驶机动车不按规定超车、让行，或者在高速公路、城市快速路以外的道路上逆行，一次记多少分？"
+    },
+    {
+      "candidate": 108,
+      "sourceRow": 500,
+      "originalQuestion": "超过机动车驾驶证有效期—年以上未换证的，会受到何种处罚？",
+      "originalAnswer": "A",
+      "status": "added",
+      "id": "supp-trllm-review-9078f6fecc12b6fe",
+      "questionNumber": 2823,
+      "correctedQuestion": "超过机动车驾驶证有效期一年以上未换证的，车辆管理所应作何处理？",
+      "correctedAnswer": "A",
+      "validationSources": [
+        "https://www.beijing.gov.cn/zhengce/zhengcefagui/qtwj/202412/t20241231_3978134.html"
+      ]
+    },
+    {
+      "candidate": 109,
+      "sourceRow": 506,
+      "originalQuestion": "对于情节轻微，未影晌道路通行的，交通警察会指出违法行为，给予口头警告后放行。",
+      "originalAnswer": "A",
+      "status": "excluded",
+      "reason": "Duplicate or near-duplicate after cleanup",
+      "similarity": 1,
+      "matchingId": "202011161802471g48wle9rptevryibepxu",
+      "correctedQuestion": "对于情节轻微，未影响道路通行的，交通警察会指出违法行为，给予口头警告后放行。"
+    },
+    {
+      "candidate": 110,
+      "sourceRow": 510,
+      "originalQuestion": "低能见度气象条件下，驾驶机动车在高速公路上不按规定行驶的，—次记多少分？",
+      "originalAnswer": "C",
+      "status": "excluded",
+      "reason": "Legacy blanket low-visibility penalty removed; candidate 73 covers safe speed."
+    },
+    {
+      "candidate": 111,
+      "sourceRow": 515,
+      "originalQuestion": "驾驶机动车违法使用其他号牌、行驶证的，—次记多少分？",
+      "originalAnswer": "D",
+      "status": "excluded",
+      "reason": "Existing other-vehicle-plate scoring topic; avoid trivial OCR-only addition."
+    },
+    {
+      "candidate": 112,
+      "sourceRow": 531,
+      "originalQuestion": "对于持有小型自动挡汽车驾驶证(C2)以上的人员，可以驾驶上肢残疾人专用小型自动挡载客汽车。",
+      "originalAnswer": "A",
+      "status": "excluded",
+      "reason": "Vehicle qualification wording is ambiguous; omitted pending specific endorsement check."
+    },
+    {
+      "candidate": 113,
+      "sourceRow": 539,
+      "originalQuestion": "当驾驶人服用的药物对驾驶行为可能有影晌时，驾驶人不得驾驶机动车。",
+      "originalAnswer": "A",
+      "status": "excluded",
+      "reason": "Duplicate or near-duplicate after cleanup",
+      "similarity": 1,
+      "matchingId": "20210330145531n3ctyzcvgov66wpxldacje",
+      "correctedQuestion": "当驾驶人服用的药物对驾驶行为可能有影响时，驾驶人不得驾驶机动车。"
+    },
+    {
+      "candidate": 114,
+      "sourceRow": 543,
+      "originalQuestion": "公安机关交通管理部门在交通事故调解期间，有—方当事人向人民法院提起民事诉讼的，应当终止调解。",
+      "originalAnswer": "A",
+      "status": "excluded",
+      "reason": "Duplicate or near-duplicate after cleanup",
+      "similarity": 1,
+      "matchingId": "20210415141320cv8qyucp7txqnprsfnsrbe",
+      "correctedQuestion": "公安机关交通管理部门在交通事故调解期间，有一方当事人向人民法院提起民事诉讼的，应当终止调解。"
+    },
+    {
+      "candidate": 115,
+      "sourceRow": 550,
+      "originalQuestion": "饮酒后驾驶非营运机动车的，处十五日拘留，并处五干元罚款。",
+      "originalAnswer": "B",
+      "status": "excluded",
+      "reason": "Duplicate or near-duplicate after cleanup",
+      "similarity": 0.9412,
+      "matchingId": "20210506182100bvmmsr4k9v9bsowrb3kcgs",
+      "correctedQuestion": "首次饮酒后驾驶非营运机动车，处十五日拘留，并处五千元罚款。"
+    },
+    {
+      "candidate": 116,
+      "sourceRow": 557,
+      "originalQuestion": "驾驶技能准考证明的有效期是三年。",
+      "originalAnswer": "A",
+      "status": "excluded",
+      "reason": "Duplicate candidate 6."
+    },
+    {
+      "candidate": 117,
+      "sourceRow": 558,
+      "originalQuestion": "驾驶机动车行驶到这个位置时，如果车前轮已越过停止线可以继续通过。[有图片]",
+      "originalAnswer": "B",
+      "status": "excluded",
+      "reason": "Required image missing."
+    },
+    {
+      "candidate": 118,
+      "sourceRow": 579,
+      "originalQuestion": "雨天对安全行车的主要影晌是什么？",
+      "originalAnswer": "B",
+      "status": "excluded",
+      "reason": "Duplicate or near-duplicate after cleanup",
+      "similarity": 1,
+      "matchingId": "2019041010255362sf6j4hz8byflfzt9cfy9",
+      "correctedQuestion": "雨天对安全行车的主要影响是什么？"
+    },
+    {
+      "candidate": 119,
+      "sourceRow": 594,
+      "originalQuestion": "漫水道路行车时，应挂高速档，快速通过。",
+      "originalAnswer": "B",
+      "status": "excluded",
+      "reason": "Duplicate or near-duplicate after cleanup",
+      "similarity": 0.9375,
+      "matchingId": "20190410102550v1cwdrfkfbyhgendrvcjuf",
+      "correctedQuestion": "漫水道路行车时，应挂高速档，快速通过。"
+    },
+    {
+      "candidate": 120,
+      "sourceRow": 670,
+      "originalQuestion": "车辆通过铁道路口时，应用低速挡安全通过，中途不得换挡，以避免发动机熄火。",
+      "originalAnswer": "A",
+      "status": "added",
+      "id": "supp-trllm-review-0be8bd5baf678b13",
+      "questionNumber": 2824,
+      "correctedQuestion": "驾驶手动挡汽车通过铁路道口时，应提前选择合适的低速挡，安全通过过程中避免换挡，以减少熄火风险。",
+      "correctedAnswer": "A",
+      "validationSources": []
+    },
+    {
+      "candidate": 121,
+      "sourceRow": 752,
+      "originalQuestion": "前轮胎爆裂已出现转向时，驾驶人不要过度矫正，应在控制住方向的情况下，应怎样做，使车辆缓慢减速？",
+      "originalAnswer": "C",
+      "status": "excluded",
+      "reason": "Duplicate or near-duplicate after cleanup",
+      "similarity": 0.988,
+      "matchingId": "201904101025523bkhzhpyan21dfi316easb",
+      "correctedQuestion": "前轮胎爆裂已出现转向时，驾驶人不要过度矫正，应在控制住方向的情况下，应怎样做，使车辆缓慢减速？"
+    },
+    {
+      "candidate": 122,
+      "sourceRow": 774,
+      "originalQuestion": "遇前方路段车道减少，车辆行驶缓慢，为保证安全有序应该怎样做?",
+      "originalAnswer": "A",
+      "status": "excluded",
+      "reason": "Duplicate or near-duplicate after cleanup",
+      "similarity": 0.9455,
+      "matchingId": "20190410102555j8eas8ct2dalrhz3zpumh9",
+      "correctedQuestion": "遇前方路段车道减少，车辆行驶缓慢，为保证安全有序应该怎样做?"
+    },
+    {
+      "candidate": 123,
+      "sourceRow": 777,
+      "originalQuestion": "驾驶机动车正在被其他车辆超越时，被超车辆减速靠右侧行驶的目的是什么?",
+      "originalAnswer": "B",
+      "status": "excluded",
+      "reason": "Duplicate or near-duplicate after cleanup",
+      "similarity": 0.9688,
+      "matchingId": "201904101025525qbts4ctuuswhfmrkxynxw",
+      "correctedQuestion": "驾驶机动车正在被其他车辆超越时，被超车辆减速靠右侧行驶的目的是什么?"
+    },
+    {
+      "candidate": 124,
+      "sourceRow": 782,
+      "originalQuestion": "以下哪种行为处十日以下拘留，并处—千元以上二千元以下罚款，吊销机动车驾驶证？",
+      "originalAnswer": "D",
+      "status": "excluded",
+      "reason": "Duplicate or near-duplicate after cleanup",
+      "similarity": 1,
+      "matchingId": "20190410102554uyug9nlezlsl5sxoexteoa",
+      "correctedQuestion": "以下哪种行为处十日以下拘留，并处一千元以上二千元以下罚款，吊销机动车驾驶证？"
+    },
+    {
+      "candidate": 125,
+      "sourceRow": 792,
+      "originalQuestion": "驾驶机动车在高速公路上遇到雨雪天气时，需要降低车速、保持安全距离的原因，以",
+      "originalAnswer": "D",
+      "status": "excluded",
+      "reason": "Duplicate or near-duplicate after cleanup",
+      "similarity": 1,
+      "matchingId": "20190410102554gm6s4gkxxjwf2epqdcmnky",
+      "correctedQuestion": "驾驶机动车在高速公路上遇到雨雪天气时，需要降低车速、保持安全距离的原因，以下说法错误的是什么？"
+    },
+    {
+      "candidate": 126,
+      "sourceRow": 796,
+      "originalQuestion": "申请人在考试过程中有贿赂、舞弊行为的，申请人在多少年内不得再次申领机动车驾",
+      "originalAnswer": "A",
+      "status": "excluded",
+      "reason": "Duplicate or near-duplicate after cleanup",
+      "similarity": 1,
+      "matchingId": "20190410102552efurpb4sm1z5hownqnxpu",
+      "correctedQuestion": "申请人在考试过程中有贿赂、舞弊行为的，申请人在多少年内不得再次申领机动车驾驶证？"
+    },
+    {
+      "candidate": 127,
+      "sourceRow": 797,
+      "originalQuestion": "驾驶机动车遇紧急事务，可以边开车边接打电话。",
+      "originalAnswer": "B",
+      "status": "excluded",
+      "reason": "Duplicate or near-duplicate after cleanup",
+      "similarity": 0.9524,
+      "matchingId": "20190410102550lqnyxc7aeuguh6lzv4trdx",
+      "correctedQuestion": "驾驶机动车遇紧急事务，可以边开车边接打电话。"
+    },
+    {
+      "candidate": 128,
+      "sourceRow": 800,
+      "originalQuestion": "驾驶机动车在山路行驶时，为了减少油耗，下坡时可以空挡滑行，并使用行车制动器",
+      "originalAnswer": "B",
+      "status": "excluded",
+      "reason": "Duplicate or near-duplicate after cleanup",
+      "similarity": 1,
+      "matchingId": "20190410102547qegmbbgjsvqwhg4g4933td",
+      "correctedQuestion": "驾驶机动车在山路行驶时，为了减少油耗，下坡时可以空挡滑行，并使用行车制动器控制速度。"
+    },
+    {
+      "candidate": 129,
+      "sourceRow": 816,
+      "originalQuestion": "警车、消防车、救护车、工程救险车执行紧急任务时，耽误或影晌其通行可能会导致严重后果， 所以其他车辆和行人应当主动让行。",
+      "originalAnswer": "A",
+      "status": "excluded",
+      "reason": "Duplicate or near-duplicate after cleanup",
+      "similarity": 1,
+      "matchingId": "20190410102548k66goah3sg7vvdiuadvggm",
+      "correctedQuestion": "警车、消防车、救护车、工程救险车执行紧急任务时，耽误或影响其通行可能会导致严重后果，所以其他车辆和行人应当主动让行。"
+    },
+    {
+      "candidate": 130,
+      "sourceRow": 821,
+      "originalQuestion": "在高速公路上行驶感觉疲劳时，只要不影晌后方车辆行驶，可以靠边停车休息。",
+      "originalAnswer": "B",
+      "status": "excluded",
+      "reason": "Duplicate or near-duplicate after cleanup",
+      "similarity": 1,
+      "matchingId": "201911261902192nwxspn3bng5ykqqkc3bpu",
+      "correctedQuestion": "在高速公路上行驶感觉疲劳时，只要不影响后方车辆行驶，可以靠边停车休息。"
+    },
+    {
+      "candidate": 131,
+      "sourceRow": 823,
+      "originalQuestion": "行人参与道路交通的主要特点是行人喜欢在—起聚集、围观。",
+      "originalAnswer": "B",
+      "status": "excluded",
+      "reason": "Subjective pedestrian characterization has little usable learning value."
+    },
+    {
+      "candidate": 132,
+      "sourceRow": 825,
+      "originalQuestion": "遇到—个图中所示的漫水路段时，要提前减速，谨慎慢行进入水区，在涉水路段行驶，—定要低速缓慢行驶，涉水途中禁止停车。",
+      "originalAnswer": "B",
+      "status": "excluded",
+      "reason": "Required image missing."
+    },
+    {
+      "candidate": 133,
+      "sourceRow": 828,
+      "originalQuestion": "机动车在山区冰雪覆盖的道路上行驶，应当采取在＿上安装防滑链等安全措施？",
+      "originalAnswer": "A",
+      "status": "excluded",
+      "reason": "Vehicle-specific chain installation requirements; source universal answer too broad."
+    },
+    {
+      "candidate": 134,
+      "sourceRow": 855,
+      "originalQuestion": "出现晕厥、恶心、乏力、幻象等影响安全驾驶的现象时，驾驶人不能继续驾驶机动车，",
+      "originalAnswer": "A",
+      "status": "excluded",
+      "reason": "Duplicate or near-duplicate after cleanup",
+      "similarity": 1,
+      "matchingId": "202009141806309pjcerdxxjmwsvttgcrpm2",
+      "correctedQuestion": "出现晕厥、恶心、乏力、幻象等影响安全驾驶的现象时，驾驶人不能继续驾驶机动车，避免发生交通事故。"
+    },
+    {
+      "candidate": 135,
+      "sourceRow": 864,
+      "originalQuestion": "在大风天气条件下驾驶机动车，突然感觉到方向盘难以控制时，要逆风方向转动方向",
+      "originalAnswer": "B",
+      "status": "added",
+      "id": "supp-trllm-review-90cab56f6cc9e7c6",
+      "questionNumber": 2825,
+      "correctedQuestion": "大风中突然感到转向盘难以控制时，应立即朝逆风方向猛打转向盘。",
+      "correctedAnswer": "B",
+      "validationSources": []
+    },
+    {
+      "candidate": 136,
+      "sourceRow": 868,
+      "originalQuestion": "车辆在泥冲路上发生侧滑时，以下做法正确的是？",
+      "originalAnswer": "A",
+      "status": "added",
+      "id": "supp-trllm-review-e03718f9df6d2587",
+      "questionNumber": 2826,
+      "correctedQuestion": "车辆在泥泞路面行驶，后轮发生侧滑时，以下做法正确的是？",
+      "correctedAnswer": "A",
+      "validationSources": [
+        "https://jtgl.beijing.gov.cn/jgj/jgxx/94246/95332/162081/index.html"
+      ]
+    },
+    {
+      "candidate": 137,
+      "sourceRow": 871,
+      "originalQuestion": "在高速公路上行驶感觉疲劳时，应在下—个服务区停车休息。",
+      "originalAnswer": "A",
+      "status": "excluded",
+      "reason": "Existing fatigue/service-area topic."
+    },
+    {
+      "candidate": 138,
+      "sourceRow": 888,
+      "originalQuestion": "驾驶机动车需要在路边临时停车时，可选择在不影晌行人通行的人行横道上停放。",
+      "originalAnswer": "B",
+      "status": "excluded",
+      "reason": "Duplicate or near-duplicate after cleanup",
+      "similarity": 1,
+      "matchingId": "20210305160037efhb7yypdrygtxxgcaw9t4",
+      "correctedQuestion": "驾驶机动车需要在路边临时停车时，可选择在不影响行人通行的人行横道上停放。"
+    },
+    {
+      "candidate": 139,
+      "sourceRow": 898,
+      "originalQuestion": "机动车在设置了禁停标志的路段，不得停、放车辆，否则—次记2分。",
+      "originalAnswer": "B",
+      "status": "excluded",
+      "reason": "Combines parking violation and old points without precise current classification."
+    },
+    {
+      "candidate": 140,
+      "sourceRow": 899,
+      "originalQuestion": "车辆行至交叉路口，需要掉头时，不可直接轧双黄实线掉头，否则—次记2分。",
+      "originalAnswer": "B",
+      "status": "added",
+      "id": "supp-trllm-review-f707fc0cbc538dd7",
+      "questionNumber": 2827,
+      "correctedQuestion": "驾驶机动车违反禁止标线指示，跨越双黄实线掉头，一次记2分。",
+      "correctedAnswer": "B",
+      "validationSources": [
+        "https://www.beijing.gov.cn/zhengce/zhengcefagui/202204/t20220401_2645851.html"
+      ]
+    },
+    {
+      "candidate": 141,
+      "sourceRow": 908,
+      "originalQuestion": "机动车在通过没有信号灯的交叉路口，应当减速慢行，并让行人和优先通行的车辆先",
+      "originalAnswer": "A",
+      "status": "excluded",
+      "reason": "Duplicate or near-duplicate after cleanup",
+      "similarity": 1,
+      "matchingId": "20210415141321htswvfsceydgwsd2kg7ris",
+      "correctedQuestion": "机动车在通过没有信号灯的交叉路口，应当减速慢行，并让行人和优先通行的车辆先行。"
+    },
+    {
+      "candidate": 142,
+      "sourceRow": 910,
+      "originalQuestion": "驾驶机动车遇到救护车等执行任务的特种车辆时，应迅速避让，为特种车辆空出—条  “生命通道”。",
+      "originalAnswer": "A",
+      "status": "excluded",
+      "reason": "Duplicate emergency-vehicle yield topic in candidate 129."
+    },
+    {
+      "candidate": 143,
+      "sourceRow": 919,
+      "originalQuestion": "行车中，制动报警灯亮，应试踩—下制动，只要有效可正常行车。",
+      "originalAnswer": "B",
+      "status": "excluded",
+      "reason": "Duplicate or near-duplicate after cleanup",
+      "similarity": 1,
+      "matchingId": "20190410102556evmny2afsoqc6u4fetgzuh",
+      "correctedQuestion": "行车中，制动报警灯亮，应试踩一下制动，只要有效可正常行车。"
+    },
+    {
+      "candidate": 144,
+      "sourceRow": 925,
+      "originalQuestion": "安全头枕用于在发生追事故时保护驾驶人的头部不受伤害。",
+      "originalAnswer": "B",
+      "status": "added",
+      "id": "supp-trllm-review-f39ab55e71e65bc0",
+      "questionNumber": 2828,
+      "correctedQuestion": "安全头枕的重要作用之一，是在追尾碰撞时减轻乘员颈部损伤。",
+      "correctedAnswer": "A",
+      "validationSources": []
+    },
+    {
+      "candidate": 145,
+      "sourceRow": 940,
+      "originalQuestion": "机动车驾驶人及乘车人下车时，用远离车门—侧的手开门，转头观察车辆侧方和后方通行状况，避免妨碍他人通行。",
+      "originalAnswer": "A",
+      "status": "excluded",
+      "reason": "Duplicate or near-duplicate after cleanup",
+      "similarity": 1,
+      "matchingId": "202005281749068f2mz4vyeauj1roqkwyddm",
+      "correctedQuestion": "机动车驾驶人及乘车人下车时，用远离车门一侧的手开门，转头观察车辆侧方和后方通行状况，避免妨碍他人通行。"
+    },
+    {
+      "candidate": 146,
+      "sourceRow": 943,
+      "originalQuestion": "在交通事故现场，—旦遇到有毒有害物质泄漏，—定要第—时间疏散人员，并立即报警。",
+      "originalAnswer": "A",
+      "status": "excluded",
+      "reason": "Duplicate or near-duplicate after cleanup",
+      "similarity": 1,
+      "matchingId": "20200818173250yzjvwjavln3maz8yxreqp6",
+      "correctedQuestion": "在交通事故现场，一旦遇到有毒有害物质泄漏，一定要第一时间疏散人员，并立即报警。"
+    },
+    {
+      "candidate": 147,
+      "sourceRow": 946,
+      "originalQuestion": "驾驶机动车遇车辆出现燃烧现象，应迅速离开车内，避免对呼吸道造成伤害或发生窒",
+      "originalAnswer": "A",
+      "status": "excluded",
+      "reason": "Duplicate or near-duplicate after cleanup",
+      "similarity": 1,
+      "matchingId": "20200818173251a5auxzwxcmsxvhraxyimdd",
+      "correctedQuestion": "驾驶机动车遇车辆出现燃烧现象，应迅速离开车内，避免对呼吸道造成伤害或发生窒息。"
+    },
+    {
+      "candidate": 148,
+      "sourceRow": 947,
+      "originalQuestion": "抢救有害气体中毒伤员时，应第—时间将伤员移送到有新鲜空气的地方，脱离危险环境，防止吸入更多有害气体。",
+      "originalAnswer": "A",
+      "status": "excluded",
+      "reason": "Unsafe to imply unprotected entry for gas rescue; omitted."
+    },
+    {
+      "candidate": 149,
+      "sourceRow": 971,
+      "originalQuestion": "伤员大腿、小腿和脊椎骨折时，—般不要随便移动伤者。",
+      "originalAnswer": "A",
+      "status": "excluded",
+      "reason": "Medical injury handling outside this focused cleanup."
+    },
+    {
+      "candidate": 150,
+      "sourceRow": 978,
+      "originalQuestion": "驾驶机动车在超车时，应当提前开启左转向灯，变换使用远近光灯，确保充足的距离后，从前车的右侧超越。",
+      "originalAnswer": "B",
+      "status": "added",
+      "id": "supp-trllm-review-645ab01ce73d32c8",
+      "questionNumber": 2829,
+      "correctedQuestion": "驾驶机动车在超车时，应当提前开启左转向灯，变换使用远近光灯，确保充足的距离后，从前车的右侧超越。",
+      "correctedAnswer": "B",
+      "validationSources": [
+        "https://www.samr.gov.cn/zw/zfxxgk/fdzdgknr/bgt/art/2023/art_92d27a3736be4585af2357930349374c.html"
+      ]
+    },
+    {
+      "candidate": 151,
+      "sourceRow": 1014,
+      "originalQuestion": "驾驶人启动发动机后，应检查仪表盘，如有黄色或红色指示灯亮时，须及时排除故障。",
+      "originalAnswer": "A",
+      "status": "excluded",
+      "reason": "Overbroad all-yellow/red-lights-means-fault premise; vehicle-specific indicator meanings."
+    },
+    {
+      "candidate": 152,
+      "sourceRow": 1013,
+      "originalQuestion": "当车辆驶出隧道时，驾驶人易出现“明适应”现象，以下做法错误的是什么？",
+      "originalAnswer": "ACD",
+      "status": "added",
+      "id": "supp-trllm-review-b27de4b891bf1104",
+      "questionNumber": 2830,
+      "correctedQuestion": "车辆驶出隧道时，驾驶人需要适应突然变亮的环境，以下做法正确的是什么？",
+      "correctedAnswer": "B",
+      "validationSources": []
+    },
+    {
+      "candidate": 153,
+      "sourceRow": 996,
+      "originalQuestion": "驾驶机动车在高速公路加速车道超车，应迅速提速超越前方车辆完成超车。",
+      "originalAnswer": "B",
+      "status": "added",
+      "id": "supp-trllm-review-b8b4a2eb33741af3",
+      "questionNumber": 2831,
+      "correctedQuestion": "驾驶机动车在高速公路加速车道超车，应迅速提速超越前方车辆完成超车。",
+      "correctedAnswer": "B",
+      "validationSources": [
+        "https://www.samr.gov.cn/zw/zfxxgk/fdzdgknr/bgt/art/2023/art_92d27a3736be4585af2357930349374c.html"
+      ]
+    },
+    {
+      "candidate": 154,
+      "sourceRow": 997,
+      "originalQuestion": "驾驶机动车在桥梁涵洞会车时，要加速行驶，在对向车到达前通过。",
+      "originalAnswer": "B",
+      "status": "added",
+      "id": "supp-trllm-review-6208eb4d2d751af3",
+      "questionNumber": 2832,
+      "correctedQuestion": "驾驶机动车在桥梁涵洞会车时，要加速行驶，在对向车到达前通过。",
+      "correctedAnswer": "B",
+      "validationSources": []
+    },
+    {
+      "candidate": 155,
+      "sourceRow": 998,
+      "originalQuestion": "驾驶汽车在山区道路转弯下陡坡路段遇对面来车时，应在进入弯道后立即加速驶离，避免发生碰撞。",
+      "originalAnswer": "B",
+      "status": "added",
+      "id": "supp-trllm-review-e39eae15237b79e6",
+      "questionNumber": 2833,
+      "correctedQuestion": "驾驶汽车在山区道路转弯下陡坡路段遇对面来车时，应在进入弯道后立即加速驶离，避免发生碰撞。",
+      "correctedAnswer": "B",
+      "validationSources": []
+    },
+    {
+      "candidate": 156,
+      "sourceRow": 999,
+      "originalQuestion": "驾驶机动车在高速公路遇到紧急情况时，可以将车辆挪至应急车道。",
+      "originalAnswer": "A",
+      "status": "added",
+      "id": "supp-trllm-review-a98fd0d4785082b5",
+      "questionNumber": 2834,
+      "correctedQuestion": "驾驶机动车在高速公路上发生故障，车辆仍能够安全移动时，可以将其移至应急车道并按规定采取警示、防护措施。",
+      "correctedAnswer": "A",
+      "validationSources": [
+        "https://jtgl.beijing.gov.cn/jgj/jgxx/flfg/fl/205308/index.html"
+      ]
+    },
+    {
+      "candidate": 157,
+      "sourceRow": 1000,
+      "originalQuestion": "驾驶机动车在山区道路跟车行驶，由于路况不佳，应紧跟前车行驶。",
+      "originalAnswer": "B",
+      "status": "added",
+      "id": "supp-trllm-review-ffbe41bba037806d",
+      "questionNumber": 2835,
+      "correctedQuestion": "驾驶机动车在山区道路跟车行驶，由于路况不佳，应紧跟前车行驶。",
+      "correctedAnswer": "B",
+      "validationSources": []
+    },
+    {
+      "candidate": 158,
+      "sourceRow": 1001,
+      "originalQuestion": "车辆发生故障临时停车后，应及时正确放置危险警告标志和开启危险报警闪光灯，将车上人员转移至安全地点等待救援，避免二次事故的发生。",
+      "originalAnswer": "A",
+      "status": "added",
+      "id": "supp-trllm-review-b46a99f73bca8739",
+      "questionNumber": 2836,
+      "correctedQuestion": "车辆发生故障临时停车后，应及时正确放置危险警告标志和开启危险报警闪光灯，将车上人员转移至安全地点等待救援，避免二次事故的发生。",
+      "correctedAnswer": "A",
+      "validationSources": [
+        "https://jtgl.beijing.gov.cn/jgj/jgxx/flfg/fl/205308/index.html",
+        "https://www.samr.gov.cn/zw/zfxxgk/fdzdgknr/bgt/art/2023/art_92d27a3736be4585af2357930349374c.html"
+      ]
+    },
+    {
+      "candidate": 159,
+      "sourceRow": 1002,
+      "originalQuestion": "机动车遇有前方车辆停车排队等候或者缓慢行驶时，可临时借道超车或者占用对面车道。",
+      "originalAnswer": "B",
+      "status": "excluded",
+      "reason": "Duplicate queuing rule in candidate 26."
+    },
+    {
+      "candidate": 160,
+      "sourceRow": 1003,
+      "originalQuestion": "机动车载运超限物品行经铁路道口的，应当按照当地铁路部门指定的铁路道口、时间通过。",
+      "originalAnswer": "A",
+      "status": "excluded",
+      "reason": "Already imported in previous batch."
+    },
+    {
+      "candidate": 161,
+      "sourceRow": 1004,
+      "originalQuestion": "机动车在道路上临时停车时应当紧靠道路左侧，驾驶人不得离开车辆。",
+      "originalAnswer": "B",
+      "status": "added",
+      "id": "supp-trllm-review-be5357caa5d1382f",
+      "questionNumber": 2837,
+      "correctedQuestion": "机动车在道路上临时停车时应当紧靠道路左侧，驾驶人不得离开车辆。",
+      "correctedAnswer": "B",
+      "validationSources": [
+        "https://www.samr.gov.cn/zw/zfxxgk/fdzdgknr/bgt/art/2023/art_92d27a3736be4585af2357930349374c.html"
+      ]
+    },
+    {
+      "candidate": 162,
+      "sourceRow": 1005,
+      "originalQuestion": "驾驶机动车需要在高速公路停车时，不能在下列哪个地点停车？",
+      "originalAnswer": "ABC",
+      "status": "added",
+      "id": "supp-trllm-review-06648c367f4eb1c4",
+      "questionNumber": 2838,
+      "correctedQuestion": "驾驶机动车在高速公路行驶，需要正常停车休息，应选择以下哪个地点？",
+      "correctedAnswer": "D",
+      "validationSources": [
+        "https://www.samr.gov.cn/zw/zfxxgk/fdzdgknr/bgt/art/2023/art_92d27a3736be4585af2357930349374c.html"
+      ]
+    },
+    {
+      "candidate": 163,
+      "sourceRow": 1006,
+      "originalQuestion": "驾驶机动车行经漫水路或者漫水桥时，应当停车察明水情，在确认安全后快速通过。",
+      "originalAnswer": "B",
+      "status": "excluded",
+      "reason": "Duplicate or near-duplicate after cleanup",
+      "similarity": 0.9412,
+      "matchingId": "supp-trllm-review-bac209935d1db330",
+      "correctedQuestion": "驾驶机动车行经漫水路或者漫水桥时，应当停车查明水情，在确认安全后快速通过。"
+    },
+    {
+      "candidate": 164,
+      "sourceRow": 1007,
+      "originalQuestion": "下列哪些属于交通信号灯？",
+      "originalAnswer": "ABCD",
+      "status": "added",
+      "id": "supp-trllm-review-ea9aa433f553ba76",
+      "questionNumber": 2839,
+      "correctedQuestion": "机动车信号灯、非机动车信号灯、人行横道信号灯和道路与铁路平面交叉道口信号灯，都属于交通信号灯。",
+      "correctedAnswer": "A",
+      "validationSources": [
+        "https://www.samr.gov.cn/zw/zfxxgk/fdzdgknr/bgt/art/2023/art_92d27a3736be4585af2357930349374c.html"
+      ]
+    },
+    {
+      "candidate": 165,
+      "sourceRow": 1008,
+      "originalQuestion": "驾驶车辆时在道路上抛洒物品，以下说法正确的是什么？",
+      "originalAnswer": "ABC",
+      "status": "added",
+      "id": "supp-trllm-review-b6f6fafad37d3478",
+      "questionNumber": 2840,
+      "correctedQuestion": "关于驾驶车辆时向道路抛洒物品，以下说法错误的是什么？",
+      "correctedAnswer": "D",
+      "validationSources": [
+        "https://www.samr.gov.cn/zw/zfxxgk/fdzdgknr/bgt/art/2023/art_92d27a3736be4585af2357930349374c.html"
+      ]
+    },
+    {
+      "candidate": 166,
+      "sourceRow": 1009,
+      "originalQuestion": "铁路道口遇到两个红灯交替闪烁，警示驾驶人要注意瞭望，确认安全通过。",
+      "originalAnswer": "B",
+      "status": "added",
+      "id": "supp-trllm-review-f2b40e1676977209",
+      "questionNumber": 2841,
+      "correctedQuestion": "铁路道口遇到两个红灯交替闪烁，警示驾驶人要注意瞭望，确认安全通过。",
+      "correctedAnswer": "B",
+      "validationSources": [
+        "https://www.samr.gov.cn/zw/zfxxgk/fdzdgknr/bgt/art/2023/art_92d27a3736be4585af2357930349374c.html"
+      ]
+    },
+    {
+      "candidate": 167,
+      "sourceRow": 1010,
+      "originalQuestion": "当车辆驶出隧道时，驾驶人易出现“明适应“现象，应减少与前车距离，利用前车挡住强光，迅速驶出隧道。",
+      "originalAnswer": "B",
+      "status": "added",
+      "id": "supp-trllm-review-630354e5ad8810b8",
+      "questionNumber": 2842,
+      "correctedQuestion": "当车辆驶出隧道时，驾驶人易出现“明适应”现象，应减少与前车距离，利用前车挡住强光，迅速驶出隧道。",
+      "correctedAnswer": "B",
+      "validationSources": []
+    },
+    {
+      "candidate": 168,
+      "sourceRow": 1011,
+      "originalQuestion": "行车中前轮爆裂已出现方向偏移时，正确的做法是什么？",
+      "originalAnswer": "ACD",
+      "status": "added",
+      "id": "supp-trllm-review-2121819dc16307ad",
+      "questionNumber": 2843,
+      "correctedQuestion": "行车中前轮爆裂并出现方向偏移时，以下做法错误的是什么？",
+      "correctedAnswer": "B",
+      "validationSources": []
+    },
+    {
+      "candidate": 169,
+      "sourceRow": 1012,
+      "originalQuestion": "行至漫水路段时，应如何行驶？",
+      "originalAnswer": "ABD",
+      "status": "added",
+      "id": "supp-trllm-review-b187a64717ea43cf",
+      "questionNumber": 2844,
+      "correctedQuestion": "行至漫水路段时，以下做法错误的是什么？",
+      "correctedAnswer": "C",
+      "validationSources": [
+        "https://www.samr.gov.cn/zw/zfxxgk/fdzdgknr/bgt/art/2023/art_92d27a3736be4585af2357930349374c.html"
+      ]
+    },
+    {
+      "candidate": 170,
+      "sourceRow": 1016,
+      "originalQuestion": "夜间在招募不良的路段行驶，应该怎样使用灯光？",
+      "originalAnswer": "C",
+      "status": "excluded",
+      "reason": "Duplicate or near-duplicate after cleanup",
+      "similarity": 1,
+      "matchingId": "20211201141456cm5dwjavsnpnozpaai92gq",
+      "correctedQuestion": "夜间在照明不良的路段行驶，应该怎样使用灯光？"
+    },
+    {
+      "candidate": 171,
+      "sourceRow": 1018,
+      "originalQuestion": "汽车的专用备胎可以作为正常的轮胎长期使用。",
+      "originalAnswer": "B",
+      "status": "added",
+      "id": "supp-trllm-review-5e47d1fd69eb162d",
+      "questionNumber": 2845,
+      "correctedQuestion": "非全尺寸临时备胎可以作为正常轮胎长期使用。",
+      "correctedAnswer": "B",
+      "validationSources": []
+    },
+    {
+      "candidate": 172,
+      "sourceRow": 1019,
+      "originalQuestion": "牵引故障车时，牵引车和被牵引车均应当开启危险报警闪光灯。",
+      "originalAnswer": "A",
+      "status": "excluded",
+      "reason": "Already imported in previous batch."
+    },
+    {
+      "candidate": 173,
+      "sourceRow": 1021,
+      "originalQuestion": "驾驶机动车在高速公路加速车道行驶时，可以临时停车等待同行的其他车辆。",
+      "originalAnswer": "B",
+      "status": "added",
+      "id": "supp-trllm-review-e4fda5fdc7c37ab3",
+      "questionNumber": 2846,
+      "correctedQuestion": "驾驶机动车在高速公路加速车道行驶时，可以临时停车等待同行的其他车辆。",
+      "correctedAnswer": "B",
+      "validationSources": [
+        "https://www.samr.gov.cn/zw/zfxxgk/fdzdgknr/bgt/art/2023/art_92d27a3736be4585af2357930349374c.html"
+      ]
+    },
+    {
+      "candidate": 174,
+      "sourceRow": 1022,
+      "originalQuestion": "驾驶机动车在双向通行的隧道内行驶，如对向车道无来车，可以掉头。",
+      "originalAnswer": "B",
+      "status": "added",
+      "id": "supp-trllm-review-edde2f79fa514864",
+      "questionNumber": 2847,
+      "correctedQuestion": "驾驶机动车在双向通行的隧道内行驶，如对向车道无来车，可以掉头。",
+      "correctedAnswer": "B",
+      "validationSources": [
+        "https://www.samr.gov.cn/zw/zfxxgk/fdzdgknr/bgt/art/2023/art_92d27a3736be4585af2357930349374c.html"
+      ]
+    },
+    {
+      "candidate": 175,
+      "sourceRow": 1023,
+      "originalQuestion": "驾驶机动车在双向通行的隧道内行驶，如前车速度较慢，可借用对向车道超车。",
+      "originalAnswer": "B",
+      "status": "added",
+      "id": "supp-trllm-review-34eedc51e5d07858",
+      "questionNumber": 2848,
+      "correctedQuestion": "驾驶机动车在双向通行的隧道内行驶，如前车速度较慢，可借用对向车道超车。",
+      "correctedAnswer": "B",
+      "validationSources": [
+        "https://jtgl.beijing.gov.cn/jgj/jgxx/flfg/fl/205308/index.html"
+      ]
+    },
+    {
+      "candidate": 176,
+      "sourceRow": 1024,
+      "originalQuestion": "驾驶机动车在有车辙的冰雪道路行驶时，应循车辙低速行驶。",
+      "originalAnswer": "A",
+      "status": "added",
+      "id": "supp-trllm-review-8020dfcf21979ccf",
+      "questionNumber": 2849,
+      "correctedQuestion": "驾驶机动车在有车辙的冰雪道路行驶时，应循车辙低速行驶。",
+      "correctedAnswer": "A",
+      "validationSources": []
+    }
+  ]
+}

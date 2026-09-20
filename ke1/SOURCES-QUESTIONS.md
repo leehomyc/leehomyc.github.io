@@ -37,7 +37,7 @@ to contain the live examination questions.
 
 ## 1.2 Supplemental questions added 2026-09-20
 
-The bank now contains **2,776 questions**, including **231 additional text-only practice
+The first supplemental batch brought the bank to **2,776 questions**, including **231 additional text-only practice
 questions** from the Subject 1 documents in
 [TRLLM-Traffic-Rules-Assistant](https://github.com/lindsey-chang/TRLLM-Traffic-Rules-Assistant/tree/2c10e9d1d4051b283cbdfba2b086d2aaa9fe37ed/dataset/md).
 That repository carries an MIT licence; its copyright and permission notice is retained in
@@ -75,6 +75,39 @@ variants, incomplete image questions, and sources reserving rights to their ques
 It was not a count of ready-to-publish questions. Those other collections were not imported.
 Import counts and explicit manual exclusions are recorded in
 [data/supplement-import-audit.json](data/supplement-import-audit.json).
+
+## 1.3 Reviewed answer-only additions, 2026-09-20
+
+The bank now contains **2,849 questions**, including **304 supplemental questions**.
+This second batch adds **73 edited text-only practice questions** at positions
+**2777–2849**, preserving all previous records, IDs, and positions.
+The **练习本次新增 73 题** button opens this batch directly.
+
+We reviewed all **176 distinct unmatched stems** from TRLLM's
+[answer-only Subject 1 JSON](https://github.com/lindsey-chang/TRLLM-Traffic-Rules-Assistant/blob/2c10e9d1d4051b283cbdfba2b086d2aaa9fe37ed/dataset/json/struc_json/course1_without_exp.json).
+The same retained MIT notice applies. These are **edited supplemental practice**,
+not verbatim exam questions or a certified current exam pool.
+
+- Repaired broken sentences, OCR mistakes, choice labels, and obsolete terminology.
+- Authored an explanation for every retained question; the upstream collection had no useful explanations.
+- Corrected applicable age, licence, electronic inspection-certificate, and traffic-point rules
+  against the official sources above. Added vehicle/road/injury scope where needed.
+- Converted suitable multiple-answer questions into unambiguous single-choice or judgment questions.
+- Excluded **103** candidates: duplicates/near-duplicates after correction, missing-image questions,
+  and ambiguous, vehicle-specific, legacy, or otherwise insufficiently supported items.
+- Applied normalized exact and 92% near-stem duplicate screening; shared learning concepts can remain.
+- Recorded pinned source URL, source row, review date, adaptation flag, and relevant official
+  reference URLs on each added record. General driving explanations are editorial guidance;
+  not every practical statement has an independent official reference.
+
+Additional references include the
+[2021 Road Traffic Safety Law](https://jtgl.beijing.gov.cn/jgj/jgxx/flfg/fl/205308/index.html),
+[electronic inspection certificates](https://www.cac.gov.cn/2020-04/23/c_1589192367815895.htm),
+[mortgaged-vehicle transfer guidance](https://jtgl.beijing.gov.cn/jgj/93950/jwgk/jdcgl/120170/index.html),
+and [wet-road rear-wheel skid guidance](https://jtgl.beijing.gov.cn/jgj/jgxx/94246/95332/162081/index.html).
+The complete 176-candidate disposition log, including corrections and duplicate matches, is in
+[data/answer-only-import-audit.json](data/answer-only-import-audit.json).
+This review covers the new batch; it does not constitute a fresh audit of the existing bank.
 
 ## 2. Images
 
