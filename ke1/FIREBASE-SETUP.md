@@ -19,4 +19,4 @@ service cloud.firestore {
 }
 ```
 
-页面把用户名转换成内部账号标识，密码交给 Firebase Authentication 处理；页面和 Firestore 都不保存明文密码。刷题进度保存在对应用户文档的 `ke1Progress` 字段中。
+页面使用邮箱注册和登录。注册后 Firebase 会发送邮箱验证链接；登录框还支持发送密码重置邮件。密码交给 Firebase Authentication 处理，页面和 Firestore 都不保存明文密码。刷题进度保存在对应用户文档的 `ke1Progress` 字段中。
