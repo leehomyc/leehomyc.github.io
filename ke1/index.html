@@ -30,6 +30,7 @@
   </style>
 </head>
 <body>
+  <!-- ke1 release: guest-first auth, 2026-09-20 -->
   <div class="auth-backdrop hidden" id="auth-screen"><section class="auth-card"><button class="auth-close" id="auth-close" type="button" aria-label="关闭登录窗口">×</button><div class="eyebrow">账户</div><h2>登录后同步进度。</h2><p>游客可以直接刷题；注册后验证邮箱，进度和错题会保存到云端。</p><div class="auth-tabs"><button class="auth-tab active" id="login-tab">登录</button><button class="auth-tab" id="register-tab">注册</button></div><form class="auth-fields" id="auth-form"><label>邮箱<input id="auth-email" type="email" autocomplete="email" required placeholder="you@example.com" /></label><label>密码<input id="auth-password" type="password" autocomplete="current-password" minlength="6" required placeholder="至少 6 位" /></label><button class="auth-link" id="forgot-password" type="button">忘记密码？</button><button class="auth-submit" id="auth-submit" type="submit">登录</button></form><p class="auth-message" id="auth-message" aria-live="polite"></p><p class="auth-safe">密码通过加密连接提交，由云端账号服务安全保存；本站不会保存明文密码。</p></section></div>
   <header class="wrap"><a class="brand" href="."><div class="mark">科1</div><span>全题库</span></a><div><button class="account-button" id="account-button">登录同步</button></div></header>
   <main class="wrap">
