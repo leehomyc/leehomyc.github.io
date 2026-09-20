@@ -5,13 +5,13 @@ transparency and proper credit.
 
 ## 1. Questions, answers, and Chinese explanations
 
-The current local bank is derived from the public repository
+The original 2,545-question bank is derived from the public repository
 [`LiuMashiro/Exam-Question-Bank-for-Chinese-Driving-Test-Subject-1-Subject-4`](https://github.com/LiuMashiro/Exam-Question-Bank-for-Chinese-Driving-Test-Subject-1-Subject-4),
 revision dated **2026-07-28**. Its README says the data was corrected against the 2025-01-01
 公安部令第172号 changes and contains both answer explanations and new-rule markers.
 
 From that source we:
-1. Kept `subject == 1` only; the local bank contains 2,545 questions and no subject-4 questions.
+1. Kept `subject == 1` only; the original bank contains 2,545 questions and no subject-4 questions.
 2. Normalized question text, options, answer, explanation, difficulty, error rate, and the 2026 new-rule flag.
 3. Kept all 787 matching local question images.
 
@@ -34,6 +34,47 @@ We also checked current public practice sites. One commercial site advertises a 
 source. We therefore did not copy or redistribute its content. The 2,545-question bank here is
 larger than that advertised count, but remains an unofficial broad study set rather than a claim
 to contain the live examination questions.
+
+## 1.2 Supplemental questions added 2026-09-20
+
+The bank now contains **2,776 questions**, including **231 additional text-only practice
+questions** from the Subject 1 documents in
+[TRLLM-Traffic-Rules-Assistant](https://github.com/lindsey-chang/TRLLM-Traffic-Rules-Assistant/tree/2c10e9d1d4051b283cbdfba2b086d2aaa9fe37ed/dataset/md).
+That repository carries an MIT licence; its copyright and permission notice is retained in
+[licenses/TRLLM-MIT.txt](licenses/TRLLM-MIT.txt). Source revision:
+`2c10e9d1d4051b283cbdfba2b086d2aaa9fe37ed` (2024-06-03).
+
+Each added record retains its source question number, pinned source URL, source date, and
+addition date. The app labels it **补充练习**. The 2026 addition date does not turn the
+underlying 2024 material into an official 2026 examination release.
+
+Import screening:
+
+- Preserved all original records, IDs, and ordering; appended the additions at questions
+  **2546–2776**, so existing saved answers and question positions retain their meaning.
+- Removed exact normalized-stem duplicates and close wording matches (92% character-sequence
+  similarity after candidate retrieval). This does not guarantee unique concepts.
+- Required a complete stem, two or four distinct choices, one valid answer, and an explanation.
+- Excluded image-dependent questions because the referenced figures were unavailable in the
+  source repository; no figures were guessed or substituted.
+- Excluded age-rule questions, malformed extractions, and manually identified ambiguous items,
+  including electronic-document qualifications and the ON-position ignition statement.
+- Checked the relevant points/penalty provisions against
+  [公安部令第163号](https://www.beijing.gov.cn/zhengce/zhengcefagui/202204/t20220401_2645851.html),
+  driving-licence provisions against
+  [公安部令第172号](https://www.beijing.gov.cn/zhengce/zhengcefagui/qtwj/202412/t20241231_3978134.html),
+  registration provisions against
+  [公安部令第164号](https://jtgl.beijing.gov.cn/jgj/jgxx/flfg/gabgz/11186809/index.html),
+  and road-use provisions against the
+  [道路交通安全法实施条例](https://www.samr.gov.cn/zw/zfxxgk/fdzdgknr/bgt/art/2023/art_92d27a3736be4585af2357930349374c.html).
+  Screening is not official validation of every question or confirmation that it appears in
+  the current exam pool.
+
+The earlier discovery count of 2,382 represented candidate **wordings**, including older
+variants, incomplete image questions, and sources reserving rights to their question content.
+It was not a count of ready-to-publish questions. Those other collections were not imported.
+Import counts and explicit manual exclusions are recorded in
+[data/supplement-import-audit.json](data/supplement-import-audit.json).
 
 ## 2. Images
 
