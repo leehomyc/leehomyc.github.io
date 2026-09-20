@@ -6,7 +6,7 @@
   const VERSION = '20260920-fixes1';
   const CONFIG = {apiKey:'AIzaSyClOzy8OE5byDb-JRHg3WRBexpll6A_4Ow',authDomain:'papers-afc96.firebaseapp.com',projectId:'papers-afc96',storageBucket:'papers-afc96.firebasestorage.app',messagingSenderId:'96532598264',appId:'1:96532598264:web:2bfc852509f4d5373d1a0d'};
   const PREFIX = 'ke1:v2:';
-  let bank, latestQuestions = [], session, auth, db, authUser = null, authMode = 'login', authBusy = false;
+  let bank, session, auth, db, authUser = null, authMode = 'login', authBusy = false;
   let authInit, authEpoch = 0, importOnLogin = false, storageError = false, wrongPage = 0;
   let sequence = null, revealed = new Set(), imageState = 'none', imageId = '', imageTimer;
   let wrongReturnFocus, wrongSelection = false, filteredWrong = [];
@@ -247,9 +247,6 @@
     $('restart-practice').disabled = false;
     $('jump').disabled = false; $('jump-input').max = bank.questions.length;
     $('jump-range').textContent = '1–' + bank.questions.length;
-    $('practice-new').disabled = !latestQuestions.length;
-    $('practice-new').textContent = '练习本次新增 ' + latestQuestions.length + ' 题';
-    $('bank-note').textContent = '共 ' + bank.questions.length + ' 道练习，含 ' + bank.questions.filter(q => q.supplemental).length + ' 道补充练习；已合并 ' + (bank.rawIds.length - bank.questions.length) + ' 道重复题。补充练习不是官方考题，考前请核对最新本地题库。';
     renderWrong(stats.wrong);
   }
   function renderImage(q, retry = false) {
@@ -478,8 +475,6 @@
         return response.json();
       })(), 12000, '题库加载超时');
       bank = P.prepareBank(raw);
-      const latestBatch = [...bank.questions].reverse().find(q => q.batchId)?.batchId;
-      latestQuestions = bank.questions.filter(q => latestBatch ? q.batchId === latestBatch : q.supplemental);
       if (!session) session = makeSession('guest', null);
       persist(); render(); status('游客进度保存在本机 · 登录后可同步');
       resolveBank();
@@ -553,10 +548,6 @@
   });
   $('next-unanswered').addEventListener('click', () => {
     const q = bank.questions.find(q => !session.data.answers[q.id]);
-    if (q) {sequence = null; revealed.clear(); navigate(q.id);}
-  });
-  $('practice-new').addEventListener('click', () => {
-    const q = latestQuestions[0];
     if (q) {sequence = null; revealed.clear(); navigate(q.id);}
   });
   $('review-wrong').addEventListener('click', () => startReview('wrong', P.stats(session.data.answers, bank).wrong));

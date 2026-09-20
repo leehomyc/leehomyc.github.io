@@ -9,7 +9,7 @@
   <link rel="icon" type="image/svg+xml" href="favicon.svg" />
   <link rel="stylesheet" href="styles.css?v=20260920-wrong-panel1" />
   <script defer src="progress.js?v=20260920-wrong-panel1"></script>
-  <script defer src="app.js?v=20260920-wrong-panel1"></script>
+  <script defer src="app.js?v=20260920-clean-jump1"></script>
 </head>
 <body>
   <dialog class="auth-dialog" id="auth-screen" aria-labelledby="auth-title" aria-describedby="auth-description">
@@ -62,7 +62,7 @@
       <div class="sidebar" aria-label="练习工具">
         <section class="card side-card progress-card"><div class="side-head"><h2>刷题进度</h2><span class="mini" id="score">首次正确率 —</span></div><progress class="progress-track" id="progress" value="0" max="1" aria-label="已答题目进度"></progress><div class="progress-text"><strong id="done">0</strong><span id="done-label">已答 / 题库</span></div><button class="review-button" id="restart-practice" disabled>重新练习全部</button><p class="notice">首次正确率保留第一遍成绩；错题本按最近一次作答更新。</p></section>
         <section class="card side-card wrong-summary"><div class="side-head"><h2>错题本</h2><span class="mini" id="wrong-count">0 题</span></div><p class="wrong-empty" id="wrong-summary-text">答错的题会收在这里，答对后自动移出。</p><button class="review-button" id="review-wrong" disabled>暂时没有错题</button><button class="text-button wrong-browse" id="browse-wrong" disabled>查看错题</button></section>
-        <section class="card side-card"><div class="side-head"><h2>跳到题号</h2><span class="mini" id="jump-range">—</span></div><form class="jump" id="jump-form" novalidate><input id="jump-input" type="number" min="1" step="1" placeholder="题号" aria-label="输入题号" aria-describedby="jump-error" /><button id="jump" type="submit" disabled>跳转</button></form><p class="error-text" id="jump-error" role="alert"></p><button class="review-button" id="practice-new" disabled>练习补充题</button><p class="note" id="bank-note"></p></section>
+        <section class="card side-card"><div class="side-head"><h2>跳到题号</h2><span class="mini" id="jump-range">—</span></div><form class="jump" id="jump-form" novalidate><input id="jump-input" type="number" min="1" step="1" placeholder="题号" aria-label="输入题号" aria-describedby="jump-error" /><button id="jump" type="submit" disabled>跳转</button></form><p class="error-text" id="jump-error" role="alert"></p></section>
         <section class="card side-card tip"><div class="eyebrow">做题方法</div><strong>先选，再看解释。</strong><p>先读题干和配图，再选答案。答错后到错题本重新练习。</p></section>
       </div>
     </section>

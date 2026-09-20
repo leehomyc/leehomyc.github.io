@@ -164,7 +164,7 @@ await page.keyboard.press('Escape');check('focus returns to opener',await page.e
 await page.locator('[data-label="B"]').click();await page.locator('#restart-practice').click();
 check('new round starts with choices unlocked',await page.locator('.option:not(:disabled)').count()===2);
 check('new round hides previous explanation',!(await page.locator('#feedback').getAttribute('class')).includes('show'));
-await page.locator('#exit-review').click();await page.locator('#practice-new').click();check('supplement preserved',(await page.locator('#type').innerText()).includes('补充练习'));check('latest 73-question shortcut preserved',(await page.locator('#practice-new').innerText()).includes('73')&&(await page.locator('#number').innerText())==='2775 / 2847');
+await page.locator('#exit-review').click();await page.locator('#jump-input').fill('2775');await page.locator('#jump').click();check('supplement preserved',(await page.locator('#type').innerText()).includes('补充练习'));
 ''')
 setup({'user':{'uid':'audit-user','email':'audit@example.invalid','emailVerified':True},'documents':{'audit-user':{'ke1Progress':{'index':123,'answers':{}}}}})
 run('legacy_position_after_first_save','''
