@@ -146,3 +146,11 @@ This repository is an independent, unofficial, educational resource. It is not a
 endorsed by, or verified by the Ministry of Public Security (公安部), any Vehicle Management Office
 (车管所), 驾考宝典, or any other authority or commercial entity. Use it to learn the rules; confirm
 specifics against a current official-partnered source before your exam.
+
+## Practice display and saved-progress compatibility (2026-09-20)
+
+The raw 2,849-record file is preserved. The practice interface groups exact matches of
+question text, options, image and answer: original positions 546/1446 and 1424/1763.
+It therefore displays 2,847 distinct practice questions, including all 304 supplemental
+exercises. Every original question ID remains mapped to its displayed question so that
+existing answer history and old saved positions can be migrated without deleting records.
