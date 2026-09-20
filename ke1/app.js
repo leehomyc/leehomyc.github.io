@@ -9,6 +9,7 @@
   let bank, latestQuestions = [], session, auth, db, authUser = null, authMode = 'login', authBusy = false;
   let authInit, authEpoch = 0, importOnLogin = false, storageError = false, wrongPage = 0;
   let sequence = null, revealed = new Set(), imageState = 'none', imageId = '', imageTimer;
+  let wrongReturnFocus, wrongSelection = false, filteredWrong = [];
   let returnFocus, resendAfter = 0, bankLoading = false, resolveBank;
   const bankReady = new Promise(resolve => { resolveBank = resolve; });
   const operationId = () => window.crypto?.randomUUID?.() || Date.now() + '-' + Math.random().toString(36).slice(2);
@@ -63,6 +64,7 @@
     const key = uid ? 'user:' + uid : 'guest';
     session = makeSession(key, uid);
     sequence = null; revealed.clear(); wrongPage = 0;
+    if ($('wrong-screen').open) $('wrong-screen').close();
     if (uid && importOnLogin) {
       const guest = readLocal('guest');
       session.data.answers = P.mergeAnswers(session.data.answers, guest.answers);
@@ -274,23 +276,48 @@
   }
   function renderWrong(ids) {
     $('wrong-count').textContent = ids.length + ' 题';
-    const pages = Math.max(1, Math.ceil(ids.length / 5));
+    $('wrong-summary-text').textContent = ids.length ? '集中重练，答对后自动移出。' : '答错的题会收在这里，答对后自动移出。';
+    $('review-wrong').disabled = !ids.length;
+    $('review-wrong').textContent = ids.length ? '开始重练' : '暂时没有错题';
+    $('browse-wrong').disabled = !ids.length;
+    if ($('wrong-screen').open) renderWrongPanel(ids);
+  }
+  function renderWrongPanel(ids = P.stats(session.data.answers, bank).wrong) {
+    const query = $('wrong-search').value.trim().toLocaleLowerCase();
+    const numbers = new Map(bank.questions.map((q, index) => [q.id, index + 1]));
+    filteredWrong = ids.filter(id => !query || (/^\d+$/.test(query) ? numbers.get(id) === Number(query) : bank.byId.get(id).question_zh.toLocaleLowerCase().includes(query)));
+    const pages = Math.max(1, Math.ceil(filteredWrong.length / 8));
     wrongPage = Math.min(wrongPage, pages - 1);
-    const buttons = ids.slice(wrongPage * 5, wrongPage * 5 + 5).map(id => {
-      const q = bank.byId.get(id), button = document.createElement('button');
-      button.className = 'wrong-item'; button.textContent = q.question_zh;
-      button.addEventListener('click', () => startReview('wrong', ids, id));
+    const focusedId = $('wrong-list').contains(document.activeElement) ? document.activeElement.dataset.questionId : null;
+    const buttons = filteredWrong.slice(wrongPage * 8, wrongPage * 8 + 8).map(id => {
+      const button = document.createElement('button'); button.className = 'wrong-item'; button.dataset.questionId = id;
+      const number = document.createElement('span'); number.className = 'wrong-question-number'; number.textContent = '第 ' + numbers.get(id) + ' 题';
+      const text = document.createElement('span'); text.className = 'wrong-question-text'; text.textContent = bank.byId.get(id).question_zh;
+      const arrow = document.createElement('span'); arrow.className = 'wrong-arrow'; arrow.textContent = '→'; arrow.setAttribute('aria-hidden', 'true');
+      button.append(number, text, arrow);
+      button.addEventListener('click', () => {
+        const queue = [...filteredWrong]; wrongSelection = true; $('wrong-screen').close(); startReview('wrong', queue, id);
+      });
       return button;
     });
     if (!buttons.length) {
-      const p = document.createElement('p'); p.className = 'wrong-empty'; p.textContent = '暂无未掌握的错题。'; buttons.push(p);
+      const p = document.createElement('p'); p.className = 'wrong-panel-empty';
+      p.textContent = ids.length ? '没有找到匹配的错题，试试其他关键词。' : '目前没有待复习的错题，继续练习吧。'; buttons.push(p);
     }
     $('wrong-list').replaceChildren(...buttons);
+    $('wrong-list').scrollTop = 0;
+    $('wrong-results').textContent = query ? '找到 ' + filteredWrong.length + ' 题 · 共 ' + ids.length + ' 道错题' : '共 ' + ids.length + ' 道待复习';
     $('wrong-pagination').hidden = pages <= 1;
     $('wrong-page').textContent = (wrongPage + 1) + ' / ' + pages;
     $('wrong-prev').disabled = wrongPage === 0; $('wrong-next').disabled = wrongPage >= pages - 1;
-    $('review-wrong').disabled = !ids.length;
-    $('review-wrong').textContent = ids.length ? '重新练习全部错题' : '暂时没有错题';
+    $('review-filtered').disabled = !filteredWrong.length;
+    $('review-filtered').textContent = query ? '重练筛选结果' : '重练全部错题';
+    if (focusedId) (buttons.find(button => button.dataset?.questionId === focusedId) || $('wrong-search')).focus();
+  }
+  function openWrongPanel() {
+    if (!bank || !session) return;
+    wrongReturnFocus = document.activeElement; wrongSelection = false; wrongPage = 0; $('wrong-search').value = '';
+    $('wrong-screen').showModal(); document.body.classList.add('modal-open'); renderWrongPanel(); $('wrong-search').focus();
   }
   function choose(choice) {
     const q = current();
@@ -536,8 +563,28 @@
   $('redo-question').addEventListener('click', () => startReview('all', [session.data.currentId]));
   $('restart-practice').addEventListener('click', () => startReview('all', bank.questions.map(q => q.id)));
   $('exit-review').addEventListener('click', () => {sequence = null; revealed.clear(); render();});
-  $('wrong-prev').addEventListener('click', () => {wrongPage = Math.max(0, wrongPage - 1); renderWrong(P.stats(session.data.answers, bank).wrong);});
-  $('wrong-next').addEventListener('click', () => {wrongPage++; renderWrong(P.stats(session.data.answers, bank).wrong);});
+  $('wrong-prev').addEventListener('click', () => {wrongPage = Math.max(0, wrongPage - 1); renderWrongPanel();});
+  $('wrong-next').addEventListener('click', () => {wrongPage++; renderWrongPanel();});
+  $('browse-wrong').addEventListener('click', openWrongPanel);
+  $('wrong-close').addEventListener('click', () => $('wrong-screen').close());
+  $('wrong-search').addEventListener('input', () => {wrongPage = 0; renderWrongPanel();});
+  $('review-filtered').addEventListener('click', () => {
+    if (!filteredWrong.length) return;
+    const queue = [...filteredWrong]; wrongSelection = true; $('wrong-screen').close(); startReview('wrong', queue);
+  });
+  $('wrong-screen').addEventListener('close', () => {
+    document.body.classList.toggle('modal-open', $('auth-screen').open);
+    if (!wrongSelection) (wrongReturnFocus?.disabled ? $('question') : wrongReturnFocus)?.focus?.({preventScroll:true});
+    wrongSelection = false; $('wrong-list').replaceChildren();
+  });
+  $('wrong-screen').addEventListener('keydown', event => {
+    if (event.key === 'Escape') {event.preventDefault(); $('wrong-screen').close(); return;}
+    if (event.key !== 'Tab') return;
+    const items = [...$('wrong-screen').querySelectorAll('button:not(:disabled),input')].filter(el => el.getClientRects().length);
+    const first = items[0], last = items[items.length - 1];
+    if (event.shiftKey && document.activeElement === first) {event.preventDefault(); last.focus();}
+    else if (!event.shiftKey && document.activeElement === last) {event.preventDefault(); first.focus();}
+  });
   $('retry-image').addEventListener('click', () => {renderImage(current(), true); render();});
   $('retry-bank').addEventListener('click', loadBank);
   $('retry-sync').addEventListener('click', async () => {

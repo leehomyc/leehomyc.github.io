@@ -51,14 +51,15 @@ check('last question is not all complete',(await page.locator('#practice-message
 ''')
 setup()
 run('review_and_layout', '''
-const choices=['A','A','A','B','B','B','A'];
+const choices=['A','A','A','B','B','B','A','B','B'];
 for(let i=0;i<choices.length;i++){await page.locator('[data-label="'+choices[i]+'"]').click();if(i<choices.length-1)await page.locator('#next').click();}
-check('seven wrong counted',await page.locator('#wrong-count').innerText()==='7 题');
-await page.locator('#wrong-next').click();check('remaining wrong answers accessible',await page.locator('.wrong-item').count()===2);
+check('nine wrong counted',await page.locator('#wrong-count').innerText()==='9 题');
+check('sidebar keeps list out of main screen',await page.locator('.wrong-summary .wrong-item').count()===0);await page.locator('#browse-wrong').click();
+await page.locator('#wrong-next').click();check('remaining wrong answers accessible',await page.locator('.wrong-item').count()===1);await page.locator('#wrong-close').click();
 await page.locator('#review-wrong').click();
 check('review hides answer',!(await page.locator('#feedback').getAttribute('class')).includes('show'));
 await page.locator('[data-label="B"]').click();
-check('corrected question removed from wrong book',await page.locator('#wrong-count').innerText()==='6 题');
+check('corrected question removed from wrong book',await page.locator('#wrong-count').innerText()==='8 题');
 check('first attempt score preserved',await page.locator('#score').innerText()==='首次正确率 0%');
 await page.locator('#next').click();check('next wrong question can be answered',await page.locator('.option:not(:disabled)').count()===2);
 await page.locator('#exit-review').click();
