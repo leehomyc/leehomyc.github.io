@@ -15,9 +15,25 @@ From that source we:
 2. Normalized question text, options, answer, explanation, difficulty, error rate, and the 2026 new-rule flag.
 3. Kept all 787 matching local question images.
 
-The source repository is an unofficial community-maintained dataset. It is not an official
-government question-bank release, and “2026-07-28” is the source revision date, not a guarantee
+The source repository is an unofficial community-maintained dataset. Its current `main` revision
+was checked on **2026-09-20** (commit `281087d3`) and still reports the 2026-07-28 correction
+date. It is not an official government question-bank release, and that date is not a guarantee
 that every question is active in every local examination system.
+
+## 1.1 Latest-source audit (2026-09-20)
+
+The Ministry of Public Security does not publish a downloadable complete live Subject 1 question
+bank. The current official references we verified are:
+
+- [公安部令第172号（自2025-01-01施行）](https://www.beijing.gov.cn/zhengce/zhengcefagui/qtwj/202412/t20241231_3978134.html)
+- [GA 1026-2022《机动车驾驶人考试内容和方法》](https://ywtb.mps.gov.cn/gabzh/portal/stdDetail/309760)
+- [公安标准化信息服务平台](https://ywtb.mps.gov.cn/gabzh/portal/xxcx/std?pageNo=2&pageSize=20)
+
+We also checked current public practice sites. One commercial site advertises a 2026-09-19
+小车题库 containing 2,125 Subject 1 questions, but it is not an openly licensed downloadable
+source. We therefore did not copy or redistribute its content. The 2,545-question bank here is
+larger than that advertised count, but remains an unofficial broad study set rather than a claim
+to contain the live examination questions.
 
 ## 2. Images
 
