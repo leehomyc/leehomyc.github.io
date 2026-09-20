@@ -20,5 +20,3 @@ service cloud.firestore {
 ```
 
 页面把用户名转换成内部账号标识，密码交给 Firebase Authentication 处理；页面和 Firestore 都不保存明文密码。刷题进度保存在对应用户文档的 `ke1Progress` 字段中。
-
-发布后可直接访问 `https://hyang.org/ke1/`。
