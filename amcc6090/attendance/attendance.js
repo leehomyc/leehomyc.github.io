@@ -14,7 +14,7 @@
     ['09', 'Oct 30', '2026-10-30T18:30:00+08:00', '2026-10-30T19:20:00+08:00', '2026-10-30T23:59:59+08:00', 'Speaker to be announced'],
     ['10', 'Nov 06', '2026-11-06T18:30:00+08:00', '2026-11-06T19:20:00+08:00', '2026-11-06T23:59:59+08:00', 'Tae-Hyun Oh — KAIST · Talk title to be announced'],
     ['11', 'Nov 13', '2026-11-13T18:30:00+08:00', '2026-11-13T19:20:00+08:00', '2026-11-13T23:59:59+08:00', 'Sunil Manghani — University of Southampton · Talk title to be announced'],
-    ['12', 'Nov 20', '2026-11-20T18:30:00+08:00', '2026-11-20T19:20:00+08:00', '2026-11-20T23:59:59+08:00', 'Speaker to be announced'],
+    ['12', 'Nov 20', '2026-11-20T18:30:00+08:00', '2026-11-20T19:20:00+08:00', '2026-11-20T23:59:59+08:00', 'Xian Xu — Lingnan University · Talk title to be announced'],
     ['13', 'Nov 27', '2026-11-27T18:30:00+08:00', '2026-11-27T19:20:00+08:00', '2026-11-27T23:59:59+08:00', 'Speaker to be announced']
   ].map(([id, date, opensAt, endsAt, closesAt, title]) => ({ id, date, opensAt, endsAt, closesAt, title }));
 
