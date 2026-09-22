@@ -1,0 +1,3699 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:07.080
+Welcome to Lecture Four of AI-Driven Animation and
+Video Generation. Today we move from understanding an
+image generator
+
+2
+00:00:07.080 --> 00:00:13.520
+to making deliberate choices across an artwork or a
+film. We will follow five survey papers.
+
+3
+00:00:13.520 --> 00:00:18.580
+Surveys are useful because they organize many
+individual methods into a map of the field.
+
+4
+00:00:18.580 --> 00:00:22.360
+Our purpose is to read that map and connect it to
+creative work.
+
+5
+00:00:22.360 --> 00:00:26.880
+Throughout the lecture, ask two questions. What
+information does a method need?
+
+6
+00:00:26.880 --> 00:00:30.860
+And what decision does it help an artist make? The
+figures come from the papers,
+
+7
+00:00:30.860 --> 00:00:35.429
+while the studio example we develop together is a
+classroom exercise.
+
+8
+00:00:35.729 --> 00:00:40.869
+Here is our route. We begin with video models and the
+problem of generating a sequence that holds
+
+9
+00:00:40.869 --> 00:00:48.109
+together through time. We then consider visual art,
+where the intended experience determines which controls
+matter.
+
+10
+00:00:48.109 --> 00:00:53.609
+The filmmaking survey shows how creators combine these
+tools in actual production workflows.
+
+11
+00:00:53.609 --> 00:00:58.229
+Visual computing connects images and video to objects,
+scenes, and movement data.
+
+12
+00:00:58.229 --> 00:01:04.269
+Finally, the creative-industries review places
+generation within a wider production process. You do
+not need to memorize every
+
+13
+00:01:04.269 --> 00:01:08.369
+model name. By the end, you should be able to choose an
+appropriate kind of input,
+
+14
+00:01:08.369 --> 00:01:12.139
+explain a likely limitation, and describe how you would
+judge the result.
+
+15
+00:01:12.439 --> 00:01:16.799
+What changes when an image starts to move? A still
+image suggests possibilities,
+
+16
+00:01:16.799 --> 00:01:21.999
+but it leaves the next moment open. A video commits to
+a sequence of events.
+
+17
+00:01:21.999 --> 00:01:27.299
+If a character raises a hand, that hand needs to belong
+to the same person as it moves.
+
+18
+00:01:27.299 --> 00:01:31.619
+If the camera passes a chair, the chair should remain
+in a plausible position.
+
+19
+00:01:31.619 --> 00:01:37.819
+These requirements involve appearance, movement, and
+spatial relationships. They also involve meaning.
+
+20
+00:01:37.819 --> 00:01:43.319
+Holding on an empty room for ten seconds creates a
+different experience from showing it for one second.
+
+21
+00:01:43.319 --> 00:01:49.574
+Time therefore adds both technical demands and artistic
+choices. A sequence can fail in either respect.
+
+22
+00:01:49.874 --> 00:01:54.254
+We will use a simple studio scene throughout the
+lecture. The room is empty.
+
+23
+00:01:54.254 --> 00:01:59.434
+A painting begins to move. Then someone returns. This
+is an invented teaching example,
+
+24
+00:01:59.434 --> 00:02:04.634
+so there is no correct finished version to reproduce.
+You might imagine a frightening scene,
+
+25
+00:02:04.634 --> 00:02:10.174
+a quiet memory, or a playful animation. Start by
+picturing what should stay stable.
+
+26
+00:02:10.174 --> 00:02:15.574
+Perhaps the room layout and painting frame remain fixed
+while only the painted surface changes.
+
+27
+00:02:15.574 --> 00:02:21.114
+Then consider what the returning person should notice.
+These decisions will help us compare methods.
+
+28
+00:02:21.114 --> 00:02:25.196
+A tool becomes useful when we can say which part of
+this scene it should control.
+
+29
+00:02:25.496 --> 00:02:29.316
+Our opening reading is Wang and colleagues' Survey of
+Video Diffusion Models,
+
+30
+00:02:29.316 --> 00:02:35.336
+first posted in 2025 and revised in February 2026. It
+covers foundations,
+
+31
+00:02:35.336 --> 00:02:41.276
+implementations, and applications. We will follow its
+progression from the generation mechanism to inputs,
+
+32
+00:02:41.276 --> 00:02:48.456
+control, editing, and connections with three-
+dimensional scenes. A survey figure often contains
+several methods at once.
+
+33
+00:02:48.456 --> 00:02:53.176
+Read such a figure as a set of relationships, rather
+than as one model you must implement.
+
+34
+00:02:53.176 --> 00:02:59.756
+Also pay attention to dates. A survey can contain
+important earlier examples alongside newer research.
+
+35
+00:02:59.756 --> 00:03:05.405
+Its publication or revision date does not make every
+comparison a current ranking of available systems.
+
+36
+00:03:05.705 --> 00:03:10.425
+At a high level, video generation connects inputs to a
+model and then to a sequence.
+
+37
+00:03:10.425 --> 00:03:14.425
+The inputs might include a sentence, an image, a source
+video, sound,
+
+38
+00:03:14.425 --> 00:03:20.325
+or camera information. Each input supplies a different
+kind of constraint. A sentence can describe a mood or
+
+39
+00:03:20.325 --> 00:03:28.205
+action, but it usually leaves many visible details
+unspecified. An image supplies more exact information
+about appearance.
+
+40
+00:03:28.205 --> 00:03:32.905
+A source video can supply a performance or a movement
+pattern. When reading the overview,
+
+41
+00:03:32.905 --> 00:03:38.505
+look for what enters the model and what comes out. This
+simple habit makes a complicated architecture easier
+
+42
+00:03:38.505 --> 00:03:43.117
+to understand and helps you recognize what a
+demonstration actually controls.
+
+43
+00:03:43.417 --> 00:03:48.377
+Consider three routes to the studio scene. With text-
+to-video, we describe the room and the moving painting,
+
+44
+00:03:48.377 --> 00:03:53.677
+and the model invents much of their appearance. With
+image-to-video, we first choose a picture of the room,
+
+45
+00:03:53.677 --> 00:03:59.137
+then ask for movement from that starting appearance.
+With video-to-video, we begin with an existing sequence
+and change
+
+46
+00:03:59.137 --> 00:04:06.037
+selected properties, such as its visual style. None of
+these routes automatically solves every production
+problem.
+
+47
+00:04:06.037 --> 00:04:09.897
+An initial image does not guarantee stable identity
+later in the shot.
+
+48
+00:04:09.897 --> 00:04:16.997
+A source video does not guarantee exact motion
+preservation. Choose the route according to the
+information you already
+
+49
+00:04:16.997 --> 00:04:19.678
+have and the properties you need to retain.
+
+50
+00:04:19.978 --> 00:04:25.898
+Diffusion is easiest to understand by separating
+training from generation. During training,
+
+51
+00:04:25.898 --> 00:04:32.918
+a system encounters examples with added noise and
+learns how to predict information needed to remove that
+noise.
+
+52
+00:04:32.918 --> 00:04:38.958
+During generation, it starts with a noisy sample and
+repeatedly refines it using the learned model.
+
+53
+00:04:38.958 --> 00:04:43.798
+The diagram shows a succession of states, rather than a
+film of a face changing over time.
+
+54
+00:04:43.798 --> 00:04:48.738
+The prompt or another condition influences the
+refinement. The model does not learn a new set of
+weights
+
+55
+00:04:48.738 --> 00:04:53.578
+every time you generate an image. It uses what training
+has already established.
+
+56
+00:04:53.578 --> 00:04:57.839
+This distinction helps explain why changing a prompt
+differs from adapting the model.
+
+57
+00:04:58.139 --> 00:05:04.439
+Video diffusion has two different meanings of time.
+Frame time is the time inside the represented event:
+
+58
+00:05:04.439 --> 00:05:08.039
+a person enters, walks across the studio, and looks at
+the painting.
+
+59
+00:05:08.039 --> 00:05:13.739
+Denoising time is the sequence of computational
+refinement steps that produces the sample.
+
+60
+00:05:13.739 --> 00:05:17.219
+A denoising step is not an extra frame in the finished
+video.
+
+61
+00:05:17.219 --> 00:05:22.059
+Depending on the architecture, one step may update
+information for many frames together.
+
+62
+00:05:22.059 --> 00:05:27.519
+Confusing these two timelines makes diagrams difficult
+to read. Whenever you see a time index,
+
+63
+00:05:27.519 --> 00:05:32.279
+ask whether it identifies a moment in the scene or a
+stage in noise removal.
+
+64
+00:05:32.279 --> 00:05:35.935
+The answer tells you what relationship the model is
+trying to represent.
+
+65
+00:05:36.235 --> 00:05:41.735
+The generation pipeline often works in a compressed
+space. First, a text encoder converts the prompt into a
+
+66
+00:05:41.735 --> 00:05:48.275
+representation that the model can use. The generative
+network then refines a noisy representation under that
+condition.
+
+67
+00:05:48.275 --> 00:05:54.415
+A decoder converts the result into visible frames. This
+division reduces the amount of information processed by
+the
+
+68
+00:05:54.415 --> 00:06:00.775
+most expensive part of the system. It also means that
+the final image depends on several components.
+
+69
+00:06:00.775 --> 00:06:06.235
+A problem with fine texture may involve compression or
+decoding as well as generation.
+
+70
+00:06:06.235 --> 00:06:13.175
+For our studio scene, the prompt supplies an
+instruction, while the latent representation carries
+the evolving visual content
+
+71
+00:06:13.175 --> 00:06:14.459
+during refinement.
+
+72
+00:06:14.759 --> 00:06:20.379
+A latent is a compressed representation of the data.
+Imagine describing the essential structure of a room
+with
+
+73
+00:06:20.379 --> 00:06:24.559
+fewer values than you would need to list every colored
+pixel in every frame.
+
+74
+00:06:24.559 --> 00:06:29.519
+The encoder maps the original material into that
+representation, and the decoder maps it back.
+
+75
+00:06:29.519 --> 00:06:33.959
+The figure shows compression across space and, in some
+stages, across time.
+
+76
+00:06:33.959 --> 00:06:39.019
+Compression makes a large video more manageable, but it
+can also discard detail.
+
+77
+00:06:39.019 --> 00:06:43.099
+A latent is not a miniature image that we can always
+interpret directly.
+
+78
+00:06:43.099 --> 00:06:49.499
+It is a learned representation. Keep the practical
+tradeoff in mind: less computation can come with limits
+on
+
+79
+00:06:49.499 --> 00:06:52.235
+small details and reconstruction fidelity.
+
+80
+00:06:52.535 --> 00:06:57.675
+Spatial relationships occur within a frame. They
+include the position of a person relative to a door,
+
+81
+00:06:57.675 --> 00:07:03.915
+or the relationship between a hand and the object it
+holds. Temporal relationships connect different frames.
+
+82
+00:07:03.915 --> 00:07:07.295
+They help a model relate the hand now to the hand a
+moment later.
+
+83
+00:07:07.295 --> 00:07:11.915
+The diagram separates spatial and temporal processing
+to make those roles visible.
+
+84
+00:07:11.915 --> 00:07:17.815
+Attention is one way to connect relevant features, but
+it does not guarantee correct understanding of the
+scene.
+
+85
+00:07:17.815 --> 00:07:24.035
+For the studio example, spatial processing helps
+organize the room at a particular instant.
+
+86
+00:07:24.035 --> 00:07:30.140
+Temporal processing helps the painting and furniture
+maintain meaningful relationships as the sequence
+develops.
+
+87
+00:07:30.440 --> 00:07:35.040
+This figure illustrates another way to connect frames:
+encode information within each frame,
+
+88
+00:07:35.040 --> 00:07:41.800
+then connect those representations across the sequence.
+The pictured architecture is a video-understanding
+example with a classification output,
+
+89
+00:07:41.800 --> 00:07:47.080
+rather than a complete video generator. We are using it
+to understand an architectural idea.
+
+90
+00:07:47.080 --> 00:07:53.280
+The lower part handles appearance within individual
+frames. The upper part combines information through
+time.
+
+91
+00:07:53.280 --> 00:07:59.120
+Separating these roles can make processing easier to
+organize. When you encounter a research diagram,
+
+92
+00:07:59.120 --> 00:08:05.640
+check the output label before assuming its task.
+Similar building blocks can appear in recognition and
+generation systems,
+
+93
+00:08:05.640 --> 00:08:09.794
+even though their training objectives and outputs
+differ substantially.
+
+94
+00:08:10.094 --> 00:08:15.634
+Some approaches build a sequence in parts, using
+earlier outputs to guide what comes next.
+
+95
+00:08:15.634 --> 00:08:21.614
+This is the basic idea of autoregressive prediction.
+The diagram includes script information,
+
+96
+00:08:21.614 --> 00:08:27.834
+keyframes, and a rendering process. You can think of
+the earlier material as context for the next decision.
+
+97
+00:08:27.834 --> 00:08:32.074
+This can help extend a sequence, but errors in the
+context may also carry forward.
+
+98
+00:08:32.074 --> 00:08:36.954
+If a character's coat changes in one generated part,
+later parts may preserve the new coat instead of
+
+99
+00:08:36.954 --> 00:08:44.274
+the original one. For filmmaking, that makes
+checkpoints valuable. Inspect important keyframes and
+transitions before treating a longer
+
+100
+00:08:44.274 --> 00:08:46.440
+generated sequence as a finished shot.
+
+101
+00:08:46.740 --> 00:08:51.580
+Training data shapes the kinds of results a model can
+produce. The figure shows a pipeline that selects
+
+102
+00:08:51.580 --> 00:08:56.920
+clips, filters them, and attaches descriptions. Each
+stage changes what reaches training.
+
+103
+00:08:56.920 --> 00:09:00.400
+A caption can describe an object, an action, or a
+camera movement.
+
+104
+00:09:00.400 --> 00:09:05.960
+If the caption misses an important event, the model
+receives a weaker connection between language and that
+event.
+
+105
+00:09:05.960 --> 00:09:13.100
+Filtering can remove unusable clips, but it also
+reflects decisions about what counts as desirable
+material.
+
+106
+00:09:13.100 --> 00:09:19.100
+An artist should therefore avoid treating model
+behavior as a neutral view of all possible images.
+
+107
+00:09:19.100 --> 00:09:23.470
+It reflects the material, labels, and objectives used
+to train the system.
+
+108
+00:09:23.770 --> 00:09:30.190
+The branching diagram makes filtering visible. A broad
+pool of material becomes smaller groups suited to
+particular training
+
+109
+00:09:30.190 --> 00:09:37.290
+stages. Some examples may have adequate resolution but
+little movement. Others may have useful movement but
+poor captions
+
+110
+00:09:37.290 --> 00:09:43.110
+or visual quality. The important point is that
+filtering trades coverage against usable examples.
+
+111
+00:09:43.110 --> 00:09:49.090
+Removing difficult material may improve average
+training quality while leaving gaps in certain actions
+or styles.
+
+112
+00:09:49.090 --> 00:09:54.630
+This matters when your project depends on an unusual
+visual language. If a model struggles with that
+language,
+
+113
+00:09:54.630 --> 00:10:01.090
+repeatedly rewriting the prompt may not address the
+underlying limitation. The required examples or
+relationships may be poorly
+
+114
+00:10:01.090 --> 00:10:02.591
+represented in training.
+
+115
+00:10:02.891 --> 00:10:08.701
+A single foundation can support several tasks. The
+figure moves from image training toward video training
+and then
+
+116
+00:10:08.701 --> 00:10:16.331
+toward specialized applications such as personalization
+or editing. Shared foundations let researchers reuse
+learned visual knowledge instead of
+
+117
+00:10:16.331 --> 00:10:21.871
+starting from nothing for every task. However, task
+support still depends on the model and the way it
+
+118
+00:10:21.871 --> 00:10:28.191
+is adapted. Generating a new character and preserving a
+particular existing character are different
+requirements.
+
+119
+00:10:28.191 --> 00:10:32.031
+For our studio scene, a general model might create an
+attractive room,
+
+120
+00:10:32.031 --> 00:10:36.911
+while a specialized workflow might better preserve the
+same painting across shots.
+
+121
+00:10:36.911 --> 00:10:40.901
+Shared origins do not make those capabilities
+interchangeable in practice.
+
+122
+00:10:41.201 --> 00:10:48.241
+This diagram from the Cosmos discussion shows a
+pretrained foundation model branching into domain-
+specific adaptations.
+
+123
+00:10:48.241 --> 00:10:54.361
+The custom datasets concern physical settings such as
+vehicles and robots. Follow the diagram from the common
+base
+
+124
+00:10:54.361 --> 00:11:01.241
+toward the separate applications. Further training
+helps specialize the model to the material and tasks of
+a domain.
+
+125
+00:11:01.241 --> 00:11:06.241
+Adapting a model to an artistic style is a related
+idea, but this particular figure does not report
+
+126
+00:11:06.241 --> 00:11:11.381
+an art experiment. The general lesson is that
+specialization requires suitable evidence.
+
+127
+00:11:11.381 --> 00:11:18.241
+A small, carefully chosen dataset may teach a useful
+pattern, while an inconsistent collection may introduce
+unwanted associations
+
+128
+00:11:18.241 --> 00:11:21.173
+or reduce the usefulness of the adaptation.
+
+129
+00:11:21.473 --> 00:11:26.453
+A reference image can communicate several kinds of
+information. It may suggest broad meaning,
+
+130
+00:11:26.453 --> 00:11:31.533
+such as a dog in a garden. It may specify appearance,
+such as the exact markings of one
+
+131
+00:11:31.533 --> 00:11:36.533
+dog. Or it may constrain structure, such as the
+location and outline of the subject.
+
+132
+00:11:36.533 --> 00:11:44.513
+Different conditioning methods preserve these
+properties to different degrees. The figure organizes
+several ways to introduce image information.
+
+133
+00:11:44.513 --> 00:11:50.473
+You do not need to memorize every connection. Instead,
+ask what you want the reference to contribute.
+
+134
+00:11:50.473 --> 00:11:55.813
+For the studio scene, a mood image and a precise room-
+layout reference serve different purposes,
+
+135
+00:11:55.813 --> 00:11:58.417
+even if both enter the workflow as pictures.
+
+136
+00:11:58.717 --> 00:12:04.957
+Object motion and camera motion are distinct. A person
+can cross the studio while the camera remains still.
+
+137
+00:12:04.957 --> 00:12:08.337
+The camera can also move around a person who does not
+move.
+
+138
+00:12:08.337 --> 00:12:15.457
+In the resulting images, both situations produce
+changing pixel positions. A system therefore needs
+useful constraints if we
+
+139
+00:12:15.457 --> 00:12:20.577
+want to control them separately. The figure combines
+scene descriptions with camera information.
+
+140
+00:12:20.577 --> 00:12:25.697
+When planning a shot, specify the intended camera
+behavior independently from the action.
+
+141
+00:12:25.697 --> 00:12:31.437
+Then inspect whether the output respects both. A
+visually energetic result may still fail if the camera
+moves
+
+142
+00:12:31.437 --> 00:12:36.812
+when the scene requires a stable viewpoint, or if the
+subject freezes during the intended action.
+
+143
+00:12:37.112 --> 00:12:42.372
+Optical flow describes how locations in one image
+correspond to locations in another.
+
+144
+00:12:42.372 --> 00:12:48.192
+The colored paths in the figure represent a movement
+field. Such information can help transfer movement or
+guide
+
+145
+00:12:48.192 --> 00:12:53.392
+the evolution of a generated sequence. Optical flow
+describes apparent image movement,
+
+146
+00:12:53.392 --> 00:12:58.932
+so it can reflect both object motion and camera motion.
+It is not a complete reconstruction of the
+
+147
+00:12:58.932 --> 00:13:06.692
+physical world. Occlusion creates additional difficulty
+because something visible in one frame may disappear
+behind another object.
+
+148
+00:13:06.692 --> 00:13:12.672
+For creative work, a movement field can offer more
+specific guidance than a sentence such as move
+naturally.
+
+149
+00:13:12.672 --> 00:13:15.805
+Its reliability still depends on the source and the
+scene.
+
+150
+00:13:16.105 --> 00:13:22.305
+Sound can guide a visual performance. In this example,
+a source image and audio help determine a speaking
+
+151
+00:13:22.305 --> 00:13:29.885
+face, with additional information related to
+expression. Audio supplies timing that a still image
+cannot provide.
+
+152
+00:13:29.885 --> 00:13:35.985
+A voice has pauses, stressed syllables, and changing
+rhythm. Mouth movement should relate to those events if
+the
+
+153
+00:13:35.985 --> 00:13:42.305
+result is meant to depict speaking. A convincing
+portrait alone does not establish accurate lip
+synchronization or a
+
+154
+00:13:42.305 --> 00:13:47.945
+coherent performance. Watch transitions and listen at
+the same time. In a film workflow,
+
+155
+00:13:47.945 --> 00:13:52.877
+this is also a reminder to plan sound early when it
+controls the timing of the visible action.
+
+156
+00:13:53.177 --> 00:13:58.497
+Editing a video region adds a temporal requirement to a
+familiar image-editing task.
+
+157
+00:13:58.497 --> 00:14:03.137
+If we change the color of a car, that change should
+remain attached to the car across the
+
+158
+00:14:03.137 --> 00:14:11.377
+sequence. The background should also behave
+consistently. The examples show local changes and
+reconstruction of selected areas.
+
+159
+00:14:11.377 --> 00:14:14.477
+A mask identifies a region, but the region may move,
+change shape,
+
+160
+00:14:14.477 --> 00:14:19.037
+or become partly hidden. This makes a single successful
+frame insufficient evidence.
+
+161
+00:14:19.037 --> 00:14:25.137
+For the studio exercise, imagine changing only the
+painting while preserving the wall and frame.
+
+162
+00:14:25.137 --> 00:14:30.846
+Inspect the boundary as the camera moves, because that
+is where small inconsistencies often become noticeable.
+
+163
+00:14:31.146 --> 00:14:37.346
+Super-resolution methods can make details look sharper.
+These examples compare restoration methods on still
+images,
+
+164
+00:14:37.346 --> 00:14:41.346
+even though the figure appears in a video survey. Read
+the columns as methods,
+
+165
+00:14:41.346 --> 00:14:46.146
+not successive moments in time. Compare the brick
+texture and the facial details.
+
+166
+00:14:46.146 --> 00:14:50.946
+A generated texture can be plausible without matching
+the original high-resolution scene.
+
+167
+00:14:50.946 --> 00:14:56.246
+That difference matters if your aim is faithful
+restoration. It may matter differently if you are
+designing a
+
+168
+00:14:56.246 --> 00:15:02.726
+new artwork. For video, an additional question remains:
+do the added details stay stable across frames?
+
+169
+00:15:02.726 --> 00:15:09.625
+These still comparisons alone cannot answer that
+question. Sharpness and temporal consistency require
+separate inspection.
+
+170
+00:15:09.925 --> 00:15:16.165
+Prediction and interpolation answer different
+questions. Prediction extends a sequence beyond what we
+already observe.
+
+171
+00:15:16.165 --> 00:15:21.445
+Interpolation fills a gap between known moments. The
+examples also include generating earlier content,
+
+172
+00:15:21.445 --> 00:15:26.645
+which asks what might have happened before the
+available sequence. These outputs are plausible
+constructions,
+
+173
+00:15:26.645 --> 00:15:30.925
+rather than recovered facts about an unseen event. For
+our studio film,
+
+174
+00:15:30.925 --> 00:15:37.885
+interpolation might help connect two chosen keyframes,
+while prediction might extend a shot after the painting
+starts moving.
+
+175
+00:15:37.885 --> 00:15:43.505
+Both methods can produce unexpected intermediate
+actions. Check the whole path between important
+moments,
+
+176
+00:15:43.505 --> 00:15:48.661
+because getting the beginning and ending right does not
+guarantee that the transition serves the scene.
+
+177
+00:15:48.961 --> 00:15:54.241
+A recognizable subject needs to survive changes in
+pose, lighting, and viewpoint.
+
+178
+00:15:54.241 --> 00:15:59.981
+The figure compares approaches that use subject-
+specific information during adaptation or inference.
+
+179
+00:15:59.981 --> 00:16:04.541
+The technical details differ, but the creative
+requirement is easy to state.
+
+180
+00:16:04.541 --> 00:16:08.401
+We want to recognize the same subject when the camera
+angle changes.
+
+181
+00:16:08.401 --> 00:16:13.921
+A general description such as a small brown dog leaves
+many identifying features unspecified.
+
+182
+00:16:13.921 --> 00:16:20.681
+References can provide those details more directly. For
+a film, evaluate identity across the shots you actually
+need,
+
+183
+00:16:20.681 --> 00:16:25.521
+rather than only in a favorable close-up. A method may
+preserve a face from the front while struggling
+
+184
+00:16:25.521 --> 00:16:28.101
+with a profile or an unusual expression.
+
+185
+00:16:28.401 --> 00:16:34.861
+A good first frame is only the beginning of continuity.
+Look at appearance and movement throughout the shot.
+
+186
+00:16:34.861 --> 00:16:41.861
+Does the subject keep its recognizable features? Does
+its motion develop smoothly and plausibly for the
+intended style?
+
+187
+00:16:41.861 --> 00:16:48.601
+The figure presents examples intended to illustrate
+more consistent conditioning. Treat them as selected
+demonstrations,
+
+188
+00:16:48.601 --> 00:16:55.021
+not proof that every output will remain stable. Also
+separate a deliberate transformation from an accidental
+drift.
+
+189
+00:16:55.021 --> 00:17:00.041
+If our painting is meant to change, specify what may
+change and what must remain stable.
+
+190
+00:17:00.041 --> 00:17:05.174
+The picture inside the frame might transform while the
+frame itself keeps the same shape and position.
+
+191
+00:17:05.474 --> 00:17:12.854
+Video models can incorporate explicit three-dimensional
+information. The figure groups examples involving
+training datasets,
+
+192
+00:17:12.854 --> 00:17:20.074
+camera representations, and architectural changes. The
+middle column connects a camera to rays through image
+locations.
+
+193
+00:17:20.074 --> 00:17:24.394
+You can understand a ray as a direction from which the
+camera observes the scene.
+
+194
+00:17:24.394 --> 00:17:30.414
+This provides more specific spatial information than a
+verbal instruction alone. The right column shows ways
+models incorporate
+
+195
+00:17:30.414 --> 00:17:36.874
+such information. We are interested in the principle:
+viewpoint information can help connect images of the
+same scene.
+
+196
+00:17:36.874 --> 00:17:43.474
+It still does not guarantee perfect geometry. Unseen
+surfaces and difficult camera paths remain important
+places to look
+
+197
+00:17:43.474 --> 00:17:44.380
+for mistakes.
+
+198
+00:17:44.680 --> 00:17:49.340
+A video model can also provide knowledge for
+constructing a scene representation.
+
+199
+00:17:49.340 --> 00:17:54.100
+The left side of the diagram identifies sources of
+visual or motion information.
+
+200
+00:17:54.100 --> 00:17:59.860
+The middle describes ways to transfer that information.
+The right shows representations such as meshes,
+
+201
+00:17:59.860 --> 00:18:04.660
+neural fields, and Gaussian splats. A video is a set of
+images over time.
+
+202
+00:18:04.660 --> 00:18:10.760
+A scene representation aims to support rendering under
+chosen viewpoints, and sometimes at chosen moments.
+
+203
+00:18:10.760 --> 00:18:17.400
+Moving from one to the other requires reconstruction or
+optimization. This matters to artists because a
+reusable scene
+
+204
+00:18:17.400 --> 00:18:23.140
+can support later camera decisions, while a finished
+video usually commits you to the views already present
+in
+
+205
+00:18:23.140 --> 00:18:23.949
+its frames.
+
+206
+00:18:24.249 --> 00:18:32.069
+Wonderland illustrates a connection between video
+representations and scene reconstruction. Follow the
+diagram from the latent space on
+
+207
+00:18:32.069 --> 00:18:37.549
+the left to the three-dimensional outputs on the right.
+The small paired views help show the purpose of
+
+208
+00:18:37.549 --> 00:18:43.149
+reconstruction: we can render related views of a scene
+rather than simply display one image.
+
+209
+00:18:43.149 --> 00:18:48.649
+The examples use Gaussian splats as a scene
+representation. We will revisit that idea later.
+
+210
+00:18:48.649 --> 00:18:53.769
+For now, ask what additional freedom this creates for a
+filmmaker. You may gain some camera flexibility,
+
+211
+00:18:53.769 --> 00:18:59.429
+but selected views do not demonstrate unrestricted
+movement or complete hidden geometry.
+
+212
+00:18:59.429 --> 00:19:02.408
+Test the camera path your project actually requires.
+
+213
+00:19:02.708 --> 00:19:09.288
+A dynamic scene changes in two ways: the viewpoint can
+change, and the action can advance through time.
+
+214
+00:19:09.288 --> 00:19:18.088
+CAT4D addresses this combination. The examples include
+captured and generated source material connected to
+dynamic scene reconstruction.
+
+215
+00:19:18.088 --> 00:19:23.728
+Imagine freezing a dancer at one moment and walking
+around them. Now imagine keeping the camera still while
+
+216
+00:19:23.728 --> 00:19:30.108
+the dancer continues. These are different operations. A
+model that represents both needs to infer appearances
+across viewpoint
+
+217
+00:19:30.108 --> 00:19:34.208
+and time. Much of that material may never have been
+observed directly.
+
+218
+00:19:34.208 --> 00:19:39.568
+For creative work, this offers flexibility, but it also
+means that the quality of inferred regions and motions
+
+219
+00:19:39.568 --> 00:19:41.571
+needs deliberate evaluation.
+
+220
+00:19:41.871 --> 00:19:47.271
+Let us pause and apply the video survey to our studio.
+What fixes the appearance of the room?
+
+221
+00:19:47.271 --> 00:19:51.845
+An initial image or a scene representation might help.
+What controls the movement?
+
+222
+00:19:51.845 --> 00:19:58.271
+A motion reference, audio signal, camera instruction,
+or other condition might supply useful information.
+
+223
+00:19:58.271 --> 00:20:04.271
+What still needs inspection? The painting boundary, the
+person's identity, and the continuity of the room are
+possible
+
+224
+00:20:04.271 --> 00:20:11.211
+answers. Choose one requirement and explain why a
+particular input helps. Then identify a failure that
+the input
+
+225
+00:20:11.211 --> 00:20:15.831
+cannot rule out. This exercise is more useful than
+naming a fashionable model,
+
+226
+00:20:15.831 --> 00:20:19.369
+because it connects the method to evidence you can
+actually inspect.
+
+227
+00:20:19.669 --> 00:20:24.309
+Our next reading is Diffusion-Based Visual Art Creation
+by Wang, Chen, and Wang,
+
+228
+00:20:24.309 --> 00:20:32.589
+published in ACM Computing Surveys in 2025. This paper
+shifts the emphasis from generating sequences to
+understanding artistic
+
+229
+00:20:32.589 --> 00:20:38.529
+tasks and intentions. We will consider how technical
+choices relate to the kind of artwork someone wants to
+
+230
+00:20:38.529 --> 00:20:43.769
+make. A system may generate a polished image while
+giving the artist too little control over its meaning
+
+231
+00:20:43.769 --> 00:20:49.169
+or structure. Conversely, an imperfect result may
+become useful material for further work.
+
+232
+00:20:49.169 --> 00:20:54.049
+Keep the studio example in mind. We now ask what the
+changing painting should express,
+
+233
+00:20:54.049 --> 00:20:57.445
+and how that intention changes the way we judge its
+output.
+
+234
+00:20:57.745 --> 00:21:02.885
+The figure places diffusion-based visual art at the
+intersection of several categories.
+
+235
+00:21:02.885 --> 00:21:08.865
+Art can use different media, serve different purposes,
+and exist as static or changing material.
+
+236
+00:21:08.865 --> 00:21:13.245
+Technical methods also vary in what they represent and
+how they generate it.
+
+237
+00:21:13.245 --> 00:21:19.065
+The survey studies where these perspectives meet. This
+is useful because a technical task label rarely
+describes the
+
+238
+00:21:19.065 --> 00:21:24.685
+whole artistic problem. Text-to-image tells us
+something about inputs and outputs, but little about
+why the image matters.
+
+239
+00:21:24.685 --> 00:21:30.945
+For our studio, an illustration, an installation, and a
+film might use related generated imagery while
+requiring different
+
+240
+00:21:30.945 --> 00:21:34.944
+forms of control and different ways of evaluating the
+audience experience.
+
+241
+00:21:35.244 --> 00:21:42.064
+Text becomes usable conditioning through an encoder.
+The diagram shows a conceptual connection between text
+representations,
+
+242
+00:21:42.064 --> 00:21:49.884
+image representations, and a denoising network. CLIP is
+associated with learning relationships between image
+and text representations.
+
+243
+00:21:49.884 --> 00:21:55.144
+In a diffusion workflow, text information can then
+influence the refinement of visual content.
+
+244
+00:21:55.144 --> 00:22:01.024
+This simplified figure combines ideas and should not be
+treated as the exact architecture of every generator.
+
+245
+00:22:01.024 --> 00:22:06.164
+The important point is that a sentence becomes a
+numerical representation, rather than a complete set of
+drawing
+
+246
+00:22:06.164 --> 00:22:11.864
+instructions. A phrase such as uneasy memory therefore
+leaves many visible decisions open.
+
+247
+00:22:11.864 --> 00:22:15.259
+References and editing can help make those decisions
+more specific.
+
+248
+00:22:15.559 --> 00:22:22.739
+The survey identifies three research perspectives:
+applications, generation methods, and understanding or
+data.
+
+249
+00:22:22.739 --> 00:22:27.199
+The overlapping circles show that a paper may belong to
+more than one perspective.
+
+250
+00:22:27.199 --> 00:22:33.959
+Work on an artistic application can also introduce a
+generation method or study how people interpret images.
+
+251
+00:22:33.959 --> 00:22:39.019
+The numbers describe the authors' selected research
+corpus, not all possible work in the field.
+
+252
+00:22:39.019 --> 00:22:43.999
+When reading a paper, identify which question it
+primarily answers. Does it introduce a tool,
+
+253
+00:22:43.999 --> 00:22:50.019
+study an audience, or analyze material? This helps you
+avoid expecting a technical benchmark to answer an
+artistic
+
+254
+00:22:50.019 --> 00:22:53.399
+question that the researchers did not set out to
+investigate.
+
+255
+00:22:53.699 --> 00:22:57.979
+An artistic intention becomes useful when we connect it
+to visible decisions.
+
+256
+00:22:57.979 --> 00:23:04.639
+The survey's framework links scenario, modality, task,
+and method to artistic requirements and evaluation.
+
+257
+00:23:04.639 --> 00:23:08.739
+Suppose our intention is an uneasy memory. We could use
+delayed movement,
+
+258
+00:23:08.739 --> 00:23:15.419
+missing details, or a familiar room with one altered
+object. Each choice suggests different controls.
+
+259
+00:23:15.419 --> 00:23:20.159
+A general request to make the scene more artistic does
+not tell us what to change or how
+
+260
+00:23:20.159 --> 00:23:25.159
+to judge success. Start with the intended experience,
+identify a visible decision,
+
+261
+00:23:25.159 --> 00:23:29.919
+and choose a method that gives you some control over
+it. The framework is a way to organize
+
+262
+00:23:29.919 --> 00:23:31.133
+that reasoning.
+
+263
+00:23:31.433 --> 00:23:35.573
+A scenario gives the work a purpose. The enlarged
+figure distinguishes medium,
+
+264
+00:23:35.573 --> 00:23:42.213
+genre, and style. A portrait concentrates attention
+differently from a landscape. A film unfolds over time,
+
+265
+00:23:42.213 --> 00:23:47.153
+while an installation may respond to where a visitor
+stands or how long they remain.
+
+266
+00:23:47.153 --> 00:23:53.333
+These distinctions affect both production and
+evaluation. The same generated image might be a
+finished print,
+
+267
+00:23:53.333 --> 00:23:58.373
+a storyboard reference, or one frame in an animation.
+For the studio example,
+
+268
+00:23:58.373 --> 00:24:04.293
+decide whether the audience watches a fixed sequence or
+discovers changes while moving through a space.
+
+269
+00:24:04.293 --> 00:24:08.035
+That choice changes the kinds of continuity and control
+the work needs.
+
+270
+00:24:08.335 --> 00:24:13.815
+A modality is the form of the material you work with.
+The figure names a three-dimensional scene,
+
+271
+00:24:13.815 --> 00:24:19.395
+a two-dimensional image, and a brush stroke. These
+forms support different kinds of intervention.
+
+272
+00:24:19.395 --> 00:24:24.675
+Editing pixels gives direct access to an image surface.
+Working with a scene may give access to camera
+
+273
+00:24:24.675 --> 00:24:32.215
+position and spatial relationships. A stroke
+representation may preserve information about how a
+mark is constructed.
+
+274
+00:24:32.215 --> 00:24:37.355
+None is universally best. Ask what you want to revise
+later. If you need to move the camera
+
+275
+00:24:37.355 --> 00:24:42.075
+around the studio, a single finished image may be
+restrictive. If you need a fixed composition,
+
+276
+00:24:42.075 --> 00:24:44.211
+its simplicity may be helpful.
+
+277
+00:24:44.511 --> 00:24:49.491
+Four useful creative tasks are generating content,
+controlling a result, changing style,
+
+278
+00:24:49.491 --> 00:24:56.111
+and editing selected content. These tasks often occur
+together, but distinguishing them helps diagnose a
+workflow.
+
+279
+00:24:56.111 --> 00:25:00.811
+If the room is missing, you need content generation. If
+the room exists but the door is in
+
+280
+00:25:00.811 --> 00:25:06.511
+the wrong place, you need control or editing. If the
+composition is suitable but the material should
+resemble
+
+281
+00:25:06.511 --> 00:25:11.951
+charcoal, you may need stylization. Describe the
+problem before choosing the tool.
+
+282
+00:25:11.951 --> 00:25:18.711
+Repeating full generation for every small correction
+can discard successful decisions that you would rather
+preserve.
+
+283
+00:25:18.711 --> 00:25:21.903
+A local intervention may be a better fit for the actual
+need.
+
+284
+00:25:22.203 --> 00:25:27.883
+A mask specifies a region where an edit may occur. The
+surrounding image provides context for making the
+
+285
+00:25:27.883 --> 00:25:32.883
+change fit. In our studio, we might mask the inside of
+the painting while leaving its frame and
+
+286
+00:25:32.883 --> 00:25:38.463
+the wall outside the selected region. This makes the
+request more precise than asking for a different
+painting
+
+287
+00:25:38.463 --> 00:25:45.143
+in an entirely new room. However, a mask is not a
+guarantee that every unselected detail will remain
+
+288
+00:25:45.143 --> 00:25:51.063
+identical. The behavior depends on the method and
+settings. Inspect the edge of the edit,
+
+289
+00:25:51.063 --> 00:25:57.802
+the lighting, and nearby textures. A successful local
+change should also make sense within the larger
+composition.
+
+290
+00:25:58.102 --> 00:26:04.762
+Style includes more than color or surface texture. The
+diagram connects local details with global information
+and shows
+
+291
+00:26:04.762 --> 00:26:09.682
+how different parts of a method can influence a result.
+Think about the difference between a face painted
+
+292
+00:26:09.682 --> 00:26:15.322
+with loose brushwork and a face whose proportions have
+also changed. Both may appear stylistic,
+
+293
+00:26:15.322 --> 00:26:21.502
+but they alter different relationships. Composition,
+shape, and rhythm can be part of the visual language.
+
+294
+00:26:21.502 --> 00:26:26.442
+When you request a style transfer, identify which of
+those properties may change.
+
+295
+00:26:26.442 --> 00:26:32.442
+Otherwise, a method might produce the intended texture
+while removing a structural feature that was important
+to the
+
+296
+00:26:32.442 --> 00:26:34.661
+identity or meaning of the original.
+
+297
+00:26:34.961 --> 00:26:41.321
+Let us separate content and style as a practical
+exercise. Imagine that a character must remain
+recognizable while
+
+298
+00:26:41.321 --> 00:26:46.201
+the image changes from photographic to painted. Which
+features should stay stable?
+
+299
+00:26:46.201 --> 00:26:51.221
+You might choose the silhouette, facial proportions, or
+pose. Which features may vary?
+
+300
+00:26:51.221 --> 00:26:57.061
+Brushwork and palette are possible answers. This
+separation is useful, but it is not universal.
+
+301
+00:26:57.061 --> 00:27:03.321
+Some styles depend on changing proportions or spatial
+relationships. Explain your own boundary rather than
+assuming the software
+
+302
+00:27:03.321 --> 00:27:09.441
+will infer it. For the studio painting, decide whether
+its subject remains recognizable during the
+transformation,
+
+303
+00:27:09.441 --> 00:27:13.505
+or whether losing recognition is part of the intended
+experience.
+
+304
+00:27:13.805 --> 00:27:18.125
+A technical score answers a particular question. It may
+estimate prompt alignment,
+
+305
+00:27:18.125 --> 00:27:24.665
+visual similarity, or some aspect of perceptual
+quality. It cannot automatically establish whether an
+artwork succeeds.
+
+306
+00:27:24.665 --> 00:27:31.025
+A deliberately ambiguous image might receive a weaker
+score for literal prompt matching while producing the
+intended experience.
+
+307
+00:27:31.025 --> 00:27:36.205
+That does not make technical evaluation useless. It
+means we need to state what each measure is supposed
+
+308
+00:27:36.205 --> 00:27:41.985
+to assess. For the studio, you might separately
+evaluate whether the room remains stable and whether
+the change
+
+309
+00:27:41.985 --> 00:27:48.105
+in the painting feels unsettling. One concerns a
+visible constraint. The other concerns interpretation,
+
+310
+00:27:48.105 --> 00:27:52.689
+which may require viewers and discussion rather than a
+single automated number.
+
+311
+00:27:52.989 --> 00:27:59.129
+This chart records changes in the survey's selected
+literature over time. The labels connect the
+distribution to influential
+
+312
+00:27:59.129 --> 00:28:05.369
+developments such as diffusion models and methods for
+adaptation or control. Read it as a historical view of
+
+313
+00:28:05.369 --> 00:28:09.729
+the corpus the authors assembled. It is not a complete
+census of AI-art research,
+
+314
+00:28:09.729 --> 00:28:15.729
+and its final dates do not extend to today. The useful
+question is how new methods changed the
+
+315
+00:28:15.729 --> 00:28:22.409
+kinds of tasks researchers could attempt. Greater
+access to generation can shift attention toward
+control,
+
+316
+00:28:22.409 --> 00:28:28.089
+editing, and applications. To understand the strength
+of that claim, we would still need to examine the
+actual
+
+317
+00:28:28.089 --> 00:28:30.125
+papers and selection process.
+
+318
+00:28:30.425 --> 00:28:36.805
+The word clouds offer another view of the authors'
+research collection. Larger words indicate prominence
+within the coded
+
+319
+00:28:36.805 --> 00:28:44.245
+material, rather than artistic importance or current
+popularity. Compare task terms such as generation and
+editing with method
+
+320
+00:28:44.245 --> 00:28:49.385
+terms such as diffusion. Then look at the artistic
+categories and user requirements.
+
+321
+00:28:49.385 --> 00:28:54.105
+These are different kinds of vocabulary, and mixing
+them can make a project description vague.
+
+322
+00:28:54.105 --> 00:28:57.125
+If you say your project uses diffusion, you have named
+a method.
+
+323
+00:28:57.125 --> 00:29:03.845
+If you say it explores fragmented memory through
+changing portraits, you have begun to describe an
+artistic purpose.
+
+324
+00:29:03.845 --> 00:29:07.496
+A clear proposal explains the connection between those
+two descriptions.
+
+325
+00:29:07.796 --> 00:29:14.616
+Human involvement changes across a workflow. The figure
+presents possible roles for people and AI,
+
+326
+00:29:14.616 --> 00:29:20.916
+from assistance and analysis toward more extensive
+generation. Treat this as a conceptual perspective,
+
+327
+00:29:20.916 --> 00:29:25.776
+not an inevitable sequence in which one role replaces
+another. Choosing references,
+
+328
+00:29:25.776 --> 00:29:31.076
+rejecting outputs, setting constraints, and deciding
+when to stop are all meaningful parts of creative work.
+
+329
+00:29:31.076 --> 00:29:35.636
+Their importance may increase when generating more
+candidates becomes easy. For your own project,
+
+330
+00:29:35.636 --> 00:29:40.556
+identify a decision that you would keep under direct
+human control. Then explain what evidence you would
+want
+
+331
+00:29:40.556 --> 00:29:43.651
+from a tool before accepting its contribution to that
+decision.
+
+332
+00:29:43.951 --> 00:29:48.271
+Return to the studio as an artwork. Our intention is an
+uneasy memory,
+
+333
+00:29:48.271 --> 00:29:52.851
+and our chosen intervention is that the painting
+changes before the room does.
+
+334
+00:29:52.851 --> 00:29:57.851
+The order directs attention. At first, the viewer may
+wonder whether they noticed anything.
+
+335
+00:29:57.851 --> 00:30:03.591
+Later, a second change can confirm that something is
+wrong. A different version might use abrupt movement
+and
+
+336
+00:30:03.591 --> 00:30:10.471
+loud sound to create surprise instead. Both could use
+similar generation tools while producing different
+experiences.
+
+337
+00:30:10.471 --> 00:30:15.991
+Describe the intended effect in terms that can guide
+production. We need to know where the change begins,
+
+338
+00:30:15.991 --> 00:30:19.892
+how quickly it develops, and which stable details help
+the audience notice it.
+
+339
+00:30:20.192 --> 00:30:26.632
+Choose one artistic intention and one visible
+intervention. For example, you might want the studio to
+feel welcoming,
+
+340
+00:30:26.632 --> 00:30:31.952
+and decide that light gradually enters through the
+window. Or you might want it to feel unfamiliar,
+
+341
+00:30:31.952 --> 00:30:38.372
+and change the scale of an object between shots.
+Explain how an audience could read the intervention.
+
+342
+00:30:38.372 --> 00:30:43.732
+Then propose a way to judge whether it works, perhaps
+by showing two versions to classmates and asking
+
+343
+00:30:43.732 --> 00:30:49.152
+what changed their interpretation. Pause the recording
+if you want time to work through an example.
+
+344
+00:30:49.152 --> 00:30:53.472
+The aim is to connect a controllable property to an
+intended experience,
+
+345
+00:30:53.472 --> 00:30:56.879
+rather than simply to request a more impressive output.
+
+346
+00:30:57.179 --> 00:31:02.239
+Once art becomes a sequence, decisions have to survive
+across shots and moments.
+
+347
+00:31:02.239 --> 00:31:07.999
+A visual style may need to remain recognizable. A
+character may need to carry identity from a close-up
+
+348
+00:31:07.999 --> 00:31:13.479
+into a wider view. The sequence also creates
+relationships through ordering, duration,
+
+349
+00:31:13.479 --> 00:31:19.919
+and sound. Some art videos deliberately disrupt
+continuity, so consistency is not an absolute artistic
+rule.
+
+350
+00:31:19.919 --> 00:31:24.499
+What matters is whether a change supports the work. We
+now move from the visual-art framework to filmmaking
+
+351
+00:31:24.499 --> 00:31:29.859
+cases. As you look at each case, identify the intended
+effect, the tools that support it,
+
+352
+00:31:29.859 --> 00:31:33.589
+and the human choices that connect the outputs into a
+finished experience.
+
+353
+00:31:33.889 --> 00:31:40.429
+The filmmaking survey by Zhang and colleagues appeared
+in the 2025 CVPR workshop on Computer Vision for the
+
+354
+00:31:40.429 --> 00:31:47.329
+Creative Industries. It combines observations from an
+AI film hackathon with case studies and feedback from
+artists.
+
+355
+00:31:47.329 --> 00:31:51.449
+This gives us a useful view of how people combine
+methods in practice.
+
+356
+00:31:51.449 --> 00:31:55.929
+It also sets limits on the evidence. Hackathon
+participants are a selected group,
+
+357
+00:31:55.929 --> 00:32:01.429
+and the tools reflect the period studied. We should not
+treat their behavior as a complete picture of
+
+358
+00:32:01.429 --> 00:32:06.629
+the film industry. Focus on what the cases reveal about
+workflow: where generation helps,
+
+359
+00:32:06.629 --> 00:32:11.878
+where creators intervene, and why a film still needs
+decisions beyond individual shots.
+
+360
+00:32:12.178 --> 00:32:18.838
+This workflow comes from DOG: Dream of Galaxy. Follow
+the sequence from an image toward a depth map,
+
+361
+00:32:18.838 --> 00:32:25.818
+a shallow spatial construction, and visual effects. The
+generated image is one contribution to the production
+process.
+
+362
+00:32:25.818 --> 00:32:31.778
+Later stages create movement and shape the final
+presentation. This is a useful correction to the idea
+that
+
+363
+00:32:31.778 --> 00:32:35.598
+making an AI film means asking one model for a finished
+movie.
+
+364
+00:32:35.598 --> 00:32:39.418
+A creator may combine generation with familiar tools
+for composition, camera work,
+
+365
+00:32:39.418 --> 00:32:44.118
+and editing. When evaluating a workflow, identify the
+contribution of each stage.
+
+366
+00:32:44.118 --> 00:32:49.036
+Otherwise, you may attribute an effect to the generator
+that actually comes from later production work.
+
+367
+00:32:49.336 --> 00:32:54.616
+Depth helps distinguish near and far regions in an
+image. If those regions are lifted into a shallow
+
+368
+00:32:54.616 --> 00:33:00.816
+spatial arrangement, moving a virtual camera can create
+different amounts of apparent motion across the
+picture.
+
+369
+00:33:00.816 --> 00:33:04.676
+This is one reason depth can make a still image feel
+more spatial.
+
+370
+00:33:04.676 --> 00:33:08.936
+However, the original image does not show what is
+behind each object.
+
+371
+00:33:08.936 --> 00:33:16.916
+A large camera movement may expose gaps or stretched
+regions. The figure's two-and-a-half-dimensional
+construction is therefore useful within
+
+372
+00:33:16.916 --> 00:33:21.436
+a range of views. For the studio scene, a small camera
+drift might work well,
+
+373
+00:33:21.436 --> 00:33:25.362
+while a complete orbit around furniture would demand
+much more information.
+
+374
+00:33:25.662 --> 00:33:33.322
+The survey's Film Hack samples contain eight films from
+2023, sixty-seven from 2024,
+
+375
+00:33:33.322 --> 00:33:40.022
+and one hundred eighteen from 2025. These numbers
+provide context for the observations that follow.
+
+376
+00:33:40.022 --> 00:33:45.582
+The sample size changed, and the participants chose an
+event devoted to AI filmmaking.
+
+377
+00:33:45.582 --> 00:33:51.562
+Adoption rates in this group therefore cannot directly
+estimate adoption across the whole industry.
+
+378
+00:33:51.562 --> 00:33:57.102
+The earliest group is especially small. A useful
+reading habit is to ask who supplied the evidence and
+
+379
+00:33:57.102 --> 00:34:01.822
+how they were selected. This does not dismiss the
+survey. It helps us use it appropriately,
+
+380
+00:34:01.822 --> 00:34:08.585
+as a detailed account of a particular creative setting
+rather than a universal industry census.
+
+381
+00:34:08.885 --> 00:34:14.505
+The 2025 sample used an average of 3.14 video-
+generation tools per film.
+
+382
+00:34:14.505 --> 00:34:18.485
+This describes the sample, rather than recommending
+that every film use three tools.
+
+383
+00:34:18.485 --> 00:34:24.565
+Creators may combine tools because different stages
+have different requirements. One method may produce a
+useful starting look,
+
+384
+00:34:24.565 --> 00:34:29.525
+another may preserve a performance, and an editing
+application may assemble the results.
+
+385
+00:34:29.525 --> 00:34:35.425
+Additional tools also introduce coordination work and
+opportunities for mismatch. For your project,
+
+386
+00:34:35.425 --> 00:34:40.865
+add a tool when you can identify the problem it solves.
+A workflow with fewer tools can be
+
+387
+00:34:40.865 --> 00:34:46.148
+effective if it provides the controls you need and lets
+you preserve decisions that already work.
+
+388
+00:34:46.448 --> 00:34:53.668
+The chart compares importance with perceived
+performance for four selected tasks. The green bars
+represent how important artists
+
+389
+00:34:53.668 --> 00:35:00.068
+considered the task. The gold bars represent their
+assessment of current performance during the survey
+period.
+
+390
+00:35:00.068 --> 00:35:05.468
+Character identity, body movement, camera control, and
+local editing all show a gap.
+
+391
+00:35:05.468 --> 00:35:12.088
+These are ratings from one hundred respondents on a
+zero-to-seven scale, not objective model benchmark
+scores.
+
+392
+00:35:12.088 --> 00:35:18.248
+The result suggests that attractive generation alone
+did not satisfy all production needs.
+
+393
+00:35:18.248 --> 00:35:22.868
+Notice how the tasks concern control over specific
+properties. For an artist,
+
+394
+00:35:22.868 --> 00:35:29.200
+being able to repeat or revise a decision can matter as
+much as obtaining an impressive first output.
+
+395
+00:35:29.500 --> 00:35:34.880
+A Dream About to Awaken illustrates a workflow in which
+drawings help establish the visual language.
+
+396
+00:35:34.880 --> 00:35:41.180
+The survey describes interpreting hand-drawn
+storyboards and remixing color and style. Look at the
+strong shapes and the
+
+397
+00:35:41.180 --> 00:35:46.620
+repeated use of bright color in the examples. The
+drawings give the process a more specific starting
+point
+
+398
+00:35:46.620 --> 00:35:52.820
+than a broad style label alone. They also preserve a
+place for the creator's composition decisions.
+
+399
+00:35:52.820 --> 00:35:58.400
+When using a generator, you can begin with material you
+made yourself and ask it to develop selected
+
+400
+00:35:58.400 --> 00:36:06.038
+aspects. The important question is which qualities of
+that starting material should survive through
+interpretation and animation.
+
+401
+00:36:06.338 --> 00:36:13.078
+Overthinking uses a deliberately nostalgic visual
+language. The workflow diagram includes image
+adaptation,
+
+402
+00:36:13.078 --> 00:36:18.418
+asset creation, animation, and editing. Read the
+branches as parts of this particular production,
+
+403
+00:36:18.418 --> 00:36:23.038
+rather than a mandatory recipe. Several techniques
+contribute to the final style,
+
+404
+00:36:23.038 --> 00:36:29.658
+and their contributions occur at different stages. This
+matters because viewers experience the finished
+sequence as a whole.
+
+405
+00:36:29.658 --> 00:36:34.058
+They do not separate an image model's contribution from
+a timing decision in the edit.
+
+406
+00:36:34.058 --> 00:36:39.498
+For our own work, we can still separate those
+contributions analytically. Doing so helps us decide
+where to
+
+407
+00:36:39.498 --> 00:36:44.497
+intervene when the final sequence feels wrong, even
+though the individual images look suitable.
+
+408
+00:36:44.797 --> 00:36:50.817
+The upper branch of Overthinking begins with a curated
+image collection and adaptation of an image model.
+
+409
+00:36:50.817 --> 00:36:57.497
+The paper discusses imagery associated with mid-century
+toys. A LoRA is a compact set of learned changes that
+
+410
+00:36:57.497 --> 00:37:04.197
+can adapt a larger model to particular material. The
+later stages build and refine assets for the scene.
+
+411
+00:37:04.197 --> 00:37:10.937
+The important creative decision happens before
+movement: the team chooses a visual world and prepares
+material that supports
+
+412
+00:37:10.937 --> 00:37:16.837
+it. If you want a coherent art video, collecting
+references and deciding what belongs in that world can
+
+413
+00:37:16.837 --> 00:37:21.847
+be more productive than generating unrelated shots and
+trying to make them match afterward.
+
+414
+00:37:22.147 --> 00:37:28.887
+The lower branches of the workflow show animation and
+editing. The survey describes adjusting playback
+cadence to evoke
+
+415
+00:37:28.887 --> 00:37:34.087
+a stop-motion quality. This is a reminder that style
+has a temporal dimension.
+
+416
+00:37:34.087 --> 00:37:40.587
+Two sequences can use similar images and still feel
+different because of how movement is sampled or paced.
+
+417
+00:37:40.587 --> 00:37:44.827
+Smooth motion is appropriate for some intentions, while
+a stepped rhythm may suit another.
+
+418
+00:37:44.827 --> 00:37:51.187
+For the studio painting, ask whether its movement
+should flow continuously or arrive in small unsettling
+changes.
+
+419
+00:37:51.187 --> 00:37:56.587
+That choice may involve editing as well as generation.
+It should be judged against the intended experience,
+
+420
+00:37:56.587 --> 00:37:59.603
+rather than against smoothness as a universal goal.
+
+421
+00:37:59.903 --> 00:38:07.683
+Clown provides a different relationship to consistency.
+The survey discusses frame-by-frame style
+transformation and interprets visual variation as
+
+422
+00:38:07.683 --> 00:38:13.843
+supporting a fragmented identity. Look at how the
+character's appearance changes while the performance
+remains related across the
+
+423
+00:38:13.843 --> 00:38:20.683
+sequence. An inconsistency can become expressive
+material, but that does not make every accidental
+change meaningful.
+
+424
+00:38:20.683 --> 00:38:25.503
+We need an account of how it affects the viewer. This
+case is useful because it challenges a
+
+425
+00:38:25.503 --> 00:38:33.303
+simple rule that all AI artifacts must be removed.
+Instead, ask whether a particular variation supports
+the work,
+
+426
+00:38:33.303 --> 00:38:37.486
+distracts from it, or communicates something the
+creator did not intend.
+
+427
+00:38:37.786 --> 00:38:42.666
+Here we enlarge part of the comparison so that the hand
+gesture is easier to follow.
+
+428
+00:38:42.666 --> 00:38:49.186
+Compare corresponding moments across the two rows.
+Which features of the performance remain legible even
+when the appearance
+
+429
+00:38:49.186 --> 00:38:55.506
+changes? The position of a hand or the direction of a
+gaze can carry an action through stylization.
+
+430
+00:38:55.506 --> 00:39:00.086
+At the same time, small changes around the face may
+alter the character's expression.
+
+431
+00:39:00.086 --> 00:39:05.666
+These stills help us examine correspondence, but they
+cannot establish how smooth the full sequence feels.
+
+432
+00:39:05.666 --> 00:39:11.326
+For that, we need playback. In your own project,
+compare both individual frames and the moving result
+before
+
+433
+00:39:11.326 --> 00:39:14.281
+deciding that a transformation preserves the
+performance.
+
+434
+00:39:14.581 --> 00:39:18.421
+Would a stable face or a changing face better serve
+this scene?
+
+435
+00:39:18.421 --> 00:39:25.121
+There is no answer without an artistic intention. A
+conventional dialogue scene may depend on stable
+identity so
+
+436
+00:39:25.121 --> 00:39:31.641
+that the audience follows the conversation. A work
+about unstable memory may use changing appearance as
+part of
+
+437
+00:39:31.641 --> 00:39:36.841
+its meaning. Propose one intention for each version,
+and explain what the viewer should notice.
+
+438
+00:39:36.841 --> 00:39:41.561
+Then identify a limit. Even a film about instability
+might need a consistent gesture,
+
+439
+00:39:41.561 --> 00:39:47.101
+setting, or sound to hold the sequence together. Pause
+here if you want to discuss alternatives.
+
+440
+00:39:47.101 --> 00:39:51.269
+The goal is to make continuity a considered choice
+rather than an automatic slogan.
+
+441
+00:39:51.569 --> 00:39:56.409
+For Pixi illustrates a case where a recurring character
+needs recognizable features.
+
+442
+00:39:56.409 --> 00:40:03.749
+Look across the selected images. The blue material,
+large eyes, proportions, and general silhouette help
+establish continuity,
+
+443
+00:40:03.749 --> 00:40:10.089
+although the appearances are not identical. The survey
+describes iterative generation and region editing as
+parts of the
+
+444
+00:40:10.089 --> 00:40:16.489
+workflow. This is a production process that includes
+selecting and correcting, rather than expecting one
+instruction to guarantee
+
+445
+00:40:16.489 --> 00:40:21.069
+every shot. The stills show the kinds of identity cues
+the creators work with.
+
+446
+00:40:21.069 --> 00:40:26.669
+They do not prove perfect consistency across the entire
+film. As a viewer or researcher,
+
+447
+00:40:26.669 --> 00:40:30.603
+keep the difference between a selected example and a
+complete evaluation clear.
+
+448
+00:40:30.903 --> 00:40:35.023
+The enlarged examples let us be more specific about a
+character reference.
+
+449
+00:40:35.023 --> 00:40:39.723
+A phrase such as blue puppet supplies a category, but
+it leaves the shape of the eyes,
+
+450
+00:40:39.723 --> 00:40:45.463
+the head proportions, and the material open. A
+reference can communicate these details more directly.
+
+451
+00:40:45.463 --> 00:40:52.683
+Identify two features that must survive changes in view
+and expression. Then decide which variations are
+acceptable.
+
+452
+00:40:52.683 --> 00:40:57.563
+Lighting should be allowed to change, for example,
+without changing what the character is made of.
+
+453
+00:40:57.563 --> 00:41:03.003
+This exercise turns a vague request for consistency
+into a set of visible criteria.
+
+454
+00:41:03.003 --> 00:41:08.934
+Those criteria can guide reference selection, local
+editing, and the rejection of unsuitable shots.
+
+455
+00:41:09.234 --> 00:41:16.414
+Fish Tank connects generated material to a three-
+dimensional production workflow. The figure places
+finished scenes beside assets and
+
+456
+00:41:16.414 --> 00:41:21.394
+a scene model. Notice that the final image depends on
+how objects are arranged and rendered,
+
+457
+00:41:21.394 --> 00:41:28.494
+rather than only on their individual appearance. The
+case study reports manual work on UV mapping and
+topology.
+
+458
+00:41:28.494 --> 00:41:34.634
+Those are ordinary production requirements that do not
+disappear when generation supplies an initial asset.
+
+459
+00:41:34.634 --> 00:41:40.074
+For a filmmaker, the useful output is something that
+can participate in the intended scene.
+
+460
+00:41:40.074 --> 00:41:44.734
+A beautiful preview may still require substantial work
+before the object can be lit,
+
+461
+00:41:44.734 --> 00:41:47.607
+placed, or animated as the production demands.
+
+462
+00:41:47.907 --> 00:41:53.987
+Look more closely at the scene construction. Geometry
+determines the shape and placement of surfaces.
+
+463
+00:41:53.987 --> 00:41:58.647
+Topology describes how a mesh connects, which matters
+when it needs to deform.
+
+464
+00:41:58.647 --> 00:42:05.767
+UV mapping associates locations on that surface with
+texture information. A generated asset may need
+correction in any
+
+465
+00:42:05.767 --> 00:42:10.727
+of these areas. This is why it helps to decide how an
+asset will be used before judging
+
+466
+00:42:10.727 --> 00:42:16.827
+it. A background object seen briefly from one angle has
+different requirements from a character that bends in
+
+467
+00:42:16.827 --> 00:42:22.887
+a close-up. In the studio, a chair that the returning
+person sits on needs more dependable structure than
+
+468
+00:42:22.887 --> 00:42:24.637
+a distant decorative object.
+
+469
+00:42:24.937 --> 00:42:29.737
+Volumography refers here to creating moving images
+through spatial capture and rendering.
+
+470
+00:42:29.737 --> 00:42:35.237
+The survey presents examples including Former Garden,
+Metanoia, and Dressage: Marching Through Memories.
+
+471
+00:42:35.237 --> 00:42:40.897
+Instead of recording only a fixed sequence of frames, a
+spatial representation can permit later decisions about
+the
+
+472
+00:42:40.897 --> 00:42:47.617
+viewpoint. This opens a different kind of creative
+process. Camera movement can become something explored
+after capture.
+
+473
+00:42:47.617 --> 00:42:53.417
+The freedom is still limited by what the representation
+contains and how accurately it reconstructs the scene.
+
+474
+00:42:53.417 --> 00:42:59.157
+Missing surfaces, reflective materials, and
+insufficient observations may produce gaps or
+distortions.
+
+475
+00:42:59.157 --> 00:43:04.440
+Such effects can be production problems or, in some
+cases, material for artistic interpretation.
+
+476
+00:43:04.740 --> 00:43:10.560
+This enlarged image shows a fragmentary spatial
+appearance. Parts of the scene seem incomplete,
+
+477
+00:43:10.560 --> 00:43:16.760
+stretched, or loosely connected. In the cases discussed
+by the survey, such qualities can contribute to an
+experience
+
+478
+00:43:16.760 --> 00:43:23.820
+of memory or uncertain space. We should avoid assuming
+that every visible gap was individually designed.
+
+479
+00:43:23.820 --> 00:43:29.300
+The artistic decision may instead involve selecting and
+framing the behavior of a reconstruction process.
+
+480
+00:43:29.300 --> 00:43:32.680
+Ask what the fragments direct your attention toward. Do
+they suggest loss,
+
+481
+00:43:32.680 --> 00:43:39.820
+movement, or an unstable viewpoint? Then consider
+whether a more complete reconstruction would strengthen
+or weaken that reading.
+
+482
+00:43:39.820 --> 00:43:43.219
+Technical fidelity and expressive effect can point
+toward different choices.
+
+483
+00:43:43.519 --> 00:43:47.099
+A short film still needs decisions about what changes,
+when it changes,
+
+484
+00:43:47.099 --> 00:43:53.159
+and what the audience should feel. Return to the empty
+studio. Perhaps the painting moves only after the
+
+485
+00:43:53.159 --> 00:43:58.679
+viewer has had time to notice its stillness. Perhaps
+the returning person never sees what happened.
+
+486
+00:43:58.679 --> 00:44:04.899
+These choices shape the audience's knowledge and
+expectation. A generator can help produce the required
+material,
+
+487
+00:44:04.899 --> 00:44:10.399
+but the relationship between moments still needs
+planning. This does not mean every art video must use
+conventional
+
+488
+00:44:10.399 --> 00:44:17.479
+narrative. A work organized through repetition or
+rhythm also makes decisions about change and duration.
+
+489
+00:44:17.479 --> 00:44:21.273
+Describe those decisions clearly enough that you can
+evaluate alternatives.
+
+490
+00:44:21.573 --> 00:44:25.853
+Here is one possible shot plan. The opening establishes
+the empty room.
+
+491
+00:44:25.853 --> 00:44:30.573
+The next shot reveals movement inside the painting. The
+ending shows someone returning.
+
+492
+00:44:30.573 --> 00:44:34.993
+Now make the plan more concrete. Is the first view wide
+enough to establish the door and painting
+
+493
+00:44:34.993 --> 00:44:40.173
+together? Does the reveal use a camera move, an edit,
+or movement inside a fixed frame?
+
+494
+00:44:40.173 --> 00:44:46.133
+Does the returning person's expression need to be
+readable? Each answer creates a technical requirement.
+
+495
+00:44:46.133 --> 00:44:49.713
+You can then decide where to use an initial image, a
+motion reference,
+
+496
+00:44:49.713 --> 00:44:57.153
+or local editing. The shot plan helps connect an
+artistic idea to manageable production tasks without
+determining every
+
+497
+00:44:57.153 --> 00:44:58.645
+detail in advance.
+
+498
+00:44:58.945 --> 00:45:04.505
+The filmmaking cases show several ways to turn
+generated material into useful shots and sequences.
+
+499
+00:45:04.505 --> 00:45:09.285
+Some creators establish style through adapted image
+models. Others preserve a source performance,
+
+500
+00:45:09.285 --> 00:45:15.585
+construct three-dimensional assets, or use spatial
+capture. Editing connects these decisions through
+timing and order.
+
+501
+00:45:15.585 --> 00:45:20.345
+A generated shot becomes useful when it serves that
+larger sequence. Before moving on,
+
+502
+00:45:20.345 --> 00:45:25.685
+choose one case that relates to a project you might
+make. Name the production problem it addresses and
+
+503
+00:45:25.685 --> 00:45:31.405
+one limitation you would test. We will now examine
+shared technical ideas behind these workflows,
+
+504
+00:45:31.405 --> 00:45:38.000
+including conditioning, scene representations, and the
+difference between generating pixels and generating
+movement data.
+
+505
+00:45:38.300 --> 00:45:43.420
+Our fourth reading is State of the Art on Diffusion
+Models for Visual Computing by Po and colleagues,
+
+506
+00:45:43.420 --> 00:45:49.580
+published in Computer Graphics Forum in 2024. It
+connects diffusion methods across images,
+
+507
+00:45:49.580 --> 00:45:55.520
+video, geometry, and motion. We will use it to explain
+why related model ideas can support different kinds
+
+508
+00:45:55.520 --> 00:46:01.520
+of output. The date matters here: these are
+foundational research examples, rather than a claim
+about the newest
+
+509
+00:46:01.520 --> 00:46:07.260
+available products. Focus on the representation and the
+control signal. An image,
+
+510
+00:46:07.260 --> 00:46:11.260
+a scene, and a motion sequence may all use learned
+generative knowledge,
+
+511
+00:46:11.260 --> 00:46:14.795
+but they create different opportunities for later
+editing and rendering.
+
+512
+00:46:15.095 --> 00:46:19.895
+A learned prior captures regularities in the material a
+model has seen during training.
+
+513
+00:46:19.895 --> 00:46:24.895
+In practical terms, it influences what kinds of outputs
+the model considers plausible.
+
+514
+00:46:24.895 --> 00:46:29.895
+The figure shows a process that moves from data toward
+noise and a learned process that moves back
+
+515
+00:46:29.895 --> 00:46:36.595
+toward data. It also includes different mathematical
+formulations of those paths. You do not need the
+equations to
+
+516
+00:46:36.595 --> 00:46:42.935
+understand the creative implication. The prior helps
+supply details that your inputs leave unspecified.
+
+517
+00:46:42.935 --> 00:46:47.095
+Those details can be useful, but they are not
+guaranteed to be true.
+
+518
+00:46:47.095 --> 00:46:53.809
+Plausibility should therefore be distinguished from
+faithful reconstruction, factual accuracy, and artistic
+appropriateness.
+
+519
+00:46:54.109 --> 00:46:59.329
+The upper diagram shows a denoising U-Net using
+information at several spatial scales.
+
+520
+00:46:59.329 --> 00:47:03.229
+The U shape reflects a process that reduces and then
+rebuilds spatial detail,
+
+521
+00:47:03.229 --> 00:47:11.849
+while connections carry information between stages.
+Prompt embeddings provide text conditioning. The time-
+step embedding tells the network about
+
+522
+00:47:11.849 --> 00:47:17.709
+the current noise-removal stage. It does not indicate
+the moment of an action inside a video.
+
+523
+00:47:17.709 --> 00:47:23.569
+As you trace the diagram, identify the noisy input, the
+conditions, and the predicted output.
+
+524
+00:47:23.569 --> 00:47:29.709
+This reading strategy is more important than memorizing
+every block. It lets you connect a model's architecture
+to
+
+525
+00:47:29.709 --> 00:47:32.674
+the information available when it makes each
+refinement.
+
+526
+00:47:32.974 --> 00:47:37.534
+The lower diagram shows a common way to extend image-
+processing blocks across time.
+
+527
+00:47:37.534 --> 00:47:43.554
+Spatial operations connect information within each
+frame. Temporal operations connect information across
+frames.
+
+528
+00:47:43.554 --> 00:47:49.374
+The legend distinguishes these roles, and the inserted
+temporal components show where the sequence gains
+additional connections.
+
+529
+00:47:49.374 --> 00:47:54.214
+This is one architectural family, rather than a
+description of every modern video model.
+
+530
+00:47:54.214 --> 00:47:58.994
+The principle is that treating every frame
+independently leaves consistency to chance.
+
+531
+00:47:58.994 --> 00:48:04.414
+Connecting frames gives the system a way to coordinate
+their features. For our moving painting,
+
+532
+00:48:04.414 --> 00:48:11.054
+such coordination can help preserve structure while
+appearance changes. It still needs suitable training
+and conditioning to produce
+
+533
+00:48:11.054 --> 00:48:13.053
+the particular change we want.
+
+534
+00:48:13.353 --> 00:48:21.333
+Conditioning adds information that guides generation.
+ControlNet is a well-known example of a method that
+incorporates structural signals
+
+535
+00:48:21.333 --> 00:48:27.653
+such as edges or depth. The diagram shows a trainable
+branch alongside a fixed base network.
+
+536
+00:48:27.653 --> 00:48:31.853
+At a high level, the added branch learns how to use the
+extra condition.
+
+537
+00:48:31.853 --> 00:48:35.453
+Think of a sketch that places the painting on the left
+wall of the studio.
+
+538
+00:48:35.453 --> 00:48:40.373
+The sketch provides a spatial constraint that a broad
+text prompt might not preserve reliably.
+
+539
+00:48:40.373 --> 00:48:46.353
+Different conditions constrain different properties. An
+edge map says little about the intended material or
+mood,
+
+540
+00:48:46.353 --> 00:48:50.595
+so you may still need text, references, and later
+selection to complete the result.
+
+541
+00:48:50.895 --> 00:48:57.615
+Inversion and personalization have different purposes.
+Inversion starts with an existing image and seeks a
+representation or generation
+
+542
+00:48:57.615 --> 00:49:02.995
+path that can reproduce it, often approximately. That
+representation can then support edits.
+
+543
+00:49:02.995 --> 00:49:08.255
+Personalization adapts a model or concept
+representation to a particular subject or style.
+
+544
+00:49:08.255 --> 00:49:13.195
+A workflow may use both, but they answer different
+questions. If you want to edit one existing studio
+
+545
+00:49:13.195 --> 00:49:18.975
+image, inversion may be relevant. If you want to
+generate many new views of a recurring character,
+
+546
+00:49:18.975 --> 00:49:26.615
+personalization may be relevant. Neither label
+guarantees exact preservation. Check how well the
+method reconstructs the input or
+
+547
+00:49:26.615 --> 00:49:29.759
+maintains the subject under the changes your project
+needs.
+
+548
+00:49:30.059 --> 00:49:35.879
+TokenFlow illustrates video editing that aims to
+preserve coherent movement while changing appearance.
+
+549
+00:49:35.879 --> 00:49:41.519
+The top row shows the input performance. The lower row
+changes the subject and object while retaining a
+
+550
+00:49:41.519 --> 00:49:48.959
+related sequence of poses and positions. The method
+uses correspondences between features to help keep the
+edit consistent.
+
+551
+00:49:48.959 --> 00:49:54.739
+This differs from independently generating a new image
+for every frame. The example is useful for
+understanding the
+
+552
+00:49:54.739 --> 00:50:00.299
+task, but selected frames cannot show every temporal
+issue. For a performance-based art video,
+
+553
+00:50:00.299 --> 00:50:06.859
+inspect whether the intended gesture remains clear and
+whether changing the surface appearance has
+unintentionally changed the emotion
+
+554
+00:50:06.859 --> 00:50:08.879
+or physical meaning of the action.
+
+555
+00:50:09.179 --> 00:50:14.859
+VideoComposer illustrates a different use of
+conditions. Here, an image supplies appearance
+information,
+
+556
+00:50:14.859 --> 00:50:21.979
+while a depth sequence supplies structural guidance
+through time. The generated video combines those inputs
+with a text
+
+557
+00:50:21.979 --> 00:50:28.279
+description. Look at how each condition answers a
+different question. The image helps specify what the
+subject looks
+
+558
+00:50:28.279 --> 00:50:35.179
+like. Depth helps describe spatial structure and its
+progression. The text describes the desired content or
+action more
+
+559
+00:50:35.179 --> 00:50:41.459
+broadly. This is a useful way to plan a controlled
+workflow: choose inputs according to the property each
+
+560
+00:50:41.459 --> 00:50:50.027
+one constrains. More inputs do not automatically
+produce a better result, especially when their
+instructions or structures conflict.
+
+561
+00:50:50.327 --> 00:50:56.167
+A three-dimensional object has many views, including
+surfaces that a single picture does not show.
+
+562
+00:50:56.167 --> 00:51:02.227
+The examples display objects under different conditions
+and viewpoints. A front view can be attractive while
+the side
+
+563
+00:51:02.227 --> 00:51:09.427
+or back contains implausible geometry. This is a
+distinctive requirement of reusable three-dimensional
+material.
+
+564
+00:51:09.427 --> 00:51:14.067
+The representation needs enough consistency to support
+the views you intend to render.
+
+565
+00:51:14.067 --> 00:51:18.607
+For our studio chair, consider whether it will appear
+only in the background or whether the camera will
+
+566
+00:51:18.607 --> 00:51:25.807
+circle it. The second use demands more complete
+inspection. Evaluate generated geometry as an object
+with a purpose,
+
+567
+00:51:25.807 --> 00:51:28.572
+rather than as a single favorable preview image.
+
+568
+00:51:28.872 --> 00:51:36.092
+Shape and appearance are related but distinct outputs.
+A mesh describes surfaces through connected geometric
+elements.
+
+569
+00:51:36.092 --> 00:51:43.072
+Materials and textures describe how those surfaces look
+when rendered. The figure separates visual examples
+from extracted meshes,
+
+570
+00:51:43.072 --> 00:51:48.852
+making the distinction visible. A plausible texture can
+hide a structural problem from one angle.
+
+571
+00:51:48.852 --> 00:51:52.812
+A clean mesh can also look unfinished until materials
+and lighting are added.
+
+572
+00:51:52.812 --> 00:51:57.892
+If the object must animate, connectivity and
+deformation introduce further requirements. For
+production,
+
+573
+00:51:57.892 --> 00:52:03.372
+inspect the representation that you will actually use.
+A rendered preview is useful evidence,
+
+574
+00:52:03.372 --> 00:52:08.695
+but it does not replace checking whether the underlying
+asset supports the intended movement and camera views.
+
+575
+00:52:08.995 --> 00:52:14.535
+A scene adds relationships between objects and spaces.
+As a camera moves through a room,
+
+576
+00:52:14.535 --> 00:52:22.295
+doorways, furniture, and walls should form a coherent
+arrangement. The figure illustrates scene-level
+generation and related views.
+
+577
+00:52:22.295 --> 00:52:27.135
+This is more demanding than producing an isolated
+object against a simple background.
+
+578
+00:52:27.135 --> 00:52:31.135
+It is also important to distinguish a video that looks
+like a camera move from an editable scene
+
+579
+00:52:31.135 --> 00:52:35.315
+representation. The video may look convincing without
+providing geometry that you can manipulate.
+
+580
+00:52:35.315 --> 00:52:41.475
+If your project needs to change the path later,
+determine whether the workflow actually supports that
+operation.
+
+581
+00:52:41.475 --> 00:52:46.387
+The appearance of spatial movement alone does not
+establish control over three-dimensional space.
+
+582
+00:52:46.687 --> 00:52:53.627
+DreamFusion uses image-based generative guidance to
+optimize a three-dimensional result. The basic idea is
+to render views of
+
+583
+00:52:53.627 --> 00:52:57.447
+a candidate scene and use a learned image prior to
+guide improvements.
+
+584
+00:52:57.447 --> 00:53:02.887
+The figure shows outputs from multiple viewpoints,
+along with other visualizations of their structure.
+
+585
+00:53:02.887 --> 00:53:06.667
+This connects the knowledge of an image model to a
+different representation.
+
+586
+00:53:06.667 --> 00:53:12.647
+It is an influential idea because large image
+collections can provide information that is difficult
+to obtain directly
+
+587
+00:53:12.647 --> 00:53:19.987
+for every three-dimensional object. However, an image
+prior does not automatically ensure agreement across
+all views.
+
+588
+00:53:19.987 --> 00:53:26.489
+Look for repeated features, distorted geometry, or
+inconsistent appearances when evaluating a generated
+object.
+
+589
+00:53:26.789 --> 00:53:34.989
+InstructNeRF2NeRF illustrates editing a reconstructed
+scene using language instructions. The examples alter
+features while showing the results from
+
+590
+00:53:34.989 --> 00:53:41.989
+related viewpoints. A neural radiance field, or NeRF,
+represents a scene through a learned function used for
+rendering.
+
+591
+00:53:41.989 --> 00:53:48.089
+Editing such a representation differs from repainting
+one isolated photograph. The goal is for the change to
+appear
+
+592
+00:53:48.089 --> 00:53:53.149
+coherently across views. This can be useful when a
+creator wants to revise the appearance of an existing
+
+593
+00:53:53.149 --> 00:53:59.649
+captured space. It does not imply that every edit
+creates physically complete or animation-ready
+geometry.
+
+594
+00:53:59.649 --> 00:54:06.420
+Always connect the demonstration to the operations you
+require, such as new camera views or consistent
+appearance changes.
+
+595
+00:54:06.720 --> 00:54:12.300
+The output format changes what we can edit later.
+Pixels give us a finished image surface.
+
+596
+00:54:12.300 --> 00:54:18.840
+A scene representation can support rendering from
+additional viewpoints. Movement data can separate an
+action from the character
+
+597
+00:54:18.840 --> 00:54:25.540
+that eventually performs it. Consider two projects: a
+fixed-view poster and a camera orbit around a
+sculpture.
+
+598
+00:54:25.540 --> 00:54:30.000
+The poster may need no three-dimensional representation
+at all. The orbit does.
+
+599
+00:54:30.000 --> 00:54:35.600
+Choosing a more complex representation can add
+flexibility, but also adds preparation and evaluation
+work.
+
+600
+00:54:35.600 --> 00:54:40.960
+Pause and name the most important later edit in your
+project. Then ask which output format makes that
+
+601
+00:54:40.960 --> 00:54:44.730
+edit possible, and what limitations you would need to
+test before committing.
+
+602
+00:54:45.030 --> 00:54:52.430
+Motion generation can produce articulated movement
+rather than finished video pixels. The example shows
+audio-conditioned movement sequences that
+
+603
+00:54:52.430 --> 00:54:56.930
+can later be rendered with a character. This separates
+what the body does from how the final image
+
+604
+00:54:56.930 --> 00:55:02.790
+looks. The same movement might be applied to different
+character designs, subject to the capabilities of the
+rig
+
+605
+00:55:02.790 --> 00:55:09.730
+and retargeting process. This is valuable when timing
+and performance matter more than a particular rendered
+appearance.
+
+606
+00:55:09.730 --> 00:55:16.230
+It also introduces its own evaluation questions. Are
+contacts plausible? Does the body maintain balance?
+
+607
+00:55:16.230 --> 00:55:21.530
+Does the movement relate to the music in a meaningful
+way? A visually attractive render can conceal problems
+
+608
+00:55:21.530 --> 00:55:23.275
+in the underlying motion.
+
+609
+00:55:23.575 --> 00:55:30.495
+Our final reading is Advances in Artificial
+Intelligence: A Review for the Creative Industries by
+Anantrasirichai,
+
+610
+00:55:30.495 --> 00:55:39.015
+Zhang, and Bull, published in Artificial Intelligence
+Review in 2026. Its scope extends beyond generation to
+analysis,
+
+611
+00:55:39.015 --> 00:55:45.815
+enhancement, spatial reconstruction, and other parts of
+production. Some illustrated examples are older than
+the publication date,
+
+612
+00:55:45.815 --> 00:55:50.375
+so we will keep those dates clear. This wider view
+helps explain why improving a generator may not
+
+613
+00:55:50.375 --> 00:55:54.575
+solve the main problem in a project. The difficulty may
+involve selecting a region,
+
+614
+00:55:54.575 --> 00:56:00.555
+preserving a performance, refining an asset, or judging
+a result. We now connect those supporting capabilities
+to the
+
+615
+00:56:00.555 --> 00:56:02.139
+creative workflow as a whole.
+
+616
+00:56:02.439 --> 00:56:09.419
+Creation sits inside a larger process. Before
+generation, we establish an intention and gather
+material that helps communicate
+
+617
+00:56:09.419 --> 00:56:17.079
+it. After generation, we select, revise, combine, and
+review the results. Sound and editing can change the
+experience
+
+618
+00:56:17.079 --> 00:56:23.119
+substantially. Think about where time actually goes in
+your own work. If the problem is unclear pacing,
+
+619
+00:56:23.119 --> 00:56:26.939
+generating a sharper image may not help. If the problem
+is identity drift,
+
+620
+00:56:26.939 --> 00:56:32.839
+a new music track may not help. Identify the stage
+responsible for the mismatch between intention and
+result.
+
+621
+00:56:32.839 --> 00:56:36.679
+This lets you choose a targeted intervention and
+evaluate whether it resolves the problem,
+
+622
+00:56:36.679 --> 00:56:40.129
+instead of treating every issue as a reason to generate
+again.
+
+623
+00:56:40.429 --> 00:56:45.929
+This figure compares image examples produced from a
+prompt and includes an editing comparison.
+
+624
+00:56:45.929 --> 00:56:53.709
+The examples are dated November 27, 2024. They are
+historical illustrations, not a current product
+ranking.
+
+625
+00:56:53.709 --> 00:56:59.729
+Look at composition, object relationships, and the
+interpretation of style. A shared prompt can leave room
+for noticeably
+
+626
+00:56:59.729 --> 00:57:05.489
+different results because models and generation
+settings differ. Even one model can vary across
+samples.
+
+627
+00:57:05.489 --> 00:57:09.589
+For a fair creative comparison, decide which visible
+properties matter and inspect more than one output.
+
+628
+00:57:09.589 --> 00:57:15.209
+Declaring a winner from a single attractive picture
+tells us little about reliability or whether the system
+can
+
+629
+00:57:15.209 --> 00:57:17.906
+produce the specific sequence our project requires.
+
+630
+00:57:18.206 --> 00:57:22.446
+The enlarged editing example asks for a white car to
+become red.
+
+631
+00:57:22.446 --> 00:57:27.406
+This sounds local, but we should inspect the whole
+image. Did the second car remain stable?
+
+632
+00:57:27.406 --> 00:57:33.026
+Did the road, lighting, and viewpoint change? A method
+can satisfy the most obvious part of the request
+
+633
+00:57:33.026 --> 00:57:40.026
+while introducing unwanted differences elsewhere. The
+figure presents selected historical examples, so it
+should not be used as
+
+634
+00:57:40.026 --> 00:57:46.666
+a current benchmark. Its teaching value is the
+evaluation procedure. Define the intended change and
+the features to
+
+635
+00:57:46.666 --> 00:57:52.566
+preserve, then inspect both. This is the same procedure
+we would use when editing the painting inside our
+
+636
+00:57:52.566 --> 00:57:54.552
+otherwise stable studio scene.
+
+637
+00:57:54.852 --> 00:58:00.792
+Performance can come from different kinds of source
+information. The left example involves captured body
+movement and its
+
+638
+00:58:00.792 --> 00:58:06.692
+use with an animated figure. The right example combines
+an image with audio for facial animation.
+
+639
+00:58:06.692 --> 00:58:12.992
+These are separate systems, and their inputs constrain
+different properties. A body-motion reference tells us
+something about pose
+
+640
+00:58:12.992 --> 00:58:20.032
+and timing. Audio can guide speech-related facial
+movement. A portrait supplies appearance but does not
+itself specify a
+
+641
+00:58:20.032 --> 00:58:24.532
+whole performance. When planning a character shot,
+identify what you already have:
+
+642
+00:58:24.532 --> 00:58:30.552
+a voice recording, an acted movement, or only a design.
+The available material helps determine which workflow
+is
+
+643
+00:58:30.552 --> 00:58:32.905
+appropriate and what the model must invent.
+
+644
+00:58:33.205 --> 00:58:41.345
+Post-production continues after generation. The figure
+places image enhancement beside portrait editing to
+show different kinds of intervention.
+
+645
+00:58:41.345 --> 00:58:48.125
+Enhancement may improve apparent detail or resolution.
+Editing changes selected content or expression.
+
+646
+00:58:48.125 --> 00:58:53.105
+Both can be useful, but they require evaluation
+according to the intended task.
+
+647
+00:58:53.105 --> 00:58:58.565
+A sharper face is not necessarily a more faithful face,
+and an expressive alteration may affect identity.
+
+648
+00:58:58.565 --> 00:59:03.085
+For an art video, you might welcome some changes while
+rejecting others.
+
+649
+00:59:03.085 --> 00:59:07.425
+Keep an original version so that you can compare what
+happened. It is easier to judge a revision
+
+650
+00:59:07.425 --> 00:59:12.516
+when the intended improvement is specific and the
+earlier state remains available for reference.
+
+651
+00:59:12.816 --> 00:59:20.136
+Compare the low-resolution input, the AI-upscaled
+image, and the high-resolution reference. Pay attention
+to texture rather than just
+
+652
+00:59:20.136 --> 00:59:26.076
+overall sharpness. The upscaled version can create
+convincing detail that differs from the reference.
+
+653
+00:59:26.076 --> 00:59:31.556
+This happens because a model uses learned regularities
+to fill in information that the input does not fully
+
+654
+00:59:31.556 --> 00:59:36.816
+contain. In a new artwork, that contribution may be
+acceptable or desirable.
+
+655
+00:59:36.816 --> 00:59:42.536
+In faithful restoration, it may be a problem. For
+video, repeat the comparison across time to check
+whether
+
+656
+00:59:42.536 --> 00:59:47.156
+the added texture flickers. The evaluation should
+follow the purpose of the work,
+
+657
+00:59:47.156 --> 00:59:51.189
+rather than assuming that more visible detail always
+means better quality.
+
+658
+00:59:51.489 --> 00:59:57.929
+Segmentation identifies regions or objects in an image.
+Tracking follows an object through a sequence.
+
+659
+00:59:57.929 --> 01:00:03.589
+Together, they can make local video editing more
+manageable. Suppose we want to alter the returning
+person's coat
+
+660
+01:00:03.589 --> 01:00:09.109
+while leaving the room unchanged. We need to identify
+the coat and keep the selected region attached to
+
+661
+01:00:09.109 --> 01:00:15.929
+it as the person moves. The figure organizes several
+object-understanding tasks and includes segmentation
+examples.
+
+662
+01:00:15.929 --> 01:00:21.749
+These capabilities support generation and editing
+without necessarily generating the final content
+themselves.
+
+663
+01:00:21.749 --> 01:00:26.809
+They are part of the larger workflow. Failures around
+occlusion or fast movement can cause an edit to
+
+664
+01:00:26.809 --> 01:00:29.989
+jump, leak into the background, or disappear
+temporarily.
+
+665
+01:00:30.289 --> 01:00:34.909
+Fine boundaries are difficult because small selection
+errors can be highly visible.
+
+666
+01:00:34.909 --> 01:00:38.529
+Look at the butterfly outline and the thin structure in
+the comparison.
+
+667
+01:00:38.529 --> 01:00:43.809
+Hair, transparent material, and narrow gaps create
+similar challenges in creative work.
+
+668
+01:00:43.809 --> 01:00:50.929
+The figure compares selected outputs from SAM and HQ-
+SAM. It illustrates the importance of boundary detail,
+
+669
+01:00:50.929 --> 01:00:55.929
+rather than proving that one method always performs
+better. A mask that looks acceptable in a still frame
+
+670
+01:00:55.929 --> 01:01:00.969
+may still change inconsistently during movement. For
+our studio, the edge of the painting is a useful
+inspection
+
+671
+01:01:00.969 --> 01:01:07.109
+point. A clean interior transformation can be
+undermined by a shifting outline or an edit that spills
+onto
+
+672
+01:01:07.109 --> 01:01:07.787
+the frame.
+
+673
+01:01:08.087 --> 01:01:12.907
+NeRFs and Gaussian splats are different ways to
+represent scenes for rendering.
+
+674
+01:01:12.907 --> 01:01:18.047
+A NeRF uses a learned field that describes properties
+queried along viewing rays.
+
+675
+01:01:18.047 --> 01:01:23.267
+Gaussian splatting uses many spatial primitives with
+properties such as position and appearance.
+
+676
+01:01:23.267 --> 01:01:29.027
+The figure places their processes alongside examples of
+spatial interaction. You do not need to master their
+mathematics
+
+677
+01:01:29.027 --> 01:01:33.347
+to understand the production question: what views can
+this representation render well,
+
+678
+01:01:33.347 --> 01:01:37.287
+and what can I edit? Capture coverage and
+reconstruction quality still matter.
+
+679
+01:01:37.287 --> 01:01:44.607
+A scene representation does not automatically contain
+reliable hidden surfaces. Test the intended viewpoint
+range before building a
+
+680
+01:01:44.607 --> 01:01:47.548
+film or interactive experience around that freedom.
+
+681
+01:01:47.848 --> 01:01:53.548
+Quality has several meanings. An image can be sharp but
+fail to convey the intended action.
+
+682
+01:01:53.548 --> 01:01:59.428
+A sequence can match a prompt yet feel emotionally
+wrong. A distorted image can also serve a deliberate
+
+683
+01:01:59.428 --> 01:02:06.568
+artistic purpose. These observations call for separate
+judgments, rather than one vague claim that the output
+is good.
+
+684
+01:02:06.568 --> 01:02:09.948
+For the studio, you could assess technical continuity,
+the clarity of the reveal,
+
+685
+01:02:09.948 --> 01:02:14.268
+and the audience's interpretation. Different viewers
+may disagree about the last part,
+
+686
+01:02:14.268 --> 01:02:20.168
+and that disagreement can be useful evidence. Explain
+the criteria you chose and why they suit the work.
+
+687
+01:02:20.168 --> 01:02:25.261
+Automated measures can contribute, but they cannot
+settle every question about artistic experience.
+
+688
+01:02:25.561 --> 01:02:30.241
+A process record helps other people understand what you
+made and how you made it.
+
+689
+01:02:30.241 --> 01:02:37.101
+Save important references and meaningful before-and-
+after versions. Record model names and versions when
+available,
+
+690
+01:02:37.101 --> 01:02:42.741
+along with settings needed to repeat a comparison.
+Explain the decisions that changed the work,
+
+691
+01:02:42.741 --> 01:02:49.361
+including choices made in editing or sound. This is
+more informative than presenting a final output with
+only
+
+692
+01:02:49.361 --> 01:02:54.541
+a prompt. It also helps you diagnose your own workflow
+when a later result differs.
+
+693
+01:02:54.541 --> 01:03:01.341
+For coursework, follow the assignment's actual
+requirements. The broader habit is to make your
+contribution and source material
+
+694
+01:03:01.341 --> 01:03:07.075
+understandable without turning the record into an
+unstructured collection of every experiment.
+
+695
+01:03:07.375 --> 01:03:12.055
+We have used five readings to follow a creative process
+from model behavior to finished work.
+
+696
+01:03:12.055 --> 01:03:16.075
+The video survey explains how sequences form and how
+inputs constrain them.
+
+697
+01:03:16.075 --> 01:03:22.715
+The visual-art survey connects methods to intention.
+The film survey shows creators combining tools and
+making production decisions.
+
+698
+01:03:22.715 --> 01:03:31.295
+Visual computing explains how related ideas transfer
+across different representations. The creative-
+industries review places generation alongside
+supporting tools
+
+699
+01:03:31.295 --> 01:03:35.975
+and evaluation. Choose one decision you would now
+change in your own project.
+
+700
+01:03:35.975 --> 01:03:41.655
+Explain which reading informed it, what visible result
+you expect, and how you would test that expectation.
+
+701
+01:03:41.655 --> 01:03:47.071
+That connection between a method, an intention, and
+evidence is the central skill to take from today's
+lecture.
