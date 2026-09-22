@@ -1,13 +1,14 @@
 # Quiz 04
 
-Five short answers, 4 points each, 20 total. Answer in 1-3 sentences.
+4 points each. 20 points total. Answer in 1-3 sentences.
+Submit: https://hyang.org/amcc5160/quiz-04/
 
-1. Why can a video made from individually attractive frames still fail? Name one property that must remain coherent across time and give an example.
+1. What does a diffusion model start from, and how does it produce an image?
 
-2. Choose one input condition, such as a reference image, depth sequence or motion reference. What property does it help control, and what does it leave unspecified?
+2. What is the difference between text-to-video and image-to-video generation?
 
-3. State one artistic intention for a short art video and one concrete visual or timing choice that could support it. Explain the connection.
+3. What does temporal consistency mean in a generated video? Give one simple example.
 
-4. Why might a generated shot still need editing or other production work before it fits a film? Give one specific example.
+4. What is a mask used for in local image or video editing?
 
-5. Choose one of the three core readings. Name the paper and a specific section, figure or case. Explain one decision it would change in your own art-video workflow and one limitation or check you would keep in mind.
+5. Choose one of the three readings. Briefly state its main idea and give one reason you agree or disagree with it.
