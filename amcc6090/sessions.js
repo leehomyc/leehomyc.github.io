@@ -2,7 +2,7 @@
   const endpoint = window.AMCC6090_ATTENDANCE_API || '';
   if (!endpoint) return;
 
-  const cards = [...document.querySelectorAll('.session')];
+  const cards = [...document.querySelectorAll('.session:not([data-cancelled="true"])')];
   const esc = value => String(value || '').replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
   const safeUrl = value => { try { const url = new URL(String(value || '')); return /^https?:$/.test(url.protocol) ? url.href : ''; } catch (_) { return ''; } };
   const post = action => fetch(endpoint, {
