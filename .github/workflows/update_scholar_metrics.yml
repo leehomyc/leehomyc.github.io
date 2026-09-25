@@ -5,6 +5,10 @@ on:
     - cron: '17 * * * *'
   workflow_dispatch:
 
+concurrency:
+  group: update-scholar-metrics
+  cancel-in-progress: false
+
 jobs:
   update-scholar-metrics:
     runs-on: ubuntu-latest
@@ -13,6 +17,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -33,4 +39,17 @@ jobs:
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
           git add scholar_metrics.js
-          git diff --quiet && git diff --staged --quiet || (git commit -m "Update Scholar metrics [skip ci]" && git push)
+          if git diff --staged --quiet; then
+            exit 0
+          fi
+          git commit -m "Update Scholar metrics [skip ci]"
+          for attempt in 1 2 3; do
+            git fetch origin "$GITHUB_REF_NAME"
+            git rebase "origin/$GITHUB_REF_NAME"
+            if git push origin "HEAD:$GITHUB_REF_NAME"; then
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "Unable to push Scholar metrics after three attempts." >&2
+          exit 1
