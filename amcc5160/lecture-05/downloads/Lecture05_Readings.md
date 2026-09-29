@@ -1,63 +1,63 @@
 # AMCC 5160 · Lecture 05 — Reading guide
 
-Two perspectives + one technical reading. For Quiz 05, reflect on any one of these three readings.
+One artist, one art-and-tech paper, one technique paper. All three connect directly to the lecture slides. For Quiz 05, reflect on any one of these three readings.
 
-## Reading 1 / Artist interview: Art and the Age of AI: Holly Herndon & Mat Dryhurst With Hans Ulrich Obrist
+## Reading 1 / Art: This artist is dominating AI-generated art. And he’s not happy about it.
 
-Holly Herndon and Mat Dryhurst in conversation with Hans Ulrich Obrist · AnOther Magazine | September 12, 2024
+Melissa Heikkilä · MIT Technology Review | September 16, 2022
 
-https://www.anothermag.com/art-photography/15858/art-in-the-age-of-ai-holly-herndon-mat-dryhurst-with-hans-ulrich-obrist
+https://www.technologyreview.com/2022/09/16/1059598/this-artist-is-dominating-ai-generated-art-and-hes-not-happy-about-it/
 
-**Task.** Read the conversation, focusing on what the artists say about training data, consent, and sharing a model of yourself.
+**Task.** Read the article (about 10 minutes). Connect it to the “memorized style” slides.
 
-Herndon and Dryhurst describe training their systems only on data they own or that people agreed to share, releasing Holly+ as a model of Herndon's voice that others can use, and building Spawning, including the tool "Have I Been Trained?", so artists can check and control whether their work is used for training.
-
-**Questions to keep in mind**
-
-- What do the artists mean by consensual training data?
-- Why might an artist choose to share a model of their own voice or style?
-- What would you want to control if someone trained a model on your work?
-
-Connect this to the lecture's question, "Whose model is it?", and to the slides on memorized styles and concept ablation.
-
-_This is an artists' perspective, not a neutral policy document. Agreement with the speakers is not required._
-
-## Reading 2 / Arts education: From Creation to Curriculum: Examining the Role of Generative AI in Arts Universities
-
-Atticus Sims · December 2024 | arXiv 2412.16531
-
-https://arxiv.org/abs/2412.16531
-
-**Task.** Read the abstract, the introduction, and the student case studies. Skim the technical sections.
-
-Based on workshops that ended in a student exhibition, the paper argues that art students with no technical background can learn the full Stable Diffusion workflow, including LoRA fine-tuning and ControlNet, by making, reviewing results like a photographer's contact sheet, and refining. Case studies include a printmaking student who trained a LoRA on her own silk-screen prints.
+Greg Rutkowski is a Polish illustrator known for fantasy landscapes painted in a classical style. His name was used as a prompt about 93,000 times with Stable Diffusion, far more than famous names such as Picasso. At first he thought it might bring him new viewers; then he found AI images carrying his name that he never made, and worried that his real work would become hard to find.
 
 **Questions to keep in mind**
 
-- What did students train their LoRAs on, and why does that choice matter?
-- How does the "contact sheet" habit help you judge generated images?
-- Which part of this workflow would you use in Assignment 2?
+- Why did so many people type Rutkowski's name into their prompts?
+- What exactly worries him: copying, credit, income, or something else?
+- Is using an artist's name in a prompt homage, mimicry, or something new?
 
-This reading supports tonight's studio exercise: proposing a small dataset of your own images.
+Tonight's slides showed Stable Diffusion imitating his style, and then a model that was made to forget it.
 
-_The author's predictions about how quickly creative industries will adopt these tools are opinions, not established facts._
+_This is a news report from 2022. The legal cases and the tools have changed since._
 
-## Reading 3 / Technical reading: Multi-Concept Customization of Text-to-Image Diffusion
+## Reading 2 / Art + tech: Ablating Concepts in Text-to-Image Diffusion Models
 
-Nupur Kumari, Bingliang Zhang, Richard Zhang, Eli Shechtman, and Jun-Yan Zhu · CVPR 2023 | Custom Diffusion
+Nupur Kumari, Bingliang Zhang, Sheng-Yu Wang, Eli Shechtman, Richard Zhang, and Jun-Yan Zhu · ICCV 2023 | Project page
 
-https://arxiv.org/abs/2212.04488
+https://www.cs.cmu.edu/~concept-ablation/
 
-**Task.** Read the abstract, the introduction, and the method overview. Look closely at the figures comparing Custom Diffusion, DreamBooth, and Textual Inversion. Equations are optional.
+**Task.** Read the abstract on the project page and look closely at the before-and-after figures. You do not need to read the method.
 
-Custom Diffusion teaches a text-to-image model a new concept from a few images by updating only a small part of the model: the cross-attention key and value layers, plus a new word. Because the change is small, several separately learned concepts can be combined in one image.
+The paper shows how to make a text-to-image model “forget” one thing — a living artist's style, a copyrighted character, or a memorized photo — while keeping everything else. Ask for Grumpy Cat and you get an ordinary cat; ask for a painting in Greg Rutkowski's style and the style is gone.
 
 **Questions to keep in mind**
 
-- Which part of the model does Custom Diffusion change, and why that part?
-- Why are regularization images used during training?
-- What still goes wrong when two similar concepts are combined?
+- Pick one before-and-after pair. What exactly changed?
+- Who should decide what a model is made to forget?
+- Does removing an artist's name from one model protect the artist?
 
-Most of tonight's technical slides come from this paper and from Jun-Yan Zhu's lecture based on it.
+This is the method behind tonight's R2D2, Snoopy, Van Gogh and Greg Rutkowski slides.
 
-_You are not expected to reproduce the optimization or the equations._
+_The equations are optional. The figures are the reading._
+
+## Reading 3 / Technique: Multi-Concept Customization of Text-to-Image Diffusion (Custom Diffusion)
+
+Nupur Kumari, Bingliang Zhang, Richard Zhang, Eli Shechtman, and Jun-Yan Zhu · CVPR 2023 | Project page
+
+https://www.cs.cmu.edu/~custom-diffusion/
+
+**Task.** Read the abstract on the project page and look at the results. Compare Custom Diffusion with DreamBooth and Textual Inversion.
+
+Custom Diffusion teaches a model a new concept — a pet, an object, a style — from only a few photos, by changing just a small part of the model and adding a new word such as “V* dog”. Because the change is small, two separately learned concepts can be combined in one image.
+
+**Questions to keep in mind**
+
+- How many images does the model need to learn a new concept?
+- What is the new word V* for?
+- Which example would be most useful for your own film?
+
+Most of tonight's customization slides — the moongate, Jun-Yan's dog, the wooden pot — come from this paper.
+
+_You are not expected to understand the optimization._

@@ -468,15 +468,15 @@ Now it's your turn. We'll take twenty minutes for a studio exercise, and it's th
 
 ## 78. Whose model is it — now?
 
-Let's go back to where we started: whose model is it now? Three questions. First: if a LoRA is only a few megabytes on top of a model trained on billions of images, how much of the output is yours? Second: a model can learn Greg Rutkowski's style, and it can be made to forget it. Who should decide which? Third: would you share a LoRA of your own style, and on what terms? Let's do the show of hands again. Did anyone change their answer from the start of the evening? These three questions are also good material for your reflection in Quiz 5.
+Let's go back to where we started: whose model is it now? Three questions. First: if a LoRA is only a few megabytes on top of a model trained on billions of images, how much of the output is yours? Second: a model can learn Greg Rutkowski's style, and it can be made to forget it. Who should decide which? Third: would you share a LoRA of your own style, and on what terms? Let's do the show of hands again. Did anyone change their answer from the start of the evening? Question two is also close to the reflection on Reading one in Quiz 5.
 
 中文讲解：回到开头的问题：现在，模型属于谁？三个问题：一、如果LoRA只是训练于数十亿图像的模型之上的几MB，输出有多少属于你？二、模型可以学会Greg Rutkowski的风格，也可以被要求忘记它——应该由谁来决定？三、你会分享自己风格的LoRA吗？条件是什么？再举一次手，有没有人改变了开头的答案？这三个问题也适合用于小测五的反思题。
 
 ## 79. Three readings
 
-Here are this week's three readings, following the same pattern as before: two perspectives and one technical reading. Reading one is a conversation between the artists Holly Herndon and Mat Dryhurst and the curator Hans Ulrich Obrist, in AnOther magazine, about art and AI and training only on consenting data. Reading two is a paper on how an arts university taught students to train their own models. Reading three is the technical one: Multi-Concept Customization of Text-to-Image Diffusion, the Custom Diffusion paper by Kumari and colleagues, which much of tonight's technical material comes from. Quiz 5 will be on the course site. And again: Assignment 1 is due tomorrow at 11:59 pm.
+Here are this week's three readings, and all three connect directly to tonight's slides. They're short, and they balance art and technique. Reading one is for the art side: a 2022 MIT Technology Review article about Greg Rutkowski, the illustrator whose name we saw on the memorized style slides. It explains how his name ended up in so many prompts, and why he's worried. Reading two sits between art and technique: the project page for Ablating Concepts, by Nupur Kumari and colleagues — the method we used tonight to make a model forget Van Gogh, Greg Rutkowski and Grumpy Cat. Reading three is the technical one: the project page for Custom Diffusion, the paper most of tonight's customization slides come from. For both project pages, just read the abstract and look closely at the figures. Quiz 5 is on the course site. And again: Assignment 1 is due tomorrow at 11:59 pm.
 
-中文讲解：本周三篇阅读，延续"两种观点加一篇技术阅读"的模式。阅读一：艺术家Holly Herndon与Mat Dryhurst和策展人Hans Ulrich Obrist在AnOther杂志上关于艺术、AI以及只使用经同意数据进行训练的对话。阅读二：一篇关于艺术院校如何教学生训练自己模型的论文。阅读三：技术阅读，Kumari等人的Custom Diffusion论文《文生图扩散模型的多概念定制》，今晚大部分技术内容出自此文。小测五在课程网站上。再次提醒：作业一明晚11:59截止。
+中文讲解：本周三篇阅读都与今晚的幻灯片直接相关，篇幅不长，艺术与技术兼顾。阅读一（艺术）：2022年《麻省理工科技评论》关于插画家Greg Rutkowski的文章——就是"记忆风格"幻灯片中的那位艺术家，文章讲述他的名字为何出现在大量提示词中，以及他的担忧。阅读二（艺术＋技术）：Kumari等人《概念消融》的项目页面，也就是今晚让模型忘记梵高、Rutkowski和Grumpy Cat的方法。阅读三（技术）：Custom Diffusion的项目页面，今晚大部分定制幻灯片出自这篇论文。两个项目页面只需读摘要并仔细看图。小测五在课程网站上。再次提醒：作业一明晚11:59截止。
 
 ## 80. Credits and sources
 
