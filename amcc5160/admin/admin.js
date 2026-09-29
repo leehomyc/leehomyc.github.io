@@ -12,9 +12,10 @@
   const lecture2Questions = ["You want to change a glass pear into ceramic while keeping its outline. Explain how ControlNet could help and name one aspect of the edit that an edge map cannot guarantee.", "What is artistic intention, and how does it guide the use of generative AI in making an artwork? Explain how composition and lighting can communicate an intended mood or meaning.", "What is visual coherence in an artwork? Explain how you would assess whether an AI-generated edit supports the work’s visual language and meaning, rather than judging it only by realism or technical polish.", "In classifier-free guidance, what does increasing the guidance scale change? Explain why stronger guidance does not always produce a better edit.", "Choose one Lecture 02 reading and write a short reflection paragraph. Identify one central claim, then explain what you find convincing, limited, or worth challenging. Connect your reflection to one idea or example from the lecture."];
   const lecture3Questions = ["How does a diffusion model turn noise into an image?", "What does the seed control, and why can changing it give a different image with the same prompt?", "What does increasing guidance do? Why might very strong guidance make an image worse?", "What is a mask used for when editing an image? Give one example.", "Choose one Lecture 3 reading. What is its main idea? Give one reason you agree or disagree with it."];
   const lecture4Questions = ["What does a diffusion model start from, and how does it produce an image?", "What is the difference between text-to-video and image-to-video generation?", "What does temporal consistency mean in a generated video? Give one simple example.", "What is a mask used for in local image or video editing?", "Choose one of the three readings. Briefly state its main idea and give one reason you agree or disagree with it."];
-  const quizQuestions = item => item.quizId === 'week-04' ? lecture4Questions : item.quizId === 'week-03' ? lecture3Questions : item.quizId === 'week-02' ? (item.answers.length === 12 ? legacyLecture2Questions : lecture2Questions) : item.quizId === 'week-01' ? questions : [];
+  const lecture5Questions = ["What is the difference between Textual Inversion and DreamBooth? Say which part of the model each one changes.", "What is a LoRA, and why is it small enough to share as a file?", "What does it mean when a model has \"memorized\" a training image or an artist's style? Give one example from the lecture.", "What is concept ablation? Give one example of something a model could be made to forget, and one reason an artist might want this.", "Choose one of the three readings. Briefly state its main idea and give one reason you agree or disagree with it."];
+  const quizQuestions = item => item.quizId === 'week-05' ? lecture5Questions : item.quizId === 'week-04' ? lecture4Questions : item.quizId === 'week-03' ? lecture3Questions : item.quizId === 'week-02' ? (item.answers.length === 12 ? legacyLecture2Questions : lecture2Questions) : item.quizId === 'week-01' ? questions : [];
   const quizMax = item => item.quizId === 'week-02' && item.answers.length === 12 ? 30 : 20;
-  let selectedQuizId = 'week-04';
+  let selectedQuizId = 'week-05';
   let adminCode = '';
   let records = { signups: [], quizzes: [] };
   let students = [];
@@ -145,7 +146,7 @@
   }
 
   function renderQuizSession() {
-    const ids = [...new Set(['week-01', 'week-02', 'week-03', 'week-04', ...records.quizzes.map(item => item.quizId || '')])]
+    const ids = [...new Set(['week-01', 'week-02', 'week-03', 'week-04', 'week-05', ...records.quizzes.map(item => item.quizId || '')])]
       .sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
     const select = $('#quiz-session');
     select.innerHTML = ids.map(id => `<option value="${escapeHtml(id)}">${escapeHtml(quizSessionLabel(id))}</option>`).join('');

@@ -1,0 +1,7 @@
+[
+  "What is the difference between Textual Inversion and DreamBooth? Say which part of the model each one changes.",
+  "What is a LoRA, and why is it small enough to share as a file?",
+  "What does it mean when a model has \"memorized\" a training image or an artist's style? Give one example from the lecture.",
+  "What is concept ablation? Give one example of something a model could be made to forget, and one reason an artist might want this.",
+  "Choose one of the three readings. Briefly state its main idea and give one reason you agree or disagree with it."
+]
