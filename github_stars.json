@@ -1,10 +1,10 @@
 {
-  "updated_at": "2026-10-01T10:08:55.627Z",
+  "updated_at": "2026-10-02T09:46:51.866Z",
   "stars": {
     "123zgj123/FarField": 2,
     "AlanLuSun/General-Keypoint-Detection": 73,
     "BAAI-DCAI/Multimodal-Robustness-Benchmark": 57,
-    "DuNGEOnmassster/VideoGen-of-Thought": 65,
+    "DuNGEOnmassster/VideoGen-of-Thought": 66,
     "EnVision-Research/ScalingAR": 22,
     "Everlyn-Labs/ANTRP": 163,
     "ff2416/WanFM": 19,
@@ -13,7 +13,7 @@
     "LAW1223/AlignVid": 23,
     "LAW1223/OpenSubject": 55,
     "leehomyc/EurekAI": 14,
-    "leehomyc/Faster-High-Res-Neural-Inpainting": 1285,
+    "leehomyc/Faster-High-Res-Neural-Inpainting": 1284,
     "leehomyc/OnlyYou": 2,
     "leehomyc/SlidesAI": 17,
     "mayuelala/FollowYourShape": 71,
@@ -26,9 +26,9 @@
     "UIOSN/AHPA": 3,
     "vvvvvjdy/D-OPSD": 330,
     "vvvvvjdy/dmdr": 301,
-    "WenjieShu/LoopViT": 54,
+    "WenjieShu/LoopViT": 55,
     "xianzuwu/Niagara": 100,
-    "xmz111/FlowRVS": 103,
+    "xmz111/FlowRVS": 104,
     "yliuls/RotateAttn": 0
   }
 }
