@@ -1,0 +1,52 @@
+{
+  "assigned": [
+    {
+      "type": "Reading 1 / Technique",
+      "title": "Helios: Real Real-Time Long Video Generation Model",
+      "author": "PKU-YuanGroup, Peking University, with ByteDance",
+      "date": "arXiv 2603.04379 | March 2026",
+      "url": "https://arxiv.org/abs/2603.04379",
+      "task": "Read the abstract, then open the project page and watch two of the minute-long videos. You do not need the method sections.",
+      "summary": "Helios generates about a minute of video at roughly 19.5 frames per second on a single H100 GPU, which is close to watching it being made. Its key idea for this course: long videos fall apart because of drift, and Helios is trained on deliberately drifted video so it learns to recover.",
+      "prompts": [
+        "What is drift, in your own words?",
+        "Watch one long example. Where, if anywhere, does it start to change?",
+        "What could you make with a minute that you couldn't with five seconds?"
+      ],
+      "connection": "This is the model behind tonight's real-time minute (slides 8 and 9).",
+      "note": "Project page with videos: https://pku-yuangroup.github.io/Helios-Page"
+    },
+    {
+      "type": "Reading 2 / Art + tech",
+      "title": "Wan-Dancer: Minute-scale Coherent Music-to-Dance Generation",
+      "author": "Mingyang Huang, Peng Zhang, Li Hu, Guangyuan Wang, Ruoshi Zhang, Yi Lu, Gang Cheng, and Bang Zhang · Tongyi Lab, Alibaba",
+      "date": "Project page | July 2026",
+      "url": "https://humanaigc.github.io/wan-dancer-project/",
+      "task": "Watch at least three examples on the project page, including one tap dance and one Chinese classical dance. The videos are the reading.",
+      "summary": "Wan-Dancer turns a music track, one photo of a dancer and a style word into a dance video longer than a minute, on the beat. It plans the whole song first (intro, verse, chorus) and then renders the steps, much as a choreographer works.",
+      "prompts": [
+        "Which example would you call choreography, and why?",
+        "Does it follow the music's structure, or only the beat?",
+        "Who should be credited for one of these dances?"
+      ],
+      "connection": "Tonight's Story 2 and the 'Pitch a one-take' activity.",
+      "note": "Open weights: https://huggingface.co/Wan-AI/Wan-Dancer-14B"
+    },
+    {
+      "type": "Reading 3 / Culture",
+      "title": "What Happened to Sora? OpenAI Shuts Down Its AI Video App",
+      "author": "pasqualepillitteri.it (blog)",
+      "date": "2026",
+      "url": "https://pasqualepillitteri.it/en/news/4453/what-happened-to-sora-openai-shutdown",
+      "task": "Read the article (about 10 minutes), then skim OpenAI's own help page on the discontinuation.",
+      "summary": "OpenAI closed the Sora app on April 26, 2026 and switched off the Sora API on September 24, 2026, telling users to export their work before it was deleted. The article traces the timeline and the reported reasons, including the cost of compute.",
+      "prompts": [
+        "What would you lose if your main tool disappeared tomorrow?",
+        "Which reasons for the shutdown are confirmed, and which are reported?",
+        "What would you keep from a project so it outlives its tool?"
+      ],
+      "connection": "Tonight's Story 4 and the 'Keep your sources' checklist.",
+      "note": "Official source: https://help.openai.com/en/articles/20001152-what-to-know-about-the-sora-discontinuation"
+    }
+  ]
+}
