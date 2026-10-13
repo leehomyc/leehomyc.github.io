@@ -18,7 +18,7 @@ Helios generates about a minute of video at roughly 19.5 frames per second on a 
 - Watch one long example. Where, if anywhere, does it start to change?
 - What could you make with a minute that you couldn't with five seconds?
 
-This is the model behind tonight's real-time minute (slides 8 and 9).
+This is the model behind Story 1: the real-time minute and the drift problem.
 
 _Project page with videos: https://pku-yuangroup.github.io/Helios-Page_
 
