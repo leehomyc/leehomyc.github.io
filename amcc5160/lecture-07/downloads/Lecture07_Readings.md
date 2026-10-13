@@ -62,3 +62,23 @@ Tonight's Story 4 and the 'Keep your sources' checklist.
 
 _Official source: https://help.openai.com/en/articles/20001152-what-to-know-about-the-sora-discontinuation_
 
+## Optional / Technique: Self Forcing: Bridging the Train-Test Gap in Autoregressive Video Diffusion
+
+Huang et al. · Adobe Research and The University of Texas at Austin · NeurIPS 2025 | arXiv 2506.08009
+
+https://arxiv.org/abs/2506.08009
+
+**Task.** Optional, for students who want the technical side. Read the abstract and introduction and look at the first figure; skip the derivations. Not needed for Quiz 07.
+
+Autoregressive video models are trained on real previous frames but must continue from their own imperfect frames when used, so errors pile up (exposure bias, or drift). Self Forcing closes this train-test gap by rolling the model out on its own frames during training, using a KV cache, and supervising the whole video.
+
+**Questions to keep in mind**
+
+- In your own words, what is the train-test gap?
+- Why does a KV cache make training on the model's own frames affordable?
+- How is Helios's answer to drift different?
+
+Goes with the slides “Under the hood: the KV cache” and “Under the hood: the train-test gap”.
+
+_Background on diffusion and flow matching: MIT 6.S184 course notes, https://diffusion.csail.mit.edu/_
+

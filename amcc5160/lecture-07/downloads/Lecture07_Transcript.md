@@ -430,9 +430,9 @@ Here's what you can actually try this week. Helios has a public demo on Hugging 
 
 ## 72. This week
 
-This week: three readings. For technique, the Helios paper; read the abstract and look at the figures. For art and technology, the Wan-Dancer project page; watch three examples and decide which one you would call choreography. For culture, a short article on what happened to Sora. Quiz 07 is online, with two technique questions, two art questions and one reflection, due with the others at the end of the semester. Assignment 2 is due on October 31st. And next week, Lecture 8, we add sound: native audio-video, performance and real-time characters.
+This week: three readings. For technique, the Helios paper; read the abstract and look at the figures. For art and technology, the Wan-Dancer project page; watch three examples and decide which one you would call choreography. For culture, a short article on what happened to Sora. If you want the technical side, there is an optional fourth reading: the Self Forcing paper, which goes with tonight’s slides on the KV cache and the train-test gap. Quiz 07 is online, with two technique questions, two art questions and one reflection, due with the others at the end of the semester. Assignment 2 is due on October 31st. And next week, Lecture 8, we add sound: native audio-video, performance and real-time characters.
 
-中文讲解：本周三篇阅读：技术——Helios论文（读摘要、看图）；艺术与技术——Wan-Dancer项目页（看三个例子，判断哪个算编舞）；文化——关于Sora停运的短文。第七次测验已上线，学期末一并提交。作业二10月31日截止。下周第八讲：原生音视频、表演与实时角色。
+中文讲解：本周三篇阅读：技术——Helios论文（读摘要、看图）；艺术与技术——Wan-Dancer项目页（看三个例子，判断哪个算编舞）；文化——关于Sora停运的短文。另有一篇选读技术论文Self Forcing，对应KV缓存与训练—测试差距两页。第七次测验已上线，学期末一并提交。作业二10月31日截止。下周第八讲：原生音视频、表演与实时角色。
 
 ## 73. All demo links in one place
 
