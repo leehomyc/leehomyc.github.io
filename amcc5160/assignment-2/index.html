@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Assignment 2: reverse engineer an AI video's prompt and reference image, reconstruct it, then edit it into your own version. Due October 31, 2026.">
+  <meta name="theme-color" content="#fbfbfd">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <title>Assignment 2: Reverse, Rebuild, Remix — AMCC 5160</title>
+  <link rel="stylesheet" href="../styles.css?v=20260916-china-figures">
+  <script src="../site.js?v=20260901-tight" defer></script>
+</head>
+<body id="top">
+<a class="skip-link" href="#assignment-2">Skip to assignment</a>
+<main>
+  <nav class="site-nav" aria-label="Primary navigation">
+    <a class="brand" href="../">AMCC <span>5160</span></a>
+    <div class="nav-links"><a href="../#overview">Overview</a><a href="../#assessment">Assessment</a><a href="../#schedule">Schedule</a><a href="../signup/">Presentation</a><a href="../#faq">FAQ</a></div>
+    <span class="scroll-progress" aria-hidden="true"></span>
+  </nav>
+  <section class="section assignment-brief" id="assignment-2" aria-labelledby="assignment-2-title">
+    <p class="section-kicker">Assignment 2 · 15% of the course grade</p>
+    <h1 class="section-title compact" id="assignment-2-title">Reverse, Rebuild, Remix</h1>
+    <p class="assignment-subtitle">AI Video Reverse Engineering</p>
+    <p class="assignment-intro">Choose a short <strong>AI-generated video</strong>. Work out the <strong>prompt</strong> and <strong>reference image</strong> that most likely produced it. Use them to <strong>reconstruct</strong> the video as closely as you can. Then <strong>edit</strong> your recipe to make <strong>your own version</strong>.</p>
+    <p class="assignment-due">Due <time datetime="2026-10-31T23:59:00+08:00">October 31, 2026 · 23:59 HKT</time></p>
+    <p class="assignment-flow" aria-label="Workflow">Choose a video <span aria-hidden="true">→</span> Reverse engineer <span aria-hidden="true">→</span> Reconstruct <span aria-hidden="true">→</span> Edit <span aria-hidden="true">→</span> Your version</p>
+    <p class="workflow-jump"><a href="#how-to-reverse">How to reverse engineer a video ↓</a> · <a href="#workflow-figures">Workflow figure</a> · <a href="#technical-resources">Tools and resources</a></p>
+    <div class="assignment-columns">
+      <div>
+        <h2 style="font-size:24px;margin:0 0 24px">Three parts</h2>
+        <ol class="assignment-steps">
+          <li><h3 style="font-size:18px;margin:0 0 8px">Reverse engineer the prompt and reference image</h3><p>Choose one AI-generated video, <strong>5–15 seconds</strong> long (one shot is enough). Study it frame by frame. Write the prompt you think produced it: subject, action, setting, camera movement, lighting, style, and sound. Recover or recreate its <strong>reference image</strong>, usually the first frame. Also say whether you think it was made with text-to-video, image-to-video, or reference-to-video, and why.</p></li>
+          <li><h3 style="font-size:18px;margin:0 0 8px">Reconstruct the video</h3><p>Generate the video from your prompt and reference image. Compare it with the original, adjust one thing at a time, and try again. Make <strong>at least three attempts</strong>. Your goal is to match the original as closely as possible in composition, motion, camera, style, and timing.</p></li>
+          <li><h3 style="font-size:18px;margin:0 0 8px">Edit and make your own version</h3><p>Keep what works in the recipe and change it to say something of your own. Change <strong>at least two</strong> of these: subject, setting, style, action, camera, story, or sound. Your version should be <strong>10–30 seconds with audio</strong>. You may extend it with extra shots.</p></li>
+        </ol>
+        <p class="assignment-note"><strong>Keep a log as you work:</strong> For every reconstruction attempt, save the prompt, reference image, tool or model, settings, and a still frame. This log is the core of your report.</p>
+        <p class="assignment-note"><strong>Choosing a source video:</strong> Use a video that was clearly made with AI, such as a model’s official showcase or a creator’s published AI video. The <a href="../lecture-07/#demos">Lecture 07 demo links</a> are a good place to start. Do not use real people’s faces or voices without consent, and do not choose content that could mislead viewers. Always credit the original creator.</p>
+      </div>
+      <div>
+        <h2 style="font-size:24px;margin:0 0 24px">Submit three files</h2>
+        <ul class="assignment-deliverables">
+          <li><strong>1. Side-by-side comparison (MP4)</strong><br>Original on the left, your best reconstruction on the right, playing in sync.</li>
+          <li><strong>2. Your own version (MP4)</strong><br>10–30 seconds, with audio.</li>
+          <li><strong>3. Process report (PDF, 6–10 slides)</strong><br>Include all the items below in this one report.</li>
+        </ul>
+        <ul class="assignment-deliverables" aria-label="Process report checklist">
+          <li><strong>Source:</strong> The original video, a link, its creator, and the model if known.</li>
+          <li><strong>Reverse-engineered recipe:</strong> Your final prompt, the reference image, and your guess at the generation mode. For each part of the prompt, point to the evidence in the video.</li>
+          <li><strong>Reconstruction log:</strong> At least three attempts, each with a still frame, what you changed, and what improved or got worse.</li>
+          <li><strong>Gap analysis:</strong> What you could match, what you could not, and why. For example: a different model, missing settings, randomness, or editing after generation.</li>
+          <li><strong>Your version:</strong> What you changed from the recipe and the idea or mood you wanted.</li>
+          <li><strong>Reflection (200–300 words):</strong> What did reverse engineering teach you about how these videos are made and directed?</li>
+          <li><strong>Credits:</strong> The source video and creator, what AI generated, what you edited yourself, and where any other assets came from.</li>
+        </ul>
+        <table class="assignment-rubric">
+          <caption>Grading rubric</caption>
+          <thead><tr><th scope="col">What we look for</th><th scope="col">Weight</th></tr></thead>
+          <tbody>
+            <tr><th scope="row"><strong>Reverse engineering:</strong> A detailed prompt and reference image, supported by evidence from the video.</th><td>25%</td></tr>
+            <tr><th scope="row"><strong>Reconstruction:</strong> A close match, with clear and purposeful iteration.</th><td>25%</td></tr>
+            <tr><th scope="row"><strong>Your version:</strong> A clear idea, meaningful changes, and a finished piece with sound.</th><td>25%</td></tr>
+            <tr><th scope="row"><strong>Analysis and reflection:</strong> An honest gap analysis and thoughtful learning.</th><td>15%</td></tr>
+            <tr><th scope="row"><strong>Documentation:</strong> Complete report, log, and credits.</th><td>10%</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <section class="suggested-workflows" id="how-to-reverse" aria-labelledby="reverse-title">
+      <h2 id="reverse-title">How to reverse engineer a video</h2>
+      <p>Think like a detective. Every element of the video is a clue about the prompt, the reference image, and the settings that produced it.</p>
+      <details open>
+        <summary><strong>1. Collect the evidence</strong><span>Watch slowly and save the important frames</span></summary>
+        <ol><li>Watch the video several times: once for the story, once for the camera, once for the sound.</li><li>Save the <strong>first frame</strong>, the <strong>last frame</strong>, and one or two key middle frames. A screenshot at full size is fine, or use the frame-extraction command in the resources below.</li><li>Note the duration, aspect ratio, and any visible cuts. Many AI clips are a single 5–10-second shot.</li></ol>
+      </details>
+      <details>
+        <summary><strong>2. Write the prompt</strong><span>Describe what you see, layer by layer</span></summary>
+        <ul><li><strong>Subject:</strong> Who or what, with key details of appearance and clothing.</li><li><strong>Action:</strong> What happens, in order, and how fast.</li><li><strong>Setting:</strong> Location, time of day, weather.</li><li><strong>Camera:</strong> Shot size, angle, and movement, such as a slow push-in, orbit, handheld, or tracking shot.</li><li><strong>Look:</strong> Lighting, colour palette, lens, film or animation style.</li><li><strong>Sound:</strong> Music, effects, ambience, or dialogue.</li></ul>
+        <p class="workflow-tip">You may ask a multimodal AI assistant to describe your frames and draft a prompt. Treat its draft as a starting point: check every word against the video, and say in your report what you changed.</p>
+      </details>
+      <details>
+        <summary><strong>3. Recover the reference image</strong><span>Most image-to-video clips start from their first frame</span></summary>
+        <ol><li>Try the extracted first frame directly as your reference image.</li><li>If it is blurry or partly hidden, regenerate it with an image model, or clean it up with image editing or upscaling.</li><li>If you think the video was text-to-video, write an image prompt that recreates the first frame and include it in your report.</li></ol>
+      </details>
+      <details>
+        <summary><strong>4. Guess the generation mode</strong><span>Look for clues about how it was made</span></summary>
+        <ul><li><strong>Image-to-video:</strong> The first frame is very detailed and stable, and motion grows from it.</li><li><strong>First and last frame:</strong> The clip lands exactly on a carefully composed ending.</li><li><strong>Reference-to-video:</strong> The same character or product stays consistent across varied shots.</li><li><strong>Text-to-video:</strong> The composition is more generic, and details shift during the clip.</li></ul>
+      </details>
+      <details>
+        <summary><strong>5. Iterate the reconstruction</strong><span>Change one thing at a time</span></summary>
+        <ol><li>Generate your first attempt and place it next to the original.</li><li>Find the biggest difference: composition, motion, camera, style, or timing.</li><li>Change only the prompt part or setting that controls that difference, and generate again. Record the result in your log.</li></ol>
+        <p class="workflow-tip">You may not be able to use the same model as the original. That is fine: a careful explanation of the gap is part of the grade.</p>
+      </details>
+    </section>
+
+    <section class="suggested-workflows" id="workflow-figures" aria-labelledby="figures-title">
+      <h2 id="figures-title">See how the pieces fit together</h2>
+      <figure class="a1-figure">
+        <figcaption><strong>Figure 1 · From someone else’s video to your own</strong><span>The recipe you recover in Part 1 becomes the starting point for Parts 2 and 3.</span></figcaption>
+        <div class="a1-flow-row"><div class="a1-node"><small>01 · REVERSE</small><strong>Video → recipe</strong><span>Prompt + reference image + mode</span></div><span class="a1-arrow" aria-hidden="true">→</span><div class="a1-node"><small>02 · RECONSTRUCT</small><strong>Recipe → video</strong><span>3+ attempts, side by side</span></div><span class="a1-arrow" aria-hidden="true">→</span><div class="a1-node"><small>03 · REMIX</small><strong>Edit the recipe</strong><span>Change 2+ elements</span></div></div>
+        <div class="a1-audio-routes"><div><strong>Keep</strong><p>What made the original work: the camera move, the pacing, the lighting idea.</p></div><span aria-hidden="true">+</span><div><strong>Change</strong><p>Subject, setting, style, story, or sound, to express your own intention.</p></div></div>
+        <div class="a1-finish"><span aria-hidden="true">↓</span><strong>YOUR VERSION</strong><span>10–30 seconds · with audio · credit the source</span></div>
+      </figure>
+    </section>
+
+    <section class="suggested-workflows" id="technical-resources" aria-labelledby="resources-title">
+      <h2 id="resources-title">Tools and resources · use what you need</h2>
+      <p>Any image and video tools from Assignment 1 work here. Use the same platform for all your reconstruction attempts so that your comparisons are fair.</p>
+      <ul class="a1-resources">
+        <li><a href="../assignment-1/#suggested-workflows"><strong>Assignment 1: workflow tools and websites</strong> →</a><span>RunningHub, LiblibAI, Jimeng, TapNow, Freepik Spaces, LTX Studio, ComfyUI, Weave, Hailuo, Vidu, and more.</span></li>
+        <li><a href="../lecture-07/#demos"><strong>Lecture 07: demo videos</strong> →</a><span>Recent AI video examples you can choose as a source.</span></li>
+        <li><a href="https://docs.comfy.org/tutorials/video/wan/wan2_2" target="_blank" rel="noreferrer"><strong>ComfyUI: image-to-video with Wan 2.2</strong> ↗</a><span>A free, open image-to-video route where you can fix the seed and see every setting.</span></li>
+        <li><a href="https://docs.comfy.org/tutorials/partner-nodes/bytedance/seedance-2-0" target="_blank" rel="noreferrer"><strong>Seedance in ComfyUI: reference workflows</strong> ↗</a><span>First/last-frame and reference-to-video examples, useful for testing your mode guess.</span></li>
+        <li><a href="https://ffmpeg.org/download.html" target="_blank" rel="noreferrer"><strong>FFmpeg: extract frames and build a side-by-side video</strong> ↗</a><span>Optional. Commands are below; any video editor can do the same.</span></li>
+      </ul>
+      <details><summary><strong>Optional FFmpeg commands</strong><span>For students comfortable with the command line</span></summary>
+        <ul>
+          <li><strong>Save the first frame:</strong> <code style="word-break:break-all;font-size:14px">ffmpeg -i original.mp4 -frames:v 1 first.png</code></li>
+          <li><strong>Save one frame per second:</strong> <code style="word-break:break-all;font-size:14px">ffmpeg -i original.mp4 -vf fps=1 frame_%02d.png</code></li>
+          <li><strong>Side-by-side video:</strong> <code style="word-break:break-all;font-size:14px">ffmpeg -i original.mp4 -i mine.mp4 -filter_complex "[0:v]scale=-2:720[a];[1:v]scale=-2:720[b];[a][b]hstack" -an side_by_side.mp4</code></li>
+        </ul>
+        <p class="workflow-tip">In a video editor, place the two clips on separate tracks and crop or scale each to half the frame.</p>
+      </details>
+      <details><summary><strong>Connect to the lectures</strong><span>Ideas from earlier weeks that help here</span></summary><ul><li><strong>Lecture 02:</strong> Generative editing and keeping images consistent through video.</li><li><strong>Lecture 03:</strong> How seeds and guidance change a result, and why the same prompt can give different videos.</li><li><strong>Lecture 05:</strong> Style, authorship, and credit. Whose work are you rebuilding, and what makes your version yours?</li><li><strong>Lecture 07:</strong> Recent models, real-time generation, and motion.</li></ul></details>
+    </section>
+
+    <p class="assignment-note"><strong>Keep it simple.</strong> Use any accessible tools. Coding and paid subscriptions are not required. A perfect match is not expected; we value careful observation, honest analysis, and a thoughtful version of your own.</p>
+  </section>
+  <footer><div class="footer-title">AMCC 5160</div><p>Assignment 2 · Reverse, Rebuild, Remix</p><div class="footer-links"><a href="../#assessment">← Course assessment</a><a href="https://canvas.ust.hk/courses/71833" target="_blank" rel="noreferrer">HKUST Canvas ↗</a><a href="#top">Back to top ↑</a></div></footer>
+</main>
+</body>
+</html>
