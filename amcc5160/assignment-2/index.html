@@ -28,6 +28,13 @@
     .a2-flow span { font-size: 14px; line-height: 1.5; }
     @media(max-width:960px) { .a2-flow { grid-template-columns: 1fr; } .a2-flow li:not(:last-child)::after { content: "↓"; right: auto; left: 50%; top: auto; bottom: -17px; transform: translateX(-50%); } }
     @media(max-width:760px) { .a2-frames { grid-template-columns: repeat(2,minmax(0,1fr)); } }
+    .a2-ideas { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 14px; margin: 20px 0 24px; }
+    .a2-ideas > div { padding: 20px; background: #fff5e5; border-radius: 14px; }
+    .a2-ideas small, .a2-ideas strong, .a2-ideas span { display: block; }
+    .a2-ideas small { color: #7a5a1e; font-size: 12px; letter-spacing: .08em; }
+    .a2-ideas strong { font-size: 17px; margin: 8px 0; }
+    .a2-ideas span { font-size: 15px; line-height: 1.55; }
+    @media(max-width:760px) { .a2-ideas { grid-template-columns: 1fr; } }
   </style>
 </head>
 <body id="top">
@@ -45,14 +52,14 @@
     <p class="assignment-intro">Choose a short <strong>AI-generated video</strong>. Work out the <strong>prompt</strong> and <strong>reference image</strong> that most likely produced it. Use them to <strong>reconstruct</strong> the video as closely as you can. Then <strong>edit</strong> your recipe to make <strong>your own version</strong>.</p>
     <p class="assignment-due">Due <time datetime="2026-10-31T23:59:00+08:00">October 31, 2026 · 23:59 HKT</time></p>
     <p class="assignment-flow" aria-label="Workflow">Choose a video <span aria-hidden="true">→</span> Reverse engineer <span aria-hidden="true">→</span> Reconstruct <span aria-hidden="true">→</span> Edit <span aria-hidden="true">→</span> Your version</p>
-    <p class="workflow-jump"><a href="#examples">Example videos ↓</a> · <a href="#how-to-reverse">How to reverse engineer a video ↓</a> · <a href="#workflow-figures">Workflow figure</a> · <a href="#technical-resources">Tools and resources</a></p>
+    <p class="workflow-jump"><a href="#examples">Example videos ↓</a> · <a href="#hkust-viral">Make it about HKUST</a> · <a href="#how-to-reverse">How to reverse engineer a video ↓</a> · <a href="#workflow-figures">Workflow figure</a> · <a href="#technical-resources">Tools and resources</a></p>
     <div class="assignment-columns">
       <div>
         <h2 style="font-size:24px;margin:0 0 24px">Three parts</h2>
         <ol class="assignment-steps">
           <li><h3 style="font-size:18px;margin:0 0 8px">Reverse engineer the prompt and reference image</h3><p>Choose one AI-generated video, <strong>5–15 seconds</strong> long (one shot is enough). Study it frame by frame. Write the prompt you think produced it: subject, action, setting, camera movement, lighting, style, and sound. Recover or recreate its <strong>reference image</strong>, usually the first frame. Also say whether you think it was made with text-to-video, image-to-video, reference-to-video, or video-to-video (for example a face swap over real footage), and why.</p></li>
           <li><h3 style="font-size:18px;margin:0 0 8px">Reconstruct the video</h3><p>Generate the video from your prompt and reference image. Compare it with the original, adjust one thing at a time, and try again. Make <strong>at least three attempts</strong>. Your goal is to match the original as closely as possible in composition, motion, camera, style, and timing.</p></li>
-          <li><h3 style="font-size:18px;margin:0 0 8px">Edit and make your own version</h3><p>Keep what works in the recipe and change it to say something of your own. Change <strong>at least two</strong> of these: subject, setting, style, action, camera, story, or sound. Your version should be <strong>10–30 seconds with audio</strong>. You may extend it with extra shots.</p></li>
+          <li><h3 style="font-size:18px;margin:0 0 8px">Edit and make your own version</h3><p>Keep what works in the recipe and change it to say something of your own. Change <strong>at least two</strong> of these: subject, setting, style, action, camera, story, or sound. Your version should be <strong>10–30 seconds with audio</strong>. You may extend it with extra shots. <strong>We especially encourage a version about HKUST that people would want to share</strong>: see <a href="#hkust-viral">ideas below</a>.</p></li>
         </ol>
         <p class="assignment-note"><strong>Keep a log as you work:</strong> For every reconstruction attempt, save the prompt, reference image, tool or model, settings, and a still frame. This log is the core of your report.</p>
         <p class="assignment-note"><strong>Choosing a source video:</strong> Pick a fun AI video you enjoyed, such as a viral clip, a creative ad, or a model’s official showcase. See the <a href="#examples">example videos</a> below, or the <a href="../lecture-07/#demos">Lecture 07 demo links</a>. Always credit the original creator. You may analyse parody clips of public figures, but in <strong>your own version</strong>, do not use a real person’s face or voice without consent, and do not make content that could mislead viewers.</p>
@@ -79,7 +86,7 @@
           <tbody>
             <tr><th scope="row"><strong>Reverse engineering:</strong> A detailed prompt and reference image, supported by evidence from the video.</th><td>25%</td></tr>
             <tr><th scope="row"><strong>Reconstruction:</strong> A close match, with clear and purposeful iteration.</th><td>25%</td></tr>
-            <tr><th scope="row"><strong>Your version:</strong> A clear idea, meaningful changes, and a finished piece with sound.</th><td>25%</td></tr>
+            <tr><th scope="row"><strong>Your version:</strong> A clear idea, meaningful changes, and a finished piece with sound that an audience would want to share.</th><td>25%</td></tr>
             <tr><th scope="row"><strong>Analysis and reflection:</strong> An honest gap analysis and thoughtful learning.</th><td>15%</td></tr>
             <tr><th scope="row"><strong>Documentation:</strong> Complete report, log, and credits.</th><td>10%</td></tr>
           </tbody>
@@ -143,6 +150,36 @@
         </ol>
         <p class="workflow-tip"><strong>For your version:</strong> keep the “famous performance, new performer” idea, but use an original character, yourself, or a consenting friend instead of a real public figure, and give it your own story.</p>
       </figure>
+    </section>
+
+    <section class="suggested-workflows" id="hkust-viral" aria-labelledby="hkust-title">
+      <h2 id="hkust-title">Make it about HKUST · and make it shareable</h2>
+      <p>The two examples went viral because they took a recipe everyone recognises and pointed it at something close to home: Guangdong flip-flops, a famous tech CEO. Do the same with HKUST. Take the recipe you reverse engineered and aim it at campus life that every student, alumnus, and future applicant will recognise.</p>
+      <div class="a2-ideas">
+        <div><small>LUXURY-AD RECIPE</small><strong>“How to film HKUST so it looks unaffordable”</strong><span>A canteen lunch box, the minibus up the hill, an Octopus tap at the gate, or the Red Bird sundial on the piazza, shot like a luxury commercial.</span></div>
+        <div><small>WORLD-TOUR RECIPE</small><strong>“HKUST World Tour”</strong><span>A famous concert or film scene restaged on campus with an original mascot or yourself as the star, and the crowd cheering on the piazza.</span></div>
+        <div><small>MOVIE-TRAILER RECIPE</small><strong>Campus life as a genre film</strong><span>Exam week as a horror trailer, a typhoon day as a disaster movie, a lift queue at rush hour as a fashion runway, the sea view as a Wong Kar-wai romance.</span></div>
+        <div><small>ANY RECIPE</small><strong>Your own HKUST in-joke</strong><span>Something only HKUST people know, told so that outsiders still get the joke. That mix is what makes people tag their friends.</span></div>
+      </div>
+      <details open>
+        <summary><strong>What makes a short video shareable</strong><span>Patterns from the two examples</span></summary>
+        <ul>
+          <li><strong>Hook in the first two seconds:</strong> start on the most surprising image, not on a title card.</li>
+          <li><strong>One clear contrast:</strong> cheap vs. luxury, ordinary vs. epic, CEO vs. pop star. Keep to one joke and push it.</li>
+          <li><strong>Local, but readable by outsiders:</strong> a campus in-joke with visuals anyone can understand; add Chinese and English captions.</li>
+          <li><strong>Made for phones:</strong> vertical 9:16 for Rednote, Douyin, Instagram Reels, or YouTube Shorts; 15–30 seconds; it should work with the sound off.</li>
+          <li><strong>A punchline ending</strong> and a title that makes people want to send it to a friend.</li>
+        </ul>
+      </details>
+      <details>
+        <summary><strong>Posting it (optional)</strong><span>Sharing is encouraged but never required</span></summary>
+        <ul>
+          <li>You are welcome to post your version on Rednote, Bilibili, Douyin, Instagram, or YouTube with <strong>#AMCC5160</strong> and <strong>#HKUST</strong>. We will show some favourites in class.</li>
+          <li>Views do not affect your grade. We grade the idea, the craft, and your process, not the algorithm.</li>
+          <li>Label it as AI-generated, and credit the creator of the video you reverse engineered.</li>
+          <li>Do not make it look like an official HKUST announcement or advertisement, do not invent fake news (for example, a fake class cancellation), and do not show classmates or staff without their consent.</li>
+        </ul>
+      </details>
     </section>
 
     <section class="suggested-workflows" id="how-to-reverse" aria-labelledby="reverse-title">
