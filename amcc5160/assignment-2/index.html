@@ -11,6 +11,24 @@
   <title>Assignment 2: Reverse, Rebuild, Remix — AMCC 5160</title>
   <link rel="stylesheet" href="../styles.css?v=20260916-china-figures">
   <script src="../site.js?v=20260901-tight" defer></script>
+  <style>
+    .a2-frames { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 18px; }
+    .a2-frames figure { margin: 0; }
+    .a2-frames img { display: block; width: 100%; height: auto; aspect-ratio: 16/9; object-fit: cover; border-radius: 10px; margin-bottom: 10px; background: #e6e8ef; }
+    .a2-frames small, .a2-frames strong, .a2-frames span { display: block; }
+    .a2-frames small { color: #53566a; font-size: 12px; letter-spacing: .06em; }
+    .a2-frames strong { font-size: 16px; margin: 4px 0; }
+    .a2-frames span { font-size: 14px; line-height: 1.5; color: #3d4052; }
+    .a2-flow { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(5,minmax(0,1fr)); gap: 14px; counter-reset: none; }
+    .a2-flow li { position: relative; padding: 18px; background: #eef0fc; border-radius: 14px; margin: 0; }
+    .a2-flow li:not(:last-child)::after { content: "→"; position: absolute; right: -13px; top: 50%; transform: translateY(-50%); font-size: 18px; color: #53566a; }
+    .a2-flow small, .a2-flow strong, .a2-flow span { display: block; }
+    .a2-flow small { color: #535075; font-size: 12px; letter-spacing: .08em; }
+    .a2-flow strong { font-size: 16px; margin: 8px 0; }
+    .a2-flow span { font-size: 14px; line-height: 1.5; }
+    @media(max-width:960px) { .a2-flow { grid-template-columns: 1fr; } .a2-flow li:not(:last-child)::after { content: "↓"; right: auto; left: 50%; top: auto; bottom: -17px; transform: translateX(-50%); } }
+    @media(max-width:760px) { .a2-frames { grid-template-columns: repeat(2,minmax(0,1fr)); } }
+  </style>
 </head>
 <body id="top">
 <a class="skip-link" href="#assignment-2">Skip to assignment</a>
@@ -71,19 +89,60 @@
 
     <section class="suggested-workflows" id="examples" aria-labelledby="examples-title">
       <h2 id="examples-title">Example videos · fun places to start</h2>
-      <p>Two viral AI videos that are great for this assignment. Each one teaches something different about how AI videos are made. You may choose one of them, or find your own.</p>
-      <details open>
-        <summary><strong>Example 1 · Cheap slippers, luxury ad</strong><span>Rednote · 王左导演 · “确认过眼神~这高端广东省鞋好像买不起”</span></summary>
-        <p class="workflow-links"><a href="https://xhslink.cn/o/1sp5XErGck7" target="_blank" rel="noreferrer">Watch on Rednote (小红书) ↗</a> · Video by @王左导演, shared by @广告头条</p>
-        <p>A pair of plastic slippers that cost a few yuan, the kind every Cantonese household owns, filmed like a high-end luxury fashion commercial. The joke is the contrast (反差) between a cheap everyday product and premium advertising language.</p>
-        <ul><li><strong>What to reverse engineer:</strong> The luxury-ad “look”: lighting, slow motion, close-ups, camera moves, colour grade, and music. Each shot is likely its own image-to-video generation, so pick one or two shots.</li><li><strong>Ideas for your version:</strong> Keep the luxury-ad recipe and swap in a different everyday object from your own city or culture, such as a red-white-blue bag, a takeaway milk tea, or an MTR Octopus card.</li></ul>
-      </details>
-      <details>
-        <summary><strong>Example 2 · Jensen Huang World Tour</strong><span>Bilibili · 王与也行 · Oct 2026 · went viral on X</span></summary>
-        <p class="workflow-links"><a href="https://search.bilibili.com/all?keyword=%E9%BB%84%E4%BB%81%E5%8B%8B%20%E4%B8%96%E7%95%8C%E5%B7%A1%E6%BC%94%20%E7%8E%8B%E4%B8%8E%E4%B9%9F%E8%A1%8C" target="_blank" rel="noreferrer">Find it on Bilibili ↗</a> · <a href="https://global.hk01.com/%E5%8D%B3%E6%97%B6%E5%9B%BD%E9%99%85/60397341/" target="_blank" rel="noreferrer">News coverage (HK01, 中文) ↗</a></p>
-        <p>A 1.5-minute parody in which Nvidia’s CEO takes Michael Jackson’s place in his 1992 Bucharest concert performance of “Jam”, singing new lyrics about GPUs and computing power to a crowd of tech CEOs. Elon Musk reposted it, joking that this is why RAM is so expensive.</p>
-        <ul><li><strong>What to reverse engineer:</strong> This one is a trick question. The dancing, stage, and crowd come from real concert footage, so it is probably <strong>video-to-video</strong>: a face swap plus an AI-generated voice and rewritten lyrics. Work out which parts are real footage and which are generated, and how you would rebuild a 5–15-second section.</li><li><strong>Ideas for your version:</strong> Keep the “famous performance, new performer” idea, but use an original or consenting performer, such as yourself, a friend, or an invented character, and give it your own story.</li></ul>
-      </details>
+      <p>Two viral AI videos that are great for this assignment. Each one teaches something different about how AI videos are made. You may choose one of them (pick a 5–15-second section), or find your own. The stills and workflows below are our best guess, which is exactly what you will practise.</p>
+
+      <h3>Example 1 · Cheap flip-flops, luxury ad</h3>
+      <p class="workflow-links"><a href="https://www.bilibili.com/video/BV1K2af6ZEy7/" target="_blank" rel="noreferrer">Watch on Bilibili ↗</a> · <a href="https://xhslink.cn/o/1sp5XErGck7" target="_blank" rel="noreferrer">Rednote repost ↗</a> · 王左导演, “如何把人字拖拍成买不起的样子”, 2:03, labelled as containing AI-generated content</p>
+      <p>A pair of cheap Guangdong flip-flops gets the full luxury-fashion-film treatment for a made-up brand, “TERMES”. The joke is the contrast (反差), and the voiceover is itself a mock recipe for a luxury ad: a model who never hurries, a white horse from nowhere, waves, wind in the coat. In other words, the creator has already written half of your prompt. The same director made more in the series, such as an <a href="https://www.bilibili.com/video/BV1CDaw6ZEKg/" target="_blank" rel="noreferrer">electric tricycle ↗</a> and a <a href="https://www.bilibili.com/video/BV1vNhb6nEdf/" target="_blank" rel="noreferrer">plastic stool ↗</a>.</p>
+      <figure class="a1-figure">
+        <figcaption><strong>Figure 1 · Six stills and what they tell you</strong><span>Approximate timestamps. Low-resolution preview frames from Bilibili, shown for teaching; all rights belong to the creator.</span></figcaption>
+        <div class="a2-frames">
+          <figure><img src="./img/slippers-1.jpg" width="480" height="270" loading="lazy" alt="Still from the flip-flop luxury-ad parody: Establishing wide"><figcaption><small>~0:05</small><strong>Establishing wide</strong><span>Grassland, a winding river, soft hazy light. This muted green look repeats in every shot.</span></figcaption></figure>
+          <figure><img src="./img/slippers-2.jpg" width="480" height="270" loading="lazy" alt="Still from the flip-flop luxury-ad parody: Profile close-up"><figcaption><small>~0:21</small><strong>Profile close-up</strong><span>Shallow depth of field, gaze into the distance. The same face in every shot: character consistency.</span></figcaption></figure>
+          <figure><img src="./img/slippers-3.jpg" width="480" height="270" loading="lazy" alt="Still from the flip-flop luxury-ad parody: White horse + fake logo"><figcaption><small>~0:36</small><strong>White horse + fake logo</strong><span>The “TERMES” logo is a parody of a luxury brand and was most likely added in the edit.</span></figcaption></figure>
+          <figure><img src="./img/slippers-4.jpg" width="480" height="270" loading="lazy" alt="Still from the flip-flop luxury-ad parody: Product macro"><figcaption><small>~0:58</small><strong>Product macro</strong><span>A foot in a flip-flop on wet grass, close and slow. This is the product shot.</span></figcaption></figure>
+          <figure><img src="./img/slippers-5.jpg" width="480" height="270" loading="lazy" alt="Still from the flip-flop luxury-ad parody: Low-angle pose"><figcaption><small>~1:08</small><strong>Low-angle pose</strong><span>A wide lens below the model, holding the flip-flop to the camera: a send-up of fashion posing.</span></figcaption></figure>
+          <figure><img src="./img/slippers-6.jpg" width="480" height="270" loading="lazy" alt="Still from the flip-flop luxury-ad parody: Hero shot"><figcaption><small>~2:01</small><strong>Hero shot</strong><span>It ends on the product and the logo, the classic structure of a luxury ad.</span></figcaption></figure>
+        </div>
+      </figure>
+      <figure class="a1-figure">
+        <figcaption><strong>Figure 2 · A possible workflow</strong><span>Most likely shot-by-shot image-to-video with a consistent character and product.</span></figcaption>
+        <ol class="a2-flow">
+          <li><small>01 · SCRIPT</small><strong>Write the joke voiceover</strong><span>The narration is a mock checklist for shooting a luxury ad, so it doubles as the shot list (about 20 shots).</span></li>
+          <li><small>02 · ASSETS</small><strong>Character + product references</strong><span>One character sheet (red suit, long hair) and one reference of the red flip-flops, reused in every shot.</span></li>
+          <li><small>03 · KEYFRAMES</small><strong>One image per shot</strong><span>Text-to-image with a shared style phrase, e.g. “luxury fashion film, hazy golden hour, 35 mm, shallow depth of field, muted greens”.</span></li>
+          <li><small>04 · ANIMATE</small><strong>Image-to-video, one move per shot</strong><span>About 5 seconds each: a slow dolly, wind in the coat, the horse turning its head, slow motion on the macro.</span></li>
+          <li><small>05 · FINISH</small><strong>Voice, music, logo, captions</strong><span>Voiceover (recorded or TTS), soft music, the fake logo and subtitles added in the editor, cut to the narration.</span></li>
+        </ol>
+        <p class="workflow-tip"><strong>For your version:</strong> keep the luxury-ad recipe and swap in an everyday object from your own city or culture, such as a red-white-blue bag, a takeaway milk tea, or an Octopus card.</p>
+      </figure>
+
+      <h3>Example 2 · Jensen Huang World Tour</h3>
+      <p class="workflow-links"><a href="https://www.bilibili.com/video/BV1VRHr6AEZ6/" target="_blank" rel="noreferrer">Watch on Bilibili ↗</a> · 王与也行, “黄仁勋 世界巡演”, 1:26, Oct 2026, 5 million+ views · <a href="https://global.hk01.com/%E5%8D%B3%E6%97%B6%E5%9B%BD%E9%99%85/60397341/" target="_blank" rel="noreferrer">News (HK01, 中文) ↗</a></p>
+      <p>Michael Jackson’s 1992 Bucharest concert performance of “Jam”, recreated with Nvidia’s CEO on stage, new lyrics about GPUs and computing power, and tech CEOs in the crowd. It went viral on X, and Elon Musk reposted it joking that this is why RAM is so expensive. Other creators quickly made their own “World Tour” versions with game characters and other stars, which is exactly what Part 3 asks you to do.</p>
+      <p><strong>Not a simple face swap.</strong> Making-of tutorials show that each concert shot was reverse engineered and regenerated with consistent character references. The Updream tool used even has a “shot reverse-engineering” (分镜逆向) skill. See the <a href="https://www.bilibili.com/video/BV17Apw6bEqQ/" target="_blank" rel="noreferrer">Updream tutorial ↗</a> and a <a href="https://www.bilibili.com/video/BV1gxpK6FEn8/" target="_blank" rel="noreferrer">community breakdown ↗</a> (both in Chinese).</p>
+      <figure class="a1-figure">
+        <figcaption><strong>Figure 3 · Six stills and what they tell you</strong><span>Approximate timestamps. Low-resolution preview frames from Bilibili, shown for teaching; all rights belong to the creator.</span></figcaption>
+        <div class="a2-frames">
+          <figure><img src="./img/jensen-1.jpg" width="480" height="270" loading="lazy" alt="Still from the Jensen Huang World Tour parody: Wide stage + pyrotechnics"><figcaption><small>~0:00</small><strong>Wide stage + pyrotechnics</strong><span>Look at the corner: a “Created in Updream” watermark. That is a clue to the tool.</span></figcaption></figure>
+          <figure><img src="./img/jensen-2.jpg" width="480" height="270" loading="lazy" alt="Still from the Jensen Huang World Tour parody: Sunglasses close-up"><figcaption><small>~0:15</small><strong>Sunglasses close-up</strong><span>The original concert’s iconic moment is kept; only the performer has changed.</span></figcaption></figure>
+          <figure><img src="./img/jensen-3.jpg" width="480" height="270" loading="lazy" alt="Still from the Jensen Huang World Tour parody: Crowd cameo"><figcaption><small>~0:25</small><strong>Crowd cameo</strong><span>New characters are placed into the audience shots.</span></figcaption></figure>
+          <figure><img src="./img/jensen-4.jpg" width="480" height="270" loading="lazy" alt="Still from the Jensen Huang World Tour parody: On stage, new lyrics"><figcaption><small>~0:51</small><strong>On stage, new lyrics</strong><span>Subtitles show rewritten lyrics about GPUs, so the song is a new AI-generated track.</span></figcaption></figure>
+          <figure><img src="./img/jensen-5.jpg" width="480" height="270" loading="lazy" alt="Still from the Jensen Huang World Tour parody: Reaction close-up"><figcaption><small>~0:56</small><strong>Reaction close-up</strong><span>Audience reactions from famous faces carry the joke.</span></figcaption></figure>
+          <figure><img src="./img/jensen-6.jpg" width="480" height="270" loading="lazy" alt="Still from the Jensen Huang World Tour parody: Dance line"><figcaption><small>~1:21</small><strong>Dance line</strong><span>Staging and choreography follow the original 1992 concert.</span></figcaption></figure>
+        </div>
+      </figure>
+      <figure class="a1-figure">
+        <figcaption><strong>Figure 4 · A possible workflow</strong><span>Reference video → shot-by-shot remake with consistent characters → new song.</span></figcaption>
+        <ol class="a2-flow">
+          <li><small>01 · REFERENCE</small><strong>Break the real concert into shots</strong><span>Shot list with timing, framing, camera move and action for every cut. This is the same task as Part 1 of this assignment.</span></li>
+          <li><small>02 · CHARACTERS</small><strong>Consistent character sheets</strong><span>Multi-view references for the performer and each crowd cameo, so faces and outfits stay the same.</span></li>
+          <li><small>03 · KEYFRAMES</small><strong>Match each original composition</strong><span>Generate a first frame per shot that copies the original framing, with the new characters in it.</span></li>
+          <li><small>04 · ANIMATE</small><strong>Video per shot, then patch</strong><span>Generate each shot from its keyframe and character references (the tutorials use Seedance 2.5), then fix bad parts locally.</span></li>
+          <li><small>05 · SOUND + EDIT</small><strong>New lyrics, AI vocal, cut to the beat</strong><span>Rewrite the lyrics, generate a song in the original style, edit shots to the music and add subtitles.</span></li>
+        </ol>
+        <p class="workflow-tip"><strong>For your version:</strong> keep the “famous performance, new performer” idea, but use an original character, yourself, or a consenting friend instead of a real public figure, and give it your own story.</p>
+      </figure>
     </section>
 
     <section class="suggested-workflows" id="how-to-reverse" aria-labelledby="reverse-title">
@@ -116,7 +175,7 @@
     <section class="suggested-workflows" id="workflow-figures" aria-labelledby="figures-title">
       <h2 id="figures-title">See how the pieces fit together</h2>
       <figure class="a1-figure">
-        <figcaption><strong>Figure 1 · From someone else’s video to your own</strong><span>The recipe you recover in Part 1 becomes the starting point for Parts 2 and 3.</span></figcaption>
+        <figcaption><strong>Figure 5 · From someone else’s video to your own</strong><span>The recipe you recover in Part 1 becomes the starting point for Parts 2 and 3.</span></figcaption>
         <div class="a1-flow-row"><div class="a1-node"><small>01 · REVERSE</small><strong>Video → recipe</strong><span>Prompt + reference image + mode</span></div><span class="a1-arrow" aria-hidden="true">→</span><div class="a1-node"><small>02 · RECONSTRUCT</small><strong>Recipe → video</strong><span>3+ attempts, side by side</span></div><span class="a1-arrow" aria-hidden="true">→</span><div class="a1-node"><small>03 · REMIX</small><strong>Edit the recipe</strong><span>Change 2+ elements</span></div></div>
         <div class="a1-audio-routes"><div><strong>Keep</strong><p>What made the original work: the camera move, the pacing, the lighting idea.</p></div><span aria-hidden="true">+</span><div><strong>Change</strong><p>Subject, setting, style, story, or sound, to express your own intention.</p></div></div>
         <div class="a1-finish"><span aria-hidden="true">↓</span><strong>YOUR VERSION</strong><span>10–30 seconds · with audio · credit the source</span></div>
