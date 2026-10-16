@@ -10,10 +10,10 @@
     ['06', 'Oct 09', '2026-10-09T18:30:00+08:00', '2026-10-09T19:20:00+08:00', '2026-10-09T23:59:59+08:00', 'Yu Chen — Founder & CEO, Artisk.ai · Designer and entrepreneur'],
     ['07', 'Oct 16', '2026-10-16T18:30:00+08:00', '2026-10-16T19:20:00+08:00', '2026-10-16T23:59:59+08:00', 'Jiajun Zha — HKUST · Talk title to be announced'],
     ['08', 'Oct 23', '2026-10-23T18:30:00+08:00', '2026-10-23T19:20:00+08:00', '2026-10-23T23:59:59+08:00', 'Speaker to be announced'],
-    ['09', 'Oct 30', '2026-10-30T18:30:00+08:00', '2026-10-30T19:20:00+08:00', '2026-10-30T23:59:59+08:00', 'Speaker to be announced'],
+    ['09', 'Oct 30', '2026-10-30T18:30:00+08:00', '2026-10-30T19:20:00+08:00', '2026-10-30T23:59:59+08:00', 'Xian Xu — Lingnan University · Talk title to be announced'],
     ['10', 'Nov 06', '2026-11-06T18:30:00+08:00', '2026-11-06T19:20:00+08:00', '2026-11-06T23:59:59+08:00', 'Tae-Hyun Oh — KAIST · Talk title to be announced'],
     ['11', 'Nov 13', '2026-11-13T18:30:00+08:00', '2026-11-13T19:20:00+08:00', '2026-11-13T23:59:59+08:00', 'Sunil Manghani — University of Southampton · Talk title to be announced'],
-    ['12', 'Nov 20', '2026-11-20T18:30:00+08:00', '2026-11-20T19:20:00+08:00', '2026-11-20T23:59:59+08:00', 'Xian Xu — Lingnan University · Talk title to be announced'],
+    ['12', 'Nov 20', '2026-11-20T18:30:00+08:00', '2026-11-20T19:20:00+08:00', '2026-11-20T23:59:59+08:00', 'Speaker to be announced'],
     ['13', 'Nov 27', '2026-11-27T18:30:00+08:00', '2026-11-27T19:20:00+08:00', '2026-11-27T23:59:59+08:00', 'Speaker to be announced']
   ].map(([id, date, opensAt, endsAt, closesAt, title]) => ({ id, date, opensAt, endsAt, closesAt, title }));
 
