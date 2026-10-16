@@ -6,6 +6,7 @@
   const API_URL = window.AMCC5160_DISCUSSION_API || '';
   const NAME_KEY = 'amcc5160-qa-name';
   const TOKEN_KEY = 'amcc5160-qa-tokens';
+  const CLIENT_KEY = 'amcc5160-qa-client';
   const REFRESH_MS = 60000;
   const URL_PATTERN = /(https?:\/\/[^\s<>"']+[^\s<>"'.,;:!?)\]])/g;
 
@@ -60,11 +61,13 @@
 
   function initWidget(root) {
     const page = root.dataset.qaPage;
-    const state = { code: '', adminCode: '', staff: false, posts: [], filter: 'all', kind: 'question', replyTo: '', loading: false, unlocked: false };
+    const state = { adminCode: '', staff: false, posts: [], filter: 'all', kind: 'question', replyTo: '', loading: false };
     let refreshTimer;
+    let clientId = storage.get(CLIENT_KEY, '');
+    if (!clientId) { clientId = Math.random().toString(36).slice(2) + Date.now().toString(36); storage.set(CLIENT_KEY, clientId); }
 
     async function api(payload) {
-      const body = Object.assign({ page: page }, payload, state.adminCode ? { adminCode: state.adminCode } : { code: state.code });
+      const body = Object.assign({ page: page, clientId: clientId }, payload, state.adminCode ? { adminCode: state.adminCode } : {});
       const response = await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(body), redirect: 'follow' });
       if (!response.ok) throw new Error('The Q&A service could not be reached. Please try again.');
       const result = await response.json();
@@ -90,15 +93,6 @@
       return;
     }
 
-    // ---------- Unlock card ----------
-    const codeInput = h('input', { type: 'password', autocomplete: 'off', placeholder: 'Course code', 'aria-label': 'Course code', required: true });
-    const unlockButton = h('button', { class: 'qa-primary', type: 'submit' }, 'Open Q&A →');
-    const unlockForm = h('form', { class: 'qa-card', onsubmit: onUnlock },
-      h('p', { class: 'qa-kicker' }, 'Course access'),
-      h('h3', {}, 'Enter the course code to read and post'),
-      h('p', { class: 'qa-muted' }, 'Use the same code as presentation sign-up. Only students in the course can see this discussion. The code is not saved in your browser.'),
-      h('div', { class: 'qa-row' }, codeInput, unlockButton));
-
     // ---------- Compose ----------
     const nameInput = h('input', { type: 'text', maxlength: '60', autocomplete: 'name', placeholder: 'Your name or nickname', value: storage.get(NAME_KEY, '') });
     const messageInput = h('textarea', { maxlength: '2000', placeholder: 'Ask a question about the brief, share an idea or a work-in-progress link, or answer a classmate…' });
@@ -108,6 +102,8 @@
     }, kind === 'question' ? 'Question' : 'Comment'));
     kindButtons.forEach((button, index) => { button.dataset.kind = index === 0 ? 'question' : 'comment'; });
     const postButton = h('button', { class: 'qa-primary', type: 'submit' }, 'Post');
+    const trapInput = h('input', { type: 'text', name: 'website', tabindex: '-1', autocomplete: 'off', 'aria-hidden': 'true' });
+    const trap = h('label', { style: 'position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden', 'aria-hidden': 'true' }, 'Website', trapInput);
     const charCount = h('span', { class: 'qa-hint' }, '0 / 2000');
     messageInput.addEventListener('input', () => { charCount.textContent = `${messageInput.value.length} / 2000`; });
     const composeForm = h('form', { class: 'qa-card qa-compose', onsubmit: onPost },
@@ -115,8 +111,9 @@
         h('label', {}, 'Name shown to the class', nameInput),
         h('div', { class: 'qa-kinds', role: 'group', 'aria-label': 'Post type' }, kindButtons)),
       h('label', {}, 'Message', messageInput),
+      trap,
       h('div', { class: 'qa-compose-foot' },
-        h('span', { class: 'qa-hint' }, 'Links become clickable. Be kind; no personal contact details.  ', charCount),
+        h('span', { class: 'qa-hint' }, 'Posts are public on this page. Be kind, and don’t share personal details such as student IDs. ', charCount),
         postButton));
 
     // ---------- List ----------
@@ -128,7 +125,7 @@
     filterButtons.forEach((button, index) => { button.dataset.key = ['all', 'question', 'unanswered', 'comment'][index]; });
     const refreshButton = h('button', { class: 'qa-ghost', type: 'button', onclick: () => load(true) }, '↻ Refresh');
     const list = h('div', { class: 'qa-list', 'aria-live': 'polite' });
-    const board = h('div', { hidden: true },
+    const board = h('div', {},
       composeForm,
       h('div', { class: 'qa-toolbar' }, countLabel, h('div', { class: 'qa-filters' }, filterButtons, refreshButton)),
       list);
@@ -140,12 +137,12 @@
       h('button', { class: 'qa-ghost', type: 'button', onclick: () => { staffForm.hidden = true; } }, 'Cancel'));
     const staffState = h('span', {}, '');
     const staffToggle = h('button', { class: 'qa-ghost', type: 'button', onclick: () => {
-      if (state.staff) { state.staff = false; state.adminCode = ''; updateStaff(); if (!state.code) lock(); else load(true); return; }
+      if (state.staff) { state.staff = false; state.adminCode = ''; updateStaff(); load(true); return; }
       staffForm.hidden = !staffForm.hidden; if (!staffForm.hidden) staffInput.focus();
     } }, 'Teaching team sign-in');
     const staffBar = h('div', {}, h('div', { class: 'qa-staff-bar' }, staffState, staffToggle), staffForm);
 
-    root.append(unlockForm, board, status, staffBar);
+    root.append(board, status, staffBar);
 
     function updateStaff() {
       staffState.textContent = state.staff ? 'Signed in as teaching team: your posts carry a badge, and you can pin, hide, and mark answered.' : '';
@@ -153,35 +150,12 @@
       staffToggle.textContent = state.staff ? 'Sign out of staff mode' : 'Teaching team sign-in';
     }
 
-    function lock() {
-      state.unlocked = false; state.posts = [];
-      board.hidden = true; unlockForm.hidden = false; clearInterval(refreshTimer);
-    }
-
-    function unlock() {
-      state.unlocked = true; unlockForm.hidden = true; board.hidden = false;
+    function startRefresh() {
       clearInterval(refreshTimer);
       refreshTimer = setInterval(() => {
         const typing = root.contains(document.activeElement) && /TEXTAREA|INPUT/.test(document.activeElement.tagName);
         if (document.visibilityState === 'visible' && !typing) load(false);
       }, REFRESH_MS);
-    }
-
-    async function onUnlock(event) {
-      event.preventDefault();
-      const code = codeInput.value.trim().toUpperCase();
-      if (!code) return;
-      unlockButton.disabled = true;
-      try {
-        state.code = code;
-        await load(true, true);
-        codeInput.value = '';
-        unlock();
-        if (!nameInput.value) nameInput.focus();
-      } catch (error) {
-        state.code = '';
-        showStatus(error.message, 'error');
-      } finally { unlockButton.disabled = false; }
     }
 
     async function onStaff(event) {
@@ -194,7 +168,7 @@
         const result = await api({ action: 'discussion-staff-check' });
         if (!result.staff) throw new Error('Incorrect staff code.');
         state.staff = true; staffInput.value = ''; staffForm.hidden = true;
-        updateStaff(); unlock(); await load(true);
+        updateStaff(); await load(true);
         showStatus('Staff mode on.', 'success');
       } catch (error) {
         state.adminCode = previous; state.staff = Boolean(previous);
@@ -202,7 +176,7 @@
       }
     }
 
-    async function load(showErrors, throwErrors) {
+    async function load(showErrors) {
       if (state.loading) return;
       state.loading = true;
       try {
@@ -210,7 +184,6 @@
         state.posts = result.posts || [];
         render();
       } catch (error) {
-        if (throwErrors) throw error;
         if (showErrors) showStatus(error.message, 'error');
       } finally { state.loading = false; }
     }
@@ -223,11 +196,10 @@
       if (message.length < 2) { showStatus('Please write a message.', 'error'); messageInput.focus(); return; }
       postButton.disabled = true;
       try {
-        const result = await api({ action: 'discussion-post', name: name, kind: state.kind, message: message });
-        rememberToken(result.post.id, result.token);
+        const result = await api({ action: 'discussion-post', name: name, kind: state.kind, message: message, website: trapInput.value });
         storage.set(NAME_KEY, name);
         messageInput.value = ''; charCount.textContent = '0 / 2000';
-        state.posts.push(result.post);
+        if (result.post) { rememberToken(result.post.id, result.token); state.posts.push(result.post); }
         render();
         showStatus('Posted. Thank you!', 'success');
       } catch (error) { showStatus(error.message, 'error'); }
@@ -241,8 +213,8 @@
       if (message.length < 2) { showStatus('Please write a reply.', 'error'); textarea.focus(); return; }
       button.disabled = true;
       try {
-        const result = await api({ action: 'discussion-post', name: name, parentId: parentId, message: message });
-        rememberToken(result.post.id, result.token);
+        const result = await api({ action: 'discussion-post', name: name, parentId: parentId, message: message, website: trapInput.value });
+        if (result.post) rememberToken(result.post.id, result.token);
         storage.set(NAME_KEY, name);
         state.replyTo = '';
         await load(true);
@@ -327,6 +299,9 @@
             postHead(reply), h('p', { class: 'qa-message' }, linkify(reply.message)), postActions(reply, false)))) : null));
       });
     }
+    list.append(h('div', { class: 'qa-empty' }, 'Loading questions…'));
+    load(true);
+    startRefresh();
   }
 
   document.querySelectorAll('.qa[data-qa-page]').forEach(initWidget);
