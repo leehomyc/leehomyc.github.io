@@ -11,8 +11,6 @@
   <title>AMCC 5160 — AI-Driven Animation &amp; Video Generation</title>
   <link rel="stylesheet" href="./styles.css?v=20261016-qa2">
   <script src="./site.js?v=20260901-tight" defer></script>
-  <script src="./qa/config.js?v=20261016" defer></script>
-  <script src="./qa/qa.js?v=20261016" defer></script>
 </head>
 <body>
 <a class="skip-link" href="#overview">Skip to course content</a>
@@ -20,7 +18,7 @@
   <nav class="site-nav" aria-label="Primary navigation">
     <a class="brand" href="#top">AMCC <span>5160</span></a>
     <div class="nav-links">
-      <a href="#overview">Overview</a><a href="#assessment">Assessment</a><a href="#schedule">Schedule</a><a href="./signup/">Presentation</a><a href="#questions">Q&amp;A</a><a href="#faq">FAQ</a>
+      <a href="#overview">Overview</a><a href="#assessment">Assessment</a><a href="#schedule">Schedule</a><a href="./signup/">Presentation</a><a href="#faq">FAQ</a>
     </div>
     <span class="scroll-progress" aria-hidden="true"></span>
   </nav>
@@ -80,78 +78,7 @@
     </div>
     <p id="assignment-1" style="margin-top:24px;scroll-margin-top:90px"><a href="./assignment-1/"><strong>Assignment 1: From Images to Film</strong> — Read the full brief →</a></p>
     <p id="assignment-2" style="margin-top:8px;scroll-margin-top:90px"><a href="./assignment-2/"><strong>Assignment 2: Reverse, Rebuild, Remix</strong> — Reverse engineer an AI video, reconstruct it, and make your own version. Read the full brief →</a></p>
-    <div class="tip-card" id="tip-ai-vlog" aria-labelledby="tip-ai-vlog-title">
-      <figure class="tip-video">
-        <video controls playsinline preload="metadata" poster="./tips/ai-vlog/poster.jpg?v=20261016">
-          <source src="./tips/ai-vlog/ai_vlog_promo_60s.mp4?v=20261016" type="video/mp4">
-        </video>
-        <figcaption>60-second vlog promo · edited end-to-end by Claude</figcaption>
-      </figure>
-      <div class="tip-body">
-        <p class="tip-label">Tip · Make a vlog with AI</p>
-        <h2 id="tip-ai-vlog-title">Raw clips in.<br><span>A finished vlog out.</span></h2>
-        <p class="tip-intro">This one-minute promo was edited entirely by an AI agent (Claude). I gave it four raw phone clips—about 12 minutes of an unscripted dinner conversation plus some car karaoke—and one sentence: <q>make a commercial promo for the Ivanka show, use highlights of my talk and some singing.</q></p>
-        <div class="tip-columns">
-          <div>
-            <h3>What the AI did on its own</h3>
-            <ul>
-              <li>Skimmed the footage and transcribed the Mandarin speech</li>
-              <li>Picked the strongest lines and cut on word boundaries</li>
-              <li>Reframed to 9:16, added title cards and Chinese/English subtitles</li>
-              <li>Cleaned and balanced the audio, then re-checked its own cut</li>
-            </ul>
-          </div>
-          <div>
-            <h3>How I directed it</h3>
-            <ul class="tip-notes">
-              <li><q>make it 30 seconds</q></li>
-              <li><q>remove my name and affiliation</q></li>
-              <li><q>use some other clips of my talk too</q> · <q>maybe one minute</q></li>
-            </ul>
-            <p class="tip-small">No timeline, no editing software—just notes, like working with an editor.</p>
-          </div>
-        </div>
-        <p class="tip-try"><strong>Try it:</strong> upload your raw clips to an AI agent that can run code (such as Claude), describe the audience, length, and tone in one sentence, then give notes until it feels right. Handy for Assignment 2 and your final presentation—just say in your write-up how AI was used and which creative choices were yours.</p>
-        <a class="tip-download" href="./tips/ai-vlog/ai_vlog_promo_60s.mp4?v=20261016" download>Download the video <span>MP4 ↓</span></a>
-      </div>
-    </div>
-    <div class="qa-block" id="questions" aria-labelledby="qa-title">
-      <div class="qa-heading">
-        <div><p class="section-kicker">Questions &amp; comments</p><h2 class="qa-title" id="qa-title">Ask anything.<br><span>Help each other.</span></h2></div>
-        <p>Post a question about lectures, assignments, or tools—or share a comment, a link, or something you made. Classmates can reply, and I will answer questions here too.</p>
-      </div>
-      <div class="qa-layout">
-        <form class="qa-form" id="qa-form" autocomplete="on">
-          <div class="qa-kind" role="radiogroup" aria-label="Post type">
-            <label><input type="radio" name="kind" value="question" checked><span>Question</span></label>
-            <label><input type="radio" name="kind" value="comment"><span>Comment</span></label>
-          </div>
-          <label class="qa-field"><span>Name or nickname</span><input name="name" maxlength="40" required placeholder="e.g. Alex or a nickname"></label>
-          <label class="qa-field"><span>Your message</span><textarea name="text" rows="6" maxlength="2000" required placeholder="What would you like to ask or share?"></textarea></label>
-          <label class="qa-honeypot" aria-hidden="true">Website<input name="website" tabindex="-1" autocomplete="off"></label>
-          <button class="qa-submit" type="submit">Post to the board <span>→</span></button>
-          <p class="qa-note">Posts are public on this page. Please be kind, and avoid sharing personal details such as student IDs.</p>
-          <p class="qa-status" id="qa-status" role="status" aria-live="polite"></p>
-        </form>
-        <div class="qa-board">
-          <div class="qa-toolbar">
-            <div class="qa-filters" role="group" aria-label="Filter posts">
-              <button type="button" class="qa-filter is-active" data-filter="all">All</button>
-              <button type="button" class="qa-filter" data-filter="question">Questions</button>
-              <button type="button" class="qa-filter" data-filter="open">Unanswered</button>
-              <button type="button" class="qa-filter" data-filter="comment">Comments</button>
-            </div>
-            <span class="qa-count" id="qa-count"></span>
-          </div>
-          <div class="qa-feed" id="qa-feed" aria-live="polite"></div>
-          <div class="qa-admin">
-            <button type="button" class="qa-admin-link" id="qa-admin-toggle">Instructor</button>
-            <form id="qa-admin-form" class="qa-admin-form" hidden><input name="code" type="password" placeholder="Instructor code" required><button type="submit">Enter</button></form>
-          </div>
-        </div>
-      </div>
-    </div>
-    <p id="assignment-3" style="margin-top:40px;scroll-margin-top:90px"><a href="./assignment-3/"><strong>Assignment 3: Make Your Own Game</strong> — Design and build a small, original, playable game with Claude or other AI tools, in any engine. Read the full brief →</a></p>
+    <p id="assignment-3" style="margin-top:8px;scroll-margin-top:90px"><a href="./assignment-3/"><strong>Assignment 3: Make Your Own Game</strong> — Design and build a small, original, playable game with Claude or other AI tools, in any engine. Read the full brief →</a></p>
   </section>
 
   <section class="section presentation-section">

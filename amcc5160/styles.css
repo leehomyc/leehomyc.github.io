@@ -569,3 +569,4 @@ footer > p { margin: 8px 0 46px; color: #86868b; }
 @media (max-width: 900px) { .qa-heading, .qa-layout { grid-template-columns: 1fr; } .qa-heading { gap: 18px; } .qa-form { position: static; } }
 @media (max-width: 620px) { .qa-post { padding: 16px; } .qa-replies { padding-left: 12px; } .qa-heading > p { font-size: 16px; } }
 .qa-admin-form[hidden] { display: none; }
+.assignment-brief .tip-card { margin-top: 56px; }
