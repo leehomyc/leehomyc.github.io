@@ -2,7 +2,7 @@
 
 Powers the "Questions and comments" section at the bottom of `/amcc5160/assignment-3/`. The same widget can be added to any other course page.
 
-Posts are stored in a Google Sheet you own. Students need the **course access code** (the same one used for presentation sign-up) to read or post. The teaching team uses a separate **staff code** to reply with a "Teaching team" badge, pin, hide, or mark questions as answered.
+Posts are stored in a Google Sheet you own. **Anyone can read and post, with no course code** (like the Assignment 2 board), protected by a hidden trap field and rate limits. The teaching team uses a **staff code** to reply with a "Teaching team" badge, pin, hide, or mark questions as answered.
 
 ## Setup
 
@@ -12,7 +12,7 @@ The live service is already deployed from the Apps Script project "AMCC 5160 Q&A
 
 | Row | Setting | |
 | --- | --- | --- |
-| 2 | Course access code | The same code students use for presentation sign-up. Students cannot open the Q&A until this is filled in. |
+| 2 | Course access code | No longer used: the Q&A is open to everyone. |
 | 3 | Staff code | Generated automatically. For "Teaching team sign-in" on the page. Change it any time. |
 | 4 | Notify email (optional) | If filled in, every new student post is emailed here (approve Gmail sending the first time). |
 

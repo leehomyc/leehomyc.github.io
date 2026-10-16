@@ -1,5 +1,6 @@
 // AMCC 5160 · Course Q&A service (Google Apps Script web app)
 // Stores questions and comments for course pages (e.g. Assignment 3) in a Google Sheet.
+// Anyone can read and post (no course code); the staff code on the Settings tab unlocks moderation.
 // Setup steps: see README.md in this folder.
 
 const POSTS_SHEET_NAME = 'Posts';
@@ -18,8 +19,9 @@ const KINDS = ['question', 'comment'];
 function doPost(event) {
   try {
     const request = JSON.parse((event.postData && event.postData.contents) || '{}');
+    // Reading and posting are open to anyone (like the Assignment 2 board); only moderation needs the staff code.
     const isStaff = validAdminCode(request.adminCode);
-    if (!isStaff && !validAccessCode(request.code)) return jsonResponse({ ok: false, error: 'Incorrect course access code.' });
+    if (request.adminCode && !isStaff && request.action === 'discussion-staff-check') return jsonResponse({ ok: false, error: 'Incorrect staff code.' });
     const page = clean(request.page, 40);
     if (!/^[a-z0-9-]{1,40}$/.test(page)) return jsonResponse({ ok: false, error: 'Unknown course page.' });
 
@@ -55,10 +57,20 @@ function handlePost(request, page, isStaff) {
   if (message.length < 2) return jsonResponse({ ok: false, error: 'Please write a message.' });
 
   if (!isStaff) {
+    // Spam protection: hidden trap field, plus rate limits per browser, per name, and for the whole page.
+    if (clean(request.website, 200)) return jsonResponse({ ok: true, post: null, token: '' });
     const cache = CacheService.getScriptCache();
-    const key = 'rate-' + hashText(name.toLowerCase());
-    if (cache.get(key)) return jsonResponse({ ok: false, error: 'Please wait a few seconds before posting again.' });
-    cache.put(key, '1', 15);
+    const clientKey = 'rate-client-' + hashText(clean(request.clientId, 64) || 'none');
+    const nameKey = 'rate-name-' + hashText(name.toLowerCase());
+    const pageKey = 'rate-page-' + page;
+    if (cache.get(nameKey)) return jsonResponse({ ok: false, error: 'Please wait a few seconds before posting again.' });
+    const clientCount = Number(cache.get(clientKey) || 0);
+    const pageCount = Number(cache.get(pageKey) || 0);
+    if (clientCount >= 6) return jsonResponse({ ok: false, error: 'You have posted a lot in a short time. Please try again in a few minutes.' });
+    if (pageCount >= 40) return jsonResponse({ ok: false, error: 'The board is very busy right now. Please try again in a few minutes.' });
+    cache.put(nameKey, '1', 15);
+    cache.put(clientKey, String(clientCount + 1), 300);
+    cache.put(pageKey, String(pageCount + 1), 300);
   }
 
   const lock = LockService.getScriptLock(); lock.waitLock(10000);
@@ -95,7 +107,7 @@ function handleDelete(request, page, isStaff) {
     const index = rows.findIndex(row => String(row[0]) === id && String(row[2]) === page);
     if (index < 0) return jsonResponse({ ok: false, error: 'Post not found.' });
     const ownsPost = token && safeEqual(hashText(token), String(rows[index][11]));
-    if (!ownsPost && !isStaff) return jsonResponse({ ok: false, error: 'You can only remove your own posts from the browser you posted with.' });
+    if (!ownsPost && !isStaff) return jsonResponse({ ok: false, error: 'You can only remove your own posts, from the browser you posted with.' });
     sheet.getRange(index + 2, 9).setValue(true);
     sheet.getRange(index + 2, 13).setValue(new Date().toISOString());
     return jsonResponse({ ok: true });
