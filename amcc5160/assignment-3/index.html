@@ -1,0 +1,483 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Assignment 3: design and build your own small, playable game with Claude or other AI tools, in any engine. Due November 30, 2026.">
+  <meta name="theme-color" content="#fbfbfd">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <title>Assignment 3: Make Your Own Game — AMCC 5160</title>
+  <link rel="stylesheet" href="../styles.css?v=20260916-china-figures">
+  <link rel="stylesheet" href="../discussion/discussion.css?v=20261016">
+  <script src="../site.js?v=20260901-tight" defer></script>
+  <style>
+    .a3-refs { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 18px; align-items: start; }
+    .a3-refs > figure { margin: 0; }
+    .a3-refs img { display: block; width: 100%; height: auto; aspect-ratio: 16/9; object-fit: cover; border-radius: 12px; background: #1b2140; }
+    .a3-refs small, .a3-refs strong, .a3-refs span { display: block; }
+    .a3-refs small { margin-top: 12px; color: #53566a; font-size: 12px; letter-spacing: .06em; text-transform: uppercase; }
+    .a3-refs strong { font-size: 17px; margin: 4px 0; }
+    .a3-refs span { font-size: 15px; line-height: 1.55; color: #3d4052; }
+    .a3-embed { min-height: 240px; border-radius: 12px; background: #f4f5fa; padding: 4px; }
+    .a3-embed .twitter-tweet { margin: 0 auto !important; }
+    .a3-embed blockquote { margin: 0; padding: 24px; font-size: 15px; line-height: 1.6; }
+    .a3-routes { display: grid; grid-template-columns: repeat(5,minmax(0,1fr)); gap: 12px; }
+    .a3-route { padding: 18px; border-radius: 14px; background: #eef0fc; }
+    .a3-route svg { display: block; width: 44px; height: 44px; margin-bottom: 12px; }
+    .a3-route small, .a3-route strong, .a3-route span { display: block; }
+    .a3-route small { color: #535075; font-size: 12px; letter-spacing: .08em; }
+    .a3-route strong { font-size: 17px; margin: 6px 0; }
+    .a3-route span { font-size: 14px; line-height: 1.5; }
+    .a3-route.is-start { background: #e7f6ec; box-shadow: inset 0 0 0 2px #9fd5b4; }
+    .a3-table { width: 100%; border-collapse: collapse; font-size: 15px; line-height: 1.55; }
+    .a3-table th, .a3-table td { padding: 12px 10px; border-bottom: 1px solid #d7d9e2; text-align: left; vertical-align: top; }
+    .a3-table thead th { font-size: 13px; color: #53566a; letter-spacing: .04em; text-transform: uppercase; }
+    .a3-table tbody th { white-space: nowrap; }
+    .a3-tablewrap { overflow-x: auto; }
+    .a3-flow { list-style: none; margin: 0 !important; padding: 0 !important; display: grid; grid-template-columns: repeat(7,minmax(0,1fr)); gap: 10px; }
+    .a3-flow li { position: relative; margin: 0; padding: 14px 12px; background: #eef0fc; border-radius: 12px; }
+    .a3-flow li:nth-child(n+3) { background: #f1ecfb; }
+    .a3-flow li:nth-child(n+5) { background: #eaf5ef; }
+    .a3-flow li:nth-child(n+7) { background: #fff5e5; }
+    .a3-flow small, .a3-flow strong, .a3-flow span { display: block; }
+    .a3-flow small { color: #535075; font-size: 11px; letter-spacing: .07em; }
+    .a3-flow em { display: block; font-style: normal; color: #535075; font-size: 12px; margin-top: 2px; }
+    .a3-flow strong { font-size: 15px; margin: 6px 0; line-height: 1.3; }
+    .a3-flow span { font-size: 13px; line-height: 1.45; }
+    .a3-loop { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 28px; align-items: center; }
+    .a3-loop svg { width: 100%; height: auto; max-width: 460px; display: block; margin: 0 auto; }
+    .a3-loop ul { margin: 0; padding-left: 20px; }
+    .a3-sketches { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 18px; }
+    .a3-sketches svg { display: block; width: 100%; height: auto; border-radius: 12px; margin-bottom: 12px; }
+    .a3-sketches strong { display: block; font-size: 17px; }
+    .a3-sketches small { display: block; color: #53566a; font-size: 12px; letter-spacing: .06em; text-transform: uppercase; margin-bottom: 4px; }
+    .a3-sketches p { font-size: 15px; margin: 6px 0 0; }
+    .suggested-workflows pre { margin: 12px 0 4px; padding: 16px 18px; border-radius: 12px; background: #f4f5fa; border: 1px solid #e3e5ee; font: 13.5px/1.6 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; white-space: pre-wrap; word-break: break-word; }
+    .a3-check { color: #1a7f4b; font-weight: 650; font-size: 15px; }
+    .a3-tips { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 16px; }
+    .a3-tips > div { padding: 20px 22px; border-radius: 14px; background: #fff; border: 1px solid #d7d9e2; }
+    .a3-tips h3 { margin: 0 0 8px; font-size: 18px; }
+    .a3-tips ul { margin: 0; padding-left: 20px; }
+    @media(max-width:960px) { .a3-routes { grid-template-columns: repeat(2,minmax(0,1fr)); } .a3-flow { grid-template-columns: repeat(2,minmax(0,1fr)); } }
+    @media(max-width:760px) { .a3-refs, .a3-sketches, .a3-loop, .a3-tips { grid-template-columns: 1fr; } }
+    @media(max-width:460px) { .a3-routes, .a3-flow { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body id="top">
+<a class="skip-link" href="#assignment-3">Skip to assignment</a>
+<main>
+  <nav class="site-nav" aria-label="Primary navigation">
+    <a class="brand" href="../">AMCC <span>5160</span></a>
+    <div class="nav-links"><a href="../#overview">Overview</a><a href="../#assessment">Assessment</a><a href="../#schedule">Schedule</a><a href="../signup/">Presentation</a><a href="../#faq">FAQ</a></div>
+    <span class="scroll-progress" aria-hidden="true"></span>
+  </nav>
+  <section class="section assignment-brief" id="assignment-3" aria-labelledby="assignment-3-title">
+    <p class="section-kicker">Assignment 3 · 15% of the course grade</p>
+    <h1 class="section-title compact" id="assignment-3-title">Make Your Own Game</h1>
+    <p class="assignment-subtitle">From a world in your head to a world someone can play</p>
+    <p class="assignment-intro">Design and build a <strong>small, original, playable game</strong> with Claude or other AI tools. Use any engine or platform: a web browser, Godot, Unity, Unreal, or an AI game maker. AI can help you write the code, generate the art, and make the sound. Your job is to be the <strong>director</strong>: decide what the player does, sees, hears, and feels, and keep shaping the game until it delivers that experience.</p>
+    <p class="assignment-due">Due <time datetime="2026-11-30T23:59:00+08:00">November 30, 2026 · 23:59 HKT</time></p>
+    <p class="assignment-flow" aria-label="Workflow">Play <span aria-hidden="true">→</span> Design <span aria-hidden="true">→</span> Choose a route <span aria-hidden="true">→</span> Prototype <span aria-hidden="true">→</span> Assets + sound <span aria-hidden="true">→</span> Playtest <span aria-hidden="true">→</span> Publish</p>
+    <p class="workflow-jump"><a href="#references">Two games to look at ↓</a> · <a href="#routes">Choose your route</a> · <a href="#workflow">Baseline workflow</a> · <a href="#prompts">Prompt templates</a> · <a href="#technical-resources">Tools</a> · <a href="#discussion">Questions and comments</a></p>
+
+    <div class="assignment-columns">
+      <div>
+        <h2 style="font-size:24px;margin:0 0 24px">What to make</h2>
+        <ol class="assignment-steps">
+          <li><h3 style="font-size:18px;margin:0 0 8px">An original game, 3–10 minutes long</h3><p>It needs a clear <strong>start</strong>, a goal or journey, and an <strong>ending</strong>. Any genre works: story, puzzle, exploration, action, rhythm, visual novel, or something new. Small and finished beats big and broken.</p></li>
+          <li><h3 style="font-size:18px;margin:0 0 8px">Built with AI, in any engine</h3><p>Use Claude or any other AI assistant to code it, in a browser, Godot, Unity, Unreal, or an AI game maker. <strong>Coding experience is not required.</strong> Include <strong>at least one AI-generated asset beyond code</strong>: images, sprites, textures, 3D models, music, sound effects, or voice.</p></li>
+          <li><h3 style="font-size:18px;margin:0 0 8px">Playable by someone else</h3><p>A browser link, or a Windows / macOS / Android build. Mobile or VR pieces are welcome; if graders may not have the hardware, your video must show the experience clearly. <strong>Watch at least two people play it</strong> and improve it based on what you see.</p></li>
+        </ol>
+        <p class="assignment-note"><strong>Be inspired, don't copy.</strong> Borrow a mood, a structure, or a genre from the two reference games, but not their characters, text, logos, music, or assets. Make your own small prince and your own city. This is the authorship question from Lecture 05, in practice.</p>
+        <p class="assignment-note"><strong>Keep a log as you work:</strong> your key prompts, screenshots after each big change, the tools you used, and where every asset came from. This log becomes most of your report.</p>
+      </div>
+      <div>
+        <h2 style="font-size:24px;margin:0 0 24px">Submit three things</h2>
+        <ul class="assignment-deliverables">
+          <li><strong>1. Game link or build</strong><br>A link to play in the browser (itch.io, GitHub Pages, Vercel), <em>or</em> a zipped build with one line of instructions: platform, how to start, controls.</li>
+          <li><strong>2. Gameplay video (MP4)</strong><br>60–90 seconds, with sound: the start, the core action, and your best moment. It is your backup if a build won't run, and your clip for the final presentation.</li>
+          <li><strong>3. Process report (PDF, 6–10 slides)</strong><br>Include all the items below in this one report.</li>
+        </ul>
+        <ul class="assignment-deliverables" aria-label="Process report checklist">
+          <li><strong>Concept:</strong> your one-page design and the experience you aimed for.</li>
+          <li><strong>Route and workflow:</strong> a diagram of your engine, tools, and steps, with 3–5 key prompts.</li>
+          <li><strong>Two improvements:</strong> before and after, with at least one coming from playtesting.</li>
+          <li><strong>Reflection (200–300 words):</strong> What did you decide? What was difficult? What did AI do well or badly?</li>
+          <li><strong>Credits:</strong> what AI generated, what you made or edited yourself, and every outside source.</li>
+        </ul>
+        <table class="assignment-rubric">
+          <caption>Grading rubric</caption>
+          <thead><tr><th scope="col">What we look for</th><th scope="col">Weight</th></tr></thead>
+          <tbody>
+            <tr><th scope="row"><strong>Idea and originality:</strong> A clear experience and a world of your own.</th><td>20%</td></tr>
+            <tr><th scope="row"><strong>Playability:</strong> It runs, the goal is clear, and the core action feels good.</th><td>25%</td></tr>
+            <tr><th scope="row"><strong>Look and sound:</strong> A consistent style, and audio that supports the mood.</th><td>20%</td></tr>
+            <tr><th scope="row"><strong>Process:</strong> Workflow, playtesting, improvements, and learning.</th><td>25%</td></tr>
+            <tr><th scope="row"><strong>Documentation:</strong> A complete report and clear credits.</th><td>10%</td></tr>
+          </tbody>
+        </table>
+        <p class="workflow-tip" style="font-size:15px;color:#454759">The engine you choose does not change your grade. A small, finished browser game can score higher than an unfinished Unreal project.</p>
+      </div>
+    </div>
+
+    <section class="suggested-workflows" id="references" aria-labelledby="references-title">
+      <h2 id="references-title">Two games to look at first</h2>
+      <p>Both spread widely on X this week, and both were made by tiny teams with AI. Neither is a big game. Each has a clear mood and gives the player only a few things to do. Spend ten minutes with them before you design anything.</p>
+      <figure class="a1-figure">
+        <figcaption><strong>Figure 1 · Two references, two directions</strong><span>Reference A key art is a low-resolution copy from littleprince.dev; Reference B is the creator's own post, embedded from X. Shown for teaching; all rights belong to the creators.</span></figcaption>
+        <div class="a3-refs">
+          <figure>
+            <a href="https://littleprince.dev/" target="_blank" rel="noreferrer"><img src="./img/littleprince-keyart.jpg" width="960" height="540" loading="lazy" alt="Key art of The Little Prince: Across the Stars: a small watercolour planet with a rose under glass, two volcanoes, and a boy in a green coat with a yellow scarf, floating in a starry night sky"></a>
+            <figcaption><small>Reference A · Story + exploration</small><strong>The Little Prince: Across the Stars</strong><span>A browser-playable 3D story game by Sac (@Saccc_c), built in about 16 days with AI-assisted coding and AI-generated 3D assets. Each tiny planet is one explorable scene holding one moment of the story. Notice how a single watercolour style ties everything together.</span></figcaption>
+            <p class="workflow-links"><a href="https://littleprince.dev/" target="_blank" rel="noreferrer">Play it ↗</a> · <a href="https://x.com/Saccc_c/status/2109962425512734739" target="_blank" rel="noreferrer">Creator's post on X ↗</a></p>
+          </figure>
+          <figure>
+            <div class="a3-embed">
+              <blockquote class="twitter-tweet" data-dnt="true" data-conversation="none"><p>Loading the creator's post… If it does not appear (for example, where X is blocked), <a href="https://x.com/ikcrypth/status/2109947627697471589">open it on X</a>.</p>&mdash; @ikcrypth <a href="https://twitter.com/ikcrypth/status/2109947627697471589">on X</a></blockquote>
+            </div>
+            <figcaption><small>Reference B · Atmosphere + city</small><strong>The Cyberpunk game</strong><span>A cyberpunk game by @ikcrypth. Watch how much of the world comes from atmosphere rather than content: light, rain, neon, density, and sound. A single place, built with care, can already feel like a whole world.</span></figcaption>
+            <p class="workflow-links"><a href="https://x.com/ikcrypth/status/2109947627697471589" target="_blank" rel="noreferrer">Watch the post on X ↗</a></p>
+          </figure>
+        </div>
+      </figure>
+      <details open>
+        <summary><strong>Questions to bring to both games</strong><span>Play like a designer, not only a player</span></summary>
+        <ul>
+          <li>What is the player doing in the <strong>first 30 seconds</strong>? How do you learn the controls?</li>
+          <li>What makes you want to <strong>keep going</strong>: curiosity, story, a goal, the view?</li>
+          <li>Where did AI clearly help, and where can you feel a <strong>human making choices</strong>?</li>
+          <li>If you had only five weeks, <strong>what would you cut</strong>?</li>
+        </ul>
+      </details>
+    </section>
+
+    <section class="suggested-workflows" id="routes" aria-labelledby="routes-title">
+      <h2 id="routes-title">Choose your route</h2>
+      <p>All routes can earn full marks. Choose by what you already know, what your computer can run, and the kind of game you want. <strong>If you are unsure, start with the browser.</strong> You can move a working idea into an engine later.</p>
+      <figure class="a1-figure">
+        <figcaption><strong>Figure 2 · Five ways to build it</strong><span>From no install at all to a full game engine. Green is the recommended starting point.</span></figcaption>
+        <div class="a3-routes">
+          <div class="a3-route is-start">
+            <svg viewBox="0 0 44 44" aria-hidden="true"><rect x="4" y="8" width="36" height="28" rx="5" fill="#fff" stroke="#1a7f4b" stroke-width="2"/><path d="M4 15h36" stroke="#1a7f4b" stroke-width="2"/><circle cx="9" cy="11.5" r="1.4" fill="#1a7f4b"/><circle cx="13.5" cy="11.5" r="1.4" fill="#1a7f4b"/><path d="M17 31l5-9 4 6 3-4 5 7z" fill="#9fd5b4"/></svg>
+            <small>ROUTE 1</small><strong>Browser</strong><span>Ask AI for one HTML file with Three.js or Phaser. No install. Easiest to share.</span>
+          </div>
+          <div class="a3-route">
+            <svg viewBox="0 0 44 44" aria-hidden="true"><rect x="6" y="6" width="32" height="32" rx="6" fill="#fff" stroke="#535075" stroke-width="2"/><rect x="12" y="20" width="8" height="12" fill="#8c83e8"/><rect x="24" y="14" width="8" height="18" fill="#c6c0f5"/><circle cx="16" cy="15" r="3" fill="#535075"/></svg>
+            <small>ROUTE 2</small><strong>Godot</strong><span>Free, light, open source. Great for 2D and simple 3D on any laptop.</span>
+          </div>
+          <div class="a3-route">
+            <svg viewBox="0 0 44 44" aria-hidden="true"><path d="M22 5l15 8.5v17L22 39 7 30.5v-17z" fill="#fff" stroke="#535075" stroke-width="2" stroke-linejoin="round"/><path d="M7 13.5L22 22l15-8.5M22 22v17" stroke="#535075" stroke-width="2" stroke-linejoin="round" fill="none"/><path d="M22 22l15-8.5v17L22 39z" fill="#c6c0f5"/></svg>
+            <small>ROUTE 3</small><strong>Unity</strong><span>The biggest tutorial ecosystem. 3D, 2D, mobile, and VR. WebGL builds play on itch.io.</span>
+          </div>
+          <div class="a3-route">
+            <svg viewBox="0 0 44 44" aria-hidden="true"><rect x="5" y="7" width="34" height="30" rx="6" fill="#1b2140"/><path d="M5 30l10-10 8 8 6-5 10 9v1a4 4 0 0 1-4 4H9a4 4 0 0 1-4-4z" fill="#8c83e8"/><circle cx="30" cy="15" r="4" fill="#ffd27a"/></svg>
+            <small>ROUTE 4</small><strong>Unreal</strong><span>The highest-end visuals, if you already know it. Heavy install, strong GPU, no web export.</span>
+          </div>
+          <div class="a3-route">
+            <svg viewBox="0 0 44 44" aria-hidden="true"><path d="M10 34l18-18" stroke="#535075" stroke-width="3" stroke-linecap="round"/><path d="M29 7l1.6 4.4L35 13l-4.4 1.6L29 19l-1.6-4.4L23 13l4.4-1.6zM36 22l.9 2.1 2.1.9-2.1.9-.9 2.1-.9-2.1-2.1-.9 2.1-.9zM16 8l.9 2.1L19 11l-2.1.9L16 14l-.9-2.1L13 11l2.1-.9z" fill="#d6a12a"/></svg>
+            <small>ROUTE 5</small><strong>AI game maker</strong><span>Prompt-to-game platforms such as Rosebud. Fastest start, least control.</span>
+          </div>
+        </div>
+      </figure>
+      <div class="a3-tablewrap">
+        <table class="a3-table">
+          <thead><tr><th scope="col">Route</th><th scope="col">How AI helps</th><th scope="col">Things to know</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">1 · Browser</th><td>Ask Claude (or another assistant) for a game as a <strong>single HTML file</strong> using Three.js (3D) or Phaser / canvas (2D), then open it in your browser and iterate.</td><td>Nothing to install. Past ~1,500 lines a single file gets hard to manage; then move to Claude Code or Cursor with separate files.</td></tr>
+            <tr><th scope="row">2 · Godot</th><td>AI writes GDScript and explains scene setup. Claude Code or Cursor can edit your project folder directly, and free community <strong>Godot MCP servers</strong> let the AI read your real scene tree instead of guessing node names.</td><td>Free, small download. Exports to Web, Windows, macOS, and Android. Ask for <strong>Godot 4</strong> code explicitly; older Godot 3 examples are common online.</td></tr>
+            <tr><th scope="row">3 · Unity</th><td>AI writes C# scripts and walks you through editor steps. Unity's AI Assistant includes an <strong>MCP server</strong> that connects Claude Code or Cursor to the Unity Editor; community MCP plugins exist too.</td><td>Free Personal licence, bigger install. Builds for WebGL, Windows, macOS, Android, and Quest. Use Unity 6 and state your version in prompts.</td></tr>
+            <tr><th scope="row">4 · Unreal</th><td>AI explains Blueprint graphs step by step, writes C++, and helps debug. Expect to do more clicking yourself.</td><td>Very large install; needs a strong GPU. Submit a Windows / macOS build plus video. Not recommended as a first engine on this timeline.</td></tr>
+            <tr><th scope="row">5 · AI game maker</th><td>The platform builds and hosts the game from your descriptions.</td><td>Document clearly what <em>you</em> directed and changed, since that is what we grade.</td></tr>
+            <tr><th scope="row">Also welcome</th><td>Twine (interactive fiction) or Ren'Py (visual novels), with AI-generated art, music, and voice.</td><td>Make sure the player makes real choices, not only clicks "next".</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="workflow-tip"><strong>Check access before you commit.</strong> Features, credits, and availability vary by account and region. If Claude is not available to you, Cursor, GitHub Copilot, Trae, and other assistants work with the same workflow. A paid or heavier tool does not earn higher marks.</p>
+    </section>
+
+    <section class="suggested-workflows" id="workflow" aria-labelledby="workflow-title">
+      <h2 id="workflow-title">Baseline workflow · seven stages, six weeks</h2>
+      <p>A tested path from nothing to a finished game. Follow it as written if you are new to games, or adapt it if you have experience. The dates are a suggested pace before the deadline.</p>
+      <figure class="a1-figure">
+        <figcaption><strong>Figure 3 · The whole journey</strong><span>Design first, art late, playtest before polish.</span></figcaption>
+        <ol class="a3-flow">
+          <li><small>STAGE 01</small><em>Oct 16–25</em><strong>Design</strong><span>One page: pitch, feeling, core action, ending, scope.</span></li>
+          <li><small>STAGE 02</small><em>Oct 16–25</em><strong>Set up</strong><span>Project folder, GAME.md, versions, empty scene runs.</span></li>
+          <li><small>STAGE 03</small><em>Oct 26–Nov 1</em><strong>Grey-box</strong><span>Plain shapes. Start, core action, end. Is it fun?</span></li>
+          <li><small>STAGE 04</small><em>Nov 2–8</em><strong>Assets</strong><span>Images, sprites, 3D models in one consistent style.</span></li>
+          <li><small>STAGE 05</small><em>Nov 9–15</em><strong>Sound + UI</strong><span>Music, effects, title screen, instructions, ending.</span></li>
+          <li><small>STAGE 06</small><em>Nov 16–22</em><strong>Playtest</strong><span>Two players, no help. Fix the biggest problem.</span></li>
+          <li><small>STAGE 07</small><em>Nov 23–30</em><strong>Publish</strong><span>Build, upload, test the link, record, write report.</span></li>
+        </ol>
+      </figure>
+
+      <details open>
+        <summary><strong>1. Write a one-page design document</strong><span>Week 1 · decide what the game is before any code</span></summary>
+        <p>Answer these in one page. AI can help you draft it with <a href="#prompts">Prompt 1</a>, but the answers must be yours.</p>
+        <ul>
+          <li><strong>One sentence:</strong> "A game where you ___ in order to ___."</li>
+          <li><strong>Feeling:</strong> three words for what the player should feel (e.g. lonely, curious, hopeful).</li>
+          <li><strong>Core action:</strong> the one thing the player does again and again: walk and talk, jump, aim, match, choose.</li>
+          <li><strong>Start, middle, end:</strong> how the game opens, what changes, how it finishes.</li>
+          <li><strong>Scope:</strong> list every scene, character, item, and mechanic. Then cut the list in half.</li>
+          <li><strong>Look and sound:</strong> a mood board of 6–10 images and 2–3 tracks or sounds. These are references only, not for use in the game.</li>
+        </ul>
+        <p class="a3-check">✓ Done when: you can explain the game to a classmate in 30 seconds, and you have chosen a route.</p>
+      </details>
+
+      <details>
+        <summary><strong>2. Set up a project that AI can work with</strong><span>Week 1 · ten minutes now saves hours later</span></summary>
+        <ul>
+          <li><strong>Create one project folder</strong> and keep everything in it: code, assets, notes, screenshots.</li>
+          <li><strong>Add a <code>GAME.md</code> file</strong> with your one-page design plus "rules for the AI": engine and version, file structure, art style, and what not to change. Paste it at the start of every new chat, or keep it in the project root where Claude Code and Cursor will read it. Claude Code also reads a file named <code>CLAUDE.md</code> automatically.</li>
+          <li><strong>Save versions.</strong> Use Git (GitHub Desktop is the easy way), or copy the folder with a date before every big change. When the AI breaks something, you will want to go back.</li>
+          <li><strong>Engine routes:</strong> install the engine, create an empty project, and make sure you can press Play and see an empty scene <em>before</em> asking the AI for anything.</li>
+          <li><strong>Optional, for Godot or Unity:</strong> connect an MCP server so Claude Code or Cursor can see your scene and editor. Follow the guide for the one you choose, and skip it if setup takes more than an hour.</li>
+        </ul>
+        <p class="a3-check">✓ Done when: an empty project runs, and <code>GAME.md</code> exists.</p>
+      </details>
+
+      <details>
+        <summary><strong>3. Build an ugly, playable grey-box</strong><span>Week 2 · test the fun before the art</span></summary>
+        <p>Use plain shapes only: cubes, capsules, rectangles. Ask for the smallest version with a title screen, the core action, and an ending (<a href="#prompts">Prompt 2</a>). Then work in short loops.</p>
+        <figure class="a1-figure" style="margin:20px 0">
+          <figcaption><strong>Figure 4 · The iteration loop</strong><span>Small steps, run every time, save what works.</span></figcaption>
+          <div class="a3-loop">
+            <svg viewBox="0 0 460 330" role="img" aria-label="A loop of five steps: describe one change, AI writes it, run the game, report back what happened, save a version, then back to describe"><defs><marker id="a3-arrow" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#8c83e8"/></marker></defs><path d="M291.0 62.7 A150 112 0 0 1 344.9 93.0" fill="none" stroke="#8c83e8" stroke-width="2.5" marker-end="url(#a3-arrow)"/><path d="M379.9 161.1 A150 112 0 0 1 354.4 227.6" fill="none" stroke="#8c83e8" stroke-width="2.5" marker-end="url(#a3-arrow)"/><path d="M245.7 276.4 A150 112 0 0 1 214.3 276.4" fill="none" stroke="#8c83e8" stroke-width="2.5" marker-end="url(#a3-arrow)"/><path d="M105.6 227.6 A150 112 0 0 1 80.1 161.1" fill="none" stroke="#8c83e8" stroke-width="2.5" marker-end="url(#a3-arrow)"/><path d="M115.1 93.0 A150 112 0 0 1 169.0 62.7" fill="none" stroke="#8c83e8" stroke-width="2.5" marker-end="url(#a3-arrow)"/><rect x="142.0" y="35.0" width="176" height="36" rx="18" fill="#eef0fc" stroke="#d7d9e2"/><text x="230.0" y="58.0" text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="13" font-weight="650" fill="#1d1d1f">1 · Describe ONE change</text><rect x="308.7" y="112.4" width="128" height="36" rx="18" fill="#f1ecfb" stroke="#d7d9e2"/><text x="372.7" y="135.4" text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="13" font-weight="650" fill="#1d1d1f">2 · AI writes it</text><rect x="250.2" y="237.6" width="136" height="36" rx="18" fill="#eaf5ef" stroke="#d7d9e2"/><text x="318.2" y="260.6" text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="13" font-weight="650" fill="#1d1d1f">3 · Run the game</text><rect x="77.8" y="237.6" width="128" height="36" rx="18" fill="#fff5e5" stroke="#d7d9e2"/><text x="141.8" y="260.6" text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="13" font-weight="650" fill="#1d1d1f">4 · Report back</text><rect x="13.3" y="112.4" width="148" height="36" rx="18" fill="#fde8ef" stroke="#d7d9e2"/><text x="87.3" y="135.4" text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="13" font-weight="650" fill="#1d1d1f">5 · Save a version</text><text x="230" y="161" text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="15" font-weight="700" fill="#535075">Play after</text><text x="230" y="181" text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="15" font-weight="700" fill="#535075">every change</text></svg>
+            <ul>
+              <li><strong>One change per request.</strong> "Add double jump" is good. "Add double jump, enemies, a menu, and better lighting" usually breaks things.</li>
+              <li><strong>Report errors exactly.</strong> Copy the full error from the browser console (F12) or the engine console, and say what you did just before it (<a href="#prompts">Prompt 4</a>).</li>
+              <li><strong>Report feelings, too.</strong> "The jump feels floaty and the camera lags" is useful information.</li>
+              <li><strong>Ask for a tuning panel:</strong> on-screen sliders (Inspector fields in Unity, exported variables in Godot) for speed, jump height, fog, and light, so you can tune the feel yourself.</li>
+              <li><strong>Engine routes:</strong> when the AI says "create a node" or "attach a script", ask for numbered click-by-click steps for your exact version.</li>
+            </ul>
+          </div>
+        </figure>
+        <p class="a3-check">✓ Done when: a friend can play from start to end with grey boxes and understands what to do.</p>
+      </details>
+
+      <details>
+        <summary><strong>4. Generate assets and fit them into the game</strong><span>Week 3 · one style, replaced one piece at a time</span></summary>
+        <p>Replace grey boxes one at a time, starting with what the player looks at most. Consistency matters more than detail.</p>
+        <figure class="a1-figure" style="margin:20px 0">
+          <figcaption><strong>Figure 5 · From idea to in-game 3D asset</strong><span>A beautiful preview is not yet a game-ready model; the check step is where most problems are caught.</span></figcaption>
+          <div class="a1-flow-row"><div class="a1-node"><small>01 · CONCEPT</small><strong>Clean image</strong><span>One object, plain background, three-quarter view, your shared style words.</span></div><span class="a1-arrow" aria-hidden="true">→</span><div class="a1-node"><small>02 · IMAGE → 3D</small><strong>Tripo · Meshy · Hunyuan3D</strong><span>Export GLB or FBX. Try auto-rigging for characters.</span></div><span class="a1-arrow" aria-hidden="true">→</span><div class="a1-node"><small>03 · CHECK + IMPORT</small><strong>Blender or engine</strong><span>Scale, which way is up, polygon count, stray background geometry.</span></div></div>
+          <div class="a1-finish" style="margin-top:14px"><span aria-hidden="true">↓</span><strong>LIGHT IT</strong><span>Lighting, fog, and colour do more for atmosphere than adding more models.</span></div>
+        </figure>
+        <ul>
+          <li><strong>2D games:</strong> generate characters, items, and backgrounds with any image tool from Assignment 1, reusing one style reference and palette. Ask for transparent backgrounds for sprites, and keep the same size and camera angle for every sprite.</li>
+          <li><strong>Simple animation:</strong> generate 2–4 frames per action and have the AI assemble a sprite sheet, or animate in code with squash, bob, and rotation.</li>
+          <li><strong>Start small:</strong> try the scene with only 5–10 good assets before generating more.</li>
+        </ul>
+        <p class="a3-check">✓ Done when: everything visible matches one style, and you have recorded where each asset came from.</p>
+      </details>
+
+      <details>
+        <summary><strong>5. Add sound and frame the experience</strong><span>Week 4 · sound often does more for mood than graphics</span></summary>
+        <ul>
+          <li><strong>Music:</strong> generate a loop that matches your three feeling words (e.g. Suno). Ask for a version that loops cleanly, or fade it in code.</li>
+          <li><strong>Effects:</strong> footsteps, pickups, doors, and UI clicks make a game feel responsive. Generate them (e.g. ElevenLabs sound effects) or use a free library with credit. Tie each one to a player action.</li>
+          <li><strong>Voice (optional):</strong> narration or a few lines of character voice can carry a story game.</li>
+          <li><strong>Title screen, short instructions, and an ending screen.</strong> A player who does not understand the controls in 10 seconds will stop.</li>
+        </ul>
+        <p class="a3-check">✓ Done when: someone can start, understand the controls, hear the game respond, and reach an ending.</p>
+      </details>
+
+      <details>
+        <summary><strong>6. Watch at least two people play</strong><span>Week 5 · the most useful hour of the project</span></summary>
+        <ul>
+          <li>Give them the game with no explanation. <strong>Do not help.</strong> Watch and take notes.</li>
+          <li>Write down where they get <strong>stuck</strong>, where they get <strong>bored</strong>, and where they <strong>smile or say "oh"</strong>.</li>
+          <li>Afterwards, ask only: "What was the game about?" and "What would you change?"</li>
+          <li>Fix the biggest problem first. Usually it is an unclear goal, controls that feel bad, or a game that is too long.</li>
+        </ul>
+        <p class="a3-check">✓ Done when: you have made at least one change because of what you saw, with before and after screenshots.</p>
+      </details>
+
+      <details>
+        <summary><strong>7. Build, publish, record, report</strong><span>Week 6 · leave three days for this, not one night</span></summary>
+        <ul>
+          <li><strong>Browser:</strong> upload the HTML (zipped with its asset files) to <strong>itch.io</strong> as an HTML game, or host on GitHub Pages or Vercel.</li>
+          <li><strong>Godot:</strong> Project → Export. Install export templates, then export Web (for itch.io) or Windows / macOS.</li>
+          <li><strong>Unity:</strong> File → Build Profiles. Build WebGL for itch.io, or Windows / macOS. Zip the whole build folder, not only the .exe.</li>
+          <li><strong>Unreal:</strong> package a Windows or macOS build and zip it.</li>
+          <li><strong>itch.io tip:</strong> set the page to Restricted or Draft and share the secret link if you don't want it public.</li>
+          <li><strong>Test the link on a different computer.</strong> Most broken submissions are missing files.</li>
+          <li>Record a 60–90-second gameplay video with sound (OBS Studio is free).</li>
+        </ul>
+        <p class="a3-check">✓ Done when: someone else has played from your link, and you have the video and the report.</p>
+      </details>
+    </section>
+
+    <section class="suggested-workflows" id="examples" aria-labelledby="examples-title">
+      <h2 id="examples-title">What "small enough" looks like</h2>
+      <p>Two made-up examples, one in the spirit of each reference. Both are one or a few scenes with one core action and an ending, and each fits in six weeks with time left for polish.</p>
+      <figure class="a1-figure">
+        <figcaption><strong>Figure 6 · Two example scopes</strong><span>Planning sketches, not generated outputs. Your idea can be anything.</span></figcaption>
+        <div class="a3-sketches">
+          <div>
+            <svg viewBox="0 0 480 270" role="img" aria-label="Sketch: three small floating islands in a night sky, each with a lantern, connected by a dotted path">
+              <rect width="480" height="270" fill="#1b2140"/>
+              <g fill="#fff" opacity=".8"><circle cx="40" cy="40" r="1.6"/><circle cx="120" cy="22" r="1.2"/><circle cx="210" cy="50" r="1.5"/><circle cx="300" cy="28" r="1.2"/><circle cx="420" cy="44" r="1.7"/><circle cx="455" cy="120" r="1.2"/><circle cx="25" cy="160" r="1.3"/><circle cx="250" cy="120" r="1"/></g>
+              <path d="M95 175 Q170 120 240 150 T390 110" fill="none" stroke="#c6c0f5" stroke-width="2" stroke-dasharray="4 7"/>
+              <g><ellipse cx="95" cy="190" rx="55" ry="16" fill="#6f9a6a"/><path d="M40 190 Q95 250 150 190z" fill="#8a7a6a"/><rect x="92" y="160" width="4" height="22" fill="#d8cbb0"/><circle cx="94" cy="156" r="8" fill="#ffd27a"/><circle cx="94" cy="156" r="18" fill="#ffd27a" opacity=".18"/></g>
+              <g><ellipse cx="240" cy="160" rx="45" ry="13" fill="#6f9a6a"/><path d="M195 160 Q240 210 285 160z" fill="#8a7a6a"/><rect x="238" y="133" width="4" height="20" fill="#d8cbb0"/><circle cx="240" cy="129" r="7" fill="#5a5f7d"/></g>
+              <g><ellipse cx="390" cy="120" rx="50" ry="14" fill="#6f9a6a"/><path d="M340 120 Q390 175 440 120z" fill="#8a7a6a"/><rect x="388" y="92" width="4" height="21" fill="#d8cbb0"/><circle cx="390" cy="88" r="7" fill="#5a5f7d"/></g>
+              <circle cx="120" cy="182" r="6" fill="#f0e6d2"/><rect x="116" y="187" width="8" height="10" rx="3" fill="#4f7a5a"/>
+            </svg>
+            <small>Like Reference A · story + exploration</small>
+            <strong>Lantern Keeper</strong>
+            <p>Walk across three tiny floating islands to relight their lanterns; each one reveals a short memory. <strong>Core action:</strong> walk, then interact. <strong>Ends</strong> when the third lantern lights up the sky. <strong>Assets:</strong> 3 islands, 1 character, 3 lanterns, 1 music loop, 6 sound effects.</p>
+          </div>
+          <div>
+            <svg viewBox="0 0 480 270" role="img" aria-label="Sketch: a rainy neon street at night, a small figure in the foreground, a patrol drone with a light cone, and a train station sign at the far end">
+              <rect width="480" height="270" fill="#14121f"/>
+              <path d="M0 270L190 120h100L480 270z" fill="#26233a"/>
+              <g fill="#1d1a2c"><rect x="0" y="20" width="150" height="190"/><rect x="330" y="10" width="150" height="200"/></g>
+              <g><rect x="30" y="50" width="70" height="22" rx="4" fill="#ff4fa3" opacity=".85"/><rect x="370" y="60" width="80" height="18" rx="4" fill="#4fd8ff" opacity=".8"/><rect x="40" y="100" width="40" height="14" rx="3" fill="#b394ff" opacity=".7"/><rect x="390" y="110" width="44" height="40" rx="4" fill="#ffd27a" opacity=".55"/></g>
+              <rect x="205" y="98" width="70" height="22" rx="4" fill="#4fd8ff" opacity=".9"/><text x="240" y="114" text-anchor="middle" font-family="-apple-system,'Segoe UI',sans-serif" font-size="11" font-weight="700" fill="#14121f">STATION</text>
+              <g><ellipse cx="300" cy="150" rx="16" ry="6" fill="#8c83e8"/><path d="M300 156L262 230h76z" fill="#ff4fa3" opacity=".18"/></g>
+              <g stroke="#9aa3d6" stroke-width="1" opacity=".5"><path d="M20 10l-6 18M70 40l-6 18M130 5l-6 18M180 60l-6 18M240 20l-6 18M300 45l-6 18M360 15l-6 18M420 50l-6 18M460 5l-6 18M100 130l-6 18M210 150l-6 18M380 170l-6 18M60 200l-6 18M440 210l-6 18"/></g>
+              <circle cx="200" cy="222" r="7" fill="#f0e6d2"/><rect x="195" y="229" width="10" height="16" rx="3" fill="#4fd8ff"/>
+              <g fill="#ff4fa3" opacity=".25"><ellipse cx="65" cy="250" rx="40" ry="5"/><ellipse cx="410" cy="252" rx="45" ry="5"/></g>
+            </svg>
+            <small>Like Reference B · atmosphere + city</small>
+            <strong>Last Train</strong>
+            <p>Cross one rainy neon street in under three minutes to catch the last train, avoiding patrol drones. <strong>Core action:</strong> move and hide. <strong>Ends</strong> at the station, caught or not. <strong>Assets:</strong> 1 street, 1 character, 1 drone, rain and neon lighting, ambience, and a chase cue.</p>
+          </div>
+        </div>
+      </figure>
+    </section>
+
+    <section class="suggested-workflows" id="prompts" aria-labelledby="prompts-title">
+      <h2 id="prompts-title">Prompt templates · copy and fill in the brackets</h2>
+      <p>These work with Claude and most other assistants. Good prompts give context, constraints, and the <em>feeling</em> you want, not just a list of features.</p>
+      <details open>
+        <summary><strong>Prompt 1 · Design document</strong><span>Week 1</span></summary>
+<pre>I'm making a small original game for a course. It should take 3–10 minutes to play.
+Idea: [one sentence]
+Feeling: [three words]
+Platform/engine: [browser with Three.js | Godot 4 | Unity 6 | ...]
+My experience: [none / some coding / I know Unity ...]
+
+Help me write a one-page design document with: one-sentence pitch, core action,
+controls, start / middle / end, a list of every scene, character, item and mechanic,
+and an art + sound direction. Then suggest what to CUT so I can finish in 5 weeks.
+Ask me questions where my idea is unclear instead of inventing answers.</pre>
+      </details>
+      <details>
+        <summary><strong>Prompt 2 · Grey-box prototype</strong><span>Week 2</span></summary>
+<pre>Here is my design document: [paste GAME.md]
+
+Build the smallest playable version using only simple shapes (no art yet).
+It must have: a title screen, the core action ([describe]), and an ending screen.
+[Browser] Put everything in ONE html file using [Three.js | Phaser] from a CDN.
+[Godot]   Godot 4.x, GDScript. Tell me which nodes/scenes to create, step by step.
+[Unity]   Unity 6, C#. Tell me which GameObjects and components to create, step by step.
+Add an on-screen debug panel with sliders for: [move speed, jump height, fog ...].
+Keep the code simple and commented so I can understand it.</pre>
+      </details>
+      <details>
+        <summary><strong>Prompt 3 · One change at a time</strong><span>Every day</span></summary>
+<pre>The game currently works. Make ONE change: [describe].
+The feeling I want: [e.g. the jump should feel light and floaty but controllable].
+Don't change anything else. Tell me exactly which files/parts you changed.</pre>
+      </details>
+      <details>
+        <summary><strong>Prompt 4 · Fixing a bug</strong><span>Whenever something breaks</span></summary>
+<pre>Something broke. What I did: [steps].
+What I expected: [...]. What happened: [...].
+Full error message from the console: [paste].
+Explain the cause in one sentence, then give the smallest fix.</pre>
+      </details>
+      <details>
+        <summary><strong>Prompt 5 · An asset that fits</strong><span>Week 3</span></summary>
+<pre>[Image tool] A [object] for a [genre] game, [art style words from GAME.md],
+[palette], single object centered on a plain light-grey background, three-quarter view,
+even lighting, no text, no shadow on the ground.
+
+[Then in Claude] I imported a GLB/PNG called [name] into [engine].
+Help me place it at the right scale, replace the grey box called [name],
+and keep the existing collisions and code working.</pre>
+      </details>
+      <details>
+        <summary><strong>Prompt 6 · Atmosphere pass</strong><span>Weeks 4–6</span></summary>
+<pre>The game works. Do an atmosphere pass toward these feelings: [three words].
+Suggest 5 changes in lighting, fog, colour, camera, and ambient sound, from
+biggest effect to smallest. Implement only #1 and #2, and add sliders for them.</pre>
+      </details>
+    </section>
+
+    <section class="suggested-workflows" id="technical-resources" aria-labelledby="resources-title">
+      <h2 id="resources-title">Tools · use what you can access</h2>
+      <p>You only need one tool per row. Paid tools do not earn higher marks.</p>
+      <div class="a3-tablewrap">
+        <table class="a3-table">
+          <thead><tr><th scope="col">Job</th><th scope="col">Options</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">AI coding (chat)</th><td>Claude, or any assistant you can access. Best for single-file browser games and for explaining engine steps.</td></tr>
+            <tr><th scope="row">AI coding (project)</th><td>Claude Code, Cursor, GitHub Copilot, Trae. These read and edit your whole project folder.</td></tr>
+            <tr><th scope="row">Engines</th><td>Browser (Three.js, Phaser), Godot 4, Unity 6, Unreal Engine 5; Twine or Ren'Py for narrative games.</td></tr>
+            <tr><th scope="row">Engine–AI bridges</th><td>Unity's MCP server (in the Unity AI Assistant) or community Unity MCP plugins; community Godot MCP servers. Optional.</td></tr>
+            <tr><th scope="row">AI game makers</th><td>Rosebud and similar prompt-to-game platforms.</td></tr>
+            <tr><th scope="row">Images, sprites, textures</th><td>Any <a href="../assignment-1/#suggested-workflows">Assignment 1 tool</a>: Jimeng, LiblibAI, RunningHub, Lovart, ComfyUI, and others.</td></tr>
+            <tr><th scope="row">3D models</th><td>Tripo, Meshy, Hunyuan3D (some also run as ComfyUI templates). Blender (free) for cleanup.</td></tr>
+            <tr><th scope="row">Music, effects, voice</th><td>Suno for music; ElevenLabs or similar for effects and voice; free sound libraries with credit.</td></tr>
+            <tr><th scope="row">Publishing</th><td>itch.io, GitHub Pages, Vercel; OBS Studio for recording gameplay.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <details>
+        <summary><strong>Connect to the lectures</strong><span>Ideas from earlier weeks that help here</span></summary>
+        <ul>
+          <li><strong>Lecture 02:</strong> Keeping images consistent, now applied to every asset in your game.</li>
+          <li><strong>Lecture 05:</strong> Style, authorship, and credit. What makes your game yours?</li>
+          <li><strong>Lecture 07:</strong> Real-time generation and motion.</li>
+          <li><strong>Lecture 10 (Nov 3):</strong> Interactive world models and explorable art, a preview of where games may go next.</li>
+        </ul>
+      </details>
+    </section>
+
+    <section class="suggested-workflows" id="tips" aria-labelledby="tips-title">
+      <h2 id="tips-title">Quick tips and common pitfalls</h2>
+      <div class="a3-tips">
+        <div>
+          <h3>Do</h3>
+          <ul>
+            <li>Finish a tiny version first, then grow it.</li>
+            <li>Play after every change, and save working versions.</li>
+            <li>Describe feelings as well as features: "the rain should make the street feel lonely".</li>
+            <li>Ask the AI to explain code you don't understand. You will need to explain your choices.</li>
+            <li>Keep your prompt and screenshot log as you go; then your report is half written.</li>
+          </ul>
+        </div>
+        <div>
+          <h3>Avoid</h3>
+          <ul>
+            <li>Starting with an open world, many levels, or multiplayer.</li>
+            <li>Asking for many features in one prompt.</li>
+            <li>Accepting the AI's first idea of the game. AI can make a working game quickly, but it can't tell you whether it's fun.</li>
+            <li>Importing dozens of mismatched generated assets.</li>
+            <li>Leaving the build and upload to the last night.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <p class="assignment-note"><strong>Keep it simple.</strong> Use any accessible tools. Paid subscriptions and prior coding experience are not required. We value a clear experience, thoughtful choices, honest playtesting, and what you learned along the way.</p>
+
+    <section class="suggested-workflows" id="discussion" aria-labelledby="discussion-title">
+      <h2 id="discussion-title">Questions and comments</h2>
+      <p>Ask about the brief, share an idea or a work-in-progress link, or help a classmate. The teaching team will reply here, and answers help everyone, so please check whether your question has already been asked. For anything private, such as an extension, please email the teaching team instead.</p>
+      <div class="qa" data-qa-page="assignment-3"></div>
+    </section>
+  </section>
+  <footer><div class="footer-title">AMCC 5160</div><p>Assignment 3 · Make Your Own Game</p><div class="footer-links"><a href="../#assessment">← Course assessment</a><a href="https://canvas.ust.hk/courses/71833" target="_blank" rel="noreferrer">HKUST Canvas ↗</a><a href="#top">Back to top ↑</a></div></footer>
+</main>
+<script src="../discussion/config.js?v=20261016" defer></script>
+<script src="../discussion/discussion.js?v=20261016" defer></script>
+<script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+</body>
+</html>
