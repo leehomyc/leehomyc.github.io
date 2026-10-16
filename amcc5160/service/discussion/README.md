@@ -4,28 +4,21 @@ Powers the "Questions and comments" section at the bottom of `/amcc5160/assignme
 
 Posts are stored in a Google Sheet you own. Students need the **course access code** (the same one used for presentation sign-up) to read or post. The teaching team uses a separate **staff code** to reply with a "Teaching team" badge, pin, hide, or mark questions as answered.
 
-## One-time setup (about 10 minutes)
+## Setup
 
-1. **Create a Google Sheet**, e.g. "AMCC 5160 Q&A". Copy its ID from the URL: `docs.google.com/spreadsheets/d/<THIS PART>/edit`. The `Posts` tab is created automatically on first use.
-2. **Create an Apps Script project** at <https://script.google.com> → New project. Name it "AMCC 5160 Q&A".
-3. Paste `Code.gs` into the editor. In Project Settings, tick "Show appsscript.json", then paste `appsscript.json`.
-4. **Project Settings → Script properties**, add:
+The live service is already deployed from the Apps Script project "AMCC 5160 Q&A" in harryyang.hk@gmail.com, writing to the Google Sheet "AMCC 5160 Q&A". Its web-app URL is in `amcc5160/discussion/config.js`.
 
-   | Property | Value |
-   | --- | --- |
-   | `AMCC5160_ACCESS_CODE` | The course code students already use for sign-up |
-   | `AMCC5160_DISCUSSION_ADMIN_CODE` | A separate staff code for you and the TA (do not share with students) |
-   | `AMCC5160_DISCUSSION_SPREADSHEET_ID` | The Sheet ID from step 1 |
-   | `AMCC5160_DISCUSSION_NOTIFY_EMAIL` | *Optional.* An email address to notify on every new student post |
+**Codes live in the Sheet's Settings tab:**
 
-5. **Deploy → New deployment → Web app.** Execute as: *Me*. Who has access: *Anyone*. Authorize when asked (Sheets, plus Gmail send if you set the notify email).
-6. Copy the web-app URL (ends in `/exec`) into `amcc5160/discussion/config.js`:
+| Row | Setting | |
+| --- | --- | --- |
+| 2 | Course access code | The same code students use for presentation sign-up. Students cannot open the Q&A until this is filled in. |
+| 3 | Staff code | Generated automatically. For "Teaching team sign-in" on the page. Change it any time. |
+| 4 | Notify email (optional) | If filled in, every new student post is emailed here (approve Gmail sending the first time). |
 
-   ```js
-   window.AMCC5160_DISCUSSION_API = "https://script.google.com/macros/s/…/exec";
-   ```
+Changes take effect within about a minute. Script properties with the same names (`AMCC5160_ACCESS_CODE`, `AMCC5160_DISCUSSION_ADMIN_CODE`, `AMCC5160_DISCUSSION_NOTIFY_EMAIL`, `AMCC5160_DISCUSSION_SPREADSHEET_ID`) override the Sheet if you prefer to keep codes out of it.
 
-7. Commit and push. Until step 6 is done, the section shows "Q&A opens soon" and nothing breaks.
+**To redeploy from scratch:** create an Apps Script project, paste `Code.gs` and `appsscript.json`, run `setup` once to approve permissions, then Deploy → New deployment → Web app (Execute as: Me; Who has access: Anyone), and put the `/exec` URL in `amcc5160/discussion/config.js`.
 
 ## Using it
 

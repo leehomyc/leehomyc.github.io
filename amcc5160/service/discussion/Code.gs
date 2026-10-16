@@ -9,6 +9,7 @@ const ACCESS_CODE_PROPERTY = 'AMCC5160_ACCESS_CODE';
 const ADMIN_CODE_PROPERTY = 'AMCC5160_DISCUSSION_ADMIN_CODE';
 const SPREADSHEET_PROPERTY = 'AMCC5160_DISCUSSION_SPREADSHEET_ID';
 const NOTIFY_EMAIL_PROPERTY = 'AMCC5160_DISCUSSION_NOTIFY_EMAIL';
+const DEFAULT_SPREADSHEET_ID = '1NnzkRahCdM4tQa25x-zT4GqqISYc0gluVvsfmf06wmE'; // "AMCC 5160 Q&A" Sheet
 const PAGE_URLS = { 'assignment-3': 'https://hyang.org/amcc5160/assignment-3/#discussion' };
 const MAX_NAME = 60;
 const MAX_MESSAGE = 2000;
@@ -119,7 +120,7 @@ function handleModerate(request, page) {
 }
 
 function notifyStaff(page, name, kind, message) {
-  const email = PropertiesService.getScriptProperties().getProperty(NOTIFY_EMAIL_PROPERTY);
+  const email = PropertiesService.getScriptProperties().getProperty(NOTIFY_EMAIL_PROPERTY) || settingValue(NOTIFY_EMAIL_PROPERTY, 'Notify email (optional)');
   if (!email) return;
   try {
     const link = PAGE_URLS[page] || 'https://hyang.org/amcc5160/';
@@ -132,17 +133,72 @@ function notifyStaff(page, name, kind, message) {
   } catch (error) { console.error('Notification failed', error); }
 }
 
+function spreadsheet() {
+  const spreadsheetId = PropertiesService.getScriptProperties().getProperty(SPREADSHEET_PROPERTY) || DEFAULT_SPREADSHEET_ID;
+  if (spreadsheetId) return SpreadsheetApp.openById(spreadsheetId);
+  const active = SpreadsheetApp.getActiveSpreadsheet();
+  if (!active) throw new Error('No spreadsheet: bind this script to a Sheet or set ' + SPREADSHEET_PROPERTY + '.');
+  return active;
+}
+
 function postsSheet() {
-  const spreadsheetId = PropertiesService.getScriptProperties().getProperty(SPREADSHEET_PROPERTY);
-  if (!spreadsheetId) throw new Error('Missing spreadsheet ID property.');
-  const spreadsheet = SpreadsheetApp.openById(spreadsheetId);
-  let sheet = spreadsheet.getSheetByName(POSTS_SHEET_NAME);
+  const book = spreadsheet();
+  let sheet = book.getSheetByName(POSTS_SHEET_NAME);
   if (!sheet) {
-    sheet = spreadsheet.insertSheet(POSTS_SHEET_NAME);
+    sheet = book.insertSheet(POSTS_SHEET_NAME);
     sheet.getRange(1, 1, 1, COLUMN_COUNT).setValues([HEADERS]);
     sheet.setFrozenRows(1);
   }
   return sheet;
+}
+
+// Settings tab: codes can live here instead of in script properties, so the instructor can edit them in the Sheet.
+// Row 2: course access code (same as presentation sign-up). Row 3: staff code (generated automatically if empty).
+// Row 4: optional email for new-post notifications.
+const SETTINGS_SHEET_NAME = 'Settings';
+const SETTINGS_ROWS = { 'Course access code': 2, 'Staff code': 3, 'Notify email (optional)': 4 };
+
+function settingsSheet() {
+  const book = spreadsheet();
+  let sheet = book.getSheetByName(SETTINGS_SHEET_NAME);
+  if (!sheet) {
+    sheet = book.insertSheet(SETTINGS_SHEET_NAME);
+    sheet.getRange(1, 1, 4, 3).setValues([
+      ['Setting', 'Value', 'Notes'],
+      ['Course access code', '', 'Type the same code students use for presentation sign-up.'],
+      ['Staff code', generateStaffCode(), 'For you and the TA: "Teaching team sign-in" on the page. Do not share with students. Change it any time.'],
+      ['Notify email (optional)', '', 'If filled in, every new student post is emailed here.']
+    ]);
+    sheet.setFrozenRows(1);
+    sheet.getRange('A1:C1').setFontWeight('bold');
+    sheet.setColumnWidth(1, 190); sheet.setColumnWidth(2, 240); sheet.setColumnWidth(3, 520);
+  }
+  return sheet;
+}
+
+function settingValue(propertyName, label) {
+  const fromProperty = PropertiesService.getScriptProperties().getProperty(propertyName);
+  if (fromProperty) return fromProperty;
+  const cache = CacheService.getScriptCache();
+  const cacheKey = 'setting-' + label;
+  const cached = cache.get(cacheKey);
+  if (cached !== null) return cached;
+  let value = String(settingsSheet().getRange(SETTINGS_ROWS[label], 2).getValue() || '').trim();
+  if (label === 'Staff code' && !value) {
+    value = generateStaffCode();
+    settingsSheet().getRange(SETTINGS_ROWS[label], 2).setValue(value);
+  }
+  cache.put(cacheKey, value, 60);
+  return value;
+}
+
+function generateStaffCode() { return 'STAFF-' + Utilities.getUuid().replace(/-/g, '').slice(0, 10).toUpperCase(); }
+
+// Run once from the editor to create the tabs and approve permissions.
+function setup() {
+  settingsSheet();
+  postsSheet();
+  return 'Ready: fill in the course access code on the Settings tab.';
 }
 
 function dataRows(sheet) { const last = sheet.getLastRow(); return last < 2 ? [] : sheet.getRange(2, 1, last - 1, COLUMN_COUNT).getValues(); }
@@ -155,8 +211,8 @@ function publicPost(row, isStaff) {
   return post;
 }
 function truthy(value) { return value === true || String(value).toUpperCase() === 'TRUE'; }
-function validAccessCode(value) { const expected = PropertiesService.getScriptProperties().getProperty(ACCESS_CODE_PROPERTY); return Boolean(expected) && Boolean(value) && safeEqual(clean(value, 100).toUpperCase(), expected.toUpperCase()); }
-function validAdminCode(value) { const expected = PropertiesService.getScriptProperties().getProperty(ADMIN_CODE_PROPERTY); return Boolean(expected) && Boolean(value) && safeEqual(clean(value, 100), expected); }
+function validAccessCode(value) { const expected = settingValue(ACCESS_CODE_PROPERTY, 'Course access code'); return Boolean(expected) && Boolean(value) && safeEqual(clean(value, 100).toUpperCase(), expected.toUpperCase()); }
+function validAdminCode(value) { const expected = settingValue(ADMIN_CODE_PROPERTY, 'Staff code'); return Boolean(expected) && Boolean(value) && safeEqual(clean(value, 100), expected); }
 function clean(value, max) { return String(value || '').replace(/[\u0000-\u001F\u007F]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, max); }
 function cleanMultiline(value, max) { return String(value || '').replace(/\r\n?/g, '\n').replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, '').replace(/\n{4,}/g, '\n\n\n').trim().slice(0, max); }
 function hashText(value) { const bytes = Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, String(value), Utilities.Charset.UTF_8); return bytes.map(byte => ('0' + ((byte + 256) % 256).toString(16)).slice(-2)).join(''); }
