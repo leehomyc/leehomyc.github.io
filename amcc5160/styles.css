@@ -504,9 +504,11 @@ footer > p { margin: 8px 0 46px; color: #86868b; }
 @media (max-width: 620px) { .tip-card { border-radius: 26px; } .tip-columns { grid-template-columns: 1fr; gap: 20px; } .tip-intro { font-size: 16px; } }
 
 /* Questions & comments board */
-.qa-section { background: #fff; }
-.qa-heading { display: grid; grid-template-columns: 1.1fr .9fr; gap: 40px; align-items: end; margin-bottom: 44px; }
-.qa-heading > p { margin: 0; color: var(--muted); font-size: 18px; line-height: 1.5; }
+.qa-block { scroll-margin-top: 80px; margin-top: 56px; padding-top: 48px; border-top: 1px solid var(--line); }
+.qa-title { margin: 0; font-size: clamp(34px, 4vw, 54px); line-height: 1; letter-spacing: -.05em; }
+.qa-title span { color: #86868b; }
+.qa-heading { display: grid; grid-template-columns: 1.1fr .9fr; gap: 40px; align-items: end; margin-bottom: 32px; }
+.qa-heading > p { margin: 0; color: var(--muted); font-size: 17px; line-height: 1.5; }
 .qa-layout { display: grid; grid-template-columns: minmax(280px, 380px) 1fr; gap: 24px; align-items: start; }
 .qa-form { position: sticky; top: 78px; display: grid; gap: 16px; padding: 26px; border-radius: 26px; background: linear-gradient(160deg, #f3f0ff, #f8f9ff 70%); border: 1px solid rgba(110,92,255,.14); }
 .qa-kind { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; padding: 5px; border-radius: 14px; background: rgba(255,255,255,.75); }
