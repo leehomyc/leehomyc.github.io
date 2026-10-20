@@ -98,11 +98,11 @@ Here is that pipeline run on a real clip: the Veo 3 sailor we just heard. On top
 
 中文讲解：把流程用在一个真实片段上：刚才听到的Veo 3老水手。上方是原始波形，每秒16000个数字，8秒就是12.8万个；下方是对数梅尔频谱图，每秒100帧、80个从低到高的频带。它是可以“读”的：水平条纹是元音的谐波，竖直的爆发是辅音和浪花，词间的嘶嘶声是风和海。这也是音频模型借用图像模型思路的原因：频谱图就是声音的图像。
 
-## 17. Why the two streams are not the same size
+## 17. Worked example: 10 seconds of picture vs sound
 
-This explains a design choice you'll see everywhere. Remember last week's worked example: five seconds of 720p video is about a hundred and eight thousand tokens, so roughly twenty thousand tokens per second. Sound, after the audio VAE, is about twenty-five per second. Hundreds of times fewer. So it would be wasteful to give both modalities the same network. LTX-2 uses about fourteen billion parameters for the video stream and five billion for the audio stream. Engineers call this an asymmetric dual-stream model. The intuition for art students: picture is dense in space, sound is dense in time.
+A worked example with real numbers, in the same style as last week's pixels-to-tokens slide. Ten seconds of 720p video at twenty-four frames per second is two hundred and forty frames. The video VAE compresses four times in time, so about sixty-one latent frames. Each latent frame becomes three thousand six hundred tokens, which we computed last week, so about two hundred and twenty thousand video tokens. The same ten seconds of sound, after LTX-2's audio VAE, is two hundred and fifty tokens. Roughly eight hundred and eighty times fewer. That is why LTX-2 gives picture a fourteen-billion-parameter stream and sound a five-billion one. Picture is dense in space; sound is dense in time.
 
-中文讲解：这解释了一个常见的设计选择。回忆上周的例子：5秒720p视频约10.8万个token，即每秒约2万个；声音经过音频VAE后每秒只有约25个，少了几百倍。所以两种模态用同样大的网络很浪费。LTX-2的视频流约140亿参数、音频流约50亿，称为“非对称双流”。直观理解：画面在空间上密集，声音在时间上密集。
+中文讲解：用真实数字算一遍（与上周“像素到token”同一风格）：10秒720p、24帧/秒是240帧；视频VAE时间上压缩4倍，约61个潜帧；每个潜帧3600个token（上周算过），约22万个视频token。同样10秒的声音经过LTX-2音频VAE只有250个token，少约880倍。所以LTX-2给画面140亿参数的流、给声音50亿参数的流。画面在空间上密集，声音在时间上密集。
 
 ## 18. Four ways to wire sound and picture
 
@@ -152,7 +152,7 @@ How do you actually build one? The Kandinsky 6.0 report, published this month, s
 
 中文讲解：怎么构建？本月发布的Kandinsky 6.0报告给出了多数团队采用的配方：一、复用强大的视频模型；二、先单独训练音频塔做文本到音频，学会世界的声音（约4000万条音轨）；三、两塔合并，在有意义声音的视频片段上联合训练（过滤后约700万段）；四、微调、强化学习，并蒸馏到10步以加速。百度NAVA从Wan 2.2出发走了类似路线。
 
-## 26. Data: the hardest part is finding clips that are in sync
+## 26. Data: finding clips that are really in sync
 
 The unglamorous truth is that data is the hardest part. Most online video is bad training data for sound: music pasted over vlogs, dubbed films, voice-overs where the speaker isn't on screen. Teams use a sync score, a model that checks whether lips match speech, to throw those clips away. Kandinsky keeps a clip with a person on screen only if its sync score is high. Second, captions now describe the sound, not just the image, with spoken words in quotation marks, which is why your prompts should do the same. Third, multi-speaker scenes need to know who is talking: NAVA attaches a voice fingerprint to each line of speech so two characters keep two different voices. For scale, NAVA trained on about fifteen million clips using a hundred and sixty H100 GPUs for about four weeks.
 
