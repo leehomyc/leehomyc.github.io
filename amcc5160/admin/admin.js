@@ -14,9 +14,10 @@
   const lecture4Questions = ["What does a diffusion model start from, and how does it produce an image?", "What is the difference between text-to-video and image-to-video generation?", "What does temporal consistency mean in a generated video? Give one simple example.", "What is a mask used for in local image or video editing?", "Choose one of the three readings. Briefly state its main idea and give one reason you agree or disagree with it."];
   const lecture5Questions = ["Technique: What does it mean to “customize” a text-to-image model? Use one example from the lecture, such as the moongate or Jun-Yan's dog.", "Technique: What is a LoRA, and why do artists like to use it?", "Art: Why was the illustrator Greg Rutkowski unhappy that his name was used so often in AI image prompts? Give one reason.", "Art + technique: What is concept ablation? Name one thing from the lecture that a model was made to forget.", "Reading reflection: Choose one of the three readings. State its main idea in one sentence, then say whether you agree or disagree, and why."];
   const lecture7Questions = ["Technique: What is “drift” in long AI video, and what did Helios do about it?", "Technique: Wan-Dancer plans at two levels. What does each level do, and why does that help a minute-long dance?", "Art: Name four things an artist should keep so that an AI artwork can survive the tool that made it.", "Art: Who could claim to be the choreographer of a Wan-Dancer video? Name two candidates and give one reason for each.", "Reading reflection: Choose one of the three readings. State its main idea in one sentence, then say whether you agree or disagree, and why."];
-  const quizQuestions = item => item.quizId === 'week-07' ? lecture7Questions : item.quizId === 'week-05' ? lecture5Questions : item.quizId === 'week-04' ? lecture4Questions : item.quizId === 'week-03' ? lecture3Questions : item.quizId === 'week-02' ? (item.answers.length === 12 ? legacyLecture2Questions : lecture2Questions) : item.quizId === 'week-01' ? questions : [];
+  const lecture8Questions = ["Technique: What is the difference between adding sound after a video is made and generating audio and video jointly? Give one advantage of the joint approach.", "Technique: Name two of the three tricks that make real-time talking avatars possible, and say in one sentence what each one saves.", "Art: Michel Chion called it “synchresis”. What is it, and why does it make lip-sync errors so noticeable to an audience?", "Art: You want a generated character to say one line sadly, then angrily. Name two things besides the words that you would direct, and how you would ask the model for them.", "Reading reflection: Choose one of the three readings. State its main idea in one sentence, then say whether you agree or disagree, and why."];
+  const quizQuestions = item => item.quizId === 'week-08' ? lecture8Questions : item.quizId === 'week-07' ? lecture7Questions : item.quizId === 'week-05' ? lecture5Questions : item.quizId === 'week-04' ? lecture4Questions : item.quizId === 'week-03' ? lecture3Questions : item.quizId === 'week-02' ? (item.answers.length === 12 ? legacyLecture2Questions : lecture2Questions) : item.quizId === 'week-01' ? questions : [];
   const quizMax = item => item.quizId === 'week-02' && item.answers.length === 12 ? 30 : 20;
-  let selectedQuizId = 'week-07';
+  let selectedQuizId = 'week-08';
   let adminCode = '';
   let records = { signups: [], quizzes: [] };
   let students = [];
@@ -147,7 +148,7 @@
   }
 
   function renderQuizSession() {
-    const ids = [...new Set(['week-01', 'week-02', 'week-03', 'week-04', 'week-05', 'week-07', ...records.quizzes.map(item => item.quizId || '')])]
+    const ids = [...new Set(['week-01', 'week-02', 'week-03', 'week-04', 'week-05', 'week-07', 'week-08', ...records.quizzes.map(item => item.quizId || '')])]
       .sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
     const select = $('#quiz-session');
     select.innerHTML = ids.map(id => `<option value="${escapeHtml(id)}">${escapeHtml(quizSessionLabel(id))}</option>`).join('');
