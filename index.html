@@ -541,6 +541,183 @@
             }
         }
 
+        /* At-a-glance stats + recognition (top of page) */
+        .glance {
+            max-width: 1100px;
+            margin: 10px auto 0;
+            padding: 0 24px;
+        }
+
+        .stats-strip {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            background: var(--card-bg);
+            border-radius: 24px;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+        }
+
+        .stat-tile {
+            color: var(--text-primary);
+            padding: 26px 16px 22px;
+            text-align: center;
+            text-decoration: none;
+            border-left: 1px solid rgba(0, 0, 0, 0.06);
+            transition: background 0.3s var(--ease-apple);
+        }
+
+        .stat-tile:first-child {
+            border-left: none;
+        }
+
+        a.stat-tile:hover {
+            background: #fafafc;
+            text-decoration: none;
+        }
+
+        .stat-value {
+            display: block;
+            font-size: clamp(26px, 3.2vw, 36px);
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            line-height: 1.1;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .stat-unit {
+            font-size: 0.5em;
+            font-weight: 600;
+            letter-spacing: 0;
+            margin-right: 4px;
+            vertical-align: 0.35em;
+            color: var(--text-secondary);
+        }
+
+        .stat-value {
+            white-space: nowrap;
+        }
+
+        .stat-label {
+            display: block;
+            color: var(--text-secondary);
+            font-size: 13px;
+            font-weight: 600;
+            margin-top: 6px;
+        }
+
+        .stat-sub {
+            display: block;
+            color: var(--text-secondary);
+            font-size: 12px;
+            margin-top: 2px;
+        }
+
+        .recognition-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .recognition-card {
+            background: var(--card-bg);
+            border-radius: 24px;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.05);
+            padding: 28px 30px 24px;
+            text-align: left;
+        }
+
+        .recognition-card h3 {
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+            margin-bottom: 14px;
+            color: var(--text-primary);
+        }
+
+        .recognition-list {
+            list-style: none;
+        }
+
+        .recognition-list li {
+            display: grid;
+            grid-template-columns: 74px 1fr;
+            gap: 12px;
+            padding: 8px 0;
+            border-top: 1px solid rgba(0, 0, 0, 0.06);
+            font-size: 15px;
+            line-height: 1.45;
+            color: var(--text-primary);
+        }
+
+        .recognition-list li:first-child {
+            border-top: none;
+        }
+
+        .recognition-year {
+            color: var(--text-secondary);
+            font-size: 13px;
+            font-weight: 600;
+            padding-top: 2px;
+        }
+
+        .recognition-note {
+            color: var(--text-secondary);
+        }
+
+        @media (max-width: 900px) {
+            .stats-strip {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .stat-tile:nth-child(4) {
+                border-left: none;
+            }
+
+            .stat-tile:nth-child(n+4) {
+                border-top: 1px solid rgba(0, 0, 0, 0.06);
+            }
+
+            .recognition-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 520px) {
+            .glance {
+                padding: 0 16px;
+            }
+
+            .stats-strip {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .stat-tile:nth-child(4) {
+                border-left: 1px solid rgba(0, 0, 0, 0.06);
+            }
+
+            .stat-tile:nth-child(odd) {
+                border-left: none;
+            }
+
+            .stat-tile:nth-child(n+3) {
+                border-top: 1px solid rgba(0, 0, 0, 0.06);
+            }
+
+            .stat-tile:last-child {
+                grid-column: span 2;
+            }
+
+            .recognition-card {
+                padding: 22px 20px 18px;
+            }
+
+            .recognition-list li {
+                grid-template-columns: 62px 1fr;
+                font-size: 14px;
+            }
+        }
+
         .paper-title {
             font-size: 22px;
             font-weight: 600;
@@ -869,6 +1046,93 @@
         </div>
     </section>
 
+    <!-- At a glance: stats, honours, media -->
+    <section class="glance" aria-label="At a glance">
+        <div class="stats-strip" data-aos="fade-up">
+            <a class="stat-tile" href="https://scholar.google.com/citations?hl=en&user=jpIFgToAAAAJ">
+                <span class="stat-value" id="glance-citations">8,270</span>
+                <span class="stat-label">Citations</span>
+                <span class="stat-sub">Google Scholar</span>
+            </a>
+            <a class="stat-tile" href="https://scholar.google.com/citations?hl=en&user=jpIFgToAAAAJ">
+                <span class="stat-value" id="glance-h-index">36</span>
+                <span class="stat-label">h-index</span>
+                <span class="stat-sub">Google Scholar</span>
+            </a>
+            <a class="stat-tile" href="#research">
+                <span class="stat-value">68</span>
+                <span class="stat-label">Scholarly works</span>
+                <span class="stat-sub">62 peer-reviewed</span>
+            </a>
+            <a class="stat-tile" href="#funding">
+                <span class="stat-value"><span class="stat-unit">HKD</span>2.14M</span>
+                <span class="stat-label">Competitive funding</span>
+                <span class="stat-sub">8 awards at HKUST</span>
+            </a>
+            <a class="stat-tile" href="https://github.com/leehomyc/">
+                <span class="stat-value" id="glance-stars">3.7k</span>
+                <span class="stat-label">GitHub stars</span>
+                <span class="stat-sub" id="glance-stars-sub">across 29 repos</span>
+            </a>
+        </div>
+
+        <div class="recognition-grid">
+            <div class="recognition-card" data-aos="fade-up">
+                <h3>Honours &amp; Awards</h3>
+                <ul class="recognition-list">
+                    <li><span class="recognition-year">2026</span><span><a
+                                href="https://ais.hkust.edu.hk/whats-happening/news/prof-harry-yang-receives-cvpr-2026-compute-transparency-champion-award">Compute
+                                Transparency Champion</a>, CVPR 2026 <span class="recognition-note">(DenDiff)</span></span></li>
+                    <li><span class="recognition-year">2026</span><span>Gold Reviewer, ICML 2026</span></li>
+                    <li><span class="recognition-year">2026</span><span>AUA Scholars Award <span
+                                class="recognition-note">(academic visit to Tsinghua)</span></span></li>
+                    <li><span class="recognition-year">2024</span><span>Most Valuable Builder, Binance / BNB Chain
+                            ecosystem</span></li>
+                    <li><span class="recognition-year">2022</span><span>Distinguished Alumni Award, USC Signal and
+                            Image Processing Institute</span></li>
+                    <li><span class="recognition-year">2020</span><span>Kaggle DeepFake Detection Challenge, top 10 of
+                            2,275 teams</span></li>
+                    <li><span class="recognition-year">2018</span><span>IBM Best Paper Award, IEEE ISBA</span></li>
+                    <li><span class="recognition-year">2016–19</span><span>USC Annenberg Fellowship</span></li>
+                    <li><span class="recognition-year">2010</span><span>Star of Tomorrow, Microsoft Research Asia</span>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="recognition-card" data-aos="fade-up" data-aos-delay="100">
+                <h3>In the Media</h3>
+                <ul class="recognition-list">
+                    <li><span class="recognition-year">Oct 2026</span><span><a
+                                href="https://theprimary.com">The Primary News</a> <span
+                                class="recognition-note">— interview on FD-OPSD and efficient video
+                                reasoning</span></span></li>
+                    <li><span class="recognition-year">Sep 2026</span><span><a
+                                href="https://mp.weixin.qq.com/s/rl5LOTFCJX_2Flh0JpRLgA">机器之心 (Synced)</a> <span
+                                class="recognition-note">— feature on Evidence-Carrying Multimodal
+                                Agents</span></span></li>
+                    <li><span class="recognition-year">Aug 2026</span><span><a
+                                href="https://ais.hkust.edu.hk/whats-happening/news/prof-harry-yang-receives-cvpr-2026-compute-transparency-champion-award">HKUST
+                                AIS News</a> <span class="recognition-note">— CVPR 2026 Compute Transparency
+                                Champion</span></span></li>
+                    <li><span class="recognition-year">Dec 2025</span><span><a
+                                href="https://amp.scmp.com/business/china-business/article/3329156/hong-kong-monetary-authority-picks-second-batch-banks-tech-firms-test-ai-finance">South
+                                China Morning Post</a> <span class="recognition-note">— HKMA GenAI Sandbox
+                                selection</span></span></li>
+                    <li><span class="recognition-year">Jun 2025</span><span><a
+                                href="https://www.cnn.com/business/alpha-bot-humanoid-robots-china-embodied-ai-hnk-spc">CNN</a>
+                            <span class="recognition-note">— on embodied AI: capability, cost, safety and
+                                adoption</span></span></li>
+                    <li><span class="recognition-year">Jun 2025</span><span>RTHK <span class="recognition-note">— Cantonese
+                                interview on GenAI, video generation and ArtTech</span></span></li>
+                    <li><span class="recognition-year">Apr 2024</span><span><a
+                                href="https://s.foresightnews.pro/article/detail/62560">Foresight News</a> <span
+                                class="recognition-note">— interview on AI, decentralised inference and
+                                startups</span></span></li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
     <!-- Highlights (Bento) -->
     <h2 class="section-title" id="highlights">Highlights</h2>
     <div class="bento-grid">
@@ -1013,7 +1277,7 @@
         </div>
 
         <!-- Grants -->
-        <div class="bento-card span-6" style="background: linear-gradient(135deg, #e0f2fe 0%, #f0f9ff 100%);"
+        <div class="bento-card span-6" id="funding" style="background: linear-gradient(135deg, #e0f2fe 0%, #f0f9ff 100%); scroll-margin-top: 80px;"
             data-aos="fade-up">
             <div class="card-label" style="color: #0369a1;">Funding</div>
             <div class="card-title" style="color: #0c4a6e;">Major Grants &amp; Awards</div>
@@ -1063,11 +1327,11 @@
     <h2 class="section-title" id="research">Selected Research</h2>
     <div class="scholar-metrics" data-aos="fade-up" aria-label="Google Scholar metrics">
         <a class="scholar-metric" href="https://scholar.google.com/citations?hl=en&user=jpIFgToAAAAJ">
-            <span class="scholar-metric-value" id="scholar-citations">7,575</span>
+            <span class="scholar-metric-value" id="scholar-citations">8,270</span>
             <span class="scholar-metric-label">Citations</span>
         </a>
         <a class="scholar-metric" href="https://scholar.google.com/citations?hl=en&user=jpIFgToAAAAJ">
-            <span class="scholar-metric-value" id="scholar-h-index">34</span>
+            <span class="scholar-metric-value" id="scholar-h-index">36</span>
             <span class="scholar-metric-label">h-index</span>
         </a>
     </div>
@@ -2240,7 +2504,8 @@
 
         async function loadGitHubStars() {
             const elements = document.querySelectorAll('.gh-stars[data-repo]');
-            if (!elements.length) return;
+            const glanceStars = document.getElementById('glance-stars');
+            if (!elements.length && !glanceStars) return;
 
             try {
                 const cacheVersion = new Date().toISOString().slice(0, 10);
@@ -2248,6 +2513,12 @@
                 if (!res.ok) return;
 
                 const data = await res.json();
+                const counts = Object.values(data.stars || {}).filter(Number.isFinite);
+                if (glanceStars && counts.length) {
+                    glanceStars.textContent = formatStars(counts.reduce((a, b) => a + b, 0));
+                    const sub = document.getElementById('glance-stars-sub');
+                    if (sub) sub.textContent = `across ${counts.length} repos`;
+                }
                 elements.forEach((el) => {
                     const stars = data.stars?.[el.dataset.repo];
                     if (!Number.isFinite(stars)) return;
@@ -2261,16 +2532,20 @@
             const metrics = window.scholarMetrics;
             if (!metrics) return;
 
-            const citations = document.getElementById('scholar-citations');
-            const hIndex = document.getElementById('scholar-h-index');
             const formatter = new Intl.NumberFormat('en-US');
 
-            if (citations && Number.isFinite(metrics.citations)) {
-                citations.textContent = formatter.format(metrics.citations);
+            if (Number.isFinite(metrics.citations)) {
+                ['scholar-citations', 'glance-citations'].forEach((id) => {
+                    const el = document.getElementById(id);
+                    if (el) el.textContent = formatter.format(metrics.citations);
+                });
             }
 
-            if (hIndex && Number.isFinite(metrics.hIndex)) {
-                hIndex.textContent = formatter.format(metrics.hIndex);
+            if (Number.isFinite(metrics.hIndex)) {
+                ['scholar-h-index', 'glance-h-index'].forEach((id) => {
+                    const el = document.getElementById(id);
+                    if (el) el.textContent = formatter.format(metrics.hIndex);
+                });
             }
         }
 
