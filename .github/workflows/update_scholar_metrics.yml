@@ -38,7 +38,7 @@ jobs:
         run: |
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-          git add scholar_metrics.js
+          git add scholar_metrics.js index.html
           if git diff --staged --quiet; then
             exit 0
           fi
@@ -53,3 +53,4 @@ jobs:
           done
           echo "Unable to push Scholar metrics after three attempts." >&2
           exit 1
+

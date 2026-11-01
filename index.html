@@ -1050,7 +1050,7 @@
     <section class="glance" aria-label="At a glance">
         <div class="stats-strip" data-aos="fade-up">
             <a class="stat-tile" href="https://scholar.google.com/citations?hl=en&user=jpIFgToAAAAJ">
-                <span class="stat-value" id="glance-citations">8,270</span>
+                <span class="stat-value" id="glance-citations">8,314</span>
                 <span class="stat-label">Citations</span>
                 <span class="stat-sub">Google Scholar</span>
             </a>
@@ -1327,7 +1327,7 @@
     <h2 class="section-title" id="research">Selected Research</h2>
     <div class="scholar-metrics" data-aos="fade-up" aria-label="Google Scholar metrics">
         <a class="scholar-metric" href="https://scholar.google.com/citations?hl=en&user=jpIFgToAAAAJ">
-            <span class="scholar-metric-value" id="scholar-citations">8,270</span>
+            <span class="scholar-metric-value" id="scholar-citations">8,314</span>
             <span class="scholar-metric-label">Citations</span>
         </a>
         <a class="scholar-metric" href="https://scholar.google.com/citations?hl=en&user=jpIFgToAAAAJ">
@@ -2440,7 +2440,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
     <script src="scholar_metrics.js"></script>
     <script>
-        AOS.init({
+        if (window.AOS) AOS.init({
             duration: 1000,
             once: true,
             easing: 'cubic-bezier(0.25, 1, 0.5, 1)',
