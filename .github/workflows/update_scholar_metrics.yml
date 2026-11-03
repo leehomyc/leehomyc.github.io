@@ -2,7 +2,7 @@ name: Update Scholar Metrics
 
 on:
   schedule:
-    - cron: '17 * * * *'
+    - cron: '17 3 * * 0'
   workflow_dispatch:
 
 concurrency:
