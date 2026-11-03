@@ -2,7 +2,6 @@
 import json
 import re
 import sys
-import time
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -68,25 +67,25 @@ def update_page_metrics(metrics):
 
 
 def main():
-    for attempt in range(3):
-        try:
-            response = requests.get(
-                PROFILE_URL,
-                headers={"User-Agent": "Mozilla/5.0"},
-                timeout=30,
-            )
-            response.raise_for_status()
-            metrics = parse_metric_rows(response.text)
-            if not all(isinstance(metrics.get(key), int) and metrics[key] > 0
-                       for key in ("citations", "hIndex")):
-                raise ValueError("Could not find valid citation and h-index rows")
-            break
-        except (requests.RequestException, ValueError) as exc:
-            print(f"Scholar refresh attempt {attempt + 1}/3 failed: {exc}", file=sys.stderr)
-            if attempt < 2:
-                time.sleep(5 * (attempt + 1))
-    else:
-        print("::error::Scholar refresh failed; preserving the last verified metrics and timestamp.", file=sys.stderr)
+    try:
+        response = requests.get(
+            PROFILE_URL,
+            headers={"User-Agent": "Mozilla/5.0"},
+            timeout=30,
+        )
+        response.raise_for_status()
+        metrics = parse_metric_rows(response.text)
+        if not all(isinstance(metrics.get(key), int) and metrics[key] > 0
+                   for key in ("citations", "hIndex")):
+            raise ValueError("Could not find valid citation and h-index rows")
+    except requests.HTTPError as exc:
+        if exc.response is not None and exc.response.status_code in (403, 429):
+            print("::warning::Google Scholar blocked this refresh; preserving the last verified metrics and timestamp.", file=sys.stderr)
+            return 0
+        print(f"::error::Scholar refresh failed: {exc}", file=sys.stderr)
+        return 1
+    except (requests.RequestException, ValueError) as exc:
+        print(f"::error::Scholar refresh failed: {exc}", file=sys.stderr)
         return 1
 
     update_page_metrics(metrics)
