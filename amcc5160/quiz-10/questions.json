@@ -1,0 +1,7 @@
+[
+  "Technique: A model that only replays its training images can get an excellent FID. Why? What does that tell you about what FID cannot measure?",
+  "Technique: One signed image is re-saved and its Content Credentials disappear. Another is edited with its manifest kept, and it reads as invalid. What does each result tell you, and why does a missing credential not prove an image is fake?",
+  "Art: Choose one work made with AI (an image, a video or a film). Critique it in four steps, one sentence each: describe, analyze, interpret, then judge.",
+  "Art: You direct the Madison museum. Do you show Diffuse Control? Give one reason, and say which question you are answering: is it AI, is it good, is it fair, or is it allowed?",
+  "Reading reflection: Choose one of the three readings. State its main idea in one sentence, then name one claim you would want to test and how you would test it."
+]

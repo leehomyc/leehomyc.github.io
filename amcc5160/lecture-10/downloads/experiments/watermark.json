@@ -1,0 +1,16 @@
+{
+ "psnr_embed": 33.92254629973296,
+ "acc": {
+  "no change": 1.0,
+  "JPEG q90": 0.671875,
+  "JPEG q50": 0.609375,
+  "resize 50%": 0.578125,
+  "resize 50% + back": 1.0,
+  "crop 10% edges": 0.65625,
+  "rotate 2°": 0.5625,
+  "brighten 20%": 0.3125,
+  "blur σ=2": 0.609375,
+  "flip": 0.40625
+ },
+ "unmarked_control": 0.5
+}

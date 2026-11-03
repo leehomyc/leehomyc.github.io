@@ -1,0 +1,118 @@
+{
+ "active_manifest": "urn:c2pa:eefa6f62-52b7-4c1f-aab3-af6f1ad23580",
+ "manifests": {
+  "urn:c2pa:eefa6f62-52b7-4c1f-aab3-af6f1ad23580": {
+   "claim_generator_info": [
+    {
+     "name": "AMCC5160 class demo",
+     "version": "1.0",
+     "org.contentauth.c2pa_rs": "0.91.3"
+    }
+   ],
+   "title": "Starry Night (class demo)",
+   "instance_id": "xmp.iid:ac5922be-89ea-426a-8078-fcc45b0f15d6",
+   "thumbnail": {
+    "format": "image/jpeg",
+    "identifier": "self#jumbf=/c2pa/urn:c2pa:eefa6f62-52b7-4c1f-aab3-af6f1ad23580/c2pa.assertions/c2pa.thumbnail.claim"
+   },
+   "assertions": [
+    {
+     "label": "c2pa.actions.v2",
+     "data": {
+      "actions": [
+       {
+        "action": "c2pa.created",
+        "softwareAgent": {
+         "name": "Demo model v1"
+        },
+        "digitalSourceType": "http://cv.iptc.org/newscodes/digitalsourcetype/trainedAlgorithmicMedia"
+       }
+      ]
+     }
+    },
+    {
+     "label": "c2pa.training-mining",
+     "data": {
+      "entries": {
+       "c2pa.ai_generative_training": {
+        "use": "notAllowed"
+       }
+      }
+     }
+    }
+   ],
+   "signature_info": {
+    "alg": "Es256",
+    "issuer": "AMCC5160 Class Demo",
+    "common_name": "Harry Yang class demo",
+    "cert_serial_number": "321166186377055966347568320947913014647530561325"
+   },
+   "label": "urn:c2pa:eefa6f62-52b7-4c1f-aab3-af6f1ad23580",
+   "claim_version": 2
+  }
+ },
+ "validation_status": [
+  {
+   "code": "signingCredential.untrusted",
+   "url": "self#jumbf=/c2pa/urn:c2pa:eefa6f62-52b7-4c1f-aab3-af6f1ad23580/c2pa.signature",
+   "explanation": "signing certificate untrusted"
+  }
+ ],
+ "validation_results": {
+  "activeManifest": {
+   "success": [
+    {
+     "code": "claimSignature.insideValidity",
+     "url": "self#jumbf=/c2pa/urn:c2pa:eefa6f62-52b7-4c1f-aab3-af6f1ad23580/c2pa.signature",
+     "explanation": "claim signature valid"
+    },
+    {
+     "code": "claimSignature.validated",
+     "url": "self#jumbf=/c2pa/urn:c2pa:eefa6f62-52b7-4c1f-aab3-af6f1ad23580/c2pa.signature",
+     "explanation": "claim signature valid"
+    },
+    {
+     "code": "assertion.hashedURI.match",
+     "url": "self#jumbf=/c2pa/urn:c2pa:eefa6f62-52b7-4c1f-aab3-af6f1ad23580/c2pa.assertions/c2pa.hash.data",
+     "explanation": "hashed uri matched: self#jumbf=c2pa.assertions/c2pa.hash.data"
+    },
+    {
+     "code": "assertion.hashedURI.match",
+     "url": "self#jumbf=/c2pa/urn:c2pa:eefa6f62-52b7-4c1f-aab3-af6f1ad23580/c2pa.assertions/c2pa.thumbnail.claim",
+     "explanation": "hashed uri matched: self#jumbf=c2pa.assertions/c2pa.thumbnail.claim"
+    },
+    {
+     "code": "assertion.hashedURI.match",
+     "url": "self#jumbf=/c2pa/urn:c2pa:eefa6f62-52b7-4c1f-aab3-af6f1ad23580/c2pa.assertions/c2pa.actions.v2",
+     "explanation": "hashed uri matched: self#jumbf=c2pa.assertions/c2pa.actions.v2"
+    },
+    {
+     "code": "assertion.hashedURI.match",
+     "url": "self#jumbf=/c2pa/urn:c2pa:eefa6f62-52b7-4c1f-aab3-af6f1ad23580/c2pa.assertions/c2pa.training-mining",
+     "explanation": "hashed uri matched: self#jumbf=c2pa.assertions/c2pa.training-mining"
+    },
+    {
+     "code": "assertion.dataHash.match",
+     "url": "self#jumbf=/c2pa/urn:c2pa:eefa6f62-52b7-4c1f-aab3-af6f1ad23580/c2pa.assertions/c2pa.hash.data",
+     "explanation": "data hash valid"
+    }
+   ],
+   "informational": [
+    {
+     "code": "signingCredential.ocsp.skipped",
+     "url": "self#jumbf=/c2pa/urn:c2pa:eefa6f62-52b7-4c1f-aab3-af6f1ad23580/c2pa.signature",
+     "explanation": "OCSP fetching skipped"
+    }
+   ],
+   "failure": [
+    {
+     "code": "signingCredential.untrusted",
+     "url": "self#jumbf=/c2pa/urn:c2pa:eefa6f62-52b7-4c1f-aab3-af6f1ad23580/c2pa.signature",
+     "explanation": "signing certificate untrusted"
+    }
+   ]
+  },
+  "specVersion": "2.4.0"
+ },
+ "validation_state": "Valid"
+}

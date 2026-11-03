@@ -1,0 +1,65 @@
+{
+ "signed": {
+  "manifest": true,
+  "state": "Valid",
+  "issues": [
+   "signingCredential.untrusted"
+  ],
+  "failures": [
+   "signingCredential.untrusted"
+  ],
+  "success": [
+   "claimSignature.insideValidity",
+   "claimSignature.validated",
+   "assertion.hashedURI.match",
+   "assertion.hashedURI.match",
+   "assertion.hashedURI.match",
+   "assertion.hashedURI.match",
+   "assertion.dataHash.match"
+  ],
+  "title": "Starry Night (class demo)",
+  "signer": "AMCC5160 Class Demo",
+  "assertions": [
+   "c2pa.actions.v2",
+   "c2pa.training-mining"
+  ]
+ },
+ "re-save JPEG": {
+  "manifest": false,
+  "err": "ManifestNotFound: no JUMBF data found"
+ },
+ "screenshot (PNG)": {
+  "manifest": false,
+  "err": "ManifestNotFound: no JUMBF data found"
+ },
+ "resize for upload": {
+  "manifest": false,
+  "err": "ManifestNotFound: no JUMBF data found"
+ },
+ "edit pixels, keep manifest": {
+  "manifest": true,
+  "state": "Invalid",
+  "issues": [
+   "signingCredential.untrusted",
+   "assertion.dataHash.mismatch"
+  ],
+  "failures": [
+   "signingCredential.untrusted",
+   "assertion.dataHash.mismatch"
+  ],
+  "success": [
+   "claimSignature.insideValidity",
+   "claimSignature.validated",
+   "assertion.hashedURI.match",
+   "assertion.hashedURI.match",
+   "assertion.hashedURI.match",
+   "assertion.hashedURI.match"
+  ],
+  "title": "Starry Night (class demo)",
+  "signer": "AMCC5160 Class Demo",
+  "assertions": [
+   "c2pa.actions.v2",
+   "c2pa.training-mining"
+  ]
+ }
+}
