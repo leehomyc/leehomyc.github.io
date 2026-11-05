@@ -174,6 +174,7 @@ function render(rdt){
   for(const h of G.hazards){ // boss ground hazards: pulsing telegraph ring, then a burning disc
     if(h.tele>0){const q=1-h.tele/h.T;useRing(h.x,1.15,h.y,h.r,h.col,.35+q*.5);useRing(h.x,1.15,h.y,h.r*q,h.col,.8);glow(h.x,4,h.y,h.col,h.r*1.6*q,.6)}
     else{useRing(h.x,1.15,h.y,h.r,h.col,.7);glow(h.x,5,h.y,h.col,h.r*2.4,1.2+Math.sin(tm*9)*.3);for(let i=0;i<4;i++){const a=tm*3+i/4*TAU;glow(h.x+Math.cos(a)*h.r*.6,8+Math.sin(tm*7+i)*4,h.y+Math.sin(a)*h.r*.6,h.col,10,1.2)}}}
+  if(G.boss&&!G.boss.dead&&G.boss.exposed>0){const B=G.boss,k=G.boss.exposed;useRing(B.x,1.2,B.y,34+Math.sin(tm*14)*4,'#ffd27a',.9);for(let i=0;i<10;i++){const a=i/10*TAU+tm*4;glow(B.x+Math.cos(a)*30,16+Math.sin(tm*9+i)*5,B.y+Math.sin(a)*30,'#ffd27a',12,1.6)}}
   if(G.boss&&!G.boss.dead&&G.boss.drain>0){const B=G.boss;useRing(B.x,1.2,B.y,230,'#ff2a3a',.5+Math.sin(tm*10)*.3);useRing(B.x,1.2,B.y,222,'#ffffff',.25);for(let i=0;i<10;i++){const q=i/10;glow(B.x+(P.x-B.x)*q,8+Math.sin(tm*12+i)*3,B.y+(P.y-B.y)*q,'#ff2a3a',14,1.2)}}
   for(const nv of G.novas){const nc=nv.col||'#ff2a3a';useRing(nv.x,1.2,nv.y,nv.r,nc,.9);useRing(nv.x,1.2,nv.y,nv.r-6,'#ffffff',.5);for(let i=0;i<24;i++){const a=i/24*TAU+tm;glow(nv.x+Math.cos(a)*nv.r,8,nv.y+Math.sin(a)*nv.r,nc,12,1.4)}}
   for(const e of G.en){if(e.dead)continue;if(e.role==='charger'&&e.cw>0){const dx=e.tx-e.x,dz=e.ty-e.y,l=hyp(dx,dz)||1;for(let i=0;i<10;i++){const q=i/10;glow(e.x+dx/l*q*150,3,e.y+dz/l*q*150,'#ff5a3a',6,1.6*(1-e.cw/.6))}glow(e.x,e.r*2,e.y,'#ff5a3a',20,1.2)}

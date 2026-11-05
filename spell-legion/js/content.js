@@ -69,8 +69,8 @@ const PERKS=[
   {g:'息',zh:'内息',en:'Inner Breath',d:'内力上限 +30,回复更快',de:'+30 max qi and faster qi regen',a:P=>{P.maxMana+=30;P.regen*=1.2;P.mana=Math.min(P.maxMana,P.mana+30)}},
   {g:'命',zh:'生息',en:'Vitality',d:'生命上限 +25,并回复 25',de:'Max HP +25, heal 25',a:P=>{P.maxHp+=25;P.hp=Math.min(P.maxHp,P.hp+25)}},
   {g:'摄',zh:'摄物',en:'Lodestone',d:'拾取范围 +40%',de:'Pickup range +40%',a:P=>P.mag*=1.4},
-  {g:'疾',zh:'疾风',en:'Haste',d:'冷却时间 -10%',de:'Cooldowns -10%',a:P=>P.haste*=1.1},
-  {g:'杀',zh:'致命',en:'Deadly',d:'暴击率 +8%(双倍伤害)',de:'+8% chance of double damage',a:P=>P.crit+=.08},
+  {g:'疾',zh:'疾风',en:'Haste',d:'冷却时间 -10%',de:'Cooldowns -10%',a:P=>P.haste/=.9},
+  {g:'杀',zh:'致命',en:'Deadly',d:'暴击率 +8%(双倍伤害;超过 100% 转为暴击伤害)',de:'+8% crit chance (double damage; past 100% it raises crit damage)',a:P=>P.crit+=.08},
 ];
 const ETYPES={
   assassin:{hp:10,spd:66,dmg:6,r:5,xp:1,zh:'刺客',en:'assassin'},
@@ -84,7 +84,7 @@ const BOSS_NAME=['血魔教主','Blood Demon Patriarch'];
    Generic node effects the simulation understands:
    dmg (+12%/rank), cd (-8%/rank), count (+1 projectile/piece), pierce (+1), size (+15%/rank),
    cost (-15% qi/rank), dur (+1s/rank), knock (+50%/rank), crit (+5%/rank), life (2% lifesteal/rank), chain (15%/rank chance to arc) */
-const NODE_FX={dmg:.10,cd:.08,count:1,pierce:1,size:.15,cost:.15,dur:1,knock:.5,crit:.05,life:.02,chain:.15};
+const NODE_FX={dmg:.12,cd:.08,count:1,pierce:1,size:.15,cost:.15,dur:1,knock:.5,crit:.05,life:.02,chain:.15};
 const NODE_EN={"+1 刀气 / 级": "+1 blade qi / rank", "+1 卦符 / 级": "+1 trigram / rank", "+1 掌风 / 级": "+1 palm wave / rank", "+1 波剑雨 / 级": "+1 sword-rain wave / rank", "+1 牵连目标 / 级": "+1 chained target / rank", "+1 符箓 / 级": "+1 talisman / rank", "+1 音波 / 级": "+1 wave / rank", "+1 飞剑 / 级": "+1 flying sword / rank", "+1 鼓波 / 级": "+1 drum ring / rank", "+2 方向 / 级": "+2 directions / rank", "一次掷出两符": "Throws two talismans at once", "伤害 +12% / 级": "Damage +12% / rank", "内力消耗 -15% / 级": "Qi cost -15% / rank", "冷却 -8% / 级": "Cooldown -8% / rank", "出刀 +8% / 级": "Draw speed +8% / rank", "出手 +8% / 级": "Attack speed +8% / rank", "击退 +50% / 级": "Knockback +50% / rank", "刀光 +15% / 级": "Arc length +15% / rank", "半径 +15% / 级": "Radius +15% / rank", "吸血更多": "Stronger lifesteal", "命中回复生命": "Hits heal you", "命中有几率引发剑气跳击": "Hits may chain sword qi to another enemy", "命中有几率引发电弧": "Hits may arc lightning", "回复更多": "Heals more", "射程 +15% / 级": "Range +15% / rank", "护罩 +1s / 级": "Shield +1 s / rank", "持续 +1s / 级": "Duration +1 s / rank", "挥速 +8% / 级": "Swing speed +8% / rank", "攻速 +8% / 级": "Attack speed +8% / rank", "暴击 +5% / 级": "Crit +5% / rank", "波及范围 +15% / 级": "Reach +15% / rank", "爆裂范围 +15% / 级": "Blast radius +15% / rank", "眩晕 +1s / 级": "Stun +1 s / rank", "穿透 +1 / 级": "Pierce +1 / rank", "突进留下伤敌残影": "The lunge leaves a damaging afterimage", "范围 +15% / 级": "Area +15% / rank", "蓄满时有几率引雷": "At full charge, may call lightning", "血战伤害 +12% / 级": "Frenzy damage +12% / rank", "震地有几率引发连锁震击": "Slams may chain a second quake", "震开伤害 +12% / 级": "Shockwave damage +12% / rank", "震开范围 +15% / 级": "Shockwave radius +15% / rank", "鞭速 +8% / 级": "Lash speed +8% / rank", "鼓波命中有几率震出余波": "Drum hits may ripple an aftershock", "鼓速 +8% / 级": "Beat speed +8% / rank"};
 const N=(fx,zh,en,max,tier,d)=>({fx,zh,en,max,tier,d,de:NODE_EN[d]||d});
 const TREES={

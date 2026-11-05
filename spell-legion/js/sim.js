@@ -77,7 +77,7 @@ function rivalHurt(n,fx,fy){const R=G.rival;if(!R||R.down>0||R.inv>0)return;R.hp
 const hasR=k=>G.relics.includes(k);
 function dropRelic(x,y){const left=Object.keys(RELICS).filter(k=>!hasR(k));if(!left.length){G.goldRun+=40;return}if(G.fx.length<640)G.fx.push({k:'relic',id:pick(left),x,y,t:60,T:60})}
 function takeRelic(id){const R=RELICS[id],P=G.P;if(hasR(id)){G.goldRun+=40;showBanner('重复法宝 → 金币','Duplicate relic turned into gold',1);return}G.relics.push(id);
-  if(id==='boots')P.spd*=1.12;if(id==='feather'){G.cores++;updateCores()}if(id==='bowl')P.mag*=1.4;if(id==='chime')P.haste*=1.15;if(id==='pill'){P.maxHp+=40;P.hp+=40}if(id==='shell')P.def*=.85;
+  if(id==='boots')P.spd*=1.12;if(id==='feather'){G.cores++;updateCores()}if(id==='bowl')P.mag*=1.4;if(id==='chime')P.haste/=.85;if(id==='pill'){P.maxHp+=40;P.hp+=40}if(id==='shell')P.def*=.85;
   showBanner(`法宝:${R.zh}`,`${R.en} · ${R.de}`,2);trauma(.2);G.flash=Math.max(G.flash,.25);if(typeof SFX!=='undefined')SFX.chest();if(typeof drawSeals==='function')drawSeals();if(typeof drawRelics==='function')drawRelics()}
 /* ---------- feel ---------- */
 function trauma(n,dx,dy){G.trauma=Math.min(1,G.trauma+n);if(dx!==undefined){G.shX+=dx*n*40;G.shY+=dy*n*40}}
@@ -103,8 +103,8 @@ function fusion(s){return s&&s.els.length===2?fusKey(s.els[0],s.els[1]):null}
 /* ---------- combat ---------- */
 function hit(e,d,s,noEl,col,kx=0,ky=0){
   if(e.dead)return;
-  const P=G.P,rv=s&&s.owner==='rival',O=rv?G.rival:P;let m=d*O.dmg*(1+(O.dmgBonus||0))*(e.shred>0?1.25:1)*(!rv&&P.buff&&P.buff.k==='dmg'?1.3:1)*(s&&!SPELLS[s.id].auto?ACTIVE_MULT:1); // active skills hit much harder per cast than the normal attack: they cost qi and have cooldowns
-  const crit=SIMR()<O.crit+(s?NODE_FX.crit*nd(s,'crit'):0);if(crit)m*=2;
+  const P=G.P,rv=s&&s.owner==='rival',O=rv?G.rival:P;let m=d*O.dmg*(1+(O.dmgBonus||0))*(e.shred>0?1.25:1)*(!rv&&P.buff&&P.buff.k==='dmg'?1.3:1)*(s&&!SPELLS[s.id].auto?ACTIVE_MULT:1)*(e.type==='boss'&&e.exposed>0?1.6:1); // active skills hit much harder per cast than the normal attack: they cost qi and have cooldowns
+  const cc=O.crit+(s?NODE_FX.crit*nd(s,'crit'):0),crit=SIMR()<Math.min(1,cc);if(crit)m*=2+Math.max(0,cc-1)*2; // crit chance caps at 100%; the overflow becomes crit damage
   if(s&&!rv){const lf=nd(s,'life');if(lf)heal(m*NODE_FX.life*lf);const ch=nd(s,'chain');if(ch&&SIMR()<NODE_FX.chain*ch&&!noEl)arc(e,m*.35,s,1)}
   if(!rv&&P.frenzy>0){e.hp-=m*.4;if(s)s.dmg+=m*.4;heal(m*.03)}
   if(!rv){if(hasR('jade'))heal(m*.03);if(hasR('pearl')&&!noEl&&SIMR()<.12)arc(e,m*.4,s||G.spells[0],1);if(hasR('iron'))e.slow=Math.max(e.slow||0,.6);if(hasR('blood')&&P.hp<P.maxHp*.5){e.hp-=m*.25;if(s)s.dmg+=m*.25}}
@@ -472,11 +472,12 @@ function buildCards(q){
   if(G.spells.length<4&&G.lv>=3)CLASSES[G.cls].skills.filter(k=>!G.spells.some(s=>s.id===k)).forEach(k=>{const m=SPELLS[k];
     const card={g:m.g,c:m.col,skill:k,n:LL(m),sub:L(`按键 ${SPELL_KEYS[G.spells.length]} · ${m.cost} 内力 · 冷却 ${m.cd}s`,`key ${SPELL_KEYS[G.spells.length]} · ${m.cost} qi · ${m.cd}s cooldown`),fx:L(m.d,m.de),fxEn:'',cat:SKILL_CAT[k],isNew:1,kind:'new',a(){G.spells.push(mkSpell(k));taken(SKILL_CAT[k],2)}};pool.push(card,card)});
   G.spells.forEach(s=>(TREES[s.id]||[]).forEach((n,i)=>{if(nodeOpen(s,i))pool.push(nodeCard(s,i,handQ))}));
-  const P=G.P,perkNow={锋锐:()=>L('伤害','damage')+` ×${(P.dmg*(1+P.dmgBonus)).toFixed(2)}`,金钟罩:()=>L('减伤','damage taken')+` ${Math.round((1-P.def)*100)}%`,轻身:()=>L('移速','speed')+` ×${P.spd.toFixed(2)}`,内息:()=>L('内力','qi')+` ${P.maxMana} · +${P.regen.toFixed(1)}/s`,生息:()=>L('生命','HP')+` ${P.maxHp}`,摄物:()=>L('拾取','pickup')+` ×${P.mag.toFixed(2)}`,疾风:()=>L('冷却','cooldown')+` ×${(1/P.haste).toFixed(2)}`,致命:()=>L('暴击','crit')+` ${Math.round(P.crit*100)}%`};
+  const P=G.P,perkNow={锋锐:()=>L('伤害','damage')+` ×${(P.dmg*(1+P.dmgBonus)).toFixed(2)}`,金钟罩:()=>L('减伤','damage taken')+` ${Math.round((1-P.def)*100)}%`,轻身:()=>L('移速','speed')+` ×${P.spd.toFixed(2)}`,内息:()=>L('内力','qi')+` ${P.maxMana} · +${P.regen.toFixed(1)}/s`,生息:()=>L('生命','HP')+` ${P.maxHp}`,摄物:()=>L('拾取','pickup')+` ×${P.mag.toFixed(2)}`,疾风:()=>L('冷却','cooldown')+` ×${(1/P.haste).toFixed(2)}`,致命:()=>L('暴击','crit')+` ${Math.min(100,Math.round(P.crit*100))}%`+(P.crit>1?L(` · 暴伤 ×${(2+(P.crit-1)*2).toFixed(1)}`,` · crit dmg ×${(2+(P.crit-1)*2).toFixed(1)}`):'')};
   PERKS.forEach(p=>{const q=handQ,times=(q.k==='common'?1:q.k==='rare'?2:q.k==='epic'?3:4)*(p.zh==='致命'&&q.k==='legendary'?.75:1)|0||1;pool.push({g:p.g,c:'#efe4cd',n:LL(p)+(times>1?` ×${times}`:''),sub:'',fx:L(p.d,p.de)+(times>1?` ×${times}`:''),fxEn:L('现在:','Now: ')+perkNow[p.zh](),q,cat:PERK_CAT[p.zh]||'passive',kind:'passive',a(){for(let i=0;i<times;i++)p.a(G.P);taken(PERK_CAT[p.zh]||'passive',times)}})});
   const out=[];const used=new Set(q.exclude||[]);
   const isNew=pool.filter(p=>p.isNew);
   if(isNew.length&&[3,6,10].includes(G.lv)){const opts=isNew.filter((c,i,a)=>a.findIndex(o=>o.n===c.n)===i).sort(()=>SIMR()-.5).slice(0,2);opts.forEach(nc=>{out.push(nc);used.add(nc.n)})}
+  if(q.kind==='level'&&G.lv<=3&&!G.turnOffered){const w=G.spells[0],tree=TREES[w.id]||[];const ti=tree.findIndex((n,j)=>['count','pierce','chain'].includes(n.fx)&&nodeOpen(w,j));if(ti>=0){const nc=nodeCard(w,ti,handQ);nc.turn=1;out.push(nc);used.add(nc.n);G.turnOffered=1}} // early on, offer a node that visibly changes how the weapon behaves
   const adv=typeof buildAdvice==='function'?buildAdvice():null; // the warning on the card screen always comes with a concrete fix
   if(adv&&q.kind==='level'){const fits=pool.filter(p=>!used.has(p.n)&&(p.cat===adv.cat||(adv.cat==='defense'&&p.cat==='heal')||(adv.cat==='melee'&&(p.cat==='ranged'||p.cat==='summon'))));if(fits.length){const p=pick(fits);used.add(p.n);out.push(p)}}
   let guard=0;while(out.length<3&&guard++<80){const p=pick(pool);if(!used.has(p.n)&&!(out.some(c=>c.isNew)&&p.isNew)){used.add(p.n);out.push(p)}}
@@ -540,7 +541,7 @@ function spawnTick(dt){
 }
 function bossAI(dt){
   const B=G.boss,P=G.P;if(!B||B.dead)return;
-  if(B.charge>0){B.charge-=dt;B.x+=B.cvx*dt;B.y+=B.cvy*dt;collide(B,B.r);if(B.charge<=0){ring(B.x,B.y,34,'#e0503f');trauma(.3)}return}
+  if(B.charge>0){B.charge-=dt;B.x+=B.cvx*dt;B.y+=B.cvy*dt;collide(B,B.r);if(B.charge<=0){ring(B.x,B.y,34,'#e0503f');trauma(.3);if(hyp(B.x-P.x,B.y-P.y)>60){B.exposed=2;showBanner('破绽!','OPENING!',1)}}return}
   if(B.tele>0){B.tele-=dt;if(B.tele<=0){const a=Math.atan2(B.ty-B.y,B.tx-B.x);B.cvx=Math.cos(a)*300;B.cvy=Math.sin(a)*300;B.charge=.62;if(typeof SFX!=='undefined')SFX.bossCharge()}return}
   G.bossT-=dt;if(G.bossT>0)return;
   const low=B.hp<B.maxHp*.5;G.bossT=(low?2.3:3.2)*(B.rate||1);
@@ -549,7 +550,7 @@ function bossAI(dt){
   if(k==='bloodrain'){ // Blood Demon: blood pools fall around the hero
     for(let i=0;i<5;i++){const a=rnd(TAU),d=i===0?0:rnd(40,130);hazard(clamp(P.x+Math.cos(a)*d,30,W-30),clamp(P.y+Math.sin(a)*d,30,H-30),30,1.1,3.5,14*(1+B.n*.3),6,'#ff2a3a')}}
   if(k==='drain'){ // Blood Demon: leech beam - stand still and it heals him
-    B.drain=2.2;B.healed=0;ring(B.x,B.y,60,'#ff4a6a');ring(B.x,B.y,230,'#ff2a3a');showBanner('吸血!远离他','DRAINING - move away!',1.4);trauma(.2)}
+    B.drain=2.2;B.healed=0;B.drainHit=0;ring(B.x,B.y,60,'#ff4a6a');ring(B.x,B.y,230,'#ff2a3a');showBanner('吸血!远离他','DRAINING - move away!',1.4);trauma(.2)}
   if(k==='spiral'){ // Ghost-Mask: rotating blade spiral
     const o=rnd(TAU),dir=SIMR()<.5?1:-1;for(let w=0;w<16;w++)later(w*.09,()=>{if(B.dead)return;for(let j=0;j<3;j++)bullet(B.x,B.y,o+dir*w*.42+j/3*TAU,96,11)})}
   if(k==='blink'){ // Ghost-Mask: vanish, reappear beside the hero, slash fan
@@ -594,7 +595,8 @@ function hazardTick(dt){
   G.hazards=G.hazards.filter(h=>h.tele>0||h.dur>0);
   const B=G.boss;if(B&&!B.dead){
     if(B.hide>0)B.hide-=dt;
-    if(B.drain>0){B.drain-=dt;const d=hyp(P.x-B.x,P.y-B.y);if(d<230&&P.down<=0){const hb=B.hp;B.hp=Math.min(B.maxHp,B.hp+B.maxHp*.003*dt*60*.5);B.healed=(B.healed||0)+(B.hp-hb);if(B.healed>=200&&G.floats.length<80){G.floats.push({x:B.x,y:B.y-30,t:.9,v:'+'+Math.round(B.healed),c:'#7dffb0'});B.healed=0}if(SIMR()<dt*6)dmgP(2,B.x,B.y,['吸血','leech beam']);G.fx.push({k:'p',x:P.x+rnd(-8,8),y:P.y+rnd(-8,8),h:6,vx:(B.x-P.x)*1.4,vy:(B.y-P.y)*1.4,vz:0,t:.5,T:.5,c:'#ff2a3a'})}}
+    if(B.exposed>0)B.exposed-=dt;
+    if(B.drain>0){B.drain-=dt;const d=hyp(P.x-B.x,P.y-B.y);if(B.drain<=0&&d>=230&&!B.drainHit){B.exposed=3;showBanner('破绽!全力输出','OPENING - hit him now!',1.4);ring(B.x,B.y,70,'#ffd27a');trauma(.2);if(typeof SFX!=='undefined')SFX.levelup()}if(d<230&&P.down<=0){B.drainHit=1;const hb=B.hp;B.hp=Math.min(B.maxHp,B.hp+B.maxHp*.003*dt*60*.5);B.healed=(B.healed||0)+(B.hp-hb);if(B.healed>=200&&G.floats.length<80){G.floats.push({x:B.x,y:B.y-30,t:.9,v:'+'+Math.round(B.healed),c:'#7dffb0'});B.healed=0}if(SIMR()<dt*6)dmgP(2,B.x,B.y,['吸血','leech beam']);G.fx.push({k:'p',x:P.x+rnd(-8,8),y:P.y+rnd(-8,8),h:6,vx:(B.x-P.x)*1.4,vy:(B.y-P.y)*1.4,vz:0,t:.5,T:.5,c:'#ff2a3a'})}}
   }
 }
 function bullet(x,y,a,v,d,arrow){if(G.bullets.length<280)G.bullets.push({x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v,life:5,d,boss:arrow?0:1})}

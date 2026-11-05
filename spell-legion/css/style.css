@@ -363,3 +363,4 @@ html[lang=en] .zh{display:none!important}html[lang=zh] .en{display:none!importan
 @media (min-width:1400px){.seal{width:76px;height:84px}.seal .g{font-size:40px}.seal .lv{font-size:12px}.seal .key,.seal .cost{font-size:11px}.globe{width:clamp(74px,8vw,128px)}.card .fx{font-size:16px}.card .n{font-size:18px}}
 #hud .rgt{padding-right:52px}
 #runsummary{color:var(--bone);font-weight:700}
+.nextgoal{background:#14201ad9;border:1px solid #7dffb066;border-radius:8px;padding:8px 12px;margin:6px 0;font-size:13px;color:var(--bone);line-height:1.45}.nextgoal b{color:#7dffb0;margin-right:6px}
