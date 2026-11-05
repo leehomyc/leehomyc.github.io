@@ -28,6 +28,20 @@ const SPELLS={
   flow:{g:'流',zh:'高山流水',en:'Flowing Stream',col:'#6fd3e8',cost:28,cd:7,d:'在敌群处奏出水流之域,持续伤害并减速。',de:'A field of flowing water on the crowd: damage over time and slow.'},
   ambush:{g:'伏',zh:'十面埋伏',en:'Ambush on Ten Sides',col:'#c7a4f0',cost:34,cd:9,d:'向十个方向奏出音波。',de:'Sound waves in ten directions.'},
   guangling:{g:'散',zh:'广陵散',en:'Guangling Melody',col:'#ffd27a',cost:45,cd:16,dur:5,d:'五秒内周围敌人持续受伤并减速,自身回复。',de:'For five seconds everything nearby takes damage and slows while you recover.'},
+  // monk
+  staff:{g:'棍',zh:'禅杖',en:'Iron Staff',col:'#f0b35a',auto:1,d:'普攻:挥杖横扫四周,每第四击化为贯穿一线的突刺。',de:'Normal attack. Sweeps all around you; every fourth strike is a thrust that pierces a line.'},
+  fist:{g:'拳',zh:'罗汉拳',en:'Arhat Fist',col:'#ffd0a0',auto:1,d:'普攻:连环快拳锁定一人,每第五拳震出一掌击退周围。',de:'Normal attack. Rapid punches on one target; every fifth punch is a palm blast that knocks everything back.'},
+  vajra:{g:'刚',zh:'金刚不坏',en:'Vajra Body',col:'#ffe9a0',cost:34,cd:12,dur:3,d:'三秒内受到伤害 -70%,攻击你的敌人被反震。',de:'For three seconds take 70% less damage; anything that hits you is knocked back and hurt.'},
+  tiger:{g:'伏',zh:'伏虎',en:'Tiger Subdue',col:'#ff9c5a',cost:30,cd:7,d:'扑向最密集的敌群,落地震慑眩晕。',de:'Pounce onto the thickest crowd and slam, stunning everything around.'},
+  zen:{g:'禅',zh:'禅定',en:'Zen Stillness',col:'#7fc98a',cost:40,cd:16,dur:2,d:'原地入定两秒:回复三成生命与内力,每秒震开敌人。',de:'Sit in stillness for two seconds: recover 30% HP and qi, pulsing enemies away each second.'},
+  sarira:{g:'舍',zh:'舍利金光',en:'Sarira Light',col:'#ffd27a',cost:55,cd:18,d:'放出一枚舍利绕身盘旋扩散,反复灼烧,最后炸开。',de:'Release a sarira that spirals outward around you, burning repeatedly, then bursts.'},
+  // physician
+  needle:{g:'针',zh:'毒针',en:'Poison Needles',col:'#9ff06a',auto:1,d:'普攻:三枚细针射向最近的敌人,命中叠加毒伤。',de:'Normal attack. Three thin needles at the nearest foe; every hit stacks poison.'},
+  pouch:{g:'囊',zh:'药囊',en:'Herb Pouch',col:'#b6ff8a',auto:1,d:'普攻:将药囊掷向最密集处,炸开一片毒雾。',de:'Normal attack. Lobs a pouch at the thickest crowd; it bursts into poison mist.'},
+  plague:{g:'疫',zh:'瘟疫',en:'Plague',col:'#c6ff5a',cost:32,cd:9,d:'标记附近八名敌人,持续中毒;死亡时留下毒雾。',de:'Marks eight nearby enemies with a wasting poison; they leave mist when they die.'},
+  gu:{g:'蛊',zh:'蛊虫',en:'Gu Swarm',col:'#9ff06a',cost:28,cd:6,d:'放出四只追魂蛊虫,穿透并减速、叠毒。',de:'Four homing gu that pierce, slow and stack poison.'},
+  rejuv:{g:'春',zh:'回春',en:'Rejuvenation',col:'#7fc98a',cost:36,cd:14,dur:3,d:'三秒内回复两成生命,解除迷乱并获得短暂护罩。',de:'Heal 20% over three seconds, cure bewitchment and gain a brief shield.'},
+  numb:{g:'麻',zh:'麻沸散',en:'Anesthesia',col:'#dcb0ff',cost:50,cd:18,d:'周围敌人昏睡 2.5 秒,其间受到伤害 +30%。',de:'Everything nearby sleeps for 2.5 s and takes 30% more damage meanwhile.'},
 };
 const SPELL_KEYS=['','1','2','3'];
 const CLASSES={
@@ -35,6 +49,8 @@ const CLASSES={
   taoist:{zh:'道士',en:'Taoist',g:'道',col:'#ffd27a',main:'charm',skills:['talis','bagua','ward','exorcise'],hp:90,mana:150,regen:19,dmg:.95,spd:1,d:'体弱而内力深厚,符咒法术繁多。',de:'Fragile, but deep qi reserves and plenty of talisman magic.'},
   blademaster:{zh:'刀客',en:'Blademaster',g:'刀',col:'#ff9c5a',main:'slash',skills:['whirl','leap','roar','frenzy'],hp:125,mana:80,regen:12,dmg:1.08,spd:1.06,d:'近身刀法,皮糙肉厚,伤害最高。',de:'Up-close blade work. Tough, fast and the hardest hitter.'},
   qin:{zh:'琴师',en:'Qin Master',g:'琴',col:'#8fe3ff',main:'wave',skills:['flow','ambush','guangling','exorcise'],hp:100,mana:130,regen:16,dmg:.9,spd:1.03,d:'以琴音御敌,减速与控场见长。',de:'Fights with music: slows, fields and crowd control.'},
+  monk:{zh:'武僧',en:'Monk',g:'僧',col:'#f0b35a',main:'staff',skills:['tiger','vajra','zen','sarira'],hp:135,mana:90,regen:12,dmg:1,spd:1,d:'禅杖横扫,金刚不坏;越打越稳的近战。',de:'Staff sweeps and an unbreakable body: the steadiest melee hero.'},
+  physician:{zh:'医师',en:'Physician',g:'医',col:'#9ff06a',main:'needle',skills:['gu','plague','rejuv','numb'],hp:85,mana:140,regen:18,dmg:.92,spd:1.05,d:'毒针叠伤,瘟疫蔓延;慢慢毒死一切。',de:'Stacking poison and spreading plague: everything dies slowly, then all at once.'},
 };
 const ELS={
   fire:{g:'火',zh:'烈火真气',en:'Fire',col:'#ff8a3c',d:'命中点燃,持续灼烧。',de:'Hits ignite enemies.'},
@@ -57,9 +73,9 @@ const FUS={
 };
 const fusKey=(a,b)=>[a,b].sort().join('+');
 const AUGS={
-  burst:{g:'连',zh:'连击',en:'Double Strike',d:'每次施放连发两轮。',de:'Every cast fires twice in a row.',for:['sword','palm','talis','charm','slash','leap','roar','wave','ambush','sunder','exorcise']},
-  split:{g:'裂',zh:'分光',en:'Split',d:'命中时分裂成两道。符咒则分裂成子符。',de:'Shots split on hit. Talismans drop sub-talismans.',for:['sword','palm','talis','charm','wave','ambush']},
-  giant:{g:'雄',zh:'雄浑',en:'Mighty',d:'更大,伤害 +30%,出手稍慢。',de:'Bigger, +30% damage, slightly slower.',for:['sword','palm','talis','array','charm','slash','whirl','leap','roar','bagua','wave','flow','ambush','guangling','sunder','exorcise']},
+  burst:{g:'连',zh:'连击',en:'Double Strike',d:'每次施放连发两轮。',de:'Every cast fires twice in a row.',for:['sword','palm','talis','charm','slash','leap','roar','wave','ambush','sunder','exorcise','needle','gu','tiger','fist','staff']},
+  split:{g:'裂',zh:'分光',en:'Split',d:'命中时分裂成两道。符咒则分裂成子符。',de:'Shots split on hit. Talismans drop sub-talismans.',for:['sword','palm','talis','charm','wave','ambush','needle','gu','pouch']},
+  giant:{g:'雄',zh:'雄浑',en:'Mighty',d:'更大,伤害 +30%,出手稍慢。',de:'Bigger, +30% damage, slightly slower.',for:['sword','palm','talis','array','charm','slash','whirl','leap','roar','bagua','wave','flow','ambush','guangling','sunder','exorcise','staff','tiger','sarira','zen','pouch','plague','numb','vajra']},
   extra:{g:'增',zh:'增阵',en:'Wider Array',d:'阵法多两件法器,转得更快。',de:'Two more pieces in the array, spinning faster.',for:['array','bagua']},
 };
 const PERKS=[
@@ -88,7 +104,7 @@ const BOSS_NAME=['血魔教主','Blood Demon Patriarch'];
    dmg (+12%/rank), cd (-8%/rank), count (+1 projectile/piece), pierce (+1), size (+15%/rank),
    cost (-15% qi/rank), dur (+1s/rank), knock (+50%/rank), crit (+5%/rank), life (2% lifesteal/rank), chain (15%/rank chance to arc) */
 const NODE_FX={dmg:.12,cd:.08,count:1,pierce:1,size:.15,cost:.15,dur:1,knock:.5,crit:.05,life:.02,chain:.15};
-const NODE_EN={"+1 刀气 / 级": "+1 blade qi / rank", "+1 卦符 / 级": "+1 trigram / rank", "+1 掌风 / 级": "+1 palm wave / rank", "+1 波剑雨 / 级": "+1 sword-rain wave / rank", "+1 牵连目标 / 级": "+1 chained target / rank", "+1 符箓 / 级": "+1 talisman / rank", "+1 音波 / 级": "+1 wave / rank", "+1 飞剑 / 级": "+1 flying sword / rank", "+1 鼓波 / 级": "+1 drum ring / rank", "+2 方向 / 级": "+2 directions / rank", "一次掷出两符": "Throws two talismans at once", "伤害 +12% / 级": "Damage +12% / rank", "内力消耗 -15% / 级": "Qi cost -15% / rank", "冷却 -8% / 级": "Cooldown -8% / rank", "出刀 +8% / 级": "Draw speed +8% / rank", "出手 +8% / 级": "Attack speed +8% / rank", "击退 +50% / 级": "Knockback +50% / rank", "刀光 +15% / 级": "Arc length +15% / rank", "半径 +15% / 级": "Radius +15% / rank", "吸血更多": "Stronger lifesteal", "命中回复生命": "Hits heal you", "命中有几率引发剑气跳击": "Hits may chain sword qi to another enemy", "命中有几率引发电弧": "Hits may arc lightning", "回复更多": "Heals more", "射程 +15% / 级": "Range +15% / rank", "护罩 +1s / 级": "Shield +1 s / rank", "持续 +1s / 级": "Duration +1 s / rank", "挥速 +8% / 级": "Swing speed +8% / rank", "攻速 +8% / 级": "Attack speed +8% / rank", "暴击 +5% / 级": "Crit +5% / rank", "波及范围 +15% / 级": "Reach +15% / rank", "爆裂范围 +15% / 级": "Blast radius +15% / rank", "眩晕 +1s / 级": "Stun +1 s / rank", "穿透 +1 / 级": "Pierce +1 / rank", "突进留下伤敌残影": "The lunge leaves a damaging afterimage", "范围 +15% / 级": "Area +15% / rank", "蓄满时有几率引雷": "At full charge, may call lightning", "血战伤害 +12% / 级": "Frenzy damage +12% / rank", "震地有几率引发连锁震击": "Slams may chain a second quake", "震开伤害 +12% / 级": "Shockwave damage +12% / rank", "震开范围 +15% / 级": "Shockwave radius +15% / rank", "鞭速 +8% / 级": "Lash speed +8% / rank", "鼓波命中有几率震出余波": "Drum hits may ripple an aftershock", "鼓速 +8% / 级": "Beat speed +8% / rank"};
+const NODE_EN={"+1 目标 / 级":"+1 target / rank","反震伤害 +12% / 级":"Rebound damage +12% / rank","反震范围 +15% / 级":"Rebound radius +15% / rank","受击回复生命":"Heal when hit","落地有几率再扑一次":"Landing may trigger a second pounce","+1 舍利 / 级":"+1 sarira / rank","爆炸有几率引发连锁":"The burst may chain a second one","+1 针 / 级":"+1 needle / rank","中毒目标死亡时毒雾扩散":"Poisoned enemies leave mist when they die","+1 药囊 / 级":"+1 pouch / rank","毒雾有几率放出电弧":"Mist may discharge arcs","毒雾范围 +15% / 级":"Mist radius +15% / rank","+1 蛊虫 / 级":"+1 gu / rank","治疗时震伤周围 +12% / 级":"Healing also hurts nearby enemies, +12% / rank","昏睡目标受伤 +12% / 级":"Sleeping targets take +12% / rank","昏睡结束时有几率爆发":"Waking may trigger a burst","突刺有几率震出余波":"Thrusts may send an aftershock","+1 刀气 / 级": "+1 blade qi / rank", "+1 卦符 / 级": "+1 trigram / rank", "+1 掌风 / 级": "+1 palm wave / rank", "+1 波剑雨 / 级": "+1 sword-rain wave / rank", "+1 牵连目标 / 级": "+1 chained target / rank", "+1 符箓 / 级": "+1 talisman / rank", "+1 音波 / 级": "+1 wave / rank", "+1 飞剑 / 级": "+1 flying sword / rank", "+1 鼓波 / 级": "+1 drum ring / rank", "+2 方向 / 级": "+2 directions / rank", "一次掷出两符": "Throws two talismans at once", "伤害 +12% / 级": "Damage +12% / rank", "内力消耗 -15% / 级": "Qi cost -15% / rank", "冷却 -8% / 级": "Cooldown -8% / rank", "出刀 +8% / 级": "Draw speed +8% / rank", "出手 +8% / 级": "Attack speed +8% / rank", "击退 +50% / 级": "Knockback +50% / rank", "刀光 +15% / 级": "Arc length +15% / rank", "半径 +15% / 级": "Radius +15% / rank", "吸血更多": "Stronger lifesteal", "命中回复生命": "Hits heal you", "命中有几率引发剑气跳击": "Hits may chain sword qi to another enemy", "命中有几率引发电弧": "Hits may arc lightning", "回复更多": "Heals more", "射程 +15% / 级": "Range +15% / rank", "护罩 +1s / 级": "Shield +1 s / rank", "持续 +1s / 级": "Duration +1 s / rank", "挥速 +8% / 级": "Swing speed +8% / rank", "攻速 +8% / 级": "Attack speed +8% / rank", "暴击 +5% / 级": "Crit +5% / rank", "波及范围 +15% / 级": "Reach +15% / rank", "爆裂范围 +15% / 级": "Blast radius +15% / rank", "眩晕 +1s / 级": "Stun +1 s / rank", "穿透 +1 / 级": "Pierce +1 / rank", "突进留下伤敌残影": "The lunge leaves a damaging afterimage", "范围 +15% / 级": "Area +15% / rank", "蓄满时有几率引雷": "At full charge, may call lightning", "血战伤害 +12% / 级": "Frenzy damage +12% / rank", "震地有几率引发连锁震击": "Slams may chain a second quake", "震开伤害 +12% / 级": "Shockwave damage +12% / rank", "震开范围 +15% / 级": "Shockwave radius +15% / rank", "鞭速 +8% / 级": "Lash speed +8% / rank", "鼓波命中有几率震出余波": "Drum hits may ripple an aftershock", "鼓速 +8% / 级": "Beat speed +8% / rank"};
 const N=(fx,zh,en,max,tier,d)=>({fx,zh,en,max,tier,d,de:NODE_EN[d]||d});
 const TREES={
   great:[N('dmg','沉重','Heft',3,1,'伤害 +12% / 级'),N('size','阔刃','Broad Blade',3,1,'范围 +15% / 级'),N('cd','挥洒','Fluid Swing',3,2,'挥速 +8% / 级'),N('knock','崩山','Avalanche',2,2,'击退 +50% / 级'),N('crit','断金','Steel Breaker',2,3,'暴击 +5% / 级'),N('chain','地裂','Fissure',2,3,'震地有几率引发连锁震击')],
@@ -112,6 +128,18 @@ const TREES={
   flow:[N('dur','长流','Long Flow',3,1,'持续 +1s / 级'),N('dmg','激流','Rapids',3,1,'伤害 +12% / 级'),N('size','广域','Wide Water',3,2,'范围 +15% / 级'),N('cd','连奏','Legato',3,2,'冷却 -8% / 级'),N('cost','静水','Still Water',2,3,'内力消耗 -15% / 级'),N('life','润泽','Nourish',2,3,'命中回复生命')],
   ambush:[N('dmg','杀机','Killing Intent',3,1,'伤害 +12% / 级'),N('count','重围','Encirclement',2,1,'+2 方向 / 级'),N('pierce','贯阵','Break Ranks',2,2,'穿透 +1 / 级'),N('cd','急奏','Presto',3,2,'冷却 -8% / 级'),N('knock','震退','Repel',2,3,'击退 +50% / 级'),N('cost','省力','Economy',2,3,'内力消耗 -15% / 级')],
   guangling:[N('dur','余音','Lingering Note',3,1,'持续 +1s / 级'),N('dmg','绝响','Final Chord',3,1,'伤害 +12% / 级'),N('size','满座','Full House',2,2,'范围 +15% / 级'),N('cd','再奏','Encore',3,2,'冷却 -8% / 级'),N('life','养神','Restore',2,3,'回复更多'),N('cost','静心','Calm',2,3,'内力消耗 -15% / 级')],
+  staff:[N('dmg','沉杖','Heavy Staff',3,1,'伤害 +12% / 级'),N('size','长杖','Long Reach',3,1,'范围 +15% / 级'),N('cd','疾杖','Quick Staff',3,2,'挥速 +8% / 级'),N('knock','扫荡','Sweep',2,2,'击退 +50% / 级'),N('pierce','贯穿','Run Through',2,3,'穿透 +1 / 级'),N('chain','震地','Earth Strike',2,3,'突刺有几率震出余波')],
+  fist:[N('dmg','铁拳','Iron Fist',3,1,'伤害 +12% / 级'),N('cd','连环','Flurry',3,1,'出拳 +8% / 级'),N('count','双打','Twin Strike',2,2,'+1 目标 / 级'),N('knock','崩拳','Crushing Palm',2,2,'击退 +50% / 级'),N('crit','点穴','Pressure Point',2,3,'暴击 +5% / 级'),N('life','吸功','Qi Drain',2,3,'命中回复生命')],
+  vajra:[N('dur','久持','Lasting',2,1,'持续 +1s / 级'),N('cost','清心','Clear Mind',2,1,'内力消耗 -15% / 级'),N('cd','金身','Golden Body',3,2,'冷却 -8% / 级'),N('dmg','反震','Rebound',3,2,'反震伤害 +12% / 级'),N('size','护法','Guardian',2,3,'反震范围 +15% / 级'),N('life','不坏','Indestructible',2,3,'受击回复生命')],
+  tiger:[N('dmg','虎威','Tiger Might',3,1,'伤害 +12% / 级'),N('size','虎啸','Tiger Roar',3,1,'范围 +15% / 级'),N('cd','疾扑','Quick Pounce',3,2,'冷却 -8% / 级'),N('dur','镇压','Pin Down',2,2,'眩晕 +1s / 级'),N('cost','省力','Economy',2,3,'内力消耗 -15% / 级'),N('chain','连扑','Double Pounce',2,3,'落地有几率再扑一次')],
+  zen:[N('dur','深定','Deep Stillness',2,1,'持续 +1s / 级'),N('cd','顿悟','Insight',3,1,'冷却 -8% / 级'),N('size','佛光','Radiance',3,2,'震开范围 +15% / 级'),N('life','回春','Renewal',2,2,'回复更多'),N('knock','怒目','Wrathful Gaze',2,3,'击退 +50% / 级'),N('dmg','狮吼','Lion Pulse',2,3,'震开伤害 +12% / 级')],
+  sarira:[N('dmg','金光','Golden Light',3,1,'伤害 +12% / 级'),N('size','大圆','Great Circle',3,1,'范围 +15% / 级'),N('dur','长转','Long Spiral',2,2,'持续 +1s / 级'),N('count','双舍利','Twin Sarira',2,2,'+1 舍利 / 级'),N('cd','顿悟','Insight',2,3,'冷却 -8% / 级'),N('chain','涅槃','Nirvana',2,3,'爆炸有几率引发连锁')],
+  needle:[N('dmg','淬毒','Steeped',3,1,'伤害 +12% / 级'),N('count','连珠','Volley',3,1,'+1 针 / 级'),N('cd','快手','Quick Hands',3,2,'出手 +8% / 级'),N('pierce','透骨','Bone Piercer',2,2,'穿透 +1 / 级'),N('crit','要穴','Vital Point',2,3,'暴击 +5% / 级'),N('chain','毒发','Venom Burst',2,3,'中毒目标死亡时毒雾扩散')],
+  pouch:[N('dmg','浓毒','Potent',3,1,'伤害 +12% / 级'),N('size','广布','Wide Mist',3,1,'范围 +15% / 级'),N('dur','久雾','Lingering',2,2,'持续 +1s / 级'),N('cd','快掷','Quick Throw',3,2,'出手 +8% / 级'),N('count','双囊','Twin Pouch',2,3,'+1 药囊 / 级'),N('chain','雷毒','Thunder Venom',2,3,'毒雾有几率放出电弧')],
+  plague:[N('dmg','恶疾','Wasting',3,1,'伤害 +12% / 级'),N('count','蔓延','Spread',2,1,'+2 目标 / 级'),N('dur','缠绵','Lingering',2,2,'持续 +1s / 级'),N('cd','急症','Acute',3,2,'冷却 -8% / 级'),N('size','疫区','Outbreak',2,3,'毒雾范围 +15% / 级'),N('cost','省药','Frugal',2,3,'内力消耗 -15% / 级')],
+  gu:[N('dmg','毒牙','Venom Fang',3,1,'伤害 +12% / 级'),N('count','群蛊','Swarm',3,1,'+1 蛊虫 / 级'),N('pierce','钻心','Burrow',2,2,'穿透 +1 / 级'),N('cd','催蛊','Hasten',3,2,'冷却 -8% / 级'),N('size','肥蛊','Fat Gu',2,3,'范围 +15% / 级'),N('life','食血','Blood Feast',2,3,'吸血更多')],
+  rejuv:[N('life','厚药','Strong Dose',3,1,'回复更多'),N('dur','久效','Long Effect',2,1,'护罩 +1s / 级'),N('cd','妙手','Deft Hands',3,2,'冷却 -8% / 级'),N('cost','省药','Frugal',2,2,'内力消耗 -15% / 级'),N('size','药香','Herbal Aura',2,3,'波及范围 +15% / 级'),N('dmg','以毒攻毒','Fight Poison',2,3,'治疗时震伤周围 +12% / 级')],
+  numb:[N('dur','深眠','Deep Sleep',2,1,'眩晕 +1s / 级'),N('size','弥漫','Diffuse',3,1,'范围 +15% / 级'),N('cd','速效','Fast Acting',3,2,'冷却 -8% / 级'),N('dmg','重创','Exploit',3,2,'昏睡目标受伤 +12% / 级'),N('cost','省药','Frugal',2,3,'内力消耗 -15% / 级'),N('chain','惊醒','Rude Awakening',2,3,'昏睡结束时有几率爆发')],
   roar:[N('size','声震','Resounding',3,1,'范围 +15% / 级'),N('dmg','狮吼','Lion\'s Might',3,1,'伤害 +12% / 级'),N('knock','摧心','Heart Crusher',2,2,'击退 +50% / 级'),N('cd','连吼','Chain Roar',3,2,'冷却 -8% / 级'),N('cost','丹田','Dantian',2,3,'内力消耗 -15% / 级'),N('dur','余威','Lingering Fear',2,3,'眩晕 +1s / 级')],
 };
 const ATTRS=[
@@ -158,7 +186,7 @@ const ACH=[
 const DIFF={easy:{zh:'简单',en:'Easy',hp:.7,dmg:.7,gold:.8},normal:{zh:'普通',en:'Normal',hp:1,dmg:1,gold:1},hard:{zh:'困难',en:'Hard',hp:1.4,dmg:1.35,gold:1.4}};
 
 /* weapons: the normal attack of a class is swappable; chosen on the title screen */
-const WEAPONS={swordsman:['sword','great'],taoist:['charm','whisk'],blademaster:['slash','nodachi'],qin:['wave','drum']};
+const WEAPONS={swordsman:['sword','great'],taoist:['charm','whisk'],blademaster:['slash','nodachi'],qin:['wave','drum'],monk:['staff','fist'],physician:['needle','pouch']};
 const WEAPON_INFO={
   sword:{trait:['快而多','Fast, many blades'],awake:['剑雨·飞剑数 +2,伤害 +25%','Sword Rain: +2 blades, +25% damage']},
   great:{need:'clsboss',cost:500,trait:['重击·震地','Heavy hits, ground slam'],awake:['开山·每第二击震地,震地范围 +40%','Mountain Splitter: slam every second swing, +40% slam radius']},
@@ -168,12 +196,16 @@ const WEAPON_INFO={
   nodachi:{need:'clsboss',cost:500,trait:['突进·长刀光','Lunge, long arc'],awake:['居合·突进更远,刀光留下灼痕','Iaido: longer lunge, the arc leaves a burning trail']},
   wave:{trait:['穿透·减速','Pierces, slows'],awake:['裂帛·音波 +2,穿透 +2','Rending Note: +2 waves, +2 pierce']},
   drum:{need:'clsboss',cost:500,trait:['环形冲击·击退','Ring shockwave, knockback'],awake:['雷鼓·双重鼓波,范围 +30%','Thunder Drum: double ring, +30% radius']},
+  staff:{trait:['四周横扫·突刺','All-round sweep, thrust'],awake:['降魔·每第二击突刺,范围 +25%','Demon Subduer: thrust every second strike, +25% reach']},
+  fist:{need:'clsboss',cost:500,trait:['单体快拳·震掌','Rapid single-target, palm blast'],awake:['百步神拳·每第三拳震掌,伤害 +25%','Hundred-Step Fist: palm blast every third punch, +25% damage']},
+  needle:{trait:['叠毒·远程','Stacking poison, ranged'],awake:['七星针·针数 +2,毒伤翻倍','Seven-Star Needles: +2 needles, double poison']},
+  pouch:{need:'clsboss',cost:500,trait:['毒雾·范围','Poison mist, area'],awake:['百毒囊·双囊齐发,毒雾 +40%','Hundred-Venom Pouch: throws two, +40% mist']},
 };
 const AWAKE_LV=15;
 /* skill categories for the card screen */
 const CATS={melee:['近战','Melee','#ff9c5a'],ranged:['远程','Ranged','#9fe3f0'],summon:['阵法','Summon','#c7a4f0'],defense:['防御','Defense','#7dffb0'],heal:['治疗','Heal','#7fc98a'],control:['控制','Control','#ffd75a'],element:['真气','Element','#ff8a3c'],augment:['强化','Augment','#d6a54a'],passive:['心法','Passive','#efe4cd'],all:['全体攻击','All attacks','#ffd27a'],tree:['武学树','Tree','#ffd27a'],new:['新武学','New skill','#ffffff']};
 const KINDS={level:['技能升级','Skill level up','#9fe3f0'],new:['新武学','New skill','#ffffff'],element:['灌注真气','Element','#ff8a3c'],fusion:['真气融合','Fusion','#ff8a3c'],tree:['武学树','Skill tree','#ffd27a'],augment:['强化','Augment','#d6a54a'],passive:['心法·被动','Passive','#efe4cd'],awake:['武器觉醒','Awakening','#ffd27a'],contract:['契约','Pact','#ff6a6a'],jackpot:['天降横财','Jackpot','#ffd27a']};
-const SKILL_CAT={great:'melee',whisk:'ranged',nodachi:'melee',drum:'control',sword:'ranged',palm:'ranged',array:'summon',talis:'ranged',charm:'ranged',bagua:'summon',ward:'defense',slash:'melee',whirl:'melee',leap:'melee',roar:'control',sunder:'ranged',exorcise:'control',frenzy:'melee',wave:'ranged',flow:'control',ambush:'ranged',guangling:'heal'};
+const SKILL_CAT={great:'melee',whisk:'ranged',nodachi:'melee',drum:'control',sword:'ranged',palm:'ranged',array:'summon',talis:'ranged',charm:'ranged',bagua:'summon',ward:'defense',slash:'melee',whirl:'melee',leap:'melee',roar:'control',sunder:'ranged',exorcise:'control',frenzy:'melee',wave:'ranged',flow:'control',ambush:'ranged',guangling:'heal',staff:'melee',fist:'melee',vajra:'defense',tiger:'melee',zen:'heal',sarira:'ranged',needle:'ranged',pouch:'ranged',plague:'control',gu:'ranged',rejuv:'heal',numb:'control'};
 const PERK_CAT={锋锐:'all',金钟罩:'defense',轻身:'passive',内息:'passive',生息:'heal',摄物:'passive',疾风:'passive',致命:'all'};
 /* boss signature moves, by boss index (see BOSSES in sim.js) */
 const BOSS_SIG=[['bloodrain','drain'],['spiral','blink'],['eggs','venom'],['bonewall','spikes'],['hellring','meteor'],['mirror','bewitch'],['phalanx','cannon']];

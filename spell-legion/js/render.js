@@ -81,6 +81,9 @@ function render(rdt){
   sun.target.position.set(Math.round(camX/3)*3,0,Math.round(camZ/3)*3);sun.position.set(sun.target.position.x-470,430,sun.target.position.z+360);
   /* heroes */
   animHero(HEROES.player,P,true,tm,rdt);
+  for(const o of G.sariras||[]){glow(o.x,14,o.y,o.col,26,2.2);glow(o.x,14,o.y,'#ffffff',8,1.6);for(let i=1;i<=4;i++){const a=o.a-i*.12,rr=o.r-i*3;glow(P.x+Math.cos(a)*rr,13-i,P.y+Math.sin(a)*rr,o.col,14-i*2.5,1.2-i*.2)}}
+  if(P.vajra>0){for(let i=0;i<12;i++){const a=tm*2.2+i*.524;glow(P.x+Math.cos(a)*18,10+Math.sin(tm*4+i)*5,P.y+Math.sin(a)*18,'#ffe9a0',7,1.8)}glow(P.x,16,P.y,'#ffd27a',52,.7)}
+  if(P.zen>0){for(let i=0;i<8;i++){const a=i*.785+tm*.5,rr=26+Math.sin(tm*3+i)*4;glow(P.x+Math.cos(a)*rr,4,P.y+Math.sin(a)*rr,'#7fc98a',12,1.3)}glow(P.x,12,P.y,'#9ff0b0',44,.6)}
   if(G.rival)animHero(HEROES.rival,G.rival,false,tm,rdt);
   for(let i=0;i<ghostM.length;i++){const gh=G.ghosts[i],gm=ghostM[i];gm.visible=!!gh;if(gh){gm.position.set(gh.x,0,gh.y);gm.rotation.set(.55,gh.yaw,0,'YXZ');const q=gh.t/gh.T;gm.material.opacity=q*.55;const c=rgb(CLASSES[G.cls].col);gm.material.color.setRGB(c[0]*2.5*q+.2,c[1]*2.5*q+.2,c[2]*2.5*q+.2)}}
   /* enemies */
@@ -95,6 +98,8 @@ function render(rdt){
     if(e.elite){glow(e.x,e.r*1.2,e.y,'#ffd27a',e.r*4,.5);if(Math.random()<.3)glow(e.x+vrnd(-8,8),vrnd(2,e.r*3),e.y+vrnd(-8,8),'#ffd27a',3,2)}
     if(e.burn>0&&glowN<GMAX*.7){const f=.7+Math.sin(tm*24+e.x)*.3;glow(e.x,e.r*1.7,e.y,'#ff7a2c',12*f+e.r,1.15);if(Math.random()<.22)G.fx.push({k:'p',x:e.x+vrnd(-3,3),y:e.y+vrnd(-3,3),h:e.r*1.4,vx:vrnd(-4,4),vy:vrnd(-4,4),vh:vrnd(18,42),t:.45,T:.45,c:'#ffb14a',sz:3})}
     if(e.frz>0&&glowN<GMAX*.7)glow(e.x,e.r,e.y,'#8fe4ff',e.r*3.3,.32);
+    if(e.pois>0&&glowN<GMAX*.7){glow(e.x,e.r*1.4,e.y,'#9ff06a',e.r*2.2+e.pois*1.5,.45);if(Math.random()<.08)G.fx.push({k:'p',x:e.x+vrnd(-4,4),y:e.y+vrnd(-4,4),h:e.r*1.2,vx:vrnd(-3,3),vy:vrnd(-3,3),vh:vrnd(10,22),t:.5,T:.5,c:'#b6ff8a',sz:2.4})}
+    if(e.sleep>0&&glowN<GMAX*.7){glow(e.x+Math.sin(tm*3)*3,e.r*2.4+((tm*10)%12),e.y,'#dcb0ff',7,1.4)}
     if(e.shred>0&&Math.random()<.04)G.fx.push({k:'p',x:e.x,y:e.y,h:e.r*1.8,vx:vrnd(-5,5),vy:vrnd(-5,5),vh:vrnd(8,24),t:.5,T:.5,c:'#b4ff5c',sz:2.6});
   }
   for(let i=sI;i<3;i++)statues[i].visible=false;

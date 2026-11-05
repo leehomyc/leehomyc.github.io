@@ -1,6 +1,6 @@
 'use strict';
 /* lobby.js — menu-first front end: main menu → hero select (3D preview, weapon, skills, stats) → start. */
-const ROLES={swordsman:['远程 · 均衡','Ranged · Balanced'],taoist:['法术 · 符咒','Caster · Talismans'],blademaster:['近战 · 重击','Melee · Bruiser'],qin:['控场 · 减速','Control · Slows']};
+const ROLES={swordsman:['远程 · 均衡','Ranged · Balanced'],taoist:['法术 · 符咒','Caster · Talismans'],blademaster:['近战 · 重击','Melee · Bruiser'],qin:['控场 · 减速','Control · Slows'],monk:['近战 · 坚韧','Melee · Tank'],physician:['远程 · 毒伤','Ranged · Poison']};
 const MENU_MODES=[
   {m:'solo',zh:'出山',en:'Play',szh:()=>`单人无尽 · ${LL(DIFF[SAVE.diff||'normal'])}${(SAVE.asura&&SAVE.asura.sel)?` · 修罗 ${SAVE.asura.sel}`:''}`,sen:()=>`Solo endless · ${LL(DIFF[SAVE.diff||'normal'])}${(SAVE.asura&&SAVE.asura.sel)?` · Ascension ${SAVE.asura.sel}`:''}`,big:1},
   {m:'qpk',zh:'快速对决',en:'Quick PK',szh:()=>`3 分钟 · ${L(ladderOf(SAVE.trophies||0)[1],'')} ${SAVE.trophies||0} 🏆`,sen:()=>`3 minutes · ${ladderOf(SAVE.trophies||0)[2]} ${SAVE.trophies||0} 🏆`},

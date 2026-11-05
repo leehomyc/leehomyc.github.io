@@ -439,7 +439,7 @@ html[lang=en] .zh{display:none!important}html[lang=zh] .en{display:none!importan
 @media (max-width:760px){
   #hero{padding:8px 10px 20px}
   .hbody{grid-template-columns:minmax(0,1fr)}
-  #classes{grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}.cls{grid-template-columns:1fr;justify-items:center;padding:6px 4px;text-align:center}.cls .ic{grid-row:auto;width:40px;height:40px}.cls .d,.cls .sk{display:none}.cls .n{font-size:12px}
+  #classes{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}.cls{grid-template-columns:1fr;justify-items:center;padding:6px 4px;text-align:center}.cls .ic{grid-row:auto;width:40px;height:40px}.cls .d,.cls .sk{display:none}.cls .n{font-size:12px}
   .hview{grid-template-rows:minmax(240px,1fr) auto auto}#pv{min-height:240px}.hname .hg{font-size:40px}.hname b{font-size:18px}
   .hfoot{position:static;background:none}
   .hkit{grid-column:auto}#hskills{gap:4px}.hs .ic{width:40px;height:40px}.hs b{font-size:10px}

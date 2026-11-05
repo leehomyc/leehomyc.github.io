@@ -331,7 +331,9 @@ function buildHeroModel(cls,slot,weaponId){
   const V={swordsman:{robe:'#ece7d8',robeT:'#f8f5ee',skirt:'#e2dccb',collar:'#2c4f6b',sash:'#b8322b',sleeve:'#ece7d8',cape:'#24405a',capeT:'#3f6a86',hair:'#1a1420',gem:[3,9,11]},
            taoist:{robe:'#3a4e66',robeT:'#5b7a9a',skirt:'#2e3f55',collar:'#d9a641',sash:'#d9a641',sleeve:'#3a4e66',cape:'#2a3a52',capeT:'#4a6a8a',hair:'#24202a',gem:[11,7,2]},
            blademaster:{robe:'#5a2622',robeT:'#8a3a2c',skirt:'#3a1a16',collar:'#2a1a14',sash:'#1a1a1a',sleeve:'#6a2a24',cape:'#3a1a16',capeT:'#6a2a22',hair:'#15121a',gem:[11,4,1.5]},
-           qin:{robe:'#2f6f78',robeT:'#5fb0b8',skirt:'#f1ece0',collar:'#f6f1e6',sash:'#e9a0b4',sleeve:'#8fd3d8',cape:'#f3c6d2',capeT:'#fde8ee',hair:'#1a1420',gem:[3,10,12]}}[cls];
+           qin:{robe:'#2f6f78',robeT:'#5fb0b8',skirt:'#f1ece0',collar:'#f6f1e6',sash:'#e9a0b4',sleeve:'#8fd3d8',cape:'#f3c6d2',capeT:'#fde8ee',hair:'#1a1420',gem:[3,10,12]},
+           monk:{robe:'#c9772f',robeT:'#e8a64a',skirt:'#a85f24',collar:'#f0e6c8',sash:'#8a2a22',sleeve:'#c9772f',cape:'#8a3a1a',capeT:'#c46a2a',hair:'#f3d2b0',gem:[11,8,2]},
+           physician:{robe:'#eef2e4',robeT:'#ffffff',skirt:'#9fc98a',collar:'#3a6a3a',sash:'#5a8a4a',sleeve:'#eef2e4',cape:'#3a5a3a',capeT:'#6a9a5a',hair:'#2a2420',gem:[4,12,3]}}[cls];
   const female=cls==='qin',skin='#f3d2b0',SK=female?.86:1; // the qin master is slimmer and taller in the skirt
   const grp=new T3.Group();grp.userData.cls=cls;scene.add(grp);
   const body=[
@@ -354,7 +356,7 @@ function buildHeroModel(cls,slot,weaponId){
     part(CYL(1.5,1.8,2.4,8),skin,{p:[0,25,0]}),
     part(SPH(4.6,18,14),skin,{p:[0,29.4,0],s:[1,1.06,.96]}),
     // hair cap and bangs
-    part(SPH(4.95,16,12),V.hair,{p:[0,30.3,-.7],s:[1,.92,.98]}),part(BOX(6.4,1.8,1.2),V.hair,{p:[0,32.4,3.6],r:[.25,0,0]}),
+    ...(cls==='monk'?[]:[part(SPH(4.95,16,12),V.hair,{p:[0,30.3,-.7],s:[1,.92,.98]}),part(BOX(6.4,1.8,1.2),V.hair,{p:[0,32.4,3.6],r:[.25,0,0]})]),
     // eyes, highlights, brows, mouth
     part(SPH(female?.82:.72,8,6),'#15141a',{p:[1.75,29.5,4.15],s:[1,female?1.25:1.1,.6]}),part(SPH(female?.82:.72,8,6),'#15141a',{p:[-1.75,29.5,4.15],s:[1,female?1.25:1.1,.6]}),
     part(SPH(.26,6,4),'#ffffff',{p:[2.05,29.85,4.55],emit:'#ffffff',ei:.8}),part(SPH(.26,6,4),'#ffffff',{p:[-1.45,29.85,4.55],emit:'#ffffff',ei:.8}),
@@ -363,6 +365,8 @@ function buildHeroModel(cls,slot,weaponId){
     ...(female?[part(BOX(2.2,.3,.3),V.hair,{p:[1.9,30.5,4.5],r:[0,0,-.1]}),part(BOX(2.2,.3,.3),V.hair,{p:[-1.9,30.5,4.5],r:[0,0,.1]}),part(SPH(.9,8,6),'#f0a0a8',{p:[2.9,28.4,3.4],s:[1,.6,.4]}),part(SPH(.9,8,6),'#f0a0a8',{p:[-2.9,28.4,3.4],s:[1,.6,.4]})]:[]),
     ...(cls==='blademaster'?[part(BOX(.5,2.2,.3),'#a03a30',{p:[-2.6,28.2,4.3],r:[0,0,.3]}),part(BOX(7.4,2.2,7.4),V.hair,{p:[0,22.5,-3.6],s:[1,.2,1]}),part(BOX(7,2.4,3),'#2a1a14',{p:[-6.2,23.6,0],top:'#5a3a2a'}),part(BOX(7,2.4,3),'#2a1a14',{p:[6.2,23.6,0],top:'#5a3a2a'})]:[]),
     ...(cls==='taoist'?[part(CONE(1,2.8,6),'#3a3240',{p:[0,26.3,3.6],r:[Math.PI,0,0]})]:[]),
+    ...(cls==='monk'?[...[0,1,2].map(i=>part(SPH(.3,6,4),'#b07a5a',{p:[(i-1)*1.1,33.4-Math.abs(i-1)*.2,2.6]})),...Array.from({length:12},(_,i)=>{const a=i/12*TAU;return part(SPH(.9,8,6),'#5a3a2a',{p:[Math.cos(a)*5.2,21.5-Math.abs(Math.sin(a))*2.5,Math.sin(a)*4.2+1],emit:'#2a1a10',ei:.3})})]:[]),
+    ...(cls==='physician'?[part(SPH(1.4,8,6),'#d9a641',{p:[-5.2,13.2,4.4],emit:'#6a4a10',ei:.3}),part(SPH(1,8,6),'#d9a641',{p:[-5.2,15,4.4],emit:'#6a4a10',ei:.3}),part(CYL(.3,.3,1.4,6),'#8a2a22',{p:[-5.2,16.2,4.4]})]:[]),
   ];
   const robeGeo=merge(body);
   const rb=new T3.Mesh(robeGeo,m);rb.castShadow=true;grp.add(rb);
@@ -376,6 +380,8 @@ function buildHeroModel(cls,slot,weaponId){
   else if(cls==='qin')hatGeo=merge([part(SPH(2,12,9),V.hair,{p:[-3.6,-.2,-.6],s:[1,1.1,1]}),part(SPH(2,12,9),V.hair,{p:[3.6,-.2,-.6],s:[1,1.1,1]}),part(SPH(1.1,8,6),V.hair,{p:[0,.9,-1]}),
     part(CYL(2.4,1.3,13,10),V.hair,{p:[0,-7.5,-4.4]}),part(CYL(.22,.22,9,6),'#d9a641',{p:[0,.6,-.4],r:[0,0,1.5708],emit:'#6a4a10',ei:.5}),part(SPH(.8,8,6),'#f3c6d2',{p:[4.6,.6,-.4],emit:'#f3c6d2',ei:.6}),part(SPH(.5,8,6),'#8fe3ff',{p:[-4.6,.6,-.4],emit:'#8fe3ff',ei:2}),
     part(SPH(1,8,6),'#ff9fb6',{p:[3.9,1.6,.9],s:[1,.6,1],emit:'#ff9fb6',ei:.5}),part(SPH(.6,8,6),'#ff9fb6',{p:[4.9,1.1,.3],s:[1,.6,1],emit:'#ff9fb6',ei:.5}),part(SPH(.6,8,6),'#ff9fb6',{p:[3,1.2,1.8],s:[1,.6,1],emit:'#ff9fb6',ei:.5})]);
+  else if(cls==='monk')hatGeo=merge([part(SPH(.1,4,3),V.hair,{p:[0,0,0]})]);
+  else if(cls==='physician')hatGeo=merge([part(BOX(8.4,3.2,7.6),'#2a3a4a',{p:[0,.4,-.6],top:'#3a4e66'}),part(BOX(8.8,.8,8),'#1a2430',{p:[0,-1.4,-.6]}),part(BOX(1.6,5,.4),'#2a3a4a',{p:[-3.2,-2,-4.6],r:[.3,0,.2]}),part(BOX(1.6,5,.4),'#2a3a4a',{p:[3.2,-2,-4.6],r:[.3,0,-.2]})]);
   else if(cls==='taoist')hatGeo=merge([part(SPH(1.8,10,8),V.hair,{p:[0,.8,-1.2]}),part(CYL(2.4,2,3,8),'#1a1a22',{p:[0,1.6,-1.2],top:'#2e2e3a'}),part(BOX(2.4,1.8,1),'#d9a641',{p:[0,2.2,.4],emit:'#6a4a10',ei:.6}),part(CYL(.3,.3,7,6),'#d9a641',{p:[0,1.6,-1.2],r:[0,0,1.5708]})]);
   else hatGeo=merge([part(SPH(2.1,10,8),V.hair,{p:[0,1.4,-1.2]}),part(CYL(.5,.5,6,6),'#d9a641',{p:[0,1.8,-1.2],r:[0,0,1.2]}),part(CYL(5.1,5.1,1.4,16,true),'#b8322b',{p:[0,-2.4,0]}),part(BOX(1.2,7,.4),'#b8322b',{p:[-3.6,-5.2,-3.4],r:[.4,0,.5]}),part(BOX(1.2,6,.4),'#b8322b',{p:[-4.6,-5.4,-3],r:[.5,0,.9]})]);
   const hatM=new T3.Mesh(hatGeo,mat('plain',{rough:.8,rimI:.25}));hatM.castShadow=true;hat.add(hatM);
@@ -386,6 +392,10 @@ function buildHeroModel(cls,slot,weaponId){
   else if(weaponId==='whisk')weapon=[part(CYL(.45,.55,15,6),'#3a2418',{p:[1.2,5.5,5.4],top:'#6a4a2a'}),part(CYL(1,1,1.4,8),'#d9a641',{p:[1.2,13.4,5.4],emit:'#6a4a10',ei:.5}),...Array.from({length:14},(_,i)=>{const a=i/14*TAU,r=1.6+(i%3)*.5;return part(CYL(.12,.05,9,4),'#f4efe0',{p:[1.2+Math.cos(a)*r*.9,18.2,5.4+Math.sin(a)*r*.9],r:[Math.sin(a)*.5,0,-Math.cos(a)*.5],emit:'#ffffff',ei:.55})}),part(SPH(1.1,8,6),'#8fe3ff',{p:[1.2,14.6,5.4],emit:'#8fe3ff',ei:1.6})];
   else if(weaponId==='nodachi')weapon=[part(BOX(4.2,.9,1),'#d9a641',{p:[1.2,.6,5.4],emit:'#6a4a10',ei:.5}),part(CYL(.6,.6,10,6),'#1a1a22',{p:[1.2,-4.8,5.4]}),part(BOX(1.9,34,.4),'#e8edf2',{p:[1.6,17.5,5.4],top:'#ffffff',emit:'#ffb080',ei:.35}),part(BOX(.5,33,.45),'#ffffff',{p:[2.3,17.3,5.4],emit:'#ffd0a0',ei:1.3}),part(BOX(.5,5,.5),'#b8322b',{p:[1.2,-9.6,5.4]})];
   else if(weaponId==='drum')weapon=[part(CYL(5.2,5.2,3.4,16),'#8a2a22',{p:[-2,2,10],r:[1.5708,0,0],top:'#b8322b'}),part(CYL(4.6,4.6,.4,16),'#f1dfc0',{p:[-2,2,11.9],r:[1.5708,0,0],emit:'#ffd27a',ei:.5}),part(CYL(5.4,5.4,.5,16),'#d9a641',{p:[-2,2,8.1],r:[1.5708,0,0],emit:'#6a4a10',ei:.6}),part(CYL(.4,.4,13,6),'#3a2418',{p:[1.2,6.5,5.4],top:'#6a4a2a'}),part(SPH(1.3,8,6),'#ffd27a',{p:[1.2,13.5,5.4],emit:'#ffd27a',ei:1.4})];
+  else if(weaponId==='staff')weapon=[part(CYL(.7,.8,44,8),'#3a2418',{p:[1.2,12,5.4],top:'#6a4a2a'}),part(CYL(1.2,1.2,2.2,8),'#d9a641',{p:[1.2,33,5.4],emit:'#6a4a10',ei:.6}),part(CYL(1.2,1.2,1.4,8),'#d9a641',{p:[1.2,-9,5.4],emit:'#6a4a10',ei:.6}),...[0,1,2].map(i=>part(T3.TorusGeometry?new T3.TorusGeometry(1.6,.3,6,12):SPH(1.2,6,4),'#f0e6c8',{p:[1.2+(i-1)*1.6,34.6,5.4],r:[0,1.5708,0],emit:'#ffd27a',ei:.6}))];
+  else if(weaponId==='fist')weapon=[part(BOX(3.4,3,3.2),'#e9e4d6',{p:[1.2,-1,4.2]}),part(BOX(3.6,.6,3.4),'#b8322b',{p:[1.2,-.2,4.2]}),part(BOX(3.6,.6,3.4),'#b8322b',{p:[1.2,-1.8,4.2]})];
+  else if(weaponId==='needle')weapon=[...[-.35,0,.35].map(a=>part(CYL(.14,.14,11,5),'#dfe6ee',{p:[1.2+Math.sin(a)*2,5,5.4+Math.cos(a)*.6],r:[0,0,a],emit:'#9ff06a',ei:.9})),part(SPH(.9,8,6),'#5a3a2a',{p:[1.2,-.6,5.4]})];
+  else if(weaponId==='pouch')weapon=[part(SPH(2.6,10,8),'#8a5a32',{p:[1.2,-1.5,5.6],s:[1,1.15,1],top:'#b07a48'}),part(CYL(.9,1.3,1.6,8),'#5a3a2a',{p:[1.2,1.6,5.6]}),part(SPH(.6,6,4),'#9ff06a',{p:[2.4,-.4,7.8],emit:'#9ff06a',ei:1.2})];
   else if(cls==='swordsman')weapon=[part(BOX(4.6,.8,.9),'#d9a641',{p:[1.2,.6,5.4],emit:'#6a4a10',ei:.5}),part(CYL(.6,.6,5,6),'#2a1a14',{p:[1.2,-2.4,5.4]}),part(SPH(.9,8,6),'#d9a641',{p:[1.2,-5.1,5.4]}),part(BOX(1.1,22,.32),'#dfe6ee',{p:[1.2,11.8,5.4],top:'#ffffff',emit:'#88c8ff',ei:.35}),part(BOX(.4,20,.45),'#ffffff',{p:[1.2,11.5,5.4],emit:'#9fe3f0',ei:1.2})];
   else if(cls==='taoist')weapon=[part(CYL(.5,.6,18,6),'#5a3a22',{p:[1.2,6,5.4],top:'#8a5a32'}),part(CYL(1,1,1.2,8),'#d9a641',{p:[1.2,15.2,5.4],emit:'#6a4a10',ei:.5}),part(CONE(2.4,11,10),'#f4efe0',{p:[1.2,20.4,5.4],top:'#ffffff',emit:'#ffd27a',ei:.25}),part(SPH(1.1,8,6),'#d9a641',{p:[1.2,-3.2,5.4]})];
   else if(cls==='qin')weapon=[part(BOX(17,1.3,5),'#3a2418',{p:[-5.5,0,8.6],r:[0,.12,.08],top:'#6a4a2a'}),part(BOX(16,.3,.16),'#e8e4d8',{p:[-5.5,.9,7.4],r:[0,.12,.08],emit:'#8fe3ff',ei:1}),part(BOX(16,.3,.16),'#e8e4d8',{p:[-5.5,.95,8.6],r:[0,.12,.08],emit:'#8fe3ff',ei:1}),part(BOX(16,.3,.16),'#e8e4d8',{p:[-5.5,1,9.8],r:[0,.12,.08],emit:'#8fe3ff',ei:1}),part(SPH(.8,8,6),'#d9a641',{p:[2.4,.9,8.6],emit:'#6a4a10',ei:.5})];
@@ -393,7 +403,7 @@ function buildHeroModel(cls,slot,weaponId){
   weapon.forEach(w=>w.translate(0,WY,WZ));
   const forearm=cls==='blademaster'?[part(CYL(1.5,1.7,6,8),skin,{p:[1,-6,3.2],r:[.55,0,-.1]}),part(CYL(1.75,1.75,2.4,8),'#e9e4d6',{p:[1.1,-5,3.6],r:[.55,0,-.1]})]:[];
   const armM=new T3.Mesh(merge([part(CYL(2.1,female?3.2:4.2,female?11:9,10),V.sleeve,{p:[.2,-3.8,1.6],r:[.55,0,-.18],top:V.sleeve}),...forearm,part(SPH(1.6,10,7),skin,{p:[1.2,-9.2,4.2]}),...weapon]),m);armM.castShadow=true;arm.add(armM);
-  const cry=new T3.Mesh(new T3.OctahedronGeometry(1.6,1),new T3.MeshBasicMaterial({color:new T3.Color(...V.gem)}));cry.position.set(1.2,WY+(weaponId==='whisk'?21:weaponId==='drum'?14:weaponId==='nodachi'?35:weaponId==='great'?27:cls==='taoist'?26:cls==='qin'?2:23.6),5.4+WZ);if(cls==='qin'&&weaponId==='wave')cry.position.set(-12,WY+1.5,8.2);arm.add(cry);
+  const cry=new T3.Mesh(new T3.OctahedronGeometry(1.6,1),new T3.MeshBasicMaterial({color:new T3.Color(...V.gem)}));cry.position.set(1.2,WY+(weaponId==='whisk'?21:weaponId==='drum'?14:weaponId==='nodachi'?35:weaponId==='great'?27:weaponId==='staff'?37:weaponId==='fist'?2:weaponId==='needle'?11:weaponId==='pouch'?3.5:cls==='taoist'?26:cls==='qin'?2:23.6),5.4+WZ);if(cls==='qin'&&weaponId==='wave')cry.position.set(-12,WY+1.5,8.2);arm.add(cry);
   const sigil=new T3.Mesh(new T3.PlaneGeometry(1,1),new T3.MeshBasicMaterial({map:sigilTex(),transparent:true,opacity:.75,blending:T3.AdditiveBlending,depthWrite:false,color:new T3.Color(.55,1.6,1.8)}));sigil.rotation.x=-Math.PI/2;sigil.scale.set(slot==='player'?50:36,slot==='player'?50:36,1);scene.add(sigil);
   if(slot==='player')for(let i=0;i<14;i++){const gm=new T3.Mesh(robeGeo,new T3.MeshBasicMaterial({color:new T3.Color(.6,2.4,3),transparent:true,opacity:.5,blending:T3.AdditiveBlending,depthWrite:false}));gm.visible=false;gm.scale.set(.9,.9,.9);scene.add(gm);ghostM.push(gm)}
   return {g:grp,hat,arm,crystal:cry,cape,sigil,cls,slot,gem:V.gem,weapon:weaponId};

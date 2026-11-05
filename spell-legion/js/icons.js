@@ -42,6 +42,20 @@ const ICON=(()=>{
     flow:c=>P('M8 22C16 14 24 30 32 22C40 14 48 30 56 22',{s:'#fff',w:3})+P('M8 34C16 26 24 42 32 34C40 26 48 42 56 34',{s:c,w:3,o:.85})+P('M8 46C16 38 24 54 32 46C40 38 48 54 56 46',{s:c,w:3,o:.6}),
     ambush:c=>rays(10,10,27,{s:'#fff',w:2.5})+rays(10,8,16,{s:c,w:3,o:.9},Math.PI/10)+C(32,32,5,{f:c,s:'#fff',w:2}),
     guangling:c=>P('M38 10V40',{s:'#fff',w:3.5})+P('M38 10C46 14 48 20 44 26',{s:'#fff',w:3.5})+C(31,42,7,{f:'#fff',s:'none'})+ring(26,{s:c,w:2,o:.7})+ring(20,{s:c,w:1.5,o:.4}),
+    // ---- monk ----
+    staff:c=>L(14,50,50,14,{s:'#c9a24a',w:5})+C(50,14,4,{s:c,w:2.5})+C(14,50,3,{f:c,s:'none'})+rays(3,20,26,{s:c,w:2,o:.6},.6),
+    fist:c=>P('M20 30V46C20 52 26 56 32 56H40C46 56 50 52 50 46V34H44V26C44 22 38 22 38 26V32H34V22C34 18 28 18 28 22V32H24V26C24 22 20 22 20 26Z',{f:c,s:'#fff',w:2.5})+P('M20 40H50',{s:'#fff',w:2,o:.6}),
+    vajra:c=>P('M32 14V50',{s:'#fff',w:4})+P('M22 14C28 18 36 18 42 14M22 50C28 46 36 46 42 50M22 14V22C26 24 38 24 42 22V14M22 50V42C26 40 38 40 42 42V50',{s:c,w:3})+C(32,32,5,{f:c,s:'#fff',w:2}),
+    tiger:c=>P('M16 14C20 26 20 38 16 50M28 10C32 24 32 40 28 54M40 10C44 24 44 40 40 54M52 14C48 26 48 38 52 50',{s:c,w:4})+P('M12 32H52',{s:'#fff',w:2,o:.4}),
+    zen:c=>P('M32 48C20 48 12 40 12 32C20 34 26 40 32 48C38 40 44 34 52 32C52 40 44 48 32 48Z',{f:c,s:'#fff',w:2})+P('M32 48C26 38 26 26 32 16C38 26 38 38 32 48Z',{f:'#fff',s:'#fff',w:1,o:.9})+ring(26,{s:c,w:1.5,o:.5}),
+    sarira:c=>C(32,32,9,{f:c,s:'#fff',w:2.5})+rays(8,14,22,{s:'#fff',w:2.5})+P('M32 8A24 24 0 0 1 56 32',{s:c,w:3,o:.8})+P('M32 56A24 24 0 0 1 8 32',{s:c,w:3,o:.8}),
+    // ---- physician ----
+    needle:c=>P('M12 52L48 16M18 54L52 20M8 44L42 10',{s:'#fff',w:2.5})+C(48,16,3,{f:c,s:'none'})+C(52,20,3,{f:c,s:'none'})+C(42,10,3,{f:c,s:'none'})+drop(c,18,38,.4),
+    pouch:c=>P('M24 18C16 26 12 34 14 44C16 52 48 52 50 44C52 34 48 26 40 18Z',{f:'#8a5a32',s:'#fff',w:2.5})+P('M24 18C28 12 36 12 40 18',{s:'#fff',w:3})+P('M22 20H42',{s:c,w:3})+C(32,38,5,{f:c,s:'none',o:.8}),
+    plague:c=>drop(c,32,30,1)+C(27,30,2.5,{f:'#120a14',s:'none'})+C(37,30,2.5,{f:'#120a14',s:'none'})+P('M28 40H36',{s:'#120a14',w:2.5})+rays(6,24,30,{s:c,w:2,o:.6}),
+    gu:c=>P('M32 20C40 20 46 28 46 36C46 44 40 52 32 52C24 52 18 44 18 36C18 28 24 20 32 20Z',{f:c,s:'#fff',w:2.5})+P('M32 20V52M18 36H46',{s:'#120a14',w:1.5,o:.6})+P('M26 16L22 10M38 16L42 10M18 30L10 26M46 30L54 26M18 42L10 46M46 42L54 46',{s:'#fff',w:2.5}),
+    rejuv:c=>P('M32 52C32 36 20 28 10 26C14 40 22 50 32 52ZM32 52C32 36 44 28 54 26C50 40 42 50 32 52Z',{f:c,s:'#fff',w:2})+P('M32 52V18',{s:'#fff',w:3})+heart('#ff9fb6').replace('<path','<path transform="translate(16 2) scale(.5)"'),
+    numb:c=>P('M14 22H30L14 38H30',{s:'#fff',w:4})+P('M34 12H46L34 24H46',{s:c,w:3.5})+P('M40 36H52L40 48H52',{s:c,w:3,o:.7})+P('M12 52C20 46 44 46 52 52',{s:c,w:2,o:.5}),
     // ---- elements ----
     fire:c=>flame(c,32,36,1),
     ice:c=>rays(6,0,22,{s:'#fff',w:3})+[0,60,120].map(a=>`<g transform="rotate(${a} 32 32)">${P('M32 14L27 20M32 14L37 20M32 50L27 44M32 50L37 44',{s:c,w:2.5})}</g>`).join('')+C(32,32,4,{f:c,s:'#fff',w:2}),
@@ -87,7 +101,7 @@ const ICON=(()=>{
     gold:c=>C(32,32,18,{f:c,s:'#fff',w:2.5})+P('M26 24H38M26 32H38M32 20V44',{s:'#7a4a10',w:3}),
     trophy:c=>P('M20 10H44V26C44 36 36 40 32 40C28 40 20 36 20 26Z',{f:c,s:'#fff',w:2.5})+P('M20 14H12V22C12 28 18 30 20 30M44 14H52V22C52 28 46 30 44 30',{s:'#fff',w:2.5})+P('M32 40V50M22 54H42',{s:'#fff',w:3.5}),
   };
-  const CLS={swordsman:'sword',taoist:'talis',blademaster:'slash',qin:'wave'};
+  const CLS={swordsman:'sword',taoist:'talis',blademaster:'slash',qin:'wave',monk:'staff',physician:'needle'};
   const NODE_GLYPH={};
   function svg(shape,c,cls=''){const f=S[shape]||S.relic;return `<svg class="ic ${cls}" viewBox="0 0 64 64" style="--c:${c}" aria-hidden="true"><circle cx="32" cy="32" r="30" fill="#120a14" stroke="${c}" stroke-width="2.5"/><circle cx="32" cy="32" r="27" fill="${c}" opacity=".14"/><circle cx="32" cy="32" r="27.5" fill="none" stroke="#000" stroke-width="1.2" opacity=".55"/><g>${f(c)}</g></svg>`}
   return {
