@@ -12,6 +12,10 @@ const SPELLS={
   ward:{g:'护',zh:'护身咒',en:'Warding Charm',col:'#7dffb0',cost:40,cd:14,d:'回复生命并获得四秒护罩,震开周围敌人。',de:'Heals, shields you for four seconds and pushes enemies back.'},
   // blademaster
   slash:{g:'刀',zh:'横扫',en:'Sweeping Blade',col:'#ff9c5a',auto:1,d:'普攻:近身横扫,贯穿一切。',de:'Normal attack. A close sweep that cuts through everything in front of you.'},
+  great:{g:'重',zh:'重剑',en:'Greatsword',col:'#c9d6e8',auto:1,d:'普攻:缓慢的巨剑横劈,击退极强;每第三击化为重斩震地。',de:'Normal attack. Slow, huge arcs with massive knockback; every third swing is a ground-shaking slam.'},
+  whisk:{g:'拂',zh:'拂尘',en:'Spirit Whisk',col:'#f4efe0',auto:1,d:'普攻:锁定一名敌人持续鞭打,越打越痛,五级起牵连第二人。',de:'Normal attack. A sustained lash on one target that ramps the longer it holds; chains to a second enemy from Lv 5.'},
+  nodachi:{g:'斩',zh:'长刀',en:'Nodachi',col:'#ffb080',auto:1,d:'普攻:向敌人突进一步再挥出一道超长刀光。',de:'Normal attack. Lunge a step toward the enemy and draw a very long blade arc.'},
+  drum:{g:'鼓',zh:'战鼓',en:'War Drum',col:'#ffd27a',auto:1,d:'普攻:擂鼓震出一圈冲击波,向四面扩散并击退。',de:'Normal attack. Each beat sends an expanding shockwave ring outward, knocking everything back.'},
   whirl:{g:'旋',zh:'旋风斩',en:'Whirlwind',col:'#ffb04a',cost:26,cd:6,dur:1.5,d:'旋身连斩,持续伤害周围敌人。',de:'Spin for 1.5 seconds, slicing everything around you.'},
   leap:{g:'踏',zh:'踏雪斩',en:'Leaping Strike',col:'#9fe3f0',cost:30,cd:7,d:'向前跃斩,落地时震裂地面。',de:'Leap forward, invulnerable, and crack the ground where you land.'},
   roar:{g:'吼',zh:'狮吼功',en:'Lion Roar',col:'#ffd75a',cost:36,cd:10,d:'震慑周围敌人,击退并眩晕。',de:'A roar that knocks back and stuns everything nearby.'},
@@ -83,6 +87,10 @@ const BOSS_NAME=['血魔教主','Blood Demon Patriarch'];
 const NODE_FX={dmg:.10,cd:.08,count:1,pierce:1,size:.15,cost:.15,dur:1,knock:.5,crit:.05,life:.02,chain:.15};
 const N=(fx,zh,en,max,tier,d)=>({fx,zh,en,max,tier,d});
 const TREES={
+  great:[N('dmg','沉重','Heft',3,1,'伤害 +12% / 级'),N('size','阔刃','Broad Blade',3,1,'范围 +15% / 级'),N('cd','挥洒','Fluid Swing',3,2,'挥速 +8% / 级'),N('knock','崩山','Avalanche',2,2,'击退 +50% / 级'),N('crit','断金','Steel Breaker',2,3,'暴击 +5% / 级'),N('chain','地裂','Fissure',2,3,'震地有几率引发连锁震击')],
+  whisk:[N('dmg','拂劲','Lash Force',3,1,'伤害 +12% / 级'),N('cd','疾鞭','Quick Lash',3,1,'鞭速 +8% / 级'),N('size','长拂','Long Reach',2,2,'射程 +15% / 级'),N('count','牵丝','Silk Threads',2,2,'+1 牵连目标 / 级'),N('crit','点穴','Pressure Point',2,3,'暴击 +5% / 级'),N('chain','雷拂','Thunder Whisk',2,3,'蓄满时有几率引雷')],
+  nodachi:[N('dmg','刀意','Blade Intent',3,1,'伤害 +12% / 级'),N('size','长光','Long Light',3,1,'刀光 +15% / 级'),N('cd','拔刀','Quick Draw',3,2,'出刀 +8% / 级'),N('knock','逆风','Headwind',2,2,'击退 +50% / 级'),N('crit','一闪','Flash',2,3,'暴击 +5% / 级'),N('chain','残影','Afterimage',2,3,'突进留下伤敌残影')],
+  drum:[N('dmg','鼓劲','Drum Force',3,1,'伤害 +12% / 级'),N('size','远震','Far Tremor',3,1,'波及范围 +15% / 级'),N('cd','急鼓','Rapid Beat',3,2,'鼓速 +8% / 级'),N('knock','震退','Repulse',2,2,'击退 +50% / 级'),N('count','叠鼓','Double Beat',2,2,'+1 鼓波 / 级'),N('chain','裂地','Quake',2,3,'鼓波命中有几率震出余波')],
   sword:[N('count','剑影','Sword Shadows',3,1,'+1 飞剑 / 级'),N('dmg','锋锐','Keen Edge',3,1,'伤害 +12% / 级'),N('cd','疾射','Quick Draw',3,2,'出手 +8% / 级'),N('pierce','贯穿','Pierce',2,2,'穿透 +1 / 级'),N('crit','要害','Vital Strike',2,3,'暴击 +5% / 级'),N('chain','剑气纵横','Sword Qi',2,3,'命中有几率引发剑气跳击')],
   palm:[N('dmg','刚猛','Vigour',3,1,'伤害 +12% / 级'),N('count','掌影','Palm Shadows',2,1,'+1 掌风 / 级'),N('knock','排山','Mountain Push',2,2,'击退 +50% / 级'),N('cd','连环','Chained Palms',3,2,'冷却 -8% / 级'),N('cost','气沉','Deep Breath',2,3,'内力消耗 -15% / 级'),N('size','掌风如山','Gale Palm',2,3,'范围 +15% / 级')],
   array:[N('count','增剑','More Blades',3,1,'+1 飞剑 / 级'),N('dur','久持','Lasting',3,1,'持续 +1s / 级'),N('dmg','剑意','Sword Intent',3,2,'伤害 +12% / 级'),N('size','广阵','Wide Array',2,2,'半径 +15% / 级'),N('cd','周天','Circulation',2,3,'冷却 -8% / 级'),N('life','饮血','Blood Drinker',2,3,'命中回复生命')],
@@ -145,9 +153,23 @@ const ACH=[
 ];
 const DIFF={easy:{zh:'简单',en:'Easy',hp:.7,dmg:.7,gold:.8},normal:{zh:'普通',en:'Normal',hp:1,dmg:1,gold:1},hard:{zh:'困难',en:'Hard',hp:1.4,dmg:1.35,gold:1.4}};
 
+/* weapons: the normal attack of a class is swappable; chosen on the title screen */
+const WEAPONS={swordsman:['sword','great'],taoist:['charm','whisk'],blademaster:['slash','nodachi'],qin:['wave','drum']};
+const WEAPON_INFO={
+  sword:{trait:['快而多','Fast, many blades'],awake:['剑雨·飞剑数 +2,伤害 +25%','Sword Rain: +2 blades, +25% damage']},
+  great:{need:'clsboss',cost:500,trait:['重击·震地','Heavy hits, ground slam'],awake:['开山·每第二击震地,震地范围 +40%','Mountain Splitter: slam every second swing, +40% slam radius']},
+  charm:{trait:['追踪·爆裂','Homing, explodes'],awake:['万符·符数 +2,爆炸范围 +30%','Myriad Charms: +2 charms, +30% blast radius']},
+  whisk:{need:'clsboss',cost:500,trait:['持续·蓄力','Sustained, ramps up'],awake:['三清·牵连三名敌人,蓄力上限 +60%','Three Pure Ones: chains to three enemies, ramp cap doubled']},
+  slash:{trait:['贯穿·扇形','Piercing fan'],awake:['刀海·刀气 +3,范围 +25%','Sea of Blades: +3 blade qi, +25% reach']},
+  nodachi:{need:'clsboss',cost:500,trait:['突进·长刀光','Lunge, long arc'],awake:['居合·突进更远,刀光留下灼痕','Iaido: longer lunge, the arc leaves a burning trail']},
+  wave:{trait:['穿透·减速','Pierces, slows'],awake:['裂帛·音波 +2,穿透 +2','Rending Note: +2 waves, +2 pierce']},
+  drum:{need:'clsboss',cost:500,trait:['环形冲击·击退','Ring shockwave, knockback'],awake:['雷鼓·双重鼓波,范围 +30%','Thunder Drum: double ring, +30% radius']},
+};
+const AWAKE_LV=15;
 /* skill categories for the card screen */
 const CATS={melee:['近战','Melee','#ff9c5a'],ranged:['远程','Ranged','#9fe3f0'],summon:['阵法','Summon','#c7a4f0'],defense:['防御','Defense','#7dffb0'],heal:['治疗','Heal','#7fc98a'],control:['控制','Control','#ffd75a'],element:['真气','Element','#ff8a3c'],augment:['强化','Augment','#d6a54a'],passive:['心法','Passive','#efe4cd'],tree:['武学树','Tree','#ffd27a'],new:['新武学','New skill','#ffffff']};
-const SKILL_CAT={sword:'ranged',palm:'ranged',array:'summon',talis:'ranged',charm:'ranged',bagua:'summon',ward:'defense',slash:'melee',whirl:'melee',leap:'melee',roar:'control',sunder:'ranged',exorcise:'control',frenzy:'melee',wave:'ranged',flow:'control',ambush:'ranged',guangling:'heal'};
+const KINDS={level:['技能升级','Skill level up','#9fe3f0'],new:['新武学','New skill','#ffffff'],element:['灌注真气','Element','#ff8a3c'],fusion:['真气融合','Fusion','#ff8a3c'],tree:['武学树','Skill tree','#ffd27a'],augment:['强化','Augment','#d6a54a'],passive:['心法·被动','Passive','#efe4cd'],awake:['武器觉醒','Awakening','#ffd27a'],jackpot:['天降横财','Jackpot','#ffd27a']};
+const SKILL_CAT={great:'melee',whisk:'ranged',nodachi:'melee',drum:'control',sword:'ranged',palm:'ranged',array:'summon',talis:'ranged',charm:'ranged',bagua:'summon',ward:'defense',slash:'melee',whirl:'melee',leap:'melee',roar:'control',sunder:'ranged',exorcise:'control',frenzy:'melee',wave:'ranged',flow:'control',ambush:'ranged',guangling:'heal'};
 const PERK_CAT={锋锐:'melee',金钟罩:'defense',轻身:'passive',内息:'passive',生息:'heal',摄物:'passive',疾风:'passive',致命:'melee'};
 /* boss signature moves, by boss index (see BOSSES in sim.js) */
 const BOSS_SIG=[['bloodrain','drain'],['spiral','blink'],['eggs','venom'],['bonewall','spikes'],['hellring','meteor']];

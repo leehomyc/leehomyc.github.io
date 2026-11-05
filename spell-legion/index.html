@@ -40,7 +40,7 @@
   </div>
   <div id="banner"></div>
   <div id="intro" hidden></div>
-  <button id="sndbtn" aria-label="Sound settings">🔊</button>
+  <button id="sndbtn" aria-label="Mute / unmute" title="静音 / 开启 Mute / unmute">🔊</button>
   <div id="sndpanel" hidden>
     <label>音乐 Music <input type="range" id="musicvol" min="0" max="100" value="60"></label>
     <label>音效 Effects <input type="range" id="sfxvol" min="0" max="100" value="80"></label>
@@ -55,7 +55,7 @@
         <h1>Spell Legion</h1>
         <p>无尽江湖。选一位侠客出山,普攻自动施展,武学按 <kbd>1</kbd><kbd>2</kbd><kbd>3</kbd> 释放(消耗内力、有冷却),<kbd>Space</kbd> 轻功闪避。敌人越来越强,每四分钟一位首领,能撑多久?<br>
         Endless mode. Your normal attack fires by itself; cast skills with 1/2/3. Enemies keep growing stronger and a new boss arrives every four minutes. How long can you last?</p>
-        <div id="classes"></div>
+        <div id="classes"></div><div id="weapons"></div>
         <div class="btns"><button class="go" id="startbtn">出山 Start</button><button class="go alt" id="lbbtn" hidden>排行榜 Leaderboard</button></div>
         <p class="note"><span id="autonote"></span> <kbd>WASD</kbd> / arrows or drag to move · <kbd>Space</kbd> dash · <kbd>P</kbd> pause (auto-cast toggle there) · <kbd>M</kbd> mute. <span id="loadnote"></span></p>
         <div class="opts"><div id="mode"><span>模式 Mode</span><button type="button" data-m="solo">单人 Solo</button><button type="button" data-m="pk">对决 PK vs AI</button></div><div id="diff"><span>难度 Difficulty</span><button type="button" data-d="easy">简单 Easy</button><button type="button" data-d="normal">普通 Normal</button><button type="button" data-d="hard">困难 Hard</button></div><div id="qual"><span>画质 Quality</span><button type="button" data-q="low">低 Low</button><button type="button" data-q="med">中 Med</button><button type="button" data-q="high">高 High</button></div></div>

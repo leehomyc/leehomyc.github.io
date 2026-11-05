@@ -166,6 +166,8 @@ function render(rdt){
     glow(m.x,6,m.y,'#7dff9c',120,.7+Math.sin(tm*4)*.2);
     for(let i=0;i<8;i++){const a=tm*1.2+i*.785,R=112+Math.sin(tm*3+i)*6;glow(m.x+Math.cos(a)*R,8,m.y+Math.sin(a)*R*.82,'#7dff9c',10,1.4)}}
   for(const f of G.fx){if(f.k!=='relic')continue;const R=RELICS[f.id],bob=8+Math.sin(tm*3+f.x)*3;glow(f.x,bob,f.y,R.col,26,1.3+Math.sin(tm*7)*.3);glow(f.x,bob,f.y,'#ffffff',8,2);for(let i=0;i<5;i++){const a=tm*2+i*1.256;glow(f.x+Math.cos(a)*12,4+((tm*18+i*8)%20),f.y+Math.sin(a)*12,R.col,3.5,1.5)}useRing(f.x,.9,f.y,16+Math.sin(tm*5)*2,R.col,.7)}
+  for(const w of G.pwaves){useRing(w.x,1.2,w.y,w.r,w.col,.9*(1-w.r/w.R)+.2);useRing(w.x,1.2,w.y,Math.max(2,w.r-7),'#ffffff',.4*(1-w.r/w.R));for(let i=0;i<16;i++){const a=i/16*TAU+tm*2;glow(w.x+Math.cos(a)*w.r,7,w.y+Math.sin(a)*w.r,w.col,10,1.3*(1-w.r/w.R)+.3)}}
+  for(const sp of G.spells)if(sp.beam){const b=sp.beam,col=sp.els[0]?ELS[sp.els[0]].col:'#f4efe0';for(let k=0;k<b.pts.length-1;k++){const [x1,y1]=b.pts[k],[x2,y2]=b.pts[k+1],n=8;for(let i=0;i<=n;i++){const q=i/n,wob=Math.sin(tm*40+i*1.7+k)*2.5*(1-b.hold*.5);glow(x1+(x2-x1)*q+wob,10+Math.sin(tm*30+i)*2,y1+(y2-y1)*q-wob,i%2?col:'#ffffff',8+b.hold*8,1.2+b.hold)}}}
   for(const h of G.hazards){ // boss ground hazards: pulsing telegraph ring, then a burning disc
     if(h.tele>0){const q=1-h.tele/h.T;useRing(h.x,1.15,h.y,h.r,h.col,.35+q*.5);useRing(h.x,1.15,h.y,h.r*q,h.col,.8);glow(h.x,4,h.y,h.col,h.r*1.6*q,.6)}
     else{useRing(h.x,1.15,h.y,h.r,h.col,.7);glow(h.x,5,h.y,h.col,h.r*2.4,1.2+Math.sin(tm*9)*.3);for(let i=0;i<4;i++){const a=tm*3+i/4*TAU;glow(h.x+Math.cos(a)*h.r*.6,8+Math.sin(tm*7+i)*4,h.y+Math.sin(a)*h.r*.6,h.col,10,1.2)}}}

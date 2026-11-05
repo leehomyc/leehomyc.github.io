@@ -284,3 +284,14 @@ kbd{font:700 13px var(--ui);border:1px solid var(--dim);padding:0 5px;border-rad
 #intro .bn em{display:block;font-style:normal;font-size:13px;color:var(--bone);opacity:.85;margin-top:8px;line-height:1.4}
 #mode button.on{background:#9a3a2a;border-color:#ffb79f}
 #endb h2.win{color:#ffd27a}#endb h2.lose{color:#ff6a6a}
+/* weapon select */
+#weapons{display:flex;gap:8px;align-items:stretch;flex-wrap:wrap;justify-content:center;margin:6px 0 2px}
+#weapons .wh{align-self:center;font-size:12px;color:var(--dim);letter-spacing:.1em}
+.wp{display:flex;gap:10px;align-items:center;text-align:left;background:#140b12d9;border:1px solid #6b523066;border-left:3px solid var(--c);border-radius:8px;padding:6px 10px;color:var(--bone);font:inherit;cursor:pointer;max-width:330px;flex:1 1 260px}
+.wp .g{font-family:var(--brush);font-size:30px;line-height:1;color:var(--c);text-shadow:0 0 12px var(--c)}
+.wp .t{display:flex;flex-direction:column;gap:2px;min-width:0}.wp b{font-size:14px}.wp b small{color:var(--brass);font-weight:700}.wp small{font-size:11px;color:var(--dim);line-height:1.3}.wp .dd{color:#c9b9a8}
+.wp.sel{border-color:var(--c);box-shadow:0 0 18px color-mix(in srgb,var(--c) 40%,transparent)}
+.wp.locked{opacity:.75}.wp .lk{color:#c8a86c}.wp .buy{color:#7dffb0;font-weight:800}
+.card .chips{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:2px}.card .chip{margin-bottom:0}.card .chip.kind{background:color-mix(in srgb,var(--cc) 18%,transparent)}
+.seal .cost i{font-style:normal;font-size:8px;color:#8fd8ffcc;margin-right:1px;letter-spacing:0}
+.bstats .lbl{flex:1 1 100%;text-align:center;color:var(--brass);font-size:11px;letter-spacing:.1em}

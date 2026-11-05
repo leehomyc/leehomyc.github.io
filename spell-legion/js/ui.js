@@ -3,7 +3,7 @@
 const SAVE_KEY='spell-legion-save';
 let SAVE={gold:0,up:{},cls:'swordsman',best:0,wins:0,runs:0,autocast:false,rival:false,bosses:0,played:false,ach:{},diff:'normal',clsWins:{}};
 try{const s=JSON.parse(localStorage.getItem(SAVE_KEY)||'null');if(s&&typeof s==='object')SAVE={...SAVE,...s}}catch(_){}
-SAVE.ach=SAVE.ach||{};SAVE.clsWins=SAVE.clsWins||{};window.SAVE=SAVE;
+SAVE.ach=SAVE.ach||{};SAVE.clsWins=SAVE.clsWins||{};SAVE.weapon=SAVE.weapon||{};SAVE.weaponOwned=SAVE.weaponOwned||{};window.SAVE=SAVE;
 function persist(){try{localStorage.setItem(SAVE_KEY,JSON.stringify(SAVE))}catch(_){}}
 const UPGRADES=[
   {id:'hp',zh:'体魄',en:'Vigor',d:'生命上限 +10% / 级',de:'+10% max HP per rank',max:5,cost:r=>80+r*70},
@@ -81,7 +81,8 @@ function drawSeals(){
       const g=document.createElement('div');g.className='g';g.textContent=m.g;g.style.color=s.els[0]?ELS[s.els[0]].col:m.col;d.appendChild(g);
       const l=document.createElement('div');l.className='lv';l.textContent='Lv '+s.lv;d.appendChild(l);
       const key=document.createElement('div');key.className='key';key.textContent=m.auto?'自动':SPELL_KEYS[i];d.appendChild(key);
-      if(!m.auto){const cst=document.createElement('div');cst.className='cost';cst.textContent=m.cost;d.appendChild(cst)}
+      if(!m.auto){const cst=document.createElement('div');cst.className='cost';cst.innerHTML=`<i>内力</i>${m.cost}`;d.appendChild(cst)}
+      d.title=`${m.zh} ${m.en} · Lv ${s.lv}${m.auto?' · 自动 auto':` · 消耗 ${m.cost} 内力 · 冷却 ${m.cd}s`}\n${m.d}\n${m.de}`;
       if(s.els.length){const e=document.createElement('div');e.className='els';s.els.forEach(k=>{const b=document.createElement('i');b.style.background=ELS[k].col;b.style.color=ELS[k].col;e.appendChild(b)});d.appendChild(e)}
       if(s.augs.length){const a=document.createElement('div');a.className='aug';a.textContent=s.augs.map(k=>AUGS[k].g).join('');d.appendChild(a)}
       const cdm=document.createElement('div');cdm.className='cdm';d.appendChild(cdm);
@@ -129,13 +130,17 @@ function openPick(){
   if(!cards.length){return openPick()}
   if(G.auto){pick(cards).a();return openPick()}
   G.pick=cards;$('#banner').classList.remove('on');bannerT=0;
-  const T={level:['升级','Level up'],infuse:['灌注真气','Infuse '+SPELLS[q.s?.id]?.en],fuse:['真气融合','Fuse '+SPELLS[q.s?.id]?.en],aug:['密令完成:选择强化','Mission complete. Choose an augmentation']}[q.kind];
-  $('#cardtitle').innerHTML=`${T[0]}<small>${T[1]}${q.kind==='level'?' · 属性已自动成长 · stats grew automatically':''}</small>`;
+  const T={level:['升级','Level up'],infuse:['灌注真气','Infuse '+SPELLS[q.s?.id]?.en],fuse:['真气融合','Fuse '+SPELLS[q.s?.id]?.en],aug:['密令完成:选择强化','Mission complete. Choose an augmentation'],awake:['武器觉醒','Weapon awakening · '+SPELLS[q.s?.id]?.en]}[q.kind];
+  $('#cardtitle').innerHTML=`${T[0]}<small>${T[1]}${q.kind==='level'?' · 三选一 · 生命/攻击等属性每级自动提升 · pick one; HP, damage and other stats rise on their own':''}</small>`;
   const row=$('#cardrow');row.textContent='';
   const adv=renderBuildStrip();
   cards.forEach((cd,i)=>{const b=document.createElement('button');b.className='card'+(cd.q?' '+cd.q.k:'')+(cd.isNew?' newskill':'');b.id='card'+i;b.style.setProperty('--c',cd.c);b.style.animationDelay=(i*.08)+'s';
     const parts=[['g',cd.g],['n',cd.n],['e',cd.e],['d',cd.d],['de',cd.de],['k','按 '+(i+1)+' · Press '+(i+1)]];
-    const cat=CATS[cd.cat]||CATS.passive;const chip=document.createElement('div');chip.className='chip';chip.style.setProperty('--cc',cat[2]);chip.textContent=(cd.isNew?CATS.new[0]+' · ':'')+cat[0]+' '+cat[1];b.appendChild(chip);
+    const cat=CATS[cd.cat]||CATS.passive,kind=cd.kind||'passive',K=KINDS[kind]||KINDS.passive;
+    const chips=document.createElement('div');chips.className='chips';
+    const k1=document.createElement('span');k1.className='chip kind';k1.style.setProperty('--cc',K[2]);k1.textContent=K[0]+' '+K[1];chips.appendChild(k1);
+    if(kind!=='passive'&&kind!=='jackpot'){const k2=document.createElement('span');k2.className='chip';k2.style.setProperty('--cc',cat[2]);k2.textContent=cat[0]+' '+cat[1];chips.appendChild(k2)}
+    b.appendChild(chips);
     if(adv&&(cd.cat===adv.cat||(adv.cat==='defense'&&cd.cat==='heal')||(adv.cat==='melee'&&(cd.cat==='ranged'||cd.cat==='summon')))){const sg=document.createElement('div');sg.className='sug';sg.textContent='推荐 Suggested';b.appendChild(sg);b.classList.add('sugged')}
     if(cd.q&&cd.q.zh){const r=document.createElement('div');r.className='rar';r.textContent=cd.q.zh+' '+cd.q.en;b.appendChild(r)}
     parts.forEach(([k,v])=>{if(!v)return;const s=document.createElement('div');s.className=k;s.textContent=v;b.appendChild(s)});
@@ -148,9 +153,10 @@ function renderBuildStrip(){
   const el=$('#build');if(!el)return;el.textContent='';const P=G.P;
   G.spells.forEach((s,i)=>{const m=SPELLS[s.id],d=document.createElement('div');d.className='bs';d.style.setProperty('--c',m.col);
     const nodes=Object.values(s.nodes||{}).reduce((a,b)=>a+b,0),cat=CATS[SKILL_CAT[s.id]]||CATS.passive;
-    d.innerHTML=`<span class="g">${m.g}</span><div><b>${m.zh} <small>Lv ${s.lv}</small></b><small>${cat[0]} · ${s.els.map(k=>ELS[k].zh).join('+')||'无真气'} · 树 ${nodes} · ${s.augs.map(k=>AUGS[k].zh).join(' ')||''}</small></div>`;el.appendChild(d)});
-  for(let i=G.spells.length;i<4;i++){const d=document.createElement('div');d.className='bs empty';d.innerHTML=`<span class="g">·</span><div><b>空位 <small>${SPELL_KEYS[i]}</small></b><small>Lv ${i===2?3:6} 解锁 unlocks (3·6·10)</small></div>`;el.appendChild(d)}
-  const st=document.createElement('div');st.className='bstats';st.innerHTML=`<span>生命 <b>${Math.ceil(P.hp)}/${P.maxHp}</b></span><span>伤害 <b>×${(P.dmg*(1+P.dmgBonus)).toFixed(2)}</b></span><span>暴击 <b>${Math.round(P.crit*100)}%</b></span><span>减伤 <b>${Math.round((1-P.def)*100)}%</b></span><span>移速 <b>×${P.spd.toFixed(2)}</b></span><span>内力 <b>${P.maxMana}</b> +${P.regen.toFixed(1)}/s</span><span>法宝 <b>${G.relics.length}</b></span>`;el.appendChild(st);
+    const tags=[cat[0],s.els.length?'真气:'+s.els.map(k=>ELS[k].zh).join('+'):'',nodes?`武学树 ${nodes} 点`:'',...s.augs.map(k=>AUGS[k].zh),s.awake?'已觉醒':''].filter(Boolean).join(' · ');
+    d.innerHTML=`<span class="g">${m.g}</span><div><b>${m.zh} <small>Lv ${s.lv}</small></b><small>${i===0?'普攻 · ':''}${tags}</small></div>`;el.appendChild(d)});
+  for(let i=G.spells.length;i<4;i++){const d=document.createElement('div');d.className='bs empty';d.innerHTML=`<span class="g">·</span><div><b>空位 <small>键 ${SPELL_KEYS[i]}</small></b><small>Lv ${i===2?3:6} 时可选新武学 · new skill offered</small></div>`;el.appendChild(d)}
+  const st=document.createElement('div');st.className='bstats';st.innerHTML=`<span class="lbl">你的属性 Your stats</span><span>生命 <b>${Math.ceil(P.hp)}/${P.maxHp}</b></span><span>伤害 <b>×${(P.dmg*(1+P.dmgBonus)).toFixed(2)}</b></span><span>暴击 <b>${Math.round(P.crit*100)}%</b></span><span>减伤 <b>${Math.round((1-P.def)*100)}%</b></span><span>移速 <b>×${P.spd.toFixed(2)}</b></span><span>内力 <b>${P.maxMana}</b> +${P.regen.toFixed(1)}/s</span><span>法宝 <b>${G.relics.length}</b></span>`;el.appendChild(st);
   const adv=typeof buildAdvice==='function'?buildAdvice():null;
   if(adv){const a=document.createElement('div');a.className='badv';a.style.setProperty('--cc',(CATS[adv.cat]||CATS.passive)[2]);a.innerHTML=`<b>提示</b> ${adv.zh} <small>${adv.en}</small>`;el.appendChild(a)}
   return adv;
@@ -162,11 +168,21 @@ function choose(i){
 function closeCards(){G.picks=[];G.pick=null;$('#cards').hidden=true;G.panel=false;$('#char').hidden=true}
 
 /* title: class select and lobby */
+function renderWeapons(){
+  const wr=$('#weapons');if(!wr)return;wr.textContent='';const cls=SAVE.cls,cur=weaponOf(cls);
+  const h=document.createElement('span');h.className='wh';h.textContent='武器 Weapon';wr.appendChild(h);
+  (WEAPONS[cls]||[]).forEach(w=>{const m=SPELLS[w],info=WEAPON_INFO[w]||{},own=weaponUnlocked(cls,w),b=document.createElement('button');b.type='button';b.className='wp'+(w===cur?' sel':'')+(own?'':' locked');b.style.setProperty('--c',m.col);
+    const lock=own?'':(SAVE.gold>=(info.cost||0)?`<span class="buy">解锁 Unlock · ${info.cost} 金</span>`:`<span class="lk">🔒 用此职业斩杀一名首领,或 ${info.cost} 金 · slay a boss with this class, or ${info.cost} gold</span>`);
+    b.innerHTML=`<span class="g">${m.g}</span><span class="t"><b>${m.zh} <small>${m.en}</small></b><small>${info.trait?info.trait[0]+' · '+info.trait[1]:''}</small><small class="dd">${m.d}</small>${lock}</span>`;
+    b.onclick=()=>{if(!own){if(SAVE.gold>=(info.cost||0)){SAVE.gold-=info.cost;SAVE.weaponOwned[w]=true;persist();SFX.complete()}else{SFX.throw();return}}SAVE.weapon[cls]=w;persist();renderTitle();if(G&&G.auto){newGame(true,cls);demoBoost()}SFX.pick(1)};
+    wr.appendChild(b)});
+}
 function renderTitle(){
   const row=$('#classes');row.textContent='';
   for(const k in CLASSES){const C=CLASSES[k],b=document.createElement('button');b.className='cls'+(SAVE.cls===k?' sel':'');b.type='button';b.style.setProperty('--c',C.col);
     b.innerHTML=`<div class="g">${C.g}</div><div class="n">${C.zh} <small>${C.en}</small></div><div class="d">${C.d}</div><div class="de">${C.de}</div><div class="sk">${[C.main,...C.skills].map(id=>`<span style="color:${SPELLS[id].col}">${SPELLS[id].g}</span>`).join('')}</div>`;
     b.onclick=()=>{SAVE.cls=k;CLASS=k;persist();renderTitle();if(G&&G.auto){newGame(true,k);demoBoost()}SFX.pick(1)};row.appendChild(b)}
+  renderWeapons();
   $('#gold').textContent=SAVE.gold;
   const shop=$('#shop');shop.textContent='';
   UPGRADES.forEach(u=>{const r=SAVE.up[u.id]||0,cost=u.cost(r),b=document.createElement('button');b.className='up';b.type='button';b.disabled=r>=u.max||SAVE.gold<cost;
@@ -218,7 +234,7 @@ function autoLabel(){$('#autobtn').textContent=AUTOCAST?'武学:自动施放 Ski
 $('#autobtn').onclick=()=>{AUTOCAST=!AUTOCAST;SAVE.autocast=AUTOCAST;persist();autoLabel()};autoLabel();
 function syncSound(){const m=SFX.muted;$('#mutebtn').textContent=m?'声音:关 Sound off':'声音:开 Sound on';$('#sndbtn').textContent=m?'🔇':'🔊';$('#sndbtn').classList.toggle('off',m);$('#musicvol').value=Math.round(SFX.musicVol*100);$('#sfxvol').value=Math.round(SFX.sfxVol*100);$('#snd-mute').checked=m}
 $('#mutebtn').onclick=()=>{SFX.toggleMute();syncSound()};
-$('#sndbtn').onclick=()=>{SFX.start();const p=$('#sndpanel');p.hidden=!p.hidden;syncSound();$('#sndbtn').blur()};
+$('#sndbtn').onclick=()=>{SFX.start();const m=SFX.toggleMute();syncSound();$('#sndpanel').hidden=true;$('#sndbtn').blur();showBanner(m?'静音':'声音开启',m?'Muted':'Sound on',.7)};
 $('#snd-mute').onchange=e=>{SFX.setMute(e.target.checked);syncSound()};
 $('#musicvol').oninput=e=>{SFX.start();SFX.setMusic(e.target.value/100);if(SFX.muted){SFX.setMute(false);syncSound()}};
 $('#sfxvol').oninput=e=>{SFX.start();SFX.setSfx(e.target.value/100);SFX.pick(1);if(SFX.muted){SFX.setMute(false);syncSound()}};
