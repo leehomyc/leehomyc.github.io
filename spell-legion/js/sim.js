@@ -170,7 +170,7 @@ function kill(e,s,kx=0,ky=0){
   if(e.type==='statue'){if(G.mission&&G.mission.k==='statue'){G.mission.n--;checkMission()}return}
   const pv=pts(e);
   if(s&&s.owner==='rival'){const R=G.rival;R.kills++;R.combo=(R.combo||0)+1;R.comboT=2.4;R.comboMax=Math.max(R.comboMax||0,R.combo);R.score+=Math.round(pv*(1+Math.min(.6,Math.floor(R.combo/10)*.1)));G.rival.xp+=e.xp*2.2*G.rival.ai;if(RIVAL_ON&&pv>=8&&G.floats.length<80)G.floats.push({x:e.x,y:e.y-e.r-6,t:.9,v:L('对手','Rival')+' +'+pv,c:'#ff9c5a'})}
-  else{G.kills++;comboHit();const gain=Math.round(pv*(RIVAL_ON?comboMult():1));G.score+=gain;if(RIVAL_ON&&(pv>=3||G.floats.length<40)&&G.floats.length<80)G.floats.push({x:e.x,y:e.y-e.r-6,t:.8,v:'+'+gain,c:pv>=8?'#ffd27a':'#9fe3f0',score:1})}
+  else{G.kills++;comboHit();const gain=Math.round(pv*((RIVAL_ON||G.room)?comboMult():1));G.score+=gain;if((RIVAL_ON||G.room)&&(pv>=3||G.floats.length<40)&&G.floats.length<80)G.floats.push({x:e.x,y:e.y-e.r-6,t:.8,v:'+'+gain,c:pv>=8?'#ffd27a':'#9fe3f0',score:1})}
   if((e.type==='giant'||e.elite)&&!(s&&s.owner==='rival')){hitStop(.06);trauma(.3)}
   const drops=e.elite?4:1;
   for(let i=0;i<drops;i++)if(G.gems.length<360)G.gems.push({x:e.x+rnd(-8,8),y:e.y+rnd(-8,8),v:e.xp,big:e.xp>=3});
@@ -178,7 +178,7 @@ function kill(e,s,kx=0,ky=0){
   if(!(s&&s.owner==='rival')&&hasR('charm')&&e.type!=='boss'){const x=e.x,y=e.y;later(.03,()=>{near(x,y,24,o=>{if(hyp(o.x-x,o.y-y)<20+o.r)hit(o,10*G.P.dmg*(1+G.P.dmgBonus),null,true,'#ff7a2c',(o.x-x)*4,(o.y-y)*4)});ring(x,y,20,'#ff7a2c')})}
   if((e.elite&&SIMR()<.3)||e.warlord||e.type==='boss')dropRelic(e.x,e.y);
   if(e.affix==='explode'){const x=e.x,y=e.y,d=e.dmg*1.3;later(.08,()=>{ring(x,y,34,'#ff4a2a');spark(x,y,'#ff6a3a',14,120);const P=G.P;if(hyp(P.x-x,P.y-y)<34+6)dmgP(d,x,y,['爆裂敌人','exploding enemy']);if(G.rival&&hyp(G.rival.x-x,G.rival.y-y)<40)rivalHurt(d,x,y)})}
-  if(e.warlord){G.chests.push({x:e.x,y:e.y,t:0});showBanner('统领已斩','Warlord slain: treasure drops',1.4);trauma(.6);G.slow=Math.max(G.slow,.5);G.flash=.5;if(typeof SFX!=='undefined')SFX.win()}
+  if(e.warlord){G.chests.push({x:e.x,y:e.y,t:0});showBanner('统领已斩','Warlord slain: treasure drops',1.4);if(G.room)roomSendWave(8);trauma(.6);G.slow=Math.max(G.slow,.5);G.flash=.5;if(typeof SFX!=='undefined')SFX.win()}
   const fk=fusion(s);
   if(s&&has(s,'dark')&&SIMR()<.05)heal(1);
   if(fk==='dark+fire'&&e.burn>0){const d=e.maxHp*.5+s.lv*2,x=e.x,y=e.y;later(.05,()=>aoe(x,y,26,d,s,'#ff5a2c',true))}
@@ -192,7 +192,7 @@ function comboMult(){return 1+Math.min(.6,Math.floor(G.combo/10)*.1)}
 function comboHit(){
   G.combo++;G.comboT=2.4;if(G.combo>G.comboMax)G.comboMax=G.combo;
   const t=COMBO_TIERS.find(t=>t[0]===G.combo);
-  if(t){showBanner(`${t[1]} ×${G.combo}`,t[2]+' · '+Math.round((comboMult()-1)*100)+'% bonus',1.3);trauma(.3);G.slow=Math.max(G.slow,.12);G.flash=Math.max(G.flash,.25);if(typeof SFX!=='undefined')SFX.combo(COMBO_TIERS.indexOf(t))}
+  if(t){showBanner(`${t[1]} ×${G.combo}`,t[2]+' · '+Math.round((comboMult()-1)*100)+'% bonus',1.3);trauma(.3);if(G.room&&G.combo>=100)roomSendWave(6);G.slow=Math.max(G.slow,.12);G.flash=Math.max(G.flash,.25);if(typeof SFX!=='undefined')SFX.combo(COMBO_TIERS.indexOf(t))}
   if(G.combo>=30&&!G.over9){G.over9=1;showBanner('狂暴','Overdrive: faster strikes, faster feet',1.4);if(typeof SFX!=='undefined')SFX.overdrive()}
 }
 function comboTick(dt){if(G.combo>0){G.comboT-=dt;if(G.comboT<=0){if(G.combo>=10)showBanner(`连斩终结 ×${G.combo}`,'Streak ended',.8);G.combo=0;G.over9=0}}}
@@ -630,6 +630,7 @@ function bullet(x,y,a,v,d,arrow){if(G.bullets.length<280)G.bullets.push({x,y,vx:
 function step(dt){
   const P=G.P;G.t+=dt;
   if(RIVAL_ON&&G.rival&&G.t>=(G.quick?180:PK_LEN)&&!G.over)pkEnd();
+  if(G.room&&typeof roomNetTick==='function')roomNetTick(dt);
   for(let i=G.later.length-1;i>=0;i--){const l=G.later[i];l.t-=dt;if(l.t<=0){G.later.splice(i,1);l.f()}}
   if(G.cores===0){G.coreT+=dt;if(G.coreT>=70){G.coreT=0;G.cores=1;updateCores()}}else G.coreT=0;
   G.grid.clear();
@@ -766,14 +767,14 @@ function unlock(id){if(G.auto||!window.SAVE||SAVE.ach[id])return;const a=ACH.fin
 function checkAch(){if(G.auto)return;if(G.bossSlain>=1)unlock('boss1');if(G.bossSlain>=2)unlock('boss2');if(G.bossSlain>=4)unlock('boss4');if(G.comboMax>=100)unlock('combo100');if(G.comboMax>=200)unlock('combo200');if(G.t>=600)unlock('min10');if(G.t>=1200)unlock('min20');if(G.relics.length>=6)unlock('relic6');if(G.bossSlain>=1&&DIFFID==='hard')unlock('hard');
   if(G.bossSlain>=1){SAVE.clsWins=SAVE.clsWins||{};if(!SAVE.clsWins[G.cls]){SAVE.clsWins[G.cls]=true;persist()}if(Object.keys(CLASSES).every(k=>SAVE.clsWins[k]))unlock('allcls')}}
 function bossSlain(e){
-  G.bossSlain++;G.bossN++;G.boss=null;G.rerolls+=2;G.goldRun+=(100+G.bossN*50)*((G.ev&&G.ev.bossGold)||1);
+  G.bossSlain++;G.bossN++;G.boss=null;G.rerolls+=2;if(G.room)roomSendWave(12,true);G.goldRun+=(100+G.bossN*50)*((G.ev&&G.ev.bossGold)||1);
   G.chests.push({x:e.x,y:e.y,t:0});for(let i=0;i<12;i++){const a=i/12*TAU;G.gems.push({x:e.x+Math.cos(a)*26,y:e.y+Math.sin(a)*26,v:6,big:1})}
   G.slow=Math.max(G.slow,1.2);G.flash=1;trauma(1);shock(e.x,e.y,520,.08,1.2);G.bullets=[];
   if(!G.auto){$('#bossbar').hidden=true;showBanner(e.name+'伏诛',`${e.en} slain · next boss in 4:00`,2.4);if(typeof SFX!=='undefined')SFX.win();if(window.desktop&&G.bossSlain===1)window.desktop.achievement('FIRST_VICTORY')}
 }
 function pkEnd(){if(G.auto||G.over)return;closeCards();G.over='pk';G.slow=1.2;G.flash=.6;trauma(.6);later(1.6,()=>showEnd(G.score>=G.rival.score));if(typeof SFX!=='undefined')SFX.win()}
 function win(){if(G.auto)return;closeCards();G.over='win';G.slow=1.6;G.flash=1;trauma(1);shock(G.boss?G.boss.x:G.P.x,G.boss?G.boss.y:G.P.y,520,.08,1.2);later(2.2,()=>showEnd(true));G.bullets=[];G.en.forEach(e=>{if(e.type!=='boss')e.frz=99});showBanner('血魔伏诛','The Patriarch falls',1.8);if(typeof SFX!=='undefined')SFX.win();if(window.desktop)window.desktop.achievement('FIRST_VICTORY')}
-function lose(){if(G.auto){newGame(true);demoBoost();return}closeCards();G.over='lose';G.slow=1;later(1.2,()=>showEnd(false));if(typeof SFX!=='undefined')SFX.lose()}
+function lose(){if(G.auto){newGame(true);demoBoost();return}closeCards();G.over='lose';if(G.room&&typeof roomOnDeath==='function')roomOnDeath();G.slow=1;later(1.2,()=>showEnd(false));if(typeof SFX!=='undefined')SFX.lose()}
 function bossDue(){return BOSSRUSH?25+G.bossN*75:(G.bossN+1)*((G.ev&&G.ev.bossEvery)||BOSS_AT)}
 function nextBossIn(){return Math.max(0,bossDue()-G.t)}
 function demoBoost(){

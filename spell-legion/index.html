@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>魔咒军团</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=ZCOOL+XiaoWei&family=Alegreya+Sans:wght@400;700;800&display=swap">
-<link rel="stylesheet" href="css/style.css?v=202611052254">
+<link rel="stylesheet" href="css/style.css?v=202611052324">
 <script src="vendor/three.min.js"></script>
 <script src="vendor/CopyShader.js"></script>
 <script src="vendor/LuminosityHighPassShader.js"></script>
@@ -30,6 +30,7 @@
       <div id="bossbar" hidden><span id="bossname">血魔教主 · Blood Demon Patriarch</span><div id="bosshp"><i></i></div></div>
       <div id="score" hidden><span><span class="zh">你</span><span class="en">You</span> <b id="s-you">0</b></span><div id="s-bar"><i></i></div><span><b id="s-riv">0</b> <span id="s-rname"></span></span></div>
       <div id="obj" hidden></div>
+      <div id="roomboard" hidden></div>
       <div id="buff" hidden></div>
     </div>
     <div class="bottom">
@@ -38,7 +39,7 @@
       <div class="globe mp"><div class="fill" id="mpfill"></div><div class="gloss"></div><div class="num" id="mpnum"></div><div class="lab"><span class="zh">内力</span><span class="en">Qi</span></div></div>
     </div>
   </div>
-  <div id="banner"></div><div id="tip"></div>
+  <div id="banner"></div><div id="tip"></div><div id="roomcount" hidden></div>
   <div id="intro" hidden></div>
   <button id="sndbtn" aria-label="Mute / unmute" title="静音 / 开启 Mute / unmute">🔊</button>
   <div id="sndpanel" hidden>
@@ -74,7 +75,7 @@
       </div>
     </div>
     <div id="hero" class="screen" hidden>
-      <div class="hhead"><button type="button" class="back" id="backbtn">‹ <span class="zh">返回</span><span class="en">Back</span></button><h2><span class="zh">选择侠客</span><span class="en">Choose your hero</span></h2><div id="mode"><button type="button" data-m="solo"><span class="zh">单人</span><span class="en">Solo</span></button><button type="button" data-m="qpk"><span class="zh">快速对决 3′</span><span class="en">Quick PK 3′</span></button><button type="button" data-m="pk"><span class="zh">对决 10′</span><span class="en">PK 10′</span></button><button type="button" data-m="daily"><span class="zh">每日挑战</span><span class="en">Daily</span></button><button type="button" data-m="rush"><span class="zh">首领连战</span><span class="en">Boss rush</span></button></div></div>
+      <div class="hhead"><button type="button" class="back" id="backbtn">‹ <span class="zh">返回</span><span class="en">Back</span></button><h2><span class="zh">选择侠客</span><span class="en">Choose your hero</span></h2><div id="mode"><button type="button" data-m="solo"><span class="zh">单人</span><span class="en">Solo</span></button><button type="button" data-m="qpk"><span class="zh">快速对决 3′</span><span class="en">Quick PK 3′</span></button><button type="button" data-m="pk"><span class="zh">对决 10′</span><span class="en">PK 10′</span></button><button type="button" data-m="daily"><span class="zh">每日挑战</span><span class="en">Daily</span></button><button type="button" data-m="rush"><span class="zh">首领连战</span><span class="en">Boss rush</span></button><button type="button" data-m="room" class="room"><span class="zh">多人房间</span><span class="en">Room</span></button></div></div>
       <div class="hbody">
         <div id="classes"></div>
         <div class="hview"><canvas id="pv"></canvas><div class="hname"><span class="hg" id="hglyph"></span><b id="hname"></b><small id="hrole"></small></div><p id="hdesc"></p></div>
@@ -89,6 +90,7 @@
         <div id="maps"></div>
         <p class="note" id="modenote"></p>
         <div class="startrow"><button class="go big" id="startbtn"><span class="zh">出山</span><span class="en">Start</span></button><p class="note" id="runsummary"></p></div>
+        <div id="roompanel" hidden></div>
       </div>
       <div id="stickystart"><button type="button" class="go" id="stickybtn"><span class="zh">出山</span><span class="en">Start</span></button><small></small></div>
     </div>
@@ -103,19 +105,21 @@
   <div id="lb" class="overlay" hidden><div class="cbox"><div class="ch"><h2><span class="zh">排行榜</span><span class="en">Leaderboard</span> <small><span class="zh">最长存活</span><span class="en">longest survival</span></small></h2><div class="tabs" id="lbtabs"><button type="button" data-b="all" class="on"><span class="zh">总榜</span><span class="en">All time</span></button><button type="button" data-b="today"><span class="zh">今日</span><span class="en">Today</span></button></div><button type="button" id="lbclose"><span class="zh">关闭</span><span class="en">Close</span></button></div><div id="lbbody"></div></div></div>
   <div id="end" class="overlay" hidden><div class="endb" id="endb"></div></div>
 </div>
-<script src="js/core.js?v=202611052254"></script>
-<script src="js/content.js?v=202611052254"></script>
-<script src="js/icons.js?v=202611052254"></script>
-<script src="js/audio.js?v=202611052254"></script>
-<script src="js/gfx.js?v=202611052254"></script>
-<script src="js/sim.js?v=202611052254"></script>
-<script src="js/render.js?v=202611052254"></script>
-<script src="js/leaderboard.js?v=202611052254"></script>
-<script src="js/cloud.js?v=202611052254"></script>
-<script src="js/meta.js?v=202611052254"></script>
-<script src="js/ui.js?v=202611052254"></script>
-<script src="js/lobby.js?v=202611052254"></script>
-<script src="js/main.js?v=202611052254"></script>
+<script src="js/core.js?v=202611052324"></script>
+<script src="js/content.js?v=202611052324"></script>
+<script src="js/icons.js?v=202611052324"></script>
+<script src="js/audio.js?v=202611052324"></script>
+<script src="js/gfx.js?v=202611052324"></script>
+<script src="js/sim.js?v=202611052324"></script>
+<script src="js/render.js?v=202611052324"></script>
+<script src="js/leaderboard.js?v=202611052324"></script>
+<script src="js/cloud.js?v=202611052324"></script>
+<script src="js/net.js?v=202611052324"></script>
+<script src="js/room.js?v=202611052324"></script>
+<script src="js/meta.js?v=202611052324"></script>
+<script src="js/ui.js?v=202611052324"></script>
+<script src="js/lobby.js?v=202611052324"></script>
+<script src="js/main.js?v=202611052324"></script>
 <!--/PAGE-->
 </body>
 </html>
