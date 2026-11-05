@@ -519,3 +519,57 @@ body.picking #sndbtn{display:none}
 .card .gw .bd.pas{border:1.5px solid #efe4cd;color:#efe4cd}
 .card .gw .bd.new{background:#1f7a46;border-color:#7dffb0}
 @media (max-width:760px){.card .hd{margin:-7px -10px 4px;padding:4px 10px 3px}.card .hd .hint{font-size:9.5px}}
+
+/* ===== rarity: the good cards shine ===== */
+.card .hd .rar{font-weight:900;letter-spacing:.08em;padding:1px 8px;border-radius:9px;border:1px solid currentColor}
+.card .hd .rar.rare{color:#8fe3ff;text-shadow:0 0 8px #6fd3e8}
+.card .hd .rar.epic{color:#e2c6ff;background:#5a2a8a;border-color:#c7a4f0;text-shadow:0 0 10px #c7a4f0}
+.card .hd .rar.legendary{color:#1a0e16;background:linear-gradient(90deg,#ffd27a,#fff1b0,#ffd27a);border-color:#fff1b0;box-shadow:0 0 14px #ffd27a}
+.card.rare{border-color:#6fd3e8;box-shadow:0 18px 40px #000a,0 0 22px #6fd3e855,inset 0 0 40px #6fd3e81a}
+.card.epic{border-color:#c7a4f0;background:linear-gradient(170deg,#4a2a6af0,#1c1026f5);box-shadow:0 18px 40px #000a,0 0 34px #c7a4f0aa,inset 0 0 50px #c7a4f026;animation:deal .32s cubic-bezier(.2,.9,.3,1.2) both,epicpulse 2.2s ease-in-out .3s infinite}
+.card.epic::before{content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;background:linear-gradient(115deg,transparent 35%,#ffffff22 48%,#ffffff44 50%,#ffffff22 52%,transparent 65%);background-size:260% 100%;animation:sheen 2.6s linear .4s infinite}
+@keyframes epicpulse{0%,100%{box-shadow:0 18px 40px #000a,0 0 30px #c7a4f088,inset 0 0 50px #c7a4f026}50%{box-shadow:0 18px 40px #000a,0 0 50px #c7a4f0dd,inset 0 0 50px #c7a4f040}}
+@keyframes sheen{from{background-position:120% 0}to{background-position:-140% 0}}
+.card.legendary{border-color:#ffd27a;background:linear-gradient(170deg,#6a4a1af0,#2a1a0cf5);box-shadow:0 18px 40px #000a,0 0 48px #ffd27acc,inset 0 0 60px #ffd27a33;animation:dealgold .5s cubic-bezier(.2,.9,.3,1.3) both,legend 1.6s ease-in-out .5s infinite}
+.card.legendary::before{content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;background:linear-gradient(115deg,transparent 30%,#fff5d055 48%,#ffffff99 50%,#fff5d055 52%,transparent 70%);background-size:260% 100%;animation:sheen 1.8s linear .6s infinite}
+.card.legendary::after{content:'';position:absolute;inset:-6px;border-radius:inherit;pointer-events:none;background:radial-gradient(circle at 12% 18%,#fff 0 1.5px,transparent 3px),radial-gradient(circle at 86% 24%,#ffe9a0 0 1.5px,transparent 3px),radial-gradient(circle at 70% 82%,#fff 0 1.2px,transparent 3px),radial-gradient(circle at 28% 78%,#ffe9a0 0 1.5px,transparent 3px),radial-gradient(circle at 50% 8%,#fff 0 1px,transparent 2.5px),radial-gradient(circle at 92% 62%,#fff 0 1.2px,transparent 3px);animation:sparkle 1.4s ease-in-out infinite alternate}
+@keyframes sparkle{from{opacity:.2;transform:scale(1)}to{opacity:1;transform:scale(1.03)}}
+@keyframes dealgold{0%{opacity:0;transform:translateY(30px) scale(.7)}60%{opacity:1;transform:translateY(-6px) scale(1.06)}100%{transform:none}}
+@keyframes legend{0%,100%{box-shadow:0 18px 40px #000a,0 0 34px #ffd27a99,inset 0 0 60px #ffd27a33}50%{box-shadow:0 18px 40px #000a,0 0 70px #ffd27aff,inset 0 0 60px #ffd27a55}}
+.card .n{font-size:18px}.card .fx{font-size:15.5px}.card .hd .hint{font-size:9.5px;opacity:.7;font-weight:500}
+.card.epic .n,.card.legendary .n{text-shadow:0 0 12px color-mix(in srgb,var(--c) 60%,transparent)}
+.bs.hl0{border-color:#ffd27a;box-shadow:0 0 12px #ffd27a66}
+@media (max-width:760px){.card .n{font-size:15px}.card .fx{font-size:13px}.card .hd .hint{font-size:9px}.bs{flex:1 1 0;min-width:0;padding:3px 6px}.bs div{min-width:0}.bs b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:10.5px}.card.epic{animation:epicpulse 2.2s ease-in-out infinite}.card.legendary{animation:legend 1.6s ease-in-out infinite}}
+@media (prefers-reduced-motion:reduce){.card::before,.card::after{animation:none!important}}
+
+/* ===== phone top bar: one tight row ===== */
+@media (max-width:640px){
+  .top{gap:3px}#xpbar{height:5px;border-width:1px;border-radius:3px;box-shadow:none}
+  .row{gap:6px}
+  .lft{gap:5px}#lv{font-size:11px;font-weight:900;background:#0a071099;border:1px solid #d6a54a88;border-radius:10px;padding:2px 7px;line-height:1.2}
+  #charbtn{width:30px;height:28px;padding:0;font-size:0;border-radius:7px;display:grid;place-items:center}#charbtn::before{content:'角';font:700 13px var(--brush),var(--ui);color:var(--bone)}#charbtn #ptsbadge{font-size:9px}
+  #cores{display:inline-flex;gap:3px;align-items:center}.core{width:7px;height:7px;box-shadow:0 0 6px #6fd3e8}
+  #relics{gap:2px}#relics .relic{font-size:12px;width:16px;height:16px;line-height:16px}
+  .tm{display:grid;justify-items:center;gap:0}#timer{font-size:15px;padding:0 9px;border-radius:9px;line-height:1.35}#nextboss{font-size:9px;letter-spacing:.04em;line-height:1.1}
+  .rgt{gap:5px}#kills{font-size:11px;font-weight:800;background:#0a071099;border:1px solid #6b523088;border-radius:10px;padding:2px 7px;line-height:1.2}
+  #sndbtn{width:30px;height:28px;font-size:13px;border-radius:7px}#pausebtn{min-width:30px;min-height:28px;font-size:12px;border-radius:7px}
+  #roomboard{top:44px}
+}
+
+/* ===== phone menu: title across the top, compact buttons, one-row tabs, only what matters in settings ===== */
+.ioshint{display:none}.ios .ioshint{display:block}
+.tiny{font-size:10px!important;opacity:.6}
+#account small{font-size:11px}
+@media (max-width:640px){
+  .tt{display:grid;grid-template-columns:1fr;gap:4px;padding-top:max(6px,env(safe-area-inset-top))}
+  .vname{writing-mode:horizontal-tb;font-size:38px;line-height:1.1;text-align:left;margin:0 0 -6px 2px}
+  .ttb h1{font-size:13px;letter-spacing:.2em}
+  .langrow{margin:0 0 4px}.langrow .status{flex:1 1 100%;margin:0;font-size:11px}
+  #menubtns{gap:6px}.mb{padding:8px 12px;border-left-width:3px}.mb b{font-size:16px}.mb.big b{font-size:20px}.mb small{font-size:11px}
+  #menu .tabbar{margin-top:8px;flex-wrap:nowrap;gap:0;overflow-x:auto;-webkit-overflow-scrolling:touch}#menu .tabbar button{padding:7px 8px;font-size:12px;white-space:nowrap;flex:1 1 auto;text-align:center}#menu .tabbar button b{font-size:10px;margin-left:2px}
+  .keys{display:none}
+  .opts{gap:8px}#qual{font-size:11px}#qual button{padding:5px 9px;font-size:11px}
+  #fsbtn{padding:7px 14px;font-size:13px}
+  #loadnote{font-size:11px}
+}
+#kills,#sndbtn,#pausebtn{flex:none}

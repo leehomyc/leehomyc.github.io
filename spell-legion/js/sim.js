@@ -557,17 +557,17 @@ function buildCards(q){
     opts.sort(()=>SIMR()-.5);
     return opts.slice(0,3).map(([s,k])=>{const a=AUGS[k],m=SPELLS[s.id];return {g:m.g,badge:a.g,c:m.col,skill:s.id,n:L(`${m.zh} · ${a.zh}`,`${m.en} · ${a.en}`),sub:'',fx:L(a.d,a.de),fxEn:'',cat:'augment',kind:'augment',a(){s.augs.push(k)}}});
   }
-  const pool=[],handQ=q.forceQ?RARITY.find(r=>r.k===q.forceQ)||rollRarity():rollRarity(); // one rarity per hand, so the three offers are comparable
-  G.spells.filter(s=>s.lv<40).forEach(s=>{pool.push(spellCard(s,handQ),spellCard(s,handQ))});
+  const pool=[],rollQ=()=>q.forceQ?(RARITY.find(r=>r.k===q.forceQ)||rollRarity()):rollRarity(); // every card rolls its own rarity: most hands are plain, a purple or gold card is a surprise
+  G.spells.filter(s=>s.lv<40).forEach(s=>{pool.push(spellCard(s,rollQ()),spellCard(s,rollQ()))});
   if(G.spells.length<4&&G.lv>=3)CLASSES[G.cls].skills.filter(k=>!G.spells.some(s=>s.id===k)).forEach(k=>{const m=SPELLS[k];
     const card={g:m.g,c:m.col,skill:k,n:LL(m),sub:L(`按键 ${SPELL_KEYS[G.spells.length]} · ${m.cost} 内力 · 冷却 ${m.cd}s`,`key ${SPELL_KEYS[G.spells.length]} · ${m.cost} qi · ${m.cd}s cooldown`),fx:L(m.d,m.de),fxEn:'',cat:SKILL_CAT[k],isNew:1,kind:'new',a(){G.spells.push(mkSpell(k));taken(SKILL_CAT[k],2)}};pool.push(card,card)});
-  G.spells.forEach(s=>(TREES[s.id]||[]).forEach((n,i)=>{if(nodeOpen(s,i))pool.push(nodeCard(s,i,handQ))}));
+  G.spells.forEach(s=>(TREES[s.id]||[]).forEach((n,i)=>{if(nodeOpen(s,i))pool.push(nodeCard(s,i,rollQ()))}));
   const P=G.P,perkNow={锋锐:()=>L('伤害','damage')+` ×${(P.dmg*(1+P.dmgBonus)).toFixed(2)}`,金钟罩:()=>L('减伤','damage taken')+` ${Math.round((1-P.def)*100)}%`,轻身:()=>L('移速','speed')+` ×${P.spd.toFixed(2)}`,内息:()=>L('内力','qi')+` ${P.maxMana} · +${P.regen.toFixed(1)}/s`,生息:()=>L('生命','HP')+` ${P.maxHp}`,摄物:()=>L('拾取','pickup')+` ×${P.mag.toFixed(2)}`,疾风:()=>L('冷却','cooldown')+` ×${(1/P.haste).toFixed(2)}`,致命:()=>L('暴击','crit')+` ${Math.min(100,Math.round(P.crit*100))}%`+(P.crit>1?L(` · 暴伤 ×${(2+(P.crit-1)*2).toFixed(1)}`,` · crit dmg ×${(2+(P.crit-1)*2).toFixed(1)}`):'')};
-  PERKS.forEach(p=>{const q=handQ,times=(q.k==='common'?1:q.k==='rare'?2:q.k==='epic'?3:4)*(p.zh==='致命'&&q.k==='legendary'?.75:1)|0||1;pool.push({g:p.g,c:'#efe4cd',n:LL(p)+(times>1?` ×${times}`:''),sub:'',fx:L(p.d,p.de)+(times>1?` ×${times}`:''),fxEn:L('现在:','Now: ')+perkNow[p.zh](),q,cat:PERK_CAT[p.zh]||'passive',kind:'passive',a(){for(let i=0;i<times;i++)p.a(G.P);taken(PERK_CAT[p.zh]||'passive',times)}})});
+  PERKS.forEach(p=>{const q=rollQ(),times=(q.k==='common'?1:q.k==='rare'?2:q.k==='epic'?3:4)*(p.zh==='致命'&&q.k==='legendary'?.75:1)|0||1;pool.push({g:p.g,c:'#efe4cd',n:LL(p)+(times>1?` ×${times}`:''),sub:'',fx:L(p.d,p.de)+(times>1?` ×${times}`:''),fxEn:L('现在:','Now: ')+perkNow[p.zh](),q,cat:PERK_CAT[p.zh]||'passive',kind:'passive',a(){for(let i=0;i<times;i++)p.a(G.P);taken(PERK_CAT[p.zh]||'passive',times)}})});
   const out=[];const used=new Set(q.exclude||[]);
   const isNew=pool.filter(p=>p.isNew);
   if(isNew.length&&[3,6,10].includes(G.lv)){const opts=isNew.filter((c,i,a)=>a.findIndex(o=>o.n===c.n)===i).sort(()=>SIMR()-.5).slice(0,2);opts.forEach(nc=>{out.push(nc);used.add(nc.n)})}
-  if(q.kind==='level'&&G.lv<=3&&!G.turnOffered){const w=G.spells[0],tree=TREES[w.id]||[];const ti=tree.findIndex((n,j)=>['count','pierce','chain'].includes(n.fx)&&nodeOpen(w,j));if(ti>=0){const nc=nodeCard(w,ti,handQ);nc.turn=1;out.push(nc);used.add(nc.n);G.turnOffered=1}} // early on, offer a node that visibly changes how the weapon behaves
+  if(q.kind==='level'&&G.lv<=3&&!G.turnOffered){const w=G.spells[0],tree=TREES[w.id]||[];const ti=tree.findIndex((n,j)=>['count','pierce','chain'].includes(n.fx)&&nodeOpen(w,j));if(ti>=0){const nc=nodeCard(w,ti,rollQ());nc.turn=1;out.push(nc);used.add(nc.n);G.turnOffered=1}} // early on, offer a node that visibly changes how the weapon behaves
   const adv=typeof buildAdvice==='function'?buildAdvice():null; // the warning on the card screen always comes with a concrete fix
   if(adv&&q.kind==='level'){const fits=pool.filter(p=>!used.has(p.n)&&(p.cat===adv.cat||(adv.cat==='defense'&&p.cat==='heal')||(adv.cat==='melee'&&(p.cat==='ranged'||p.cat==='summon'))));if(fits.length){const p=pick(fits);used.add(p.n);out.push(p)}}
   let guard=0;while(out.length<3&&guard++<80){const p=pick(pool);if(!used.has(p.n)&&!(out.some(c=>c.isNew)&&p.isNew)){used.add(p.n);out.push(p)}}

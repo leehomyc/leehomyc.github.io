@@ -45,3 +45,4 @@ function renderHero(){
 }
 $('#backbtn').onclick=()=>{showScreen('menu');SFX.pick(1)};
 (()=>{let s='menu';try{s=sessionStorage.getItem('sl_screen')||'menu'}catch(_){}showScreen(s==='hero'?'hero':'menu')})();
+if(/iPhone|iPad|iPod/.test(navigator.userAgent)&&!navigator.standalone)document.documentElement.classList.add('ios');

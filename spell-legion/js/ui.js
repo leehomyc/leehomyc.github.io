@@ -180,7 +180,7 @@ function openPick(){
     // header: what kind of card · category · rarity · suggested star
     b.dataset.kind=kind;b.style.setProperty('--k',K[2]);
     const hd=document.createElement('div');hd.className='hd';const hint=KIND_HINT[kind];
-    hd.innerHTML=`<span class="kind"><i>${K[3]||''}</i>${L(K[0],K[1])}</span>${kind!=='passive'&&kind!=='jackpot'&&kind!=='contract'?`<span class="catd" style="--cc:${cat[2]}">${L(cat[0],cat[1])}</span>`:''}<span class="sp"></span>${cd.q&&cd.q.k!=='common'?`<span class="rar">${L(cd.q.zh,cd.q.en)}</span>`:''}${sug?`<span class="star" title="${L('推荐','Suggested')}">★</span>`:''}${hint?`<span class="hint">${L(hint[0],hint[1])}</span>`:''}`;
+    hd.innerHTML=`<span class="kind"><i>${K[3]||''}</i>${L(K[0],K[1])}</span>${kind!=='passive'&&kind!=='jackpot'&&kind!=='contract'?`<span class="catd" style="--cc:${cat[2]}">${L(cat[0],cat[1])}</span>`:''}<span class="sp"></span>${cd.q&&cd.q.k!=='common'?`<span class="rar ${cd.q.k}">${cd.q.k==='legendary'?'✦ ':cd.q.k==='epic'?'◆ ':'● '}${L(cd.q.zh,cd.q.en)}</span>`:''}${sug?`<span class="star" title="${L('推荐','Suggested')}">★</span>`:''}${hint?`<span class="hint">${L(hint[0],hint[1])}</span>`:''}`;
     b.appendChild(hd);
     // glyph of the skill being changed, with a small badge for the node / element / augment
     const gw=document.createElement('div');gw.className='gw';gw.innerHTML=typeof ICON!=='undefined'?ICON.card(cd)+`<span class="gm">${cd.g}</span>`:`<span class="g">${cd.g}</span>${cd.badge?`<span class="badge">${cd.badge}</span>`:''}`;b.appendChild(gw);
@@ -196,10 +196,10 @@ function openPick(){
 function renderBuildStrip(){
   const el=$('#build');if(!el)return;el.textContent='';const P=G.P;
   const touched=new Set((G.pick||[]).map(c=>c.skill).filter(Boolean));
-  G.spells.forEach((s,i)=>{if(touched.size&&!touched.has(s.id))return;if(el.children.length>=4)return;const m=SPELLS[s.id],d=document.createElement('div');d.className='bs';d.dataset.skill=s.id;d.style.setProperty('--c',m.col);
+  G.spells.forEach((s,i)=>{if(el.children.length>=4)return;const m=SPELLS[s.id],d=document.createElement('div');d.className='bs';d.dataset.skill=s.id;d.style.setProperty('--c',m.col);
     const nodes=Object.values(s.nodes||{}).reduce((a,b)=>a+b,0),cat=CATS[SKILL_CAT[s.id]]||CATS.passive;
     const tags=[i===0?L('普攻','normal attack'):L(cat[0],cat[1]),s.els.length?s.els.map(k=>LL(ELS[k])).join('+'):'',s.awake?L('觉醒','awakened'):''].filter(Boolean).join(' · ');
-    d.innerHTML=`${typeof ICON!=='undefined'?ICON.spell(s.id,'sm'):`<span class="g">${m.g}</span>`}<div><b>${LL(m)} <small>Lv ${s.lv}</small></b><small>${tags}</small></div>`;el.appendChild(d)});
+    d.classList.toggle('hl0',touched.has(s.id));d.innerHTML=`${typeof ICON!=='undefined'?ICON.spell(s.id,'sm'):`<span class="g">${m.g}</span>`}<div><b>${LL(m)} <small>Lv ${s.lv}</small></b><small>${tags}</small></div>`;el.appendChild(d)});
   for(let i=G.spells.length;i<4&&!touched.size&&i<0;i++){const d=document.createElement('div');d.className='bs empty';const nx=[3,6,10].find(l=>l>G.lv);d.innerHTML=`<span class="g">·</span><div><b>${L('空位','Empty')} <small>${L('键','key')} ${SPELL_KEYS[i]}</small></b><small>${nx?L(`Lv ${nx} 时可选新武学`,`new skill offered at Lv ${nx}`):L('本局不再提供新武学','no more new skills this run')}</small></div>`;el.appendChild(d)}
   const st=document.createElement('div');st.className='bstats';st.hidden=true;st.innerHTML=`<span class="lbl">${L('你的属性','Your stats')}</span><span>${L('生命','HP')} <b>${Math.ceil(P.hp)}/${P.maxHp}</b></span><span>${L('伤害','Damage')} <b>×${(P.dmg*(1+P.dmgBonus)).toFixed(2)}</b></span><span>${L('暴击','Crit')} <b>${Math.round(P.crit*100)}%</b></span><span>${L('减伤','Mitigation')} <b>${Math.round((1-P.def)*100)}%</b></span><span>${L('移速','Speed')} <b>×${P.spd.toFixed(2)}</b></span><span>${L('内力','Qi')} <b>${P.maxMana}</b> +${P.regen.toFixed(1)}/s</span><span>${L('法宝','Relics')} <b>${G.relics.length}</b></span>`;
   const adv=typeof buildAdvice==='function'?buildAdvice():null;
