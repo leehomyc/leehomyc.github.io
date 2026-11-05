@@ -60,6 +60,7 @@ function animHero(h,P,isP,tm,rdt){
 }
 function render(rdt){
   U.uTime.value+=rdt;const tm=U.uTime.value,P=G.P;
+  const nightDark=typeof dayNight==='function'?dayNight(((G.auto?240:G.t)/600+.12)%1):0;
   if(!window.__noAdapt){fS+=rdt;fN++;if(fN>=70){const av=fS/fN;fS=0;fN=0;if(av>.0265&&DPR>.65){DPR=Math.max(.65,DPR-.2);resize()}else if(av<.0125&&DPR<Math.min(devicePixelRatio||1,1.6)&&tm>6){DPR=Math.min(Math.min(devicePixelRatio||1,1.6),DPR+.1);resize()}}}
   glowN=0;
   /* camera with trauma shake */
@@ -149,6 +150,7 @@ function render(rdt){
   }
   for(let i=ring;i<ringPool.length;i++)ringPool[i].visible=false;
   for(const S of scorch){if(S.t>0){S.t-=rdt;S.m.material.opacity=clamp(S.t/3,0,1)*.75;if(S.t<=0)S.m.visible=false}}
+  for(const S of splats){if(S.t>0){S.t-=rdt;S.m.material.opacity=clamp(S.t/4,0,1)*.85;if(S.t<=0)S.m.visible=false}}
   for(const p of G.pools){if(poolI>=poolPool.length)break;const m=poolPool[poolI++],fade=clamp(p.t/.6,0,1)*clamp((p.T-p.t)/.2,0,1);m.visible=true;m.position.set(p.x,.5+poolI*.01,p.y);m.scale.set(p.r*2.15,1,p.r*2.15);const c=rgb(p.col),br2=p.steam?.34:.82;m.material.color.setRGB(c[0]*br2,c[1]*br2,c[2]*br2);m.material.opacity=fade*(.5+Math.sin(tm*5+p.x)*.07);
     if(Math.random()<(p.steam?.4:.16)&&G.fx.length<640){const a=vrnd(TAU),d=vrnd(p.r);G.fx.push({k:'p',x:p.x+Math.cos(a)*d,y:p.y+Math.sin(a)*d,h:1,vx:vrnd(-3,3),vy:vrnd(-3,3),vh:p.steam?vrnd(10,30):vrnd(10,26),t:.7,T:.7,c:p.col,sz:p.steam?8:vrnd(2,4),soft:p.steam?.34:0})}
     if(p.zap&&Math.random()<.1)glow(p.x+vrnd(-p.r,p.r),3,p.y+vrnd(-p.r,p.r),'#ffe066',8,2.2)}
@@ -190,7 +192,7 @@ function render(rdt){
   flashL.forEach((l,i)=>{const f=flashes[i];if(f){const c=rgb(f.c);l.position.set(f.x,26,f.y);l.color.setRGB(c[0],c[1],c[2]);l.intensity=f.p*2.4*(f.t/f.T)}else l.intensity=0});
   const ga=glowPts.geometry.attributes;ga.position.needsUpdate=true;ga.aColor.needsUpdate=true;ga.aSize.needsUpdate=true;glowPts.geometry.setDrawRange(0,glowN);
   /* post uniforms */
-  const h=G.fx.find(f=>f.k==='hurt');const fu=finalPass.uniforms;fu.uHurt.value=reduced?0:(h?h.t/h.T:0);fu.uLow.value=(!G.auto&&P.hp<P.maxHp*.3&&P.down<=0)?1:0;fu.uDark.value=(G.over==='lose'||P.down>0)?1:0;
+  const h=G.fx.find(f=>f.k==='hurt');const fu=finalPass.uniforms;fu.uHurt.value=reduced?0:(h?h.t/h.T:0);fu.uLow.value=(!G.auto&&P.hp<P.maxHp*.3&&P.down<=0)?1:0;fu.uDark.value=nightDark+((G.over==='lose'||P.down>0)?1:0);
   G.flash=Math.max(0,G.flash-rdt*2.2);fu.uFlash.value=reduced?0:G.flash;fu.uCA.value=reduced?0:Math.min(1,G.hitStop*8+tr*.4);
   [fu.uS0,fu.uS1,fu.uS2].forEach((u,i)=>{const s=G.shocks[i];if(!s||reduced){u.value.set(0,0,0,0);return}const [sx,sy]=toScreen(s.x,4,s.y),k=s.t/s.T;u.value.set(sx/ov.width,1-sy/ov.height,k*s.R/VH*.5,s.str*(1-k))});
   comp.render();

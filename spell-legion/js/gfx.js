@@ -21,7 +21,7 @@ function chunked(geo,m,list,shadow=true,receive=true){
 }
 const lin=h=>new T3.Color(h).convertSRGBToLinear();
 const U={uTime:{value:0}};
-let rn,scene,cam,sun,orbL,comp,finalPass,bloomPass,glowPts,glowN=0,DPR=1,viewK=1,camX=W/2,camZ=H/2,VW=580,VH=400;
+let rn,scene,cam,sun,orbL,hemiL,splats=[],splatI=0,comp,finalPass,bloomPass,glowPts,glowN=0,DPR=1,viewK=1,camX=W/2,camZ=H/2,VW=580,VH=400;
 let ruins=null,grassMesh,gemMesh,bulletMesh,swordMesh,talisMesh,playerG,hatA,capeM,armG,crystal,feetSigil,bossG,tele,mRing,heartMesh;
 const blades=[],inst={},statues=[],mushes=[],ringPool=[],poolPool=[],scorch=[],flashL=[],rays=[],blueMush=[],flies=[],ghostM=[],shrineM=[];
 let scorchI=0;
@@ -392,6 +392,7 @@ function buildFxPools(){
   for(let i=0;i<48;i++){const m=new T3.Mesh(cg,new T3.MeshBasicMaterial({map:pt,transparent:true,blending:T3.AdditiveBlending,depthWrite:false}));m.visible=false;m.renderOrder=2;scene.add(m);poolPool.push(m)}
   const sc=radial([[0,'rgba(8,4,3,.92)'],[.5,'rgba(14,8,5,.72)'],[1,'rgba(14,8,5,0)']]);
   for(let i=0;i<30;i++){const m=new T3.Mesh(cg,new T3.MeshBasicMaterial({map:sc,transparent:true,depthWrite:false}));m.visible=false;m.renderOrder=1;m.position.y=.32;scene.add(m);scorch.push({m,t:0})}
+  const st=splatTex();for(let i=0;i<(PHONE?24:48);i++){const m=new T3.Mesh(cg,new T3.MeshBasicMaterial({map:st,transparent:true,depthWrite:false,color:new T3.Color(.55,.05,.08)}));m.visible=false;m.renderOrder=1;m.position.y=.3;scene.add(m);splats.push({m,t:0})}
   const tt=(()=>{const k=document.createElement('canvas');k.width=64;k.height=256;const g=k.getContext('2d'),gr=g.createLinearGradient(0,0,64,0);gr.addColorStop(0,'rgba(255,255,255,0)');gr.addColorStop(.5,'rgba(255,255,255,1)');gr.addColorStop(1,'rgba(255,255,255,0)');g.fillStyle=gr;g.fillRect(0,0,64,256);return new T3.CanvasTexture(k)})();
   const tg=new T3.PlaneGeometry(1,1);tg.rotateX(-Math.PI/2);tg.translate(0,0,.5);
   tele=new T3.Mesh(tg,new T3.MeshBasicMaterial({map:tt,color:new T3.Color(4,.6,.4),transparent:true,blending:T3.AdditiveBlending,depthWrite:false}));tele.visible=false;tele.position.y=.8;scene.add(tele);
@@ -439,7 +440,7 @@ function initGfx(){
   rn.shadowMap.enabled=true;rn.shadowMap.type=T3.PCFSoftShadowMap;rn.toneMapping=T3.NoToneMapping;rn.outputEncoding=T3.LinearEncoding;
   scene=new T3.Scene();const fogC=lin(MAP().fog);scene.background=fogC;scene.fog=new T3.Fog(fogC,560,1500);
   cam=new T3.PerspectiveCamera(32,1,20,3600);
-  scene.add(new T3.HemisphereLight(lin(MAP().hemi[0]),lin(MAP().hemi[1]),.46));
+  hemiL=new T3.HemisphereLight(lin(MAP().hemi[0]),lin(MAP().hemi[1]),.46);scene.add(hemiL);
   sun=new T3.DirectionalLight(lin(MAP().sun),1.85);sun.castShadow=true;sun.shadow.mapSize.set(Q().shadow,Q().shadow);sun.shadow.bias=-.0004;sun.shadow.normalBias=.8;sun.shadow.radius=QLEVEL==='low'?2:3.5;scene.add(sun,sun.target);
   orbL=new T3.PointLight(lin('#6fe3ff'),1.5,150,1.6);scene.add(orbL);
   buildArena();
@@ -457,4 +458,22 @@ function resize(){
   const sz=Math.max(260,VW*.7);const s=sun.shadow.camera;s.left=-sz;s.right=sz;s.top=sz;s.bottom=-sz;s.near=20;s.far=1400;s.updateProjectionMatrix();
   scene.fog.near=470*viewK;scene.fog.far=1500*viewK;
   cam.updateProjectionMatrix();
+}
+
+/* ink-splat decal texture: a few blobs and spatter drops, drawn once */
+function splatTex(){const k=document.createElement('canvas');k.width=k.height=256;const c=k.getContext('2d');c.translate(128,128);c.fillStyle='#fff';
+  for(let i=0;i<7;i++){const a=i/7*TAU+Math.random()*.6,d=Math.random()*34,r=18+Math.random()*26;c.globalAlpha=.75+Math.random()*.25;c.beginPath();c.arc(Math.cos(a)*d,Math.sin(a)*d,r,0,TAU);c.fill()}
+  for(let i=0;i<26;i++){const a=Math.random()*TAU,d=50+Math.random()*60,r=2+Math.random()*6;c.globalAlpha=.5+Math.random()*.5;c.beginPath();c.arc(Math.cos(a)*d,Math.sin(a)*d,r,0,TAU);c.fill()}
+  const t=new T3.CanvasTexture(k);t.encoding=T3.LinearEncoding;return t}
+function addSplat(x,y,size,col){if(!splats.length)return;const S=splats[splatI++%splats.length];S.t=8;S.m.visible=true;S.m.position.x=x;S.m.position.z=y;S.m.rotation.y=Math.random()*TAU;const sc=size*(0.8+Math.random()*.5);S.m.scale.set(sc,1,sc);S.m.material.color.setRGB(...rgb(col||'#7a0d12'));S.m.material.opacity=.85}
+/* day-night cycle: a full day every ten minutes, dawn → noon → dusk → night; bosses arrive into the evening */
+const DAY=[{t:0,sun:'#ffb37a',si:1.35,hi:.5,fog:[1,.95,.85],dark:0,bloom:0},{t:.25,sun:null,si:1.85,hi:.46,fog:[1,1,1],dark:0,bloom:0},{t:.5,sun:'#ff8a5a',si:1.25,hi:.4,fog:[1,.8,.72],dark:.05,bloom:.08},{t:.72,sun:'#4a5a9a',si:.55,hi:.22,fog:[.32,.36,.5],dark:.22,bloom:.3},{t:.88,sun:'#5a6ab0',si:.6,hi:.24,fog:[.4,.42,.55],dark:.2,bloom:.26},{t:1,sun:'#ffb37a',si:1.35,hi:.5,fog:[1,.95,.85],dark:0,bloom:0}];
+const _sunBase=new T3.Color(),_fogBase=new T3.Color(),_c1=new T3.Color(),_c2=new T3.Color();let _dayInit=false;
+function dayNight(phase){
+  if(!_dayInit){_sunBase.copy(sun.color);_fogBase.copy(scene.fog.color);_dayInit=true}
+  let a=DAY[0],b=DAY[1];for(let i=0;i<DAY.length-1;i++){if(phase>=DAY[i].t&&phase<=DAY[i+1].t){a=DAY[i];b=DAY[i+1];break}}
+  const k0=(phase-a.t)/(b.t-a.t||1),k=k0*k0*(3-2*k0);
+  _c1.copy(a.sun?lin(a.sun):_sunBase);_c2.copy(b.sun?lin(b.sun):_sunBase);sun.color.copy(_c1).lerp(_c2,k);sun.intensity=a.si+(b.si-a.si)*k;hemiL.intensity=a.hi+(b.hi-a.hi)*k;
+  const f=[0,1,2].map(i=>a.fog[i]+(b.fog[i]-a.fog[i])*k);scene.fog.color.copy(_fogBase).multiply(_c1.setRGB(f[0],f[1],f[2]));scene.background.copy(scene.fog.color);
+  const dark=a.dark+(b.dark-a.dark)*k,bl=a.bloom+(b.bloom-a.bloom)*k;if(bloomPass)bloomPass.strength=(PHONE?.5:.62)+bl;orbL.intensity=1.5+dark*4;return dark;
 }

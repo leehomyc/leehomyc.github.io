@@ -157,6 +157,7 @@ function kill(e,s,kx=0,ky=0){
   if(e.dead)return;e.dead=1;
   const dir=Math.atan2(ky,kx);
   spark(e.x,e.y,e.type==='statue'?'#ff3df0':e.type==='boss'?'#ff5a5a':'#ff8e5a',e.type==='boss'?120:e.type==='giant'?18:6,e.type==='boss'?220:80,{dir:(kx||ky)?dir:undefined});
+  if(typeof addSplat==='function'&&e.type!=='statue'&&!G.auto)addSplat(e.x,e.y,e.type==='boss'?90:e.type==='giant'?34:14+(e.sc||1)*4,e.type==='boss'?'#8a0a14':e.illusion?'#8a2a7a':'#6e0b12');
   if(e.type!=='boss'&&e.type!=='statue'&&G.fx.length<640){const sp=hyp(kx,ky);G.fx.push({k:'die',x:e.x,y:e.y,h:1,vh:70+sp*.5,kx:kx*1.6+rnd(-20,20),ky:ky*1.6+rnd(-20,20),rot:0,rv:rnd(6,14)*(SIMR()<.5?-1:1),t:.7,T:.7,type:e.type,fr:e.fr,sc:e.sc||1})}
   if(e.type==='statue'){if(G.mission&&G.mission.k==='statue'){G.mission.n--;checkMission()}return}
   const pv=pts(e);
@@ -534,7 +535,7 @@ function spawnTick(dt){
   if(t>=G.warlordN*240+120&&!G.boss){G.warlordN++;const o=edgePoint();spawnEnemy('giant',o.x,o.y,9+G.warlordN*3,true);const e=G.en[G.en.length-1];e.warlord=1;e.sc=2;e.r=16;e.spd*=1.15+G.warlordN*.05;e.name='铁甲统领';showBanner('铁甲统领','The Iron Warlord arrives',1.6);trauma(.4);if(typeof SFX!=='undefined')SFX.bossIn()}
   if(t>=(G.bossN+1)*BOSS_AT&&!G.boss){const n=G.bossN,V=BOSSES[n%BOSSES.length],o=edgePoint(),k=1+n*1.25,hp=Math.round(9000*k*(1+t/600)*D().hp);
     G.boss={x:o.x,y:o.y,t0:G.t,type:'boss',hp,maxHp:hp,spd:24+n*3,dmg:22*(1+n*.35)*D().dmg,r:20,xp:0,fr:0,vx:0,vy:0,kx:0,ky:0,n,name:V[0],en:V[1],tint:V[2],rate:Math.max(.55,1-n*.12)};G.en.push(G.boss);G.bossT=3;G.bossSpawned=1;
-    showBanner(V[0]+'现身',V[1]+' emerges',2.6);trauma(.6);G.slow=Math.max(G.slow,.5);if(!G.auto&&typeof bossIntro==='function')bossIntro(V[0],V[1],n);if(!G.auto){$('#bossbar').hidden=false;$('#bossname').textContent=V[0]+' · '+V[1]}if(typeof SFX!=='undefined')SFX.bossIn();
+    showBanner(V[0]+'现身',V[1]+' emerges',2.6);trauma(.6);G.slow=Math.max(G.slow,.5);if(!G.auto&&typeof bossIntro==='function')bossIntro(V[0],V[1],n);if(!G.auto){$('#bossbar').hidden=false;$('#bossname').textContent=L(V[0],V[1])}if(typeof SFX!=='undefined')SFX.bossIn();
   }
 }
 function bossAI(dt){
