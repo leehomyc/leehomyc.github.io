@@ -111,7 +111,7 @@ function hit(e,d,s,noEl,col,kx=0,ky=0){
   e.hp-=m;e.flash=.08;if(s)s.dmg+=m;if(rv)G.rival.dmgDealt+=m;
   const kk=e.type==='boss'?.12:e.type==='giant'?.4:e.type==='statue'?0:1;
   e.kx=(e.kx||0)+kx*kk;e.ky=(e.ky||0)+ky*kk;
-  if(!rv&&G.floats.length<80&&(m>=8||crit))G.floats.push({x:e.x+rnd(-4,4),y:e.y-e.r-3,t:.6,v:Math.round(m),c:crit?'#ffd75a':(col||'#efe4cd'),crit});
+  if(!rv&&G.floats.length<40&&(crit||m>=Math.max(18,e.maxHp*.25)))G.floats.push({x:e.x+rnd(-4,4),y:e.y-e.r-3,t:.6,v:Math.round(m),c:crit?'#ffd75a':(col||'#efe4cd'),crit});
   if(crit&&!rv)hitStop(.03);
   if(s&&!noEl&&s.els.length)applyEls(e,m,s);
   if(s&&has(s,'dark')&&e.type!=='boss'&&e.type!=='statue'&&e.hp>0&&e.hp<e.maxHp*.12)e.hp=0;
@@ -138,7 +138,7 @@ function arc(from,d,s,n){
     if(fk==='dark+lightning'&&was>0&&e.dead)heal(1.5);
   }
 }
-function heal(n){const P=G.P;P.hp=Math.min(P.maxHp,P.hp+n)}
+function heal(n){const P=G.P;const b=P.hp;P.hp=Math.min(P.maxHp,P.hp+n);G.healed=(G.healed||0)+(P.hp-b)}
 function pool(x,y,r,t,dps,s,o={}){
   if(G.pools.length>45)G.pools.shift();
   const fk=fusion(s);
@@ -549,7 +549,7 @@ function bossAI(dt){
   if(k==='bloodrain'){ // Blood Demon: blood pools fall around the hero
     for(let i=0;i<5;i++){const a=rnd(TAU),d=i===0?0:rnd(40,130);hazard(clamp(P.x+Math.cos(a)*d,30,W-30),clamp(P.y+Math.sin(a)*d,30,H-30),30,1.1,3.5,14*(1+B.n*.3),6,'#ff2a3a')}}
   if(k==='drain'){ // Blood Demon: leech beam - stand still and it heals him
-    B.drain=1.6;ring(B.x,B.y,60,'#ff4a6a')}
+    B.drain=2.2;B.healed=0;ring(B.x,B.y,60,'#ff4a6a');ring(B.x,B.y,230,'#ff2a3a');showBanner('吸血!远离他','DRAINING - move away!',1.4);trauma(.2)}
   if(k==='spiral'){ // Ghost-Mask: rotating blade spiral
     const o=rnd(TAU),dir=SIMR()<.5?1:-1;for(let w=0;w<16;w++)later(w*.09,()=>{if(B.dead)return;for(let j=0;j<3;j++)bullet(B.x,B.y,o+dir*w*.42+j/3*TAU,96,11)})}
   if(k==='blink'){ // Ghost-Mask: vanish, reappear beside the hero, slash fan
@@ -594,7 +594,7 @@ function hazardTick(dt){
   G.hazards=G.hazards.filter(h=>h.tele>0||h.dur>0);
   const B=G.boss;if(B&&!B.dead){
     if(B.hide>0)B.hide-=dt;
-    if(B.drain>0){B.drain-=dt;const d=hyp(P.x-B.x,P.y-B.y);if(d<230&&P.down<=0){B.hp=Math.min(B.maxHp,B.hp+B.maxHp*.004*dt*60*.5);if(SIMR()<dt*6)dmgP(2,B.x,B.y,['吸血','leech beam']);G.fx.push({k:'p',x:P.x+rnd(-8,8),y:P.y+rnd(-8,8),h:6,vx:(B.x-P.x)*1.4,vy:(B.y-P.y)*1.4,vz:0,t:.5,T:.5,c:'#ff2a3a'})}}
+    if(B.drain>0){B.drain-=dt;const d=hyp(P.x-B.x,P.y-B.y);if(d<230&&P.down<=0){const hb=B.hp;B.hp=Math.min(B.maxHp,B.hp+B.maxHp*.003*dt*60*.5);B.healed=(B.healed||0)+(B.hp-hb);if(B.healed>=200&&G.floats.length<80){G.floats.push({x:B.x,y:B.y-30,t:.9,v:'+'+Math.round(B.healed),c:'#7dffb0'});B.healed=0}if(SIMR()<dt*6)dmgP(2,B.x,B.y,['吸血','leech beam']);G.fx.push({k:'p',x:P.x+rnd(-8,8),y:P.y+rnd(-8,8),h:6,vx:(B.x-P.x)*1.4,vy:(B.y-P.y)*1.4,vz:0,t:.5,T:.5,c:'#ff2a3a'})}}
   }
 }
 function bullet(x,y,a,v,d,arrow){if(G.bullets.length<280)G.bullets.push({x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v,life:5,d,boss:arrow?0:1})}
