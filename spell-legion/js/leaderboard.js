@@ -31,7 +31,7 @@ function renderBoard(el,data,opts={}){
   t.innerHTML=`<thead><tr><th>#</th><th>${L('侠客','Hero')}</th><th>${L('存活','Time')}</th><th>${L('首领','Bosses')}</th><th>${L('击杀','Kills')}</th><th>${L('连斩','Streak')}</th><th>${L('地图 · 难度','Map · difficulty')}</th></tr></thead>`;
   const tb=document.createElement('tbody');
   data.rows.forEach((r,i)=>{const tr=document.createElement('tr');if((opts.uid&&r.uid===opts.uid)||(!opts.uid&&opts.me&&r.name===opts.me))tr.className='me';
-    const cells=[String(i+1),'',fmt(r.time),String(r.bosses),String(r.kills),'×'+r.combo,`${mapZh(r.map)} · ${diffZh(r.diff)}${r.mode&&r.mode!=='solo'?' · '+(r.mode==='pk'?L('对决','PK'):L('每日','daily')):''}`];
+    const cells=[String(i+1),'',fmt(r.time),String(r.bosses),String(r.kills),'×'+r.combo,`${mapZh(r.map)} · ${diffZh(r.diff)}${r.mode&&r.mode!=='solo'?' · '+(r.mode==='pk'?L('对决','PK'):r.mode==='rush'?L('连战','rush'):L('每日','daily')):''}${r.tier?' · '+L('修罗','Asc.')+' '+r.tier:''}`];
     cells.forEach((v,j)=>{const td=document.createElement('td');if(j===1){const b=document.createElement('b');b.textContent=r.name;const s=document.createElement('small');s.textContent=' '+clsZh(r.cls);td.appendChild(b);td.appendChild(s)}else td.textContent=v;tr.appendChild(td)});
     tb.appendChild(tr)});
   t.appendChild(tb);el.appendChild(t);
@@ -58,7 +58,7 @@ async function submitRun(container){
   const inp=$('#lbname');inp.value=saved;
   $('#lbsend').onclick=async()=>{
     const name=(inp.value||'').trim().slice(0,16)||L('无名侠客','Nameless');LB.setName(name);$('#lbsend').disabled=true;$('#lbmsg').textContent=L('提交中…','Sending…');
-    try{const r=await LB.submit({name,cls:G.cls,map:MAPID,diff:DIFFID,mode:SAVE.mode||'solo',score:G.score||0,day:G.day,time:Math.round(G.t),kills:G.kills,bosses:G.bossSlain,level:G.lv,combo:G.comboMax,relics:G.relics.length});
+    try{const r=await LB.submit({name,cls:G.cls,map:MAPID,diff:DIFFID,mode:SAVE.mode||'solo',score:G.score||0,day:G.day,tier:ASURA_T||0,time:Math.round(G.t),kills:G.kills,bosses:G.bossSlain,level:G.lv,combo:G.comboMax,relics:G.relics.length});
       if(r.ok){$('#lbmsg').textContent=L('已上榜!','On the board.');const d=await LB.fetch('all');const el=document.createElement('div');el.className='lbinline';renderBoard(el,d,{me:name});box.appendChild(el)}
       else{$('#lbmsg').textContent=r.error==='rate'?L('请稍后再试。','Try again in a moment.'):L('未能提交。','Not accepted.');$('#lbsend').disabled=false}}
     catch(e){$('#lbmsg').textContent=L('网络错误。','Network error.');$('#lbsend').disabled=false}

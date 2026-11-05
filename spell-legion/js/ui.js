@@ -3,7 +3,7 @@
 const SAVE_KEY='spell-legion-save';
 let SAVE={gold:0,up:{},cls:'swordsman',best:0,wins:0,runs:0,autocast:false,rival:false,bosses:0,played:false,ach:{},diff:'normal',clsWins:{}};
 try{const s=JSON.parse(localStorage.getItem(SAVE_KEY)||'null');if(s&&typeof s==='object')SAVE={...SAVE,...s}}catch(_){}
-SAVE.ach=SAVE.ach||{};SAVE.clsWins=SAVE.clsWins||{};SAVE.weapon=SAVE.weapon||{};SAVE.weaponOwned=SAVE.weaponOwned||{};SAVE.tips=SAVE.tips||{};window.SAVE=SAVE;
+SAVE.ach=SAVE.ach||{};SAVE.clsWins=SAVE.clsWins||{};SAVE.weapon=SAVE.weapon||{};SAVE.weaponOwned=SAVE.weaponOwned||{};SAVE.tips=SAVE.tips||{};SAVE.asura=SAVE.asura||{max:0,sel:0,best:0};window.SAVE=SAVE;
 function persist(quiet){if(!quiet)SAVE.ts=Date.now();try{localStorage.setItem(SAVE_KEY,JSON.stringify(SAVE))}catch(_){}if(!quiet&&typeof cloudSchedulePush==='function')cloudSchedulePush()}
 const UPGRADES=[
   {id:'hp',zh:'体魄',en:'Vigor',d:'生命上限 +10% / 级',de:'+10% max HP per rank',max:5,cost:r=>80+r*r*60+r*60},
@@ -156,7 +156,7 @@ function openPick(){
   if(!cards.length){return openPick()}
   if(G.auto){pick(cards).a();return openPick()}
   G.pick=cards;pickOpenedAt=performance.now();pickArmed=false;$('#banner').classList.remove('on');bannerT=0;
-  const sk=q.s?LL(SPELLS[q.s.id]):'';const T={level:[L('升级','Level up'),L('三选一','pick one')],infuse:[L('灌注真气','Infuse an element'),sk],fuse:[L('真气融合','Fuse elements'),sk],aug:[L('密令完成','Mission complete'),L('选择一项强化','choose an augment')],awake:[L('武器觉醒','Weapon awakening'),sk]}[q.kind];
+  const sk=q.s?LL(SPELLS[q.s.id]):'';const T={level:[L('升级','Level up'),L('三选一','pick one')],infuse:[L('灌注真气','Infuse an element'),sk],fuse:[L('真气融合','Fuse elements'),sk],aug:[L('密令完成','Mission complete'),L('选择一项强化','choose an augment')],awake:[L('武器觉醒','Weapon awakening'),sk],contract:[L('契约','A pact is offered'),L('付出代价,换取当下的力量;也可以拒绝','Pay a price for power now, or decline')]}[q.kind];
   $('#cardtitle').innerHTML=`${T[0]}<small>${T[1]}${G.picks.length?L(` · 之后还有 ${G.picks.length} 次`,` · ${G.picks.length} more after this`):''}</small>`;
   const row=$('#cardrow');row.textContent='';
   const adv=renderBuildStrip();
@@ -206,6 +206,12 @@ function renderWeapons(){
     b.onclick=()=>{if(!own){if(SAVE.gold>=(info.cost||0)){SAVE.gold-=info.cost;SAVE.weaponOwned[w]=true;persist();SFX.complete()}else{SFX.throw();return}}SAVE.weapon[cls]=w;persist();renderTitle();if(G&&G.auto){newGame(true,cls);demoBoost()}SFX.pick(1)};
     wr.appendChild(b)});
 }
+function renderAsura(){
+  const el=$('#asura');if(!el)return;const A=SAVE.asura,on=(SAVE.mode==='solo'||SAVE.mode==='rush')&&(A.max>0||SAVE.wins>0);el.hidden=!on;if(!on)return;
+  if(A.sel>A.max)A.sel=A.max;el.textContent='';const lab=document.createElement('span');lab.textContent=L('修罗','Ascension');el.appendChild(lab);
+  for(let t=0;t<=Math.min(A.max,ASURA.length);t++){const b=document.createElement('button');b.type='button';b.textContent=t?String(t):L('无','Off');b.classList.toggle('on',t===(A.sel||0));b.onclick=()=>{A.sel=t;persist();renderTitle();SFX.pick(1)};el.appendChild(b)}
+  const d=document.createElement('small');const sel=A.sel||0;d.textContent=sel?L(`第 ${sel} 层:`,`Tier ${sel}: `)+ASURA.slice(0,sel).map(x=>L(x.zh,x.en)).join(' · ')+L(` · 金币 +${Math.round(ASURA_GOLD*sel*100)}%`,` · gold +${Math.round(ASURA_GOLD*sel*100)}%`):L('一局斩杀两位首领即可解锁下一层;每层叠加一条规则,金币 +15%/层','Slay two bosses in one run to unlock the next tier; each tier stacks one rule and pays +15% gold');el.appendChild(d);
+}
 function renderTitle(){
   const row=$('#classes');row.textContent='';
   for(const k in CLASSES){const C=CLASSES[k],b=document.createElement('button');b.className='cls'+(SAVE.cls===k?' sel':'');b.type='button';b.style.setProperty('--c',C.col);
@@ -218,7 +224,8 @@ function renderTitle(){
     b.innerHTML=`<b>${LL(u)}</b><span class="rk">${'●'.repeat(r)}${'○'.repeat(u.max-r)}</span><span class="dd">${L(u.d,u.de)}</span><span class="pr">${r>=u.max?L('已满','Max'):cost+' '+L('金','gold')}</span>`;
     b.onclick=()=>{if(SAVE.gold>=cost&&r<u.max){SAVE.gold-=cost;SAVE.up[u.id]=r+1;persist();renderTitle();SFX.complete()}};shop.appendChild(b)});
   $('#record').textContent=(SAVE.runs?L(`${SAVE.runs} 局 · 最长存活 ${fmt(SAVE.best||0)} · 单局最多首领 ${SAVE.bosses||0}`,`${SAVE.runs} runs · best ${fmt(SAVE.best||0)} · most bosses ${SAVE.bosses||0}`):'')+(SAVE.pk?L(` · 对决 ${SAVE.pk.w} 胜 ${SAVE.pk.l} 负 · 最高 ${SAVE.pkBest||0} 分`,` · PK ${SAVE.pk.w}W ${SAVE.pk.l}L · best ${SAVE.pkBest||0} pts`):'');
-  RIVAL_ON=(SAVE.mode==='pk');seedSim(null);document.querySelectorAll('#mode button').forEach(b=>b.classList.toggle('on',b.dataset.m===(SAVE.mode||'solo')));$('#modenote').textContent=RIVAL_ON?L(`对决:与 AI 对手争分 ${PK_LEN/60} 分钟,谁补刀谁拿全部分数`,`PK: a ${PK_LEN/60}-minute score race against an AI rival; the last hit takes all the points`):SAVE.mode==='daily'?L(`每日挑战 · 种子 ${dayKey()} · 普通难度 · 不计永久强化 · 今天所有人面对同样的怪潮、宝箱与卡牌 · ${resetIn()} 后刷新`,`Daily challenge · seed ${dayKey()} · Normal · no permanent upgrades · same spawns, chests and cards for everyone today · resets in ${resetIn()}`)+(SAVE.daily&&SAVE.daily.day===dayKey()?L(` · 今日最佳 ${fmt(SAVE.daily.best)} / ${SAVE.daily.bosses} 首领`,` · today's best ${fmt(SAVE.daily.best)} / ${SAVE.daily.bosses} bosses`):''):L('单人:无尽模式,活得越久首领越多','Solo: endless; survive and slay bosses');
+  RIVAL_ON=(SAVE.mode==='pk');seedSim(null);document.querySelectorAll('#mode button').forEach(b=>b.classList.toggle('on',b.dataset.m===(SAVE.mode||'solo')));$('#modenote').textContent=RIVAL_ON?L(`对决:与 AI 对手争分 ${PK_LEN/60} 分钟,谁补刀谁拿全部分数`,`PK: a ${PK_LEN/60}-minute score race against an AI rival; the last hit takes all the points`):SAVE.mode==='daily'?L(`每日挑战 · 种子 ${dayKey()} · 普通难度 · 不计永久强化 · 今天所有人面对同样的怪潮、宝箱与卡牌 · ${resetIn()} 后刷新`,`Daily challenge · seed ${dayKey()} · Normal · no permanent upgrades · same spawns, chests and cards for everyone today · resets in ${resetIn()}`)+(SAVE.daily&&SAVE.daily.day===dayKey()?L(` · 今日最佳 ${fmt(SAVE.daily.best)} / ${SAVE.daily.bosses} 首领`,` · today's best ${fmt(SAVE.daily.best)} / ${SAVE.daily.bosses} bosses`):''):SAVE.mode==='rush'?L('首领连战:从 Lv 8 开始,每 75 秒一位首领,经验加倍,没有统领与契约','Boss rush: start at Lv 8, a boss every 75 s, double XP, no warlord or pacts'):L('单人:无尽模式,活得越久首领越多','Solo: endless; survive and slay bosses');
+  renderAsura();
   document.querySelectorAll('#qual button').forEach(b=>b.classList.toggle('on',b.dataset.q===QLEVEL));
   DIFFID=SAVE.mode==='daily'?'normal':(SAVE.diff||'normal');document.querySelectorAll('#diff button').forEach(b=>{b.classList.toggle('on',b.dataset.d===DIFFID);b.disabled=SAVE.mode==='daily'});$('#diff').classList.toggle('locked',SAVE.mode==='daily');
   const mp=$('#maps');mp.textContent='';for(const k in MAPS){const M=MAPS[k],locked=M.need&&!SAVE.ach[M.need]&&!((SAVE.wins||0)>=(M.need==='boss2'?3:8)),b=document.createElement('button');b.type='button';b.className='mapb'+(k===MAPID?' on':'')+(locked?' locked':'');b.disabled=locked;b.innerHTML=`<b>${LL(M)}</b><small>${locked?'🔒 '+L(ACH.find(a=>a.id===M.need).d,ACH.find(a=>a.id===M.need).de)+L(`,或累计斩杀 ${M.need==='boss2'?3:8} 位首领 (${SAVE.wins||0})`,`, or ${M.need==='boss2'?3:8} bosses in total (${SAVE.wins||0})`):L(M.en,M.zh)}</small>`;b.onclick=()=>{try{localStorage.setItem('sl_map',k)}catch(_){}b.innerHTML=`<b>${L('载入中…','Loading…')}</b>`;setTimeout(()=>location.reload(),60)};mp.appendChild(b)}
@@ -236,7 +243,7 @@ let DAILY=false;
 function startRun(){
   if($('#startbtn').disabled)return;
   CLASS=SAVE.cls;DIFFID=SAVE.diff||'normal';
-  DAILY=SAVE.mode==='daily';if(DAILY)DIFFID='normal';seedSim(DAILY?dayKey()*7919+1:null);
+  DAILY=SAVE.mode==='daily';if(DAILY)DIFFID='normal';BOSSRUSH=SAVE.mode==='rush';ASURA_T=(SAVE.mode==='solo'||SAVE.mode==='rush')?Math.min(SAVE.asura.sel||0,SAVE.asura.max||0):0;seedSim(DAILY?dayKey()*7919+1:null);
   $('#title').hidden=true;$('#intro').hidden=true;$('#end').hidden=true;$('#cards').hidden=true;$('#hud').hidden=false;$('#bossbar').hidden=true;$('#pause').hidden=true;$('#char').hidden=true;
   $('#banner').classList.remove('on');$('#pausebtn').textContent='II';
   SAVE_FIRST=!SAVE.played;SAVE.played=true;persist();
@@ -247,7 +254,8 @@ function startRun(){
 function showEnd(ok){
   G.ended=true;const box=$('#endb'),tot=G.spells.reduce((a,s)=>a+s.dmg,0)||1,max=Math.max(...G.spells.map(s=>s.dmg),1);
   checkAch();
-  const gold=Math.round((G.kills*.45+G.lv*3+G.bossSlain*220+Math.floor(G.t/10)*2+G.goldRun*.7+G.comboMax)*(1+.15*(SAVE.up.gold||0))*(G.relics.includes('bowl')?1.3:1)*D().gold);
+  const gold=Math.round((G.kills*.45+G.lv*3+G.bossSlain*220+Math.floor(G.t/10)*2+G.goldRun*.7+G.comboMax)*(1+.15*(SAVE.up.gold||0))*(G.relics.includes('bowl')?1.3:1)*(G.relics.includes('wolf')?1.6:1)*(G.curse.gold||1)*(1+ASURA_GOLD*ASURA_T)*D().gold);
+  let tierUp=false;if(ASURA_T>=0&&(SAVE.mode==='solo')&&G.bossSlain>=2&&!G.abandoned&&SAVE.asura.max<=ASURA_T&&ASURA_T<ASURA.length){SAVE.asura.max=ASURA_T+1;tierUp=true}if(G.bossSlain>=2&&ASURA_T>(SAVE.asura.best||0))SAVE.asura.best=ASURA_T;
   const pk=RIVAL_ON&&G.rival,pkRes=pk?(G.score>G.rival.score?'win':G.score<G.rival.score?'lose':'tie'):null;const pkBonus=pkRes==='win'?200:pkRes==='tie'?80:0;
   if(pk){SAVE.pk=SAVE.pk||{w:0,l:0};if(pkRes==='win')SAVE.pk.w++;else if(pkRes==='lose')SAVE.pk.l++;SAVE.pkBest=Math.max(SAVE.pkBest||0,G.score)}
   let dailyNew=false;if(DAILY){const dk=G.day||dayKey();if(!SAVE.daily||SAVE.daily.day!==dk)SAVE.daily={day:dk,best:0,bosses:0};if(G.t>SAVE.daily.best){SAVE.daily.best=G.t;SAVE.daily.bosses=G.bossSlain;dailyNew=true}}
@@ -259,9 +267,10 @@ function showEnd(ok){
   const R=G.rival,duel=R?(pkRes==='win'?[L('胜利','Victory')+` · ${G.score} : ${R.score}`,L(`+${pkBonus} 金`,`+${pkBonus} gold`)]:pkRes==='lose'?[L('落败','Defeat')+` · ${G.score} : ${R.score}`,L(`${R.name[0]}得分更高`,`${R.name[1]} out-scored you`)]:[L('平手','Tied')+` · ${G.score} : ${R.score}`,L(`+${pkBonus} 金`,`+${pkBonus} gold`)]):null;
   const cmp=R?`<div class="cmp"><div class="hd"><span></span><b>${L('你','You')}</b><b>${L(R.name[0],R.name[1])}<small> ${LL(CLASSES[R.cls])}</small></b></div>
     ${[[L('分数','Score'),G.score,R.score],[L('击杀','Kills'),G.kills,R.kills],[L('等级','Level'),G.lv,R.lv],[L('总伤害','Damage'),Math.round(tot),Math.round(R.dmgDealt)],[L('倒地','Downs'),2-G.cores+(SAVE.up.core||0),R.downs]].map(([n,a,b])=>`<div class="r"><span>${n}</span><b class="${a>=b?'w':''}">${a}</b><b class="${b>a?'w':''}">${b}</b></div>`).join('')}</div>`:'';
-  box.innerHTML=`<h2 class="${pkRes||''}">${pk?(pkRes==='win'?L('对决胜利','Duel won'):pkRes==='lose'?L('对决落败','Duel lost'):L('对决平手','Duel tied')):G.abandoned?L('已放弃','Abandoned'):DAILY?(dailyNew?L('今日新纪录','New daily best'):L('每日挑战','Daily challenge')):record?L('新纪录','New record'):L('败亡','Fallen')}</h2><p class="sub">${L(`存活 ${fmt(G.t)} · 斩杀首领 ${G.bossSlain}`,`Survived ${fmt(G.t)} · ${G.bossSlain} boss${G.bossSlain===1?'':'es'} slain`)}</p>${duel?`<p class="duel">${duel[0]} · ${duel[1]}</p>`:''}
+  box.innerHTML=`<h2 class="${pkRes||''}">${pk?(pkRes==='win'?L('对决胜利','Duel won'):pkRes==='lose'?L('对决落败','Duel lost'):L('对决平手','Duel tied')):G.abandoned?L('已放弃','Abandoned'):DAILY?(dailyNew?L('今日新纪录','New daily best'):L('每日挑战','Daily challenge')):record?L('新纪录','New record'):L('败亡','Fallen')}</h2><p class="sub">${L(`存活 ${fmt(G.t)} · 斩杀首领 ${G.bossSlain}`,`Survived ${fmt(G.t)} · ${G.bossSlain} boss${G.bossSlain===1?'':'es'} slain`)}${ASURA_T?` · ${L('修罗','Ascension')} ${ASURA_T}`:''}${BOSSRUSH?` · ${L('首领连战','Boss rush')}`:''}</p>${duel?`<p class="duel">${duel[0]} · ${duel[1]}</p>`:''}
   <div class="stat"><div><b>${fmt(G.t)}</b><span>${L('存活','Survived')}</span></div><div><b>${G.kills}</b><span>${L('击杀','Kills')}</span></div><div><b>${G.lv}</b><span>${L('等级','Level')}</span></div><div><b>×${G.comboMax}</b><span>${L('最高连斩','Best streak')}</span></div><div><b>${G.bossSlain}</b><span>${L('首领','Bosses')}</span></div><div><b>${G.relics.length}</b><span>${L('法宝','Relics')}</span></div><div><b>${Math.round(G.dmgTaken)}</b><span>${L('承受伤害','Damage taken')}</span></div><div><b>${Math.round(G.healed||0)}</b><span>${L('治疗量','Healing')}</span></div><div><b class="gold">+${gold}</b><span>${L('金币','Gold')}</span></div></div>
   ${(!ok&&G.killer)?(()=>{const T=G.t,log=(G.dmgLog||[]).filter(d=>d.t>=T-5),tot=log.reduce((a,d)=>a+d.n,0)||1,by={};for(const d of log){const k=d.src[0]+'|'+d.src[1];by[k]=(by[k]||0)+d.n}const rows=Object.entries(by).sort((a,b)=>b[1]-a[1]).slice(0,4).map(([k,n])=>{const [zh,en]=k.split('|');return `<span>${L(zh,en)} ${Math.round(n/tot*100)}%</span>`}).join('');return `<div class="killed"><b>${L('死于 '+G.killer[0],'Killed by '+G.killer[1])}</b><div class="srcs"><small>${L('最后 5 秒受到的伤害:','Damage in the last 5 s:')}</small>${rows}</div></div>`})():''}
+  ${tierUp?`<div class="nextgoal tier"><b>${L('修罗','Ascension')}</b> ${L(`第 ${ASURA_T+1} 层已解锁:${ASURA[ASURA_T].zh}`,`Tier ${ASURA_T+1} unlocked: ${ASURA[ASURA_T].en}`)}</div>`:''}
   ${(()=>{const g=nextGoal();return g?`<div class="nextgoal"><b>${L('下一局试试','Next run, try')}</b> ${L(g[0],g[1])}</div>`:''})()}
   ${meta?`<div class="metarow"><span>${L('江湖经验','Renown')} +${meta.xp}${meta.levelUp?` · <b>${L('江湖等级','Rank')} ${meta.after.lv}!</b> ${L(titleFor(meta.after.lv)[1],titleFor(meta.after.lv)[2])}`:` · Lv ${meta.after.lv} (${meta.after.x}/${meta.after.need})`}</span>${meta.done.map(([t,g])=>`<span class="td">✓ ${t.id==='streak'?L('七日连续','7-day streak'):L(taskText(t).zh,taskText(t).en)} +${g} ${L('金','gold')}</span>`).join('')}</div>`:''}
   <div class="dmg">${rows}</div>${cmp}<div class="btns"><button class="go" id="againbtn">${L('再来一局','Play again')}</button><button class="go alt" id="buildbtn">${L('换个构筑','Change build')}</button><button class="go alt" id="lobbybtn">${L('回到山门','Lobby')}</button></div>`;
@@ -303,7 +312,7 @@ let lobbyTab=(()=>{try{return localStorage.getItem('sl_tab')||''}catch(_){return
 function showTab(t){lobbyTab=t;try{localStorage.setItem('sl_tab',t)}catch(_){}document.querySelectorAll('.tabbar button[data-t]').forEach(b=>b.classList.toggle('on',b.dataset.t===t));document.querySelectorAll('.lobby .panel').forEach(p=>p.classList.toggle('on',p.dataset.p===t))}
 document.querySelectorAll('.tabbar button[data-t]').forEach(b=>b.onclick=()=>{showTab(lobbyTab===b.dataset.t?'':b.dataset.t);SFX.pick(1)});
 showTab(lobbyTab);
-function runSummary(){const C=CLASSES[SAVE.cls]||CLASSES.swordsman;return `${LL(C)} · ${LL(SPELLS[weaponOf(SAVE.cls)])} · ${SAVE.mode==='pk'?L('对决','PK'):SAVE.mode==='daily'?L('每日','Daily'):L('单人','Solo')} · ${LL(DIFF[SAVE.mode==='daily'?'normal':(SAVE.diff||'normal')])} · ${LL(MAPS[MAPID])}`}
+function runSummary(){const C=CLASSES[SAVE.cls]||CLASSES.swordsman;const tsel=(SAVE.mode==='solo'||SAVE.mode==='rush')?Math.min(SAVE.asura.sel||0,SAVE.asura.max||0):0;return `${LL(C)} · ${LL(SPELLS[weaponOf(SAVE.cls)])} · ${SAVE.mode==='pk'?L('对决','PK'):SAVE.mode==='daily'?L('每日','Daily'):SAVE.mode==='rush'?L('首领连战','Boss rush'):L('单人','Solo')} · ${LL(DIFF[SAVE.mode==='daily'?'normal':(SAVE.diff||'normal')])}${tsel?` · ${L('修罗','Asc.')} ${tsel}`:''} · ${LL(MAPS[MAPID])}`}
 function renderStatus(){const sb=$('#stickystart');if(sb)sb.querySelector('small').textContent=runSummary();const rs=$('#runsummary');if(rs)rs.textContent=runSummary();
   document.querySelectorAll('#mode button,#diff button,#qual button,.langbtn,.tabbar button[data-t],.cls,.wp,.mapb').forEach(b=>b.setAttribute('aria-pressed',b.classList.contains('on')||b.classList.contains('sel')?'true':'false'));
   const el=$('#status');if(!el)return;const a=typeof accountLv==='function'?accountLv():{lv:1};const t=typeof titleFor==='function'?titleFor(a.lv):['','',''];el.textContent=`${typeof CLOUD!=='undefined'?CLOUD.label():''} · Lv ${a.lv} ${L(t[1],t[2])} · ${SAVE.gold} ${L('金','gold')}`}

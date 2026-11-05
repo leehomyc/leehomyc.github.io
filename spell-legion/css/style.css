@@ -364,3 +364,6 @@ html[lang=en] .zh{display:none!important}html[lang=zh] .en{display:none!importan
 #hud .rgt{padding-right:52px}
 #runsummary{color:var(--bone);font-weight:700}
 .nextgoal{background:#14201ad9;border:1px solid #7dffb066;border-radius:8px;padding:8px 12px;margin:6px 0;font-size:13px;color:var(--bone);line-height:1.45}.nextgoal b{color:#7dffb0;margin-right:6px}
+#asura{display:flex;gap:4px;align-items:center;flex-wrap:wrap;margin:4px 0;font-size:12px;color:var(--dim)}#asura[hidden]{display:none}#asura button{border-radius:6px;background:#2a1822;border:1px solid #6b5230;color:var(--bone);font:700 12px var(--ui);padding:5px 9px;cursor:pointer;min-width:30px}#asura button.on{background:#5a1a3a;border-color:#ff6ab0;color:#fff}#asura small{flex:1 1 100%;font-size:11px;color:var(--dim)}
+.nextgoal.tier{border-color:#ff6ab0aa}.nextgoal.tier b{color:#ff6ab0}
+.card[style*="--c:#ff6a6a"] .fxe{color:#7dffb0}

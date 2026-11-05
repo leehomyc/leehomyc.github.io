@@ -22,6 +22,8 @@ const TASKS=[
   {id:'level',zh:'单局达到 {n} 级',en:'Reach level {n} in one run',goals:[15,20,25],best:1,get:()=>G.lv},
   {id:'pk',zh:'赢下 {n} 场对决',en:'Win {n} PK matches',goals:[1,1,2],cum:1,get:()=>(G.over==='pk'&&G.rival&&G.score>G.rival.score)?1:0},
   {id:'daily',zh:'每日挑战存活 {n} 分钟',en:'Survive {n} minutes in the daily challenge',goals:[5,8,10],best:1,get:()=>(typeof DAILY!=='undefined'&&DAILY)?Math.floor(G.t/60):0},
+  {id:'tier',zh:'在修罗层斩杀 {n} 位首领',en:'Slay {n} bosses on an Ascension tier',goals:[1,2,3],cum:1,get:()=>ASURA_T>=1?G.bossSlain:0},
+  {id:'rush',zh:'首领连战中斩杀 {n} 位首领',en:'Slay {n} bosses in Boss rush',goals:[2,3,4],best:1,get:()=>BOSSRUSH?G.bossSlain:0},
   {id:'cls',zh:'用 {c} 斩杀一位首领',en:'Slay a boss as the {ce}',goals:[1,1,1],cum:1,cls:1,get:(t)=>G.cls===t.c&&G.bossSlain>0?1:0},
 ];
 const TASK_GOLD=[150,220,320];

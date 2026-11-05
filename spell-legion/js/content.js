@@ -169,7 +169,7 @@ const WEAPON_INFO={
 const AWAKE_LV=15;
 /* skill categories for the card screen */
 const CATS={melee:['近战','Melee','#ff9c5a'],ranged:['远程','Ranged','#9fe3f0'],summon:['阵法','Summon','#c7a4f0'],defense:['防御','Defense','#7dffb0'],heal:['治疗','Heal','#7fc98a'],control:['控制','Control','#ffd75a'],element:['真气','Element','#ff8a3c'],augment:['强化','Augment','#d6a54a'],passive:['心法','Passive','#efe4cd'],all:['全体攻击','All attacks','#ffd27a'],tree:['武学树','Tree','#ffd27a'],new:['新武学','New skill','#ffffff']};
-const KINDS={level:['技能升级','Skill level up','#9fe3f0'],new:['新武学','New skill','#ffffff'],element:['灌注真气','Element','#ff8a3c'],fusion:['真气融合','Fusion','#ff8a3c'],tree:['武学树','Skill tree','#ffd27a'],augment:['强化','Augment','#d6a54a'],passive:['心法·被动','Passive','#efe4cd'],awake:['武器觉醒','Awakening','#ffd27a'],jackpot:['天降横财','Jackpot','#ffd27a']};
+const KINDS={level:['技能升级','Skill level up','#9fe3f0'],new:['新武学','New skill','#ffffff'],element:['灌注真气','Element','#ff8a3c'],fusion:['真气融合','Fusion','#ff8a3c'],tree:['武学树','Skill tree','#ffd27a'],augment:['强化','Augment','#d6a54a'],passive:['心法·被动','Passive','#efe4cd'],awake:['武器觉醒','Awakening','#ffd27a'],contract:['契约','Pact','#ff6a6a'],jackpot:['天降横财','Jackpot','#ffd27a']};
 const SKILL_CAT={great:'melee',whisk:'ranged',nodachi:'melee',drum:'control',sword:'ranged',palm:'ranged',array:'summon',talis:'ranged',charm:'ranged',bagua:'summon',ward:'defense',slash:'melee',whirl:'melee',leap:'melee',roar:'control',sunder:'ranged',exorcise:'control',frenzy:'melee',wave:'ranged',flow:'control',ambush:'ranged',guangling:'heal'};
 const PERK_CAT={锋锐:'all',金钟罩:'defense',轻身:'passive',内息:'passive',生息:'heal',摄物:'passive',疾风:'passive',致命:'all'};
 /* boss signature moves, by boss index (see BOSSES in sim.js) */
@@ -181,3 +181,33 @@ const PTS={assassin:1,bandit:2,archer:3,giant:8,statue:0};
 function pts(e){if(e.type==='boss')return 300+150*(e.n||0);if(e.warlord)return 60;let p=PTS[e.type]||1;if(e.elite)p*=3;if(e.role)p*=2;if(e.affix)p=Math.round(p*1.5);return p}
 const PK_EVENTS={chest:25,mission:40,ambush:50};
 const ACTIVE_MULT=2.6;  // damage multiplier for qi-costing skills (see hit())
+
+/* 修罗 Ascension tiers: stacked modifiers, unlocked by clearing the previous tier (two bosses in one run) */
+const ASURA=[
+  {zh:'敌人生命 +15%',en:'Enemies +15% HP'},
+  {zh:'精英更常出现',en:'Elites appear more often'},
+  {zh:'首领从第一位起就会放出波纹',en:'Bosses use the nova from the first one on'},
+  {zh:'词缀敌人从 2:00 起出现',en:'Affixed enemies from 2:00'},
+  {zh:'生命上限 -15%',en:'Max HP -15%'},
+  {zh:'首领伤害 +25%',en:'Boss damage +25%'},
+  {zh:'铁甲统领成对出现',en:'The Iron Warlord comes in pairs'},
+  {zh:'重抽次数减半',en:'Half as many rerolls'},
+  {zh:'怪潮 +25%',en:'Spawns +25%'},
+  {zh:'首领生命 +30%',en:'Bosses +30% HP'},
+];
+const ASURA_GOLD=.15; // gold multiplier per tier
+/* cursed relics: strong, with a price */
+Object.assign(RELICS,{
+  bloodcurse:{g:'煞',zh:'血煞',en:'Blood Curse',d:'伤害 +35%,生命上限 -25%',de:'+35% damage, -25% max HP',col:'#ff3a3a',cursed:1},
+  glass:{g:'琉',zh:'琉璃心',en:'Glass Heart',d:'暴击 +25%,受到伤害 +20%',de:'+25% crit, +20% damage taken',col:'#9fe3f0',cursed:1},
+  wolf:{g:'狼',zh:'贪狼',en:'Greedy Wolf',d:'金币 +60%,拾取范围 -30%',de:'+60% gold, -30% pickup range',col:'#ffd27a',cursed:1},
+  bind:{g:'缚',zh:'缚灵',en:'Soul Bind',d:'武学内力消耗 -40%,移速 -10%',de:'Skills cost 40% less qi, -10% speed',col:'#b57cf0',cursed:1},
+});
+/* contracts: an in-run bargain - take a curse for the rest of the run, get something big now */
+const CONTRACTS=[
+  {id:'swift',zh:'疾风契',en:'Pact of Wind',cost:['敌人移速 +20%','Enemies +20% speed'],gain:['立即获得一件法宝','A relic right now'],apply(){G.curse.spd=1.2},reward(){dropRelic(G.P.x+30,G.P.y)}},
+  {id:'horde',zh:'群魔契',en:'Pact of Hordes',cost:['怪潮 +30%','Spawns +30%'],gain:['一张传说卡','A legendary card'],apply(){G.curse.spawn=1.3},reward(){G.picks.unshift({kind:'level',forceQ:'legendary'})}},
+  {id:'thin',zh:'薄命契',en:'Pact of Thin Blood',cost:['生命上限 -20%','Max HP -20%'],gain:['伤害 +20%(本局)','+20% damage this run'],apply(){G.P.maxHp=Math.round(G.P.maxHp*.8);G.P.hp=Math.min(G.P.hp,G.P.maxHp);G.P.dmgBonus+=.2},reward(){}},
+  {id:'greed',zh:'贪婪契',en:'Pact of Greed',cost:['不再掉落宝箱','No more chests'],gain:['金币 +200 并 +50% 金币','+200 gold now and +50% gold'],apply(){G.curse.nochest=1;G.goldRun+=200;G.curse.gold=1.5},reward(){}},
+  {id:'hunted',zh:'猎命契',en:'Pact of the Hunted',cost:['铁甲统领立刻出现','The Iron Warlord arrives now'],gain:['三次重抽','Three rerolls'],apply(){G.warlordNow=1},reward(){G.rerolls+=3}},
+];
