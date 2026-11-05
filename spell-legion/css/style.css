@@ -573,3 +573,7 @@ body.picking #sndbtn{display:none}
   #loadnote{font-size:11px}
 }
 #kills,#sndbtn,#pausebtn{flex:none}
+.bs .slot{font:900 10px var(--ui);color:var(--brass);background:#0a0710;border:1px solid #6b5230;border-radius:5px;padding:2px 5px;flex:none;letter-spacing:.04em}
+.bs.hl0{border-color:#ffd27a;box-shadow:0 0 14px #ffd27a88;background:#2a1e12d9}.bs.hl0 .slot{background:#ffd27a;color:#1a0e16;border-color:#ffd27a}
+#build{margin-bottom:2px}
+@media (max-width:760px){.bs .slot{font-size:9px;padding:1px 4px}}
