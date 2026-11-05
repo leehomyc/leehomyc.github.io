@@ -35,7 +35,9 @@ addEventListener('pointerdown',()=>SFX.start(),{once:false});
 cv.addEventListener('pointerdown',e=>{touch.on=true;touch.sx=touch.x=e.clientX;touch.sy=touch.y=e.clientY;try{cv.setPointerCapture(e.pointerId)}catch(_){}});
 cv.addEventListener('pointermove',e=>{if(touch.on){touch.x=e.clientX;touch.y=e.clientY}});
 ['pointerup','pointercancel'].forEach(n=>cv.addEventListener(n,()=>touch.on=false));
-cv.addEventListener('contextmenu',e=>{e.preventDefault();if(!G||G.auto)return;AUTOCAST=!AUTOCAST;SAVE.autocast=AUTOCAST;persist();autoLabel();showBanner(AUTOCAST?'武学自动施放':'武学手动施放',AUTOCAST?'Skills: auto-cast':'Skills: manual (1 / 2 / 3)',1.2);SFX.pick(1)});
+function toggleAuto(){if(!G||G.auto)return;AUTOCAST=!AUTOCAST;SAVE.autocast=AUTOCAST;persist();autoLabel();drawSeals();showBanner(AUTOCAST?'武学自动施放':'武学手动施放',AUTOCAST?'Skills cast themselves':'Press 1 / 2 / 3 to cast',1.2);SFX.pick(1)}
+// right-click anywhere on the battlefield (not on menus) toggles auto-cast; the HUD switch does the same for touch
+document.addEventListener('contextmenu',e=>{if(e.target.closest&&e.target.closest('#title,#cards,#pause,#char,#end,#lb,#sndpanel,input,textarea'))return;e.preventDefault();toggleAuto()});
 cv.addEventListener('pointerdown',e=>{if(e.button===2)touch.on=false});
 function input(){
   let x=0,y=0;
@@ -113,6 +115,7 @@ function drawSeals(){
     }else{const key=document.createElement('div');key.className='key';key.textContent=SPELL_KEYS[i];d.appendChild(key)}
     box.appendChild(d)}
   const dd=document.createElement('button');dd.className='seal dash';dd.id='sealdash';dd.type='button';dd.innerHTML='<div class="g">轻</div><div class="lv">轻功</div><div class="key">Space</div><div class="cdm"></div>';dd.onpointerdown=ev=>{ev.preventDefault();dash()};box.appendChild(dd);
+  const at=document.createElement('button');at.className='seal autosw'+(AUTOCAST?' on':'');at.id='autosw';at.type='button';at.innerHTML=`<div class="g">${AUTOCAST?'自':'手'}</div><div class="lv">${AUTOCAST?'自动施放':'手动施放'}</div><div class="key">右键</div>`;at.title='切换武学自动/手动施放 · toggle auto-cast (right-click also works)';at.onpointerdown=ev=>{ev.preventDefault();toggleAuto()};box.appendChild(at);
 }
 let bannerT=0;
 function showBanner(zh,en,t){if(!G||G.auto)return;const b=$('#banner');b.innerHTML=`${zh}<small>${en}</small>`;b.classList.remove('on');void b.offsetWidth;b.classList.add('on');bannerT=t}

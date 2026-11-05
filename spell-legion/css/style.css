@@ -334,3 +334,4 @@ kbd{font:700 13px var(--ui);border:1px solid var(--dim);padding:0 5px;border-rad
 #account{display:flex;gap:10px;align-items:center;flex-wrap:wrap;background:#140b12d9;border:1px solid #6b523066;border-radius:10px;padding:8px 12px;margin-bottom:8px;font-size:13px}
 #account .who{font-weight:800;display:flex;align-items:center;gap:6px}#account .dot{width:8px;height:8px;border-radius:50%;background:#6b5230;display:inline-block}#account .dot.on{background:#7dffb0;box-shadow:0 0 8px #7dffb0}
 #account small{flex:1 1 100%;font-size:11px;color:var(--dim)}#account .note{font-size:11px;color:#7dffb0}
+.seal.autosw{border-color:#6b5230;opacity:.85}.seal.autosw .g{color:var(--dim);font-size:26px}.seal.autosw.on{border-color:#8fd8ff;opacity:1}.seal.autosw.on .g{color:#8fd8ff}
