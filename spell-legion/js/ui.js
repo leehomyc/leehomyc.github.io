@@ -178,8 +178,9 @@ function openPick(){
     const cat=CATS[cd.cat]||CATS.passive,kind=cd.kind||'passive',K=KINDS[kind]||KINDS.passive;
     const sug=adv&&(cd.cat===adv.cat||(adv.cat==='defense'&&cd.cat==='heal')||(adv.cat==='melee'&&(cd.cat==='ranged'||cd.cat==='summon')));
     // header: what kind of card · category · rarity · suggested star
-    const hd=document.createElement('div');hd.className='hd';
-    hd.innerHTML=`<span class="kind" style="--cc:${K[2]}">${L(K[0],K[1])}</span>${kind!=='passive'&&kind!=='jackpot'?`<span class="catd" style="--cc:${cat[2]}">${L(cat[0],cat[1])}</span>`:''}<span class="sp"></span>${cd.q&&cd.q.k!=='common'?`<span class="rar">${L(cd.q.zh,cd.q.en)}</span>`:''}${sug?`<span class="star" title="${L('推荐','Suggested')}">★</span>`:''}`;
+    b.dataset.kind=kind;b.style.setProperty('--k',K[2]);
+    const hd=document.createElement('div');hd.className='hd';const hint=KIND_HINT[kind];
+    hd.innerHTML=`<span class="kind"><i>${K[3]||''}</i>${L(K[0],K[1])}</span>${kind!=='passive'&&kind!=='jackpot'&&kind!=='contract'?`<span class="catd" style="--cc:${cat[2]}">${L(cat[0],cat[1])}</span>`:''}<span class="sp"></span>${cd.q&&cd.q.k!=='common'?`<span class="rar">${L(cd.q.zh,cd.q.en)}</span>`:''}${sug?`<span class="star" title="${L('推荐','Suggested')}">★</span>`:''}${hint?`<span class="hint">${L(hint[0],hint[1])}</span>`:''}`;
     b.appendChild(hd);
     // glyph of the skill being changed, with a small badge for the node / element / augment
     const gw=document.createElement('div');gw.className='gw';gw.innerHTML=typeof ICON!=='undefined'?ICON.card(cd)+`<span class="gm">${cd.g}</span>`:`<span class="g">${cd.g}</span>${cd.badge?`<span class="badge">${cd.badge}</span>`:''}`;b.appendChild(gw);

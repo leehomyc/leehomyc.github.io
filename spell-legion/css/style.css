@@ -505,3 +505,17 @@ body.picking #sndbtn{display:none}
 #updbtn{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:50;box-shadow:0 10px 30px #000c}
 
 @media (max-width:640px){#sndbtn{width:36px;height:32px;font-size:14px}}
+
+/* ===== card kinds: colour band + glyph + hint, so 升级 / 武学树 / 心法 / 新武学 never look alike ===== */
+.card{--k:#9fe3f0;border-top:3px solid var(--k)}
+.card .hd{flex-wrap:wrap;row-gap:2px;margin:-12px -12px 6px;padding:6px 12px 5px;background:linear-gradient(90deg,color-mix(in srgb,var(--k) 30%,transparent),color-mix(in srgb,var(--k) 6%,transparent))}
+.card .hd .kind{background:var(--k);color:#1a0e16;border:none;font-weight:900;display:inline-flex;align-items:center;gap:4px;padding:1px 8px 1px 6px}
+.card .hd .kind i{font-style:normal;font-size:12px;line-height:1}
+.card .hd .catd{color:var(--cc)}
+.card .hd .hint{flex:1 1 100%;font-size:10px;font-weight:600;letter-spacing:0;text-transform:none;color:color-mix(in srgb,var(--k) 70%,#fff);opacity:.9}
+.card[data-kind=new]{box-shadow:0 18px 40px #000a,0 0 30px #7dffb055}
+.card[data-kind=level] .n::after{content:' ↑';color:#4fa3ff}
+.card .gw .bd.lvl{border:1.5px solid #4fa3ff;color:#4fa3ff;font:900 18px var(--ui);line-height:26px}
+.card .gw .bd.pas{border:1.5px solid #efe4cd;color:#efe4cd}
+.card .gw .bd.new{background:#1f7a46;border-color:#7dffb0}
+@media (max-width:760px){.card .hd{margin:-7px -10px 4px;padding:4px 10px 3px}.card .hd .hint{font-size:9.5px}}

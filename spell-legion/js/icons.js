@@ -129,6 +129,8 @@ const ICON=(()=>{
         else if(cd.kind==='new')badge='';
         else badge=`<span class="bd t">${cd.badge}</span>`}
       else if(cd.isNew||cd.kind==='new')badge=`<span class="bd t new">${LANG==='zh'?'新':'NEW'}</span>`;
+      else if(cd.kind==='level')badge=`<span class="bd t lvl">↑</span>`;
+      else if(cd.kind==='passive')badge=`<span class="bd t pas">卷</span>`;
       return main+badge;
     }
   };
