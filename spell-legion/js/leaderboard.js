@@ -3,7 +3,7 @@
 const LEADERBOARD_URL='';   // paste the deployed web-app URL here; the board stays hidden while empty
 const LB={
   token(){let t=null;try{t=localStorage.getItem('sl_token');if(!t){t=Array.from(crypto.getRandomValues(new Uint8Array(12)),b=>b.toString(16).padStart(2,'0')).join('');localStorage.setItem('sl_token',t)}}catch(_){t=t||'anon'}return t},
-  name(){try{return localStorage.getItem('sl_name')||''}catch(_){return ''}},
+  name(){let n='';try{n=localStorage.getItem('sl_name')||''}catch(_){}if(!n&&typeof CLOUD!=='undefined'&&CLOUD.user&&!CLOUD.user.isAnonymous&&CLOUD.user.displayName)n=CLOUD.user.displayName.slice(0,16);return n},
   setName(n){try{localStorage.setItem('sl_name',n)}catch(_){}},
   cloud(){return typeof CLOUD!=='undefined'&&CLOUD.on()},
   enabled(){return this.cloud()||!!LEADERBOARD_URL},
