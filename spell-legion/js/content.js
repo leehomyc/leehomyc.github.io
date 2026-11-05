@@ -77,6 +77,9 @@ const ETYPES={
   bandit:{hp:26,spd:33,dmg:9,r:6,xp:2,zh:'刀客',en:'bandit'},
   archer:{hp:20,spd:30,dmg:7,r:6,xp:3,shoot:1,zh:'弓手',en:'archer'},
   giant:{hp:140,spd:23,dmg:16,r:10,xp:8,zh:'铁甲力士',en:'iron giant'},
+  brute:{hp:95,spd:26,dmg:14,r:9,xp:6,zh:'盾卫',en:'shield guard',mesh:'giant',sc:.78,tint:[.7,.85,1.25]},
+  bomber:{hp:24,spd:28,dmg:7,r:6,xp:4,shoot:1,bomb:1,zh:'火药匪',en:'bomber',mesh:'archer',sc:1.05,tint:[1.5,.9,.5]},
+  wraith:{hp:30,spd:58,dmg:9,r:6,xp:5,zh:'怨灵',en:'wraith',mesh:'assassin',sc:1.3,tint:[1.3,.6,1.9],ghost:1},
 };
 const BOSS_NAME=['血魔教主','Blood Demon Patriarch'];
 
@@ -177,7 +180,7 @@ const BOSS_SIG=[['bloodrain','drain'],['spiral','blink'],['eggs','venom'],['bone
 const BOSS_HINT=[['血雨落处勿站,他吸血时拉开距离','Step out of the blood rain; back away when he drains'],['刀影螺旋有缝,他消失时准备闪避','The blade spiral has gaps; dash when he vanishes'],['蛊卵孵化前踩灭,远离毒雾','Stamp the eggs before they hatch; avoid the poison'],['骨墙缓慢,轻功穿过;脚下骨刺看地面','Dash through the bone walls; watch the ground for spikes'],['火环留一缺口,陨星落点必须离开','The fire ring leaves one gap; leave the meteor mark'],['幻影一击即碎,粉色波纹碰到会颠倒方向','Illusions shatter in one hit; the pink ring reverses your controls'],['盾墙挡路绕开,炮击落在你站过的地方','Go around the shield wall; the volleys land where you stood']];
 /* PK mode: point values, last hit takes all */
 const PK_LEN=600;
-const PTS={assassin:1,bandit:2,archer:3,giant:8,statue:0};
+const PTS={assassin:1,bandit:2,archer:3,giant:8,brute:5,bomber:4,wraith:4,statue:0};
 function pts(e){if(e.type==='boss')return 300+150*(e.n||0);if(e.warlord)return 60;let p=PTS[e.type]||1;if(e.elite)p*=3;if(e.role)p*=2;if(e.affix)p=Math.round(p*1.5);return p}
 const PK_EVENTS={chest:25,mission:40,ambush:50};
 const ACTIVE_MULT=2.6;  // damage multiplier for qi-costing skills (see hit())
@@ -218,6 +221,9 @@ const CODEX_ENEMIES=[
   {id:'bandit',g:'匪',zh:'刀客',en:'Bandit',d:'中等体型的近战,数量是关键。',de:'Mid-weight melee; numbers are the threat.'},
   {id:'archer',g:'弓',zh:'弓手',en:'Archer',d:'保持距离放箭,箭可以被轻功躲开。',de:'Keeps its distance and shoots; arrows can be dashed through.'},
   {id:'giant',g:'力',zh:'铁甲力士',en:'Iron Giant',d:'厚血慢步,击退它需要重武器。',de:'Thick HP, slow; heavy weapons move it.'},
+  {id:'brute',g:'盾',zh:'盾卫',en:'Shield Guard',d:'正面持盾,正面受到的伤害 -70%;绕到背后或用范围技。',de:'Carries a shield: frontal hits do 70% less; flank it or use area skills.'},
+  {id:'bomber',g:'药',zh:'火药匪',en:'Bomber',d:'向你脚下投掷炸药,落点有红圈提示。',de:'Lobs powder bombs at your feet; the landing spot shows a red ring.'},
+  {id:'wraith',g:'怨',zh:'怨灵',en:'Wraith',d:'穿墙而来,普攻只造成一半伤害,武学造成双倍。',de:'Passes through walls; normal attacks do half damage, skills do double.'},
   {id:'charger',g:'冲',zh:'冲锋刀客',en:'Charging Bandit',d:'蓄力后沿红线冲撞,侧身躲开。',de:'Winds up, then charges along the red line; step aside.'},
   {id:'shaman',g:'巫',zh:'巫弓手',en:'Shaman Archer',d:'绿色光环为周围敌人回血,普攻会优先瞄准它。',de:'Green aura heals nearby enemies; auto-attacks target it first.'},
   {id:'swift',g:'疾',zh:'疾风',en:'Swift',d:'词缀:移速 +50%。',de:'Affix: +50% speed.'},
