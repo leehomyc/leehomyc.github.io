@@ -1,9 +1,9 @@
 'use strict';
 /* sim.js — game state, combat, skills, missions, shrines, cards, step */
-let G=null,CLASS='swordsman',RIVAL_ON=false;
+let G=null,CLASS='swordsman',RIVAL_ON=false,SAVE_FIRST=false;
 function mkSpell(id){return {id,lv:1,cd:0,els:[],augs:[],dmg:0,active:0,casts:0,nodes:{},pts:0}}
 const nd=(s,fx)=>{if(!s||!s.nodes)return 0;let r=0;const T=TREES[s.id]||[];for(const k in s.nodes)if(T[k]&&T[k].fx===fx)r+=s.nodes[k];return r}
-function skillCost(s){return Math.round(SPELLS[s.id].cost*(1-NODE_FX.cost*nd(s,'cost')))}
+function skillCost(s){return Math.round(SPELLS[s.id].cost*(1-NODE_FX.cost*nd(s,'cost'))*(G&&G.relics&&G.relics.includes('taiji')?.75:1))}
 function newGame(auto,cls){
   cls=cls||CLASS;const C=CLASSES[cls];
   buildArena();if(typeof buildRuins==='function')buildRuins();
@@ -11,7 +11,7 @@ function newGame(auto,cls){
   G={auto,t:0,P,cls,en:[],shots:[],bombs:[],bullets:[],gems:[],pools:[],fx:[],floats:[],arcs:[],later:[],ghosts:[],shocks:[],
      mush:[],grid:new Map(),spells:[mkSpell(C.main),mkSpell(C.skills[0])],xp:0,lv:1,need:14,picks:[],kills:0,cores:2,coreT:0,
      spawnA:0,swarmT:55,mission:null,missionT:26,boss:null,bossT:0,paused:false,over:null,shake:0,trauma:0,shX:0,shY:0,hitStop:0,slow:0,flash:0,dmgTaken:0,
-     shrines:SHRINES.map(s=>({x:s[0],y:s[1],cd:0})),elites:0,combo:0,comboT:0,comboMax:0,over9:0,chests:[],chestT:30,goldRun:0,rerolls:1,wave:0,ambush:0,warlord:0,bossN:0,bossSlain:0,warlordN:0};
+     shrines:SHRINES.map(s=>({x:s[0],y:s[1],cd:0})),elites:0,combo:0,comboT:0,comboMax:0,over9:0,chests:[],chestT:30,goldRun:0,rerolls:1,wave:0,ambush:0,warlord:0,bossN:0,bossSlain:0,warlordN:0,relics:[],novas:[],hintT:0,hintN:0};
   if(typeof buildHero==='function')buildHero(cls,'player');
   if(RIVAL_ON)mkRival(cls);else{G.rival=null;if(typeof HEROES!=='undefined'&&HEROES.rival){scene.remove(HEROES.rival.g);scene.remove(HEROES.rival.sigil);HEROES.rival=null}}
   if(!auto&&typeof drawSeals==='function'){drawSeals();updateCores()}
@@ -65,6 +65,12 @@ function rivalTick(dt){
 }
 function rivalHurt(n,fx,fy){const R=G.rival;if(!R||R.down>0||R.inv>0)return;R.hp-=n;R.inv=.4;if(R.hp<=0){R.hp=0;R.down=4;R.downs++;spark(R.x,R.y,'#6fd3e8',20,120)}}
 
+/* ---------- relics ---------- */
+const hasR=k=>G.relics.includes(k);
+function dropRelic(x,y){const left=Object.keys(RELICS).filter(k=>!hasR(k));if(!left.length){G.goldRun+=40;return}if(G.fx.length<640)G.fx.push({k:'relic',id:pick(left),x,y,t:60,T:60})}
+function takeRelic(id){const R=RELICS[id],P=G.P;G.relics.push(id);
+  if(id==='boots')P.spd*=1.12;if(id==='feather'){G.cores++;updateCores()}if(id==='bowl')P.mag*=1.4;if(id==='chime')P.haste*=1.15;if(id==='pill'){P.maxHp+=40;P.hp+=40}if(id==='shell')P.def*=.85;
+  showBanner(`法宝:${R.zh}`,`${R.en} · ${R.de}`,2);trauma(.2);G.flash=Math.max(G.flash,.25);if(typeof SFX!=='undefined')SFX.chest();if(typeof drawRelics==='function')drawRelics()}
 /* ---------- feel ---------- */
 function trauma(n,dx,dy){G.trauma=Math.min(1,G.trauma+n);if(dx!==undefined){G.shX+=dx*n*40;G.shY+=dy*n*40}}
 function hitStop(t){G.hitStop=Math.max(G.hitStop,t)}
@@ -80,7 +86,7 @@ function near(x,y,r,fn){
   }
 }
 function nearest(x,y,max,skipStatue){ // bosses and elites count as closer than they are, so auto-attacks focus them
-  let b=null,bd=max;for(const e of G.en){if(e.dead||(skipStatue&&e.type==='statue'))continue;let d=hyp(e.x-x,e.y-y);if(d>max)continue;if(e.type==='boss')d*=.3;else if(e.warlord)d*=.4;else if(e.elite)d*=.65;if(d<bd){bd=d;b=e}}return b}
+  let b=null,bd=max;for(const e of G.en){if(e.dead||(skipStatue&&e.type==='statue'))continue;let d=hyp(e.x-x,e.y-y);if(d>max)continue;if(e.type==='boss')d*=.3;else if(e.warlord)d*=.4;else if(e.role==='shaman')d*=.5;else if(e.elite)d*=.65;if(d<bd){bd=d;b=e}}return b}
 function has(s,el){return s&&s.els.includes(el)}
 function fusion(s){return s&&s.els.length===2?fusKey(s.els[0],s.els[1]):null}
 
@@ -90,6 +96,8 @@ function hit(e,d,s,noEl,col,kx=0,ky=0){
   const P=G.P,rv=s&&s.owner==='rival',O=rv?G.rival:P;let m=d*O.dmg*(1+(O.dmgBonus||0))*(e.shred>0?1.25:1)*(!rv&&P.buff&&P.buff.k==='dmg'?1.3:1);
   const crit=Math.random()<O.crit+(s?NODE_FX.crit*nd(s,'crit'):0);if(crit)m*=2;
   if(s&&!rv){const lf=nd(s,'life');if(lf)heal(m*NODE_FX.life*lf);const ch=nd(s,'chain');if(ch&&Math.random()<NODE_FX.chain*ch&&!noEl)arc(e,m*.35,s,1)}
+  if(!rv&&P.frenzy>0){e.hp-=m*.4;if(s)s.dmg+=m*.4;heal(m*.05)}
+  if(!rv){if(hasR('jade'))heal(m*.03);if(hasR('pearl')&&!noEl&&Math.random()<.12)arc(e,m*.4,s||G.spells[0],1);if(hasR('iron'))e.slow=Math.max(e.slow||0,.6);if(hasR('blood')&&P.hp<P.maxHp*.5){e.hp-=m*.25;if(s)s.dmg+=m*.25}}
   e.hp-=m;e.flash=.08;if(s)s.dmg+=m;if(rv)G.rival.dmgDealt+=m;
   const kk=e.type==='boss'?.12:e.type==='giant'?.4:e.type==='statue'?0:1;
   e.kx=(e.kx||0)+kx*kk;e.ky=(e.ky||0)+ky*kk;
@@ -146,6 +154,8 @@ function kill(e,s,kx=0,ky=0){
   const drops=e.elite?4:1;
   for(let i=0;i<drops;i++)if(G.gems.length<360)G.gems.push({x:e.x+rnd(-8,8),y:e.y+rnd(-8,8),v:e.xp,big:e.xp>=3});
   if(e.elite)G.gems.push({x:e.x,y:e.y,v:10,big:1});
+  if(!(s&&s.owner==='rival')&&hasR('charm')&&e.type!=='boss'){const x=e.x,y=e.y;later(.03,()=>{near(x,y,24,o=>{if(hyp(o.x-x,o.y-y)<20+o.r)hit(o,10*G.P.dmg*(1+G.P.dmgBonus),null,true,'#ff7a2c',(o.x-x)*4,(o.y-y)*4)});ring(x,y,20,'#ff7a2c')})}
+  if((e.elite&&Math.random()<.3)||e.warlord||e.type==='boss')dropRelic(e.x,e.y);
   if(e.affix==='explode'){const x=e.x,y=e.y,d=e.dmg*1.3;later(.08,()=>{ring(x,y,34,'#ff4a2a');spark(x,y,'#ff6a3a',14,120);const P=G.P;if(hyp(P.x-x,P.y-y)<34+6)dmgP(d,x,y);if(G.rival&&hyp(G.rival.x-x,G.rival.y-y)<40)rivalHurt(d,x,y)})}
   if(e.warlord){G.chests.push({x:e.x,y:e.y,t:0});showBanner('统领已斩','Warlord slain: treasure drops',1.4);trauma(.6);G.slow=Math.max(G.slow,.5);G.flash=.5;if(typeof SFX!=='undefined')SFX.win()}
   const fk=fusion(s);
@@ -171,7 +181,7 @@ function chestTick(dt){
   if(G.chestT<=0&&G.chests.length<2){G.chestT=38;let x,y,n=0;do{const a=rnd(TAU),d=rnd(220,380);x=clamp(P.x+Math.cos(a)*d,60,W-60);y=clamp(P.y+Math.sin(a)*d,60,H-60)}while(n++<20&&(blocked(x,y)||onPond(x,y,1.3)));G.chests.push({x,y,t:0});showBanner('宝箱现世','A treasure chest appeared',1)}
   for(const c of G.chests){c.t+=dt;if(P.down<=0&&hyp(c.x-P.x,c.y-P.y)<22){c.dead=1;
     for(let i=0;i<10;i++){const a=i/10*TAU;G.gems.push({x:c.x+Math.cos(a)*18,y:c.y+Math.sin(a)*18,v:3,big:1})}
-    G.goldRun+=25;ring(c.x,c.y,70,'#ffd27a');spark(c.x,c.y,'#ffd27a',40,160);trauma(.35);shock(c.x,c.y,160,.03);G.slow=Math.max(G.slow,.2);
+    G.goldRun+=Math.round(25*(hasR('bowl')?1.3:1));if(Math.random()<.5)dropRelic(c.x,c.y);ring(c.x,c.y,70,'#ffd27a');spark(c.x,c.y,'#ffd27a',40,160);trauma(.35);shock(c.x,c.y,160,.03);G.slow=Math.max(G.slow,.2);
     G.picks.push({kind:'level'});showBanner('宝箱开启','+25 gold, mana and a bonus card',1.4);if(typeof SFX!=='undefined')SFX.chest();openPick()}}
   G.chests=G.chests.filter(c=>!c.dead);
 }
@@ -205,7 +215,7 @@ const stat=s=>{
 function shoot(x,y,a,s,d,o={}){
   if(G.shots.length>260)return;
   const st=stat(s),cols=s.els.map(k=>ELS[k].col);
-  G.shots.push({x,y,vx:Math.cos(a)*(o.v||260),vy:Math.sin(a)*(o.v||260),life:o.life||.9,s,d,r:(o.r||3)*(st.gi?1.6:1),pierce:o.pierce||0,hitSet:o.hitSet||new Set(),col:cols[0]||SPELLS[s.id].col,col2:cols[1],split:o.nosplit?false:st.split,small:o.small,knock:o.knock||70,kind:s.id,spin:rnd(TAU),home:o.home,boom:o.boom});
+  G.shots.push({x,y,vx:Math.cos(a)*(o.v||260),vy:Math.sin(a)*(o.v||260),life:o.life||.9,s,d,r:(o.r||3)*(st.gi?1.6:1),pierce:o.pierce||0,hitSet:o.hitSet||new Set(),col:cols[0]||SPELLS[s.id].col,col2:cols[1],split:o.nosplit?false:st.split,small:o.small,knock:o.knock||70,kind:s.id,spin:rnd(TAU),home:o.home,boom:o.boom,slow:o.slow});
 }
 function aimDir(range){const P=G.P,t=nearest(P.x,P.y,range,true);if(t)return Math.atan2(t.y-P.y,t.x-P.x);return Math.atan2(P.dy,P.dx)}
 function autoFire(s){ // the normal attack of each class
@@ -220,6 +230,11 @@ function autoFire(s){ // the normal attack of each class
     const fn=()=>{const tt=t.dead?nearest(P.x,P.y,220,true):t;if(!tt)return;const a=Math.atan2(tt.y-P.y,tt.x-P.x),n=1+Math.floor(s.lv/4)+st.n;
       for(let i=0;i<n;i++)shoot(P.x,P.y-6,a+(i-(n-1)/2)*.5,s,11*st.m,{v:190,life:1.3,r:4*st.size,knock:50*st.knock,home:1,boom:1});P.cast=1;if(typeof SFX!=='undefined')SFX.charm()};
     fn();if(st.burst)later(.14,fn);s.cd=.62*st.cdM;
+  }else if(s.id==='wave'){
+    const t=nearest(P.x,P.y,210,true);if(!t)return false;
+    const fn=()=>{const tt=t.dead?nearest(P.x,P.y,220,true):t;if(!tt)return;const a=Math.atan2(tt.y-P.y,tt.x-P.x),n=1+Math.floor(s.lv/5)+st.n;
+      for(let i=0;i<n;i++)shoot(P.x,P.y-6,a+(i-(n-1)/2)*.22,s,12*st.m,{v:220,life:1,pierce:2+st.pierce,r:5*st.size,knock:40*st.knock,slow:1});P.cast=1;if(typeof SFX!=='undefined')SFX.charm()};
+    fn();if(st.burst)later(.14,fn);s.cd=.58*st.cdM;
   }else if(s.id==='slash'){
     const t=nearest(P.x,P.y,70,true);if(!t)return false;
     const fn=()=>{const tt=t.dead?nearest(P.x,P.y,80,true):t;if(!tt)return;const a=Math.atan2(tt.y-P.y,tt.x-P.x),n=7+Math.floor(s.lv/4)+st.n*2;P.dx=Math.cos(a);P.dy=Math.sin(a);P.yaw0=Math.atan2(P.dx,P.dy);
@@ -254,6 +269,22 @@ function castSkill(i){
   }else if(s.id==='roar'){
     const fn=()=>{const R=95*(st.gi?1.2:1)*st.size;aoe(P.x,P.y,R,16*st.m,s,sp.col,false,{});near(P.x,P.y,R+15,e=>{if(e.type!=='boss'&&e.type!=='statue')e.frz=Math.max(e.frz||0,.9+s.lv*.05+st.dur)});shock(P.x,P.y,260,.05,.5);trauma(.5);G.fx.push({k:'wave',x:P.x,y:P.y,a:0,t:.3,T:.3,c:sp.col,full:1});if(typeof SFX!=='undefined')SFX.roar()};
     fn();if(st.burst)later(.3,fn);
+  }else if(s.id==='sunder'){
+    const cands=G.en.filter(e=>!e.dead&&e.type!=='statue'&&hyp(e.x-P.x,e.y-P.y)<260);let best=null,bs=-1;for(const e of cands){let n=0;for(const o of cands)if(hyp(o.x-e.x,o.y-e.y)<60)n++;if(n>bs){bs=n;best=e}}
+    const tx=best?best.x:P.x+P.dx*120,ty=best?best.y:P.y+P.dy*120,waves=3+st.n;
+    for(let w=0;w<waves;w++)later(w*.22,()=>{for(let i=0;i<6;i++){const a=rnd(TAU),d=rnd(0,50*st.size);const x=tx+Math.cos(a)*d,y=ty+Math.sin(a)*d;later(i*.03,()=>aoe(x,y,22*st.size,(16+s.lv)*st.m,s,s.els[0]?ELS[s.els[0]].col:sp.col,false,{quiet:i>0}))}});
+    G.fx.push({k:'wave',x:tx,y:ty,a:0,t:.5,T:.5,c:sp.col,full:1});trauma(.3);if(typeof SFX!=='undefined')SFX.array();
+  }else if(s.id==='exorcise'){
+    const R=110*st.size;aoe(P.x,P.y,R,(28+s.lv*1.5)*st.m,s,sp.col,false,{});near(P.x,P.y,R+10,e=>{if(e.type!=='boss'&&!e.warlord&&e.hp>0&&e.hp<e.maxHp*.25)hit(e,e.hp+1,s,true,sp.col)});G.fx.push({k:'wave',x:P.x,y:P.y,a:0,t:.4,T:.4,c:sp.col,full:1});shock(P.x,P.y,300,.05,.5);if(typeof SFX!=='undefined')SFX.ward();
+  }else if(s.id==='frenzy'){
+    s.active=sp.dur+st.dur;P.frenzy=s.active;trauma(.3);G.flash=Math.max(G.flash,.3);if(typeof SFX!=='undefined')SFX.roar();
+  }else if(s.id==='flow'){
+    const t=nearest(P.x,P.y,220,true),x=t?t.x:P.x+P.dx*100,y=t?t.y:P.y+P.dy*100;pool(x,y,46*st.size,4+st.dur,(10+s.lv)*st.m,s,{steam:0});const pl=G.pools[G.pools.length-1];if(pl){pl.slow=1;pl.col=s.els[0]?ELS[s.els[0]].col:'#6fd3e8'}ring(x,y,46*st.size,sp.col);if(typeof SFX!=='undefined')SFX.ward();
+  }else if(s.id==='ambush'){
+    const fn=()=>{const n=10+st.n*2,o=rnd(TAU);for(let i=0;i<n;i++)shoot(P.x,P.y-6,o+i/n*TAU,s,11*st.m,{v:230,life:.9,pierce:2+st.pierce,r:5*st.size,knock:90*st.knock,slow:1});G.fx.push({k:'wave',x:P.x,y:P.y,a:0,t:.3,T:.3,c:sp.col,full:1});trauma(.2);if(typeof SFX!=='undefined')SFX.array()};
+    fn();if(st.burst)later(.25,fn);
+  }else if(s.id==='guangling'){
+    s.active=sp.dur+st.dur;s.tk=0;trauma(.15);if(typeof SFX!=='undefined')SFX.shrine();
   }else if(s.id==='talis'){
     const cands=G.en.filter(e=>!e.dead&&e.type!=='statue'&&hyp(e.x-P.x,e.y-P.y)<240);
     const fn=()=>{let best=null,bs=-1;for(const e of cands){if(e.dead)continue;let n=0;for(const o of cands)if(!o.dead&&hyp(o.x-e.x,o.y-e.y)<44)n++;if(n>bs){bs=n;best=e}}
@@ -266,6 +297,8 @@ function lob(x0,y0,x,y,s,d,r,split){G.bombs.push({x0,y0,x,y,t:0,T:.55,s,d,r,spli
 function orbits(dt){
   const P=G.P;
   for(const s of G.spells){
+    if(s.id==='frenzy'&&s.active>0){s.active-=dt;P.frenzy=s.active;if(s.active<=0)P.frenzy=0;continue}
+    if(s.id==='guangling'&&s.active>0){s.active-=dt;s.tk-=dt;const st=stat(s);if(s.tk<=0){s.tk=.25;const R=120*st.size;near(P.x,P.y,R+12,e=>{if(hyp(e.x-P.x,e.y-P.y)<R+e.r){hit(e,4*st.m,s,false,undefined,0,0);e.slow=Math.max(e.slow||0,.6)}});heal(1+nd(s,'life')*1.5)}continue}
     if(s.id==='whirl'&&s.active>0){s.active-=dt;s.tk-=dt;const st=stat(s);if(s.tk<=0){s.tk=.11;const R=52*(st.gi?1.25:1)*st.size;near(P.x,P.y,R+12,e=>{const dx=e.x-P.x,dy=e.y-P.y,d=hyp(dx,dy)||1;if(d<R+e.r){const tx=-dy/d,ty=dx/d;hit(e,7*st.m,s,false,undefined,tx*90+dx/d*60,ty*90+dy/d*60)}});if(typeof SFX!=='undefined')SFX.whirlTick()}continue}
     if((s.id!=='array'&&s.id!=='bagua')||s.active<=0)continue;
     s.active-=dt;
@@ -292,6 +325,12 @@ function autoCast(){ // casts each skill when it is worth the qi
     else if(id==='whirl')go=countNear(P.x,P.y,70)>=3;
     else if(id==='leap')go=countNear(P.x,P.y,200)>=4&&countNear(P.x,P.y,50)<4;
     else if(id==='roar')go=countNear(P.x,P.y,100)>=4||P.hp<P.maxHp*.35;
+    else if(id==='sunder')go=countNear(P.x,P.y,260)>=8;
+    else if(id==='exorcise')go=countNear(P.x,P.y,110)>=5;
+    else if(id==='frenzy')go=countNear(P.x,P.y,150)>=5;
+    else if(id==='flow')go=countNear(P.x,P.y,220)>=4;
+    else if(id==='ambush')go=countNear(P.x,P.y,120)>=4;
+    else if(id==='guangling')go=countNear(P.x,P.y,120)>=5||P.hp<P.maxHp*.4;
     if(go)castSkill(i);
   }
 }
@@ -299,7 +338,7 @@ function dash(){
   const P=G.P;if(P.dashCd>0||P.down>0||G.over)return false;
   const v=G.auto?autopilot():input();let dx=v.x,dy=v.y;if(!dx&&!dy){dx=P.dx;dy=P.dy}
   const l=hyp(dx,dy)||1;P.dx=dx/l;P.dy=dy/l;P.yaw0=Math.atan2(P.dx,P.dy);
-  P.dash=.17;P.dashCd=1.1;P.ghostT=0;P.dashHit=new Set();trauma(.12,-P.dx,-P.dy);
+  P.dash=.17;P.dashCd=hasR('boots')?.82:1.1;P.ghostT=0;P.dashHit=new Set();trauma(.12,-P.dx,-P.dy);
   if(typeof SFX!=='undefined')SFX.dash();
   return true;
 }
@@ -379,8 +418,8 @@ function buildCards(q){
   PERKS.forEach(p=>{const q=rollRarity(),times=q.k==='common'?1:q.k==='rare'?2:q.k==='epic'?3:5;pool.push({g:p.g,c:'#efe4cd',n:p.zh,e:p.en+(times>1?` ×${times}`:''),d:p.d+(times>1?` ×${times}`:''),de:p.de,q,a(){for(let i=0;i<times;i++)p.a(G.P)}})});
   const out=[];const used=new Set();
   const isNew=pool.filter(p=>p.e.startsWith('新武学'));
-  if(isNew.length&&[3,6].includes(G.lv)){const nc=pick(isNew);out.push(nc);used.add(nc.n)}
-  let guard=0;while(out.length<3&&guard++<60){const p=pick(pool);if(!used.has(p.n)){used.add(p.n);out.push(p)}}
+  if(isNew.length&&[3,6,10].includes(G.lv)){const opts=isNew.filter((c,i,a)=>a.findIndex(o=>o.n===c.n)===i).sort(()=>Math.random()-.5).slice(0,2);opts.forEach(nc=>{out.push(nc);used.add(nc.n)})}
+  let guard=0;while(out.length<3&&guard++<80){const p=pick(pool);if(!used.has(p.n)&&!(out.some(c=>c.e.startsWith('新武学'))&&p.e.startsWith('新武学'))){used.add(p.n);out.push(p)}}
   if(Math.random()<.03&&q.kind==='level'){ // jackpot: take all three
     const all=out.slice();out.length=0;out.push({g:'囍',c:'#ffd27a',n:'天降横财',e:'JACKPOT · take all three',d:all.map(c=>c.n).join(' + '),de:'All three cards at once.',q:RARITY[3],a(){all.forEach(c=>c.a())}},...all.slice(0,2))}
   return out;
@@ -399,8 +438,9 @@ function spawnEnemy(type,x,y,mul=1,elite){
   const b=ETYPES[type],t=G.t,sc=diff(t);
   const el=elite||(t>50&&type!=='assassin'&&Math.random()<Math.min(.22,.06+t/3600));
   let affix=null;if(t>300&&Math.random()<Math.min(.35,(t-300)/1500))affix=pick(['swift','explode','armor']);
+  let role=null;if(type==='bandit'&&t>90&&Math.random()<.22)role='charger';if(type==='archer'&&t>200&&Math.random()<.3)role='shaman';
   const hp=b.hp*sc*mul*(el?4:1)*(affix==='armor'?1.8:1);
-  G.en.push({x,y,type,hp,maxHp:hp,t0:t,spd:b.spd*rnd(.92,1.08)*(el?.9:1)*(affix==='swift'?1.5:1)*Math.min(1.35,1+Math.max(0,t-240)/900),dmg:b.dmg*(1+t/360)*(t>240?1+(t-240)/600:1)*(el?1.4:1),r:b.r*(el?1.4:1),xp:b.xp*(1+Math.floor(t/240)*.5)|0||1,fr:rnd(1),vx:0,vy:0,shoot:b.shoot,st:rnd(1,3),elite:el,sc:(el?1.5:1)*(affix==='armor'?1.15:1),kx:0,ky:0,affix});
+  G.en.push({x,y,type,hp,maxHp:hp,t0:t,spd:b.spd*rnd(.92,1.08)*(el?.9:1)*(affix==='swift'?1.5:1)*Math.min(1.35,1+Math.max(0,t-240)/900),dmg:b.dmg*(1+t/360)*(t>240?1+(t-240)/600:1)*(el?1.4:1),r:b.r*(el?1.4:1),xp:b.xp*(1+Math.floor(t/240)*.5)|0||1,fr:rnd(1),vx:0,vy:0,shoot:b.shoot&&role!=='shaman',st:rnd(1,3),elite:el,sc:(el?1.5:1)*(affix==='armor'?1.15:1)*(role==='charger'?1.12:1),kx:0,ky:0,affix,role,ct:rnd(2,4)});
   if(el)G.elites++;
 }
 function edgePoint(){
@@ -441,7 +481,8 @@ function bossAI(dt){
   if(B.tele>0){B.tele-=dt;if(B.tele<=0){const a=Math.atan2(B.ty-B.y,B.tx-B.x);B.cvx=Math.cos(a)*300;B.cvy=Math.sin(a)*300;B.charge=.62;if(typeof SFX!=='undefined')SFX.bossCharge()}return}
   G.bossT-=dt;if(G.bossT>0)return;
   const low=B.hp<B.maxHp*.5;G.bossT=(low?2.3:3.2)*(B.rate||1);
-  const k=pick(['radial','aimed','charge','summon']);
+  const k=pick(B.n>=1?['radial','aimed','charge','summon','nova']:['radial','aimed','charge','summon']);
+  if(k==='nova'){G.novas.push({x:B.x,y:B.y,r:10,R:260+B.n*30,v:150+B.n*15,d:18*(1+B.n*.3)});ring(B.x,B.y,40,'#ff2a3a');trauma(.3)}
   if(k==='radial'){const n=low?28:20,o=rnd(TAU);for(let i=0;i<n;i++){const a=o+i/n*TAU;bullet(B.x,B.y,a,82,12)}
     if(low)later(.5,()=>{if(B.dead)return;for(let i=0;i<n;i++){const a=o+.1+i/n*TAU;bullet(B.x,B.y,a,66,12)}})}
   if(k==='aimed'){for(let w=0;w<3;w++)later(w*.28,()=>{if(B.dead)return;const a=Math.atan2(P.y-B.y,P.x-B.x);for(let i=-2;i<=2;i++)bullet(B.x,B.y,a+i*.16,124,10)})}
@@ -463,6 +504,11 @@ function step(dt){
   P.mana=Math.min(P.maxMana,P.mana+P.regen*dt);
   for(const s of G.spells)s.cd=Math.max(0,s.cd-dt*(P.buff&&P.buff.k==='haste'?2:1)*(G.over9?1.3:1));
   comboTick(dt);chestTick(dt);
+  if(hasR('pill'))heal(dt);
+  for(const f of G.fx){if(f.k==='relic'&&P.down<=0&&hyp(f.x-P.x,f.y-P.y)<18){f.t=0;takeRelic(f.id)}}
+  for(const nv of G.novas){const was=nv.r;nv.r+=nv.v*dt;const d=hyp(P.x-nv.x,P.y-nv.y);if(P.down<=0&&d>=was-8&&d<=nv.r+8&&!nv.hitP){nv.hitP=1;dmgP(nv.d,nv.x+(nv.x-P.x),nv.y+(nv.y-P.y))}}
+  G.novas=G.novas.filter(nv=>nv.r<nv.R);
+  if(!G.auto&&SAVE_FIRST){G.hintT-=dt;if(G.hintT<=0&&G.hintN<4){const H=[['WASD 移动','Move with WASD or arrows'],['按 1 释放武学','Press 1 to cast your skill (costs qi)'],['Space 轻功闪避','Space dashes through enemies'],['按 C 分配技能点','Press C to spend skill points']];showBanner(H[G.hintN][0],H[G.hintN][1],2.2);G.hintN++;G.hintT=G.hintN===1?6:9}}
   if(P.down>0){P.down-=dt;if(P.down<=0)revive()}
   else if(P.dash>0){
     P.dash-=dt;const sp=P.leap?600:560;P.x+=P.dx*sp*dt;P.y+=P.dy*sp*dt;collide(P,6);P.walk+=dt*20;
@@ -471,7 +517,7 @@ function step(dt){
     near(P.x,P.y,26,e=>{if(e.type==='statue'||P.dashHit.has(e))return;if(hyp(e.x-P.x,e.y-P.y)<e.r+12){P.dashHit.add(e);hit(e,12*P.dmg,null,true,'#bff4ff',P.dx*150,P.dy*150)}});
   }else{
     const v=G.auto?autopilot():input();
-    if(v.x||v.y){const l=hyp(v.x,v.y)||1,m=Math.min(1,l),s=92*P.spd*(P.buff&&P.buff.k==='spd'?1.35:1)*(G.over9?1.12:1)*m;P.x+=v.x/l*s*dt;P.y+=v.y/l*s*dt;P.walk+=dt*8;P.dx=v.x/l;P.dy=v.y/l;collide(P,6)}
+    if(v.x||v.y){const l=hyp(v.x,v.y)||1,m=Math.min(1,l),s=92*P.spd*(P.buff&&P.buff.k==='spd'?1.35:1)*(G.over9?1.12:1)*(P.frenzy>0?1.25:1)*m;P.x+=v.x/l*s*dt;P.y+=v.y/l*s*dt;P.walk+=dt*8;P.dx=v.x/l;P.dy=v.y/l;collide(P,6)}
     const main=G.spells[0];if(main&&main.cd<=0&&!autoFire(main))main.cd=.08;
     P.shield=Math.max(0,P.shield-dt);
     if(G.auto||AUTOCAST)autoCast();
@@ -494,9 +540,15 @@ function step(dt){
     if(e.type==='statue')continue;
     if(e.type==='boss'&&(e.tele>0||e.charge>0)){if(hyp(e.x-P.x,e.y-P.y)<e.r+6&&e.charge>0)dmgP(26,e.x,e.y);continue}
     if(e.frz>0)continue;
+    if(e.role==='charger'){e.ct-=dt;const dP=hyp(P.x-e.x,P.y-e.y);
+      if(e.cs>0){e.cs-=dt;e.x+=e.cvx*dt;e.y+=e.cvy*dt;collide(e,e.r);if(P.down<=0&&dP<e.r+7)dmgP(e.dmg*1.5,e.x,e.y);if(e.cs<=0){ring(e.x,e.y,20,'#ff9c5a');e.ct=rnd(2.5,4)}continue}
+      if(e.cw>0){e.cw-=dt;if(e.cw<=0){const a=Math.atan2(e.ty-e.y,e.tx-e.x);e.cvx=Math.cos(a)*330;e.cvy=Math.sin(a)*330;e.cs=.45;if(typeof SFX!=='undefined')SFX.bossCharge()}continue}
+      if(e.ct<=0&&dP<180&&dP>40){e.cw=.6;e.tx=P.x;e.ty=P.y;continue}}
+    if(e.role==='shaman'){e.ht=(e.ht||0)-dt;if(e.ht<=0){e.ht=1.2;near(e.x,e.y,70,o=>{if(o!==e&&o.type!=='statue'&&o.hp<o.maxHp){o.hp=Math.min(o.maxHp,o.hp+o.maxHp*.08);o.healed=.4}});ring(e.x,e.y,60,'#7fc98a')}}
     const R=G.rival,useR=R&&R.down<=0&&hyp(R.x-e.x,R.y-e.y)<hyp(P.x-e.x,P.y-e.y)*.85,T=useR?R:P;
     let dx=T.x-e.x,dy=T.y-e.y,d=hyp(dx,dy)||1,sp=e.spd*(e.slow>0?.55:1);
     let ax=dx/d,ay=dy/d;
+    if(e.role==='shaman'&&d<160){ax=-ax*.5;ay=-ay*.5}
     if(e.shoot){ if(d<140){ax=-ax*.3;ay=-ay*.3}
       e.st-=dt;if(e.st<=0&&d<230){e.st=rnd(2.2,3.4);bullet(e.x,e.y,Math.atan2(dy,dx),84,8*(1+G.t/360));if(typeof SFX!=='undefined')SFX.arrow()}}
     let sx=0,sy=0,cnt=0;
@@ -516,7 +568,7 @@ function step(dt){
     near(b.x,b.y,b.r+22,e=>{
       if(b.life<=0||b.hitSet.has(e))return;
       if(hyp(e.x-b.x,e.y-b.y)<e.r+b.r){
-        b.hitSet.add(e);const vl=hyp(b.vx,b.vy)||1;hit(e,b.d,b.s,false,b.col,b.vx/vl*b.knock,b.vy/vl*b.knock);spark(b.x,b.y,b.col,3,60,{dir:Math.atan2(b.vy,b.vx)});
+        b.hitSet.add(e);const vl=hyp(b.vx,b.vy)||1;hit(e,b.d,b.s,false,b.col,b.vx/vl*b.knock,b.vy/vl*b.knock);if(b.slow)e.slow=Math.max(e.slow||0,1);spark(b.x,b.y,b.col,3,60,{dir:Math.atan2(b.vy,b.vx)});
         if(b.boom){const bx=b.x,by=b.y,bs=b.s,bd=b.d,bc=b.col;later(0,()=>{near(bx,by,32,o=>{if(o!==e&&hyp(o.x-bx,o.y-by)<20+o.r)hit(o,bd*.6,bs,false,bc,(o.x-bx)*3,(o.y-by)*3)});ring(bx,by,22,bc)})}
         if(b.split){const a=Math.atan2(b.vy,b.vx);for(const off of [-.7,.7])shoot(b.x,b.y,a+off,b.s,b.d*.55,{v:200,life:.35,nosplit:true,small:1,hitSet:new Set([e])})}
         if(b.pierce>0)b.pierce--;else b.life=0;
@@ -574,7 +626,7 @@ function win(){if(G.auto)return;closeCards();G.over='win';G.slow=1.6;G.flash=1;t
 function lose(){if(G.auto){newGame(true);demoBoost();return}closeCards();G.over='lose';G.slow=1;later(1.2,()=>showEnd(false));if(typeof SFX!=='undefined')SFX.lose()}
 function nextBossIn(){return Math.max(0,(G.bossN+1)*BOSS_AT-G.t)}
 function demoBoost(){
-  const g=G,C=CLASSES[g.cls],E=['lightning','fire','ice','acid'];g.spells=[C.main,...C.skills].map((id,i)=>({...mkSpell(id),lv:i?6:9,els:[E[i]]}));
+  const g=G,C=CLASSES[g.cls],E=['lightning','fire','ice','acid'];g.spells=[C.main,...C.skills.slice(0,3)].map((id,i)=>({...mkSpell(id),lv:i?6:9,els:[E[i]]}));
   g.t=95;g.P.maxHp=g.P.hp=600;g.lv=16;g.P.regen=30;
   for(let i=0;i<60*12;i++)step(1/60);
 }

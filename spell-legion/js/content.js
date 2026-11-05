@@ -15,12 +15,22 @@ const SPELLS={
   whirl:{g:'旋',zh:'旋风斩',en:'Whirlwind',col:'#ffb04a',cost:26,cd:6,dur:1.5,d:'旋身连斩,持续伤害周围敌人。',de:'Spin for 1.5 seconds, slicing everything around you.'},
   leap:{g:'踏',zh:'踏雪斩',en:'Leaping Strike',col:'#9fe3f0',cost:30,cd:7,d:'向前跃斩,落地时震裂地面。',de:'Leap forward, invulnerable, and crack the ground where you land.'},
   roar:{g:'吼',zh:'狮吼功',en:'Lion Roar',col:'#ffd75a',cost:36,cd:10,d:'震慑周围敌人,击退并眩晕。',de:'A roar that knocks back and stuns everything nearby.'},
+  // fourth skills
+  sunder:{g:'宗',zh:'万剑归宗',en:'Ten Thousand Swords',col:'#dff6ff',cost:60,cd:20,d:'剑雨从天而降,轰击最密集的敌群。',de:'A rain of swords hammers the thickest crowd.'},
+  exorcise:{g:'驱',zh:'驱邪咒',en:'Exorcism',col:'#ffe9a0',cost:50,cd:18,d:'净化周围:重伤敌人,处决残血。',de:'Purge the area: heavy damage, and anything below 25% HP dies.'},
+  frenzy:{g:'狂',zh:'血战',en:'Blood Frenzy',col:'#ff4a4a',cost:40,cd:16,dur:6,d:'六秒内伤害 +40%,移速 +25%,攻击吸血。',de:'For six seconds: +40% damage, +25% speed, lifesteal.'},
+  // qin master
+  wave:{g:'音',zh:'音波',en:'Sound Wave',col:'#8fe3ff',auto:1,d:'普攻:贯穿的音波,击中减速。',de:'Normal attack. Piercing sound waves that slow what they hit.'},
+  flow:{g:'流',zh:'高山流水',en:'Flowing Stream',col:'#6fd3e8',cost:28,cd:7,d:'在敌群处奏出水流之域,持续伤害并减速。',de:'A field of flowing water on the crowd: damage over time and slow.'},
+  ambush:{g:'伏',zh:'十面埋伏',en:'Ambush on Ten Sides',col:'#c7a4f0',cost:34,cd:9,d:'向十个方向奏出音波。',de:'Sound waves in ten directions.'},
+  guangling:{g:'散',zh:'广陵散',en:'Guangling Melody',col:'#ffd27a',cost:45,cd:16,dur:5,d:'五秒内周围敌人持续受伤并减速,自身回复。',de:'For five seconds everything nearby takes damage and slows while you recover.'},
 };
 const SPELL_KEYS=['','1','2','3'];
 const CLASSES={
-  swordsman:{zh:'剑客',en:'Swordsman',g:'剑',col:'#9fe3f0',main:'sword',skills:['palm','array','talis'],hp:100,mana:100,regen:9,dmg:1,spd:1,d:'御剑远攻,攻守均衡。',de:'Ranged flying swords. Balanced attack and defence.'},
-  taoist:{zh:'道士',en:'Taoist',g:'道',col:'#ffd27a',main:'charm',skills:['talis','bagua','ward'],hp:80,mana:150,regen:14,dmg:.95,spd:1,d:'体弱而内力深厚,符咒法术繁多。',de:'Fragile, but deep qi reserves and plenty of talisman magic.'},
-  blademaster:{zh:'刀客',en:'Blademaster',g:'刀',col:'#ff9c5a',main:'slash',skills:['whirl','leap','roar'],hp:135,mana:80,regen:8,dmg:1.15,spd:1.06,d:'近身刀法,皮糙肉厚,伤害最高。',de:'Up-close blade work. Tough, fast and the hardest hitter.'},
+  swordsman:{zh:'剑客',en:'Swordsman',g:'剑',col:'#9fe3f0',main:'sword',skills:['palm','array','talis','sunder'],hp:100,mana:100,regen:9,dmg:1,spd:1,d:'御剑远攻,攻守均衡。',de:'Ranged flying swords. Balanced attack and defence.'},
+  taoist:{zh:'道士',en:'Taoist',g:'道',col:'#ffd27a',main:'charm',skills:['talis','bagua','ward','exorcise'],hp:80,mana:150,regen:14,dmg:.95,spd:1,d:'体弱而内力深厚,符咒法术繁多。',de:'Fragile, but deep qi reserves and plenty of talisman magic.'},
+  blademaster:{zh:'刀客',en:'Blademaster',g:'刀',col:'#ff9c5a',main:'slash',skills:['whirl','leap','roar','frenzy'],hp:135,mana:80,regen:8,dmg:1.15,spd:1.06,d:'近身刀法,皮糙肉厚,伤害最高。',de:'Up-close blade work. Tough, fast and the hardest hitter.'},
+  qin:{zh:'琴师',en:'Qin Master',g:'琴',col:'#8fe3ff',main:'wave',skills:['flow','ambush','guangling','exorcise'],hp:90,mana:130,regen:12,dmg:.9,spd:1.03,d:'以琴音御敌,减速与控场见长。',de:'Fights with music: slows, fields and crowd control.'},
 };
 const ELS={
   fire:{g:'火',zh:'烈火真气',en:'Fire',col:'#ff8a3c',d:'命中点燃,持续灼烧。',de:'Hits ignite enemies.'},
@@ -43,9 +53,9 @@ const FUS={
 };
 const fusKey=(a,b)=>[a,b].sort().join('+');
 const AUGS={
-  burst:{g:'连',zh:'连击',en:'Double Strike',d:'每次施放连发两轮。',de:'Every cast fires twice in a row.',for:['sword','palm','talis','charm','slash','leap','roar']},
-  split:{g:'裂',zh:'分光',en:'Split',d:'命中时分裂成两道。符咒则分裂成子符。',de:'Shots split on hit. Talismans drop sub-talismans.',for:['sword','palm','talis','charm']},
-  giant:{g:'雄',zh:'雄浑',en:'Mighty',d:'更大,伤害 +30%,出手稍慢。',de:'Bigger, +30% damage, slightly slower.',for:['sword','palm','talis','array','charm','slash','whirl','leap','roar','bagua']},
+  burst:{g:'连',zh:'连击',en:'Double Strike',d:'每次施放连发两轮。',de:'Every cast fires twice in a row.',for:['sword','palm','talis','charm','slash','leap','roar','wave','ambush','sunder','exorcise']},
+  split:{g:'裂',zh:'分光',en:'Split',d:'命中时分裂成两道。符咒则分裂成子符。',de:'Shots split on hit. Talismans drop sub-talismans.',for:['sword','palm','talis','charm','wave','ambush']},
+  giant:{g:'雄',zh:'雄浑',en:'Mighty',d:'更大,伤害 +30%,出手稍慢。',de:'Bigger, +30% damage, slightly slower.',for:['sword','palm','talis','array','charm','slash','whirl','leap','roar','bagua','wave','flow','ambush','guangling','sunder','exorcise']},
   extra:{g:'增',zh:'增阵',en:'Wider Array',d:'阵法多两件法器,转得更快。',de:'Two more pieces in the array, spinning faster.',for:['array','bagua']},
 };
 const PERKS=[
@@ -83,6 +93,13 @@ const TREES={
   slash:[N('dmg','刀劲','Blade Force',3,1,'伤害 +12% / 级'),N('size','长刀','Long Reach',3,1,'范围 +15% / 级'),N('cd','快刀','Fast Blade',3,2,'攻速 +8% / 级'),N('count','刀影','Blade Shadows',2,2,'+1 刀气 / 级'),N('crit','断魂','Soul Cutter',2,3,'暴击 +5% / 级'),N('life','嗜血','Bloodthirst',2,3,'命中回复生命')],
   whirl:[N('dur','久旋','Long Spin',3,1,'持续 +1s / 级'),N('dmg','旋劲','Spin Force',3,1,'伤害 +12% / 级'),N('size','广旋','Wide Spin',2,2,'半径 +15% / 级'),N('cost','顺气','Smooth Qi',2,2,'内力消耗 -15% / 级'),N('cd','不止','Relentless',2,3,'冷却 -8% / 级'),N('life','血旋','Blood Spin',2,3,'命中回复生命')],
   leap:[N('dmg','重落','Heavy Landing',3,1,'伤害 +12% / 级'),N('size','地裂','Fissure',3,1,'范围 +15% / 级'),N('cd','再跃','Leap Again',3,2,'冷却 -8% / 级'),N('knock','震荡','Shockwave',2,2,'击退 +50% / 级'),N('cost','轻盈','Light Body',2,3,'内力消耗 -15% / 级'),N('crit','致命一跃','Deadly Leap',2,3,'暴击 +5% / 级')],
+  sunder:[N('dmg','剑威','Sword Might',3,1,'伤害 +12% / 级'),N('size','剑域','Sword Field',3,1,'范围 +15% / 级'),N('cd','归心','Swift Return',3,2,'冷却 -8% / 级'),N('cost','御气','Qi Mastery',2,2,'内力消耗 -15% / 级'),N('count','剑雨','Sword Rain',2,3,'+1 波剑雨 / 级'),N('crit','诛心','Heart Piercer',2,3,'暴击 +5% / 级')],
+  exorcise:[N('size','净域','Purified Ground',3,1,'范围 +15% / 级'),N('dmg','神罚','Divine Wrath',3,1,'伤害 +12% / 级'),N('cd','诵经','Chanting',3,2,'冷却 -8% / 级'),N('cost','清心','Clear Mind',2,2,'内力消耗 -15% / 级'),N('life','超度','Deliverance',2,3,'命中回复生命'),N('knock','驱散','Dispel',2,3,'击退 +50% / 级')],
+  frenzy:[N('dur','久战','Long Fight',3,1,'持续 +1s / 级'),N('dmg','嗜杀','Bloodlust',3,1,'血战伤害 +12% / 级'),N('cd','不死','Undying',3,2,'冷却 -8% / 级'),N('cost','怒气','Rage',2,2,'内力消耗 -15% / 级'),N('life','饮血','Blood Drinker',2,3,'吸血更多'),N('crit','狂暴','Berserk',2,3,'暴击 +5% / 级')],
+  wave:[N('count','和弦','Chord',3,1,'+1 音波 / 级'),N('dmg','震音','Tremolo',3,1,'伤害 +12% / 级'),N('pierce','穿云','Cloud Piercer',2,2,'穿透 +1 / 级'),N('cd','急弦','Quick Strings',3,2,'出手 +8% / 级'),N('crit','裂石','Stone Splitter',2,3,'暴击 +5% / 级'),N('chain','惊雷','Thunder Note',2,3,'命中有几率引发电弧')],
+  flow:[N('dur','长流','Long Flow',3,1,'持续 +1s / 级'),N('dmg','激流','Rapids',3,1,'伤害 +12% / 级'),N('size','广域','Wide Water',3,2,'范围 +15% / 级'),N('cd','连奏','Legato',3,2,'冷却 -8% / 级'),N('cost','静水','Still Water',2,3,'内力消耗 -15% / 级'),N('life','润泽','Nourish',2,3,'命中回复生命')],
+  ambush:[N('dmg','杀机','Killing Intent',3,1,'伤害 +12% / 级'),N('count','重围','Encirclement',2,1,'+2 方向 / 级'),N('pierce','贯阵','Break Ranks',2,2,'穿透 +1 / 级'),N('cd','急奏','Presto',3,2,'冷却 -8% / 级'),N('knock','震退','Repel',2,3,'击退 +50% / 级'),N('cost','省力','Economy',2,3,'内力消耗 -15% / 级')],
+  guangling:[N('dur','余音','Lingering Note',3,1,'持续 +1s / 级'),N('dmg','绝响','Final Chord',3,1,'伤害 +12% / 级'),N('size','满座','Full House',2,2,'范围 +15% / 级'),N('cd','再奏','Encore',3,2,'冷却 -8% / 级'),N('life','养神','Restore',2,3,'回复更多'),N('cost','静心','Calm',2,3,'内力消耗 -15% / 级')],
   roar:[N('size','声震','Resounding',3,1,'范围 +15% / 级'),N('dmg','狮吼','Lion\'s Might',3,1,'伤害 +12% / 级'),N('knock','摧心','Heart Crusher',2,2,'击退 +50% / 级'),N('cd','连吼','Chain Roar',3,2,'冷却 -8% / 级'),N('cost','丹田','Dantian',2,3,'内力消耗 -15% / 级'),N('dur','余威','Lingering Fear',2,3,'眩晕 +1s / 级')],
 };
 const ATTRS=[
@@ -91,3 +108,19 @@ const ATTRS=[
   {id:'spr',zh:'灵',en:'Spirit',d:'内力 +6,回复 +4% / 点',de:'+6 qi and +4% regen per point'},
   {id:'agi',zh:'敏',en:'Agility',d:'移速 +2%,暴击 +1% / 点',de:'+2% speed, +1% crit per point'},
 ];
+
+/* ---------- 法宝 relics: unique passives dropped by elites, bosses and chests ---------- */
+const RELICS={
+  jade:{g:'玉',zh:'玉佩',en:'Jade Pendant',d:'所有伤害 3% 吸血',de:'3% lifesteal on all damage',col:'#7dffb0'},
+  pearl:{g:'珠',zh:'雷珠',en:'Thunder Pearl',d:'命中有 12% 几率引发电弧',de:'12% chance on hit to arc lightning',col:'#ffe066'},
+  boots:{g:'靴',zh:'铁靴',en:'Iron Boots',d:'移速 +12%,轻功冷却 -25%',de:'+12% speed, dash cooldown -25%',col:'#9fe3f0'},
+  shell:{g:'甲',zh:'龟甲',en:'Tortoise Shell',d:'受到伤害 -15%',de:'Damage taken -15%',col:'#7fc98a'},
+  feather:{g:'羽',zh:'凤羽',en:'Phoenix Feather',d:'复生核心 +1',de:'+1 Revive Core',col:'#ff8a3c'},
+  blood:{g:'血',zh:'血玉',en:'Blood Jade',d:'生命低于一半时伤害 +25%',de:'+25% damage below half HP',col:'#e0503f'},
+  bowl:{g:'盆',zh:'聚宝盆',en:'Treasure Bowl',d:'金币 +30%,拾取范围 +40%',de:'+30% gold, +40% pickup range',col:'#ffd27a'},
+  iron:{g:'寒',zh:'寒铁',en:'Cold Iron',d:'命中减速敌人',de:'Hits slow enemies',col:'#8fdcf0'},
+  charm:{g:'符',zh:'火符',en:'Fire Charm',d:'击杀时小范围爆炸',de:'Kills explode in a small blast',col:'#ff7a2c'},
+  chime:{g:'铃',zh:'风铃',en:'Wind Chime',d:'冷却 -15%',de:'Cooldowns -15%',col:'#c7a4f0'},
+  pill:{g:'丹',zh:'灵芝丹',en:'Lingzhi Pill',d:'生命上限 +40,每秒回复 1',de:'+40 max HP, regenerate 1 HP/s',col:'#ff6a52'},
+  taiji:{g:'极',zh:'太极图',en:'Taiji Diagram',d:'武学内力消耗 -25%',de:'Skills cost 25% less qi',col:'#efe4cd'},
+};
