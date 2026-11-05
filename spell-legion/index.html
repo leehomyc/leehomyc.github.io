@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="zh-Hans">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>魔咒军团</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=ZCOOL+XiaoWei&family=Alegreya+Sans:wght@400;700;800&display=swap">
+<link rel="stylesheet" href="css/style.css">
+<script src="vendor/three.min.js"></script>
+<script src="vendor/CopyShader.js"></script>
+<script src="vendor/LuminosityHighPassShader.js"></script>
+<script src="vendor/EffectComposer.js"></script>
+<script src="vendor/RenderPass.js"></script>
+<script src="vendor/ShaderPass.js"></script>
+<script src="vendor/UnrealBloomPass.js"></script>
+</head>
+<body>
+<!--PAGE-->
+<div id="stage">
+  <canvas id="cv"></canvas>
+  <canvas id="ov"></canvas>
+  <div id="hud" hidden>
+    <div class="top">
+      <div id="xpbar"><div id="xp"></div></div>
+      <div class="row">
+        <div class="lft"><b id="lv">Lv 1</b><button id="charbtn" aria-label="Character">角色 C<span id="ptsbadge" hidden></span></button><span id="cores"></span></div>
+        <b id="timer">0:00</b>
+        <div class="rgt"><span id="kills">0</span><button id="pausebtn" aria-label="Pause">II</button></div>
+      </div>
+      <div id="bossbar" hidden><span>血魔教主 · Blood Demon Patriarch</span><div id="bosshp"><i></i></div></div>
+      <div id="score" hidden><span>你 <b id="s-you">0</b></span><div id="s-bar"><i></i></div><span><b id="s-riv">0</b> <span id="s-rname"></span></span></div>
+      <div id="obj" hidden></div>
+      <div id="buff" hidden></div>
+    </div>
+    <div class="bottom">
+      <div class="globe hp"><div class="fill" id="hpfill"></div><div class="gloss"></div><div class="num" id="hpnum"></div><div class="lab">生命</div></div>
+      <div id="seals"></div>
+      <div class="globe mp"><div class="fill" id="mpfill"></div><div class="gloss"></div><div class="num" id="mpnum"></div><div class="lab">内力</div></div>
+    </div>
+  </div>
+  <div id="banner"></div>
+  <button id="sndbtn" aria-label="Sound settings">🔊</button>
+  <div id="sndpanel" hidden>
+    <label>音乐 Music <input type="range" id="musicvol" min="0" max="100" value="60"></label>
+    <label>音效 Effects <input type="range" id="sfxvol" min="0" max="100" value="80"></label>
+    <label class="chk"><input type="checkbox" id="snd-mute"> 静音 Mute (M)</label>
+    <button type="button" id="sndclose">关闭 Close</button>
+  </div>
+
+  <div id="title" class="overlay">
+    <div class="tt">
+      <div class="vname">魔咒军团</div>
+      <div class="ttb">
+        <h1>Spell Legion</h1>
+        <p>江湖血魔作乱。选一位侠客出山,普攻自动施展,武学按 <kbd>1</kbd><kbd>2</kbd><kbd>3</kbd> 释放(消耗内力、有冷却),<kbd>Space</kbd> 轻功闪避。连斩越高,经验与金币越多。采集灵芝、拜神龛、撑到四分钟斩杀血魔教主。<br>
+        Pick a hero. Your normal attack fires by itself; cast skills with 1/2/3 (qi cost and cooldowns). Keep the kill streak alive for bigger rewards. Dash with Space, bless yourself at shrines, and slay the Blood Demon Patriarch at 4:00.</p>
+        <div id="classes"></div>
+        <button class="go" id="startbtn">出山 Start</button>
+        <p class="note"><span id="autonote"></span> <kbd>WASD</kbd> / arrows or drag to move · <kbd>Space</kbd> dash · <kbd>P</kbd> pause (auto-cast toggle there) · <kbd>M</kbd> mute. <span id="loadnote"></span></p>
+        <div class="lobby">
+          <h2><span>山门 · 永久强化 Lobby upgrades</span><b id="gold">0</b></h2>
+          <div id="shop"></div>
+          <div id="record"></div>
+        </div>
+        <button class="go alt" id="exitbtn" hidden>退出 Quit</button>
+      </div>
+    </div>
+  </div>
+  <div id="cards" class="overlay" hidden><h2 id="cardtitle"></h2><div id="cardrow"></div><button type="button" class="go alt" id="reroll" hidden>重抽 Reroll</button></div>
+  <div id="pause" class="overlay" hidden><div class="pbox"><h2>暂停</h2><button class="go" id="resumebtn">继续 Resume</button><button class="go alt" id="autobtn">武学:自动施放</button><button class="go alt" id="mutebtn">声音 Sound</button><button class="go alt" id="quitbtn">放弃本局 Abandon run</button><p>1/2/3 skills · Space dash · P resume · M mute</p></div></div>
+  <div id="char" class="overlay" hidden><div class="cbox">
+    <div class="ch"><h2>角色 <small>Character</small></h2><div class="pts"><span>属性点 <b id="ap">0</b></span><span>技能点 <b id="sp">0</b></span></div><button type="button" id="charclose">关闭 C</button></div>
+    <div class="tabs"><button type="button" id="tab-attr" class="on">属性 Attributes</button><button type="button" id="tab-tree">武学树 Skill Trees</button></div>
+    <div id="attrs"></div><div id="trees" hidden></div>
+  </div></div>
+  <div id="end" class="overlay" hidden><div class="endb" id="endb"></div></div>
+</div>
+<script src="js/core.js"></script>
+<script src="js/content.js"></script>
+<script src="js/audio.js"></script>
+<script src="js/gfx.js"></script>
+<script src="js/sim.js"></script>
+<script src="js/render.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/main.js"></script>
+<!--/PAGE-->
+</body>
+</html>
