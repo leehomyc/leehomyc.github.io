@@ -7,6 +7,7 @@ function frame(now){
   const dt=Math.min(.1,(now-last)/1000||0);last=now;
   if(bannerT>0){bannerT-=dt;if(bannerT<=0)$('#banner').classList.remove('on')}
   if(!G||!rn)return;
+  if(typeof padTick==='function')padTick();
   const running=!G.pick&&!G.paused&&!G.panel&&!G.ended&&!document.hidden;
   if(running){
     if(G.hitStop>0){G.hitStop-=dt;acc=0}

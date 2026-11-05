@@ -80,7 +80,7 @@ function rivalHurt(n,fx,fy){const R=G.rival;if(!R||R.down>0||R.inv>0)return;R.hp
 /* ---------- relics ---------- */
 const hasR=k=>G.relics.includes(k);
 function dropRelic(x,y){const left=Object.keys(RELICS).filter(k=>!hasR(k));if(!left.length){G.goldRun+=40;return}if(G.fx.length<640)G.fx.push({k:'relic',id:pick(left),x,y,t:60,T:60})}
-function takeRelic(id){const R=RELICS[id],P=G.P;if(hasR(id)){G.goldRun+=40;showBanner('重复法宝 → 金币','Duplicate relic turned into gold',1);return}G.relics.push(id);
+function takeRelic(id){const R=RELICS[id],P=G.P;if(hasR(id)){G.goldRun+=40;showBanner('重复法宝 → 金币','Duplicate relic turned into gold',1);return}G.relics.push(id);if(typeof codexSee==='function')codexSee('relic',id);
   if(id==='boots')P.spd*=1.12;if(id==='feather'){G.cores++;updateCores()}if(id==='bowl')P.mag*=1.4;if(id==='chime')P.haste/=.85;if(id==='pill'){P.maxHp+=40;P.hp+=40}if(id==='shell')P.def*=.85;if(id==='bloodcurse'){P.dmgBonus+=.35;P.maxHp=Math.round(P.maxHp*.75);P.hp=Math.min(P.hp,P.maxHp)}if(id==='glass'){P.crit+=.25;P.def*=1.2}if(id==='wolf'){P.mag*=.7}if(id==='bind'){P.spd*=.9}
   showBanner(`法宝:${R.zh}`,`${R.en} · ${R.de}`,2);trauma(.2);G.flash=Math.max(G.flash,.25);if(typeof SFX!=='undefined')SFX.chest();if(typeof drawSeals==='function')drawSeals();if(typeof drawRelics==='function')drawRelics()}
 /* ---------- feel ---------- */
@@ -159,6 +159,7 @@ function ring(x,y,r,c,o={}){G.fx.push({k:'ring',x,y,r,t:.3,T:.3,c,thunder:o.thun
 function spark(x,y,c,n=4,sp=60,o={}){if(G.fx.length>640)return;for(let i=0;i<n;i++){const a=o.dir!==undefined?o.dir+rnd(-.7,.7):rnd(TAU),v=rnd(sp*.3,sp);const T=rnd(.22,.5);G.fx.push({k:'p',x,y,h:rnd(3,12),vh:rnd(10,sp),vx:Math.cos(a)*v,vy:Math.sin(a)*v,t:T,T,c,g:1,sz:o.sz||rnd(2,3.6)})}}
 function kill(e,s,kx=0,ky=0){
   if(e.dead)return;e.dead=1;
+  if(!G.auto&&typeof codexSee==='function'){codexSee('en',e.type);if(e.role)codexSee('en',e.role);if(e.affix)codexSee('en',e.affix);if(e.elite)codexSee('en','elite');if(e.warlord)codexSee('en','warlord');if(e.illusion)codexSee('en','illusion');if(e.type==='boss')codexSee('boss',e.n%BOSSES.length)}
   const dir=Math.atan2(ky,kx);
   if(!G.auto&&e.type!=='statue'){const now=G.t;if(now-(G.lastKillStop||0)>.14){G.lastKillStop=now;hitStop(e.type==='giant'?.07:e.elite?.05:.028)}if(e.elite||e.type==='giant'){trauma(.28,kx,ky);shock(e.x,e.y,110,.02,.3)}ring(e.x,e.y,e.type==='giant'?26:14,e.elite?'#ffd27a':'#ff8e5a')}
   spark(e.x,e.y,e.type==='statue'?'#ff3df0':e.type==='boss'?'#ff5a5a':e.elite?'#ffd27a':'#ff8e5a',e.type==='boss'?120:e.type==='giant'?26:e.elite?16:9,e.type==='boss'?220:110,{dir:(kx||ky)?dir:undefined,sz:e.type==='giant'?4:undefined});

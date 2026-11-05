@@ -211,3 +211,19 @@ const CONTRACTS=[
   {id:'greed',zh:'贪婪契',en:'Pact of Greed',cost:['不再掉落宝箱','No more chests'],gain:['金币 +200 并 +50% 金币','+200 gold now and +50% gold'],apply(){G.curse.nochest=1;G.goldRun+=200;G.curse.gold=1.5},reward(){}},
   {id:'hunted',zh:'猎命契',en:'Pact of the Hunted',cost:['铁甲统领立刻出现','The Iron Warlord arrives now'],gain:['三次重抽','Three rerolls'],apply(){G.warlordNow=1},reward(){G.rerolls+=3}},
 ];
+
+/* codex: what the player has met */
+const CODEX_ENEMIES=[
+  {id:'assassin',g:'刺',zh:'刺客',en:'Assassin',d:'快而脆,成群扑来。',de:'Fast and fragile; comes in packs.'},
+  {id:'bandit',g:'匪',zh:'刀客',en:'Bandit',d:'中等体型的近战,数量是关键。',de:'Mid-weight melee; numbers are the threat.'},
+  {id:'archer',g:'弓',zh:'弓手',en:'Archer',d:'保持距离放箭,箭可以被轻功躲开。',de:'Keeps its distance and shoots; arrows can be dashed through.'},
+  {id:'giant',g:'力',zh:'铁甲力士',en:'Iron Giant',d:'厚血慢步,击退它需要重武器。',de:'Thick HP, slow; heavy weapons move it.'},
+  {id:'charger',g:'冲',zh:'冲锋刀客',en:'Charging Bandit',d:'蓄力后沿红线冲撞,侧身躲开。',de:'Winds up, then charges along the red line; step aside.'},
+  {id:'shaman',g:'巫',zh:'巫弓手',en:'Shaman Archer',d:'绿色光环为周围敌人回血,普攻会优先瞄准它。',de:'Green aura heals nearby enemies; auto-attacks target it first.'},
+  {id:'swift',g:'疾',zh:'疾风',en:'Swift',d:'词缀:移速 +50%。',de:'Affix: +50% speed.'},
+  {id:'explode',g:'爆',zh:'爆裂',en:'Exploding',d:'词缀:死亡时爆炸,别站在尸体旁。',de:'Affix: explodes on death; don\'t stand by the corpse.'},
+  {id:'armor',g:'甲',zh:'重甲',en:'Armoured',d:'词缀:生命 +80%。',de:'Affix: +80% HP.'},
+  {id:'elite',g:'精',zh:'精英',en:'Elite',d:'五倍生命,30% 几率掉落法宝。',de:'Five times the HP; 30% chance to drop a relic.'},
+  {id:'warlord',g:'统',zh:'铁甲统领',en:'Iron Warlord',d:'每个周期 2:00 出现,必掉法宝与宝箱。',de:'Arrives at 2:00 of each cycle; always drops a relic and a chest.'},
+  {id:'illusion',g:'幻',zh:'幻影',en:'Illusion',d:'千面妖姬的分身,一击即碎。',de:'The Enchantress\'s copies; shatter in one hit.'},
+];

@@ -44,8 +44,22 @@ function input(){
   if(keys.has('a')||keys.has('arrowleft'))x--;if(keys.has('d')||keys.has('arrowright'))x++;
   if(keys.has('arrowup')||keys.has('w'))y--;if(keys.has('s')||keys.has('arrowdown'))y++;
   if(touch.on){const dx=touch.x-touch.sx,dy=touch.y-touch.sy,l=hyp(dx,dy);if(l>6){x=dx/Math.max(l,36);y=dy/Math.max(l,36)}}
+  const gp=padState();if(gp&&(Math.abs(gp.x)>.2||Math.abs(gp.y)>.2)){x=gp.x;y=gp.y}
   return {x,y};
 }
+/* gamepad: left stick / d-pad move, A dash, X/Y/B skills 1/2/3, Start pause, RB toggles auto-cast; menus use A/B and d-pad */
+const PAD={prev:{},t:0};
+function padState(){try{const pads=navigator.getGamepads?navigator.getGamepads():[];const g=[...pads].find(p=>p&&p.connected);if(!g)return null;let x=g.axes[0]||0,y=g.axes[1]||0;const d=Math.hypot(x,y);if(d<.2){x=0;y=0}else{const k=Math.min(1,(d-.2)/.8)/d;x*=k;y*=k}if(g.buttons[14]&&g.buttons[14].pressed)x=-1;if(g.buttons[15]&&g.buttons[15].pressed)x=1;if(g.buttons[12]&&g.buttons[12].pressed)y=-1;if(g.buttons[13]&&g.buttons[13].pressed)y=1;return {x,y,g}}catch(_){return null}}
+function padTick(){
+  const s=padState();if(!s)return;const b=s.g.buttons,down=i=>!!(b[i]&&b[i].pressed),edge=i=>{const v=down(i),was=PAD.prev[i];PAD.prev[i]=v;return v&&!was};
+  if(!G)return;SFX.start();
+  if(!$('#title').hidden){if(edge(0)||edge(9))startRun();return}
+  if(!$('#end').hidden){if(edge(0))startRun();if(edge(1))toLobby();return}
+  if(G.pick){const n=G.pick.length;PAD.sel=PAD.sel||0;if(edge(14)||edge(4))PAD.sel=(PAD.sel+n-1)%n;if(edge(15)||edge(5))PAD.sel=(PAD.sel+1)%n;document.querySelectorAll('#cardrow .card').forEach((c,i)=>c.classList.toggle('padsel',i===PAD.sel));if(edge(0)&&performance.now()-pickOpenedAt>280)choose(PAD.sel);if(edge(3)&&G.rerolls>0)$('#reroll').click();return}
+  if(edge(9)){togglePause();return}if(G.paused){if(edge(0)||edge(1))togglePause();return}
+  if(edge(0))dash();if(edge(2))castSkill(1);if(edge(3))castSkill(2);if(edge(1))castSkill(3);if(edge(5))toggleAuto();
+}
+addEventListener('gamepadconnected',()=>{showBanner(L('手柄已连接','Controller connected'),'',1.2);if(!$('#loadnote'))return});
 
 /* HUD */
 const fmt=t=>`${Math.floor(t/60)}:${String(Math.floor(t%60)).padStart(2,'0')}`;
@@ -219,7 +233,7 @@ function renderTitle(){
   for(const k in CLASSES){const C=CLASSES[k],b=document.createElement('button');b.className='cls'+(SAVE.cls===k?' sel':'');b.type='button';b.style.setProperty('--c',C.col);
     b.innerHTML=`<div class="g">${C.g}</div><div class="n">${LL(C)}</div><div class="d">${L(C.d,C.de)}</div><div class="sk">${[C.main,...C.skills].map(id=>`<span style="color:${SPELLS[id].col}">${SPELLS[id].g}</span>`).join('')}</div>`;
     b.onclick=()=>{SAVE.cls=k;CLASS=k;persist();renderTitle();if(G&&G.auto){newGame(true,k);demoBoost()}SFX.pick(1)};row.appendChild(b)}
-  renderWeapons();if(typeof renderMeta==='function')renderMeta();renderStatus();if(typeof renderAccount==='function')renderAccount();if(typeof LB!=='undefined'&&$('#lbbtn'))$('#lbbtn').hidden=!LB.enabled();
+  renderWeapons();if(typeof renderMeta==='function')renderMeta();if(typeof renderCodex==='function')renderCodex();renderStatus();if(typeof renderAccount==='function')renderAccount();if(typeof LB!=='undefined'&&$('#lbbtn'))$('#lbbtn').hidden=!LB.enabled();
   $('#gold').textContent=SAVE.gold;
   const shop=$('#shop');shop.textContent='';
   UPGRADES.forEach(u=>{const r=SAVE.up[u.id]||0,cost=u.cost(r),b=document.createElement('button');b.className='up';b.type='button';b.disabled=r>=u.max||SAVE.gold<cost;
@@ -249,7 +263,7 @@ function startRun(){
   $('#title').hidden=true;$('#intro').hidden=true;$('#end').hidden=true;$('#cards').hidden=true;$('#hud').hidden=false;$('#bossbar').hidden=true;$('#pause').hidden=true;$('#char').hidden=true;
   $('#banner').classList.remove('on');$('#pausebtn').textContent='II';
   SAVE_FIRST=!SAVE.played;SAVE.played=true;persist();
-  newGame(false,CLASS);if(!DAILY)applyUpgrades(G.P);G.day=dayKey();G.quick=SAVE.mode==='qpk';
+  newGame(false,CLASS);if(!DAILY)applyUpgrades(G.P);G.day=dayKey();if(typeof codexSee==='function')codexSee('weapon',weaponOf(CLASS));G.quick=SAVE.mode==='qpk';
   if(!DAILY){G.P.dmgBonus+=masteryBonus(CLASS);if((SAVE.road||{})[300])G.rerolls++;if((SAVE.road||{})[1000]){G.cores++}}
   if(SAVE.mode==='solo'){const ev=todayEvent();ev.apply();G.event=ev;showBanner(L('今日活动:','Event: ')+L(ev.zh,ev.en),'',2.4)}updateCores();drawSeals();drawRelics();
   showBanner(CLASSES[CLASS].zh+' 出山',CLASSES[CLASS].en+' sets out',2.2);
