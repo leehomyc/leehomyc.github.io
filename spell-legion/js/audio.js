@@ -63,19 +63,19 @@ const SFX=(()=>{
       if(state==='title'){
         if(b4===0&&Math.random()<.85){const n=PHRASES[phrase][pi];pi=(pi+1)%8;if(pi===0)phrase=(phrase+1)%PHRASES.length;if(n>=0)guqin(SC[n],nextBeat,.5,2.4);if(Math.random()<.3)guqin(SC[n>=0?n:5]/2,nextBeat+bl*.5,.3,2)}
         if(b16===0&&Math.random()<.5)bell(SC[8],nextBeat,.16);
-        if(b16===8&&Math.random()<.6)dizi(SC[pick([5,7,8,10])],nextBeat,bl*5,.22);
+        if(b16===8&&Math.random()<.6)dizi(SC[vpick([5,7,8,10])],nextBeat,bl*5,.22);
       }else if(state==='battle'){
         if(b4===0||b4===2){const n=PHRASES[phrase][pi];pi=(pi+1)%8;if(pi===0)phrase=(phrase+1)%PHRASES.length;if(n>=0)guqin(SC[n],nextBeat,.45,1.4);}
         if(b16===0||b16===10)taiko(nextBeat,.7);if(b16===4||b16===12)taiko(nextBeat,.45,100);
         if(b4===1||b4===3)woodblock(nextBeat,.22);
-        if(b16===0&&bar%2===0)dizi(SC[pick([7,8,10])],nextBeat+bl,bl*6,.2);
+        if(b16===0&&bar%2===0)dizi(SC[vpick([7,8,10])],nextBeat+bl,bl*6,.2);
         if(b16===0)guqin(SC[0],nextBeat,.5,3);
       }else if(state==='boss'){
         if(b4===0||b4===2||b4===3){const n=PHRASES[(phrase+2)%PHRASES.length][pi];pi=(pi+1)%8;if(n>=0)guqin(SC[n]*(b4===3?.5:1),nextBeat,.5,.9)}
         if(b4===0)taiko(nextBeat,.9,60);if(b16%4===2)taiko(nextBeat,.5,110);if(b16===14)taiko(nextBeat+bl*.5,.6,80);
         woodblock(nextBeat,b4===1?.3:.14);
         if(b16===0){guqin(SC[0]/2,nextBeat,.6,3);bell(SC[3],nextBeat,.2)}
-        if(b16===8)dizi(SC[pick([8,10])],nextBeat,bl*4,.25);
+        if(b16===8)dizi(SC[vpick([8,10])],nextBeat,bl*4,.25);
       }else if(state==='win'){
         if(b4===0){bell(SC[[5,7,8,10][bar%4]],nextBeat,.3);guqin(SC[[5,7,8,10][bar%4]],nextBeat,.5,2.5)}
         if(b4===2)guqin(SC[[8,10,5,7][bar%4]]/2,nextBeat,.35,2);
@@ -90,7 +90,7 @@ const SFX=(()=>{
     nextBeat=now()+.1;setInterval(schedule,120);
     // ambience: wind and insects
     const wind=ac.createGain();wind.gain.value=.05;wind.connect(master);
-    (function loopWind(){if(!ac)return;const t=now();noise(t,6,.5,wind,{type:'lowpass',f:280,q:.5,slide:rnd(160,420)});setTimeout(loopWind,5200)})();
+    (function loopWind(){if(!ac)return;const t=now();noise(t,6,.5,wind,{type:'lowpass',f:280,q:.5,slide:vrnd(160,420)});setTimeout(loopWind,5200)})();
   }
   const rl=(ms)=>{const t=performance.now();if(t-lastHit<ms)return false;lastHit=t;return true};
   const fx={
@@ -122,7 +122,7 @@ const SFX=(()=>{
     chest(){if(!ac)return;const t=now();[0,.07,.14,.21,.3,.42].forEach((d,i)=>osc('sine',[784,988,1175,1568,1975,2349][i],t+d,.6,.26,sfxG,{rv:1}));noise(t,.6,.5,sfxG,{f:4000,slide:900,rv:1})},
     deny(){if(!ac||!rl(120))return;const t=now();osc('square',220,t,.09,.12,sfxG,{lp:800});osc('square',180,t+.09,.1,.12,sfxG,{lp:800})},
     dash(){if(!ac)return;const t=now();noise(t,.26,.55,sfxG,{f:400,slide:3000,q:.7});osc('sine',300,t,.2,.2,sfxG,{slide:1200})},
-    pick(kind){if(!ac||!rl(kind?10:35))return;const t=now();osc('sine',kind?880:1320+rnd(300),t,.12,kind?.25:.1,sfxG,{slide:kind?1760:2200})},
+    pick(kind){if(!ac||!rl(kind?10:35))return;const t=now();osc('sine',kind?880:1320+vrnd(300),t,.12,kind?.25:.1,sfxG,{slide:kind?1760:2200})},
     mission(){if(!ac)return;const t=now();[0,.14,.28].forEach((d,i)=>osc('triangle',[523,659,784][i],t+d,.5,.3,sfxG,{rv:1}))},
     complete(){if(!ac)return;const t=now();[0,.1,.2,.3,.5].forEach((d,i)=>osc('triangle',[523,659,784,1046,1318][i],t+d,.7,.3,sfxG,{rv:1}));noise(t,.5,.3,sfxG,{f:4000,slide:800,rv:1})},
     levelup(){if(!ac)return;const t=now();[0,.09,.18,.3].forEach((d,i)=>{osc('sine',[659,880,1046,1318][i],t+d,.9,.3,sfxG,{rv:1});osc('sine',[659,880,1046,1318][i]*2,t+d,.4,.1,sfxG)})},

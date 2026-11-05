@@ -2,8 +2,14 @@
 /* core.js — constants, helpers and the fixed world layout */
 const $=s=>document.querySelector(s);
 const W=2600,H=2000,TAU=Math.PI*2;
-const rnd=(a=1,b)=>b===undefined?Math.random()*a:a+Math.random()*(b-a);
-const pick=a=>a[Math.floor(Math.random()*a.length)];
+/* simulation RNG: seedable so a daily challenge is the same for everyone; rendering/audio keep Math.random */
+let SIMR=Math.random;
+function seedSim(seed){if(seed===null||seed===undefined){SIMR=Math.random;return}let a=seed|0;SIMR=function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296}}
+const rnd=(a=1,b)=>b===undefined?SIMR()*a:a+SIMR()*(b-a);
+const pick=a=>a[Math.floor(SIMR()*a.length)];
+/* visual-only randomness (never affects the simulation) */
+const vrnd=(a=1,b)=>b===undefined?Math.random()*a:a+Math.random()*(b-a);
+const vpick=a=>a[Math.floor(Math.random()*a.length)];
 const clamp=(v,a,b)=>v<a?a:v>b?b:v;
 const hyp=Math.hypot;
 const PHONE=matchMedia('(pointer:coarse)').matches;

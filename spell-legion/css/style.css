@@ -295,3 +295,8 @@ kbd{font:700 13px var(--ui);border:1px solid var(--dim);padding:0 5px;border-rad
 .card .chips{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:2px}.card .chip{margin-bottom:0}.card .chip.kind{background:color-mix(in srgb,var(--cc) 18%,transparent)}
 .seal .cost i{font-style:normal;font-size:8px;color:#8fd8ffcc;margin-right:1px;letter-spacing:0}
 .bstats .lbl{flex:1 1 100%;text-align:center;color:var(--brass);font-size:11px;letter-spacing:.1em}
+/* first-run tips */
+#tip{position:absolute;left:50%;bottom:132px;transform:translate(-50%,10px);max-width:min(92vw,560px);background:#140b12e6;border:1px solid var(--brass);border-radius:10px;padding:8px 14px;text-align:center;color:var(--bone);opacity:0;transition:opacity .3s,transform .3s;pointer-events:none;z-index:5}
+#tip.on{opacity:1;transform:translate(-50%,0)}
+#tip b{display:block;font-size:15px}#tip small{display:block;color:var(--dim);font-size:12px}
+@media (max-width:640px){#tip{bottom:118px}#tip b{font-size:13px}}

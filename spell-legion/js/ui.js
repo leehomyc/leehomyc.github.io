@@ -3,7 +3,7 @@
 const SAVE_KEY='spell-legion-save';
 let SAVE={gold:0,up:{},cls:'swordsman',best:0,wins:0,runs:0,autocast:false,rival:false,bosses:0,played:false,ach:{},diff:'normal',clsWins:{}};
 try{const s=JSON.parse(localStorage.getItem(SAVE_KEY)||'null');if(s&&typeof s==='object')SAVE={...SAVE,...s}}catch(_){}
-SAVE.ach=SAVE.ach||{};SAVE.clsWins=SAVE.clsWins||{};SAVE.weapon=SAVE.weapon||{};SAVE.weaponOwned=SAVE.weaponOwned||{};window.SAVE=SAVE;
+SAVE.ach=SAVE.ach||{};SAVE.clsWins=SAVE.clsWins||{};SAVE.weapon=SAVE.weapon||{};SAVE.weaponOwned=SAVE.weaponOwned||{};SAVE.tips=SAVE.tips||{};window.SAVE=SAVE;
 function persist(){try{localStorage.setItem(SAVE_KEY,JSON.stringify(SAVE))}catch(_){}}
 const UPGRADES=[
   {id:'hp',zh:'体魄',en:'Vigor',d:'生命上限 +10% / 级',de:'+10% max HP per rank',max:5,cost:r=>80+r*70},
@@ -48,7 +48,29 @@ function input(){
 /* HUD */
 const fmt=t=>`${Math.floor(t/60)}:${String(Math.floor(t%60)).padStart(2,'0')}`;
 let hudT=0;
+/* first-run tips: each fires once ever, at the moment the mechanic first matters */
+const IS_TOUCH=matchMedia('(pointer:coarse)').matches;
+const TIPS={
+  move:{when:()=>G.t>.8,zh:IS_TOUCH?'拖动屏幕任意位置移动':'WASD / 方向键移动',en:IS_TOUCH?'Drag anywhere to move':'Move with WASD or the arrow keys'},
+  skill:{when:()=>G.t>4&&G.spells[1]&&G.P.mana>=SPELLS[G.spells[1].id].cost,zh:IS_TOUCH?'点击下方图标释放武学,消耗蓝色内力':'按 1 / 2 / 3 释放武学,消耗蓝色内力',en:IS_TOUCH?'Tap a seal to cast a skill; it costs blue qi':'Press 1 / 2 / 3 to cast skills; they cost blue qi'},
+  dash:{when:()=>G.P.hp<G.P.maxHp*.6||G.t>40,zh:IS_TOUCH?'点击「轻」轻功闪避,闪避中无敌':'按 Space 轻功闪避,闪避中无敌',en:IS_TOUCH?'Tap 轻 to dash; you are invulnerable while dashing':'Space dashes; you are invulnerable while dashing'},
+  gems:{when:()=>G.gems.length>12,zh:'捡起蓝色晶石获得经验,升级后三选一',en:'Pick up blue gems for XP; each level offers three cards'},
+  chest:{when:()=>G.chests.length>0,zh:'地图上出现宝箱:走过去打开,奖励一张额外卡牌和金币',en:'A chest appeared: walk over it for a bonus card and gold'},
+  mission:{when:()=>!!G.mission,zh:'密令任务:跟随洋红色箭头,完成后奖励强化卡',en:'Mission: follow the magenta arrow; completing it grants an augment card'},
+  combo:{when:()=>G.combo>=10,zh:'连斩:连续击杀不中断,经验加成越来越高',en:'Streak: keep killing without a pause for growing XP bonuses'},
+  warlord:{when:()=>G.en.some(e=>e.warlord&&!e.dead),zh:'铁甲统领来了:击败它必掉法宝与宝箱',en:'The Iron Warlord: beating it always drops a relic and a chest'},
+  auto:{when:()=>G.t>25&&!AUTOCAST,zh:'右键点击战场可切换武学自动施放',en:'Right-click the field to toggle auto-casting skills'},
+};
+let tipT=0,tipQ=null;
+function tipTick(dt){
+  if(G.auto||G.over)return;
+  if(tipT>0){tipT-=dt;if(tipT<=0)$('#tip').classList.remove('on');return}
+  if(G.pick||G.paused)return;
+  for(const k in TIPS){if(SAVE.tips[k])continue;let ok=false;try{ok=TIPS[k].when()}catch(_){}if(!ok)continue;
+    SAVE.tips[k]=1;persist();const t=TIPS[k],el=$('#tip');el.innerHTML=`<b>${t.zh}</b><small>${t.en}</small>`;el.classList.add('on');tipT=5.5;if(typeof SFX!=='undefined')SFX.pick(1);break}
+}
 function hud(dt){
+  tipTick(dt);
   hudT-=dt;if(hudT>0)return;hudT=.05;
   const P=G.P;
   $('#xp').style.width=(G.xp/G.need*100)+'%';
@@ -189,16 +211,20 @@ function renderTitle(){
     b.innerHTML=`<b>${u.zh} <small>${u.en}</small></b><span class="rk">${'●'.repeat(r)}${'○'.repeat(u.max-r)}</span><span class="dd">${u.d}</span><span class="pr">${r>=u.max?'已满 Max':cost+' 金'}</span>`;
     b.onclick=()=>{if(SAVE.gold>=cost&&r<u.max){SAVE.gold-=cost;SAVE.up[u.id]=r+1;persist();renderTitle();SFX.complete()}};shop.appendChild(b)});
   $('#record').textContent=(SAVE.runs?`${SAVE.runs} 局 · 最长存活 ${fmt(SAVE.best||0)} · 单局最多首领 ${SAVE.bosses||0}`:'')+(SAVE.pk?` · 对决 ${SAVE.pk.w} 胜 ${SAVE.pk.l} 负 · 最高 ${SAVE.pkBest||0} 分`:'');
-  RIVAL_ON=(SAVE.mode==='pk');document.querySelectorAll('#mode button').forEach(b=>b.classList.toggle('on',b.dataset.m===(SAVE.mode||'solo')));$('#modenote').textContent=RIVAL_ON?`对决:与 AI 对手争分 ${PK_LEN/60} 分钟,谁补刀谁拿全部分数 · PK: ${PK_LEN/60}-minute score race against an AI rival; last hit takes all the points`:'单人:无尽模式,活得越久首领越多 · Solo: endless, survive and slay bosses';
+  RIVAL_ON=(SAVE.mode==='pk');seedSim(null);document.querySelectorAll('#mode button').forEach(b=>b.classList.toggle('on',b.dataset.m===(SAVE.mode||'solo')));$('#modenote').textContent=RIVAL_ON?`对决:与 AI 对手争分 ${PK_LEN/60} 分钟,谁补刀谁拿全部分数 · PK: ${PK_LEN/60}-minute score race against an AI rival; last hit takes all the points`:SAVE.mode==='daily'?`每日挑战 · 种子 ${dayKey()} · 普通难度 · 今天所有人面对同样的怪潮、宝箱与卡牌${SAVE.daily&&SAVE.daily.day===dayKey()?` · 今日最佳 ${fmt(SAVE.daily.best)} / ${SAVE.daily.bosses} 首领`:''} · Daily: same seed for everyone today; compare on the leaderboard`:'单人:无尽模式,活得越久首领越多 · Solo: endless, survive and slay bosses';
   document.querySelectorAll('#qual button').forEach(b=>b.classList.toggle('on',b.dataset.q===QLEVEL));
   DIFFID=SAVE.diff||'normal';document.querySelectorAll('#diff button').forEach(b=>b.classList.toggle('on',b.dataset.d===DIFFID));
   const mp=$('#maps');mp.textContent='';for(const k in MAPS){const M=MAPS[k],locked=M.need&&!SAVE.ach[M.need],b=document.createElement('button');b.type='button';b.className='mapb'+(k===MAPID?' on':'')+(locked?' locked':'');b.disabled=locked;b.innerHTML=`<b>${M.zh}</b><small>${M.en}${locked?' · 🔒 '+ACH.find(a=>a.id===M.need).d:''}</small>`;b.onclick=()=>{try{localStorage.setItem('sl_map',k)}catch(_){}b.innerHTML='<b>载入中…</b>';setTimeout(()=>location.reload(),60)};mp.appendChild(b)}
   const al=$('#ach');al.textContent='';const done=ACH.filter(a=>SAVE.ach[a.id]).length;$('#achcount').textContent=`${done}/${ACH.length}`;
   ACH.forEach(a=>{const d=document.createElement('div');d.className='achi'+(SAVE.ach[a.id]?' done':'');d.innerHTML=`<span class="tick">${SAVE.ach[a.id]?'✓':'○'}</span><b>${a.zh} <small>${a.en}</small></b><span>${a.d}</span><em>+${a.gold} 金</em>`;al.appendChild(d)});
 }
+/* daily challenge: one seed per calendar day, so every player faces the same spawns, waves, chests and cards */
+function dayKey(){const d=new Date();return d.getFullYear()*10000+(d.getMonth()+1)*100+d.getDate()}
+let DAILY=false;
 function startRun(){
   if($('#startbtn').disabled)return;
   CLASS=SAVE.cls;DIFFID=SAVE.diff||'normal';
+  DAILY=SAVE.mode==='daily';seedSim(DAILY?dayKey()*7919+1:null);
   $('#title').hidden=true;$('#intro').hidden=true;$('#end').hidden=true;$('#cards').hidden=true;$('#hud').hidden=false;$('#bossbar').hidden=true;$('#pause').hidden=true;$('#char').hidden=true;
   $('#banner').classList.remove('on');$('#pausebtn').textContent='II';
   SAVE_FIRST=!SAVE.played;SAVE.played=true;persist();
@@ -212,13 +238,14 @@ function showEnd(ok){
   const gold=Math.round((G.kills*1.1+G.lv*6+G.bossSlain*150+Math.floor(G.t/10)*3+G.goldRun+G.comboMax*2)*(1+.15*(SAVE.up.gold||0))*(G.relics.includes('bowl')?1.3:1)*D().gold);
   const pk=RIVAL_ON&&G.rival,pkRes=pk?(G.score>G.rival.score?'win':G.score<G.rival.score?'lose':'tie'):null;const pkBonus=pkRes==='win'?200:pkRes==='tie'?80:0;
   if(pk){SAVE.pk=SAVE.pk||{w:0,l:0};if(pkRes==='win')SAVE.pk.w++;else if(pkRes==='lose')SAVE.pk.l++;SAVE.pkBest=Math.max(SAVE.pkBest||0,G.score)}
+  let dailyNew=false;if(DAILY){const dk=dayKey();if(!SAVE.daily||SAVE.daily.day!==dk)SAVE.daily={day:dk,best:0,bosses:0};if(G.t>SAVE.daily.best){SAVE.daily.best=G.t;SAVE.daily.bosses=G.bossSlain;dailyNew=true}}
   const record=!pk&&G.t>(SAVE.best||0);SAVE.gold+=gold+pkBonus;SAVE.runs++;SAVE.wins+=G.bossSlain;SAVE.bosses=Math.max(SAVE.bosses||0,G.bossSlain);if(record)SAVE.best=G.t;persist();
   const rows=G.spells.slice().sort((a,b)=>b.dmg-a.dmg).map(s=>{const f=s.els.length===2?FUS[fusion(s)][1]:s.els[0]?ELS[s.els[0]].en:'';
     return `<span>${SPELLS[s.id].zh} ${SPELLS[s.id].en}${f?` · ${f}`:''} · Lv ${s.lv}</span><div class="bar"><i style="width:${s.dmg/max*100}%"></i></div><span>${Math.round(s.dmg/tot*100)}%</span>`}).join('');
   const R=G.rival,duel=R?(pkRes==='win'?[`胜利 · ${G.score} : ${R.score}`,`Victory · +${pkBonus} gold`]:pkRes==='lose'?[`落败 · ${G.score} : ${R.score}`,`Defeat · ${R.name[1]} out-scored you`]:[`平手 · ${G.score} : ${R.score}`,`Tied · +${pkBonus} gold`]):null;
   const cmp=R?`<div class="cmp"><div class="hd"><span></span><b>你 You</b><b>${R.name[0]}<small> ${CLASSES[R.cls].en}</small></b></div>
     ${[['分数 Score',G.score,R.score],['击杀 Kills',G.kills,R.kills],['等级 Level',G.lv,R.lv],['总伤害 Damage',Math.round(tot),Math.round(R.dmgDealt)],['倒地 Downs',2-G.cores+(SAVE.up.core||0),R.downs]].map(([n,a,b])=>`<div class="r"><span>${n}</span><b class="${a>=b?'w':''}">${a}</b><b class="${b>a?'w':''}">${b}</b></div>`).join('')}</div>`:'';
-  box.innerHTML=`<h2 class="${pkRes||''}">${pk?(pkRes==='win'?'对决胜利':pkRes==='lose'?'对决落败':'对决平手'):record?'新纪录':'败亡'}</h2><p class="sub">${record?'New record · ':''}Survived ${fmt(G.t)} · ${G.bossSlain} boss${G.bossSlain===1?'':'es'} slain</p>${duel?`<p class="duel">${duel[0]} · ${duel[1]}</p>`:''}
+  box.innerHTML=`<h2 class="${pkRes||''}">${pk?(pkRes==='win'?'对决胜利':pkRes==='lose'?'对决落败':'对决平手'):DAILY?(dailyNew?'今日新纪录':'每日挑战'):record?'新纪录':'败亡'}</h2><p class="sub">${record?'New record · ':''}Survived ${fmt(G.t)} · ${G.bossSlain} boss${G.bossSlain===1?'':'es'} slain</p>${duel?`<p class="duel">${duel[0]} · ${duel[1]}</p>`:''}
   <div class="stat"><div><b>${fmt(G.t)}</b><span>存活 Survived</span></div><div><b>${G.kills}</b><span>击杀 Kills</span></div><div><b>${G.lv}</b><span>等级 Level</span></div><div><b>×${G.comboMax}</b><span>最高连斩 Best combo</span></div><div><b>${G.bossSlain}</b><span>首领 Bosses</span></div><div><b>${G.relics.length}</b><span>法宝 Relics</span></div><div><b class="gold">+${gold}</b><span>金币 Gold</span></div></div>
   <div class="dmg">${rows}</div>${cmp}<div class="btns"><button class="go" id="againbtn">再来一局 Play again</button><button class="go alt" id="lobbybtn">回到山门 Lobby</button></div>`;
   $('#end').hidden=false;$('#againbtn').onclick=startRun;$('#lobbybtn').onclick=toLobby;$('#againbtn').focus();
