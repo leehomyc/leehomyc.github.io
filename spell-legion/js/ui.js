@@ -156,7 +156,7 @@ function renderBuildStrip(){
 }
 function choose(i){
   if(!G.pick||!G.pick[i])return;
-  G.pick[i].a();G.pick=null;$('#cards').hidden=true;drawSeals();SFX.pick(1);openPick();
+  const cd=G.pick[i];cd.a();G.pick=null;$('#cards').hidden=true;drawSeals();SFX.pick(1);if(!G.picks.length)showBanner(cd.n,(cd.e||'').split(' · ').slice(0,2).join(' · '),1.1);openPick();
 }
 function closeCards(){G.picks=[];G.pick=null;$('#cards').hidden=true;G.panel=false;$('#char').hidden=true}
 
