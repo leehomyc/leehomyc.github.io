@@ -271,7 +271,7 @@ function startRun(){
   if(!DAILY){G.P.dmgBonus+=masteryBonus(CLASS);if((SAVE.road||{})[300])G.rerolls++;if((SAVE.road||{})[1000]){G.cores++}}
   if(SAVE.mode==='solo'&&!inRoom){const ev=todayEvent();ev.apply();G.event=ev;showBanner(L('今日活动:','Event: ')+L(ev.zh,ev.en),'',2.4)}updateCores();drawSeals();drawRelics();
   showBanner(CLASSES[CLASS].zh+' 出山',CLASSES[CLASS].en+' sets out',2.2);
-  SFX.start();SFX.setState('battle');
+  SFX.start();SFX.setState('battle');if(IS_TOUCH)goFullscreen(true);
 }
 function showEnd(ok){
   G.ended=true;const box=$('#endb'),tot=G.spells.reduce((a,s)=>a+s.dmg,0)||1,max=Math.max(...G.spells.map(s=>s.dmg),1);
@@ -361,3 +361,12 @@ function nextGoal(){
   if(other&&weaponUnlocked(G.cls,other))return [`换一把武器试试:${SPELLS[other].zh},打法完全不同。`,`Try the other weapon: ${SPELLS[other].en} plays very differently.`];
   return ['试试另一位侠客或提高难度:困难难度金币 +40%。','Try another hero or raise the difficulty: Hard pays +40% gold.'];
 }
+
+/* fullscreen (Android / desktop browsers; iOS only via Add to Home Screen) */
+function goFullscreen(quiet){const el=document.documentElement;if(document.fullscreenElement)return;const f=el.requestFullscreen||el.webkitRequestFullscreen;if(!f){if(!quiet)showBanner('此浏览器不支持全屏:请「添加到主屏幕」','This browser cannot go fullscreen: use Add to Home Screen',2.4);return}try{const p=f.call(el,{navigationUI:'hide'});if(p&&p.catch)p.catch(()=>{})}catch(_){}}
+const fsb=$('#fsbtn');if(fsb)fsb.onclick=()=>goFullscreen(false);
+/* update check: GitHub Pages caches index.html for 10 minutes; if a newer build is live, offer a reload */
+(async()=>{const mine=(document.querySelector('meta[name=build]')||{}).content||'dev';if(mine==='dev'||location.protocol==='file:')return;const note=$('#buildnote');if(note)note.textContent=L('版本 ','Build ')+mine;
+  try{const r=await fetch(location.pathname.replace(/[^/]*$/,'')+'index.html?nocache='+Date.now(),{cache:'no-store'});const t=await r.text();const m=t.match(/name="build" content="([^"]+)"/);if(m&&m[1]!==mine){const b=document.createElement('button');b.type='button';b.className='go';b.id='updbtn';b.textContent=L('有新版本,点击更新','New version available: tap to update');b.onclick=()=>location.reload(true);document.body.appendChild(b)}}catch(_){}})();
+/* while the card screen is up on a phone, the sound button must not cover the cards */
+new MutationObserver(()=>{document.body.classList.toggle('picking',!$('#cards').hidden)}).observe($('#cards'),{attributes:true,attributeFilter:['hidden']});

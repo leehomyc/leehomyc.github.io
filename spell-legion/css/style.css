@@ -499,3 +499,6 @@ html[lang=en] .zh{display:none!important}html[lang=zh] .en{display:none!importan
 #build{flex-wrap:nowrap;overflow:hidden;justify-content:center}#build:empty{display:none}
 #cardtip{flex:0 1 auto;max-width:min(100%,760px)}#cardtip[hidden]{display:none}
 @media (max-width:760px){#build{gap:4px}.bs{flex:0 1 auto}#cardtip{font-size:11px}}
+
+body.picking #sndbtn{display:none}
+#updbtn{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:50;box-shadow:0 10px 30px #000c}
