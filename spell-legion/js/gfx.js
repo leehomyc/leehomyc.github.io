@@ -6,7 +6,7 @@ const QUAL={low:{shadow:1024,grass:7000,dpr:1,msaa:false,flies:90,trees:.55,tilt
 function detectQuality(){if(PHONE)return 'low';const cores=navigator.hardwareConcurrency||4,mem=navigator.deviceMemory||8;if(cores<=4||mem<=4)return 'low';if(cores<=8)return 'med';return 'high'}
 let QLEVEL=(()=>{try{const q=localStorage.getItem('sl_quality');if(q&&QUAL[q])return q}catch(_){}return detectQuality()})();
 const Q=()=>QUAL[QLEVEL];
-let SHAKE=(()=>{try{return localStorage.getItem('sl_shake')||'low'}catch(_){return 'low'}})();
+let SHAKE='off'; // screen shake, hit-stop freezes and screen ripples are removed for good: the view never jolts
 let MAPID=(()=>{try{const m=localStorage.getItem('sl_map');if(m&&MAPS[m])return m}catch(_){}return 'valley'})();
 const MAP=()=>MAPS[MAPID];
 /* chunked instancing: split instances into spatial tiles so frustum culling works in the main and shadow passes */

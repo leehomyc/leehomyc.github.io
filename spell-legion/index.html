@@ -4,12 +4,12 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>魔咒军团</title>
-<meta name="build" content="202611060005">
+<meta name="build" content="202611060008">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="theme-color" content="#0b060e">
 <link rel="apple-touch-icon" href="icons/icon-192.png"><link rel="icon" href="icons/icon-192.png">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=ZCOOL+XiaoWei&family=Alegreya+Sans:wght@400;700;800&display=swap">
-<link rel="stylesheet" href="css/style.css?v=202611060005">
+<link rel="stylesheet" href="css/style.css?v=202611060008">
 <script src="vendor/three.min.js"></script>
 <script src="vendor/CopyShader.js"></script>
 <script src="vendor/LuminosityHighPassShader.js"></script>
@@ -29,7 +29,7 @@
       <div class="row">
         <div class="lft"><b id="lv">Lv 1</b><button id="charbtn" aria-label="Character"><span class="zh">角色 C</span><span class="en">Hero C</span><span id="ptsbadge" hidden></span></button><span id="cores"></span><div id="relics"></div></div>
         <div class="tm"><b id="timer">0:00</b><span id="nextboss"></span></div>
-        <div class="rgt"><span id="kills">0</span><button id="pausebtn" aria-label="Pause">II</button></div>
+        <div class="rgt"><span id="kills">0</span><button id="sndbtn" class="sndb" aria-label="Mute / unmute" title="静音 / 开启 Mute / unmute">🔊</button><button id="pausebtn" aria-label="Pause">II</button></div>
       </div>
       <div id="bossbar" hidden><span id="bossname">血魔教主 · Blood Demon Patriarch</span><div id="bosshp"><i></i></div></div>
       <div id="score" hidden><span><span class="zh">你</span><span class="en">You</span> <b id="s-you">0</b></span><div id="s-bar"><i></i></div><span><b id="s-riv">0</b> <span id="s-rname"></span></span></div>
@@ -45,7 +45,6 @@
   </div>
   <div id="banner"></div><div id="tip"></div><div id="roomcount" hidden></div>
   <div id="intro" hidden></div>
-  <button id="sndbtn" aria-label="Mute / unmute" title="静音 / 开启 Mute / unmute">🔊</button>
   <div id="sndpanel" hidden>
     <label><span class="zh">音乐</span><span class="en">Music</span> <input type="range" id="musicvol" min="0" max="100" value="60"></label>
     <label><span class="zh">音效</span><span class="en">Effects</span> <input type="range" id="sfxvol" min="0" max="100" value="80"></label>
@@ -59,7 +58,7 @@
         <div class="vname">魔咒军团</div>
         <div class="ttb">
           <h1>Spell Legion</h1>
-          <div class="langrow"><button type="button" class="langbtn" data-l="zh">中文</button><button type="button" class="langbtn" data-l="en">English</button><span class="status" id="status"></span></div>
+          <div class="langrow"><button type="button" class="langbtn" data-l="zh">中文</button><button type="button" class="langbtn" data-l="en">English</button><button type="button" id="sndbtn2" class="sndb" aria-label="Mute / unmute">🔊</button><span class="status" id="status"></span></div>
           <div id="menubtns"></div>
           <span id="loadnote" class="note"></span><span id="autonote" hidden></span>
           <div class="tabbar"><b id="gold" hidden>0</b><button type="button" data-t="tasks"><span class="zh">任务</span><span class="en">Tasks</span></button><button type="button" data-t="ach"><span class="zh">成就</span><span class="en">Achievements</span> <b id="achcount">0/0</b></button><button type="button" data-t="codex"><span class="zh">图鉴</span><span class="en">Codex</span> <b id="codexcount">0/0</b></button><button type="button" id="lbbtn" hidden><span class="zh">排行榜</span><span class="en">Leaderboard</span></button><button type="button" data-t="settings"><span class="zh">设置</span><span class="en">Settings</span></button></div>
@@ -69,7 +68,7 @@
             <div class="panel" data-p="ach"><div id="ach"></div></div>
             <div class="panel" data-p="codex"><div id="codex"></div></div>
             <div class="panel" data-p="settings">
-              <div class="opts"><div id="qual"><span><span class="zh">画质</span><span class="en">Quality</span></span><button type="button" data-q="low"><span class="zh">低</span><span class="en">Low</span></button><button type="button" data-q="med"><span class="zh">中</span><span class="en">Medium</span></button><button type="button" data-q="high"><span class="zh">高</span><span class="en">High</span></button></div><div id="shake"><span><span class="zh">震感</span><span class="en">Screen shake</span></span><button type="button" data-s="off"><span class="zh">关</span><span class="en">Off</span></button><button type="button" data-s="low"><span class="zh">弱</span><span class="en">Low</span></button><button type="button" data-s="high"><span class="zh">强</span><span class="en">High</span></button></div></div>
+              <div class="opts"><div id="qual"><span><span class="zh">画质</span><span class="en">Quality</span></span><button type="button" data-q="low"><span class="zh">低</span><span class="en">Low</span></button><button type="button" data-q="med"><span class="zh">中</span><span class="en">Medium</span></button><button type="button" data-q="high"><span class="zh">高</span><span class="en">High</span></button></div></div>
               <p class="note"><span class="zh"><kbd>WASD</kbd> / 方向键 / 拖动 移动 · <kbd>Space</kbd> 轻功 · <kbd>P</kbd> 暂停 · <kbd>M</kbd> 静音 · 右键或底部「自/手」切换自动施放</span><span class="en"><kbd>WASD</kbd> / arrows / drag to move · <kbd>Space</kbd> dash · <kbd>P</kbd> pause · <kbd>M</kbd> mute · right-click or the 自/手 seal toggles auto-cast</span></p>
               <div class="rmrow"><button type="button" class="go alt sm" id="fsbtn"><span class="zh">全屏</span><span class="en">Fullscreen</span></button><small class="note"><span class="zh">iPhone 上请用 Safari「分享 → 添加到主屏幕」,从主屏幕打开即全屏。</span><span class="en">On iPhone use Safari Share → Add to Home Screen; launching from there is fullscreen.</span></small></div>
               <div id="account"></div><p class="note" id="buildnote"></p>
@@ -110,21 +109,21 @@
   <div id="lb" class="overlay" hidden><div class="cbox"><div class="ch"><h2><span class="zh">排行榜</span><span class="en">Leaderboard</span> <small><span class="zh">最长存活</span><span class="en">longest survival</span></small></h2><div class="tabs" id="lbtabs"><button type="button" data-b="all" class="on"><span class="zh">总榜</span><span class="en">All time</span></button><button type="button" data-b="today"><span class="zh">今日</span><span class="en">Today</span></button></div><button type="button" id="lbclose"><span class="zh">关闭</span><span class="en">Close</span></button></div><div id="lbbody"></div></div></div>
   <div id="end" class="overlay" hidden><div class="endb" id="endb"></div></div>
 </div>
-<script src="js/core.js?v=202611060005"></script>
-<script src="js/content.js?v=202611060005"></script>
-<script src="js/icons.js?v=202611060005"></script>
-<script src="js/audio.js?v=202611060005"></script>
-<script src="js/gfx.js?v=202611060005"></script>
-<script src="js/sim.js?v=202611060005"></script>
-<script src="js/render.js?v=202611060005"></script>
-<script src="js/leaderboard.js?v=202611060005"></script>
-<script src="js/cloud.js?v=202611060005"></script>
-<script src="js/net.js?v=202611060005"></script>
-<script src="js/room.js?v=202611060005"></script>
-<script src="js/meta.js?v=202611060005"></script>
-<script src="js/ui.js?v=202611060005"></script>
-<script src="js/lobby.js?v=202611060005"></script>
-<script src="js/main.js?v=202611060005"></script>
+<script src="js/core.js?v=202611060008"></script>
+<script src="js/content.js?v=202611060008"></script>
+<script src="js/icons.js?v=202611060008"></script>
+<script src="js/audio.js?v=202611060008"></script>
+<script src="js/gfx.js?v=202611060008"></script>
+<script src="js/sim.js?v=202611060008"></script>
+<script src="js/render.js?v=202611060008"></script>
+<script src="js/leaderboard.js?v=202611060008"></script>
+<script src="js/cloud.js?v=202611060008"></script>
+<script src="js/net.js?v=202611060008"></script>
+<script src="js/room.js?v=202611060008"></script>
+<script src="js/meta.js?v=202611060008"></script>
+<script src="js/ui.js?v=202611060008"></script>
+<script src="js/lobby.js?v=202611060008"></script>
+<script src="js/main.js?v=202611060008"></script>
 <!--/PAGE-->
 </body>
 </html>

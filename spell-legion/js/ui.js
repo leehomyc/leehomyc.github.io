@@ -308,9 +308,9 @@ $('#quitbtn').onclick=()=>{G.paused=false;$('#pause').hidden=true;G.abandoned=tr
 AUTOCAST=SAVE.autocast===true;
 function autoLabel(){const sb=$('#seals');if(sb)sb.classList.toggle('auto',AUTOCAST);$('#autobtn').textContent=AUTOCAST?L('武学:自动施放','Skills: auto-cast'):L('武学:手动施放','Skills: manual');$('#autonote').textContent=AUTOCAST?L('武学自动施放,按 1/2/3 也可手动。','Skills cast themselves; 1/2/3 still work.'):L('按 1/2/3 释放武学。','Press 1/2/3 to cast skills.')}
 $('#autobtn').onclick=()=>{AUTOCAST=!AUTOCAST;SAVE.autocast=AUTOCAST;persist();autoLabel()};autoLabel();
-function syncSound(){const m=SFX.muted;$('#mutebtn').textContent=m?L('声音:关','Sound: off'):L('声音:开','Sound: on');$('#sndbtn').textContent=m?'🔇':'🔊';$('#sndbtn').classList.toggle('off',m);$('#musicvol').value=Math.round(SFX.musicVol*100);$('#sfxvol').value=Math.round(SFX.sfxVol*100);$('#snd-mute').checked=m}
+function syncSound(){const m=SFX.muted;$('#mutebtn').textContent=m?L('声音:关','Sound: off'):L('声音:开','Sound: on');$('#sndbtn').textContent=m?'🔇':'🔊';$('#sndbtn').classList.toggle('off',m);const s2=$('#sndbtn2');if(s2){s2.textContent=m?'🔇':'🔊';s2.classList.toggle('off',m)}$('#musicvol').value=Math.round(SFX.musicVol*100);$('#sfxvol').value=Math.round(SFX.sfxVol*100);$('#snd-mute').checked=m}
 $('#mutebtn').onclick=()=>{SFX.toggleMute();syncSound()};
-$('#sndbtn').onclick=()=>{SFX.start();const m=SFX.toggleMute();syncSound();$('#sndpanel').hidden=true;$('#sndbtn').blur();showBanner(m?'静音':'声音开启',m?'Muted':'Sound on',.7)};
+$('#sndbtn').onclick=$('#sndbtn2').onclick=()=>{SFX.start();const m=SFX.toggleMute();syncSound();$('#sndpanel').hidden=true;$('#sndbtn').blur();showBanner(m?'静音':'声音开启',m?'Muted':'Sound on',.7)};
 $('#snd-mute').onchange=e=>{SFX.setMute(e.target.checked);syncSound()};
 $('#musicvol').oninput=e=>{SFX.start();SFX.setMusic(e.target.value/100);if(SFX.muted){SFX.setMute(false);syncSound()}};
 $('#sfxvol').oninput=e=>{SFX.start();SFX.setSfx(e.target.value/100);SFX.pick(1);if(SFX.muted){SFX.setMute(false);syncSound()}};

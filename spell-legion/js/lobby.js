@@ -45,4 +45,3 @@ function renderHero(){
 }
 $('#backbtn').onclick=()=>{showScreen('menu');SFX.pick(1)};
 (()=>{let s='menu';try{s=sessionStorage.getItem('sl_screen')||'menu'}catch(_){}showScreen(s==='hero'?'hero':'menu')})();
-document.querySelectorAll('#shake button').forEach(b=>{b.classList.toggle('on',b.dataset.s===SHAKE);b.onclick=()=>{SHAKE=b.dataset.s;try{localStorage.setItem('sl_shake',SHAKE)}catch(_){}document.querySelectorAll('#shake button').forEach(x=>x.classList.toggle('on',x.dataset.s===SHAKE));SFX.pick(1)}});
