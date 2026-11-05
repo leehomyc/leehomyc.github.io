@@ -58,7 +58,7 @@ async function submitRun(container){
   const inp=$('#lbname');inp.value=saved;
   $('#lbsend').onclick=async()=>{
     const name=(inp.value||'').trim().slice(0,16)||L('无名侠客','Nameless');LB.setName(name);$('#lbsend').disabled=true;$('#lbmsg').textContent=L('提交中…','Sending…');
-    try{const r=await LB.submit({name,cls:G.cls,map:MAPID,diff:DIFFID,mode:SAVE.mode||'solo',score:G.score||0,time:Math.round(G.t),kills:G.kills,bosses:G.bossSlain,level:G.lv,combo:G.comboMax,relics:G.relics.length});
+    try{const r=await LB.submit({name,cls:G.cls,map:MAPID,diff:DIFFID,mode:SAVE.mode||'solo',score:G.score||0,day:G.day,time:Math.round(G.t),kills:G.kills,bosses:G.bossSlain,level:G.lv,combo:G.comboMax,relics:G.relics.length});
       if(r.ok){$('#lbmsg').textContent=L('已上榜!','On the board.');const d=await LB.fetch('all');const el=document.createElement('div');el.className='lbinline';renderBoard(el,d,{me:name});box.appendChild(el)}
       else{$('#lbmsg').textContent=r.error==='rate'?L('请稍后再试。','Try again in a moment.'):L('未能提交。','Not accepted.');$('#lbsend').disabled=false}}
     catch(e){$('#lbmsg').textContent=L('网络错误。','Network error.');$('#lbsend').disabled=false}

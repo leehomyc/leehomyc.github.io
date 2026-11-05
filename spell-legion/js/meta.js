@@ -45,14 +45,14 @@ function metaAfterRun(){
     if(t.cum)task.p=Math.min(task.goal,(task.p||0)+v);else task.p=Math.max(task.p||0,Math.min(task.goal,v));
     if(task.p>=task.goal){task.done=1;const g=TASK_GOLD[task.tier];gold+=g;done.push([task,g])}}
   // streak: a day counts once any task is completed
-  if(done.length){const dk=dayKey();SAVE.streak=SAVE.streak||{last:0,n:0};if(SAVE.streak.last!==dk){const y=new Date();y.setDate(y.getDate()-1);const yk=y.getFullYear()*10000+(y.getMonth()+1)*100+y.getDate();SAVE.streak.n=SAVE.streak.last===yk?SAVE.streak.n+1:1;SAVE.streak.last=dk;if(SAVE.streak.n%7===0){gold+=800;done.push([{id:'streak',goal:7},800])}}}
+  if(done.length){const dk=dayKey();SAVE.streak=SAVE.streak||{last:0,n:0};if(SAVE.streak.last!==dk){SAVE.streak.n=SAVE.streak.last===yesterdayKey()?SAVE.streak.n+1:1;SAVE.streak.last=dk;if(SAVE.streak.n%7===0){gold+=800;done.push([{id:'streak',goal:7},800])}}}
   const before=accountLv(),xp=runAxp();SAVE.axp=(SAVE.axp||0)+xp;const after=accountLv();
   SAVE.gold+=gold;persist();
   return {done,gold,xp,before,after,levelUp:after.lv>before.lv};
 }
 /* lobby rendering */
 function renderMeta(){
-  const el=$('#meta');if(!el)return;const a=accountLv(),t=titleFor(a.lv),list=todayTasks(),st=SAVE.streak&&SAVE.streak.last>=dayKey()-1?SAVE.streak.n:0;
+  const el=$('#meta');if(!el)return;const a=accountLv(),t=titleFor(a.lv),list=todayTasks(),st=SAVE.streak&&(SAVE.streak.last===dayKey()||SAVE.streak.last===yesterdayKey())?SAVE.streak.n:0;
   const tasks=list.map(task=>{const tx=taskText(task),g=TASK_GOLD[task.tier];return `<div class="task${task.done?' done':''}"><span class="ck">${task.done?'✓':'○'}</span><div><b>${L(tx.zh,tx.en)}</b><i><em style="width:${Math.min(100,(task.p||0)/task.goal*100)}%"></em></i></div><span class="rw">${task.done?L('已领 ','claimed ')+g:(task.p||0)+'/'+task.goal+' · +'+g+' '+L('金','gold')}</span></div>`}).join('');
   el.innerHTML=`<div class="acc"><div class="lvl"><b>${a.lv}</b><small>${L('江湖等级','Rank')}</small></div><div class="ti"><b>${L(t[1],t[2])}</b><i><em style="width:${a.x/a.need*100}%"></em></i><small>${a.x} / ${a.need} ${L('江湖经验 · 每局必得','renown · earned every run')}</small></div><div class="stk"><b>${st}</b><small>${L('连续天数','day streak')}</small><small>${L(`再 ${7-(st%7)} 天宝箱 +800 金`,`chest +800 gold in ${7-(st%7)} days`)}</small></div></div>
   <h2><span>${L('每日任务','Daily tasks')}</span><b>${list.filter(x=>x.done).length}/3</b></h2><div class="tasks">${tasks}</div>`;

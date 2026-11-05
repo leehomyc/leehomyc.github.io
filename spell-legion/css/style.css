@@ -107,7 +107,7 @@ kbd{font:700 13px var(--ui);border:1px solid var(--dim);padding:0 5px;border-rad
 #cards{align-items:center;justify-content:center;flex-direction:column;gap:16px}
 #cards h2{margin:0;font-family:var(--brush);font-weight:400;font-size:clamp(30px,5vw,44px);text-align:center;text-wrap:balance}
 #cards h2 small{display:block;font:700 14px var(--ui);color:var(--brass);letter-spacing:.06em}
-#cardrow{display:grid;grid-template-columns:repeat(3,minmax(0,220px));gap:12px;width:100%;justify-content:center}
+#cardrow{display:grid;grid-template-columns:repeat(3,minmax(0,clamp(220px,22vw,300px)));gap:clamp(12px,1.4vw,20px);width:100%;justify-content:center}
 .card{border-radius:12px;background:linear-gradient(170deg,#472738f0,#1c101af5);box-shadow:0 18px 40px #000a,inset 0 1px 0 #ffffff22;transition:transform .14s,box-shadow .14s;border:1px solid var(--brass);color:var(--bone);font:inherit;padding:12px;text-align:left;cursor:pointer;display:grid;gap:4px;align-content:start;min-width:0;border-top:5px solid var(--c,var(--brass))}
 .card:hover{transform:translateY(-6px);box-shadow:0 22px 50px #000c,0 0 34px color-mix(in srgb,var(--c,#d6a54a) 60%,transparent),inset 0 1px 0 #ffffff33}
 .card .g{font-family:var(--brush);font-size:56px;line-height:1.05;color:var(--c,var(--bone));text-shadow:0 0 22px var(--c,#fff)}
@@ -327,7 +327,7 @@ kbd{font:700 13px var(--ui);border:1px solid var(--dim);padding:0 5px;border-rad
 /* auto-cast: skill seals shimmer while skills cast themselves */
 @keyframes acshimmer{0%{box-shadow:0 6px 18px #0009,0 0 0 0 #8fd8ff00,inset 0 1px 0 #ffffff26}50%{box-shadow:0 6px 18px #0009,0 0 14px 3px #8fd8ffaa,inset 0 1px 0 #ffffff26}100%{box-shadow:0 6px 18px #0009,0 0 0 0 #8fd8ff00,inset 0 1px 0 #ffffff26}}
 #seals.auto .seal:not(.main):not(.empty):not(.dash){animation:acshimmer 1.6s ease-in-out infinite;border-color:#8fd8ff}
-#seals.auto .seal:not(.main):not(.empty):not(.dash) .key::after{content:' 自动';color:#8fd8ff}
+#seals.auto .seal:not(.main):not(.empty):not(.dash) .key::after{content:' 自动';color:#8fd8ff}html[lang=en] #seals.auto .seal:not(.main):not(.empty):not(.dash) .key::after{content:' auto'}
 .bs.hl{outline:2px solid var(--c);box-shadow:0 0 16px var(--c);transform:translateY(-2px)}.bs{transition:transform .15s,box-shadow .15s}
 .killed{background:#2a0f14cc;border:1px solid #ff6a6a66;border-radius:8px;padding:8px 12px;margin:6px 0;text-align:center}.killed b{color:#ff8a8a;font-size:14px}.killed .srcs{display:flex;gap:6px 14px;flex-wrap:wrap;justify-content:center;font-size:12px;color:var(--bone);margin-top:4px}.killed .srcs small{color:var(--dim)}
 /* account row */
@@ -358,3 +358,7 @@ html[lang=en] .zh{display:none!important}html[lang=zh] .en{display:none!importan
   #tip{bottom:auto;top:150px;max-width:94vw}
   .startrow .go.big{display:none}
 }
+/* larger screens: HUD and cards scale with the viewport */
+@media (min-width:1400px){.seal{width:76px;height:84px}.seal .g{font-size:40px}.seal .lv{font-size:12px}.seal .key,.seal .cost{font-size:11px}.globe{width:clamp(74px,8vw,128px)}.card .fx{font-size:16px}.card .n{font-size:18px}}
+#hud .rgt{padding-right:52px}
+#runsummary{color:var(--bone);font-weight:700}

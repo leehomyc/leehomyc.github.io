@@ -218,7 +218,7 @@ function renderTitle(){
     b.innerHTML=`<b>${LL(u)}</b><span class="rk">${'●'.repeat(r)}${'○'.repeat(u.max-r)}</span><span class="dd">${L(u.d,u.de)}</span><span class="pr">${r>=u.max?L('已满','Max'):cost+' '+L('金','gold')}</span>`;
     b.onclick=()=>{if(SAVE.gold>=cost&&r<u.max){SAVE.gold-=cost;SAVE.up[u.id]=r+1;persist();renderTitle();SFX.complete()}};shop.appendChild(b)});
   $('#record').textContent=(SAVE.runs?L(`${SAVE.runs} 局 · 最长存活 ${fmt(SAVE.best||0)} · 单局最多首领 ${SAVE.bosses||0}`,`${SAVE.runs} runs · best ${fmt(SAVE.best||0)} · most bosses ${SAVE.bosses||0}`):'')+(SAVE.pk?L(` · 对决 ${SAVE.pk.w} 胜 ${SAVE.pk.l} 负 · 最高 ${SAVE.pkBest||0} 分`,` · PK ${SAVE.pk.w}W ${SAVE.pk.l}L · best ${SAVE.pkBest||0} pts`):'');
-  RIVAL_ON=(SAVE.mode==='pk');seedSim(null);document.querySelectorAll('#mode button').forEach(b=>b.classList.toggle('on',b.dataset.m===(SAVE.mode||'solo')));$('#modenote').textContent=RIVAL_ON?L(`对决:与 AI 对手争分 ${PK_LEN/60} 分钟,谁补刀谁拿全部分数`,`PK: a ${PK_LEN/60}-minute score race against an AI rival; the last hit takes all the points`):SAVE.mode==='daily'?L(`每日挑战 · 种子 ${dayKey()} · 普通难度 · 今天所有人面对同样的怪潮、宝箱与卡牌`,`Daily challenge · seed ${dayKey()} · Normal · everyone faces the same spawns, chests and cards today`)+(SAVE.daily&&SAVE.daily.day===dayKey()?L(` · 今日最佳 ${fmt(SAVE.daily.best)} / ${SAVE.daily.bosses} 首领`,` · today's best ${fmt(SAVE.daily.best)} / ${SAVE.daily.bosses} bosses`):''):L('单人:无尽模式,活得越久首领越多','Solo: endless; survive and slay bosses');
+  RIVAL_ON=(SAVE.mode==='pk');seedSim(null);document.querySelectorAll('#mode button').forEach(b=>b.classList.toggle('on',b.dataset.m===(SAVE.mode||'solo')));$('#modenote').textContent=RIVAL_ON?L(`对决:与 AI 对手争分 ${PK_LEN/60} 分钟,谁补刀谁拿全部分数`,`PK: a ${PK_LEN/60}-minute score race against an AI rival; the last hit takes all the points`):SAVE.mode==='daily'?L(`每日挑战 · 种子 ${dayKey()} · 普通难度 · 不计永久强化 · 今天所有人面对同样的怪潮、宝箱与卡牌 · ${resetIn()} 后刷新`,`Daily challenge · seed ${dayKey()} · Normal · no permanent upgrades · same spawns, chests and cards for everyone today · resets in ${resetIn()}`)+(SAVE.daily&&SAVE.daily.day===dayKey()?L(` · 今日最佳 ${fmt(SAVE.daily.best)} / ${SAVE.daily.bosses} 首领`,` · today's best ${fmt(SAVE.daily.best)} / ${SAVE.daily.bosses} bosses`):''):L('单人:无尽模式,活得越久首领越多','Solo: endless; survive and slay bosses');
   document.querySelectorAll('#qual button').forEach(b=>b.classList.toggle('on',b.dataset.q===QLEVEL));
   DIFFID=SAVE.mode==='daily'?'normal':(SAVE.diff||'normal');document.querySelectorAll('#diff button').forEach(b=>{b.classList.toggle('on',b.dataset.d===DIFFID);b.disabled=SAVE.mode==='daily'});$('#diff').classList.toggle('locked',SAVE.mode==='daily');
   const mp=$('#maps');mp.textContent='';for(const k in MAPS){const M=MAPS[k],locked=M.need&&!SAVE.ach[M.need],b=document.createElement('button');b.type='button';b.className='mapb'+(k===MAPID?' on':'')+(locked?' locked':'');b.disabled=locked;b.innerHTML=`<b>${LL(M)}</b><small>${locked?'🔒 '+L(ACH.find(a=>a.id===M.need).d,ACH.find(a=>a.id===M.need).de):L(M.en,M.zh)}</small>`;b.onclick=()=>{try{localStorage.setItem('sl_map',k)}catch(_){}b.innerHTML=`<b>${L('载入中…','Loading…')}</b>`;setTimeout(()=>location.reload(),60)};mp.appendChild(b)}
@@ -226,16 +226,21 @@ function renderTitle(){
   ACH.forEach(a=>{const d=document.createElement('div');d.className='achi'+(SAVE.ach[a.id]?' done':'');d.innerHTML=`<span class="tick">${SAVE.ach[a.id]?'✓':'○'}</span><b>${LL(a)}</b><span>${L(a.d,a.de)}</span><em>+${a.gold} 金</em>`;al.appendChild(d)});
 }
 /* daily challenge: one seed per calendar day, so every player faces the same spawns, waves, chests and cards */
-function dayKey(){const d=new Date();return d.getFullYear()*10000+(d.getMonth()+1)*100+d.getDate()}
+const RESET_TZ_OFFSET=8; // daily reset at midnight UTC+8 (Beijing / Hong Kong) for everyone
+function tzDate(ms){return new Date((ms===undefined?Date.now():ms)+RESET_TZ_OFFSET*3600000)}
+function dayKeyOf(d){return d.getUTCFullYear()*10000+(d.getUTCMonth()+1)*100+d.getUTCDate()}
+function dayKey(){return dayKeyOf(tzDate())}
+function yesterdayKey(){return dayKeyOf(tzDate(Date.now()-86400000))}
+function resetIn(){const d=tzDate();const s=86400-(d.getUTCHours()*3600+d.getUTCMinutes()*60+d.getUTCSeconds());return `${Math.floor(s/3600)}h ${Math.floor(s%3600/60)}m`}
 let DAILY=false;
 function startRun(){
   if($('#startbtn').disabled)return;
   CLASS=SAVE.cls;DIFFID=SAVE.diff||'normal';
-  DAILY=SAVE.mode==='daily';seedSim(DAILY?dayKey()*7919+1:null);
+  DAILY=SAVE.mode==='daily';if(DAILY)DIFFID='normal';seedSim(DAILY?dayKey()*7919+1:null);
   $('#title').hidden=true;$('#intro').hidden=true;$('#end').hidden=true;$('#cards').hidden=true;$('#hud').hidden=false;$('#bossbar').hidden=true;$('#pause').hidden=true;$('#char').hidden=true;
   $('#banner').classList.remove('on');$('#pausebtn').textContent='II';
   SAVE_FIRST=!SAVE.played;SAVE.played=true;persist();
-  newGame(false,CLASS);applyUpgrades(G.P);updateCores();drawSeals();drawRelics();
+  newGame(false,CLASS);if(!DAILY)applyUpgrades(G.P);G.day=dayKey();updateCores();drawSeals();drawRelics();
   showBanner(CLASSES[CLASS].zh+' 出山',CLASSES[CLASS].en+' sets out',2.2);
   SFX.start();SFX.setState('battle');
 }
@@ -245,7 +250,7 @@ function showEnd(ok){
   const gold=Math.round((G.kills*.45+G.lv*3+G.bossSlain*220+Math.floor(G.t/10)*2+G.goldRun*.7+G.comboMax)*(1+.15*(SAVE.up.gold||0))*(G.relics.includes('bowl')?1.3:1)*D().gold);
   const pk=RIVAL_ON&&G.rival,pkRes=pk?(G.score>G.rival.score?'win':G.score<G.rival.score?'lose':'tie'):null;const pkBonus=pkRes==='win'?200:pkRes==='tie'?80:0;
   if(pk){SAVE.pk=SAVE.pk||{w:0,l:0};if(pkRes==='win')SAVE.pk.w++;else if(pkRes==='lose')SAVE.pk.l++;SAVE.pkBest=Math.max(SAVE.pkBest||0,G.score)}
-  let dailyNew=false;if(DAILY){const dk=dayKey();if(!SAVE.daily||SAVE.daily.day!==dk)SAVE.daily={day:dk,best:0,bosses:0};if(G.t>SAVE.daily.best){SAVE.daily.best=G.t;SAVE.daily.bosses=G.bossSlain;dailyNew=true}}
+  let dailyNew=false;if(DAILY){const dk=G.day||dayKey();if(!SAVE.daily||SAVE.daily.day!==dk)SAVE.daily={day:dk,best:0,bosses:0};if(G.t>SAVE.daily.best){SAVE.daily.best=G.t;SAVE.daily.bosses=G.bossSlain;dailyNew=true}}
   const meta=typeof metaAfterRun==='function'?metaAfterRun():null;
   const record=!pk&&!G.abandoned&&G.t>(SAVE.best||0);SAVE.gold+=gold+pkBonus;SAVE.runs++;SAVE.wins+=G.bossSlain;SAVE.bosses=Math.max(SAVE.bosses||0,G.bossSlain);if(record)SAVE.best=G.t;persist();
   const rows=G.spells.slice().sort((a,b)=>b.dmg-a.dmg).map(s=>{const f=s.els.length===2?FUS[fusion(s)][1]:s.els[0]?ELS[s.els[0]].en:'';
@@ -297,7 +302,9 @@ let lobbyTab=(()=>{try{return localStorage.getItem('sl_tab')||''}catch(_){return
 function showTab(t){lobbyTab=t;try{localStorage.setItem('sl_tab',t)}catch(_){}document.querySelectorAll('.tabbar button[data-t]').forEach(b=>b.classList.toggle('on',b.dataset.t===t));document.querySelectorAll('.lobby .panel').forEach(p=>p.classList.toggle('on',p.dataset.p===t))}
 document.querySelectorAll('.tabbar button[data-t]').forEach(b=>b.onclick=()=>{showTab(lobbyTab===b.dataset.t?'':b.dataset.t);SFX.pick(1)});
 showTab(lobbyTab);
-function renderStatus(){const sb=$('#stickystart');if(sb){const C=CLASSES[SAVE.cls]||CLASSES.swordsman;sb.querySelector('small').textContent=`${LL(C)} · ${LL(SPELLS[weaponOf(SAVE.cls)])} · ${SAVE.mode==='pk'?L('对决','PK'):SAVE.mode==='daily'?L('每日','Daily'):L('单人','Solo')} · ${LL(DIFF[SAVE.mode==='daily'?'normal':(SAVE.diff||'normal')])}`}
+function runSummary(){const C=CLASSES[SAVE.cls]||CLASSES.swordsman;return `${LL(C)} · ${LL(SPELLS[weaponOf(SAVE.cls)])} · ${SAVE.mode==='pk'?L('对决','PK'):SAVE.mode==='daily'?L('每日','Daily'):L('单人','Solo')} · ${LL(DIFF[SAVE.mode==='daily'?'normal':(SAVE.diff||'normal')])} · ${LL(MAPS[MAPID])}`}
+function renderStatus(){const sb=$('#stickystart');if(sb)sb.querySelector('small').textContent=runSummary();const rs=$('#runsummary');if(rs)rs.textContent=runSummary();
+  document.querySelectorAll('#mode button,#diff button,#qual button,.langbtn,.tabbar button[data-t],.cls,.wp,.mapb').forEach(b=>b.setAttribute('aria-pressed',b.classList.contains('on')||b.classList.contains('sel')?'true':'false'));
   const el=$('#status');if(!el)return;const a=typeof accountLv==='function'?accountLv():{lv:1};const t=typeof titleFor==='function'?titleFor(a.lv):['','',''];el.textContent=`${typeof CLOUD!=='undefined'?CLOUD.label():''} · Lv ${a.lv} ${L(t[1],t[2])} · ${SAVE.gold} ${L('金','gold')}`}
 
 $('#stickybtn').onclick=startRun;

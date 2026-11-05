@@ -457,7 +457,7 @@ function buildCards(q){
   if(q.kind==='infuse'||q.kind==='fuse'){
     const s=q.s,opts=Object.keys(ELS).filter(k=>!s.els.includes(k)).sort(()=>SIMR()-.5).slice(0,3);
     return opts.map(k=>{const el=ELS[k];
-      if(q.kind==='infuse'||!s.els.length)return {g:SPELLS[s.id].g,badge:el.g,c:el.col,skill:s.id,n:L(`${SPELLS[s.id].zh} 灌注 ${el.zh}`,`${SPELLS[s.id].en} + ${el.en}`),sub:L('灌注真气','infuse an element'),fx:L(el.d,el.de),fxEn:'',cat:'element',kind:'element',a(){s.els.push(k)}};
+      if(q.kind==='infuse'||!s.els.length)return {g:SPELLS[s.id].g,badge:el.g,c:el.col,skill:s.id,n:L(`${SPELLS[s.id].zh} 灌注 ${el.zh}`,`${SPELLS[s.id].en} + ${el.en}`),sub:'',fx:L(el.d,el.de),fxEn:'',cat:'element',kind:'element',a(){s.els.push(k)}};
       const f=FUS[fusKey(s.els[0],k)]||[el.zh,el.en,el.d,el.de];
       return {g:SPELLS[s.id].g,badge:el.g,c:el.col,skill:s.id,n:L(`${SPELLS[s.id].zh} 融合 ${f[0]}`,`${SPELLS[s.id].en}: ${f[1]}`),sub:L(`${ELS[s.els[0]].zh} + ${el.zh}`,`${ELS[s.els[0]].en} + ${el.en}`),fx:L(f[2],f[3])+L(' · 伤害 +25%',' · damage +25%'),fxEn:'',cat:'element',kind:'fusion',a(){s.els.push(k)}};
     });
@@ -465,7 +465,7 @@ function buildCards(q){
   if(q.kind==='aug'){
     const opts=[];for(const s of G.spells)for(const k in AUGS)if(AUGS[k].for.includes(s.id)&&!s.augs.includes(k))opts.push([s,k]);
     opts.sort(()=>SIMR()-.5);
-    return opts.slice(0,3).map(([s,k])=>{const a=AUGS[k],m=SPELLS[s.id];return {g:m.g,badge:a.g,c:m.col,skill:s.id,n:L(`${m.zh} · ${a.zh}`,`${m.en} · ${a.en}`),sub:L('强化','augment'),fx:L(a.d,a.de),fxEn:'',cat:'augment',kind:'augment',a(){s.augs.push(k)}}});
+    return opts.slice(0,3).map(([s,k])=>{const a=AUGS[k],m=SPELLS[s.id];return {g:m.g,badge:a.g,c:m.col,skill:s.id,n:L(`${m.zh} · ${a.zh}`,`${m.en} · ${a.en}`),sub:'',fx:L(a.d,a.de),fxEn:'',cat:'augment',kind:'augment',a(){s.augs.push(k)}}});
   }
   const pool=[],handQ=rollRarity(); // one rarity per hand, so the three offers are comparable
   G.spells.filter(s=>s.lv<40).forEach(s=>{pool.push(spellCard(s,handQ),spellCard(s,handQ))});
@@ -473,7 +473,7 @@ function buildCards(q){
     const card={g:m.g,c:m.col,skill:k,n:LL(m),sub:L(`按键 ${SPELL_KEYS[G.spells.length]} · ${m.cost} 内力 · 冷却 ${m.cd}s`,`key ${SPELL_KEYS[G.spells.length]} · ${m.cost} qi · ${m.cd}s cooldown`),fx:L(m.d,m.de),fxEn:'',cat:SKILL_CAT[k],isNew:1,kind:'new',a(){G.spells.push(mkSpell(k));taken(SKILL_CAT[k],2)}};pool.push(card,card)});
   G.spells.forEach(s=>(TREES[s.id]||[]).forEach((n,i)=>{if(nodeOpen(s,i))pool.push(nodeCard(s,i,handQ))}));
   const P=G.P,perkNow={锋锐:()=>L('伤害','damage')+` ×${(P.dmg*(1+P.dmgBonus)).toFixed(2)}`,金钟罩:()=>L('减伤','damage taken')+` ${Math.round((1-P.def)*100)}%`,轻身:()=>L('移速','speed')+` ×${P.spd.toFixed(2)}`,内息:()=>L('内力','qi')+` ${P.maxMana} · +${P.regen.toFixed(1)}/s`,生息:()=>L('生命','HP')+` ${P.maxHp}`,摄物:()=>L('拾取','pickup')+` ×${P.mag.toFixed(2)}`,疾风:()=>L('冷却','cooldown')+` ×${(1/P.haste).toFixed(2)}`,致命:()=>L('暴击','crit')+` ${Math.round(P.crit*100)}%`};
-  PERKS.forEach(p=>{const q=handQ,times=(q.k==='common'?1:q.k==='rare'?2:q.k==='epic'?3:4)*(p.zh==='致命'&&q.k==='legendary'?.75:1)|0||1;pool.push({g:p.g,c:'#efe4cd',n:LL(p)+(times>1?` ×${times}`:''),sub:L('心法','passive'),fx:L(p.d,p.de)+(times>1?` ×${times}`:''),fxEn:L('现在','now')+' '+perkNow[p.zh](),q,cat:PERK_CAT[p.zh]||'passive',kind:'passive',a(){for(let i=0;i<times;i++)p.a(G.P);taken(PERK_CAT[p.zh]||'passive',times)}})});
+  PERKS.forEach(p=>{const q=handQ,times=(q.k==='common'?1:q.k==='rare'?2:q.k==='epic'?3:4)*(p.zh==='致命'&&q.k==='legendary'?.75:1)|0||1;pool.push({g:p.g,c:'#efe4cd',n:LL(p)+(times>1?` ×${times}`:''),sub:'',fx:L(p.d,p.de)+(times>1?` ×${times}`:''),fxEn:L('现在:','Now: ')+perkNow[p.zh](),q,cat:PERK_CAT[p.zh]||'passive',kind:'passive',a(){for(let i=0;i<times;i++)p.a(G.P);taken(PERK_CAT[p.zh]||'passive',times)}})});
   const out=[];const used=new Set(q.exclude||[]);
   const isNew=pool.filter(p=>p.isNew);
   if(isNew.length&&[3,6,10].includes(G.lv)){const opts=isNew.filter((c,i,a)=>a.findIndex(o=>o.n===c.n)===i).sort(()=>SIMR()-.5).slice(0,2);opts.forEach(nc=>{out.push(nc);used.add(nc.n)})}

@@ -94,8 +94,8 @@ const CLB={
   },
   async submit(run){
     if(!CLOUD.on())return {ok:false,error:'disabled'};
-    const doc={name:String(run.name||'无名侠客').slice(0,16),cls:run.cls,map:run.map,diff:run.diff,mode:run.mode||'solo',time:Math.round(run.time),kills:Math.round(run.kills),bosses:Math.round(run.bosses),level:Math.round(run.level),combo:Math.round(run.combo),relics:Math.round(run.relics),score:Math.round(run.score||0),day:dayKey(),uid:CLOUD.uid(),ts:firebase.firestore.FieldValue.serverTimestamp()};
-    try{await CLOUD.db.collection('runs').add(doc);await CLOUD.db.collection('days').doc(String(dayKey())).collection('runs').add(doc);return {ok:true}}
+    const doc={name:String(run.name||'无名侠客').slice(0,16),cls:run.cls,map:run.map,diff:run.diff,mode:run.mode||'solo',time:Math.round(run.time),kills:Math.round(run.kills),bosses:Math.round(run.bosses),level:Math.round(run.level),combo:Math.round(run.combo),relics:Math.round(run.relics),score:Math.round(run.score||0),day:run.day||dayKey(),uid:CLOUD.uid(),ts:firebase.firestore.FieldValue.serverTimestamp()};
+    try{await CLOUD.db.collection('runs').add(doc);await CLOUD.db.collection('days').doc(String(doc.day)).collection('runs').add(doc);return {ok:true}}
     catch(e){console.warn('submit failed',e);return {ok:false,error:e.code==='permission-denied'?'implausible':'network'}}
   }
 };
