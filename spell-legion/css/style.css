@@ -495,3 +495,7 @@ html[lang=en] .zh{display:none!important}html[lang=zh] .en{display:none!importan
   #reroll{padding:8px 18px;font-size:14px}
 }
 @media (max-width:760px) and (max-height:700px){#cards h2{font-size:20px}#cards h2 small{display:inline;margin-left:6px}.card .fxe{display:none}#build{display:none}}
+
+#build{flex-wrap:nowrap;overflow:hidden;justify-content:center}#build:empty{display:none}
+#cardtip{flex:0 1 auto;max-width:min(100%,760px)}#cardtip[hidden]{display:none}
+@media (max-width:760px){#build{gap:4px}.bs{flex:0 1 auto}#cardtip{font-size:11px}}

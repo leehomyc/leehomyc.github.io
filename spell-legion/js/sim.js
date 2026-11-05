@@ -86,7 +86,9 @@ function takeRelic(id){const R=RELICS[id],P=G.P;if(hasR(id)){G.goldRun+=40;showB
   showBanner(`法宝:${R.zh}`,`${R.en} · ${R.de}`,2);trauma(.2);G.flash=Math.max(G.flash,.25);if(typeof SFX!=='undefined')SFX.chest();if(typeof drawSeals==='function')drawSeals();if(typeof drawRelics==='function')drawRelics()}
 /* ---------- feel ---------- */
 function trauma(n,dx,dy){G.trauma=Math.min(1,G.trauma+n);if(dx!==undefined){G.shX+=dx*n*40;G.shY+=dy*n*40}}
-function hitStop(t){G.hitStop=Math.max(G.hitStop,t*(typeof SHAKE!=='undefined'&&SHAKE==='off'?.5:SHAKE==='high'?1:.75))}
+function hitStop(t){const mode=typeof SHAKE!=='undefined'?SHAKE:'low';if(mode==='off'||G.auto)return; // 关: the game never freezes
+  if(mode==='low'){if(G.t-(G.lastStop||0)<.3)return;G.lastStop=G.t;t=Math.min(t,.035)*.7} // 弱: at most one short freeze every 0.3 s
+  G.hitStop=Math.max(G.hitStop,t)}
 function shock(x,y,R,str,T=.45){if(G.shocks.length>=3)G.shocks.shift();G.shocks.push({x,y,t:0,T,R,str})}
 
 /* ---------- spatial ---------- */
@@ -120,7 +122,7 @@ function hit(e,d,s,noEl,col,kx=0,ky=0){
   const kk=e.type==='boss'?.12:e.type==='giant'?.4:e.type==='statue'?0:1;
   e.kx=(e.kx||0)+kx*kk;e.ky=(e.ky||0)+ky*kk;
   if(!rv&&G.floats.length<40&&(crit||m>=Math.max(18,e.maxHp*.25)))G.floats.push({x:e.x+rnd(-4,4),y:e.y-e.r-3,t:.6,v:Math.round(m),c:crit?'#ffd75a':(col||'#efe4cd'),crit});
-  if(crit&&!rv){hitStop(.045);trauma(.1,kx,ky);if(G.fx.length<640)G.fx.push({k:'crit',x:e.x,y:e.y,t:.22,T:.22})}
+  if(crit&&!rv){if(typeof SHAKE!=='undefined'&&SHAKE==='high')hitStop(.045);trauma(.1,kx,ky);if(G.fx.length<640)G.fx.push({k:'crit',x:e.x,y:e.y,t:.22,T:.22})}
   if(s&&!noEl&&s.els.length)applyEls(e,m,s);
   if(s&&has(s,'dark')&&e.type!=='boss'&&e.type!=='statue'&&e.hp>0&&e.hp<e.maxHp*.12)e.hp=0;
   if(typeof SFX!=='undefined')SFX.hit(e.type==='boss'||e.type==='giant'?1:0,crit);

@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>魔咒军团</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=ZCOOL+XiaoWei&family=Alegreya+Sans:wght@400;700;800&display=swap">
-<link rel="stylesheet" href="css/style.css?v=202611052358">
+<link rel="stylesheet" href="css/style.css?v=202611060001">
 <script src="vendor/three.min.js"></script>
 <script src="vendor/CopyShader.js"></script>
 <script src="vendor/LuminosityHighPassShader.js"></script>
@@ -95,7 +95,7 @@
       <div id="stickystart"><button type="button" class="go" id="stickybtn"><span class="zh">出山</span><span class="en">Start</span></button><small></small></div>
     </div>
   </div>
-  <div id="cards" class="overlay" hidden><h2 id="cardtitle"></h2><div id="build"></div><div id="cardrow"></div><button type="button" class="go alt" id="reroll" hidden><span class="zh">重抽</span><span class="en">Reroll</span></button></div>
+  <div id="cards" class="overlay" hidden><h2 id="cardtitle"></h2><div id="build"></div><div id="cardrow"></div><div id="cardtip" class="badv" hidden></div><button type="button" class="go alt" id="reroll" hidden><span class="zh">重抽</span><span class="en">Reroll</span></button></div>
   <div id="pause" class="overlay" hidden><div class="pbox"><h2><span class="zh">暂停</span><span class="en">Paused</span></h2><button class="go" id="resumebtn"><span class="zh">继续</span><span class="en">Resume</span></button><button class="go alt" id="autobtn"></button><button class="go alt" id="mutebtn"></button><button class="go alt" id="quitbtn"><span class="zh">放弃本局</span><span class="en">Abandon run</span></button><p><span class="zh">1/2/3 武学 · Space 轻功 · P 继续 · M 静音</span><span class="en">1/2/3 skills · Space dash · P resume · M mute</span></p></div></div>
   <div id="char" class="overlay" hidden><div class="cbox">
     <div class="ch"><h2><span class="zh">角色</span><span class="en">Hero</span></h2><div class="pts"><span><span class="zh">已学武学树节点</span><span class="en">Tree upgrades taken</span> <b id="sp">0</b></span></div><button type="button" id="charclose"><span class="zh">关闭 C</span><span class="en">Close C</span></button></div>
@@ -105,21 +105,21 @@
   <div id="lb" class="overlay" hidden><div class="cbox"><div class="ch"><h2><span class="zh">排行榜</span><span class="en">Leaderboard</span> <small><span class="zh">最长存活</span><span class="en">longest survival</span></small></h2><div class="tabs" id="lbtabs"><button type="button" data-b="all" class="on"><span class="zh">总榜</span><span class="en">All time</span></button><button type="button" data-b="today"><span class="zh">今日</span><span class="en">Today</span></button></div><button type="button" id="lbclose"><span class="zh">关闭</span><span class="en">Close</span></button></div><div id="lbbody"></div></div></div>
   <div id="end" class="overlay" hidden><div class="endb" id="endb"></div></div>
 </div>
-<script src="js/core.js?v=202611052358"></script>
-<script src="js/content.js?v=202611052358"></script>
-<script src="js/icons.js?v=202611052358"></script>
-<script src="js/audio.js?v=202611052358"></script>
-<script src="js/gfx.js?v=202611052358"></script>
-<script src="js/sim.js?v=202611052358"></script>
-<script src="js/render.js?v=202611052358"></script>
-<script src="js/leaderboard.js?v=202611052358"></script>
-<script src="js/cloud.js?v=202611052358"></script>
-<script src="js/net.js?v=202611052358"></script>
-<script src="js/room.js?v=202611052358"></script>
-<script src="js/meta.js?v=202611052358"></script>
-<script src="js/ui.js?v=202611052358"></script>
-<script src="js/lobby.js?v=202611052358"></script>
-<script src="js/main.js?v=202611052358"></script>
+<script src="js/core.js?v=202611060001"></script>
+<script src="js/content.js?v=202611060001"></script>
+<script src="js/icons.js?v=202611060001"></script>
+<script src="js/audio.js?v=202611060001"></script>
+<script src="js/gfx.js?v=202611060001"></script>
+<script src="js/sim.js?v=202611060001"></script>
+<script src="js/render.js?v=202611060001"></script>
+<script src="js/leaderboard.js?v=202611060001"></script>
+<script src="js/cloud.js?v=202611060001"></script>
+<script src="js/net.js?v=202611060001"></script>
+<script src="js/room.js?v=202611060001"></script>
+<script src="js/meta.js?v=202611060001"></script>
+<script src="js/ui.js?v=202611060001"></script>
+<script src="js/lobby.js?v=202611060001"></script>
+<script src="js/main.js?v=202611060001"></script>
 <!--/PAGE-->
 </body>
 </html>
