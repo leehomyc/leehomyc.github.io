@@ -330,3 +330,7 @@ kbd{font:700 13px var(--ui);border:1px solid var(--dim);padding:0 5px;border-rad
 #seals.auto .seal:not(.main):not(.empty):not(.dash) .key::after{content:' 自动';color:#8fd8ff}
 .bs.hl{outline:2px solid var(--c);box-shadow:0 0 16px var(--c);transform:translateY(-2px)}.bs{transition:transform .15s,box-shadow .15s}
 .killed{background:#2a0f14cc;border:1px solid #ff6a6a66;border-radius:8px;padding:8px 12px;margin:6px 0;text-align:center}.killed b{color:#ff8a8a;font-size:14px}.killed .srcs{display:flex;gap:6px 14px;flex-wrap:wrap;justify-content:center;font-size:12px;color:var(--bone);margin-top:4px}.killed .srcs small{color:var(--dim)}
+/* account row */
+#account{display:flex;gap:10px;align-items:center;flex-wrap:wrap;background:#140b12d9;border:1px solid #6b523066;border-radius:10px;padding:8px 12px;margin-bottom:8px;font-size:13px}
+#account .who{font-weight:800;display:flex;align-items:center;gap:6px}#account .dot{width:8px;height:8px;border-radius:50%;background:#6b5230;display:inline-block}#account .dot.on{background:#7dffb0;box-shadow:0 0 8px #7dffb0}
+#account small{flex:1 1 100%;font-size:11px;color:var(--dim)}#account .note{font-size:11px;color:#7dffb0}

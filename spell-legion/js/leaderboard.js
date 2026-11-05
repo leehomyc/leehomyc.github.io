@@ -5,14 +5,17 @@ const LB={
   token(){let t=null;try{t=localStorage.getItem('sl_token');if(!t){t=Array.from(crypto.getRandomValues(new Uint8Array(12)),b=>b.toString(16).padStart(2,'0')).join('');localStorage.setItem('sl_token',t)}}catch(_){t=t||'anon'}return t},
   name(){try{return localStorage.getItem('sl_name')||''}catch(_){return ''}},
   setName(n){try{localStorage.setItem('sl_name',n)}catch(_){}},
-  enabled(){return !!LEADERBOARD_URL},
+  cloud(){return typeof CLOUD!=='undefined'&&CLOUD.on()},
+  enabled(){return this.cloud()||!!LEADERBOARD_URL},
   async fetch(board,filters={}){
+    if(this.cloud())return CLB.fetch(board,filters);
     if(!LEADERBOARD_URL)return null;
     const q=new URLSearchParams({board,token:this.token(),...filters});
     const r=await fetch(LEADERBOARD_URL+'?'+q.toString(),{method:'GET'});
     return r.json();
   },
   async submit(run){
+    if(this.cloud())return CLB.submit(run);
     if(!LEADERBOARD_URL)return {ok:false,error:'disabled'};
     const body=JSON.stringify({...run,token:this.token(),trap:''});
     const r=await fetch(LEADERBOARD_URL+'?ua='+encodeURIComponent((navigator.userAgent||'').slice(0,60)),{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body});
@@ -27,8 +30,8 @@ function renderBoard(el,data,opts={}){
   const t=document.createElement('table');t.className='lbt';
   t.innerHTML='<thead><tr><th>#</th><th>侠客 Hero</th><th>存活 Time</th><th>首领</th><th>击杀</th><th>连斩</th><th>地图 · 难度</th></tr></thead>';
   const tb=document.createElement('tbody');
-  data.rows.forEach((r,i)=>{const tr=document.createElement('tr');if(opts.me&&r.name===opts.me)tr.className='me';
-    const cells=[String(i+1),'',fmt(r.time),String(r.bosses),String(r.kills),'×'+r.combo,`${mapZh(r.map)} · ${diffZh(r.diff)}`];
+  data.rows.forEach((r,i)=>{const tr=document.createElement('tr');if((opts.uid&&r.uid===opts.uid)||(!opts.uid&&opts.me&&r.name===opts.me))tr.className='me';
+    const cells=[String(i+1),'',fmt(r.time),String(r.bosses),String(r.kills),'×'+r.combo,`${mapZh(r.map)} · ${diffZh(r.diff)}${r.mode&&r.mode!=='solo'?' · '+(r.mode==='pk'?'对决':'每日'):''}`];
     cells.forEach((v,j)=>{const td=document.createElement('td');if(j===1){const b=document.createElement('b');b.textContent=r.name;const s=document.createElement('small');s.textContent=' '+clsZh(r.cls);td.appendChild(b);td.appendChild(s)}else td.textContent=v;tr.appendChild(td)});
     tb.appendChild(tr)});
   t.appendChild(tb);el.appendChild(t);
@@ -38,7 +41,7 @@ let lbBoard='all';
 async function openLeaderboard(){
   const ov=$('#lb');ov.hidden=false;$('#lbbody').innerHTML='<p class="lbnote">载入中… Loading…</p>';
   document.querySelectorAll('#lbtabs button').forEach(b=>b.classList.toggle('on',b.dataset.b===lbBoard));
-  try{const d=await LB.fetch(lbBoard);renderBoard($('#lbbody'),d,{me:LB.name()})}catch(e){renderBoard($('#lbbody'),null)}
+  try{const d=await LB.fetch(lbBoard);renderBoard($('#lbbody'),d,{me:LB.name(),uid:LB.cloud()?CLOUD.uid():null})}catch(e){renderBoard($('#lbbody'),null)}
 }
 function wireLeaderboard(){
   const on=LB.enabled();$('#lbbtn').hidden=!on;
@@ -55,7 +58,7 @@ async function submitRun(container){
   const inp=$('#lbname');inp.value=saved;
   $('#lbsend').onclick=async()=>{
     const name=(inp.value||'').trim().slice(0,16)||'无名侠客';LB.setName(name);$('#lbsend').disabled=true;$('#lbmsg').textContent='提交中… Sending…';
-    try{const r=await LB.submit({name,cls:G.cls,map:MAPID,diff:DIFFID,mode:SAVE.mode||'solo',time:Math.round(G.t),kills:G.kills,bosses:G.bossSlain,level:G.lv,combo:G.comboMax,relics:G.relics.length});
+    try{const r=await LB.submit({name,cls:G.cls,map:MAPID,diff:DIFFID,mode:SAVE.mode||'solo',score:G.score||0,time:Math.round(G.t),kills:G.kills,bosses:G.bossSlain,level:G.lv,combo:G.comboMax,relics:G.relics.length});
       if(r.ok){$('#lbmsg').textContent='已上榜! On the board.';const d=await LB.fetch('all');const el=document.createElement('div');el.className='lbinline';renderBoard(el,d,{me:name});box.appendChild(el)}
       else{$('#lbmsg').textContent=r.error==='rate'?'请稍后再试。 Try again in a moment.':'未能提交。 Not accepted.';$('#lbsend').disabled=false}}
     catch(e){$('#lbmsg').textContent='网络错误。 Network error.';$('#lbsend').disabled=false}

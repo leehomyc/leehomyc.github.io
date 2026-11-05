@@ -19,7 +19,7 @@ function frame(now){
 function boot(){
   DPR=Math.min(devicePixelRatio||1,PHONE?1.2:1.5);
   const startLabel=$('#startbtn').textContent;$('#startbtn').disabled=true;$('#startbtn').textContent='载入中 Loading';
-  CLASS=SAVE.cls;renderTitle();
+  CLASS=SAVE.cls;renderTitle();if(typeof cloudInit==='function')cloudInit();
   setTimeout(()=>{
     try{initGfx();resize();newGame(true,SAVE.cls);demoBoost();requestAnimationFrame(frame);$('#startbtn').disabled=false;$('#startbtn').textContent=startLabel}
     catch(err){console.error(err);$('#loadnote').textContent='This game needs WebGL. Open it in a recent desktop browser with hardware acceleration turned on.';$('#startbtn').textContent='无法运行 Unavailable'}
