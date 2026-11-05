@@ -97,7 +97,7 @@ function hit(e,d,s,noEl,col,kx=0,ky=0){
   const P=G.P,rv=s&&s.owner==='rival',O=rv?G.rival:P;let m=d*O.dmg*(1+(O.dmgBonus||0))*(e.shred>0?1.25:1)*(!rv&&P.buff&&P.buff.k==='dmg'?1.3:1);
   const crit=Math.random()<O.crit+(s?NODE_FX.crit*nd(s,'crit'):0);if(crit)m*=2;
   if(s&&!rv){const lf=nd(s,'life');if(lf)heal(m*NODE_FX.life*lf);const ch=nd(s,'chain');if(ch&&Math.random()<NODE_FX.chain*ch&&!noEl)arc(e,m*.35,s,1)}
-  if(!rv&&P.frenzy>0){e.hp-=m*.4;if(s)s.dmg+=m*.4;heal(m*.05)}
+  if(!rv&&P.frenzy>0){e.hp-=m*.4;if(s)s.dmg+=m*.4;heal(m*.03)}
   if(!rv){if(hasR('jade'))heal(m*.03);if(hasR('pearl')&&!noEl&&Math.random()<.12)arc(e,m*.4,s||G.spells[0],1);if(hasR('iron'))e.slow=Math.max(e.slow||0,.6);if(hasR('blood')&&P.hp<P.maxHp*.5){e.hp-=m*.25;if(s)s.dmg+=m*.25}}
   e.hp-=m;e.flash=.08;if(s)s.dmg+=m;if(rv)G.rival.dmgDealt+=m;
   const kk=e.type==='boss'?.12:e.type==='giant'?.4:e.type==='statue'?0:1;
@@ -239,7 +239,7 @@ function autoFire(s){ // the normal attack of each class
   }else if(s.id==='slash'){
     const t=nearest(P.x,P.y,70,true);if(!t)return false;
     const fn=()=>{const tt=t.dead?nearest(P.x,P.y,80,true):t;if(!tt)return;const a=Math.atan2(tt.y-P.y,tt.x-P.x),n=7+Math.floor(s.lv/4)+st.n*2;P.dx=Math.cos(a);P.dy=Math.sin(a);P.yaw0=Math.atan2(P.dx,P.dy);
-      for(let i=0;i<n;i++)shoot(P.x+Math.cos(a)*6,P.y+Math.sin(a)*6-6,a+(i-(n-1)/2)*.19,s,19*st.m,{v:330*st.size,life:.17*st.size,pierce:99,r:6*st.size,knock:120*st.knock});
+      for(let i=0;i<n;i++)shoot(P.x+Math.cos(a)*6,P.y+Math.sin(a)*6-6,a+(i-(n-1)/2)*.19,s,16*st.m,{v:330*st.size,life:.17*st.size,pierce:99,r:6*st.size,knock:120*st.knock});
       G.fx.push({k:'wave',x:P.x,y:P.y,a,t:.22,T:.22,c:s.els[0]?ELS[s.els[0]].col:SPELLS.slash.col,w:1.2});P.cast=1;trauma(.08,-Math.cos(a),-Math.sin(a));if(typeof SFX!=='undefined')SFX.slash()};
     fn();if(st.burst)later(.11,fn);s.cd=.46*st.cdM;
   }
@@ -300,7 +300,7 @@ function orbits(dt){
   for(const s of G.spells){
     if(s.id==='frenzy'&&s.active>0){s.active-=dt;P.frenzy=s.active;if(s.active<=0)P.frenzy=0;continue}
     if(s.id==='guangling'&&s.active>0){s.active-=dt;s.tk-=dt;const st=stat(s);if(s.tk<=0){s.tk=.25;const R=120*st.size;near(P.x,P.y,R+12,e=>{if(hyp(e.x-P.x,e.y-P.y)<R+e.r){hit(e,4*st.m,s,false,undefined,0,0);e.slow=Math.max(e.slow||0,.6)}});heal(1+nd(s,'life')*1.5)}continue}
-    if(s.id==='whirl'&&s.active>0){s.active-=dt;s.tk-=dt;const st=stat(s);if(s.tk<=0){s.tk=.11;const R=52*(st.gi?1.25:1)*st.size;near(P.x,P.y,R+12,e=>{const dx=e.x-P.x,dy=e.y-P.y,d=hyp(dx,dy)||1;if(d<R+e.r){const tx=-dy/d,ty=dx/d;hit(e,7*st.m,s,false,undefined,tx*90+dx/d*60,ty*90+dy/d*60)}});if(typeof SFX!=='undefined')SFX.whirlTick()}continue}
+    if(s.id==='whirl'&&s.active>0){s.active-=dt;s.tk-=dt;const st=stat(s);if(s.tk<=0){s.tk=.11;const R=52*(st.gi?1.25:1)*st.size;near(P.x,P.y,R+12,e=>{const dx=e.x-P.x,dy=e.y-P.y,d=hyp(dx,dy)||1;if(d<R+e.r){const tx=-dy/d,ty=dx/d;hit(e,5.5*st.m,s,false,undefined,tx*90+dx/d*60,ty*90+dy/d*60)}});if(typeof SFX!=='undefined')SFX.whirlTick()}continue}
     if((s.id!=='array'&&s.id!=='bagua')||s.active<=0)continue;
     s.active-=dt;
     const st=stat(s),extra=s.augs.includes('extra'),bg=s.id==='bagua',n=(bg?2:3)+Math.floor(s.lv/3)+(extra?2:0)+st.n,R=(bg?58:38+s.lv*.8)*(st.gi?1.25:1)*st.size,sz=st.gi?8:6;
@@ -398,7 +398,8 @@ function levelUp(s,n){for(let i=0;i<n;i++){s.lv++;if(s.lv===7)G.picks.unshift({k
 function spellCard(s,q){const m=SPELLS[s.id],next=s.lv+1,lv=q.k==='common'?1:q.k==='rare'?2:q.k==='epic'?3:5;
   const now=stat(s),after=stat({...s,lv:s.lv+lv}),cdNow=m.auto?null:(m.cd*now.cdM/G.P.haste),cdAfter=m.auto?null:(m.cd*after.cdM/G.P.haste);
   const nums=[`伤害 ×${now.m.toFixed(2)} → ×${after.m.toFixed(2)}`,cdNow?`冷却 ${cdNow.toFixed(1)}s → ${cdAfter.toFixed(1)}s`:'',(next<=7&&s.lv+lv>=7&&!s.els.length)?'→ 可灌注真气 Infuse element':'',(s.lv+lv>=14&&s.els.length===1)?'→ 可融合 Fusion':''].filter(Boolean).join(' · ');
-  return {g:m.g,c:m.col,n:m.zh,e:`${m.en} · Lv ${s.lv} → ${s.lv+lv}`,d:(lv>1?`+${lv} 级! · `:'')+nums,de:m.auto?'Normal attack':'',q,cat:SKILL_CAT[s.id],lvNow:s.lv,a(){levelUp(s,lv)}}}
+  return {g:m.g,c:m.col,n:m.zh,e:`${m.en} · Lv ${s.lv} → ${s.lv+lv}`,d:(lv>1?`+${lv} 级! · `:'')+nums,de:m.auto?'Normal attack':'',q,cat:SKILL_CAT[s.id],lvNow:s.lv,a(){levelUp(s,lv);taken(SKILL_CAT[s.id],lv)}}}
+function taken(cat,n){G.taken=G.taken||{};G.taken[cat]=(G.taken[cat]||0)+(n||1)}
 function buildCards(q){
   if(q.kind==='infuse'||q.kind==='fuse'){
     const s=q.s,opts=Object.keys(ELS).filter(k=>!s.els.includes(k)).sort(()=>Math.random()-.5).slice(0,3);
@@ -416,10 +417,10 @@ function buildCards(q){
   const pool=[];
   G.spells.filter(s=>s.lv<40).forEach(s=>{const q=rollRarity();pool.push(spellCard(s,q),spellCard(s,q))});
   if(G.spells.length<4&&G.lv>=3)CLASSES[G.cls].skills.filter(k=>!G.spells.some(s=>s.id===k)).forEach(k=>{const m=SPELLS[k];
-    const card={g:m.g,c:m.col,n:m.zh,e:`新武学 New skill · ${m.en} · 键 ${SPELL_KEYS[G.spells.length]} · ${m.cost} 内力 · ${m.cd}s`,d:m.d,de:m.de,cat:SKILL_CAT[k],isNew:1,a(){G.spells.push(mkSpell(k))}};pool.push(card,card)});
+    const card={g:m.g,c:m.col,n:m.zh,e:`新武学 New skill · ${m.en} · 键 ${SPELL_KEYS[G.spells.length]} · ${m.cost} 内力 · ${m.cd}s`,d:m.d,de:m.de,cat:SKILL_CAT[k],isNew:1,a(){G.spells.push(mkSpell(k));taken(SKILL_CAT[k],2)}};pool.push(card,card)});
   G.spells.forEach(s=>(TREES[s.id]||[]).forEach((n,i)=>{if(nodeOpen(s,i))pool.push(nodeCard(s,i))}));
   const P=G.P,perkNow={锋锐:()=>`伤害 ×${(P.dmg*(1+P.dmgBonus)).toFixed(2)}`,金钟罩:()=>`减伤 ${Math.round((1-P.def)*100)}%`,轻身:()=>`移速 ×${P.spd.toFixed(2)}`,内息:()=>`内力 ${P.maxMana} · 回复 ${P.regen.toFixed(1)}/s`,生息:()=>`生命 ${P.maxHp}`,摄物:()=>`拾取 ×${P.mag.toFixed(2)}`,疾风:()=>`冷却 ×${(1/P.haste).toFixed(2)}`,致命:()=>`暴击 ${Math.round(P.crit*100)}%`};
-  PERKS.forEach(p=>{const q=rollRarity(),times=q.k==='common'?1:q.k==='rare'?2:q.k==='epic'?3:5;pool.push({g:p.g,c:'#efe4cd',n:p.zh,e:p.en+(times>1?` ×${times}`:''),d:p.d+(times>1?` ×${times}`:'')+' · 现在 '+perkNow[p.zh](),de:p.de,q,cat:PERK_CAT[p.zh]||'passive',a(){for(let i=0;i<times;i++)p.a(G.P)}})});
+  PERKS.forEach(p=>{const q=rollRarity(),times=q.k==='common'?1:q.k==='rare'?2:q.k==='epic'?3:5;pool.push({g:p.g,c:'#efe4cd',n:p.zh,e:p.en+(times>1?` ×${times}`:''),d:p.d+(times>1?` ×${times}`:'')+' · 现在 '+perkNow[p.zh](),de:p.de,q,cat:PERK_CAT[p.zh]||'passive',a(){for(let i=0;i<times;i++)p.a(G.P);taken(PERK_CAT[p.zh]||'passive',times)}})});
   const out=[];const used=new Set();
   const isNew=pool.filter(p=>p.e.startsWith('新武学'));
   if(isNew.length&&[3,6,10].includes(G.lv)){const opts=isNew.filter((c,i,a)=>a.findIndex(o=>o.n===c.n)===i).sort(()=>Math.random()-.5).slice(0,2);opts.forEach(nc=>{out.push(nc);used.add(nc.n)})}
@@ -638,4 +639,15 @@ function demoBoost(){
   const g=G,C=CLASSES[g.cls],E=['lightning','fire','ice','acid'];g.spells=[C.main,...C.skills.slice(0,3)].map((id,i)=>({...mkSpell(id),lv:i?6:9,els:[E[i]]}));
   g.t=95;g.P.maxHp=g.P.hp=600;g.lv=16;g.P.regen=30;
   for(let i=0;i<60*12;i++)step(1/60);
+}
+
+/* build advice shown on the card screen: which category the build is thin on (a suggestion, never a rule) */
+function buildAdvice(){
+  const t=G.taken||{},P=G.P,def=(t.defense||0)+(t.heal||0),off=(t.melee||0)+(t.ranged||0)+(t.summon||0),ctrl=t.control||0;
+  const recent=G.dmgTaken-(G._advDmg||0);G._advDmg=G.dmgTaken;
+  if(G.lv>=4&&def===0&&(P.hp<P.maxHp*.6||G.lv>=8))return {cat:'defense',zh:'还没有防御或治疗,挨打会越来越疼',en:'Nothing for defense or healing yet; hits will start to hurt'};
+  if(G.lv>=6&&off<def)return {cat:'melee',zh:'构筑偏防守,补点伤害会清得更快',en:'Build leans defensive; more damage clears faster'};
+  if(G.lv>=10&&ctrl===0&&G.en.length>200)return {cat:'control',zh:'怪群很密,控制类武学能拉开空间',en:'Crowds are thick; a control skill buys space'};
+  const low=G.spells.filter(s=>s.lv<5&&!SPELLS[s.id].auto);if(G.lv>=8&&low.length)return {cat:SKILL_CAT[low[0].id],zh:`${SPELLS[low[0].id].zh} 还在低级,升到 7 级可灌注真气`,en:`${SPELLS[low[0].id].en} is still low; Lv 7 unlocks an element`};
+  return null;
 }

@@ -278,3 +278,6 @@ kbd{font:700 13px var(--ui);border:1px solid var(--dim);padding:0 5px;border-rad
 .card .chip{justify-self:start;font-size:10.5px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--cc);border:1px solid var(--cc);border-radius:10px;padding:1px 8px;margin-bottom:2px}
 .card.newskill{box-shadow:0 18px 40px #000a,0 0 30px #ffffff44}
 @media (max-width:640px){.card .chip{grid-column:2}.bs{min-width:120px}}
+.badv{flex:1 1 100%;text-align:center;font-size:12px;color:var(--bone);background:#1a1016cc;border:1px solid #6b523066;border-radius:8px;padding:5px 10px}.badv b{color:var(--cc);margin-right:6px}.badv small{color:var(--dim);display:block;font-size:11px}
+.card{position:relative}.card .sug{position:absolute;top:10px;right:10px;font-size:10px;font-weight:800;letter-spacing:.08em;color:#1a1016;background:var(--c);border-radius:8px;padding:2px 7px}
+.card.sugged{outline:1px solid var(--c)}

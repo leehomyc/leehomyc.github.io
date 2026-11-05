@@ -29,7 +29,7 @@ const SPELL_KEYS=['','1','2','3'];
 const CLASSES={
   swordsman:{zh:'剑客',en:'Swordsman',g:'剑',col:'#9fe3f0',main:'sword',skills:['palm','array','talis','sunder'],hp:100,mana:100,regen:9,dmg:1,spd:1,d:'御剑远攻,攻守均衡。',de:'Ranged flying swords. Balanced attack and defence.'},
   taoist:{zh:'道士',en:'Taoist',g:'道',col:'#ffd27a',main:'charm',skills:['talis','bagua','ward','exorcise'],hp:80,mana:150,regen:14,dmg:.95,spd:1,d:'体弱而内力深厚,符咒法术繁多。',de:'Fragile, but deep qi reserves and plenty of talisman magic.'},
-  blademaster:{zh:'刀客',en:'Blademaster',g:'刀',col:'#ff9c5a',main:'slash',skills:['whirl','leap','roar','frenzy'],hp:135,mana:80,regen:8,dmg:1.15,spd:1.06,d:'近身刀法,皮糙肉厚,伤害最高。',de:'Up-close blade work. Tough, fast and the hardest hitter.'},
+  blademaster:{zh:'刀客',en:'Blademaster',g:'刀',col:'#ff9c5a',main:'slash',skills:['whirl','leap','roar','frenzy'],hp:125,mana:80,regen:8,dmg:1.15,spd:1.06,d:'近身刀法,皮糙肉厚,伤害最高。',de:'Up-close blade work. Tough, fast and the hardest hitter.'},
   qin:{zh:'琴师',en:'Qin Master',g:'琴',col:'#8fe3ff',main:'wave',skills:['flow','ambush','guangling','exorcise'],hp:90,mana:130,regen:12,dmg:.9,spd:1.03,d:'以琴音御敌,减速与控场见长。',de:'Fights with music: slows, fields and crowd control.'},
 };
 const ELS={

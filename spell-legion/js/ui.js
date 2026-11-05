@@ -131,10 +131,11 @@ function openPick(){
   const T={level:['升级','Level up'],infuse:['灌注真气','Infuse '+SPELLS[q.s?.id]?.en],fuse:['真气融合','Fuse '+SPELLS[q.s?.id]?.en],aug:['密令完成:选择强化','Mission complete. Choose an augmentation']}[q.kind];
   $('#cardtitle').innerHTML=`${T[0]}<small>${T[1]}${q.kind==='level'?' · 属性已自动成长 · stats grew automatically':''}</small>`;
   const row=$('#cardrow');row.textContent='';
-  renderBuildStrip();
+  const adv=renderBuildStrip();
   cards.forEach((cd,i)=>{const b=document.createElement('button');b.className='card'+(cd.q?' '+cd.q.k:'')+(cd.isNew?' newskill':'');b.id='card'+i;b.style.setProperty('--c',cd.c);b.style.animationDelay=(i*.08)+'s';
     const parts=[['g',cd.g],['n',cd.n],['e',cd.e],['d',cd.d],['de',cd.de],['k','按 '+(i+1)+' · Press '+(i+1)]];
     const cat=CATS[cd.cat]||CATS.passive;const chip=document.createElement('div');chip.className='chip';chip.style.setProperty('--cc',cat[2]);chip.textContent=(cd.isNew?CATS.new[0]+' · ':'')+cat[0]+' '+cat[1];b.appendChild(chip);
+    if(adv&&(cd.cat===adv.cat||(adv.cat==='defense'&&cd.cat==='heal')||(adv.cat==='melee'&&(cd.cat==='ranged'||cd.cat==='summon')))){const sg=document.createElement('div');sg.className='sug';sg.textContent='推荐 Suggested';b.appendChild(sg);b.classList.add('sugged')}
     if(cd.q&&cd.q.zh){const r=document.createElement('div');r.className='rar';r.textContent=cd.q.zh+' '+cd.q.en;b.appendChild(r)}
     parts.forEach(([k,v])=>{if(!v)return;const s=document.createElement('div');s.className=k;s.textContent=v;b.appendChild(s)});
     b.onclick=()=>choose(i);row.appendChild(b)});
@@ -149,6 +150,9 @@ function renderBuildStrip(){
     d.innerHTML=`<span class="g">${m.g}</span><div><b>${m.zh} <small>Lv ${s.lv}</small></b><small>${cat[0]} · ${s.els.map(k=>ELS[k].zh).join('+')||'无真气'} · 树 ${nodes} · ${s.augs.map(k=>AUGS[k].zh).join(' ')||''}</small></div>`;el.appendChild(d)});
   for(let i=G.spells.length;i<4;i++){const d=document.createElement('div');d.className='bs empty';d.innerHTML=`<span class="g">·</span><div><b>空位 <small>${SPELL_KEYS[i]}</small></b><small>Lv ${i===2?3:6} 解锁 unlocks (3·6·10)</small></div>`;el.appendChild(d)}
   const st=document.createElement('div');st.className='bstats';st.innerHTML=`<span>生命 <b>${Math.ceil(P.hp)}/${P.maxHp}</b></span><span>伤害 <b>×${(P.dmg*(1+P.dmgBonus)).toFixed(2)}</b></span><span>暴击 <b>${Math.round(P.crit*100)}%</b></span><span>减伤 <b>${Math.round((1-P.def)*100)}%</b></span><span>移速 <b>×${P.spd.toFixed(2)}</b></span><span>内力 <b>${P.maxMana}</b> +${P.regen.toFixed(1)}/s</span><span>法宝 <b>${G.relics.length}</b></span>`;el.appendChild(st);
+  const adv=typeof buildAdvice==='function'?buildAdvice():null;
+  if(adv){const a=document.createElement('div');a.className='badv';a.style.setProperty('--cc',(CATS[adv.cat]||CATS.passive)[2]);a.innerHTML=`<b>提示</b> ${adv.zh} <small>${adv.en}</small>`;el.appendChild(a)}
+  return adv;
 }
 function choose(i){
   if(!G.pick||!G.pick[i])return;
