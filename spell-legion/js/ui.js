@@ -6,11 +6,11 @@ try{const s=JSON.parse(localStorage.getItem(SAVE_KEY)||'null');if(s&&typeof s===
 SAVE.ach=SAVE.ach||{};SAVE.clsWins=SAVE.clsWins||{};SAVE.weapon=SAVE.weapon||{};SAVE.weaponOwned=SAVE.weaponOwned||{};SAVE.tips=SAVE.tips||{};window.SAVE=SAVE;
 function persist(){try{localStorage.setItem(SAVE_KEY,JSON.stringify(SAVE))}catch(_){}}
 const UPGRADES=[
-  {id:'hp',zh:'体魄',en:'Vigor',d:'生命上限 +10% / 级',de:'+10% max HP per rank',max:5,cost:r=>80+r*70},
-  {id:'dmg',zh:'锋芒',en:'Edge',d:'伤害 +6% / 级',de:'+6% damage per rank',max:5,cost:r=>100+r*90},
-  {id:'qi',zh:'丹田',en:'Dantian',d:'内力回复 +12% / 级',de:'+12% qi regen per rank',max:5,cost:r=>90+r*80},
-  {id:'core',zh:'复生核心',en:'Revive Core',d:'每局多一枚复生核心',de:'One more Revive Core per run',max:2,cost:r=>300+r*300},
-  {id:'gold',zh:'财运',en:'Fortune',d:'金币获取 +15% / 级',de:'+15% gold per rank',max:5,cost:r=>120+r*100},
+  {id:'hp',zh:'体魄',en:'Vigor',d:'生命上限 +10% / 级',de:'+10% max HP per rank',max:5,cost:r=>80+r*r*60+r*60},
+  {id:'dmg',zh:'锋芒',en:'Edge',d:'伤害 +6% / 级',de:'+6% damage per rank',max:5,cost:r=>100+r*r*70+r*80},
+  {id:'qi',zh:'丹田',en:'Dantian',d:'内力回复 +12% / 级',de:'+12% qi regen per rank',max:5,cost:r=>90+r*r*60+r*70},
+  {id:'core',zh:'复生核心',en:'Revive Core',d:'每局多一枚复生核心',de:'One more Revive Core per run',max:2,cost:r=>400+r*500},
+  {id:'gold',zh:'财运',en:'Fortune',d:'金币获取 +15% / 级',de:'+15% gold per rank',max:5,cost:r=>120+r*r*70+r*90},
 ];
 function applyUpgrades(P){const u=SAVE.up;P.maxHp=Math.round(P.maxHp*(1+.1*(u.hp||0)));P.hp=P.maxHp;P.dmg*=1+.06*(u.dmg||0);P.regen*=1+.12*(u.qi||0);G.cores+=u.core||0}
 
@@ -103,8 +103,8 @@ function drawSeals(){
       const g=document.createElement('div');g.className='g';g.textContent=m.g;g.style.color=s.els[0]?ELS[s.els[0]].col:m.col;d.appendChild(g);
       const l=document.createElement('div');l.className='lv';l.textContent='Lv '+s.lv;d.appendChild(l);
       const key=document.createElement('div');key.className='key';key.textContent=m.auto?'自动':SPELL_KEYS[i];d.appendChild(key);
-      if(!m.auto){const cst=document.createElement('div');cst.className='cost';cst.innerHTML=`<i>内力</i>${m.cost}`;d.appendChild(cst)}
-      d.title=`${m.zh} ${m.en} · Lv ${s.lv}${m.auto?' · 自动 auto':` · 消耗 ${m.cost} 内力 · 冷却 ${m.cd}s`}\n${m.d}\n${m.de}`;
+      if(!m.auto){const cst=document.createElement('div');cst.className='cost';cst.innerHTML=`<i>内力</i>${skillCost(s)}`;d.appendChild(cst)}
+      d.title=`${m.zh} ${m.en} · Lv ${s.lv}${m.auto?' · 自动 auto':` · 消耗 ${skillCost(s)} 内力 · 冷却 ${m.cd}s`}\n${m.d}\n${m.de}`;
       if(s.els.length){const e=document.createElement('div');e.className='els';s.els.forEach(k=>{const b=document.createElement('i');b.style.background=ELS[k].col;b.style.color=ELS[k].col;e.appendChild(b)});d.appendChild(e)}
       if(s.augs.length){const a=document.createElement('div');a.className='aug';a.textContent=s.augs.map(k=>AUGS[k].g).join('');d.appendChild(a)}
       const cdm=document.createElement('div');cdm.className='cdm';d.appendChild(cdm);
@@ -170,7 +170,7 @@ function openPick(){
     if(sug)b.classList.add('sugged');
     if(cd.skill){b.onmouseenter=()=>document.querySelectorAll('#build .bs').forEach(x=>x.classList.toggle('hl',x.dataset.skill===cd.skill));b.onmouseleave=()=>document.querySelectorAll('#build .bs.hl').forEach(x=>x.classList.remove('hl'))}
     b.onclick=()=>choose(i);row.appendChild(b)});
-  const rr=$('#reroll');rr.hidden=q.kind!=='level';rr.disabled=G.rerolls<=0;rr.textContent=`重抽 Reroll (${G.rerolls})`;rr.onclick=()=>{if(G.rerolls<=0)return;G.rerolls--;G.pick=null;G.picks.unshift(q);SFX.throw();openPick()};
+  const rr=$('#reroll');rr.hidden=q.kind!=='level';rr.disabled=G.rerolls<=0;rr.textContent=`重抽 Reroll (${G.rerolls})`;rr.onclick=()=>{if(G.rerolls<=0)return;G.rerolls--;const prev=G.pick.map(c=>c.n);G.pick=null;G.picks.unshift({...q,exclude:prev});SFX.throw();openPick()};
   if(cards.some(c=>c.q&&c.q.k==='legendary'))SFX.chest();else if(cards.some(c=>c.q&&c.q.k==='epic'))SFX.levelup();
   $('#cards').hidden=false;
 }
@@ -238,19 +238,21 @@ function startRun(){
 function showEnd(ok){
   G.ended=true;const box=$('#endb'),tot=G.spells.reduce((a,s)=>a+s.dmg,0)||1,max=Math.max(...G.spells.map(s=>s.dmg),1);
   checkAch();
-  const gold=Math.round((G.kills*1.1+G.lv*6+G.bossSlain*150+Math.floor(G.t/10)*3+G.goldRun+G.comboMax*2)*(1+.15*(SAVE.up.gold||0))*(G.relics.includes('bowl')?1.3:1)*D().gold);
+  const gold=Math.round((G.kills*.45+G.lv*3+G.bossSlain*220+Math.floor(G.t/10)*2+G.goldRun*.7+G.comboMax)*(1+.15*(SAVE.up.gold||0))*(G.relics.includes('bowl')?1.3:1)*D().gold);
   const pk=RIVAL_ON&&G.rival,pkRes=pk?(G.score>G.rival.score?'win':G.score<G.rival.score?'lose':'tie'):null;const pkBonus=pkRes==='win'?200:pkRes==='tie'?80:0;
   if(pk){SAVE.pk=SAVE.pk||{w:0,l:0};if(pkRes==='win')SAVE.pk.w++;else if(pkRes==='lose')SAVE.pk.l++;SAVE.pkBest=Math.max(SAVE.pkBest||0,G.score)}
   let dailyNew=false;if(DAILY){const dk=dayKey();if(!SAVE.daily||SAVE.daily.day!==dk)SAVE.daily={day:dk,best:0,bosses:0};if(G.t>SAVE.daily.best){SAVE.daily.best=G.t;SAVE.daily.bosses=G.bossSlain;dailyNew=true}}
   const meta=typeof metaAfterRun==='function'?metaAfterRun():null;
   const record=!pk&&G.t>(SAVE.best||0);SAVE.gold+=gold+pkBonus;SAVE.runs++;SAVE.wins+=G.bossSlain;SAVE.bosses=Math.max(SAVE.bosses||0,G.bossSlain);if(record)SAVE.best=G.t;persist();
   const rows=G.spells.slice().sort((a,b)=>b.dmg-a.dmg).map(s=>{const f=s.els.length===2?FUS[fusion(s)][1]:s.els[0]?ELS[s.els[0]].en:'';
-    return `<span>${SPELLS[s.id].zh} ${SPELLS[s.id].en}${f?` · ${f}`:''} · Lv ${s.lv}</span><div class="bar"><i style="width:${s.dmg/max*100}%"></i></div><span>${Math.round(s.dmg/tot*100)}%</span>`}).join('');
+    const casts=SPELLS[s.id].auto?'':` · ${s.casts} 次 · ${s.casts?Math.round(s.dmg/s.casts):0}/次`;
+    return `<span>${SPELLS[s.id].zh} ${SPELLS[s.id].en}${f?` · ${f}`:''} · Lv ${s.lv}<small>${casts}</small></span><div class="bar"><i style="width:${s.dmg/max*100}%"></i></div><span>${Math.round(s.dmg/tot*100)}%</span>`}).join('');
   const R=G.rival,duel=R?(pkRes==='win'?[`胜利 · ${G.score} : ${R.score}`,`Victory · +${pkBonus} gold`]:pkRes==='lose'?[`落败 · ${G.score} : ${R.score}`,`Defeat · ${R.name[1]} out-scored you`]:[`平手 · ${G.score} : ${R.score}`,`Tied · +${pkBonus} gold`]):null;
   const cmp=R?`<div class="cmp"><div class="hd"><span></span><b>你 You</b><b>${R.name[0]}<small> ${CLASSES[R.cls].en}</small></b></div>
     ${[['分数 Score',G.score,R.score],['击杀 Kills',G.kills,R.kills],['等级 Level',G.lv,R.lv],['总伤害 Damage',Math.round(tot),Math.round(R.dmgDealt)],['倒地 Downs',2-G.cores+(SAVE.up.core||0),R.downs]].map(([n,a,b])=>`<div class="r"><span>${n}</span><b class="${a>=b?'w':''}">${a}</b><b class="${b>a?'w':''}">${b}</b></div>`).join('')}</div>`:'';
   box.innerHTML=`<h2 class="${pkRes||''}">${pk?(pkRes==='win'?'对决胜利':pkRes==='lose'?'对决落败':'对决平手'):DAILY?(dailyNew?'今日新纪录':'每日挑战'):record?'新纪录':'败亡'}</h2><p class="sub">${record?'New record · ':''}Survived ${fmt(G.t)} · ${G.bossSlain} boss${G.bossSlain===1?'':'es'} slain</p>${duel?`<p class="duel">${duel[0]} · ${duel[1]}</p>`:''}
   <div class="stat"><div><b>${fmt(G.t)}</b><span>存活 Survived</span></div><div><b>${G.kills}</b><span>击杀 Kills</span></div><div><b>${G.lv}</b><span>等级 Level</span></div><div><b>×${G.comboMax}</b><span>最高连斩 Best combo</span></div><div><b>${G.bossSlain}</b><span>首领 Bosses</span></div><div><b>${G.relics.length}</b><span>法宝 Relics</span></div><div><b class="gold">+${gold}</b><span>金币 Gold</span></div></div>
+  ${(!ok&&G.killer)?(()=>{const T=G.t,log=(G.dmgLog||[]).filter(d=>d.t>=T-5),tot=log.reduce((a,d)=>a+d.n,0)||1,by={};for(const d of log){const k=d.src[0]+'|'+d.src[1];by[k]=(by[k]||0)+d.n}const rows=Object.entries(by).sort((a,b)=>b[1]-a[1]).slice(0,4).map(([k,n])=>{const [zh,en]=k.split('|');return `<span>${zh} <small>${en}</small> ${Math.round(n/tot*100)}%</span>`}).join('');return `<div class="killed"><b>死于 ${G.killer[0]} · Killed by ${G.killer[1]}</b><div class="srcs"><small>最后 5 秒受到的伤害 · damage in the last 5 s:</small>${rows}</div></div>`})():''}
   ${meta?`<div class="metarow"><span>江湖经验 +${meta.xp}${meta.levelUp?` · <b>江湖等级 ${meta.after.lv}!</b> ${titleFor(meta.after.lv)[1]}`:` · Lv ${meta.after.lv} (${meta.after.x}/${meta.after.need})`}</span>${meta.done.map(([t,g])=>`<span class="td">✓ ${t.id==='streak'?'七日连续':taskText(t).zh} +${g} 金</span>`).join('')}</div>`:''}
   <div class="dmg">${rows}</div>${cmp}<div class="btns"><button class="go" id="againbtn">再来一局 Play again</button><button class="go alt" id="lobbybtn">回到山门 Lobby</button></div>`;
   $('#end').hidden=false;$('#againbtn').onclick=startRun;$('#lobbybtn').onclick=toLobby;$('#againbtn').focus();

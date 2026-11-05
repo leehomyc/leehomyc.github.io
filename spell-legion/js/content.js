@@ -31,10 +31,10 @@ const SPELLS={
 };
 const SPELL_KEYS=['','1','2','3'];
 const CLASSES={
-  swordsman:{zh:'剑客',en:'Swordsman',g:'剑',col:'#9fe3f0',main:'sword',skills:['palm','array','talis','sunder'],hp:100,mana:100,regen:9,dmg:1,spd:1,d:'御剑远攻,攻守均衡。',de:'Ranged flying swords. Balanced attack and defence.'},
-  taoist:{zh:'道士',en:'Taoist',g:'道',col:'#ffd27a',main:'charm',skills:['talis','bagua','ward','exorcise'],hp:90,mana:150,regen:14,dmg:.95,spd:1,d:'体弱而内力深厚,符咒法术繁多。',de:'Fragile, but deep qi reserves and plenty of talisman magic.'},
-  blademaster:{zh:'刀客',en:'Blademaster',g:'刀',col:'#ff9c5a',main:'slash',skills:['whirl','leap','roar','frenzy'],hp:125,mana:80,regen:8,dmg:1.08,spd:1.06,d:'近身刀法,皮糙肉厚,伤害最高。',de:'Up-close blade work. Tough, fast and the hardest hitter.'},
-  qin:{zh:'琴师',en:'Qin Master',g:'琴',col:'#8fe3ff',main:'wave',skills:['flow','ambush','guangling','exorcise'],hp:100,mana:130,regen:12,dmg:.9,spd:1.03,d:'以琴音御敌,减速与控场见长。',de:'Fights with music: slows, fields and crowd control.'},
+  swordsman:{zh:'剑客',en:'Swordsman',g:'剑',col:'#9fe3f0',main:'sword',skills:['palm','array','talis','sunder'],hp:100,mana:100,regen:13,dmg:1,spd:1,d:'御剑远攻,攻守均衡。',de:'Ranged flying swords. Balanced attack and defence.'},
+  taoist:{zh:'道士',en:'Taoist',g:'道',col:'#ffd27a',main:'charm',skills:['talis','bagua','ward','exorcise'],hp:90,mana:150,regen:19,dmg:.95,spd:1,d:'体弱而内力深厚,符咒法术繁多。',de:'Fragile, but deep qi reserves and plenty of talisman magic.'},
+  blademaster:{zh:'刀客',en:'Blademaster',g:'刀',col:'#ff9c5a',main:'slash',skills:['whirl','leap','roar','frenzy'],hp:125,mana:80,regen:12,dmg:1.08,spd:1.06,d:'近身刀法,皮糙肉厚,伤害最高。',de:'Up-close blade work. Tough, fast and the hardest hitter.'},
+  qin:{zh:'琴师',en:'Qin Master',g:'琴',col:'#8fe3ff',main:'wave',skills:['flow','ambush','guangling','exorcise'],hp:100,mana:130,regen:16,dmg:.9,spd:1.03,d:'以琴音御敌,减速与控场见长。',de:'Fights with music: slows, fields and crowd control.'},
 };
 const ELS={
   fire:{g:'火',zh:'烈火真气',en:'Fire',col:'#ff8a3c',d:'命中点燃,持续灼烧。',de:'Hits ignite enemies.'},
@@ -167,10 +167,10 @@ const WEAPON_INFO={
 };
 const AWAKE_LV=15;
 /* skill categories for the card screen */
-const CATS={melee:['近战','Melee','#ff9c5a'],ranged:['远程','Ranged','#9fe3f0'],summon:['阵法','Summon','#c7a4f0'],defense:['防御','Defense','#7dffb0'],heal:['治疗','Heal','#7fc98a'],control:['控制','Control','#ffd75a'],element:['真气','Element','#ff8a3c'],augment:['强化','Augment','#d6a54a'],passive:['心法','Passive','#efe4cd'],tree:['武学树','Tree','#ffd27a'],new:['新武学','New skill','#ffffff']};
+const CATS={melee:['近战','Melee','#ff9c5a'],ranged:['远程','Ranged','#9fe3f0'],summon:['阵法','Summon','#c7a4f0'],defense:['防御','Defense','#7dffb0'],heal:['治疗','Heal','#7fc98a'],control:['控制','Control','#ffd75a'],element:['真气','Element','#ff8a3c'],augment:['强化','Augment','#d6a54a'],passive:['心法','Passive','#efe4cd'],all:['全体攻击','All attacks','#ffd27a'],tree:['武学树','Tree','#ffd27a'],new:['新武学','New skill','#ffffff']};
 const KINDS={level:['技能升级','Skill level up','#9fe3f0'],new:['新武学','New skill','#ffffff'],element:['灌注真气','Element','#ff8a3c'],fusion:['真气融合','Fusion','#ff8a3c'],tree:['武学树','Skill tree','#ffd27a'],augment:['强化','Augment','#d6a54a'],passive:['心法·被动','Passive','#efe4cd'],awake:['武器觉醒','Awakening','#ffd27a'],jackpot:['天降横财','Jackpot','#ffd27a']};
 const SKILL_CAT={great:'melee',whisk:'ranged',nodachi:'melee',drum:'control',sword:'ranged',palm:'ranged',array:'summon',talis:'ranged',charm:'ranged',bagua:'summon',ward:'defense',slash:'melee',whirl:'melee',leap:'melee',roar:'control',sunder:'ranged',exorcise:'control',frenzy:'melee',wave:'ranged',flow:'control',ambush:'ranged',guangling:'heal'};
-const PERK_CAT={锋锐:'melee',金钟罩:'defense',轻身:'passive',内息:'passive',生息:'heal',摄物:'passive',疾风:'passive',致命:'melee'};
+const PERK_CAT={锋锐:'all',金钟罩:'defense',轻身:'passive',内息:'passive',生息:'heal',摄物:'passive',疾风:'passive',致命:'all'};
 /* boss signature moves, by boss index (see BOSSES in sim.js) */
 const BOSS_SIG=[['bloodrain','drain'],['spiral','blink'],['eggs','venom'],['bonewall','spikes'],['hellring','meteor'],['mirror','bewitch'],['phalanx','cannon']];
 const BOSS_HINT=[['血雨落处勿站,他吸血时拉开距离','Step out of the blood rain; back away when he drains'],['刀影螺旋有缝,他消失时准备闪避','The blade spiral has gaps; dash when he vanishes'],['蛊卵孵化前踩灭,远离毒雾','Stamp the eggs before they hatch; avoid the poison'],['骨墙缓慢,轻功穿过;脚下骨刺看地面','Dash through the bone walls; watch the ground for spikes'],['火环留一缺口,陨星落点必须离开','The fire ring leaves one gap; leave the meteor mark'],['幻影一击即碎,粉色波纹碰到会颠倒方向','Illusions shatter in one hit; the pink ring reverses your controls'],['盾墙挡路绕开,炮击落在你站过的地方','Go around the shield wall; the volleys land where you stood']];
@@ -179,3 +179,4 @@ const PK_LEN=600;
 const PTS={assassin:1,bandit:2,archer:3,giant:8,statue:0};
 function pts(e){if(e.type==='boss')return 300+150*(e.n||0);if(e.warlord)return 60;let p=PTS[e.type]||1;if(e.elite)p*=3;if(e.role)p*=2;if(e.affix)p=Math.round(p*1.5);return p}
 const PK_EVENTS={chest:25,mission:40,ambush:50};
+const ACTIVE_MULT=2.6;  // damage multiplier for qi-costing skills (see hit())

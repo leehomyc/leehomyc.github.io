@@ -329,3 +329,4 @@ kbd{font:700 13px var(--ui);border:1px solid var(--dim);padding:0 5px;border-rad
 #seals.auto .seal:not(.main):not(.empty):not(.dash){animation:acshimmer 1.6s ease-in-out infinite;border-color:#8fd8ff}
 #seals.auto .seal:not(.main):not(.empty):not(.dash) .key::after{content:' 自动';color:#8fd8ff}
 .bs.hl{outline:2px solid var(--c);box-shadow:0 0 16px var(--c);transform:translateY(-2px)}.bs{transition:transform .15s,box-shadow .15s}
+.killed{background:#2a0f14cc;border:1px solid #ff6a6a66;border-radius:8px;padding:8px 12px;margin:6px 0;text-align:center}.killed b{color:#ff8a8a;font-size:14px}.killed .srcs{display:flex;gap:6px 14px;flex-wrap:wrap;justify-content:center;font-size:12px;color:var(--bone);margin-top:4px}.killed .srcs small{color:var(--dim)}
