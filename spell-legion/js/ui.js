@@ -55,7 +55,7 @@ function hud(dt){
   $('#hpfill').style.height=(P.hp/P.maxHp*100)+'%';$('#hpnum').textContent=Math.ceil(P.hp)+' / '+P.maxHp;
   $('#mpfill').style.height=(P.mana/P.maxMana*100)+'%';$('#mpnum').textContent=Math.floor(P.mana)+' / '+P.maxMana;
   $('#lv').textContent='Lv '+G.lv;
-  const pts=P.sp;$('#charbtn').classList.toggle('has',pts>0);$('#ptsbadge').textContent=pts||'';$('#ptsbadge').hidden=!pts;
+  $('#ptsbadge').hidden=true;
   $('#timer').textContent=fmt(G.t);$('#nextboss').textContent=G.boss?'首领战 BOSS':'首领 '+fmt(nextBossIn());
   $('#kills').textContent=G.kills+' 击杀';
   if(G.rival){const R=G.rival,tot=Math.max(1,G.kills+R.kills);$('#score').hidden=false;$('#s-you').textContent=G.kills;$('#s-riv').textContent=R.kills;$('#s-rname').textContent=R.name[0];$('#s-bar i').style.width=(G.kills/tot*100)+'%';$('#score').classList.toggle('lead',G.kills>=R.kills)}
@@ -97,7 +97,7 @@ function showBanner(zh,en,t){if(!G||G.auto)return;const b=$('#banner');b.innerHT
 let panelTab='tree';
 function togglePanel(){if(!G||G.auto||G.over||G.pick)return;G.panel=!G.panel;$('#char').hidden=!G.panel;if(G.panel){renderPanel();SFX.setState('title')}else SFX.setState(G.boss?'boss':'battle')}
 function renderPanel(){
-  const P=G.P;$('#sp').textContent=P.sp;
+  const P=G.P;$('#sp').textContent=G.spells.reduce((a,s)=>a+s.pts,0);
   $('#tab-attr').classList.toggle('on',panelTab==='attr');$('#tab-tree').classList.toggle('on',panelTab==='tree');
   const A=$('#attrs');A.hidden=panelTab!=='attr';const T=$('#trees');T.hidden=panelTab!=='tree';
   if(panelTab==='attr'){A.textContent='';
@@ -107,15 +107,15 @@ function renderPanel(){
   }else{T.textContent='';
     G.spells.forEach((s,si)=>{const m=SPELLS[s.id],col=document.createElement('div');col.className='tree';col.style.setProperty('--c',m.col);
       col.innerHTML=`<div class="th"><span class="g">${m.g}</span><div><b>${m.zh}</b><small>${m.en} · Lv ${s.lv} · ${s.pts} 点</small></div></div>`;
-      (TREES[s.id]||[]).forEach((n,i)=>{const r=s.nodes[i]||0,ok=canNode(s,i),need=n.tier===1?0:n.tier===2?2:4,locked=s.pts<need;
-        const b=document.createElement('button');b.type='button';b.className='node t'+n.tier+(r>=n.max?' max':'')+(locked?' locked':'')+(r>0?' has':'');b.disabled=!ok;
-        b.innerHTML=`<span class="nn">${n.zh} <small>${n.en}</small></span><span class="nd">${n.d}</span><span class="nr">${r}/${n.max}${locked?' · 需 '+need+' 点':''}</span>`;
-        b.onclick=()=>{if(spendNode(s,i)){SFX.levelup();renderPanel()}};col.appendChild(b)});
+      (TREES[s.id]||[]).forEach((n,i)=>{const r=s.nodes[i]||0,need=n.tier===1?0:n.tier===2?2:4,locked=s.pts<need;
+        const b=document.createElement('div');b.className='node t'+n.tier+(r>=n.max?' max':'')+(locked?' locked':'')+(r>0?' has':'');
+        b.innerHTML=`<span class="nn">${n.zh} <small>${n.en}</small></span><span class="nd">${n.d}</span><span class="nr">${r}/${n.max}${locked?' · 需先学 '+need+' 项':''}</span>`;col.appendChild(b)});
       T.appendChild(col)});
   }
 }
 document.querySelectorAll('#diff button').forEach(b=>b.onclick=()=>{SAVE.diff=b.dataset.d;DIFFID=SAVE.diff;persist();renderTitle();SFX.pick(1)});
 document.querySelectorAll('#qual button').forEach(b=>b.onclick=()=>{try{localStorage.setItem('sl_quality',b.dataset.q)}catch(_){}b.textContent='重新载入… Reloading';setTimeout(()=>location.reload(),60)});
+if(typeof wireLeaderboard==='function')wireLeaderboard();
 $('#charbtn').onclick=()=>{togglePanel();$('#charbtn').blur()};
 $('#charclose').onclick=()=>togglePanel();
 $('#tab-attr').onclick=()=>{panelTab='attr';renderPanel()};$('#tab-tree').onclick=()=>{panelTab='tree';renderPanel()};
@@ -129,16 +129,26 @@ function openPick(){
   if(G.auto){pick(cards).a();return openPick()}
   G.pick=cards;$('#banner').classList.remove('on');bannerT=0;
   const T={level:['升级','Level up'],infuse:['灌注真气','Infuse '+SPELLS[q.s?.id]?.en],fuse:['真气融合','Fuse '+SPELLS[q.s?.id]?.en],aug:['密令完成:选择强化','Mission complete. Choose an augmentation']}[q.kind];
-  $('#cardtitle').innerHTML=`${T[0]}<small>${T[1]}${q.kind==='level'?' · +1 技能点 (按 C 分配) · 属性已自动成长':''}</small>`;
+  $('#cardtitle').innerHTML=`${T[0]}<small>${T[1]}${q.kind==='level'?' · 属性已自动成长 · stats grew automatically':''}</small>`;
   const row=$('#cardrow');row.textContent='';
-  cards.forEach((cd,i)=>{const b=document.createElement('button');b.className='card'+(cd.q?' '+cd.q.k:'');b.id='card'+i;b.style.setProperty('--c',cd.c);b.style.animationDelay=(i*.08)+'s';
+  renderBuildStrip();
+  cards.forEach((cd,i)=>{const b=document.createElement('button');b.className='card'+(cd.q?' '+cd.q.k:'')+(cd.isNew?' newskill':'');b.id='card'+i;b.style.setProperty('--c',cd.c);b.style.animationDelay=(i*.08)+'s';
     const parts=[['g',cd.g],['n',cd.n],['e',cd.e],['d',cd.d],['de',cd.de],['k','按 '+(i+1)+' · Press '+(i+1)]];
+    const cat=CATS[cd.cat]||CATS.passive;const chip=document.createElement('div');chip.className='chip';chip.style.setProperty('--cc',cat[2]);chip.textContent=(cd.isNew?CATS.new[0]+' · ':'')+cat[0]+' '+cat[1];b.appendChild(chip);
     if(cd.q&&cd.q.zh){const r=document.createElement('div');r.className='rar';r.textContent=cd.q.zh+' '+cd.q.en;b.appendChild(r)}
     parts.forEach(([k,v])=>{if(!v)return;const s=document.createElement('div');s.className=k;s.textContent=v;b.appendChild(s)});
     b.onclick=()=>choose(i);row.appendChild(b)});
   const rr=$('#reroll');rr.hidden=q.kind!=='level';rr.disabled=G.rerolls<=0;rr.textContent=`重抽 Reroll (${G.rerolls})`;rr.onclick=()=>{if(G.rerolls<=0)return;G.rerolls--;G.pick=null;G.picks.unshift(q);SFX.throw();openPick()};
   if(cards.some(c=>c.q&&c.q.k==='legendary'))SFX.chest();else if(cards.some(c=>c.q&&c.q.k==='epic'))SFX.levelup();
   $('#cards').hidden=false;
+}
+function renderBuildStrip(){
+  const el=$('#build');if(!el)return;el.textContent='';const P=G.P;
+  G.spells.forEach((s,i)=>{const m=SPELLS[s.id],d=document.createElement('div');d.className='bs';d.style.setProperty('--c',m.col);
+    const nodes=Object.values(s.nodes||{}).reduce((a,b)=>a+b,0),cat=CATS[SKILL_CAT[s.id]]||CATS.passive;
+    d.innerHTML=`<span class="g">${m.g}</span><div><b>${m.zh} <small>Lv ${s.lv}</small></b><small>${cat[0]} · ${s.els.map(k=>ELS[k].zh).join('+')||'无真气'} · 树 ${nodes} · ${s.augs.map(k=>AUGS[k].zh).join(' ')||''}</small></div>`;el.appendChild(d)});
+  for(let i=G.spells.length;i<4;i++){const d=document.createElement('div');d.className='bs empty';d.innerHTML=`<span class="g">·</span><div><b>空位 <small>${SPELL_KEYS[i]}</small></b><small>Lv ${i===2?3:6} 解锁 unlocks (3·6·10)</small></div>`;el.appendChild(d)}
+  const st=document.createElement('div');st.className='bstats';st.innerHTML=`<span>生命 <b>${Math.ceil(P.hp)}/${P.maxHp}</b></span><span>伤害 <b>×${(P.dmg*(1+P.dmgBonus)).toFixed(2)}</b></span><span>暴击 <b>${Math.round(P.crit*100)}%</b></span><span>减伤 <b>${Math.round((1-P.def)*100)}%</b></span><span>移速 <b>×${P.spd.toFixed(2)}</b></span><span>内力 <b>${P.maxMana}</b> +${P.regen.toFixed(1)}/s</span><span>法宝 <b>${G.relics.length}</b></span>`;el.appendChild(st);
 }
 function choose(i){
   if(!G.pick||!G.pick[i])return;
@@ -189,6 +199,7 @@ function showEnd(ok){
   <div class="stat"><div><b>${fmt(G.t)}</b><span>存活 Survived</span></div><div><b>${G.kills}</b><span>击杀 Kills</span></div><div><b>${G.lv}</b><span>等级 Level</span></div><div><b>×${G.comboMax}</b><span>最高连斩 Best combo</span></div><div><b>${G.bossSlain}</b><span>首领 Bosses</span></div><div><b>${G.relics.length}</b><span>法宝 Relics</span></div><div><b class="gold">+${gold}</b><span>金币 Gold</span></div></div>
   <div class="dmg">${rows}</div>${cmp}<div class="btns"><button class="go" id="againbtn">再来一局 Play again</button><button class="go alt" id="lobbybtn">回到山门 Lobby</button></div>`;
   $('#end').hidden=false;$('#againbtn').onclick=startRun;$('#lobbybtn').onclick=toLobby;$('#againbtn').focus();
+  if(typeof submitRun==='function')submitRun(box);
 }
 function toLobby(){$('#end').hidden=true;$('#hud').hidden=true;$('#title').hidden=false;newGame(true,SAVE.cls);demoBoost();renderTitle();SFX.setState('title')}
 $('#startbtn').onclick=startRun;
@@ -207,3 +218,11 @@ $('#sfxvol').oninput=e=>{SFX.start();SFX.setSfx(e.target.value/100);SFX.pick(1);
 $('#sndclose').onclick=()=>{$('#sndpanel').hidden=true};
 syncSound();
 if(window.desktop){$('#exitbtn').hidden=false;$('#exitbtn').onclick=()=>window.desktop.quit()}
+
+/* mobile: no double-tap or pinch zoom (iOS Safari ignores the viewport flag) */
+(()=>{let lastTap=0,lastEl=null;document.addEventListener('touchend',e=>{const n=Date.now(),el=e.target.closest?e.target.closest('button,a,label,input,select'):null;
+    if(n-lastTap<320){e.preventDefault();if(el&&el!==lastEl&&el.tagName!=='INPUT'&&el.tagName!=='SELECT')el.click()} // second quick tap on a different control still counts as a tap
+    lastTap=n;lastEl=el},{passive:false});
+  document.addEventListener('touchstart',e=>{if(e.touches.length>1)e.preventDefault()},{passive:false});
+  ['gesturestart','gesturechange','gestureend'].forEach(t=>document.addEventListener(t,e=>e.preventDefault(),{passive:false}));
+  document.addEventListener('dblclick',e=>e.preventDefault(),{passive:false});})();

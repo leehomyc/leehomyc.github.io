@@ -80,7 +80,7 @@ const BOSS_NAME=['血魔教主','Blood Demon Patriarch'];
    Generic node effects the simulation understands:
    dmg (+12%/rank), cd (-8%/rank), count (+1 projectile/piece), pierce (+1), size (+15%/rank),
    cost (-15% qi/rank), dur (+1s/rank), knock (+50%/rank), crit (+5%/rank), life (2% lifesteal/rank), chain (15%/rank chance to arc) */
-const NODE_FX={dmg:.12,cd:.08,count:1,pierce:1,size:.15,cost:.15,dur:1,knock:.5,crit:.05,life:.02,chain:.15};
+const NODE_FX={dmg:.10,cd:.08,count:1,pierce:1,size:.15,cost:.15,dur:1,knock:.5,crit:.05,life:.02,chain:.15};
 const N=(fx,zh,en,max,tier,d)=>({fx,zh,en,max,tier,d});
 const TREES={
   sword:[N('count','剑影','Sword Shadows',3,1,'+1 飞剑 / 级'),N('dmg','锋锐','Keen Edge',3,1,'伤害 +12% / 级'),N('cd','疾射','Quick Draw',3,2,'出手 +8% / 级'),N('pierce','贯穿','Pierce',2,2,'穿透 +1 / 级'),N('crit','要害','Vital Strike',2,3,'暴击 +5% / 级'),N('chain','剑气纵横','Sword Qi',2,3,'命中有几率引发剑气跳击')],
@@ -144,3 +144,8 @@ const ACH=[
   {id:'hard',zh:'炼狱',en:'Inferno',d:'困难难度击败一位首领',de:'Slay a boss on Hard',gold:300},
 ];
 const DIFF={easy:{zh:'简单',en:'Easy',hp:.7,dmg:.7,gold:.8},normal:{zh:'普通',en:'Normal',hp:1,dmg:1,gold:1},hard:{zh:'困难',en:'Hard',hp:1.4,dmg:1.35,gold:1.4}};
+
+/* skill categories for the card screen */
+const CATS={melee:['近战','Melee','#ff9c5a'],ranged:['远程','Ranged','#9fe3f0'],summon:['阵法','Summon','#c7a4f0'],defense:['防御','Defense','#7dffb0'],heal:['治疗','Heal','#7fc98a'],control:['控制','Control','#ffd75a'],element:['真气','Element','#ff8a3c'],augment:['强化','Augment','#d6a54a'],passive:['心法','Passive','#efe4cd'],tree:['武学树','Tree','#ffd27a'],new:['新武学','New skill','#ffffff']};
+const SKILL_CAT={sword:'ranged',palm:'ranged',array:'summon',talis:'ranged',charm:'ranged',bagua:'summon',ward:'defense',slash:'melee',whirl:'melee',leap:'melee',roar:'control',sunder:'ranged',exorcise:'control',frenzy:'melee',wave:'ranged',flow:'control',ambush:'ranged',guangling:'heal'};
+const PERK_CAT={锋锐:'melee',金钟罩:'defense',轻身:'passive',内息:'passive',生息:'heal',摄物:'passive',疾风:'passive',致命:'melee'};

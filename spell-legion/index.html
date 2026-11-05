@@ -2,7 +2,7 @@
 <html lang="zh-Hans">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>魔咒军团</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=ZCOOL+XiaoWei&family=Alegreya+Sans:wght@400;700;800&display=swap">
 <link rel="stylesheet" href="css/style.css">
@@ -56,7 +56,7 @@
         <p>无尽江湖。选一位侠客出山,普攻自动施展,武学按 <kbd>1</kbd><kbd>2</kbd><kbd>3</kbd> 释放(消耗内力、有冷却),<kbd>Space</kbd> 轻功闪避。敌人越来越强,每四分钟一位首领,能撑多久?<br>
         Endless mode. Your normal attack fires by itself; cast skills with 1/2/3. Enemies keep growing stronger and a new boss arrives every four minutes. How long can you last?</p>
         <div id="classes"></div>
-        <button class="go" id="startbtn">出山 Start</button>
+        <div class="btns"><button class="go" id="startbtn">出山 Start</button><button class="go alt" id="lbbtn" hidden>排行榜 Leaderboard</button></div>
         <p class="note"><span id="autonote"></span> <kbd>WASD</kbd> / arrows or drag to move · <kbd>Space</kbd> dash · <kbd>P</kbd> pause (auto-cast toggle there) · <kbd>M</kbd> mute. <span id="loadnote"></span></p>
         <div class="opts"><div id="diff"><span>难度 Difficulty</span><button type="button" data-d="easy">简单 Easy</button><button type="button" data-d="normal">普通 Normal</button><button type="button" data-d="hard">困难 Hard</button></div><div id="qual"><span>画质 Quality</span><button type="button" data-q="low">低 Low</button><button type="button" data-q="med">中 Med</button><button type="button" data-q="high">高 High</button></div></div>
         <div id="maps"></div>
@@ -71,13 +71,14 @@
       </div>
     </div>
   </div>
-  <div id="cards" class="overlay" hidden><h2 id="cardtitle"></h2><div id="cardrow"></div><button type="button" class="go alt" id="reroll" hidden>重抽 Reroll</button></div>
+  <div id="cards" class="overlay" hidden><h2 id="cardtitle"></h2><div id="build"></div><div id="cardrow"></div><button type="button" class="go alt" id="reroll" hidden>重抽 Reroll</button></div>
   <div id="pause" class="overlay" hidden><div class="pbox"><h2>暂停</h2><button class="go" id="resumebtn">继续 Resume</button><button class="go alt" id="autobtn">武学:自动施放</button><button class="go alt" id="mutebtn">声音 Sound</button><button class="go alt" id="quitbtn">放弃本局 Abandon run</button><p>1/2/3 skills · Space dash · P resume · M mute</p></div></div>
   <div id="char" class="overlay" hidden><div class="cbox">
-    <div class="ch"><h2>角色 <small>Character</small></h2><div class="pts"><span>技能点 Skill points <b id="sp">0</b></span></div><button type="button" id="charclose">关闭 C</button></div>
+    <div class="ch"><h2>角色 <small>Character</small></h2><div class="pts"><span>已学武学树节点 Tree upgrades taken <b id="sp">0</b></span></div><button type="button" id="charclose">关闭 C</button></div>
     <div class="tabs"><button type="button" id="tab-tree" class="on">武学树 Skill Trees</button><button type="button" id="tab-attr">属性 Stats</button></div>
     <div id="trees"></div><div id="attrs" hidden></div>
   </div></div>
+  <div id="lb" class="overlay" hidden><div class="cbox"><div class="ch"><h2>排行榜 <small>Leaderboard · longest survival</small></h2><div class="tabs" id="lbtabs"><button type="button" data-b="all" class="on">总榜 All time</button><button type="button" data-b="today">今日 Today</button></div><button type="button" id="lbclose">关闭 Close</button></div><div id="lbbody"></div></div></div>
   <div id="end" class="overlay" hidden><div class="endb" id="endb"></div></div>
 </div>
 <script src="js/core.js"></script>
@@ -86,6 +87,7 @@
 <script src="js/gfx.js"></script>
 <script src="js/sim.js"></script>
 <script src="js/render.js"></script>
+<script src="js/leaderboard.js"></script>
 <script src="js/ui.js"></script>
 <script src="js/main.js"></script>
 <!--/PAGE-->
