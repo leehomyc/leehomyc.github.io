@@ -61,6 +61,7 @@ function animHero(h,P,isP,tm,rdt){
 function render(rdt){
   U.uTime.value+=rdt;const tm=U.uTime.value,P=G.P;
   const nightDark=typeof dayNight==='function'?dayNight(((G.auto?240:G.t)/600+.12)%1):0;
+  if(typeof occludeTick==='function'&&!G.auto)occludeTick(P.x,P.y,rdt);
   if(!window.__noAdapt){fS+=rdt;fN++;if(fN>=70){const av=fS/fN;fS=0;fN=0;if(av>.0265&&DPR>.65){DPR=Math.max(.65,DPR-.2);resize()}else if(av<.0125&&DPR<Math.min(devicePixelRatio||1,1.6)&&tm>6){DPR=Math.min(Math.min(devicePixelRatio||1,1.6),DPR+.1);resize()}}}
   glowN=0;
   /* camera with trauma shake */
@@ -210,13 +211,13 @@ function drawOverlay(){
     const [x,y]=toScreen(e.x,e.type==='statue'?60:e.type==='giant'?54:e.r*4+10,e.y),w=(e.type==='statue'?44:32)*S,hh=4*S;c.fillStyle='#160b12cc';c.fillRect(x-w/2-1,y-1,w+2,hh+2);c.fillStyle=e.type==='statue'?'#ff5fe8':e.elite?'#ffd27a':'#ff5a45';c.fillRect(x-w/2,y,w*e.hp/e.maxHp,hh)}
   const label=(x,y,txt,col,big)=>{c.font=`800 ${(big?15:13)*S}px "Alegreya Sans","PingFang SC","Microsoft YaHei",system-ui,sans-serif`;const w=c.measureText(txt).width+18*S,h=22*S;c.fillStyle='#0a0710d9';c.strokeStyle=col;c.lineWidth=1.2*S;c.beginPath();c.roundRect(x-w/2,y-h/2,w,h,5*S);c.fill();c.stroke();c.fillStyle=col;c.fillText(txt,x,y+1)};
   const arrow=(wx,wz,col,txt)=>{const [x,y]=toScreen(wx,0,wz),cx=ow/2,cy=oh/2,mx=46*S,my=112*S,dist=Math.round(hyp(wx-G.P.x,wz-G.P.y)/10);
-    if(x>mx&&x<ow-mx&&y>my&&y<oh-my){if(txt){const [lx,ly]=toScreen(wx,120,wz);label(lx,ly-(Math.sin(U.uTime.value*3)*4+6)*S,txt,col,true)}return}
+    if(x>mx&&x<ow-mx&&y>my&&y<oh-my){if(txt){const [lx,ly]=toScreen(wx,120,wz);label(lx,Math.max(ly-(Math.sin(U.uTime.value*3)*4+6)*S,118*S),txt,col,true)}return}
     const dx=x-cx,dy=y-cy,k=Math.min((ow/2-mx)/Math.abs(dx||1),(oh/2-my)/Math.abs(dy||1)),ax=cx+dx*k,ay=cy+dy*k,a=Math.atan2(dy,dx);
     c.save();c.translate(ax,ay);c.rotate(a);c.shadowColor=col;c.shadowBlur=14*S;c.fillStyle=col;c.beginPath();c.moveTo(16*S,0);c.lineTo(-10*S,-11*S);c.lineTo(-5*S,0);c.lineTo(-10*S,11*S);c.closePath();c.fill();c.restore();
     if(txt){const t2=txt+' · '+dist+'m';c.font=`800 ${13*S}px "Alegreya Sans","PingFang SC","Microsoft YaHei",system-ui,sans-serif`;const hw=c.measureText(t2).width/2+12*S,off=28*S,lx=clamp(ax-Math.cos(a)*off,hw+4*S,ow-hw-4*S),ly=clamp(ay-Math.sin(a)*off,24*S,oh-24*S);label(lx,ly,t2,col,false)}};
   if(G.rival&&G.rival.down<=0){const R=G.rival,[x,y]=toScreen(R.x,36,R.y);if(x>-40&&x<ow+40&&y>-20&&y<oh+20){label(x,y,`${L(R.name[0],R.name[1])} · Lv ${R.lv} · ${R.score} ${L('分','pts')}`,'#ff9c5a',false);c.fillStyle='#160b12cc';c.fillRect(x-20*S,y+13*S,40*S,4*S);c.fillStyle='#ff9c5a';c.fillRect(x-20*S,y+13*S,40*S*R.hp/R.maxHp,4*S)}}
   if(!G.auto){for(const f of G.fx){if(f.k==='relic')arrow(f.x,f.y,RELICS[f.id].col,L('法宝 ','Relic: ')+LL(RELICS[f.id]))}for(const ch of G.chests)arrow(ch.x,ch.y,'#ffd27a',L('宝箱','Chest'));if(G.rival)arrow(G.rival.x,G.rival.y,'#ff9c5a',G.rival.down>0?G.rival.name[0]+' (倒地)':undefined);
-    if(G.mission){const mt=missionTarget(),m=G.mission;if(mt)arrow(mt.x,mt.y,m.k==='mush'?'#ff8a52':'#ff5fe8',`${m.k==='mush'?L('采集灵芝','Gather lingzhi'):L('摧毁邪碑','Destroy steles')} ${m.N-m.n}/${m.N} · ${Math.ceil(m.t)}s`)}if(G.boss&&!G.boss.dead)arrow(G.boss.x,G.boss.y,'#ff5a45','血魔教主');
+    if(G.mission){const mt=missionTarget(),m=G.mission;if(mt)arrow(mt.x,mt.y,m.k==='mush'?'#ff8a52':'#ff5fe8',`${m.k==='mush'?L('采集灵芝','Gather lingzhi'):L('摧毁邪碑','Destroy steles')} ${m.N-m.n}/${m.N} · ${Math.ceil(m.t)}s`)}if(G.boss&&!G.boss.dead)arrow(G.boss.x,G.boss.y,'#ff5a45',L(G.boss.name,G.boss.en));
     // minimap
     const mw=(PHONE?92:130)*S,mh=mw*H/W,mx=ow-mw-14*S,my=(PHONE?104:70)*S,k=mw/W;
     c.save();c.globalAlpha=.85;c.fillStyle='#0a0710cc';c.strokeStyle='#d6a54a99';c.lineWidth=1*S;c.beginPath();c.rect(mx,my,mw,mh);c.fill();c.stroke();

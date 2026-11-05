@@ -9,19 +9,20 @@ const Q=()=>QUAL[QLEVEL];
 let MAPID=(()=>{try{const m=localStorage.getItem('sl_map');if(m&&MAPS[m])return m}catch(_){}return 'valley'})();
 const MAP=()=>MAPS[MAPID];
 /* chunked instancing: split instances into spatial tiles so frustum culling works in the main and shadow passes */
-function chunked(geo,m,list,shadow=true,receive=true){
+function chunked(geo,m,list,shadow=true,receive=true,occl=false){
   const CX=5,CZ=4,x0=-320,z0=-320,cw=(W+640)/CX,ch=(H+640)/CZ,buckets=[];
   for(const p of list){const i=clamp(Math.floor((p[0]-x0)/cw),0,CX-1),j=clamp(Math.floor((p[2]-z0)/ch),0,CZ-1),k=i+j*CX;(buckets[k]=buckets[k]||[]).push(p)}
   const out=[];
   buckets.forEach((b,k)=>{if(!b||!b.length)return;const i=k%CX,j=(k/CX)|0;const gg=geo.clone();gg.computeBoundingSphere();const r0=gg.boundingSphere?gg.boundingSphere.radius:40;
     const cx=x0+(i+.5)*cw,cz=z0+(j+.5)*ch;gg.boundingSphere=new T3.Sphere(new T3.Vector3(cx,40,cz),hyp(cw/2,ch/2)+r0*2.2+40);
     const im=new T3.InstancedMesh(gg,m,b.length);b.forEach((p,n)=>{dummy.position.set(p[0],p[1]||0,p[2]);dummy.rotation.set(0,p[3]||0,0);const kk=p[4]||1;dummy.scale.set(kk,p[5]||kk,kk);dummy.updateMatrix();im.setMatrixAt(n,dummy.matrix);const lv=p[6]||1;im.setColorAt(n,new T3.Color(lv,lv,lv))});
-    im.castShadow=shadow;im.receiveShadow=receive;im.frustumCulled=true;scene.add(im);out.push(im)});
+    im.castShadow=shadow;im.receiveShadow=receive;im.frustumCulled=true;scene.add(im);out.push(im);
+    if(occl)b.forEach((p,n)=>{const mtx=new T3.Matrix4();im.getMatrixAt(n,mtx);occluders.push({im,n,x:p[0],z:p[2],base:mtx,k:1})})});
   return out;
 }
 const lin=h=>new T3.Color(h).convertSRGBToLinear();
 const U={uTime:{value:0}};
-let rn,scene,cam,sun,orbL,hemiL,splats=[],splatI=0,comp,finalPass,bloomPass,glowPts,glowN=0,DPR=1,viewK=1,camX=W/2,camZ=H/2,VW=580,VH=400;
+let rn,scene,cam,sun,orbL,hemiL,splats=[],splatI=0,occluders=[],comp,finalPass,bloomPass,glowPts,glowN=0,DPR=1,viewK=1,camX=W/2,camZ=H/2,VW=580,VH=400;
 let ruins=null,grassMesh,gemMesh,bulletMesh,swordMesh,talisMesh,playerG,hatA,capeM,armG,crystal,feetSigil,bossG,tele,mRing,heartMesh;
 const blades=[],inst={},statues=[],mushes=[],ringPool=[],poolPool=[],scorch=[],flashL=[],rays=[],blueMush=[],flies=[],ghostM=[],shrineM=[];
 let scorchI=0;
@@ -187,7 +188,7 @@ function buildWorld(){
   const mapleG=(c1,c2)=>merge([part(CYL(2.4,4.2,30,8),'#3a2620',{p:[0,15,0],top:'#5a3b2c'}),part(CYL(1.5,2.4,16,6),'#3a2620',{p:[7,28,1],r:[0,0,-.9]}),part(CYL(1.4,2.2,14,6),'#3a2620',{p:[-6,31,-1],r:[0,0,.8]}),
     part(lump(20,2,.32,1.15,.8,1.15),c1,{p:[0,44,0],top:c2}),part(lump(14,2,.32),c1,{p:[14,36,4],top:c2}),part(lump(13,2,.32),c1,{p:[-13,39,-5],top:c2}),part(lump(10,2,.3),c1,{p:[2,58,1],top:c2})]);
   const m0=maples.filter(m=>!m[3]).map(m=>[m[0],0,m[1],vrnd(TAU),m[2],m[2]*vrnd(.9,1.2),vrnd(.9,1.15)]),m1=maples.filter(m=>m[3]).map(m=>[m[0],0,m[1],vrnd(TAU),m[2],m[2]*vrnd(.9,1.2),vrnd(.9,1.15)]);
-  if(m0.length)inst2(mapleG(TM.maple[0][0],TM.maple[0][1]),leaf,m0);if(m1.length)inst2(mapleG(TM.maple[1][0],TM.maple[1][1]),leaf,m1);
+  if(m0.length)chunked(mapleG(TM.maple[0][0],TM.maple[0][1]),leaf,m0,true,true,true);if(m1.length)chunked(mapleG(TM.maple[1][0],TM.maple[1][1]),leaf,m1,true,true,true);
   // low hedge on the camera-facing edge
   const bush=merge([part(lump(11,1,.4,1.2,.8,1),'#1f5140',{p:[0,8,0],top:'#6aa853'}),part(lump(8,1,.4),'#1f5140',{p:[10,6,3],top:'#6aa853'})]);
   const bl2=[];for(let i=0;i<Math.round(160*tq);i++)bl2.push([vrnd(-60,W+60),0,H-4+vrnd(0,70),vrnd(TAU),vrnd(.8,1.5),vrnd(.8,1.5),vrnd(.8,1.1)]);inst2(bush,leaf,bl2);
@@ -476,4 +477,14 @@ function dayNight(phase){
   _c1.copy(a.sun?lin(a.sun):_sunBase);_c2.copy(b.sun?lin(b.sun):_sunBase);sun.color.copy(_c1).lerp(_c2,k);sun.intensity=a.si+(b.si-a.si)*k;hemiL.intensity=a.hi+(b.hi-a.hi)*k;
   const f=[0,1,2].map(i=>a.fog[i]+(b.fog[i]-a.fog[i])*k);scene.fog.color.copy(_fogBase).multiply(_c1.setRGB(f[0],f[1],f[2]));scene.background.copy(scene.fog.color);
   const dark=a.dark+(b.dark-a.dark)*k,bl=a.bloom+(b.bloom-a.bloom)*k;if(bloomPass)bloomPass.strength=(PHONE?.5:.62)+bl;orbL.intensity=1.5+dark*4;return dark;
+}
+
+/* trees between the camera and the hero shrink away so the fight stays visible */
+const _occM=new T3.Matrix4(),_occS=new T3.Vector3();
+function occludeTick(px,pz,dt){
+  for(const o of occluders){
+    const dx=o.x-px,dz=o.z-pz;const near=Math.abs(dx)<70&&dz>-30&&dz<150; // in front of the hero (toward the camera) and close in x
+    const target=near?.12:1,k=o.k+(target-o.k)*Math.min(1,dt*7);if(Math.abs(k-o.k)<.002&&Math.abs(k-target)<.002)continue;o.k=k;
+    _occM.copy(o.base);_occS.set(1,k,1);_occM.scale(_occS);o.im.setMatrixAt(o.n,_occM);o.im.instanceMatrix.needsUpdate=true;
+  }
 }
