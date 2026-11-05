@@ -39,6 +39,7 @@
     </div>
   </div>
   <div id="banner"></div>
+  <div id="intro" hidden></div>
   <button id="sndbtn" aria-label="Sound settings">🔊</button>
   <div id="sndpanel" hidden>
     <label>音乐 Music <input type="range" id="musicvol" min="0" max="100" value="60"></label>
@@ -57,11 +58,14 @@
         <div id="classes"></div>
         <button class="go" id="startbtn">出山 Start</button>
         <p class="note"><span id="autonote"></span> <kbd>WASD</kbd> / arrows or drag to move · <kbd>Space</kbd> dash · <kbd>P</kbd> pause (auto-cast toggle there) · <kbd>M</kbd> mute. <span id="loadnote"></span></p>
-        <div class="opts"><div id="qual"><span>画质 Quality</span><button type="button" data-q="low">低 Low</button><button type="button" data-q="med">中 Med</button><button type="button" data-q="high">高 High</button></div></div>
+        <div class="opts"><div id="diff"><span>难度 Difficulty</span><button type="button" data-d="easy">简单 Easy</button><button type="button" data-d="normal">普通 Normal</button><button type="button" data-d="hard">困难 Hard</button></div><div id="qual"><span>画质 Quality</span><button type="button" data-q="low">低 Low</button><button type="button" data-q="med">中 Med</button><button type="button" data-q="high">高 High</button></div></div>
+        <div id="maps"></div>
         <div class="lobby">
           <h2><span>山门 · 永久强化 Lobby upgrades</span><b id="gold">0</b></h2>
           <div id="shop"></div>
           <div id="record"></div>
+          <h2 style="margin-top:6px"><span>成就 · 解锁 Achievements</span><b id="achcount">0/0</b></h2>
+          <div id="ach"></div>
         </div>
         <button class="go alt" id="exitbtn" hidden>退出 Quit</button>
       </div>

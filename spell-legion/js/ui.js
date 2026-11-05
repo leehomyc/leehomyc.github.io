@@ -1,8 +1,9 @@
 'use strict';
 /* ui.js — HUD, cards, title/class select, lobby upgrades, results, input */
 const SAVE_KEY='spell-legion-save';
-let SAVE={gold:0,up:{},cls:'swordsman',best:0,wins:0,runs:0,autocast:false,rival:false,bosses:0,played:false};
+let SAVE={gold:0,up:{},cls:'swordsman',best:0,wins:0,runs:0,autocast:false,rival:false,bosses:0,played:false,ach:{},diff:'normal',clsWins:{}};
 try{const s=JSON.parse(localStorage.getItem(SAVE_KEY)||'null');if(s&&typeof s==='object')SAVE={...SAVE,...s}}catch(_){}
+SAVE.ach=SAVE.ach||{};SAVE.clsWins=SAVE.clsWins||{};window.SAVE=SAVE;
 function persist(){try{localStorage.setItem(SAVE_KEY,JSON.stringify(SAVE))}catch(_){}}
 const UPGRADES=[
   {id:'hp',zh:'体魄',en:'Vigor',d:'生命上限 +10% / 级',de:'+10% max HP per rank',max:5,cost:r=>80+r*70},
@@ -69,6 +70,8 @@ function hud(dt){
   const d=$('#sealdash');d.style.setProperty('--cd',(clamp(P.dashCd/1.4,0,1)*360)+'deg');d.classList.toggle('cooling',P.dashCd>0);
 }
 function drawRelics(){const box=$('#relics');if(!box)return;box.textContent='';for(const id of G.relics){const R=RELICS[id],d=document.createElement('div');d.className='relic';d.style.color=R.col;d.textContent=R.g;d.title=`${R.zh} ${R.en} · ${R.d} · ${R.de}`;box.appendChild(d)}}
+let introT=null;
+function bossIntro(zh,en,n){const el=$('#intro');el.innerHTML=`<div class="lb"></div><div class="bn"><small>第 ${n+1} 位首领 · Boss ${n+1}</small><b>${zh}</b><span>${en}</span></div><div class="lb"></div>`;el.hidden=false;el.classList.remove('on');void el.offsetWidth;el.classList.add('on');clearTimeout(introT);introT=setTimeout(()=>{el.classList.remove('on');setTimeout(()=>el.hidden=true,500)},2600)}
 function updateCores(){const e=$('#cores');e.textContent='';for(let i=0;i<Math.max(2,G.cores);i++){const s=document.createElement('i');s.className='core'+(i<G.cores?'':' off');e.appendChild(s);e.append(' ')}}
 function drawSeals(){
   if(G.auto)return;
@@ -111,6 +114,7 @@ function renderPanel(){
       T.appendChild(col)});
   }
 }
+document.querySelectorAll('#diff button').forEach(b=>b.onclick=()=>{SAVE.diff=b.dataset.d;DIFFID=SAVE.diff;persist();renderTitle();SFX.pick(1)});
 document.querySelectorAll('#qual button').forEach(b=>b.onclick=()=>{try{localStorage.setItem('sl_quality',b.dataset.q)}catch(_){}b.textContent='重新载入… Reloading';setTimeout(()=>location.reload(),60)});
 $('#charbtn').onclick=()=>{togglePanel();$('#charbtn').blur()};
 $('#charclose').onclick=()=>togglePanel();
@@ -156,11 +160,15 @@ function renderTitle(){
   $('#record').textContent=SAVE.runs?`${SAVE.runs} 局 · 最长存活 ${fmt(SAVE.best||0)} · 单局最多首领 ${SAVE.bosses||0}`:'';
   RIVAL_ON=false;
   document.querySelectorAll('#qual button').forEach(b=>b.classList.toggle('on',b.dataset.q===QLEVEL));
+  DIFFID=SAVE.diff||'normal';document.querySelectorAll('#diff button').forEach(b=>b.classList.toggle('on',b.dataset.d===DIFFID));
+  const mp=$('#maps');mp.textContent='';for(const k in MAPS){const M=MAPS[k],locked=M.need&&!SAVE.ach[M.need],b=document.createElement('button');b.type='button';b.className='mapb'+(k===MAPID?' on':'')+(locked?' locked':'');b.disabled=locked;b.innerHTML=`<b>${M.zh}</b><small>${M.en}${locked?' · 🔒 '+ACH.find(a=>a.id===M.need).d:''}</small>`;b.onclick=()=>{try{localStorage.setItem('sl_map',k)}catch(_){}b.innerHTML='<b>载入中…</b>';setTimeout(()=>location.reload(),60)};mp.appendChild(b)}
+  const al=$('#ach');al.textContent='';const done=ACH.filter(a=>SAVE.ach[a.id]).length;$('#achcount').textContent=`${done}/${ACH.length}`;
+  ACH.forEach(a=>{const d=document.createElement('div');d.className='achi'+(SAVE.ach[a.id]?' done':'');d.innerHTML=`<span class="tick">${SAVE.ach[a.id]?'✓':'○'}</span><b>${a.zh} <small>${a.en}</small></b><span>${a.d}</span><em>+${a.gold} 金</em>`;al.appendChild(d)});
 }
 function startRun(){
   if($('#startbtn').disabled)return;
-  CLASS=SAVE.cls;
-  $('#title').hidden=true;$('#end').hidden=true;$('#cards').hidden=true;$('#hud').hidden=false;$('#bossbar').hidden=true;$('#pause').hidden=true;$('#char').hidden=true;
+  CLASS=SAVE.cls;DIFFID=SAVE.diff||'normal';
+  $('#title').hidden=true;$('#intro').hidden=true;$('#end').hidden=true;$('#cards').hidden=true;$('#hud').hidden=false;$('#bossbar').hidden=true;$('#pause').hidden=true;$('#char').hidden=true;
   $('#banner').classList.remove('on');$('#pausebtn').textContent='II';
   SAVE_FIRST=!SAVE.played;SAVE.played=true;persist();
   newGame(false,CLASS);applyUpgrades(G.P);updateCores();drawSeals();drawRelics();
@@ -169,7 +177,8 @@ function startRun(){
 }
 function showEnd(ok){
   G.ended=true;const box=$('#endb'),tot=G.spells.reduce((a,s)=>a+s.dmg,0)||1,max=Math.max(...G.spells.map(s=>s.dmg),1);
-  const gold=Math.round((G.kills*1.1+G.lv*6+G.bossSlain*150+Math.floor(G.t/10)*3+G.goldRun+G.comboMax*2)*(1+.15*(SAVE.up.gold||0))*(G.relics.includes('bowl')?1.3:1));
+  checkAch();
+  const gold=Math.round((G.kills*1.1+G.lv*6+G.bossSlain*150+Math.floor(G.t/10)*3+G.goldRun+G.comboMax*2)*(1+.15*(SAVE.up.gold||0))*(G.relics.includes('bowl')?1.3:1)*D().gold);
   const record=G.t>(SAVE.best||0);SAVE.gold+=gold;SAVE.runs++;SAVE.wins+=G.bossSlain;SAVE.bosses=Math.max(SAVE.bosses||0,G.bossSlain);if(record)SAVE.best=G.t;persist();
   const rows=G.spells.slice().sort((a,b)=>b.dmg-a.dmg).map(s=>{const f=s.els.length===2?FUS[fusion(s)][1]:s.els[0]?ELS[s.els[0]].en:'';
     return `<span>${SPELLS[s.id].zh} ${SPELLS[s.id].en}${f?` · ${f}`:''} · Lv ${s.lv}</span><div class="bar"><i style="width:${s.dmg/max*100}%"></i></div><span>${Math.round(s.dmg/tot*100)}%</span>`}).join('');

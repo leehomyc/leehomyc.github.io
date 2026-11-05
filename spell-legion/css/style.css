@@ -225,3 +225,26 @@ kbd{font:700 13px var(--ui);border:1px solid var(--dim);padding:0 5px;border-rad
 /* relic bar */
 #relics{display:flex;gap:4px;flex-wrap:wrap}
 .relic{width:24px;height:24px;border-radius:5px;background:#0a0710cc;border:1px solid currentColor;display:grid;place-items:center;font-family:var(--brush);font-size:17px;line-height:1;text-shadow:0 0 8px currentColor;box-shadow:0 0 8px #0008}
+
+/* difficulty, maps, achievements, boss intro */
+#diff{display:flex;gap:4px;align-items:center;font-size:12px;color:var(--dim)}
+#diff button{border-radius:6px;background:#2a1822;border:1px solid #6b5230;color:var(--bone);font:700 12px var(--ui);padding:6px 10px;cursor:pointer}
+#diff button.on{background:var(--cinnabar);color:#fff;border-color:#ffb79f}
+#maps{display:flex;gap:8px;flex-wrap:wrap}
+.mapb{text-align:left;border-radius:8px;background:#140b12cc;border:1px solid #6b523088;color:var(--bone);font:inherit;padding:7px 12px;cursor:pointer;display:grid;gap:1px;min-width:150px}
+.mapb b{font-size:14px}.mapb small{font-size:11px;color:var(--dim)}
+.mapb.on{border-color:var(--brass);box-shadow:0 0 0 1px var(--brass),0 0 16px #d6a54a55}
+.mapb.locked{opacity:.5;cursor:default}
+#ach{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:4px}
+.achi{display:grid;grid-template-columns:18px minmax(0,1fr) auto;gap:2px 8px;align-items:baseline;font-size:12px;color:var(--dim);padding:5px 8px;border-radius:6px;background:#140b1299;border:1px solid #6b523044}
+.achi b{color:var(--bone);font-size:12.5px}.achi b small{color:var(--brass);font-weight:700}
+.achi span:last-of-type{grid-column:2;font-size:11px}.achi em{grid-column:3;grid-row:1/3;font-style:normal;color:#ffd27a;font-weight:800}
+.achi.done{border-color:#7fc98a88}.achi.done .tick{color:#7fc98a;font-weight:800}
+#intro{position:absolute;inset:0;pointer-events:none;display:flex;flex-direction:column;justify-content:space-between;z-index:12;opacity:0;transition:opacity .4s}
+#intro[hidden]{display:none}#intro.on{opacity:1}
+#intro .lb{height:11vh;background:#000}
+#intro .bn{position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);text-align:center;pointer-events:none}
+#intro .bn small{display:block;font:800 13px var(--ui);letter-spacing:.3em;color:#ff9c5a;text-transform:uppercase}
+#intro .bn b{display:block;font:400 clamp(48px,9vw,96px)/1 var(--brush);color:#fff;text-shadow:0 0 40px #e0503f,0 4px 0 #000;animation:introIn .6s cubic-bezier(.2,.9,.3,1.2) both}
+#intro .bn span{display:block;font:800 16px var(--ui);letter-spacing:.14em;color:var(--bone);text-shadow:0 2px 0 #000}
+@keyframes introIn{from{transform:scale(1.6);opacity:0;letter-spacing:.4em}to{transform:none;opacity:1;letter-spacing:.05em}}

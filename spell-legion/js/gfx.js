@@ -6,6 +6,8 @@ const QUAL={low:{shadow:1024,grass:7000,dpr:1,msaa:false,flies:90,trees:.55,tilt
 function detectQuality(){if(PHONE)return 'low';const cores=navigator.hardwareConcurrency||4,mem=navigator.deviceMemory||8;if(cores<=4||mem<=4)return 'low';if(cores<=8)return 'med';return 'high'}
 let QLEVEL=(()=>{try{const q=localStorage.getItem('sl_quality');if(q&&QUAL[q])return q}catch(_){}return detectQuality()})();
 const Q=()=>QUAL[QLEVEL];
+let MAPID=(()=>{try{const m=localStorage.getItem('sl_map');if(m&&MAPS[m])return m}catch(_){}return 'valley'})();
+const MAP=()=>MAPS[MAPID];
 /* chunked instancing: split instances into spatial tiles so frustum culling works in the main and shadow passes */
 function chunked(geo,m,list,shadow=true,receive=true){
   const CX=5,CZ=4,x0=-320,z0=-320,cw=(W+640)/CX,ch=(H+640)/CZ,buckets=[];
@@ -110,15 +112,15 @@ function paintGround(){
   const M=320,TW=Q().ground,TH=Math.round(TW*(H+2*M)/(W+2*M)),sx=TW/(W+2*M);
   const k=document.createElement('canvas');k.width=TW;k.height=TH;const g=k.getContext('2d');
   const X=x=>(x+M)*sx,Y=y=>(y+M)*sx;
-  g.fillStyle='#355c42';g.fillRect(0,0,TW,TH);
+  const TH_=MAP();g.fillStyle=TH_.base;g.fillRect(0,0,TW,TH);
   const blob=(x,y,r,col,a)=>{const G2=g.createRadialGradient(x,y,0,x,y,r);const c=new T3.Color(col),s=`${c.r*255|0},${c.g*255|0},${c.b*255|0}`;G2.addColorStop(0,`rgba(${s},${a})`);G2.addColorStop(.6,`rgba(${s},${a*.55})`);G2.addColorStop(1,`rgba(${s},0)`);g.fillStyle=G2;g.fillRect(x-r,y-r,r*2,r*2)};
-  for(let i=0;i<3200;i++)blob(rnd(TW),rnd(TH),rnd(30,220)*sx,pick(['#467a3e','#274d3b','#5a8a44','#2e6047','#73904a','#214a3e','#6b6a40','#3f6b5a']),.3);
-  const trail=(pts,w)=>{for(const [lw,a,col] of [[w*1.6,.22,'#5f5a3a'],[w,.45,'#8f7a52'],[w*.5,.5,'#ab9468']]){g.lineWidth=lw*sx;g.strokeStyle=col;g.globalAlpha=a;g.lineCap='round';g.lineJoin='round';g.beginPath();pts.forEach((p,i)=>i?g.lineTo(X(p[0]),Y(p[1])):g.moveTo(X(p[0]),Y(p[1])));g.stroke()}g.globalAlpha=1};
+  for(let i=0;i<3200;i++)blob(rnd(TW),rnd(TH),rnd(30,220)*sx,pick(TH_.blobs),.3);
+  const trail=(pts,w)=>{for(const [lw,a,col] of [[w*1.6,.22,TH_.trail[0]],[w,.45,TH_.trail[1]],[w*.5,.5,TH_.trail[2]]]){g.lineWidth=lw*sx;g.strokeStyle=col;g.globalAlpha=a;g.lineCap='round';g.lineJoin='round';g.beginPath();pts.forEach((p,i)=>i?g.lineTo(X(p[0]),Y(p[1])):g.moveTo(X(p[0]),Y(p[1])));g.stroke()}g.globalAlpha=1};
   TRAILS.forEach(t=>trail(t.pts,t.w));
   for(const t of TRAILS)for(let i=0;i<t.pts.length*40;i++){const p=t.pts[Math.floor(rnd(t.pts.length))];g.fillStyle=pick(['#6f5f43','#4e5a3a','#a39070','#7c8040']);g.globalAlpha=.3;g.fillRect(X(p[0]+rnd(-t.w,t.w))-1,Y(p[1]+rnd(-t.w,t.w))-1,rnd(1,4),rnd(1,3))}g.globalAlpha=1;
   // plaza
   const cx=X(W/2),cy=Y(H/2);
-  g.fillStyle='#2a2c27';g.beginPath();g.arc(cx,cy,(PLAZA_R-6)*sx,0,TAU);g.fill();blob(cx,cy,(PLAZA_R+30)*sx,'#2a2c27',.55);
+  g.fillStyle=TH_.plaza;g.beginPath();g.arc(cx,cy,(PLAZA_R-6)*sx,0,TAU);g.fill();blob(cx,cy,(PLAZA_R+30)*sx,TH_.plaza,.55);
   for(let ringN=0;ringN<6;ringN++){const r=(20+ringN*22)*sx,n=8+ringN*7;
     for(let i=0;i<n;i++){const a0=i/n*TAU+ringN*.3,a1=a0+TAU/n*.965,th=10.3*sx;
       g.fillStyle=pick(['#6e6d66','#5f615c','#77746a','#55574f','#686a60']);g.beginPath();g.arc(cx,cy,r+th+rnd(-.6,.6),a0,a1);g.arc(cx,cy,r-th,a1,a0,true);g.closePath();g.fill();
@@ -132,10 +134,10 @@ function paintGround(){
   maples.forEach(m=>{for(let i=0;i<90;i++){g.fillStyle=pick(m[3]?['#e8713a','#f0a040','#c9552f']:['#b03a2a','#e85a3a','#8e2a22']);g.globalAlpha=rnd(.4,.85);const a=rnd(TAU),d=rnd(0,40*m[2]);g.fillRect(X(m[0]+Math.cos(a)*d),Y(m[1]+Math.sin(a)*d*.8),2.4,2)}});
   g.globalAlpha=1;
   const n=TW>=4096?170000:TW>=3072?110000:60000;
-  for(let i=0;i<n;i++){g.fillStyle=pick(['#1d3c2e','#527a3e','#6f8a48','#25503c','#3f6b40','#6a5d3a']);g.globalAlpha=rnd(.12,.42);const s=rnd(.8,2.6);g.fillRect(rnd(TW),rnd(TH),s,s*rnd(.6,2.4))}
+  for(let i=0;i<n;i++){g.fillStyle=pick(TH_.grain);g.globalAlpha=rnd(.12,.42);const s=rnd(.8,2.6);g.fillRect(rnd(TW),rnd(TH),s,s*rnd(.6,2.4))}
   for(let i=0;i<(PHONE?1500:4200);i++){g.fillStyle=pick(['#e9c95f','#e77a5a','#f0ead2','#c986e0','#ffb44a']);g.globalAlpha=.75;const x=rnd(TW),y=rnd(TH);g.fillRect(x,y,2,2);g.fillRect(x+rnd(-5,5),y+rnd(-5,5),1.6,1.6)}
   g.globalAlpha=1;
-  const ed=(x0,y0,x1,y1,rx,ry,rw,rh)=>{const G2=g.createLinearGradient(X(x0),Y(y0),X(x1),Y(y1));G2.addColorStop(0,'rgba(18,30,34,.96)');G2.addColorStop(1,'rgba(18,30,34,0)');g.fillStyle=G2;g.fillRect(X(rx),Y(ry),rw*sx,rh*sx)};
+  const ed=(x0,y0,x1,y1,rx,ry,rw,rh)=>{const G2=g.createLinearGradient(X(x0),Y(y0),X(x1),Y(y1));G2.addColorStop(0,`rgba(${TH_.edge},.96)`);G2.addColorStop(1,`rgba(${TH_.edge},0)`);g.fillStyle=G2;g.fillRect(X(rx),Y(ry),rw*sx,rh*sx)};
   ed(-120,0,40,0,-M,-M,M+40,H+2*M);ed(W+120,0,W-40,0,W-40,-M,M+40,H+2*M);ed(0,-120,0,40,-M,-M,W+2*M,M+40);ed(0,H+120,0,H-40,-M,H-40,W+2*M,M+40);
   // normal map
   const NW=Math.min(2048,TW/2),NH=Math.round(NW*TH/TW),nk=document.createElement('canvas');nk.width=NW;nk.height=NH;const ng=nk.getContext('2d');ng.drawImage(k,0,0,NW,NH);
@@ -149,18 +151,18 @@ function paintGround(){
   const nor=new T3.CanvasTexture(nk);nor.anisotropy=4;
   const plane=new T3.Mesh(new T3.PlaneGeometry(W+2*M,H+2*M),new T3.MeshStandardMaterial({map,normalMap:nor,normalScale:new T3.Vector2(1.1,1.1),roughness:.94,metalness:0}));
   plane.rotation.x=-Math.PI/2;plane.position.set(W/2,0,H/2);plane.receiveShadow=true;scene.add(plane);
-  const under=new T3.Mesh(new T3.PlaneGeometry(12000,12000),new T3.MeshBasicMaterial({color:lin('#122026')}));under.rotation.x=-Math.PI/2;under.position.set(W/2,-1,H/2);scene.add(under);
+  const under=new T3.Mesh(new T3.PlaneGeometry(12000,12000),new T3.MeshBasicMaterial({color:lin('rgb('+TH_.edge+')')}));under.rotation.x=-Math.PI/2;under.position.set(W/2,-1,H/2);scene.add(under);
 }
 function buildPonds(){
-  const m=new T3.ShaderMaterial({transparent:true,depthWrite:false,uniforms:{uTime:U.uTime},
+  const wc=MAP().water,m=new T3.ShaderMaterial({transparent:true,depthWrite:false,uniforms:{uTime:U.uTime,uDeep:{value:new T3.Vector3(...wc[0])},uSky:{value:new T3.Vector3(...wc[1])}},
     vertexShader:'varying vec2 vU;varying vec3 vW;void main(){vU=uv;vec4 w=modelMatrix*vec4(position,1.);vW=w.xyz;gl_Position=projectionMatrix*viewMatrix*w;}',
-    fragmentShader:`varying vec2 vU;varying vec3 vW;uniform float uTime;
+    fragmentShader:`varying vec2 vU;varying vec3 vW;uniform float uTime;uniform vec3 uDeep,uSky;
     float wave(vec2 p){return sin(p.x*.26+uTime*1.1)*.5+sin(p.y*.33-uTime*1.4)*.35+sin((p.x+p.y)*.51+uTime*.9)*.25+sin((p.x-p.y)*.83-uTime*1.7)*.12;}
     void main(){float d=length(vU-.5)*2.;float a=smoothstep(1.,.86,d);
       vec2 p=vW.xz;float e=.9;float n=wave(p),nx=wave(p+vec2(e,0.))-n,ny=wave(p+vec2(0.,e))-n;
       vec3 N=normalize(vec3(-nx*.9,1.,-ny*.9));vec3 V=normalize(cameraPosition-vW),S=normalize(vec3(-.58,.62,.53));
       float F=.05+.95*pow(1.-max(dot(N,V),0.),4.);float spec=pow(max(dot(reflect(-S,N),V),0.),70.);
-      vec3 deep=vec3(.012,.08,.10),sky=vec3(.42,.6,.72);
+      vec3 deep=uDeep,sky=uSky;
       vec3 c=mix(deep,sky,F*1.1+.1)+vec3(1.6,1.25,.85)*spec*2.;
       c+=vec3(.5,.8,.7)*smoothstep(.97,.8,d)*smoothstep(.72,.9,d)*.14*(.6+.4*sin(uTime+p.x*.1));
       gl_FragColor=vec4(c,a*.93);}`});
@@ -172,10 +174,10 @@ function buildWorld(){
   const leaf=mat('wind',{rough:.85,rim:'#ffdca8',rimI:.22,windY:'0.035'}),wood=mat('plain',{rough:.9,rimI:.15}),stone=mat('plain',{rough:.92,rimI:.18,rim:'#ffe4c0'}),lacquer=mat('plain',{rough:.45,metal:.05,rimI:.3,rim:'#ffc9a0'});
   const inst2=(geo,m,list,shadow=true)=>chunked(geo,m,list,shadow,true);const tq=Q().trees;
   // pines and bamboo forest outside the walls
-  const pine=merge([part(CYL(2.6,4.5,40,8),'#3a2a22',{p:[0,20,0]}),part(CONE(22,30,9),'#17382c',{p:[0,44,0],top:'#2f6a48'}),part(CONE(17,26,9),'#1a3f30',{p:[0,62,0],top:'#3a7a52'}),part(CONE(11,22,9),'#1e4634',{p:[0,78,0],top:'#4a8a5c'})]);
+  const TM=MAP(),pc=TM.pine;const pine=merge([part(CYL(2.6,4.5,40,8),'#3a2a22',{p:[0,20,0]}),part(CONE(22,30,9),pc[0],{p:[0,44,0],top:pc[1]}),part(CONE(17,26,9),pc[0],{p:[0,62,0],top:pc[1]}),part(CONE(11,22,9),pc[0],{p:[0,78,0],top:pc[1]})]);
   const pines=[];for(let i=0;i<Math.round(230*tq);i++){const s=i%4;let x,z;if(s===0){x=rnd(-300,W+300);z=rnd(-290,-16)}else if(s===1){x=rnd(-300,W+300);z=rnd(H+40,H+300)}else if(s===2){x=rnd(-290,-16);z=rnd(-60,H+80)}else{x=rnd(W+16,W+290);z=rnd(-60,H+80)}const k=rnd(.7,1.4);pines.push([x,0,z,rnd(TAU),k,k*rnd(.9,1.3),rnd(.7,1.1)])}
   inst2(pine,leaf,pines);
-  const stalk=(ox,oz,h,lean)=>{const p=[part(CYL(.9,1.25,h,6),'#6f9a3f',{p:[ox,h/2,oz],r:[lean,0,lean*.6],top:'#aacb5e'})];for(let y=12;y<h;y+=13)p.push(part(CYL(1.35,1.35,.9,6),'#4a7426',{p:[ox+lean*y*.5,y,oz+lean*y*.3]}));for(let i=0;i<5;i++)p.push(part(BOX(.5,.12,8),'#5b9636',{p:[ox+lean*h*.5+rnd(-5,5),h-rnd(2,24),oz+lean*h*.3+rnd(-5,5)],r:[rnd(-.4,.4),rnd(TAU),rnd(-.5,.5)],top:'#9fd04c'}));return p};
+  const bc=TM.bamboo;const stalk=(ox,oz,h,lean)=>{const p=[part(CYL(.9,1.25,h,6),bc[0],{p:[ox,h/2,oz],r:[lean,0,lean*.6],top:bc[1]})];for(let y=12;y<h;y+=13)p.push(part(CYL(1.35,1.35,.9,6),bc[0],{p:[ox+lean*y*.5,y,oz+lean*y*.3]}));for(let i=0;i<5;i++)p.push(part(BOX(.5,.12,8),bc[0],{p:[ox+lean*h*.5+rnd(-5,5),h-rnd(2,24),oz+lean*h*.3+rnd(-5,5)],r:[rnd(-.4,.4),rnd(TAU),rnd(-.5,.5)],top:bc[1]}));return p};
   const bam=merge([...stalk(0,0,72,.05),...stalk(5,3,60,-.04),...stalk(-4,4,82,.03),...stalk(2,-5,56,.06)]);
   const bl=[];
   rocks.filter(r=>r.bamboo).forEach(r=>{const n=Math.round(r.w*r.h/260);for(let i=0;i<n;i++)bl.push([r.x+rnd(-6,r.w+6),0,r.y+rnd(-6,r.h+6),rnd(TAU),rnd(.7,1.2),rnd(.8,1.3),rnd(.8,1.15)])});
@@ -185,7 +187,7 @@ function buildWorld(){
   const mapleG=(c1,c2)=>merge([part(CYL(2.4,4.2,30,8),'#3a2620',{p:[0,15,0],top:'#5a3b2c'}),part(CYL(1.5,2.4,16,6),'#3a2620',{p:[7,28,1],r:[0,0,-.9]}),part(CYL(1.4,2.2,14,6),'#3a2620',{p:[-6,31,-1],r:[0,0,.8]}),
     part(lump(20,2,.32,1.15,.8,1.15),c1,{p:[0,44,0],top:c2}),part(lump(14,2,.32),c1,{p:[14,36,4],top:c2}),part(lump(13,2,.32),c1,{p:[-13,39,-5],top:c2}),part(lump(10,2,.3),c1,{p:[2,58,1],top:c2})]);
   const m0=maples.filter(m=>!m[3]).map(m=>[m[0],0,m[1],rnd(TAU),m[2],m[2]*rnd(.9,1.2),rnd(.9,1.15)]),m1=maples.filter(m=>m[3]).map(m=>[m[0],0,m[1],rnd(TAU),m[2],m[2]*rnd(.9,1.2),rnd(.9,1.15)]);
-  if(m0.length)inst2(mapleG('#8e2a22','#e8713a'),leaf,m0);if(m1.length)inst2(mapleG('#a84a22','#f0a040'),leaf,m1);
+  if(m0.length)inst2(mapleG(TM.maple[0][0],TM.maple[0][1]),leaf,m0);if(m1.length)inst2(mapleG(TM.maple[1][0],TM.maple[1][1]),leaf,m1);
   // low hedge on the camera-facing edge
   const bush=merge([part(lump(11,1,.4,1.2,.8,1),'#1f5140',{p:[0,8,0],top:'#6aa853'}),part(lump(8,1,.4),'#1f5140',{p:[10,6,3],top:'#6aa853'})]);
   const bl2=[];for(let i=0;i<Math.round(160*tq);i++)bl2.push([rnd(-60,W+60),0,H-4+rnd(0,70),rnd(TAU),rnd(.8,1.5),rnd(.8,1.5),rnd(.8,1.1)]);inst2(bush,leaf,bl2);
@@ -228,7 +230,7 @@ function buildWorld(){
 let grassChunks=[];
 function buildGrass(){
   grassChunks.forEach(m=>{scene.remove(m);m.geometry.dispose()});grassChunks=[];
-  const P=[],N=[],C=[],Eg=[],Lg=[];const root=lin('#173a2c'),tips=[lin('#7ea04c'),lin('#5d9150'),lin('#a5a556')];
+  const P=[],N=[],C=[],Eg=[],Lg=[];const root=lin(MAP().grassRoot),tips=MAP().grassTips.map(lin);
   for(let b=0;b<7;b++){const a=rnd(TAU),ox=rnd(-3.2,3.2),oz=rnd(-3.2,3.2),h=rnd(5,11),w=rnd(.7,1.15),lean=rnd(1,3.5),cx=Math.cos(a),cz=Math.sin(a),tip=pick(tips);
     const v=[[ox-cx*w,0,oz-cz*w],[ox+cx*w,0,oz+cz*w],[ox+cz*lean*.5-cx*w*.5,h*.6,oz-cx*lean*.5-cz*w*.5],[ox+cz*lean*.5+cx*w*.5,h*.6,oz-cx*lean*.5+cz*w*.5],[ox+cz*lean,h,oz-cx*lean]];
     [[0,1,2],[1,3,2],[2,3,4]].forEach(tri=>tri.forEach(i=>{P.push(...v[i]);N.push(0,1,0);const k=v[i][1]/h;C.push(root.r+(tip.r-root.r)*k,root.g+(tip.g-root.g)*k,root.b+(tip.b-root.b)*k);Eg.push(0,0,0);Lg.push(0,0)}))}
@@ -430,10 +432,10 @@ function buildPost(){
 function initGfx(){
   rn=new T3.WebGLRenderer({canvas:cv,antialias:false,powerPreference:'high-performance',stencil:false});
   rn.shadowMap.enabled=true;rn.shadowMap.type=T3.PCFSoftShadowMap;rn.toneMapping=T3.NoToneMapping;rn.outputEncoding=T3.LinearEncoding;
-  scene=new T3.Scene();const fogC=lin('#7d9a98');scene.background=fogC;scene.fog=new T3.Fog(fogC,560,1500);
+  scene=new T3.Scene();const fogC=lin(MAP().fog);scene.background=fogC;scene.fog=new T3.Fog(fogC,560,1500);
   cam=new T3.PerspectiveCamera(32,1,20,3600);
-  scene.add(new T3.HemisphereLight(lin('#a9c8ff'),lin('#3d5436'),.46));
-  sun=new T3.DirectionalLight(lin('#ffc58a'),1.85);sun.castShadow=true;sun.shadow.mapSize.set(Q().shadow,Q().shadow);sun.shadow.bias=-.0004;sun.shadow.normalBias=.8;sun.shadow.radius=QLEVEL==='low'?2:3.5;scene.add(sun,sun.target);
+  scene.add(new T3.HemisphereLight(lin(MAP().hemi[0]),lin(MAP().hemi[1]),.46));
+  sun=new T3.DirectionalLight(lin(MAP().sun),1.85);sun.castShadow=true;sun.shadow.mapSize.set(Q().shadow,Q().shadow);sun.shadow.bias=-.0004;sun.shadow.normalBias=.8;sun.shadow.radius=QLEVEL==='low'?2:3.5;scene.add(sun,sun.target);
   orbL=new T3.PointLight(lin('#6fe3ff'),1.5,150,1.6);scene.add(orbL);
   buildArena();
   paintGround();buildPonds();buildWorld();buildCreatures();buildFxPools();buildGlow();buildPost();

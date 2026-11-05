@@ -124,3 +124,23 @@ const RELICS={
   pill:{g:'丹',zh:'灵芝丹',en:'Lingzhi Pill',d:'生命上限 +40,每秒回复 1',de:'+40 max HP, regenerate 1 HP/s',col:'#ff6a52'},
   taiji:{g:'极',zh:'太极图',en:'Taiji Diagram',d:'武学内力消耗 -25%',de:'Skills cost 25% less qi',col:'#efe4cd'},
 };
+
+/* ---------- maps (themes) and achievements ---------- */
+const MAPS={
+  valley:{zh:'青竹谷',en:'Bamboo Valley',base:'#355c42',blobs:['#467a3e','#274d3b','#5a8a44','#2e6047','#73904a','#214a3e','#6b6a40','#3f6b5a'],grain:['#1d3c2e','#527a3e','#6f8a48','#25503c','#3f6b40','#6a5d3a'],trail:['#5f5a3a','#8f7a52','#ab9468'],plaza:'#2a2c27',fog:'#7d9a98',sun:'#ffc58a',hemi:['#a9c8ff','#3d5436'],water:[[.012,.08,.10],[.42,.6,.72]],pine:['#17382c','#2f6a48'],bamboo:['#6f9a3f','#aacb5e'],grassTips:['#7ea04c','#5d9150','#a5a556'],grassRoot:'#173a2c',maple:[['#8e2a22','#e8713a'],['#a84a22','#f0a040']],lantern:'#ff5a2a',edge:'18,30,34'},
+  snow:{zh:'雪岭关',en:'Snow Pass',need:'boss2',base:'#c9d6dc',blobs:['#dfe8ec','#b8c8d0','#e8eef1','#a9bcc6','#d2dde2','#98aab4','#c3b9a8','#b0c4cc'],grain:['#e9f0f3','#a9bcc6','#d7e0e4','#8fa3ad','#f4f7f8','#b9b0a0'],trail:['#6a6058','#8d8278','#a69a8c'],plaza:'#4a4e52',fog:'#b9c9d2',sun:'#ffe4c8',hemi:['#cfe0ff','#6a7a84'],water:[[.05,.14,.2],[.72,.84,.92]],pine:['#2b4a3e','#e9f1f3'],bamboo:['#8a9a7a','#dfe8e2'],grassTips:['#dfe8ec','#b9c8cc','#e8e2cf'],grassRoot:'#7a8a8a',maple:[['#5a3a2e','#e9f1f3'],['#6a4a36','#f3f6f7']],lantern:'#ffb04a',edge:'60,74,86'},
+  ember:{zh:'焚天寺',en:'Burning Monastery',need:'boss4',base:'#2a1c1a',blobs:['#3a2420','#4a2a1e','#221614','#5a2e22','#3b1f1b','#1c1210','#6a3a24','#2e1a16'],grain:['#5a2e22','#ff6a2a','#3a2420','#8a4a2a','#1c1210','#ffa040'],trail:['#1a1210','#4a3a30','#6a5a48'],plaza:'#1c1614',fog:'#3a2420',sun:'#ff8a4a',hemi:['#ff9a6a','#2a1410'],water:[[.6,.18,.02],[1.2,.55,.12]],pine:['#1a1210','#ff6a2a'],bamboo:['#2a1c18','#ff8a3a'],grassTips:['#8a3a22','#ff6a2a','#5a2a1a'],grassRoot:'#1c1210',maple:[['#1a1210','#ff5a2a'],['#2a1a14','#ffa040']],lantern:'#ff3a1a',edge:'20,10,8'},
+};
+const ACH=[
+  {id:'boss1',zh:'初战告捷',en:'First Blood',d:'击败一位首领',de:'Slay a boss',gold:100},
+  {id:'boss2',zh:'连斩二魔',en:'Two Down',d:'一局击败两位首领 · 解锁雪岭关',de:'Slay two bosses in one run · unlocks Snow Pass',gold:200},
+  {id:'boss4',zh:'四魔皆灭',en:'Demon Hunter',d:'一局击败四位首领 · 解锁焚天寺',de:'Slay four bosses in one run · unlocks Burning Monastery',gold:400},
+  {id:'combo100',zh:'百人斩',en:'Hundred Cuts',d:'连斩 ×100',de:'Reach a ×100 kill streak',gold:120},
+  {id:'combo200',zh:'武林神话',en:'Legend',d:'连斩 ×200',de:'Reach a ×200 kill streak',gold:300},
+  {id:'min10',zh:'十分钟',en:'Ten Minutes',d:'存活 10 分钟',de:'Survive 10 minutes',gold:150},
+  {id:'min20',zh:'半炷香',en:'Twenty Minutes',d:'存活 20 分钟',de:'Survive 20 minutes',gold:400},
+  {id:'relic6',zh:'法宝收藏家',en:'Collector',d:'一局集齐 6 件法宝',de:'Hold 6 relics in one run',gold:150},
+  {id:'allcls',zh:'四大高手',en:'Master of Four',d:'用四个职业各击败一位首领',de:'Slay a boss with every class',gold:500},
+  {id:'hard',zh:'炼狱',en:'Inferno',d:'困难难度击败一位首领',de:'Slay a boss on Hard',gold:300},
+];
+const DIFF={easy:{zh:'简单',en:'Easy',hp:.7,dmg:.7,gold:.8},normal:{zh:'普通',en:'Normal',hp:1,dmg:1,gold:1},hard:{zh:'困难',en:'Hard',hp:1.4,dmg:1.35,gold:1.4}};
