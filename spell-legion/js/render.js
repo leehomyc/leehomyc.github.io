@@ -98,7 +98,7 @@ function render(rdt){
   for(const k in inst){const im=inst[k];im.instanceMatrix.needsUpdate=true;if(im.instanceColor)im.instanceColor.needsUpdate=true;im.geometry.attributes.aPhase.needsUpdate=true}
   /* boss */
   const B=G.en.find(e=>e.type==='boss');
-  bossG.visible=!!B&&!B.dead;
+  bossG.visible=!!B&&!B.dead&&!(B.hide>0);
   if(bossG.visible){
     const age=Math.min(1,(G.t-(B.t0??-9))/1.2);B.yaw=B.yaw??0;let d=Math.atan2(P.x-B.x,P.y-B.y)-B.yaw;d=Math.atan2(Math.sin(d),Math.cos(d));if(!(B.charge>0))B.yaw+=d*.04;
     const p=1+Math.sin(tm*2)*.018,w=B.flash>0?1.06:1,hover=8+Math.sin(tm*1.6)*4;
@@ -118,7 +118,7 @@ function render(rdt){
   gemMesh.count=gi;gemMesh.instanceMatrix.needsUpdate=true;if(gemMesh.instanceColor)gemMesh.instanceColor.needsUpdate=true;
   /* enemy blades */
   let bi=0;const bc=bulletMesh.instanceMatrix.count;
-  for(const b of G.bullets){if(bi>=bc)break;dummy.position.set(b.x,10,b.y);dummy.rotation.set(0,Math.atan2(b.vx,b.vy),tm*18);dummy.scale.set(1,1,1);dummy.updateMatrix();bulletMesh.setMatrixAt(bi,dummy.matrix);bi++;glow(b.x,10,b.y,'#ff2a50',15,1.1);glow(b.x-b.vx*.03,10,b.y-b.vy*.03,'#ff2a50',9,.6)}
+  for(const b of G.bullets){if(bi>=bc)break;dummy.position.set(b.x,10,b.y);dummy.rotation.set(0,Math.atan2(b.vx,b.vy),tm*18);dummy.scale.set(1,1,1);dummy.updateMatrix();bulletMesh.setMatrixAt(bi,dummy.matrix);bi++;glow(b.x,10,b.y,b.bone?'#f4efe0':'#ff2a50',b.bone?22:15,1.1);glow(b.x-b.vx*.03,10,b.y-b.vy*.03,'#ff2a50',9,.6)}
   bulletMesh.count=bi;bulletMesh.instanceMatrix.needsUpdate=true;
   /* player projectiles */
   let si=0,ti=0;const sCap=swordMesh.instanceMatrix.count,tCap=talisMesh.instanceMatrix.count;
@@ -166,6 +166,10 @@ function render(rdt){
     glow(m.x,6,m.y,'#7dff9c',120,.7+Math.sin(tm*4)*.2);
     for(let i=0;i<8;i++){const a=tm*1.2+i*.785,R=112+Math.sin(tm*3+i)*6;glow(m.x+Math.cos(a)*R,8,m.y+Math.sin(a)*R*.82,'#7dff9c',10,1.4)}}
   for(const f of G.fx){if(f.k!=='relic')continue;const R=RELICS[f.id],bob=8+Math.sin(tm*3+f.x)*3;glow(f.x,bob,f.y,R.col,26,1.3+Math.sin(tm*7)*.3);glow(f.x,bob,f.y,'#ffffff',8,2);for(let i=0;i<5;i++){const a=tm*2+i*1.256;glow(f.x+Math.cos(a)*12,4+((tm*18+i*8)%20),f.y+Math.sin(a)*12,R.col,3.5,1.5)}useRing(f.x,.9,f.y,16+Math.sin(tm*5)*2,R.col,.7)}
+  for(const h of G.hazards){ // boss ground hazards: pulsing telegraph ring, then a burning disc
+    if(h.tele>0){const q=1-h.tele/h.T;useRing(h.x,1.15,h.y,h.r,h.col,.35+q*.5);useRing(h.x,1.15,h.y,h.r*q,h.col,.8);glow(h.x,4,h.y,h.col,h.r*1.6*q,.6)}
+    else{useRing(h.x,1.15,h.y,h.r,h.col,.7);glow(h.x,5,h.y,h.col,h.r*2.4,1.2+Math.sin(tm*9)*.3);for(let i=0;i<4;i++){const a=tm*3+i/4*TAU;glow(h.x+Math.cos(a)*h.r*.6,8+Math.sin(tm*7+i)*4,h.y+Math.sin(a)*h.r*.6,h.col,10,1.2)}}}
+  if(G.boss&&!G.boss.dead&&G.boss.drain>0){const B=G.boss;for(let i=0;i<10;i++){const q=i/10;glow(B.x+(P.x-B.x)*q,8+Math.sin(tm*12+i)*3,B.y+(P.y-B.y)*q,'#ff2a3a',14,1.2)}}
   for(const nv of G.novas){useRing(nv.x,1.2,nv.y,nv.r,'#ff2a3a',.9);useRing(nv.x,1.2,nv.y,nv.r-6,'#ffffff',.5);for(let i=0;i<24;i++){const a=i/24*TAU+tm;glow(nv.x+Math.cos(a)*nv.r,8,nv.y+Math.sin(a)*nv.r,'#ff3a4a',12,1.4)}}
   for(const e of G.en){if(e.dead)continue;if(e.role==='charger'&&e.cw>0){const dx=e.tx-e.x,dz=e.ty-e.y,l=hyp(dx,dz)||1;for(let i=0;i<10;i++){const q=i/10;glow(e.x+dx/l*q*150,3,e.y+dz/l*q*150,'#ff5a3a',6,1.6*(1-e.cw/.6))}glow(e.x,e.r*2,e.y,'#ff5a3a',20,1.2)}
     if(e.role==='shaman'){glow(e.x,e.r*2.6,e.y,'#7fc98a',14+Math.sin(tm*4)*3,1.2);for(let i=0;i<3;i++){const a=tm*1.5+i*2.09;glow(e.x+Math.cos(a)*14,6+((tm*12+i*7)%22),e.y+Math.sin(a)*14,'#b6ffc2',3,1.6)}}
@@ -206,7 +210,7 @@ function drawOverlay(){
     const dx=x-cx,dy=y-cy,k=Math.min((ow/2-mx)/Math.abs(dx||1),(oh/2-my)/Math.abs(dy||1)),ax=cx+dx*k,ay=cy+dy*k,a=Math.atan2(dy,dx);
     c.save();c.translate(ax,ay);c.rotate(a);c.shadowColor=col;c.shadowBlur=14*S;c.fillStyle=col;c.beginPath();c.moveTo(16*S,0);c.lineTo(-10*S,-11*S);c.lineTo(-5*S,0);c.lineTo(-10*S,11*S);c.closePath();c.fill();c.restore();
     if(txt){const t2=txt+' · '+dist+'m';c.font=`800 ${13*S}px "Alegreya Sans","PingFang SC","Microsoft YaHei",system-ui,sans-serif`;const hw=c.measureText(t2).width/2+12*S,off=28*S,lx=clamp(ax-Math.cos(a)*off,hw+4*S,ow-hw-4*S),ly=clamp(ay-Math.sin(a)*off,24*S,oh-24*S);label(lx,ly,t2,col,false)}};
-  if(G.rival&&G.rival.down<=0){const R=G.rival,[x,y]=toScreen(R.x,36,R.y);if(x>-40&&x<ow+40&&y>-20&&y<oh+20){label(x,y,`${R.name[0]} · Lv ${R.lv} · ${R.kills}`,'#ff9c5a',false);c.fillStyle='#160b12cc';c.fillRect(x-20*S,y+13*S,40*S,4*S);c.fillStyle='#ff9c5a';c.fillRect(x-20*S,y+13*S,40*S*R.hp/R.maxHp,4*S)}}
+  if(G.rival&&G.rival.down<=0){const R=G.rival,[x,y]=toScreen(R.x,36,R.y);if(x>-40&&x<ow+40&&y>-20&&y<oh+20){label(x,y,`${R.name[0]} · Lv ${R.lv} · ${R.score} 分`,'#ff9c5a',false);c.fillStyle='#160b12cc';c.fillRect(x-20*S,y+13*S,40*S,4*S);c.fillStyle='#ff9c5a';c.fillRect(x-20*S,y+13*S,40*S*R.hp/R.maxHp,4*S)}}
   if(!G.auto){for(const f of G.fx){if(f.k==='relic')arrow(f.x,f.y,RELICS[f.id].col,'法宝 '+RELICS[f.id].zh)}for(const ch of G.chests)arrow(ch.x,ch.y,'#ffd27a','宝箱');if(G.rival)arrow(G.rival.x,G.rival.y,'#ff9c5a',G.rival.down>0?G.rival.name[0]+' (倒地)':undefined);
     if(G.mission){const mt=missionTarget(),m=G.mission;if(mt)arrow(mt.x,mt.y,m.k==='mush'?'#ff8a52':'#ff5fe8',`${m.k==='mush'?'采集灵芝':'摧毁邪碑'} ${m.N-m.n}/${m.N} · ${Math.ceil(m.t)}s · 奖励强化卡`)}if(G.boss&&!G.boss.dead)arrow(G.boss.x,G.boss.y,'#ff5a45','血魔教主');
     // minimap

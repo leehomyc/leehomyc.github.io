@@ -149,3 +149,11 @@ const DIFF={easy:{zh:'简单',en:'Easy',hp:.7,dmg:.7,gold:.8},normal:{zh:'普通
 const CATS={melee:['近战','Melee','#ff9c5a'],ranged:['远程','Ranged','#9fe3f0'],summon:['阵法','Summon','#c7a4f0'],defense:['防御','Defense','#7dffb0'],heal:['治疗','Heal','#7fc98a'],control:['控制','Control','#ffd75a'],element:['真气','Element','#ff8a3c'],augment:['强化','Augment','#d6a54a'],passive:['心法','Passive','#efe4cd'],tree:['武学树','Tree','#ffd27a'],new:['新武学','New skill','#ffffff']};
 const SKILL_CAT={sword:'ranged',palm:'ranged',array:'summon',talis:'ranged',charm:'ranged',bagua:'summon',ward:'defense',slash:'melee',whirl:'melee',leap:'melee',roar:'control',sunder:'ranged',exorcise:'control',frenzy:'melee',wave:'ranged',flow:'control',ambush:'ranged',guangling:'heal'};
 const PERK_CAT={锋锐:'melee',金钟罩:'defense',轻身:'passive',内息:'passive',生息:'heal',摄物:'passive',疾风:'passive',致命:'melee'};
+/* boss signature moves, by boss index (see BOSSES in sim.js) */
+const BOSS_SIG=[['bloodrain','drain'],['spiral','blink'],['eggs','venom'],['bonewall','spikes'],['hellring','meteor']];
+const BOSS_HINT=[['血雨落处勿站,他吸血时拉开距离','Step out of the blood rain; back away when he drains'],['刀影螺旋有缝,他消失时准备闪避','The blade spiral has gaps; dash when he vanishes'],['蛊卵孵化前踩灭,远离毒雾','Stamp the eggs before they hatch; avoid the poison'],['骨墙缓慢,轻功穿过;脚下骨刺看地面','Dash through the bone walls; watch the ground for spikes'],['火环留一缺口,陨星落点必须离开','The fire ring leaves one gap; leave the meteor mark']];
+/* PK mode: point values, last hit takes all */
+const PK_LEN=600;
+const PTS={assassin:1,bandit:2,archer:3,giant:8,statue:0};
+function pts(e){if(e.type==='boss')return 300+150*(e.n||0);if(e.warlord)return 60;let p=PTS[e.type]||1;if(e.elite)p*=3;if(e.role)p*=2;if(e.affix)p=Math.round(p*1.5);return p}
+const PK_EVENTS={chest:25,mission:40,ambush:50};

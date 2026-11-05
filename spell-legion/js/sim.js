@@ -12,7 +12,7 @@ function newGame(auto,cls){
   G={auto,t:0,P,cls,en:[],shots:[],bombs:[],bullets:[],gems:[],pools:[],fx:[],floats:[],arcs:[],later:[],ghosts:[],shocks:[],
      mush:[],grid:new Map(),spells:[mkSpell(C.main),mkSpell(C.skills[0])],xp:0,lv:1,need:14,picks:[],kills:0,cores:2,coreT:0,
      spawnA:0,swarmT:55,mission:null,missionT:26,boss:null,bossT:0,paused:false,over:null,shake:0,trauma:0,shX:0,shY:0,hitStop:0,slow:0,flash:0,dmgTaken:0,
-     shrines:SHRINES.map(s=>({x:s[0],y:s[1],cd:0})),elites:0,combo:0,comboT:0,comboMax:0,over9:0,chests:[],chestT:30,goldRun:0,rerolls:1,wave:0,ambush:0,warlord:0,bossN:0,bossSlain:0,warlordN:0,relics:[],novas:[],hintT:0,hintN:0};
+     shrines:SHRINES.map(s=>({x:s[0],y:s[1],cd:0})),elites:0,combo:0,comboT:0,comboMax:0,over9:0,chests:[],chestT:30,goldRun:0,rerolls:1,wave:0,ambush:0,warlord:0,bossN:0,bossSlain:0,warlordN:0,relics:[],novas:[],hazards:[],score:0,hintT:0,hintN:0};
   if(typeof buildHero==='function')buildHero(cls,'player');
   if(RIVAL_ON)mkRival(cls);else{G.rival=null;if(typeof HEROES!=='undefined'&&HEROES.rival){scene.remove(HEROES.rival.g);scene.remove(HEROES.rival.sigil);HEROES.rival=null}}
   if(!auto&&typeof drawSeals==='function'){drawSeals();updateCores()}
@@ -21,21 +21,25 @@ const later=(t,f)=>G.later.push({t,f});
 const BOSSES=[['血魔教主','Blood Demon Patriarch',null],['鬼面刀圣','Ghost-Mask Blade Saint','#8fe3ff'],['蛊母','Mother of Gu','#9ff06a'],['白骨尊者','Bone Venerable','#f4efe0'],['九幽魔尊','Lord of the Nine Hells','#b57cf0']];
 const RIVAL_NAMES={swordsman:['青衣剑客','Azure Swordsman'],taoist:['玄机道人','Mystic Taoist'],blademaster:['黑风刀客','Black Wind Blademaster']};
 function mkRival(playerCls){
-  const opts=Object.keys(CLASSES).filter(k=>k!==playerCls),cls=pick(opts),C=CLASSES[cls];
+  const opts=Object.keys(RIVAL_NAMES).filter(k=>k!==playerCls),cls=pick(opts),C=CLASSES[cls];
   const a=rnd(TAU);const R={x:clamp(W/2+Math.cos(a)*220,60,W-60),y:clamp(H/2+Math.sin(a)*180,60,H-60),cls,name:RIVAL_NAMES[cls],hp:C.hp,maxHp:C.hp,dmg:C.dmg,crit:.05,spd:C.spd,mana:C.mana,maxMana:C.mana,regen:C.regen,
-    spells:[Object.assign(mkSpell(C.main),{owner:'rival'}),Object.assign(mkSpell(C.skills[0]),{owner:'rival'})],kills:0,lv:1,xp:0,need:6,down:0,inv:0,dx:0,dy:1,walk:0,cast:0,yaw:0,yaw0:0,goal:null,goalT:0,dmgDealt:0,downs:0,lx:0,ly:0,dash:0};
+    spells:[Object.assign(mkSpell(C.main),{owner:'rival'}),Object.assign(mkSpell(C.skills[0]),{owner:'rival'})],kills:0,score:0,lv:1,xp:0,need:6,down:0,inv:0,dx:0,dy:1,walk:0,cast:0,yaw:0,yaw0:0,goal:null,goalT:0,dmgDealt:0,downs:0,lx:0,ly:0,dash:0,ai:DIFFID==='easy'?.9:DIFFID==='hard'?1.45:1.2};
+  R.dmg*=R.ai;R.spd*=1+(R.ai-1)*.3;
   G.rival=R;if(typeof buildHero==='function')buildHero(cls,'rival');
 }
 function rivalTick(dt){
   const R=G.rival;if(!R)return;const P=G.P;
-  R.inv=Math.max(0,R.inv-dt);R.mana=Math.min(R.maxMana,R.mana+R.regen*dt);for(const s of R.spells)s.cd=Math.max(0,s.cd-dt);
+  R.inv=Math.max(0,R.inv-dt);R.mana=Math.min(R.maxMana,R.mana+R.regen*dt);if(R.combo>0){R.comboT-=dt;if(R.comboT<=0)R.combo=0}for(const s of R.spells)s.cd=Math.max(0,s.cd-dt);
   if(R.down>0){R.down-=dt;if(R.down<=0){R.hp=R.maxHp;R.inv=1.5;aoe(R.x,R.y,80,40,null,'#6fd3e8',true,{quiet:1})}return}
   // level ups: straight stat growth, like a player picking damage cards
-  while(R.xp>=R.need){R.xp-=R.need;R.lv++;R.need=xpNeed(R.lv);R.dmg*=1.06;R.maxHp+=6;R.hp=Math.min(R.maxHp,R.hp+12);const sp=R.spells[R.lv%2];sp.lv++;if(sp.lv===7)sp.els.push(pick(Object.keys(ELS)));if(sp.lv===14)sp.els.push(pick(Object.keys(ELS).filter(k=>!sp.els.includes(k))));if(R.lv===4&&R.spells.length<3)R.spells.push(Object.assign(mkSpell(CLASSES[R.cls].skills[1]),{owner:'rival'}))}
+  while(R.xp>=R.need){R.xp-=R.need;R.lv++;R.need=xpNeed(R.lv);R.dmg*=1.05;R.maxHp+=7;R.hp=Math.min(R.maxHp,R.hp+14);R.regen*=1.02;const sp=R.spells[R.lv%2];sp.lv++;if(sp.lv===7)sp.els.push(pick(Object.keys(ELS)));if(sp.lv===14)sp.els.push(pick(Object.keys(ELS).filter(k=>!sp.els.includes(k))));if(R.lv===4&&R.spells.length<3)R.spells.push(Object.assign(mkSpell(CLASSES[R.cls].skills[1]),{owner:'rival'}));if(R.lv===9&&R.spells.length<4)R.spells.push(Object.assign(mkSpell(CLASSES[R.cls].skills[2]),{owner:'rival'}))}
   // movement: hunt enemy clusters, keep a little distance, avoid the player's zone, roam when idle
   let x=0,y=0,cnt=0,cx=0,cy=0;
-  near(R.x,R.y,230,e=>{if(e.type==='statue'||e.type==='boss')return;const d=hyp(e.x-R.x,e.y-R.y);cnt++;cx+=e.x;cy+=e.y;if(d<48){x-=(e.x-R.x)/(d||1)*(48-d)/48*2.2;y-=(e.y-R.y)/(d||1)*(48-d)/48*2.2}});
+  near(R.x,R.y,230,e=>{if(e.type==='statue')return;const d=hyp(e.x-R.x,e.y-R.y),w=e.type==='boss'?0:Math.min(6,pts(e));cnt+=w;cx+=e.x*w;cy+=e.y*w;if(d<48){x-=(e.x-R.x)/(d||1)*(48-d)/48*2.2;y-=(e.y-R.y)/(d||1)*(48-d)/48*2.2}});
   if(cnt){cx/=cnt;cy/=cnt;const d=hyp(cx-R.x,cy-R.y)||1;if(d>90){x+=(cx-R.x)/d*.9;y+=(cy-R.y)/d*.9}}
+  // PK: hunt the big prize - boss or warlord - and poach it when it is low
+  const prize=G.boss&&!G.boss.dead?G.boss:G.en.find(e=>e.warlord&&!e.dead);
+  if(prize&&RIVAL_ON){const d=hyp(prize.x-R.x,prize.y-R.y)||1,want=prize.hp<prize.maxHp*.35?1.6:.7*R.ai,keep=prize.type==='boss'?150:90;if(d>keep){x+=(prize.x-R.x)/d*want;y+=(prize.y-R.y)/d*want}else if(d<keep*.6){x-=(prize.x-R.x)/d*.8;y-=(prize.y-R.y)/d*.8}}
   for(const b of G.bullets){const d=hyp(b.x-R.x,b.y-R.y);if(d<40){x-=(b.x-R.x)/(d||1)*1.6;y-=(b.y-R.y)/(d||1)*1.6}}
   let gt=null,gd=160;for(const g of G.gems){const d=hyp(g.x-R.x,g.y-R.y);if(d<gd){gd=d;gt=g}}
   if(gt){x+=(gt.x-R.x)/(gd||1)*.7;y+=(gt.y-R.y)/(gd||1)*.7}
@@ -44,13 +48,14 @@ function rivalTick(dt){
   if(!cnt){const d=hyp(R.goal[0]-R.x,R.goal[1]-R.y)||1;x+=(R.goal[0]-R.x)/d*.8;y+=(R.goal[1]-R.y)/d*.8}
   const l=hyp(x,y);if(l>.05){const m=Math.min(1,l),sp=84*R.spd*m;R.x+=x/l*sp*dt;R.y+=y/l*sp*dt;R.walk+=dt*8;R.dx=x/l;R.dy=y/l;R.yaw0=Math.atan2(R.dx,R.dy);collide(R,6)}
   // gems
-  for(const g of G.gems){if(hyp(g.x-R.x,g.y-R.y)<26){g.dead=1;R.xp+=g.v}}
+  for(const g of G.gems){if(hyp(g.x-R.x,g.y-R.y)<34){g.dead=1;R.xp+=g.v}}
   // attacks
   const main=R.spells[0],st=stat(main),t=nearest(R.x,R.y,main.id==='slash'?70:200,true);
   if(main.cd<=0&&t){const a=Math.atan2(t.y-R.y,t.x-R.x);R.dx=Math.cos(a);R.dy=Math.sin(a);R.yaw0=Math.atan2(R.dx,R.dy);R.cast=1;
-    if(main.id==='sword'){const n=1+Math.floor(main.lv/4);for(let i=0;i<n;i++)shoot(R.x,R.y-6,a+(i-(n-1)/2)*.13,main,14*st.m,{knock:60});main.cd=.5*st.cdM}
-    else if(main.id==='charm'){const n=1+Math.floor(main.lv/4);for(let i=0;i<n;i++)shoot(R.x,R.y-6,a+(i-(n-1)/2)*.5,main,11*st.m,{v:190,life:1.3,r:4,knock:50,home:1,boom:1});main.cd=.62*st.cdM}
-    else{const n=7+Math.floor(main.lv/4);for(let i=0;i<n;i++)shoot(R.x+Math.cos(a)*6,R.y+Math.sin(a)*6-6,a+(i-(n-1)/2)*.19,main,19*st.m,{v:330,life:.17,pierce:99,r:6,knock:120});G.fx.push({k:'wave',x:R.x,y:R.y,a,t:.22,T:.22,c:SPELLS.slash.col,w:1.2});main.cd=.46*st.cdM}}
+    if(main.id==='sword'){const n=2+Math.floor(main.lv/3);for(let i=0;i<n;i++)shoot(R.x,R.y-6,a+(i-(n-1)/2)*.13,main,22*st.m,{knock:60,pierce:2,r:3.5});main.cd=.46*st.cdM}
+    else if(main.id==='charm'){const n=2+Math.floor(main.lv/3);for(let i=0;i<n;i++)shoot(R.x,R.y-6,a+(i-(n-1)/2)*.5,main,20*st.m,{v:190,life:1.3,r:4.5,knock:50,boom:1,home:1,boom:1});main.cd=.62*st.cdM}
+    else if(main.id==='wave'){const n=2+Math.floor(main.lv/4);for(let i=0;i<n;i++)shoot(R.x,R.y-6,a+(i-(n-1)/2)*.22,main,15*st.m,{v:220,life:1,pierce:3,r:5.5,knock:40,slow:.5});main.cd=.58*st.cdM}
+    else{const n=7+Math.floor(main.lv/4);for(let i=0;i<n;i++)shoot(R.x+Math.cos(a)*6,R.y+Math.sin(a)*6-6,a+(i-(n-1)/2)*.19,main,15*st.m,{v:330,life:.17,pierce:99,r:6,knock:120});G.fx.push({k:'wave',x:R.x,y:R.y,a,t:.22,T:.22,c:SPELLS.slash.col,w:1.2});main.cd=.46*st.cdM}}
   for(let i=1;i<R.spells.length;i++){const sk=R.spells[i],sp=SPELLS[sk.id],ss=stat(sk);if(sk.cd>0||R.mana<sp.cost||!countNear(R.x,R.y,170))continue;R.mana-=sp.cost;sk.cd=sp.cd*ss.cdM;R.cast=1;
     const a=t?Math.atan2(t.y-R.y,t.x-R.x):Math.atan2(R.dy,R.dx);
     if(sk.id==='palm'){const n=5+Math.floor(sk.lv/3);for(let j=0;j<n;j++)shoot(R.x+Math.cos(a)*8,R.y+Math.sin(a)*8-6,a+(j-(n-1)/2)*.17,sk,12*ss.m,{v:235,life:.46,pierce:3,knock:190,r:4});G.fx.push({k:'wave',x:R.x,y:R.y,a,t:.28,T:.28,c:sp.col})}
@@ -150,7 +155,9 @@ function kill(e,s,kx=0,ky=0){
   spark(e.x,e.y,e.type==='statue'?'#ff3df0':e.type==='boss'?'#ff5a5a':'#ff8e5a',e.type==='boss'?120:e.type==='giant'?18:6,e.type==='boss'?220:80,{dir:(kx||ky)?dir:undefined});
   if(e.type!=='boss'&&e.type!=='statue'&&G.fx.length<640){const sp=hyp(kx,ky);G.fx.push({k:'die',x:e.x,y:e.y,h:1,vh:70+sp*.5,kx:kx*1.6+rnd(-20,20),ky:ky*1.6+rnd(-20,20),rot:0,rv:rnd(6,14)*(Math.random()<.5?-1:1),t:.7,T:.7,type:e.type,fr:e.fr,sc:e.sc||1})}
   if(e.type==='statue'){if(G.mission&&G.mission.k==='statue'){G.mission.n--;checkMission()}return}
-  if(s&&s.owner==='rival')G.rival.kills++;else{G.kills++;comboHit()}
+  const pv=pts(e);
+  if(s&&s.owner==='rival'){const R=G.rival;R.kills++;R.combo=(R.combo||0)+1;R.comboT=2.4;R.comboMax=Math.max(R.comboMax||0,R.combo);R.score+=Math.round(pv*(1+Math.min(.6,Math.floor(R.combo/10)*.1)));G.rival.xp+=e.xp*2.2*G.rival.ai;if(RIVAL_ON&&pv>=8&&G.floats.length<80)G.floats.push({x:e.x,y:e.y-e.r-6,t:.9,v:'对手 +'+pv,c:'#ff9c5a'})}
+  else{G.kills++;comboHit();const gain=Math.round(pv*(RIVAL_ON?comboMult():1));G.score+=gain;if(RIVAL_ON&&(pv>=3||G.floats.length<40)&&G.floats.length<80)G.floats.push({x:e.x,y:e.y-e.r-6,t:.8,v:'+'+gain,c:pv>=8?'#ffd27a':'#9fe3f0',score:1})}
   if((e.type==='giant'||e.elite)&&!(s&&s.owner==='rival')){hitStop(.06);trauma(.3)}
   const drops=e.elite?4:1;
   for(let i=0;i<drops;i++)if(G.gems.length<360)G.gems.push({x:e.x+rnd(-8,8),y:e.y+rnd(-8,8),v:e.xp,big:e.xp>=3});
@@ -182,7 +189,7 @@ function chestTick(dt){
   if(G.chestT<=0&&G.chests.length<2){G.chestT=38;let x,y,n=0;do{const a=rnd(TAU),d=rnd(220,380);x=clamp(P.x+Math.cos(a)*d,60,W-60);y=clamp(P.y+Math.sin(a)*d,60,H-60)}while(n++<20&&(blocked(x,y)||onPond(x,y,1.3)));G.chests.push({x,y,t:0});showBanner('宝箱现世','A treasure chest appeared',1)}
   for(const c of G.chests){c.t+=dt;if(P.down<=0&&hyp(c.x-P.x,c.y-P.y)<22){c.dead=1;
     for(let i=0;i<10;i++){const a=i/10*TAU;G.gems.push({x:c.x+Math.cos(a)*18,y:c.y+Math.sin(a)*18,v:3,big:1})}
-    G.goldRun+=Math.round(25*(hasR('bowl')?1.3:1));if(Math.random()<.5)dropRelic(c.x,c.y);ring(c.x,c.y,70,'#ffd27a');spark(c.x,c.y,'#ffd27a',40,160);trauma(.35);shock(c.x,c.y,160,.03);G.slow=Math.max(G.slow,.2);
+    G.goldRun+=Math.round(25*(hasR('bowl')?1.3:1));G.score+=PK_EVENTS.chest;if(RIVAL_ON)G.floats.push({x:c.x,y:c.y-14,t:1,v:'宝箱 +'+PK_EVENTS.chest,c:'#ffd27a',score:1});if(Math.random()<.5)dropRelic(c.x,c.y);ring(c.x,c.y,70,'#ffd27a');spark(c.x,c.y,'#ffd27a',40,160);trauma(.35);shock(c.x,c.y,160,.03);G.slow=Math.max(G.slow,.2);
     G.picks.push({kind:'level'});showBanner('宝箱开启','+25 gold, mana and a bonus card',1.4);if(typeof SFX!=='undefined')SFX.chest();openPick()}}
   G.chests=G.chests.filter(c=>!c.dead);
 }
@@ -359,7 +366,7 @@ function startMission(){
   }
   showBanner(k==='mush'?'密令:采集灵芝 ×5':'密令:摧毁邪碑 ×3',(k==='mush'?'Gather 5 lingzhi':'Destroy 3 cursed steles')+' · reward: an augment card',1.8);if(typeof SFX!=='undefined')SFX.mission();
 }
-function checkMission(){if(G.mission&&G.mission.n<=0){G.mission=null;G.missionT=45;G.mush=[];G.picks.push({kind:'aug'});if(typeof SFX!=='undefined')SFX.complete();openPick()}}
+function checkMission(){if(G.mission&&G.mission.n<=0){G.mission=null;G.score+=PK_EVENTS.mission;if(RIVAL_ON)showBanner('密令 +'+PK_EVENTS.mission,'Mission bonus',1);G.missionT=45;G.mush=[];G.picks.push({kind:'aug'});if(typeof SFX!=='undefined')SFX.complete();openPick()}}
 function missionText(){
   const m=G.mission;if(!m)return '';
   const t=Math.ceil(m.t);
@@ -475,7 +482,7 @@ function spawnTick(dt){
     for(let i=0;i<n;i++){const a=i/n*TAU,o={x:clamp(P.x+Math.cos(a)*180,30,W-30),y:clamp(P.y+Math.sin(a)*180,30,H-30)};spawnEnemy('assassin',o.x,o.y,.8)}
     G.ambush=20;showBanner('刺客来袭','Ambush: survive 20 s for a chest',1.2);if(typeof SFX!=='undefined')SFX.swarm();
   }
-  if(G.ambush>0){G.ambush-=dt;if(G.ambush<=0){const P=G.P;G.chests.push({x:clamp(P.x+rnd(-60,60),60,W-60),y:clamp(P.y+rnd(-60,60),60,H-60),t:0});showBanner('伏击已破','Ambush survived: a chest drops',1.2);if(typeof SFX!=='undefined')SFX.complete()}}
+  if(G.ambush>0){G.ambush-=dt;if(G.ambush<=0){const P=G.P;G.chests.push({x:clamp(P.x+rnd(-60,60),60,W-60),y:clamp(P.y+rnd(-60,60),60,H-60),t:0});showBanner('伏击已破','Ambush survived: a chest drops'+(RIVAL_ON?' · +'+PK_EVENTS.ambush:''),1.2);G.score+=PK_EVENTS.ambush;if(typeof SFX!=='undefined')SFX.complete()}}
   if(t>=G.warlordN*240+120&&!G.boss){G.warlordN++;const o=edgePoint();spawnEnemy('giant',o.x,o.y,9+G.warlordN*3,true);const e=G.en[G.en.length-1];e.warlord=1;e.sc=2;e.r=16;e.spd*=1.15+G.warlordN*.05;e.name='铁甲统领';showBanner('铁甲统领','The Iron Warlord arrives',1.6);trauma(.4);if(typeof SFX!=='undefined')SFX.bossIn()}
   if(t>=(G.bossN+1)*BOSS_AT&&!G.boss){const n=G.bossN,V=BOSSES[n%BOSSES.length],o=edgePoint(),k=1+n*1.25,hp=Math.round(9000*k*(1+t/600)*D().hp);
     G.boss={x:o.x,y:o.y,t0:G.t,type:'boss',hp,maxHp:hp,spd:24+n*3,dmg:22*(1+n*.35)*D().dmg,r:20,xp:0,fr:0,vx:0,vy:0,kx:0,ky:0,n,name:V[0],en:V[1],tint:V[2],rate:Math.max(.55,1-n*.12)};G.en.push(G.boss);G.bossT=3;G.bossSpawned=1;
@@ -488,7 +495,30 @@ function bossAI(dt){
   if(B.tele>0){B.tele-=dt;if(B.tele<=0){const a=Math.atan2(B.ty-B.y,B.tx-B.x);B.cvx=Math.cos(a)*300;B.cvy=Math.sin(a)*300;B.charge=.62;if(typeof SFX!=='undefined')SFX.bossCharge()}return}
   G.bossT-=dt;if(G.bossT>0)return;
   const low=B.hp<B.maxHp*.5;G.bossT=(low?2.3:3.2)*(B.rate||1);
-  const k=pick(B.n>=1?['radial','aimed','charge','summon','nova']:['radial','aimed','charge','summon']);
+  const sig=BOSS_SIG[B.n%BOSSES.length]||[],base=B.n>=1?['radial','aimed','charge','summon','nova']:['radial','aimed','charge','summon'];
+  const k=(Math.random()<.45&&sig.length)?pick(sig):pick(base);
+  if(k==='bloodrain'){ // Blood Demon: blood pools fall around the hero
+    for(let i=0;i<5;i++){const a=rnd(TAU),d=i===0?0:rnd(40,130);hazard(clamp(P.x+Math.cos(a)*d,30,W-30),clamp(P.y+Math.sin(a)*d,30,H-30),30,1.1,3.5,14*(1+B.n*.3),6,'#ff2a3a')}}
+  if(k==='drain'){ // Blood Demon: leech beam - stand still and it heals him
+    B.drain=1.6;ring(B.x,B.y,60,'#ff4a6a')}
+  if(k==='spiral'){ // Ghost-Mask: rotating blade spiral
+    const o=rnd(TAU),dir=Math.random()<.5?1:-1;for(let w=0;w<16;w++)later(w*.09,()=>{if(B.dead)return;for(let j=0;j<3;j++)bullet(B.x,B.y,o+dir*w*.42+j/3*TAU,96,11)})}
+  if(k==='blink'){ // Ghost-Mask: vanish, reappear beside the hero, slash fan
+    const a=rnd(TAU),tx=clamp(P.x+Math.cos(a)*70,30,W-30),ty=clamp(P.y+Math.sin(a)*70,30,H-30);ring(tx,ty,40,'#8fe3ff');B.hide=.55;
+    later(.55,()=>{if(B.dead)return;B.x=tx;B.y=ty;ring(B.x,B.y,46,'#8fe3ff');trauma(.3);const aa=Math.atan2(P.y-B.y,P.x-B.x);for(let i=-3;i<=3;i++)bullet(B.x,B.y,aa+i*.14,150,12)})}
+  if(k==='eggs'){ // Mother of Gu: eggs hatch into swift assassins
+    for(let i=0;i<6;i++){const a=i/6*TAU+rnd(.4),d=rnd(70,150),x=clamp(P.x+Math.cos(a)*d,30,W-30),y=clamp(P.y+Math.sin(a)*d,30,H-30);ring(x,y,22,'#9ff06a');
+      later(1.4,()=>{if(B.dead)return;spawnEnemy('assassin',x,y,.75);const e=G.en[G.en.length-1];if(e){e.affix='swift';e.spd*=1.5}ring(x,y,30,'#9ff06a')})}}
+  if(k==='venom'){ // Mother of Gu: lingering poison cloud aimed at the hero
+    const a=Math.atan2(P.y-B.y,P.x-B.x);for(let i=0;i<3;i++)hazard(clamp(P.x+Math.cos(a)*i*55,30,W-30),clamp(P.y+Math.sin(a)*i*55,30,H-30),42,1.3,7,6*(1+B.n*.3),9,'#9ff06a')}
+  if(k==='bonewall'){ // Bone Venerable: slow bone walls you must dash through
+    const o=Math.atan2(P.y-B.y,P.x-B.x)+rnd(-.3,.3);for(let w=0;w<2;w++)for(let i=-7;i<=7;i++){const a=o+i*.07+w*Math.PI;G.bullets.push({x:B.x+Math.cos(a)*20,y:B.y+Math.sin(a)*20,vx:Math.cos(a)*46,vy:Math.sin(a)*46,life:9,d:16,bone:1})}}
+  if(k==='spikes'){ // Bone Venerable: spikes erupt in a line toward the hero
+    const a=Math.atan2(P.y-B.y,P.x-B.x);for(let i=1;i<=8;i++)later(i*.13,()=>{if(B.dead)return;hazard(clamp(B.x+Math.cos(a)*i*42,30,W-30),clamp(B.y+Math.sin(a)*i*42,30,H-30),24,.5,.6,18*(1+B.n*.3),0,'#f4efe0')})}
+  if(k==='hellring'){ // Nine Hells: ring of fire with one gap
+    const gap=rnd(TAU);for(let i=0;i<12;i++){const a=i/12*TAU;if(Math.abs(((a-gap+Math.PI)%TAU+TAU)%TAU-Math.PI)<.5)continue;hazard(clamp(P.x+Math.cos(a)*95,30,W-30),clamp(P.y+Math.sin(a)*95,30,H-30),34,1.4,5,12*(1+B.n*.3),10,'#ff6a2a')}}
+  if(k==='meteor'){ // Nine Hells: huge delayed strike on the hero's position
+    hazard(P.x,P.y,90,1.6,.4,40*(1+B.n*.3),0,'#b57cf0');later(1.6,()=>{if(!B.dead){trauma(.7);shock(P.x,P.y,220,.05)}})}
   if(k==='nova'){G.novas.push({x:B.x,y:B.y,r:10,R:260+B.n*30,v:150+B.n*15,d:18*(1+B.n*.3)});ring(B.x,B.y,40,'#ff2a3a');trauma(.3)}
   if(k==='radial'){const n=low?28:20,o=rnd(TAU);for(let i=0;i<n;i++){const a=o+i/n*TAU;bullet(B.x,B.y,a,82,12)}
     if(low)later(.5,()=>{if(B.dead)return;for(let i=0;i<n;i++){const a=o+.1+i/n*TAU;bullet(B.x,B.y,a,66,12)}})}
@@ -497,11 +527,25 @@ function bossAI(dt){
   if(k==='summon'){for(let i=0;i<14;i++){const a=i/14*TAU;spawnEnemy('assassin',clamp(B.x+Math.cos(a)*40,30,W-30),clamp(B.y+Math.sin(a)*40,30,H-30),.7)}ring(B.x,B.y,50,'#ff6a6a')}
   if(typeof SFX!=='undefined')SFX.bossAttack(k);
 }
+function hazard(x,y,r,tele,dur,burst,dps,col){if(G.hazards.length>70)G.hazards.shift();G.hazards.push({x,y,r,tele,T:tele,dur,burst,dps,col,tk:0})}
+function hazardTick(dt){
+  const P=G.P;
+  for(const h of G.hazards){
+    if(h.tele>0){h.tele-=dt;if(h.tele<=0){ring(h.x,h.y,h.r,h.col);if(P.down<=0&&hyp(P.x-h.x,P.y-h.y)<h.r+6)dmgP(h.burst,h.x,h.y);if(typeof SFX!=='undefined')SFX.bossAttack('radial')}continue}
+    h.dur-=dt;if(h.dps>0){h.tk-=dt;if(h.tk<=0&&P.down<=0&&hyp(P.x-h.x,P.y-h.y)<h.r+4){h.tk=.5;dmgP(h.dps*.5,h.x,h.y)}}
+  }
+  G.hazards=G.hazards.filter(h=>h.tele>0||h.dur>0);
+  const B=G.boss;if(B&&!B.dead){
+    if(B.hide>0)B.hide-=dt;
+    if(B.drain>0){B.drain-=dt;const d=hyp(P.x-B.x,P.y-B.y);if(d<230&&P.down<=0){B.hp=Math.min(B.maxHp,B.hp+B.maxHp*.004*dt*60*.5);if(Math.random()<dt*6)dmgP(2,B.x,B.y);G.fx.push({k:'p',x:P.x+rnd(-8,8),y:P.y+rnd(-8,8),h:6,vx:(B.x-P.x)*1.4,vy:(B.y-P.y)*1.4,vz:0,t:.5,T:.5,c:'#ff2a3a'})}}
+  }
+}
 function bullet(x,y,a,v,d){if(G.bullets.length<280)G.bullets.push({x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v,life:5,d})}
 
 /* ---------- step ---------- */
 function step(dt){
   const P=G.P;G.t+=dt;
+  if(RIVAL_ON&&G.rival&&G.t>=PK_LEN&&!G.over)pkEnd();
   for(let i=G.later.length-1;i>=0;i--){const l=G.later[i];l.t-=dt;if(l.t<=0){G.later.splice(i,1);l.f()}}
   if(G.cores===0){G.coreT+=dt;if(G.coreT>=70){G.coreT=0;G.cores=1;updateCores()}}else G.coreT=0;
   G.grid.clear();
@@ -513,6 +557,7 @@ function step(dt){
   comboTick(dt);chestTick(dt);if(!G.auto&&(G.t|0)%2===0&&G.t-Math.floor(G.t)<dt)checkAch();
   if(hasR('pill'))heal(dt);
   for(const f of G.fx){if(f.k==='relic'&&P.down<=0&&hyp(f.x-P.x,f.y-P.y)<18){f.t=0;takeRelic(f.id)}}
+  hazardTick(dt);
   for(const nv of G.novas){const was=nv.r;nv.r+=nv.v*dt;const d=hyp(P.x-nv.x,P.y-nv.y);if(P.down<=0&&d>=was-8&&d<=nv.r+8&&!nv.hitP){nv.hitP=1;dmgP(nv.d,nv.x+(nv.x-P.x),nv.y+(nv.y-P.y))}}
   G.novas=G.novas.filter(nv=>nv.r<nv.R);
   if(!G.auto&&SAVE_FIRST){G.hintT-=dt;if(G.hintT<=0&&G.hintN<4){const H=[['WASD 移动','Move with WASD or arrows'],['按 1 释放武学','Press 1 to cast your skill (costs qi)'],['Space 轻功闪避','Space dashes through enemies'],['升级时三选一','Pick one of three cards on each level']];showBanner(H[G.hintN][0],H[G.hintN][1],2.2);G.hintN++;G.hintT=G.hintN===1?6:9}}
@@ -632,6 +677,7 @@ function bossSlain(e){
   G.slow=Math.max(G.slow,1.2);G.flash=1;trauma(1);shock(e.x,e.y,520,.08,1.2);G.bullets=[];
   if(!G.auto){$('#bossbar').hidden=true;showBanner(e.name+'伏诛',`${e.en} slain · next boss in 4:00`,2.4);if(typeof SFX!=='undefined')SFX.win();if(window.desktop&&G.bossSlain===1)window.desktop.achievement('FIRST_VICTORY')}
 }
+function pkEnd(){if(G.auto||G.over)return;closeCards();G.over='pk';G.slow=1.2;G.flash=.6;trauma(.6);later(1.6,()=>showEnd(G.score>=G.rival.score));if(typeof SFX!=='undefined')SFX.win()}
 function win(){if(G.auto)return;closeCards();G.over='win';G.slow=1.6;G.flash=1;trauma(1);shock(G.boss?G.boss.x:G.P.x,G.boss?G.boss.y:G.P.y,520,.08,1.2);later(2.2,()=>showEnd(true));G.bullets=[];G.en.forEach(e=>{if(e.type!=='boss')e.frz=99});showBanner('血魔伏诛','The Patriarch falls',1.8);if(typeof SFX!=='undefined')SFX.win();if(window.desktop)window.desktop.achievement('FIRST_VICTORY')}
 function lose(){if(G.auto){newGame(true);demoBoost();return}closeCards();G.over='lose';G.slow=1;later(1.2,()=>showEnd(false));if(typeof SFX!=='undefined')SFX.lose()}
 function nextBossIn(){return Math.max(0,(G.bossN+1)*BOSS_AT-G.t)}

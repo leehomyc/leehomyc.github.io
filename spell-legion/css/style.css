@@ -229,9 +229,9 @@ kbd{font:700 13px var(--ui);border:1px solid var(--dim);padding:0 5px;border-rad
 .relic{width:24px;height:24px;border-radius:5px;background:#0a0710cc;border:1px solid currentColor;display:grid;place-items:center;font-family:var(--brush);font-size:17px;line-height:1;text-shadow:0 0 8px currentColor;box-shadow:0 0 8px #0008}
 
 /* difficulty, maps, achievements, boss intro */
-#diff{display:flex;gap:4px;align-items:center;font-size:12px;color:var(--dim)}
-#diff button{border-radius:6px;background:#2a1822;border:1px solid #6b5230;color:var(--bone);font:700 12px var(--ui);padding:6px 10px;cursor:pointer}
-#diff button.on{background:var(--cinnabar);color:#fff;border-color:#ffb79f}
+#diff,#mode{display:flex;gap:4px;align-items:center;font-size:12px;color:var(--dim)}
+#diff button,#mode button{border-radius:6px;background:#2a1822;border:1px solid #6b5230;color:var(--bone);font:700 12px var(--ui);padding:6px 10px;cursor:pointer}
+#diff button.on,#mode button.on{background:var(--cinnabar);color:#fff;border-color:#ffb79f}
 #maps{display:flex;gap:8px;flex-wrap:wrap}
 .mapb{text-align:left;border-radius:8px;background:#140b12cc;border:1px solid #6b523088;color:var(--bone);font:inherit;padding:7px 12px;cursor:pointer;display:grid;gap:1px;min-width:150px}
 .mapb b{font-size:14px}.mapb small{font-size:11px;color:var(--dim)}
@@ -281,3 +281,6 @@ kbd{font:700 13px var(--ui);border:1px solid var(--dim);padding:0 5px;border-rad
 .badv{flex:1 1 100%;text-align:center;font-size:12px;color:var(--bone);background:#1a1016cc;border:1px solid #6b523066;border-radius:8px;padding:5px 10px}.badv b{color:var(--cc);margin-right:6px}.badv small{color:var(--dim);display:block;font-size:11px}
 .card{position:relative}.card .sug{position:absolute;top:10px;right:10px;font-size:10px;font-weight:800;letter-spacing:.08em;color:#1a1016;background:var(--c);border-radius:8px;padding:2px 7px}
 .card.sugged{outline:1px solid var(--c)}
+#intro .bn em{display:block;font-style:normal;font-size:13px;color:var(--bone);opacity:.85;margin-top:8px;line-height:1.4}
+#mode button.on{background:#9a3a2a;border-color:#ffb79f}
+#endb h2.win{color:#ffd27a}#endb h2.lose{color:#ff6a6a}

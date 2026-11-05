@@ -58,7 +58,7 @@ function hud(dt){
   $('#ptsbadge').hidden=true;
   $('#timer').textContent=fmt(G.t);$('#nextboss').textContent=G.boss?'首领战 BOSS':'首领 '+fmt(nextBossIn());
   $('#kills').textContent=G.kills+' 击杀';
-  if(G.rival){const R=G.rival,tot=Math.max(1,G.kills+R.kills);$('#score').hidden=false;$('#s-you').textContent=G.kills;$('#s-riv').textContent=R.kills;$('#s-rname').textContent=R.name[0];$('#s-bar i').style.width=(G.kills/tot*100)+'%';$('#score').classList.toggle('lead',G.kills>=R.kills)}
+  if(G.rival){const R=G.rival,tot=Math.max(1,G.score+R.score);$('#score').hidden=false;$('#s-you').textContent=G.score;$('#s-riv').textContent=R.score;$('#s-rname').textContent=R.name[0];$('#s-bar i').style.width=(G.score/tot*100)+'%';$('#score').classList.toggle('lead',G.score>=R.score);$('#nextboss').textContent=(G.boss?'首领战 BOSS · ':'')+'剩余 '+fmt(Math.max(0,PK_LEN-G.t))}
   const o=$('#obj');o.hidden=!G.mission;if(G.mission)o.textContent=missionText();
   const bf=$('#buff');bf.hidden=!P.buff;if(P.buff)bf.textContent={dmg:'伤害 +30%',spd:'疾行',haste:'冷却减半'}[P.buff.k]+' · '+Math.ceil(P.buff.t)+'s';
   if(G.boss){$('#bosshp i').style.width=(G.boss.hp/G.boss.maxHp*100)+'%'}
@@ -71,7 +71,7 @@ function hud(dt){
 }
 function drawRelics(){const box=$('#relics');if(!box)return;box.textContent='';for(const id of G.relics){const R=RELICS[id],d=document.createElement('div');d.className='relic';d.style.color=R.col;d.textContent=R.g;d.title=`${R.zh} ${R.en} · ${R.d} · ${R.de}`;box.appendChild(d)}}
 let introT=null;
-function bossIntro(zh,en,n){const el=$('#intro');el.innerHTML=`<div class="lb"></div><div class="bn"><small>第 ${n+1} 位首领 · Boss ${n+1}</small><b>${zh}</b><span>${en}</span></div><div class="lb"></div>`;el.hidden=false;el.classList.remove('on');void el.offsetWidth;el.classList.add('on');clearTimeout(introT);introT=setTimeout(()=>{el.classList.remove('on');setTimeout(()=>el.hidden=true,500)},2600)}
+function bossIntro(zh,en,n){const el=$('#intro');el.innerHTML=`<div class="lb"></div><div class="bn"><small>第 ${n+1} 位首领 · Boss ${n+1}</small><b>${zh}</b><span>${en}</span>${BOSS_HINT[n%BOSS_HINT.length]?`<em>${BOSS_HINT[n%BOSS_HINT.length][0]}<br>${BOSS_HINT[n%BOSS_HINT.length][1]}</em>`:''}</div><div class="lb"></div>`;el.hidden=false;el.classList.remove('on');void el.offsetWidth;el.classList.add('on');clearTimeout(introT);introT=setTimeout(()=>{el.classList.remove('on');setTimeout(()=>el.hidden=true,500)},3400)}
 function updateCores(){const e=$('#cores');e.textContent='';for(let i=0;i<Math.max(2,G.cores);i++){const s=document.createElement('i');s.className='core'+(i<G.cores?'':' off');e.appendChild(s);e.append(' ')}}
 function drawSeals(){
   if(G.auto)return;
@@ -113,6 +113,7 @@ function renderPanel(){
       T.appendChild(col)});
   }
 }
+document.querySelectorAll('#mode button').forEach(b=>b.onclick=()=>{SAVE.mode=b.dataset.m;persist();renderTitle();SFX.pick(1)});
 document.querySelectorAll('#diff button').forEach(b=>b.onclick=()=>{SAVE.diff=b.dataset.d;DIFFID=SAVE.diff;persist();renderTitle();SFX.pick(1)});
 document.querySelectorAll('#qual button').forEach(b=>b.onclick=()=>{try{localStorage.setItem('sl_quality',b.dataset.q)}catch(_){}b.textContent='重新载入… Reloading';setTimeout(()=>location.reload(),60)});
 if(typeof wireLeaderboard==='function')wireLeaderboard();
@@ -171,8 +172,8 @@ function renderTitle(){
   UPGRADES.forEach(u=>{const r=SAVE.up[u.id]||0,cost=u.cost(r),b=document.createElement('button');b.className='up';b.type='button';b.disabled=r>=u.max||SAVE.gold<cost;
     b.innerHTML=`<b>${u.zh} <small>${u.en}</small></b><span class="rk">${'●'.repeat(r)}${'○'.repeat(u.max-r)}</span><span class="dd">${u.d}</span><span class="pr">${r>=u.max?'已满 Max':cost+' 金'}</span>`;
     b.onclick=()=>{if(SAVE.gold>=cost&&r<u.max){SAVE.gold-=cost;SAVE.up[u.id]=r+1;persist();renderTitle();SFX.complete()}};shop.appendChild(b)});
-  $('#record').textContent=SAVE.runs?`${SAVE.runs} 局 · 最长存活 ${fmt(SAVE.best||0)} · 单局最多首领 ${SAVE.bosses||0}`:'';
-  RIVAL_ON=false;
+  $('#record').textContent=(SAVE.runs?`${SAVE.runs} 局 · 最长存活 ${fmt(SAVE.best||0)} · 单局最多首领 ${SAVE.bosses||0}`:'')+(SAVE.pk?` · 对决 ${SAVE.pk.w} 胜 ${SAVE.pk.l} 负 · 最高 ${SAVE.pkBest||0} 分`:'');
+  RIVAL_ON=(SAVE.mode==='pk');document.querySelectorAll('#mode button').forEach(b=>b.classList.toggle('on',b.dataset.m===(SAVE.mode||'solo')));$('#modenote').textContent=RIVAL_ON?`对决:与 AI 对手争分 ${PK_LEN/60} 分钟,谁补刀谁拿全部分数 · PK: ${PK_LEN/60}-minute score race against an AI rival; last hit takes all the points`:'单人:无尽模式,活得越久首领越多 · Solo: endless, survive and slay bosses';
   document.querySelectorAll('#qual button').forEach(b=>b.classList.toggle('on',b.dataset.q===QLEVEL));
   DIFFID=SAVE.diff||'normal';document.querySelectorAll('#diff button').forEach(b=>b.classList.toggle('on',b.dataset.d===DIFFID));
   const mp=$('#maps');mp.textContent='';for(const k in MAPS){const M=MAPS[k],locked=M.need&&!SAVE.ach[M.need],b=document.createElement('button');b.type='button';b.className='mapb'+(k===MAPID?' on':'')+(locked?' locked':'');b.disabled=locked;b.innerHTML=`<b>${M.zh}</b><small>${M.en}${locked?' · 🔒 '+ACH.find(a=>a.id===M.need).d:''}</small>`;b.onclick=()=>{try{localStorage.setItem('sl_map',k)}catch(_){}b.innerHTML='<b>载入中…</b>';setTimeout(()=>location.reload(),60)};mp.appendChild(b)}
@@ -193,13 +194,15 @@ function showEnd(ok){
   G.ended=true;const box=$('#endb'),tot=G.spells.reduce((a,s)=>a+s.dmg,0)||1,max=Math.max(...G.spells.map(s=>s.dmg),1);
   checkAch();
   const gold=Math.round((G.kills*1.1+G.lv*6+G.bossSlain*150+Math.floor(G.t/10)*3+G.goldRun+G.comboMax*2)*(1+.15*(SAVE.up.gold||0))*(G.relics.includes('bowl')?1.3:1)*D().gold);
-  const record=G.t>(SAVE.best||0);SAVE.gold+=gold;SAVE.runs++;SAVE.wins+=G.bossSlain;SAVE.bosses=Math.max(SAVE.bosses||0,G.bossSlain);if(record)SAVE.best=G.t;persist();
+  const pk=RIVAL_ON&&G.rival,pkRes=pk?(G.score>G.rival.score?'win':G.score<G.rival.score?'lose':'tie'):null;const pkBonus=pkRes==='win'?200:pkRes==='tie'?80:0;
+  if(pk){SAVE.pk=SAVE.pk||{w:0,l:0};if(pkRes==='win')SAVE.pk.w++;else if(pkRes==='lose')SAVE.pk.l++;SAVE.pkBest=Math.max(SAVE.pkBest||0,G.score)}
+  const record=!pk&&G.t>(SAVE.best||0);SAVE.gold+=gold+pkBonus;SAVE.runs++;SAVE.wins+=G.bossSlain;SAVE.bosses=Math.max(SAVE.bosses||0,G.bossSlain);if(record)SAVE.best=G.t;persist();
   const rows=G.spells.slice().sort((a,b)=>b.dmg-a.dmg).map(s=>{const f=s.els.length===2?FUS[fusion(s)][1]:s.els[0]?ELS[s.els[0]].en:'';
     return `<span>${SPELLS[s.id].zh} ${SPELLS[s.id].en}${f?` · ${f}`:''} · Lv ${s.lv}</span><div class="bar"><i style="width:${s.dmg/max*100}%"></i></div><span>${Math.round(s.dmg/tot*100)}%</span>`}).join('');
-  const R=G.rival,duel=R?(G.kills>R.kills?['击杀领先','You out-killed your rival']:G.kills<R.kills?['击杀落后','Your rival out-killed you']:['平手','Tied on kills']):null;
+  const R=G.rival,duel=R?(pkRes==='win'?[`胜利 · ${G.score} : ${R.score}`,`Victory · +${pkBonus} gold`]:pkRes==='lose'?[`落败 · ${G.score} : ${R.score}`,`Defeat · ${R.name[1]} out-scored you`]:[`平手 · ${G.score} : ${R.score}`,`Tied · +${pkBonus} gold`]):null;
   const cmp=R?`<div class="cmp"><div class="hd"><span></span><b>你 You</b><b>${R.name[0]}<small> ${CLASSES[R.cls].en}</small></b></div>
-    ${[['击杀 Kills',G.kills,R.kills],['等级 Level',G.lv,R.lv],['总伤害 Damage',Math.round(tot),Math.round(R.dmgDealt)],['倒地 Downs',2-G.cores+(SAVE.up.core||0),R.downs]].map(([n,a,b])=>`<div class="r"><span>${n}</span><b class="${a>=b?'w':''}">${a}</b><b class="${b>a?'w':''}">${b}</b></div>`).join('')}</div>`:'';
-  box.innerHTML=`<h2>${record?'新纪录':'败亡'}</h2><p class="sub">${record?'New record · ':''}Survived ${fmt(G.t)} · ${G.bossSlain} boss${G.bossSlain===1?'':'es'} slain</p>${duel?`<p class="duel">${duel[0]} · ${duel[1]}</p>`:''}
+    ${[['分数 Score',G.score,R.score],['击杀 Kills',G.kills,R.kills],['等级 Level',G.lv,R.lv],['总伤害 Damage',Math.round(tot),Math.round(R.dmgDealt)],['倒地 Downs',2-G.cores+(SAVE.up.core||0),R.downs]].map(([n,a,b])=>`<div class="r"><span>${n}</span><b class="${a>=b?'w':''}">${a}</b><b class="${b>a?'w':''}">${b}</b></div>`).join('')}</div>`:'';
+  box.innerHTML=`<h2 class="${pkRes||''}">${pk?(pkRes==='win'?'对决胜利':pkRes==='lose'?'对决落败':'对决平手'):record?'新纪录':'败亡'}</h2><p class="sub">${record?'New record · ':''}Survived ${fmt(G.t)} · ${G.bossSlain} boss${G.bossSlain===1?'':'es'} slain</p>${duel?`<p class="duel">${duel[0]} · ${duel[1]}</p>`:''}
   <div class="stat"><div><b>${fmt(G.t)}</b><span>存活 Survived</span></div><div><b>${G.kills}</b><span>击杀 Kills</span></div><div><b>${G.lv}</b><span>等级 Level</span></div><div><b>×${G.comboMax}</b><span>最高连斩 Best combo</span></div><div><b>${G.bossSlain}</b><span>首领 Bosses</span></div><div><b>${G.relics.length}</b><span>法宝 Relics</span></div><div><b class="gold">+${gold}</b><span>金币 Gold</span></div></div>
   <div class="dmg">${rows}</div>${cmp}<div class="btns"><button class="go" id="againbtn">再来一局 Play again</button><button class="go alt" id="lobbybtn">回到山门 Lobby</button></div>`;
   $('#end').hidden=false;$('#againbtn').onclick=startRun;$('#lobbybtn').onclick=toLobby;$('#againbtn').focus();
