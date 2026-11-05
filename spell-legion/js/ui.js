@@ -54,7 +54,7 @@ function hud(dt){
   $('#hpfill').style.height=(P.hp/P.maxHp*100)+'%';$('#hpnum').textContent=Math.ceil(P.hp)+' / '+P.maxHp;
   $('#mpfill').style.height=(P.mana/P.maxMana*100)+'%';$('#mpnum').textContent=Math.floor(P.mana)+' / '+P.maxMana;
   $('#lv').textContent='Lv '+G.lv;
-  const pts=P.ap+P.sp;$('#charbtn').classList.toggle('has',pts>0);$('#ptsbadge').textContent=pts||'';$('#ptsbadge').hidden=!pts;
+  const pts=P.sp;$('#charbtn').classList.toggle('has',pts>0);$('#ptsbadge').textContent=pts||'';$('#ptsbadge').hidden=!pts;
   $('#timer').textContent=fmt(G.t);$('#nextboss').textContent=G.boss?'首领战 BOSS':'首领 '+fmt(nextBossIn());
   $('#kills').textContent=G.kills+' 击杀';
   if(G.rival){const R=G.rival,tot=Math.max(1,G.kills+R.kills);$('#score').hidden=false;$('#s-you').textContent=G.kills;$('#s-riv').textContent=R.kills;$('#s-rname').textContent=R.name[0];$('#s-bar i').style.width=(G.kills/tot*100)+'%';$('#score').classList.toggle('lead',G.kills>=R.kills)}
@@ -90,15 +90,14 @@ function drawSeals(){
 let bannerT=0;
 function showBanner(zh,en,t){if(!G||G.auto)return;const b=$('#banner');b.innerHTML=`${zh}<small>${en}</small>`;b.classList.remove('on');void b.offsetWidth;b.classList.add('on');bannerT=t}
 /* character panel: attributes and skill trees */
-let panelTab='attr';
+let panelTab='tree';
 function togglePanel(){if(!G||G.auto||G.over||G.pick)return;G.panel=!G.panel;$('#char').hidden=!G.panel;if(G.panel){renderPanel();SFX.setState('title')}else SFX.setState(G.boss?'boss':'battle')}
 function renderPanel(){
-  const P=G.P;$('#ap').textContent=P.ap;$('#sp').textContent=P.sp;
+  const P=G.P;$('#sp').textContent=P.sp;
   $('#tab-attr').classList.toggle('on',panelTab==='attr');$('#tab-tree').classList.toggle('on',panelTab==='tree');
   const A=$('#attrs');A.hidden=panelTab!=='attr';const T=$('#trees');T.hidden=panelTab!=='tree';
   if(panelTab==='attr'){A.textContent='';
-    ATTRS.forEach(a=>{const row=document.createElement('div');row.className='arow';row.innerHTML=`<div class="g">${a.zh}</div><div class="n">${a.en}<small>${a.d} · ${a.de}</small></div><b>${P.attr[a.id]}</b>`;
-      const b=document.createElement('button');b.type='button';b.textContent='+';b.disabled=P.ap<=0;b.onclick=()=>{if(spendAttr(a.id)){SFX.pick(1);renderPanel()}};row.appendChild(b);A.appendChild(row)});
+    const note=document.createElement('p');note.className='pnote';note.textContent=`每升一级自动成长:生命 +8、伤害 +3%、内力 +5、回复 +3%、移速 +1%。目前 Lv ${G.lv}。 · Stats grow automatically every level.`;A.appendChild(note);
     const d=document.createElement('div');d.className='derived';
     d.innerHTML=`<span>生命 HP <b>${Math.ceil(P.hp)}/${P.maxHp}</b></span><span>内力 Qi <b>${Math.floor(P.mana)}/${P.maxMana}</b> (+${(P.regen).toFixed(1)}/s)</span><span>伤害 Damage <b>×${(P.dmg*(1+P.dmgBonus)).toFixed(2)}</b></span><span>暴击 Crit <b>${Math.round(P.crit*100)}%</b></span><span>移速 Speed <b>×${P.spd.toFixed(2)}</b></span><span>减伤 Mitigation <b>${Math.round((1-P.def)*100)}%</b></span>`;A.appendChild(d);
   }else{T.textContent='';
@@ -111,7 +110,6 @@ function renderPanel(){
       T.appendChild(col)});
   }
 }
-$('#rivalbtn').onclick=()=>{SAVE.rival=!SAVE.rival;persist();renderTitle();SFX.pick(1)};
 document.querySelectorAll('#qual button').forEach(b=>b.onclick=()=>{try{localStorage.setItem('sl_quality',b.dataset.q)}catch(_){}b.textContent='重新载入… Reloading';setTimeout(()=>location.reload(),60)});
 $('#charbtn').onclick=()=>{togglePanel();$('#charbtn').blur()};
 $('#charclose').onclick=()=>togglePanel();
@@ -126,7 +124,7 @@ function openPick(){
   if(G.auto){pick(cards).a();return openPick()}
   G.pick=cards;$('#banner').classList.remove('on');bannerT=0;
   const T={level:['升级','Level up'],infuse:['灌注真气','Infuse '+SPELLS[q.s?.id]?.en],fuse:['真气融合','Fuse '+SPELLS[q.s?.id]?.en],aug:['密令完成:选择强化','Mission complete. Choose an augmentation']}[q.kind];
-  $('#cardtitle').innerHTML=`${T[0]}<small>${T[1]}${q.kind==='level'?' · +3 属性点 +1 技能点 (按 C 分配)':''}</small>`;
+  $('#cardtitle').innerHTML=`${T[0]}<small>${T[1]}${q.kind==='level'?' · +1 技能点 (按 C 分配) · 属性已自动成长':''}</small>`;
   const row=$('#cardrow');row.textContent='';
   cards.forEach((cd,i)=>{const b=document.createElement('button');b.className='card'+(cd.q?' '+cd.q.k:'');b.id='card'+i;b.style.setProperty('--c',cd.c);b.style.animationDelay=(i*.08)+'s';
     const parts=[['g',cd.g],['n',cd.n],['e',cd.e],['d',cd.d],['de',cd.de],['k','按 '+(i+1)+' · Press '+(i+1)]];
@@ -155,7 +153,7 @@ function renderTitle(){
     b.innerHTML=`<b>${u.zh} <small>${u.en}</small></b><span class="rk">${'●'.repeat(r)}${'○'.repeat(u.max-r)}</span><span class="dd">${u.d}</span><span class="pr">${r>=u.max?'已满 Max':cost+' 金'}</span>`;
     b.onclick=()=>{if(SAVE.gold>=cost&&r<u.max){SAVE.gold-=cost;SAVE.up[u.id]=r+1;persist();renderTitle();SFX.complete()}};shop.appendChild(b)});
   $('#record').textContent=SAVE.runs?`${SAVE.runs} 局 · 最长存活 ${fmt(SAVE.best||0)} · 单局最多首领 ${SAVE.bosses||0}`:'';
-  RIVAL_ON=!!SAVE.rival;$('#rivalbtn').textContent=RIVAL_ON?'AI 对手:开 Rival on':'AI 对手:关 Rival off';
+  RIVAL_ON=false;
   document.querySelectorAll('#qual button').forEach(b=>b.classList.toggle('on',b.dataset.q===QLEVEL));
 }
 function startRun(){

@@ -154,6 +154,10 @@ function render(rdt){
     for(let s=0;s<3;s++){const A=hop[s],C=hop[s+1],L=hyp(C[0]-A[0],C[1]-A[1]),n=Math.max(2,L/3.6|0);for(let i=0;i<n;i++){const q=i/n;glow(A[0]+(C[0]-A[0])*q,8+Math.sin(q*6+s)*1.4,A[1]+(C[1]-A[1])*q,a.c,5.2,2.3);if(i%3===0)glow(A[0]+(C[0]-A[0])*q,8,A[1]+(C[1]-A[1])*q,'#ffffff',2.6,2.4)}}}
   /* mission, shrines, ambience */
   const m=G.mission;mRing.visible=!!m;
+  const mt=m?missionTarget():null;
+  if(mt){const pulse=1+Math.sin(tm*5)*.08,col=m.k==='mush'?'#ff8a52':'#ff5fe8';useRing(mt.x,1.2,mt.y,26*pulse,col,.95);useRing(mt.x,1.2,mt.y,34*pulse,'#ffffff',.5);
+    for(let i=0;i<16;i++){const y=i*18+((tm*60)%18);glow(mt.x,y+6,mt.y,i%2?col:'#ffffff',22-(y*.05),(1-y/300)*1.3)}glow(mt.x,8,mt.y,col,90,.8);
+    if(m.k==='statue')for(const e of G.en){if(e.type==='statue'&&!e.dead&&e!==mt)useRing(e.x,1.1,e.y,22,'#ff5fe8',.45)}else for(const o of G.mush){if(o!==mt)useRing(o.x,1.1,o.y,14,'#ff8a52',.45)}}
   if(m){mRing.position.x=m.x;mRing.position.z=m.y;mRing.scale.set(240,1,196);mRing.rotation.y=tm*.25;
     for(let i=0;i<22;i++){const y=i*16+((tm*40)%16);glow(m.x+Math.sin(tm*2+i)*3,y+4,m.y+Math.cos(tm*1.7+i)*3,i%2?'#7dff9c':'#d8ffe4',26-(y*.05),(1-y/360)*1.2)}
     glow(m.x,6,m.y,'#7dff9c',120,.7+Math.sin(tm*4)*.2);
@@ -193,9 +197,10 @@ function drawOverlay(){
     if(x>mx&&x<ow-mx&&y>my&&y<oh-my){if(txt){const [lx,ly]=toScreen(wx,120,wz);label(lx,ly-(Math.sin(U.uTime.value*3)*4+6)*S,txt,col,true)}return}
     const dx=x-cx,dy=y-cy,k=Math.min((ow/2-mx)/Math.abs(dx||1),(oh/2-my)/Math.abs(dy||1)),ax=cx+dx*k,ay=cy+dy*k,a=Math.atan2(dy,dx);
     c.save();c.translate(ax,ay);c.rotate(a);c.shadowColor=col;c.shadowBlur=14*S;c.fillStyle=col;c.beginPath();c.moveTo(16*S,0);c.lineTo(-10*S,-11*S);c.lineTo(-5*S,0);c.lineTo(-10*S,11*S);c.closePath();c.fill();c.restore();
-    if(txt){const off=28*S,lx=clamp(ax-Math.cos(a)*off,80*S,ow-80*S),ly=clamp(ay-Math.sin(a)*off,24*S,oh-24*S);label(lx,ly,txt+' · '+dist+'m',col,false)}};
+    if(txt){const t2=txt+' · '+dist+'m';c.font=`800 ${13*S}px "Alegreya Sans","PingFang SC","Microsoft YaHei",system-ui,sans-serif`;const hw=c.measureText(t2).width/2+12*S,off=28*S,lx=clamp(ax-Math.cos(a)*off,hw+4*S,ow-hw-4*S),ly=clamp(ay-Math.sin(a)*off,24*S,oh-24*S);label(lx,ly,t2,col,false)}};
   if(G.rival&&G.rival.down<=0){const R=G.rival,[x,y]=toScreen(R.x,36,R.y);if(x>-40&&x<ow+40&&y>-20&&y<oh+20){label(x,y,`${R.name[0]} · Lv ${R.lv} · ${R.kills}`,'#ff9c5a',false);c.fillStyle='#160b12cc';c.fillRect(x-20*S,y+13*S,40*S,4*S);c.fillStyle='#ff9c5a';c.fillRect(x-20*S,y+13*S,40*S*R.hp/R.maxHp,4*S)}}
-  if(!G.auto){for(const ch of G.chests)arrow(ch.x,ch.y,'#ffd27a','宝箱');if(G.rival)arrow(G.rival.x,G.rival.y,'#ff9c5a',G.rival.down>0?G.rival.name[0]+' (倒地)':undefined);if(G.mission)arrow(G.mission.x,G.mission.y,'#7dff9c',G.mission.k==='mush'?'密令 · 采集灵芝':'密令 · 摧毁邪碑');if(G.boss&&!G.boss.dead)arrow(G.boss.x,G.boss.y,'#ff5a45','血魔教主');
+  if(!G.auto){for(const ch of G.chests)arrow(ch.x,ch.y,'#ffd27a','宝箱');if(G.rival)arrow(G.rival.x,G.rival.y,'#ff9c5a',G.rival.down>0?G.rival.name[0]+' (倒地)':undefined);
+    if(G.mission){const mt=missionTarget(),m=G.mission;if(mt)arrow(mt.x,mt.y,m.k==='mush'?'#ff8a52':'#ff5fe8',`${m.k==='mush'?'采集灵芝':'摧毁邪碑'} ${m.N-m.n}/${m.N} · ${Math.ceil(m.t)}s · 奖励强化卡`)}if(G.boss&&!G.boss.dead)arrow(G.boss.x,G.boss.y,'#ff5a45','血魔教主');
     // minimap
     const mw=(PHONE?92:130)*S,mh=mw*H/W,mx=ow-mw-14*S,my=(PHONE?104:70)*S,k=mw/W;
     c.save();c.globalAlpha=.85;c.fillStyle='#0a0710cc';c.strokeStyle='#d6a54a99';c.lineWidth=1*S;c.beginPath();c.rect(mx,my,mw,mh);c.fill();c.stroke();
@@ -205,7 +210,9 @@ function drawOverlay(){
     c.fillStyle='#5a4a3a';TRAILS.forEach(t=>{c.strokeStyle='#6a5a40';c.lineWidth=1.2*S;c.beginPath();t.pts.forEach((p,i)=>i?c.lineTo(mx+p[0]*k,my+p[1]*k):c.moveTo(mx+p[0]*k,my+p[1]*k));c.stroke()});
     for(const s of G.shrines){c.fillStyle=s.cd<=0?'#ffd27a':'#6a6a6a';c.save();c.translate(mx+s.x*k,my+s.y*k);c.rotate(Math.PI/4);c.fillRect(-2.2*S,-2.2*S,4.4*S,4.4*S);c.restore()}
     c.fillStyle='#ff5a45';for(let i=0;i<G.en.length;i+=3){const e=G.en[i];if(e.type==='statue'||e.type==='boss')continue;c.fillRect(mx+e.x*k-.7*S,my+e.y*k-.7*S,1.4*S,1.4*S)}
-    if(G.mission){c.fillStyle='#7dff9c';c.beginPath();c.arc(mx+G.mission.x*k,my+G.mission.y*k,3*S,0,TAU);c.fill()}
+    if(G.mission){const m=G.mission,mt=missionTarget(),col=m.k==='mush'?'#ff8a52':'#ff5fe8';c.strokeStyle='#7dff9c';c.lineWidth=1*S;c.beginPath();c.ellipse(mx+m.x*k,my+m.y*k,110*k,84*k,0,0,TAU);c.stroke();
+      const draw=(o,big)=>{c.fillStyle=col;if(m.k==='mush'){c.beginPath();c.arc(mx+o.x*k,my+o.y*k,(big?3.6:2)*S,0,TAU);c.fill()}else{const w=(big?3.2:1.8)*S;c.fillRect(mx+o.x*k-w/2,my+o.y*k-w*1.4,w,w*2.8)}if(big){c.strokeStyle='#fff';c.lineWidth=1*S;c.beginPath();c.arc(mx+o.x*k,my+o.y*k,(5+Math.sin(U.uTime.value*5)*1.5)*S,0,TAU);c.stroke()}};
+      if(m.k==='mush')G.mush.forEach(o=>draw(o,o===mt));else G.en.forEach(e=>{if(e.type==='statue'&&!e.dead)draw(e,e===mt)})}
     c.fillStyle='#ffd27a';for(const ch of G.chests){c.fillRect(mx+ch.x*k-2*S,my+ch.y*k-2*S,4*S,4*S)}
     if(G.boss){c.fillStyle='#ff2a3a';c.beginPath();c.arc(mx+G.boss.x*k,my+G.boss.y*k,3.4*S,0,TAU);c.fill()}
     if(G.rival){c.fillStyle='#ff9c5a';c.beginPath();c.arc(mx+G.rival.x*k,my+G.rival.y*k,2.4*S,0,TAU);c.fill()}

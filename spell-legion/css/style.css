@@ -218,3 +218,5 @@ kbd{font:700 13px var(--ui);border:1px solid var(--dim);padding:0 5px;border-rad
 #qual{display:flex;gap:4px;align-items:center;font-size:12px;color:var(--dim)}
 #qual button{border-radius:6px;background:#2a1822;border:1px solid #6b5230;color:var(--bone);font:700 12px var(--ui);padding:6px 10px;cursor:pointer}
 #qual button.on{background:var(--brass);color:#1a0e16;border-color:var(--brass)}
+
+.pnote{margin:0;font-size:13px;color:var(--dim);line-height:1.5}

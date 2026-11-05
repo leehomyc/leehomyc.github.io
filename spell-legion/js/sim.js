@@ -9,11 +9,11 @@ function newGame(auto,cls){
   buildArena();if(typeof buildRuins==='function')buildRuins();
   const P={x:W/2,y:H/2,hp:C.hp,maxHp:C.hp,mana:C.mana,maxMana:C.mana,regen:C.regen,dmg:C.dmg,def:1,spd:C.spd,mag:1,haste:1,crit:.05,inv:0,face:1,walk:0,down:0,dash:0,dashCd:0,dx:0,dy:1,buff:null,cast:0,yaw:0,yaw0:0,shield:0,leap:null,cls,ap:0,sp:0,attr:{str:0,vit:0,spr:0,agi:0},dmgBonus:0};
   G={auto,t:0,P,cls,en:[],shots:[],bombs:[],bullets:[],gems:[],pools:[],fx:[],floats:[],arcs:[],later:[],ghosts:[],shocks:[],
-     mush:[],grid:new Map(),spells:[mkSpell(C.main),mkSpell(C.skills[0])],xp:0,lv:1,need:6,picks:[],kills:0,cores:2,coreT:0,
+     mush:[],grid:new Map(),spells:[mkSpell(C.main),mkSpell(C.skills[0])],xp:0,lv:1,need:14,picks:[],kills:0,cores:2,coreT:0,
      spawnA:0,swarmT:55,mission:null,missionT:26,boss:null,bossT:0,paused:false,over:null,shake:0,trauma:0,shX:0,shY:0,hitStop:0,slow:0,flash:0,dmgTaken:0,
      shrines:SHRINES.map(s=>({x:s[0],y:s[1],cd:0})),elites:0,combo:0,comboT:0,comboMax:0,over9:0,chests:[],chestT:30,goldRun:0,rerolls:1,wave:0,ambush:0,warlord:0,bossN:0,bossSlain:0,warlordN:0};
   if(typeof buildHero==='function')buildHero(cls,'player');
-  if(RIVAL_ON||auto)mkRival(cls);else{G.rival=null;if(typeof HEROES!=='undefined'&&HEROES.rival){scene.remove(HEROES.rival.g);scene.remove(HEROES.rival.sigil);HEROES.rival=null}}
+  if(RIVAL_ON)mkRival(cls);else{G.rival=null;if(typeof HEROES!=='undefined'&&HEROES.rival){scene.remove(HEROES.rival.g);scene.remove(HEROES.rival.sigil);HEROES.rival=null}}
   if(!auto&&typeof drawSeals==='function'){drawSeals();updateCores()}
 }
 const later=(t,f)=>G.later.push({t,f});
@@ -30,7 +30,7 @@ function rivalTick(dt){
   R.inv=Math.max(0,R.inv-dt);R.mana=Math.min(R.maxMana,R.mana+R.regen*dt);for(const s of R.spells)s.cd=Math.max(0,s.cd-dt);
   if(R.down>0){R.down-=dt;if(R.down<=0){R.hp=R.maxHp;R.inv=1.5;aoe(R.x,R.y,80,40,null,'#6fd3e8',true,{quiet:1})}return}
   // level ups: straight stat growth, like a player picking damage cards
-  while(R.xp>=R.need){R.xp-=R.need;R.lv++;R.need=Math.round(5+R.lv*3);R.dmg*=1.06;R.maxHp+=6;R.hp=Math.min(R.maxHp,R.hp+12);const sp=R.spells[R.lv%2];sp.lv++;if(sp.lv===7)sp.els.push(pick(Object.keys(ELS)));if(sp.lv===14)sp.els.push(pick(Object.keys(ELS).filter(k=>!sp.els.includes(k))));if(R.lv===4&&R.spells.length<3)R.spells.push(Object.assign(mkSpell(CLASSES[R.cls].skills[1]),{owner:'rival'}))}
+  while(R.xp>=R.need){R.xp-=R.need;R.lv++;R.need=xpNeed(R.lv);R.dmg*=1.06;R.maxHp+=6;R.hp=Math.min(R.maxHp,R.hp+12);const sp=R.spells[R.lv%2];sp.lv++;if(sp.lv===7)sp.els.push(pick(Object.keys(ELS)));if(sp.lv===14)sp.els.push(pick(Object.keys(ELS).filter(k=>!sp.els.includes(k))));if(R.lv===4&&R.spells.length<3)R.spells.push(Object.assign(mkSpell(CLASSES[R.cls].skills[1]),{owner:'rival'}))}
   // movement: hunt enemy clusters, keep a little distance, avoid the player's zone, roam when idle
   let x=0,y=0,cnt=0,cx=0,cy=0;
   near(R.x,R.y,230,e=>{if(e.type==='statue'||e.type==='boss')return;const d=hyp(e.x-R.x,e.y-R.y);cnt++;cx+=e.x;cy+=e.y;if(d<48){x-=(e.x-R.x)/(d||1)*(48-d)/48*2.2;y-=(e.y-R.y)/(d||1)*(48-d)/48*2.2}});
@@ -157,7 +157,7 @@ function kill(e,s,kx=0,ky=0){
   if(e.type==='boss')bossSlain(e);
 }
 const COMBO_TIERS=[[10,'连斩','Combo'],[25,'无双','Unrivalled'],[50,'血洗','Bloodbath'],[100,'天下无敌','Invincible'],[200,'武林神话','Legend']];
-function comboMult(){return 1+Math.min(2,Math.floor(G.combo/10)*.25)}
+function comboMult(){return 1+Math.min(.6,Math.floor(G.combo/10)*.1)}
 function comboHit(){
   G.combo++;G.comboT=2.4;if(G.combo>G.comboMax)G.comboMax=G.combo;
   const t=COMBO_TIERS.find(t=>t[0]===G.combo);
@@ -280,7 +280,7 @@ function orbits(dt){
 }
 let AUTOCAST=false;
 function countNear(x,y,r){let n=0;near(x,y,r,e=>{if(e.type!=='statue'&&hyp(e.x-x,e.y-y)<r)n++});return n}
-function autoSpend(){const P=G.P;let g=0;while(P.ap>0&&g++<50)spendAttr(pick(['str','vit','spr','agi']));g=0;while(P.sp>0&&g++<50){const s=pick(G.spells),T=TREES[s.id]||[];const opts=T.map((n,i)=>i).filter(i=>canNode(s,i));if(!opts.length){P.sp--;break}spendNode(s,pick(opts))}}
+function autoSpend(){const P=G.P;let g=0;while(P.sp>0&&g++<50){const s=pick(G.spells),T=TREES[s.id]||[];const opts=T.map((n,i)=>i).filter(i=>canNode(s,i));if(!opts.length){P.sp--;break}spendNode(s,pick(opts))}}
 function autoCast(){ // casts each skill when it is worth the qi
   const P=G.P;if(G.auto)autoSpend();
   for(let i=1;i<G.spells.length;i++){
@@ -317,13 +317,19 @@ function startMission(){
       const hp=90+G.t*1.6;G.en.push({...o,t0:G.t,type:'statue',hp,maxHp:hp,spd:0,dmg:0,r:8,xp:0,fr:0,vx:0,vy:0})}
     G.mission={k,n:3,N:3,T:38,t:38,x,y};
   }
-  showBanner('江湖密令','Side mission',1.1);if(typeof SFX!=='undefined')SFX.mission();
+  showBanner(k==='mush'?'密令:采集灵芝 ×5':'密令:摧毁邪碑 ×3',(k==='mush'?'Gather 5 lingzhi':'Destroy 3 cursed steles')+' · reward: an augment card',1.8);if(typeof SFX!=='undefined')SFX.mission();
 }
 function checkMission(){if(G.mission&&G.mission.n<=0){G.mission=null;G.missionT=45;G.mush=[];G.picks.push({kind:'aug'});if(typeof SFX!=='undefined')SFX.complete();openPick()}}
 function missionText(){
   const m=G.mission;if(!m)return '';
   const t=Math.ceil(m.t);
-  return m.k==='mush'?`采集灵芝 Gather lingzhi ${m.N-m.n}/${m.N} · ${t}s`:`摧毁邪碑 Destroy the cursed steles ${m.N-m.n}/${m.N} · ${t}s`;
+  return (m.k==='mush'?`密令:采集灵芝 ${m.N-m.n}/${m.N}`:`密令:摧毁邪碑 ${m.N-m.n}/${m.N}`)+` · ${t}s · 奖励:强化卡 Reward: augment card`;
+}
+function missionTarget(){ // the nearest thing the player still has to reach or destroy
+  const m=G.mission,P=G.P;if(!m)return null;let b=null,bd=1e9;
+  if(m.k==='mush'){for(const o of G.mush){const d=hyp(o.x-P.x,o.y-P.y);if(d<bd){bd=d;b=o}}}
+  else for(const e of G.en){if(e.type!=='statue'||e.dead)continue;const d=hyp(e.x-P.x,e.y-P.y);if(d<bd){bd=d;b=e}}
+  return b;
 }
 function shrineTick(dt){
   const P=G.P;
@@ -343,7 +349,7 @@ function shrineTick(dt){
 /* ---------- cards ---------- */
 function gainXP(v){
   G.xp+=v;
-  while(G.xp>=G.need){G.xp-=G.need;G.lv++;G.need=Math.round(5+G.lv*2.7);G.P.ap+=3;G.P.sp+=1;if(G.lv%5===0)G.rerolls++;G.picks.push({kind:'level'});if(typeof SFX!=='undefined'&&!G.auto)SFX.levelup()}
+  while(G.xp>=G.need){G.xp-=G.need;G.lv++;G.need=xpNeed(G.lv);autoGrow();G.P.sp+=1;if(G.lv%5===0)G.rerolls++;G.picks.push({kind:'level'});if(typeof SFX!=='undefined'&&!G.auto)SFX.levelup()}
   if(G.picks.length)openPick();
 }
 const RARITY=[{k:'common',zh:'',en:'',w:62,x:1},{k:'rare',zh:'稀有',en:'Rare',w:26,x:1.6},{k:'epic',zh:'史诗',en:'Epic',w:10,x:2.4},{k:'legendary',zh:'传说',en:'Legendary',w:2,x:4}];
@@ -380,6 +386,9 @@ function buildCards(q){
   return out;
 }
 
+/* level curve: slow early, keeps paying out late (gem values also rise every 4 minutes) */
+function xpNeed(lv){return Math.round(9+lv*4.2+lv*lv*.42)}
+function autoGrow(){const P=G.P;P.maxHp+=8;P.hp=Math.min(P.maxHp,P.hp+12);P.dmgBonus+=.03;P.maxMana+=5;P.mana=Math.min(P.maxMana,P.mana+10);P.regen*=1.03;P.spd*=1.01;P.crit+=.004;P.attr.str++;P.attr.vit++;P.attr.spr++;P.attr.agi++}
 function spendAttr(id){const P=G.P;if(P.ap<=0)return false;P.ap--;P.attr[id]++;
   if(id==='str')P.dmgBonus+=.04;if(id==='vit'){P.maxHp+=8;P.hp+=8}if(id==='spr'){P.maxMana+=6;P.mana+=6;P.regen*=1.04}if(id==='agi'){P.spd*=1.02;P.crit+=.01}return true}
 function canNode(s,i){const n=TREES[s.id]&&TREES[s.id][i];if(!n)return false;const r=s.nodes[i]||0;if(r>=n.max)return false;const need=n.tier===1?0:n.tier===2?2:4;return s.pts>=need&&G.P.sp>0}

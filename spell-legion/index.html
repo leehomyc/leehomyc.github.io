@@ -57,7 +57,7 @@
         <div id="classes"></div>
         <button class="go" id="startbtn">出山 Start</button>
         <p class="note"><span id="autonote"></span> <kbd>WASD</kbd> / arrows or drag to move · <kbd>Space</kbd> dash · <kbd>P</kbd> pause (auto-cast toggle there) · <kbd>M</kbd> mute. <span id="loadnote"></span></p>
-        <div class="opts"><button type="button" class="go alt sm" id="rivalbtn">AI 对手:关</button><div id="qual"><span>画质 Quality</span><button type="button" data-q="low">低 Low</button><button type="button" data-q="med">中 Med</button><button type="button" data-q="high">高 High</button></div></div>
+        <div class="opts"><div id="qual"><span>画质 Quality</span><button type="button" data-q="low">低 Low</button><button type="button" data-q="med">中 Med</button><button type="button" data-q="high">高 High</button></div></div>
         <div class="lobby">
           <h2><span>山门 · 永久强化 Lobby upgrades</span><b id="gold">0</b></h2>
           <div id="shop"></div>
@@ -70,9 +70,9 @@
   <div id="cards" class="overlay" hidden><h2 id="cardtitle"></h2><div id="cardrow"></div><button type="button" class="go alt" id="reroll" hidden>重抽 Reroll</button></div>
   <div id="pause" class="overlay" hidden><div class="pbox"><h2>暂停</h2><button class="go" id="resumebtn">继续 Resume</button><button class="go alt" id="autobtn">武学:自动施放</button><button class="go alt" id="mutebtn">声音 Sound</button><button class="go alt" id="quitbtn">放弃本局 Abandon run</button><p>1/2/3 skills · Space dash · P resume · M mute</p></div></div>
   <div id="char" class="overlay" hidden><div class="cbox">
-    <div class="ch"><h2>角色 <small>Character</small></h2><div class="pts"><span>属性点 <b id="ap">0</b></span><span>技能点 <b id="sp">0</b></span></div><button type="button" id="charclose">关闭 C</button></div>
-    <div class="tabs"><button type="button" id="tab-attr" class="on">属性 Attributes</button><button type="button" id="tab-tree">武学树 Skill Trees</button></div>
-    <div id="attrs"></div><div id="trees" hidden></div>
+    <div class="ch"><h2>角色 <small>Character</small></h2><div class="pts"><span>技能点 Skill points <b id="sp">0</b></span></div><button type="button" id="charclose">关闭 C</button></div>
+    <div class="tabs"><button type="button" id="tab-tree" class="on">武学树 Skill Trees</button><button type="button" id="tab-attr">属性 Stats</button></div>
+    <div id="trees"></div><div id="attrs" hidden></div>
   </div></div>
   <div id="end" class="overlay" hidden><div class="endb" id="endb"></div></div>
 </div>
