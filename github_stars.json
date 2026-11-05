@@ -1,8 +1,8 @@
 {
-  "updated_at": "2026-11-04T10:56:07.182Z",
+  "updated_at": "2026-11-05T10:56:44.451Z",
   "stars": {
     "123zgj123/FarField": 2,
-    "AlanLuSun/General-Keypoint-Detection": 79,
+    "AlanLuSun/General-Keypoint-Detection": 80,
     "BAAI-DCAI/Multimodal-Robustness-Benchmark": 57,
     "DuNGEOnmassster/VideoGen-of-Thought": 67,
     "EnVision-Research/ScalingAR": 23,
@@ -12,6 +12,7 @@
     "GeekGuru123/ProfilingDiT": 22,
     "LAW1223/AlignVid": 23,
     "LAW1223/OpenSubject": 55,
+    "LAW1223/VidDub": 7,
     "leehomyc/EurekAI": 14,
     "leehomyc/Faster-High-Res-Neural-Inpainting": 1287,
     "leehomyc/OnlyYou": 2,
@@ -23,7 +24,7 @@
     "shuyansy/MLLM-Semantic-Hallucination": 31,
     "SongweiGe/TATS": 289,
     "Tencent-Hunyuan/SAGE-GRPO": 131,
-    "UIOSN/AHPA": 3,
+    "UIOSN/AHPA": 4,
     "vvvvvjdy/D-OPSD": 334,
     "vvvvvjdy/dmdr": 309,
     "WenjieShu/LoopViT": 56,
