@@ -577,3 +577,31 @@ body.picking #sndbtn{display:none}
 .bs.hl0{border-color:#ffd27a;box-shadow:0 0 14px #ffd27a88;background:#2a1e12d9}.bs.hl0 .slot{background:#ffd27a;color:#1a0e16;border-color:#ffd27a}
 #build{margin-bottom:2px}
 @media (max-width:760px){.bs .slot{font-size:9px;padding:1px 4px}}
+
+/* ===== touch HUD: thumb-friendly skill cluster ===== */
+#vbars{display:grid;gap:3px;width:min(46vw,210px);pointer-events:none}#vbars[hidden]{display:none}
+.vb{position:relative;height:12px;border-radius:6px;background:#0a0710cc;border:1px solid #6b523088;overflow:hidden}
+.vb i{position:absolute;left:0;top:0;bottom:0;width:50%;border-radius:6px;transition:width .15s}
+.vb.hp i{background:linear-gradient(90deg,#8a1a1a,#ff5a4a)}.vb.mp i{background:linear-gradient(90deg,#1a4a8a,#4fb0ff)}
+.vb b{position:absolute;inset:0;font:800 9px var(--ui);line-height:12px;text-align:center;color:#fff;text-shadow:0 1px 0 #000,0 0 4px #000}
+body.touchhud .globe{display:none}
+body.touchhud .bottom{position:absolute;right:0;bottom:0;left:auto;width:236px;height:236px;display:block;padding:0;pointer-events:none}
+body.touchhud #seals{position:absolute;inset:0;display:block;pointer-events:none}
+body.touchhud #seals.auto .seal:not(.main):not(.empty):not(.dash){animation:none}
+body.touchhud .seal{position:absolute;pointer-events:auto;border-radius:50%;width:66px;height:66px;display:grid;place-items:center;grid-template-rows:none;padding:0;box-shadow:0 6px 18px #000b,inset 0 0 0 3px #00000040;background:radial-gradient(circle at 35% 30%,#5a3a4ae0,#1c101af0 70%)}
+body.touchhud .seal .g{margin:0;width:38px;height:38px}body.touchhud .seal .g .ic{width:38px;height:38px}body.touchhud .seal .gm{right:2px;top:2px;font-size:11px}
+body.touchhud .seal .lv{display:none}body.touchhud .seal .key{display:none}
+body.touchhud .seal .cost{bottom:-3px;right:auto;left:50%;transform:translateX(-50%);font-size:9px;background:#0a0710dd;border-radius:7px;padding:1px 6px;white-space:nowrap}body.touchhud .seal .cost i{display:none}
+body.touchhud .seal .els{top:4px;left:6px;right:auto}body.touchhud .seal .aug{display:none}
+body.touchhud .seal .cdm{border-radius:50%}
+body.touchhud #seal0{display:none}
+body.touchhud #sealdash{right:14px;bottom:14px;width:88px;height:88px;border-width:2px;border-color:#8fe3ff;background:radial-gradient(circle at 35% 30%,#2f6f78f0,#0e2a30f5 70%)}
+body.touchhud #sealdash .g,body.touchhud #sealdash .g .ic{width:52px;height:52px}body.touchhud #sealdash .lv{display:block;position:absolute;bottom:6px;font-size:10px;color:#bff4ff}
+body.touchhud #seal1{right:118px;bottom:20px}
+body.touchhud #seal2{right:94px;bottom:104px}
+body.touchhud #seal3{right:26px;bottom:124px}
+body.touchhud #autosw{display:grid;right:176px;bottom:110px;width:44px;height:44px;opacity:.9}body.touchhud #autosw .g,body.touchhud #autosw .g .ic{width:26px;height:26px}body.touchhud #autosw .lv{display:none}
+body.touchhud .seal.empty{opacity:.22;border-style:dashed;background:transparent}
+body.touchhud #tip{bottom:auto;top:84px}
+@media (max-width:640px) and (orientation:portrait){body.touchhud .bottom{width:200px;height:210px}body.touchhud .seal{width:58px;height:58px}body.touchhud .seal .g,body.touchhud .seal .g .ic{width:34px;height:34px}body.touchhud #sealdash{width:78px;height:78px;right:10px;bottom:12px}body.touchhud #sealdash .g,body.touchhud #sealdash .g .ic{width:46px;height:46px}body.touchhud #seal1{right:100px;bottom:16px}body.touchhud #seal2{right:82px;bottom:88px}body.touchhud #seal3{right:22px;bottom:108px}body.touchhud #autosw{right:150px;bottom:92px;width:40px;height:40px}}
+@media (max-height:480px){body.touchhud .bottom{width:220px;height:200px}body.touchhud .seal{width:58px;height:58px}body.touchhud #sealdash{width:78px;height:78px;right:10px;bottom:10px}body.touchhud #seal1{right:102px;bottom:14px}body.touchhud #seal2{right:84px;bottom:86px}body.touchhud #seal3{right:22px;bottom:104px}body.touchhud #autosw{right:152px;bottom:92px}}

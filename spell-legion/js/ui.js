@@ -92,6 +92,7 @@ function hud(dt){
   $('#xp').style.width=(G.xp/G.need*100)+'%';
   $('#hpfill').style.height=(P.hp/P.maxHp*100)+'%';$('#hpnum').textContent=Math.ceil(P.hp)+' / '+P.maxHp;
   $('#mpfill').style.height=(P.mana/P.maxMana*100)+'%';$('#mpnum').textContent=Math.floor(P.mana)+' / '+P.maxMana;
+  if(IS_TOUCH){$('#hpfill2').style.width=(P.hp/P.maxHp*100)+'%';$('#hpnum2').textContent=Math.ceil(P.hp)+'/'+P.maxHp;$('#mpfill2').style.width=(P.mana/P.maxMana*100)+'%';$('#mpnum2').textContent=Math.floor(P.mana)+'/'+P.maxMana}
   $('#lv').textContent='Lv '+G.lv;
   $('#ptsbadge').hidden=true;
   $('#timer').textContent=fmt(G.t);$('#nextboss').textContent=G.boss?L('首领战','BOSS'):L('首领 ','boss in ')+fmt(nextBossIn());
@@ -371,3 +372,6 @@ const fsb=$('#fsbtn');if(fsb)fsb.onclick=()=>goFullscreen(false);
   try{const r=await fetch(location.pathname.replace(/[^/]*$/,'')+'index.html?nocache='+Date.now(),{cache:'no-store'});const t=await r.text();const m=t.match(/name="build" content="([^"]+)"/);if(m&&m[1]!==mine){const b=document.createElement('button');b.type='button';b.className='go';b.id='updbtn';b.textContent=L('有新版本,点击更新','New version available: tap to update');b.onclick=()=>location.reload(true);document.body.appendChild(b)}}catch(_){}})();
 /* while the card screen is up on a phone, the sound button must not cover the cards */
 new MutationObserver(()=>{document.body.classList.toggle('picking',!$('#cards').hidden)}).observe($('#cards'),{attributes:true,attributeFilter:['hidden']});
+
+/* touch layout (Diablo Immortal / Wild Rift style): left thumb moves, right thumb has a big dash button with the skills in an arc around it */
+if(IS_TOUCH){document.body.classList.add('touchhud');const vb=$('#vbars');if(vb)vb.hidden=false}

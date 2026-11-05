@@ -80,7 +80,7 @@ const AUGS={
 };
 const PERKS=[
   {g:'锋',zh:'锋锐',en:'Keen Edge',d:'所有伤害 +12%',de:'All damage +12%',a:P=>P.dmg*=1.12},
-  {g:'罩',zh:'金钟罩',en:'Iron Bell',d:'受到伤害 -12%',de:'Damage taken -12%',a:P=>P.def*=.88},
+  {g:'罩',zh:'金钟罩',en:'Iron Bell',d:'受到伤害 -12%(减伤上限 60%)',de:'Damage taken -12% (mitigation caps at 60%)',a:P=>P.def*=.88},
   {g:'轻',zh:'轻身',en:'Light Step',d:'移动速度 +10%',de:'Move speed +10%',a:P=>P.spd*=1.1},
   {g:'息',zh:'内息',en:'Inner Breath',d:'内力上限 +30,回复更快',de:'+30 max qi and faster qi regen',a:P=>{P.maxMana+=30;P.regen*=1.2;P.mana=Math.min(P.maxMana,P.mana+30)}},
   {g:'命',zh:'生息',en:'Vitality',d:'生命上限 +25,并回复 25',de:'Max HP +25, heal 25',a:P=>{P.maxHp+=25;P.hp=Math.min(P.maxHp,P.hp+25)}},
