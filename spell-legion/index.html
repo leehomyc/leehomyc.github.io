@@ -24,10 +24,10 @@
       <div id="xpbar"><div id="xp"></div></div>
       <div class="row">
         <div class="lft"><b id="lv">Lv 1</b><button id="charbtn" aria-label="Character">角色 C<span id="ptsbadge" hidden></span></button><span id="cores"></span></div>
-        <b id="timer">0:00</b>
+        <div class="tm"><b id="timer">0:00</b><span id="nextboss"></span></div>
         <div class="rgt"><span id="kills">0</span><button id="pausebtn" aria-label="Pause">II</button></div>
       </div>
-      <div id="bossbar" hidden><span>血魔教主 · Blood Demon Patriarch</span><div id="bosshp"><i></i></div></div>
+      <div id="bossbar" hidden><span id="bossname">血魔教主 · Blood Demon Patriarch</span><div id="bosshp"><i></i></div></div>
       <div id="score" hidden><span>你 <b id="s-you">0</b></span><div id="s-bar"><i></i></div><span><b id="s-riv">0</b> <span id="s-rname"></span></span></div>
       <div id="obj" hidden></div>
       <div id="buff" hidden></div>
@@ -52,11 +52,12 @@
       <div class="vname">魔咒军团</div>
       <div class="ttb">
         <h1>Spell Legion</h1>
-        <p>江湖血魔作乱。选一位侠客出山,普攻自动施展,武学按 <kbd>1</kbd><kbd>2</kbd><kbd>3</kbd> 释放(消耗内力、有冷却),<kbd>Space</kbd> 轻功闪避。连斩越高,经验与金币越多。采集灵芝、拜神龛、撑到四分钟斩杀血魔教主。<br>
-        Pick a hero. Your normal attack fires by itself; cast skills with 1/2/3 (qi cost and cooldowns). Keep the kill streak alive for bigger rewards. Dash with Space, bless yourself at shrines, and slay the Blood Demon Patriarch at 4:00.</p>
+        <p>无尽江湖。选一位侠客出山,普攻自动施展,武学按 <kbd>1</kbd><kbd>2</kbd><kbd>3</kbd> 释放(消耗内力、有冷却),<kbd>Space</kbd> 轻功闪避。敌人越来越强,每四分钟一位首领,能撑多久?<br>
+        Endless mode. Your normal attack fires by itself; cast skills with 1/2/3. Enemies keep growing stronger and a new boss arrives every four minutes. How long can you last?</p>
         <div id="classes"></div>
         <button class="go" id="startbtn">出山 Start</button>
         <p class="note"><span id="autonote"></span> <kbd>WASD</kbd> / arrows or drag to move · <kbd>Space</kbd> dash · <kbd>P</kbd> pause (auto-cast toggle there) · <kbd>M</kbd> mute. <span id="loadnote"></span></p>
+        <div class="opts"><button type="button" class="go alt sm" id="rivalbtn">AI 对手:关</button><div id="qual"><span>画质 Quality</span><button type="button" data-q="low">低 Low</button><button type="button" data-q="med">中 Med</button><button type="button" data-q="high">高 High</button></div></div>
         <div class="lobby">
           <h2><span>山门 · 永久强化 Lobby upgrades</span><b id="gold">0</b></h2>
           <div id="shop"></div>

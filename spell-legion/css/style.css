@@ -209,3 +209,12 @@ kbd{font:700 13px var(--ui);border:1px solid var(--dim);padding:0 5px;border-rad
 .card.legendary{border-color:#ffd27a;box-shadow:0 18px 40px #000a,0 0 48px #ffd27acc;animation:deal .32s both,legend 1.6s ease-in-out infinite}.card.legendary .rar{color:#ffd27a}
 @keyframes legend{0%,100%{box-shadow:0 18px 40px #000a,0 0 30px #ffd27a88}50%{box-shadow:0 18px 40px #000a,0 0 60px #ffd27aee}}
 #reroll{align-self:center}
+
+/* timer with next-boss countdown, title options */
+.tm{display:grid;justify-items:center;gap:1px}
+#nextboss{font-size:11px;font-weight:800;letter-spacing:.08em;color:#ff9c5a;text-shadow:0 1px 0 #000}
+.opts{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.go.sm{font-size:13px;padding:7px 14px}
+#qual{display:flex;gap:4px;align-items:center;font-size:12px;color:var(--dim)}
+#qual button{border-radius:6px;background:#2a1822;border:1px solid #6b5230;color:var(--bone);font:700 12px var(--ui);padding:6px 10px;cursor:pointer}
+#qual button.on{background:var(--brass);color:#1a0e16;border-color:var(--brass)}

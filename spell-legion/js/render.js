@@ -22,6 +22,7 @@ function setEnemy(e){
   dummy.position.set(e.x,y+(age-1)*16,e.y);dummy.rotation.set(tilt,yaw,roll);const s=(.2+.8*age)*(e.sc||1);dummy.scale.set(s*sx*pop,s*sy*pop,s*sx*pop);dummy.updateMatrix();im.setMatrixAt(i,dummy.matrix);
   let r=e.tn,g=e.tn,b=e.tn;
   if(e.elite){r*=1.25;g*=1.1;b*=.75}
+  if(e.affix==='swift'){r*=.8;g*=1.25;b*=1.4}else if(e.affix==='explode'){r*=1.5;g*=.7;b*=.6}else if(e.affix==='armor'){r*=.85;g*=.85;b*=1}
   if(e.flash>0){r=g=b=7}else if(e.frz>0){r=.5;g=1.1;b=2.1}else if(e.slow>0){r*=.72;g*=1;b*=1.5}else if(e.burn>0){r*=1.3;g*=.85;b*=.72}else if(e.shred>0){r*=.9;g*=1.22;b*=.72}
   tc.setRGB(r,g,b);im.setColorAt(i,tc);
   im.geometry.attributes.aPhase.array[i]=e.frz>0||e.tumble!==undefined?0:ph;
@@ -83,6 +84,7 @@ function render(rdt){
     if(e.type==='statue'){if(sI<3){const g=statues[sI++];g.visible=true;g.position.set(e.x,0,e.y);g.rotation.y=tm*.2;const c=g.userData.c;c.position.y=48+Math.sin(tm*2+e.x)*2;c.rotation.y=tm*1.3;c.material.emissiveIntensity=e.flash>0?10:3;glow(e.x,48,e.y,'#ff3df0',22,1.5);for(let i=0;i<3;i++){const a=tm*.9+i*2.09;glow(e.x+Math.cos(a)*9,16+((tm*14+i*13)%34),e.y+Math.sin(a)*9,'#ff7af4',3.4,2)}}continue}
     if(e.type==='boss')continue;
     setEnemy(e);
+    if(e.affix==='explode')glow(e.x,e.r*1.5,e.y,'#ff4a2a',e.r*3,.6+Math.sin(tm*12)*.4);
     if(e.elite){glow(e.x,e.r*1.2,e.y,'#ffd27a',e.r*4,.5);if(Math.random()<.3)glow(e.x+rnd(-8,8),rnd(2,e.r*3),e.y+rnd(-8,8),'#ffd27a',3,2)}
     if(e.burn>0&&glowN<GMAX*.7){const f=.7+Math.sin(tm*24+e.x)*.3;glow(e.x,e.r*1.7,e.y,'#ff7a2c',12*f+e.r,1.15);if(Math.random()<.22)G.fx.push({k:'p',x:e.x+rnd(-3,3),y:e.y+rnd(-3,3),h:e.r*1.4,vx:rnd(-4,4),vy:rnd(-4,4),vh:rnd(18,42),t:.45,T:.45,c:'#ffb14a',sz:3})}
     if(e.frz>0&&glowN<GMAX*.7)glow(e.x,e.r,e.y,'#8fe4ff',e.r*3.3,.32);
@@ -103,7 +105,7 @@ function render(rdt){
     if(B.tele>0)glow(B.x,30,B.y,'#ff3020',110,.9);
     glow(B.x,hover+40,B.y,'#ff2a3a',70,.2);glow(B.x,hover+57,B.y+6,'#ff4a4a',18,.9);
     for(let i=0;i<6;i++){const a=tm*.55+i;glow(B.x+Math.cos(a)*(36+i*2),((tm*16+i*19)%80),B.y+Math.sin(a)*(34+i),'#ff6a6a',3.6,1.6)}
-    bossG.children[0].material.emissive=bossG.children[0].material.emissive||new T3.Color();bossG.children[0].material.emissive.setScalar(B.flash>0?.5:0);
+    const bm=bossG.userData.body.material;bm.emissive=bm.emissive||new T3.Color();bm.emissive.setScalar(B.flash>0?.5:0);if(B.tint){const c=rgb(B.tint);bm.color.setRGB(c[0]*1.6,c[1]*1.6,c[2]*1.6)}else bm.color.setRGB(1,1,1);
   }
   tele.visible=!!(B&&B.tele>0);
   if(tele.visible){const dx=B.tx-B.x,dz=B.ty-B.y,len=Math.max(120,hyp(dx,dz))*1.6;tele.position.set(B.x,.8,B.y);tele.rotation.y=Math.atan2(dx,dz);tele.scale.set(46,1,len);tele.material.opacity=.45+.5*(1-B.tele/.8)}
