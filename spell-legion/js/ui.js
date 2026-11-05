@@ -276,3 +276,11 @@ if(window.desktop){$('#exitbtn').hidden=false;$('#exitbtn').onclick=()=>window.d
   document.addEventListener('touchstart',e=>{if(e.touches.length>1)e.preventDefault()},{passive:false});
   ['gesturestart','gesturechange','gestureend'].forEach(t=>document.addEventListener(t,e=>e.preventDefault(),{passive:false}));
   document.addEventListener('dblclick',e=>e.preventDefault(),{passive:false});})();
+
+/* save code: the whole SAVE object, base64 with a checksum, so progress can move between devices without an account */
+function saveCode(){const j=JSON.stringify(SAVE);let h=0;for(let i=0;i<j.length;i++)h=(h*31+j.charCodeAt(i))|0;return 'SL1.'+(h>>>0).toString(36)+'.'+btoa(unescape(encodeURIComponent(j)))}
+function loadCode(code){const m=/^SL1\.([0-9a-z]+)\.(.+)$/.exec((code||'').trim());if(!m)return 'bad';let j;try{j=decodeURIComponent(escape(atob(m[2])))}catch(_){return 'bad'}let h=0;for(let i=0;i<j.length;i++)h=(h*31+j.charCodeAt(i))|0;if((h>>>0).toString(36)!==m[1])return 'bad';let o;try{o=JSON.parse(j)}catch(_){return 'bad'}if(!o||typeof o.gold!=='number')return 'bad';Object.assign(SAVE,o);persist();return 'ok'}
+$('#exportbtn').onclick=()=>{const p=$('#savepanel'),ta=$('#savecode');p.hidden=false;ta.value=saveCode();ta.readOnly=true;$('#saveapply').hidden=true;ta.select();let msg='复制这段存档码,在另一台设备「导入」。 Copy this code and import it on another device.';try{navigator.clipboard&&navigator.clipboard.writeText(ta.value).then(()=>{$('#savemsg').textContent='已复制到剪贴板 · Copied to clipboard'})}catch(_){}$('#savemsg').textContent=msg};
+$('#importbtn').onclick=()=>{const p=$('#savepanel'),ta=$('#savecode');p.hidden=false;ta.value='';ta.readOnly=false;$('#saveapply').hidden=false;$('#savemsg').textContent='粘贴存档码后点「应用」(会覆盖本机存档)。 Paste a save code and press Apply (replaces this device\'s progress).';ta.focus()};
+$('#saveapply').onclick=()=>{const r=loadCode($('#savecode').value);$('#savemsg').textContent=r==='ok'?'已导入! Imported.':'存档码无效。 Invalid code.';if(r==='ok'){AUTOCAST=SAVE.autocast===true;autoLabel();renderTitle();SFX.complete()}};
+$('#saveclose').onclick=()=>{$('#savepanel').hidden=true};

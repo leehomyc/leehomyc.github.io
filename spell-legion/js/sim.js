@@ -12,8 +12,8 @@ function newGame(auto,cls){
   buildArena();if(typeof buildRuins==='function')buildRuins();
   const P={x:W/2,y:H/2,hp:C.hp,maxHp:C.hp,mana:C.mana,maxMana:C.mana,regen:C.regen,dmg:C.dmg,def:1,spd:C.spd,mag:1,haste:1,crit:.05,inv:0,face:1,walk:0,down:0,dash:0,dashCd:0,dx:0,dy:1,buff:null,cast:0,yaw:0,yaw0:0,shield:0,leap:null,cls,ap:0,sp:0,attr:{str:0,vit:0,spr:0,agi:0},dmgBonus:0};
   G={auto,t:0,P,cls,en:[],shots:[],bombs:[],bullets:[],gems:[],pools:[],fx:[],floats:[],arcs:[],later:[],ghosts:[],shocks:[],
-     mush:[],grid:new Map(),spells:[mkSpell(weaponOf(cls)),mkSpell(C.skills[0])],pwaves:[],xp:0,lv:1,need:14,picks:[],kills:0,cores:2,coreT:0,
-     spawnA:0,swarmT:55,mission:null,missionT:26,boss:null,bossT:0,paused:false,over:null,shake:0,trauma:0,shX:0,shY:0,hitStop:0,slow:0,flash:0,dmgTaken:0,
+     mush:[],grid:new Map(),spells:[mkSpell(weaponOf(cls)),mkSpell(C.skills[0])],pwaves:[],xp:0,lv:1,need:xpNeed(1),picks:[],kills:0,cores:2,coreT:0,
+     spawnA:8,swarmT:55,mission:null,missionT:26,boss:null,bossT:0,paused:false,over:null,shake:0,trauma:0,shX:0,shY:0,hitStop:0,slow:0,flash:0,dmgTaken:0,
      shrines:SHRINES.map(s=>({x:s[0],y:s[1],cd:0})),elites:0,combo:0,comboT:0,comboMax:0,over9:0,chests:[],chestT:30,goldRun:0,rerolls:1,wave:0,ambush:0,warlord:0,bossN:0,bossSlain:0,warlordN:0,relics:[],novas:[],hazards:[],score:0,hintT:0,hintN:0};
   if(typeof buildHero==='function')buildHero(cls,'player',weaponOf(cls));
   if(RIVAL_ON)mkRival(cls);else{G.rival=null;if(typeof HEROES!=='undefined'&&HEROES.rival){scene.remove(HEROES.rival.g);scene.remove(HEROES.rival.sigil);HEROES.rival=null}}
@@ -94,7 +94,9 @@ function near(x,y,r,fn){
   }
 }
 function nearest(x,y,max,skipStatue){ // bosses and elites count as closer than they are, so auto-attacks focus them
-  let b=null,bd=max;for(const e of G.en){if(e.dead||(skipStatue&&e.type==='statue'))continue;let d=hyp(e.x-x,e.y-y);if(d>max)continue;if(e.type==='boss')d*=.3;else if(e.warlord)d*=.4;else if(e.role==='shaman')d*=.5;else if(e.elite)d*=.65;if(d<bd){bd=d;b=e}}return b}
+  let b=null,bd=max;for(const e of G.en){if(e.dead)continue;let d=hyp(e.x-x,e.y-y);if(d>max)continue;
+    if(e.type==='statue'){if(skipStatue&&(d>130||!(G.mission&&G.mission.k==='statue')))continue;d*=.4} // a mission stele within reach is a priority target, so normal attacks aim at it
+    else if(e.type==='boss')d*=.3;else if(e.warlord)d*=.4;else if(e.role==='shaman')d*=.5;else if(e.elite)d*=.65;if(d<bd){bd=d;b=e}}return b}
 function has(s,el){return s&&s.els.includes(el)}
 function fusion(s){return s&&s.els.length===2?fusKey(s.els[0],s.els[1]):null}
 
@@ -478,7 +480,8 @@ function buildCards(q){
 }
 
 /* level curve: slow early, keeps paying out late (gem values also rise every 4 minutes) */
-function xpNeed(lv){return Math.round(12+lv*6+lv*lv*.85)}
+/* level curve: the first levels are nearly free (Lv 2 after a handful of kills), then it settles into the long curve */
+function xpNeed(lv){return lv<=8?Math.round(4+lv*3+lv*lv*.5):Math.round(12+lv*6+lv*lv*.85-60*Math.max(0,(16-lv)/8))}
 function autoGrow(){const P=G.P;P.maxHp+=7;P.hp=Math.min(P.maxHp,P.hp+12);P.dmgBonus+=.02;P.maxMana+=5;P.mana=Math.min(P.maxMana,P.mana+10);P.regen*=1.03;P.spd*=1.01;P.crit+=.004;P.attr.str++;P.attr.vit++;P.attr.spr++;P.attr.agi++}
 function spendAttr(id){const P=G.P;if(P.ap<=0)return false;P.ap--;P.attr[id]++;
   if(id==='str')P.dmgBonus+=.04;if(id==='vit'){P.maxHp+=8;P.hp+=8}if(id==='spr'){P.maxMana+=6;P.mana+=6;P.regen*=1.04}if(id==='agi'){P.spd*=1.02;P.crit+=.01}return true}
@@ -507,7 +510,7 @@ function edgePoint(){
 function spawnTick(dt){
   const t=G.t;
   if(G.en.length>560)return;
-  const rate=Math.min(20,1.0+t/34+Math.max(0,t-240)/36)*(G.boss?.6:1)*(G.en.length>420?.45:1);G.spawnA+=rate*dt;
+  const rate=Math.min(20,1.0+t/34+Math.max(0,t-240)/36+Math.max(0,1.6*(1-t/60)))*(G.boss?.6:1)*(G.en.length>420?.45:1);G.spawnA+=rate*dt;
   while(G.spawnA>=1){G.spawnA--;
     const r=rnd(),o=edgePoint();
     let ty='assassin';
@@ -693,7 +696,7 @@ function step(dt){
     if(G.rival&&G.rival.down<=0&&hyp(b.x-G.rival.x,b.y-G.rival.y+4)<7){rivalHurt(b.d);b.life=0}
     if(b.x<20||b.y<20||b.x>W-20||b.y>H-20||blocked(b.x,b.y))b.life=0;}
   G.bullets=G.bullets.filter(b=>b.life>0);
-  const mag=52*P.mag;
+  const mag=52*P.mag*(G.t<120?1.8:G.t<240?1.3:1);
   for(const g of G.gems){const d=hyp(g.x-P.x,g.y-P.y);
     if(g.pull||d<mag){g.pull=1;const s=180+(40-Math.min(d,40))*4;g.x+=(P.x-g.x)/(d||1)*s*dt;g.y+=(P.y-g.y)/(d||1)*s*dt;
       if(d<8){g.dead=1;gainXP(g.v*comboMult()*.6);if(typeof SFX!=='undefined'&&!G.auto)SFX.pick(0)}}}
