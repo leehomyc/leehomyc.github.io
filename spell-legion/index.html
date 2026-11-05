@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>魔咒军团</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=ZCOOL+XiaoWei&family=Alegreya+Sans:wght@400;700;800&display=swap">
-<link rel="stylesheet" href="css/style.css?v=202611052229">
+<link rel="stylesheet" href="css/style.css?v=202611052254">
 <script src="vendor/three.min.js"></script>
 <script src="vendor/CopyShader.js"></script>
 <script src="vendor/LuminosityHighPassShader.js"></script>
@@ -49,33 +49,48 @@
   </div>
 
   <div id="title" class="overlay">
-    <div class="tt">
-      <div class="vname">魔咒军团</div>
-      <div class="ttb">
-        <h1>Spell Legion</h1>
-        <div class="langrow"><button type="button" class="langbtn" data-l="zh">中文</button><button type="button" class="langbtn" data-l="en">English</button><span class="status" id="status"></span></div>
-        <p class="tag"><span class="zh">选一位侠客出山。普攻自动,武学按 <kbd>1</kbd><kbd>2</kbd><kbd>3</kbd>,<kbd>Space</kbd> 轻功。每四分钟一位首领,能撑多久?</span><span class="en">Pick a hero. Normal attack is automatic; <kbd>1</kbd><kbd>2</kbd><kbd>3</kbd> cast skills, <kbd>Space</kbd> dashes. A boss every four minutes — how long can you last?</span></p>
-        <div id="classes"></div><div id="weapons"></div>
-        <div class="startrow"><button class="go big" id="startbtn"><span class="zh">出山</span><span class="en">Start</span></button><div id="mode"><button type="button" data-m="solo"><span class="zh">单人</span><span class="en">Solo</span></button><button type="button" data-m="qpk"><span class="zh">快速对决 3′</span><span class="en">Quick PK 3′</span></button><button type="button" data-m="pk"><span class="zh">对决 10′</span><span class="en">PK 10′</span></button><button type="button" data-m="daily"><span class="zh">每日挑战</span><span class="en">Daily</span></button><button type="button" data-m="rush"><span class="zh">首领连战</span><span class="en">Boss rush</span></button></div></div>
-        <div id="asura" hidden></div>
-        <p class="note" id="runsummary"></p><p class="note" id="modenote"></p><span id="autonote" hidden></span><span id="loadnote" class="note"></span>
-        <div class="tabbar"><button type="button" data-t="shop"><span class="zh">山门</span><span class="en">Upgrades</span> <b id="gold">0</b></button><button type="button" data-t="tasks"><span class="zh">任务</span><span class="en">Tasks</span></button><button type="button" data-t="ach"><span class="zh">成就</span><span class="en">Achievements</span> <b id="achcount">0/0</b></button><button type="button" data-t="codex"><span class="zh">图鉴</span><span class="en">Codex</span> <b id="codexcount">0/0</b></button><button type="button" id="lbbtn" hidden><span class="zh">排行榜</span><span class="en">Leaderboard</span></button><button type="button" data-t="settings"><span class="zh">设置</span><span class="en">Settings</span></button></div>
-        <div class="lobby">
-          <div class="panel" data-p="shop"><h2><span><span class="zh">山门 · 永久强化</span><span class="en">Permanent upgrades</span></span></h2><div id="shop"></div><div id="record"></div></div>
-          <div class="panel" data-p="tasks"><div id="meta"></div></div>
-          <div class="panel" data-p="ach"><div id="ach"></div></div>
-          <div class="panel" data-p="codex"><div id="codex"></div></div>
-          <div class="panel" data-p="settings">
-            <div class="opts"><div id="diff"><span><span class="zh">难度</span><span class="en">Difficulty</span></span><button type="button" data-d="easy"><span class="zh">简单</span><span class="en">Easy</span></button><button type="button" data-d="normal"><span class="zh">普通</span><span class="en">Normal</span></button><button type="button" data-d="hard"><span class="zh">困难</span><span class="en">Hard</span></button></div><div id="qual"><span><span class="zh">画质</span><span class="en">Quality</span></span><button type="button" data-q="low"><span class="zh">低</span><span class="en">Low</span></button><button type="button" data-q="med"><span class="zh">中</span><span class="en">Medium</span></button><button type="button" data-q="high"><span class="zh">高</span><span class="en">High</span></button></div></div>
-            <div id="maps"></div>
-            <p class="note"><span class="zh"><kbd>WASD</kbd> / 方向键 / 拖动 移动 · <kbd>Space</kbd> 轻功 · <kbd>P</kbd> 暂停 · <kbd>M</kbd> 静音 · 右键或底部「自/手」切换自动施放</span><span class="en"><kbd>WASD</kbd> / arrows / drag to move · <kbd>Space</kbd> dash · <kbd>P</kbd> pause · <kbd>M</kbd> mute · right-click or the 自/手 seal toggles auto-cast</span></p>
-            <div id="account"></div>
-            
+    <div id="menu" class="screen">
+      <div class="tt">
+        <div class="vname">魔咒军团</div>
+        <div class="ttb">
+          <h1>Spell Legion</h1>
+          <div class="langrow"><button type="button" class="langbtn" data-l="zh">中文</button><button type="button" class="langbtn" data-l="en">English</button><span class="status" id="status"></span></div>
+          <div id="menubtns"></div>
+          <span id="loadnote" class="note"></span><span id="autonote" hidden></span>
+          <div class="tabbar"><button type="button" data-t="shop"><span class="zh">山门</span><span class="en">Upgrades</span> <b id="gold">0</b></button><button type="button" data-t="tasks"><span class="zh">任务</span><span class="en">Tasks</span></button><button type="button" data-t="ach"><span class="zh">成就</span><span class="en">Achievements</span> <b id="achcount">0/0</b></button><button type="button" data-t="codex"><span class="zh">图鉴</span><span class="en">Codex</span> <b id="codexcount">0/0</b></button><button type="button" id="lbbtn" hidden><span class="zh">排行榜</span><span class="en">Leaderboard</span></button><button type="button" data-t="settings"><span class="zh">设置</span><span class="en">Settings</span></button></div>
+          <div class="lobby">
+            <div class="panel" data-p="shop"><h2><span><span class="zh">山门 · 永久强化</span><span class="en">Permanent upgrades</span></span></h2><div id="shop"></div><div id="record"></div></div>
+            <div class="panel" data-p="tasks"><div id="meta"></div></div>
+            <div class="panel" data-p="ach"><div id="ach"></div></div>
+            <div class="panel" data-p="codex"><div id="codex"></div></div>
+            <div class="panel" data-p="settings">
+              <div class="opts"><div id="qual"><span><span class="zh">画质</span><span class="en">Quality</span></span><button type="button" data-q="low"><span class="zh">低</span><span class="en">Low</span></button><button type="button" data-q="med"><span class="zh">中</span><span class="en">Medium</span></button><button type="button" data-q="high"><span class="zh">高</span><span class="en">High</span></button></div><div id="shake"><span><span class="zh">震感</span><span class="en">Screen shake</span></span><button type="button" data-s="off"><span class="zh">关</span><span class="en">Off</span></button><button type="button" data-s="low"><span class="zh">弱</span><span class="en">Low</span></button><button type="button" data-s="high"><span class="zh">强</span><span class="en">High</span></button></div></div>
+              <p class="note"><span class="zh"><kbd>WASD</kbd> / 方向键 / 拖动 移动 · <kbd>Space</kbd> 轻功 · <kbd>P</kbd> 暂停 · <kbd>M</kbd> 静音 · 右键或底部「自/手」切换自动施放</span><span class="en"><kbd>WASD</kbd> / arrows / drag to move · <kbd>Space</kbd> dash · <kbd>P</kbd> pause · <kbd>M</kbd> mute · right-click or the 自/手 seal toggles auto-cast</span></p>
+              <div id="account"></div>
+            </div>
           </div>
+          <button class="go alt" id="exitbtn" hidden><span class="zh">退出</span><span class="en">Quit</span></button>
         </div>
-        <div id="stickystart"><button type="button" class="go" id="stickybtn"><span class="zh">出山</span><span class="en">Start</span></button><small></small></div>
-        <button class="go alt" id="exitbtn" hidden><span class="zh">退出</span><span class="en">Quit</span></button>
       </div>
+    </div>
+    <div id="hero" class="screen" hidden>
+      <div class="hhead"><button type="button" class="back" id="backbtn">‹ <span class="zh">返回</span><span class="en">Back</span></button><h2><span class="zh">选择侠客</span><span class="en">Choose your hero</span></h2><div id="mode"><button type="button" data-m="solo"><span class="zh">单人</span><span class="en">Solo</span></button><button type="button" data-m="qpk"><span class="zh">快速对决 3′</span><span class="en">Quick PK 3′</span></button><button type="button" data-m="pk"><span class="zh">对决 10′</span><span class="en">PK 10′</span></button><button type="button" data-m="daily"><span class="zh">每日挑战</span><span class="en">Daily</span></button><button type="button" data-m="rush"><span class="zh">首领连战</span><span class="en">Boss rush</span></button></div></div>
+      <div class="hbody">
+        <div id="classes"></div>
+        <div class="hview"><canvas id="pv"></canvas><div class="hname"><span class="hg" id="hglyph"></span><b id="hname"></b><small id="hrole"></small></div><p id="hdesc"></p></div>
+        <div class="hkit">
+          <h3><span class="zh">武器</span><span class="en">Weapon</span></h3><div id="weapons"></div>
+          <h3><span class="zh">武学</span><span class="en">Skills</span> <small><span class="zh">点击查看</span><span class="en">tap to inspect</span></small></h3><div id="hskills"></div><div id="skilldetail"></div>
+          <h3><span class="zh">属性</span><span class="en">Stats</span></h3><div id="hstats"></div>
+        </div>
+      </div>
+      <div class="hfoot">
+        <div class="hopts"><div id="diff"><span><span class="zh">难度</span><span class="en">Difficulty</span></span><button type="button" data-d="easy"><span class="zh">简单</span><span class="en">Easy</span></button><button type="button" data-d="normal"><span class="zh">普通</span><span class="en">Normal</span></button><button type="button" data-d="hard"><span class="zh">困难</span><span class="en">Hard</span></button></div><div id="asura" hidden></div></div>
+        <div id="maps"></div>
+        <p class="note" id="modenote"></p>
+        <div class="startrow"><button class="go big" id="startbtn"><span class="zh">出山</span><span class="en">Start</span></button><p class="note" id="runsummary"></p></div>
+      </div>
+      <div id="stickystart"><button type="button" class="go" id="stickybtn"><span class="zh">出山</span><span class="en">Start</span></button><small></small></div>
     </div>
   </div>
   <div id="cards" class="overlay" hidden><h2 id="cardtitle"></h2><div id="build"></div><div id="cardrow"></div><button type="button" class="go alt" id="reroll" hidden><span class="zh">重抽</span><span class="en">Reroll</span></button></div>
@@ -88,17 +103,19 @@
   <div id="lb" class="overlay" hidden><div class="cbox"><div class="ch"><h2><span class="zh">排行榜</span><span class="en">Leaderboard</span> <small><span class="zh">最长存活</span><span class="en">longest survival</span></small></h2><div class="tabs" id="lbtabs"><button type="button" data-b="all" class="on"><span class="zh">总榜</span><span class="en">All time</span></button><button type="button" data-b="today"><span class="zh">今日</span><span class="en">Today</span></button></div><button type="button" id="lbclose"><span class="zh">关闭</span><span class="en">Close</span></button></div><div id="lbbody"></div></div></div>
   <div id="end" class="overlay" hidden><div class="endb" id="endb"></div></div>
 </div>
-<script src="js/core.js?v=202611052229"></script>
-<script src="js/content.js?v=202611052229"></script>
-<script src="js/audio.js?v=202611052229"></script>
-<script src="js/gfx.js?v=202611052229"></script>
-<script src="js/sim.js?v=202611052229"></script>
-<script src="js/render.js?v=202611052229"></script>
-<script src="js/leaderboard.js?v=202611052229"></script>
-<script src="js/cloud.js?v=202611052229"></script>
-<script src="js/meta.js?v=202611052229"></script>
-<script src="js/ui.js?v=202611052229"></script>
-<script src="js/main.js?v=202611052229"></script>
+<script src="js/core.js?v=202611052254"></script>
+<script src="js/content.js?v=202611052254"></script>
+<script src="js/icons.js?v=202611052254"></script>
+<script src="js/audio.js?v=202611052254"></script>
+<script src="js/gfx.js?v=202611052254"></script>
+<script src="js/sim.js?v=202611052254"></script>
+<script src="js/render.js?v=202611052254"></script>
+<script src="js/leaderboard.js?v=202611052254"></script>
+<script src="js/cloud.js?v=202611052254"></script>
+<script src="js/meta.js?v=202611052254"></script>
+<script src="js/ui.js?v=202611052254"></script>
+<script src="js/lobby.js?v=202611052254"></script>
+<script src="js/main.js?v=202611052254"></script>
 <!--/PAGE-->
 </body>
 </html>

@@ -116,7 +116,7 @@ function drawSeals(){
   const box=$('#seals');box.textContent='';box.classList.toggle('auto',AUTOCAST);
   for(let i=0;i<4;i++){const s=G.spells[i],d=document.createElement('button');d.className='seal'+(s?'':' empty')+(i===0?' main':'');d.id='seal'+i;d.type='button';
     if(s){const m=SPELLS[s.id];
-      const g=document.createElement('div');g.className='g';g.textContent=m.g;g.style.color=s.els[0]?ELS[s.els[0]].col:m.col;d.appendChild(g);
+      const g=document.createElement('div');g.className='g';g.innerHTML=typeof ICON!=='undefined'?ICON.spell(s.id)+`<span class="gm">${m.g}</span>`:m.g;g.style.color=s.els[0]?ELS[s.els[0]].col:m.col;d.appendChild(g);
       const l=document.createElement('div');l.className='lv';l.textContent='Lv '+s.lv;d.appendChild(l);
       const key=document.createElement('div');key.className='key';key.textContent=m.auto?L('自动','auto'):SPELL_KEYS[i];d.appendChild(key);
       if(!m.auto){const cst=document.createElement('div');cst.className='cost';cst.innerHTML=`<i>${L('内力','qi')}</i>${skillCost(s)}`;d.appendChild(cst)}
@@ -128,8 +128,8 @@ function drawSeals(){
       d.onpointerdown=ev=>{ev.preventDefault();if(!m.auto)castSkill(i)};
     }else{const key=document.createElement('div');key.className='key';key.textContent=SPELL_KEYS[i];d.appendChild(key)}
     box.appendChild(d)}
-  const dd=document.createElement('button');dd.className='seal dash';dd.id='sealdash';dd.type='button';dd.innerHTML=`<div class="g">轻</div><div class="lv">${L('轻功','dash')}</div><div class="key">${IS_TOUCH?L('点击','tap'):'Space'}</div><div class="cdm"></div>`;dd.onpointerdown=ev=>{ev.preventDefault();dash()};box.appendChild(dd);
-  const at=document.createElement('button');at.className='seal autosw'+(AUTOCAST?' on':'');at.id='autosw';at.type='button';at.innerHTML=`<div class="g">${AUTOCAST?'自':'手'}</div><div class="lv">${AUTOCAST?L('自动施放','auto-cast'):L('手动施放','manual')}</div><div class="key">${IS_TOUCH?L('切换','toggle'):L('右键','R-click')}</div>`;at.title=L('切换武学自动/手动施放(右键也可)','Toggle auto-cast (right-click also works)');at.onpointerdown=ev=>{ev.preventDefault();toggleAuto()};box.appendChild(at);
+  const dd=document.createElement('button');dd.className='seal dash';dd.id='sealdash';dd.type='button';dd.innerHTML=`<div class="g">${typeof ICON!=='undefined'?ICON.misc('dash','#9fe3f0'):''}<span class="gm">轻</span></div><div class="lv">${L('轻功','dash')}</div><div class="key">${IS_TOUCH?L('点击','tap'):'Space'}</div><div class="cdm"></div>`;dd.onpointerdown=ev=>{ev.preventDefault();dash()};box.appendChild(dd);
+  const at=document.createElement('button');at.className='seal autosw'+(AUTOCAST?' on':'');at.id='autosw';at.type='button';at.innerHTML=`<div class="g">${typeof ICON!=='undefined'?ICON.misc(AUTOCAST?'auto':'manual',AUTOCAST?'#7dffb0':'#ffd27a'):''}<span class="gm">${AUTOCAST?'自':'手'}</span></div><div class="lv">${AUTOCAST?L('自动施放','auto-cast'):L('手动施放','manual')}</div><div class="key">${IS_TOUCH?L('切换','toggle'):L('右键','R-click')}</div>`;at.title=L('切换武学自动/手动施放(右键也可)','Toggle auto-cast (right-click also works)');at.onpointerdown=ev=>{ev.preventDefault();toggleAuto()};box.appendChild(at);
 }
 let bannerT=0;
 function showBanner(zh,en,t){if(!G||G.auto)return;if(introOn&&t<2.5)return;const b=$('#banner');b.innerHTML=`${L(zh,en)}`;b.classList.remove('on');void b.offsetWidth;b.classList.add('on');bannerT=t}
@@ -182,7 +182,7 @@ function openPick(){
     hd.innerHTML=`<span class="kind" style="--cc:${K[2]}">${L(K[0],K[1])}</span>${kind!=='passive'&&kind!=='jackpot'?`<span class="catd" style="--cc:${cat[2]}">${L(cat[0],cat[1])}</span>`:''}<span class="sp"></span>${cd.q&&cd.q.k!=='common'?`<span class="rar">${L(cd.q.zh,cd.q.en)}</span>`:''}${sug?`<span class="star" title="${L('推荐','Suggested')}">★</span>`:''}`;
     b.appendChild(hd);
     // glyph of the skill being changed, with a small badge for the node / element / augment
-    const gw=document.createElement('div');gw.className='gw';gw.innerHTML=`<span class="g">${cd.g}</span>${cd.badge?`<span class="badge">${cd.badge}</span>`:''}`;b.appendChild(gw);
+    const gw=document.createElement('div');gw.className='gw';gw.innerHTML=typeof ICON!=='undefined'?ICON.card(cd)+`<span class="gm">${cd.g}</span>`:`<span class="g">${cd.g}</span>${cd.badge?`<span class="badge">${cd.badge}</span>`:''}`;b.appendChild(gw);
     const parts=[['n',cd.n],['sub',cd.sub],['fx',cd.fx],['fxe',cd.fxEn],['k',L('按 ','Press ')+(i+1)]];
     parts.forEach(([k,v])=>{if(!v)return;const s=document.createElement('div');s.className=k;s.textContent=v;b.appendChild(s)});
     if(sug)b.classList.add('sugged');
@@ -197,7 +197,7 @@ function renderBuildStrip(){
   G.spells.forEach((s,i)=>{const m=SPELLS[s.id],d=document.createElement('div');d.className='bs';d.dataset.skill=s.id;d.style.setProperty('--c',m.col);
     const nodes=Object.values(s.nodes||{}).reduce((a,b)=>a+b,0),cat=CATS[SKILL_CAT[s.id]]||CATS.passive;
     const tags=[i===0?L('普攻','normal attack'):L(cat[0],cat[1]),s.els.length?s.els.map(k=>LL(ELS[k])).join('+'):'',s.awake?L('觉醒','awakened'):''].filter(Boolean).join(' · ');
-    d.innerHTML=`<span class="g">${m.g}</span><div><b>${LL(m)} <small>Lv ${s.lv}</small></b><small>${tags}</small></div>`;el.appendChild(d)});
+    d.innerHTML=`${typeof ICON!=='undefined'?ICON.spell(s.id,'sm'):`<span class="g">${m.g}</span>`}<div><b>${LL(m)} <small>Lv ${s.lv}</small></b><small>${tags}</small></div>`;el.appendChild(d)});
   for(let i=G.spells.length;i<4;i++){const d=document.createElement('div');d.className='bs empty';const nx=[3,6,10].find(l=>l>G.lv);d.innerHTML=`<span class="g">·</span><div><b>${L('空位','Empty')} <small>${L('键','key')} ${SPELL_KEYS[i]}</small></b><small>${nx?L(`Lv ${nx} 时可选新武学`,`new skill offered at Lv ${nx}`):L('本局不再提供新武学','no more new skills this run')}</small></div>`;el.appendChild(d)}
   const st=document.createElement('div');st.className='bstats';st.innerHTML=`<span class="lbl">${L('你的属性','Your stats')}</span><span>${L('生命','HP')} <b>${Math.ceil(P.hp)}/${P.maxHp}</b></span><span>${L('伤害','Damage')} <b>×${(P.dmg*(1+P.dmgBonus)).toFixed(2)}</b></span><span>${L('暴击','Crit')} <b>${Math.round(P.crit*100)}%</b></span><span>${L('减伤','Mitigation')} <b>${Math.round((1-P.def)*100)}%</b></span><span>${L('移速','Speed')} <b>×${P.spd.toFixed(2)}</b></span><span>${L('内力','Qi')} <b>${P.maxMana}</b> +${P.regen.toFixed(1)}/s</span><span>${L('法宝','Relics')} <b>${G.relics.length}</b></span>`;el.appendChild(st);
   const adv=typeof buildAdvice==='function'?buildAdvice():null;
@@ -217,7 +217,7 @@ function renderWeapons(){
   const h=document.createElement('span');h.className='wh';h.textContent=L('武器','Weapon');wr.appendChild(h);
   (WEAPONS[cls]||[]).forEach(w=>{const m=SPELLS[w],info=WEAPON_INFO[w]||{},own=weaponUnlocked(cls,w),b=document.createElement('button');b.type='button';b.className='wp'+(w===cur?' sel':'')+(own?'':' locked');b.style.setProperty('--c',m.col);
     const lock=own?'':(SAVE.gold>=(info.cost||0)?`<span class="buy">${L('解锁','Unlock')} · ${info.cost} ${L('金','gold')}</span>`:`<span class="lk">🔒 ${L(`用此职业斩杀一名首领,或 ${info.cost} 金`,`slay a boss with this class, or ${info.cost} gold`)}</span>`);
-    b.innerHTML=`<span class="g">${m.g}</span><span class="t"><b>${LL(m)}</b><small>${info.trait?L(info.trait[0],info.trait[1]):''}</small><small class="dd">${L(m.d,m.de)}</small>${lock}</span>`;
+    b.innerHTML=`${typeof ICON!=='undefined'?ICON.spell(w):''}<span class="t"><b>${LL(m)} <span class="g">${m.g}</span></b><small>${info.trait?L(info.trait[0],info.trait[1]):''}</small><small class="dd">${L(m.d,m.de)}</small>${lock}</span>`;
     b.onclick=()=>{if(!own){if(SAVE.gold>=(info.cost||0)){SAVE.gold-=info.cost;SAVE.weaponOwned[w]=true;persist();SFX.complete()}else{SFX.throw();return}}SAVE.weapon[cls]=w;persist();renderTitle();if(G&&G.auto){newGame(true,cls);demoBoost()}SFX.pick(1)};
     wr.appendChild(b)});
 }
@@ -231,8 +231,9 @@ function renderTitle(){
   if(typeof loginTick==='function'){const lg=loginTick();const se=typeof seasonTick==='function'?seasonTick():null;if(lg||se){const el=$('#loadnote');if(el)el.textContent=(lg?L(`签到第 ${lg.day} 天:金 +${lg.gold}`,`Login day ${lg.day}: +${lg.gold} gold`):'')+(se?L(` · 新赛季!上季峰值 ${se.peak} 🏆,奖励金 ${se.reward}`,` · New season! Last peak ${se.peak} 🏆, reward ${se.reward} gold`):'')}}
   const row=$('#classes');row.textContent='';
   for(const k in CLASSES){const C=CLASSES[k],b=document.createElement('button');b.className='cls'+(SAVE.cls===k?' sel':'');b.type='button';b.style.setProperty('--c',C.col);
-    b.innerHTML=`<div class="g">${C.g}</div><div class="n">${LL(C)}</div><div class="d">${L(C.d,C.de)}</div><div class="sk">${[C.main,...C.skills].map(id=>`<span style="color:${SPELLS[id].col}">${SPELLS[id].g}</span>`).join('')}</div>`;
+    b.innerHTML=`${typeof ICON!=='undefined'?ICON.cls(k):''}<div class="g">${C.g}</div><div class="n">${LL(C)}</div><div class="d">${typeof ROLES!=='undefined'?L(ROLES[k][0],ROLES[k][1]):L(C.d,C.de)}</div><div class="sk">${[weaponOf(k),...C.skills].map(id=>`<span style="color:${SPELLS[id].col}">${SPELLS[id].g}</span>`).join('')}</div>`;
     b.onclick=()=>{SAVE.cls=k;CLASS=k;persist();renderTitle();if(G&&G.auto){newGame(true,k);demoBoost()}SFX.pick(1)};row.appendChild(b)}
+  if(typeof renderMenu==='function')renderMenu();if(typeof renderHero==='function'&&$('#hname'))renderHero();
   renderWeapons();if(typeof renderMeta==='function')renderMeta();if(typeof renderCodex==='function')renderCodex();renderStatus();if(typeof renderAccount==='function')renderAccount();if(typeof LB!=='undefined'&&$('#lbbtn'))$('#lbbtn').hidden=!LB.enabled();
   $('#gold').textContent=SAVE.gold;
   const shop=$('#shop');shop.textContent='';
@@ -292,10 +293,10 @@ function showEnd(ok){
   ${(()=>{const g=nextGoal();return g?`<div class="nextgoal"><b>${L('下一局试试','Next run, try')}</b> ${L(g[0],g[1])}</div>`:''})()}
   ${meta?`<div class="metarow"><span>🏆 ${meta.dT>=0?'+':''}${meta.dT} → <b>${meta.trophies}</b> ${L(ladderOf(meta.trophies)[1],ladderOf(meta.trophies)[2])}</span>${meta.firstBonus?`<span class="td">${L('每日首胜/首局:金币 ×2','First of the day: gold ×2')}</span>`:''}${meta.road.map(([n,zh,en])=>`<span class="td">🏆 ${n} · ${L(zh,en)}</span>`).join('')}${meta.masteryUp?`<span class="td">${L(`${CLASSES[G.cls].zh}熟练度 ${meta.mastery.lv}`,`${CLASSES[G.cls].en} mastery ${meta.mastery.lv}`)}</span>`:''}<span>${L('江湖经验','Renown')} +${meta.xp}${meta.levelUp?` · <b>${L('江湖等级','Rank')} ${meta.after.lv}!</b> ${L(titleFor(meta.after.lv)[1],titleFor(meta.after.lv)[2])}`:` · Lv ${meta.after.lv} (${meta.after.x}/${meta.after.need})`}</span>${meta.done.map(([t,g])=>`<span class="td">✓ ${t.id==='streak'?L('七日连续','7-day streak'):L(taskText(t).zh,taskText(t).en)} +${g} ${L('金','gold')}</span>`).join('')}</div>`:''}
   <div class="dmg">${rows}</div>${cmp}<div class="btns"><button class="go" id="againbtn">${L('再来一局','Play again')}</button><button class="go alt" id="buildbtn">${L('换个构筑','Change build')}</button><button class="go alt" id="lobbybtn">${L('回到山门','Lobby')}</button></div>`;
-  $('#end').hidden=false;$('#againbtn').onclick=startRun;$('#lobbybtn').onclick=toLobby;$('#buildbtn').onclick=()=>{toLobby();setTimeout(()=>{const w=$('#weapons');if(w)w.scrollIntoView({behavior:'smooth',block:'center'})},50)};$('#againbtn').focus();
+  $('#end').hidden=false;$('#againbtn').onclick=startRun;$('#lobbybtn').onclick=toLobby;$('#buildbtn').onclick=()=>{toLobby();if(typeof showScreen==='function')showScreen('hero')};$('#againbtn').focus();
   if(typeof submitRun==='function')submitRun(box);
 }
-function toLobby(){$('#end').hidden=true;$('#hud').hidden=true;$('#title').hidden=false;newGame(true,SAVE.cls);demoBoost();renderTitle();SFX.setState('title')}
+function toLobby(){$('#end').hidden=true;$('#hud').hidden=true;$('#title').hidden=false;newGame(true,SAVE.cls);demoBoost();renderTitle();if(typeof showScreen==='function')showScreen('menu');SFX.setState('title')}
 $('#startbtn').onclick=startRun;
 $('#pausebtn').onclick=()=>{togglePause();$('#pausebtn').blur()};
 $('#resumebtn').onclick=()=>togglePause();

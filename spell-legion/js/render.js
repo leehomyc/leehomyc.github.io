@@ -66,15 +66,16 @@ function render(rdt){
   if(!window.__noAdapt){fS+=rdt;fN++;if(fN>=70){const av=fS/fN;fS=0;fN=0;if(av>.0265&&DPR>.65){DPR=Math.max(.65,DPR-.2);resize()}else if(av<.0125&&DPR<Math.min(devicePixelRatio||1,1.6)&&tm>6){DPR=Math.min(Math.min(devicePixelRatio||1,1.6),DPR+.1);resize()}}}
   glowN=0;
   /* camera with trauma shake */
-  G.trauma=Math.max(0,G.trauma-rdt*1.5);G.shX*=Math.pow(.004,rdt);G.shY*=Math.pow(.004,rdt);
+  G.trauma=Math.max(0,G.trauma-rdt*2.2);G.shX*=Math.pow(.001,rdt);G.shY*=Math.pow(.001,rdt);
   const hw=Math.min(W/2,VW*.36),hd=Math.min(H/2,VH*.34);
   const tx=clamp(P.x,hw,W-hw),tz=clamp(P.y,hd,H-hd),sm=1-Math.pow(.003,rdt);
   camX+=(tx-camX)*sm;camZ+=(tz-camZ)*sm;
-  const tr=reduced?0:G.trauma*G.trauma,amp=tr*22;
-  const nx=(Math.sin(tm*47)+Math.sin(tm*31.7)*.5)*amp+(reduced?0:G.shX),nz=(Math.cos(tm*41)+Math.sin(tm*27.3)*.5)*amp+(reduced?0:G.shY),ny=Math.sin(tm*53)*amp*.5;
-  camRoll=reduced?0:Math.sin(tm*37)*tr*.03;
-  const drift=reduced?0:Math.sin(tm*.22)*4;
-  const punch=G.hitStop>0?6:0;
+  /* shake is deliberately small and never rotates the view: the camera stays level and the map keeps its orientation (large shakes read as the world jumping and make people queasy) */
+  const SH=reduced?0:SHAKE==='off'?0:SHAKE==='high'?1:.45,tr=G.trauma*G.trauma,amp=tr*9*SH;
+  const nx=(Math.sin(tm*47)+Math.sin(tm*31.7)*.5)*amp+G.shX*.3*SH,nz=(Math.cos(tm*41)+Math.sin(tm*27.3)*.5)*amp+G.shY*.3*SH,ny=Math.sin(tm*53)*amp*.6;
+  camRoll=0;
+  const drift=0;
+  const punch=G.hitStop>0?2*SH:0;
   cam.position.set(camX+drift+nx,262*viewK+ny-punch,camZ+178*viewK+nz-punch*.6);
   cam.lookAt(camX+drift*.4+nx*.4,7,camZ-2+nz*.4);cam.rotateZ(camRoll);
   sun.target.position.set(Math.round(camX/3)*3,0,Math.round(camZ/3)*3);sun.position.set(sun.target.position.x-470,430,sun.target.position.z+360);

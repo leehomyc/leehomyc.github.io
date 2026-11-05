@@ -6,6 +6,7 @@ const QUAL={low:{shadow:1024,grass:7000,dpr:1,msaa:false,flies:90,trees:.55,tilt
 function detectQuality(){if(PHONE)return 'low';const cores=navigator.hardwareConcurrency||4,mem=navigator.deviceMemory||8;if(cores<=4||mem<=4)return 'low';if(cores<=8)return 'med';return 'high'}
 let QLEVEL=(()=>{try{const q=localStorage.getItem('sl_quality');if(q&&QUAL[q])return q}catch(_){}return detectQuality()})();
 const Q=()=>QUAL[QLEVEL];
+let SHAKE=(()=>{try{return localStorage.getItem('sl_shake')||'low'}catch(_){return 'low'}})();
 let MAPID=(()=>{try{const m=localStorage.getItem('sl_map');if(m&&MAPS[m])return m}catch(_){}return 'valley'})();
 const MAP=()=>MAPS[MAPID];
 /* chunked instancing: split instances into spatial tiles so frustum culling works in the main and shadow passes */
@@ -24,7 +25,7 @@ const lin=h=>new T3.Color(h).convertSRGBToLinear();
 const U={uTime:{value:0}};
 let rn,scene,cam,sun,orbL,hemiL,splats=[],splatI=0,occluders=[],comp,finalPass,bloomPass,glowPts,glowN=0,DPR=1,viewK=1,camX=W/2,camZ=H/2,VW=580,VH=400;
 let ruins=null,grassMesh,gemMesh,bulletMesh,swordMesh,talisMesh,playerG,hatA,capeM,armG,crystal,feetSigil,bossG,tele,mRing,heartMesh;
-const blades=[],inst={},statues=[],mushes=[],ringPool=[],poolPool=[],scorch=[],flashL=[],rays=[],blueMush=[],flies=[],ghostM=[],shrineM=[];
+const blades=[],roofs=[],inst={},statues=[],mushes=[],ringPool=[],poolPool=[],scorch=[],flashL=[],rays=[],blueMush=[],flies=[],ghostM=[],shrineM=[];
 let scorchI=0;
 const dummy=new T3.Object3D();dummy.rotation.order='YXZ';
 const tc=new T3.Color(),v3=new T3.Vector3();
@@ -203,7 +204,8 @@ function buildWorld(){
     pparts.push(part(BOX(104,5,104),'#6a6d72',{p:[cx,2.5,cz],top:'#8a8d92'}));
     for(const sx of [-34,34])for(const sz of [-34,34])pparts.push(part(CYL(4.5,5,46,10),'#8e1f1f',{p:[cx+sx,27,cz+sz],top:'#b8322b'}),part(CYL(5.5,5.5,2,10),'#d9a641',{p:[cx+sx,49,cz+sz],emit:'#6a4a10',ei:.5}));
     pparts.push(part(BOX(80,4,4),'#8e1f1f',{p:[cx,50,cz-34]}),part(BOX(80,4,4),'#8e1f1f',{p:[cx,50,cz+34]}),part(BOX(4,4,80),'#8e1f1f',{p:[cx-34,50,cz]}),part(BOX(4,4,80),'#8e1f1f',{p:[cx+34,50,cz]}));
-    pparts.push(part(CONE(84,24,4),'#1f2a2a',{p:[cx,62,cz],r:[0,Math.PI/4,0],top:'#3a4a48'}),part(CONE(44,16,4),'#1f2a2a',{p:[cx,82,cz],r:[0,Math.PI/4,0],top:'#3a4a48'}),part(SPH(3.5,10,8),'#d9a641',{p:[cx,92,cz],emit:'#ffd27a',ei:2}));
+    // the roof is its own mesh so it can fade out while the hero stands under it
+    const roof=new T3.Mesh(merge([part(CONE(84,24,4),'#1f2a2a',{p:[cx,62,cz],r:[0,Math.PI/4,0],top:'#3a4a48'}),part(CONE(44,16,4),'#1f2a2a',{p:[cx,82,cz],r:[0,Math.PI/4,0],top:'#3a4a48'}),part(SPH(3.5,10,8),'#d9a641',{p:[cx,92,cz],emit:'#ffd27a',ei:2})]),mat('plain',{rough:.75,rimI:.25,m:{transparent:true}}));roof.castShadow=true;roof.userData={cx,cz,k:1};scene.add(roof);roofs.push(roof);
     for(let i=0;i<4;i++){const a=i/4*TAU+Math.PI/4;pparts.push(part(BOX(3,3,34),'#d9a641',{p:[cx+Math.cos(a)*62,54,cz+Math.sin(a)*62],r:[.35,-a+Math.PI/2,0],emit:'#6a4a10',ei:.4}))}
   });
   rocks.filter(r=>r.arch).forEach(r=>{pparts.push(part(CYL(3,3.4,36,8),'#8e1f1f',{p:[r.x+4,18,r.y+4],top:'#b8322b'}))});
@@ -482,9 +484,42 @@ function dayNight(phase){
 /* trees between the camera and the hero shrink away so the fight stays visible */
 const _occM=new T3.Matrix4(),_occS=new T3.Vector3();
 function occludeTick(px,pz,dt){
+  for(const r of roofs){const u=r.userData,near=Math.abs(u.cx-px)<78&&Math.abs(u.cz-pz)<78;const t=near?.14:1;if(Math.abs(u.k-t)<.002)continue;u.k+=(t-u.k)*Math.min(1,dt*7);r.material.opacity=u.k;r.castShadow=u.k>.5}
   for(const o of occluders){
     const dx=o.x-px,dz=o.z-pz;const near=Math.abs(dx)<70&&dz>-30&&dz<150; // in front of the hero (toward the camera) and close in x
     const target=near?.12:1,k=o.k+(target-o.k)*Math.min(1,dt*7);if(Math.abs(k-o.k)<.002&&Math.abs(k-target)<.002)continue;o.k=k;
     _occM.copy(o.base);_occS.set(1,k,1);_occM.scale(_occS);o.im.setMatrixAt(o.n,_occM);o.im.instanceMatrix.needsUpdate=true;
   }
+}
+
+/* ---- hero preview: a second small renderer for the hero-select screen (its own scene; the hero model is shared code) ---- */
+let PV=null;
+function previewInit(canvas){
+  if(PV)return PV;
+  const r=new T3.WebGLRenderer({canvas,alpha:true,antialias:true,powerPreference:'low-power'});r.setPixelRatio(Math.min(devicePixelRatio||1,2));r.outputEncoding=T3.sRGBEncoding;r.toneMapping=T3.ACESFilmicToneMapping;r.toneMappingExposure=1.25;r.setClearColor(0x000000,0);
+  const sc=new T3.Scene();const cm=new T3.PerspectiveCamera(28,1,1,600);cm.position.set(0,32,112);cm.lookAt(0,20,0);
+  sc.add(new T3.HemisphereLight(lin('#dfeeff'),lin('#3a2418'),1));const d=new T3.DirectionalLight(lin('#fff1dc'),1.7);d.position.set(50,90,70);sc.add(d);const d2=new T3.DirectionalLight(lin('#6fd3e8'),.9);d2.position.set(-70,30,-50);sc.add(d2);
+  const pl=new T3.PointLight(lin('#ffd27a'),1.4,200,1.5);pl.position.set(0,40,40);sc.add(pl);
+  const disc=new T3.Mesh(new T3.CircleGeometry(30,40),new T3.MeshBasicMaterial({color:new T3.Color(.02,.01,.03),transparent:true,opacity:.55}));disc.rotation.x=-Math.PI/2;disc.position.y=-.5;sc.add(disc);
+  PV={r,sc,cm,hero:null,t:0,cls:null,weapon:null,pl,drag:0,dv:0};
+  let px=null;canvas.style.touchAction='pan-y';canvas.addEventListener('pointerdown',e=>{px=e.clientX;canvas.setPointerCapture(e.pointerId)});canvas.addEventListener('pointermove',e=>{if(px===null)return;PV.dv=(e.clientX-px)*.02;PV.drag+=PV.dv;px=e.clientX});const up=()=>{px=null};canvas.addEventListener('pointerup',up);canvas.addEventListener('pointercancel',up);
+  return PV;
+}
+function previewSet(cls,weapon){
+  if(!PV||!CLASSES[cls])return;weapon=weapon||CLASSES[cls].main;if(PV.hero&&PV.cls===cls&&PV.weapon===weapon)return;
+  if(PV.hero){PV.sc.remove(PV.hero.g);PV.sc.remove(PV.hero.sigil)}
+  const main=scene;scene=PV.sc;try{PV.hero=buildHeroModel(cls,'preview',weapon)}finally{scene=main}
+  PV.cls=cls;PV.weapon=weapon;PV.hero.sigil.position.set(0,.4,0);PV.hero.sigil.scale.set(44,44,1);const gem=PV.hero.gem;PV.pl.color.setRGB(gem[0]/12,gem[1]/12,gem[2]/12);PV.pop=1;
+}
+function previewTick(dt){
+  if(!PV||!PV.hero)return;const c=PV.r.domElement;if(!c.isConnected||c.offsetParent===null)return;
+  const w=c.clientWidth||300,h=c.clientHeight||360,pr=PV.r.getPixelRatio();
+  if(Math.abs(c.width-w*pr)>2||Math.abs(c.height-h*pr)>2){PV.r.setSize(w,h,false);PV.cm.aspect=w/h;PV.cm.updateProjectionMatrix()}
+  PV.t+=dt;const H=PV.hero,tm=PV.t;PV.dv*=.9;if(Math.abs(PV.dv)<.001)PV.drag*=.98;else PV.drag+=PV.dv*.5;
+  PV.pop=Math.max(0,PV.pop-dt*3);const sc=1+Math.sin(PV.pop*Math.PI)*.06;
+  H.g.rotation.y=Math.sin(tm*.45)*.5+PV.drag;H.g.position.y=Math.sin(tm*2)*.6;H.g.scale.set(sc,sc,sc);
+  H.hat.rotation.set(Math.sin(tm*1.7)*.02,0,Math.sin(tm*1.3)*.035);H.cape.rotation.x=.14+Math.sin(tm*1.8)*.05;H.arm.rotation.x=Math.sin(tm*1.2)*.1-.15;H.arm.rotation.z=Math.sin(tm*.9)*.05;
+  H.crystal.rotation.y=tm*2;H.crystal.rotation.x=tm*1.3;H.sigil.rotation.z=tm*.4;H.sigil.material.opacity=.55+Math.sin(tm*3)*.15;
+  PV.pl.position.set(Math.sin(tm)*30,40,40+Math.cos(tm)*10);
+  PV.r.render(PV.sc,PV.cm);
 }

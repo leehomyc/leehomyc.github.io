@@ -515,7 +515,7 @@ function spendAttr(id){const P=G.P;if(P.ap<=0)return false;P.ap--;P.attr[id]++;
 function nodeOpen(s,i){const n=TREES[s.id]&&TREES[s.id][i];if(!n)return false;const r=s.nodes[i]||0;if(r>=n.max)return false;const need=n.tier===1?0:n.tier===2?2:4;return s.pts>=need}
 function canNode(s,i){return nodeOpen(s,i)&&G.P.sp>0}
 function spendNode(s,i){if(!nodeOpen(s,i))return false;s.pts++;s.nodes[i]=(s.nodes[i]||0)+1;return true}
-function nodeCard(s,i,q){const n=TREES[s.id][i],m=SPELLS[s.id],r=s.nodes[i]||0,k=Math.min(n.max-r,q&&q.k==='legendary'?3:q&&q.k==='epic'?2:1);return {g:m.g,badge:n.zh[0],c:m.col,skill:s.id,n:L(`${m.zh} · ${n.zh}`,`${m.en} · ${n.en}`)+(k>1?` ×${k}`:''),sub:L(`武学树 第 ${n.tier} 层 · ${r+k}/${n.max}`,`skill tree tier ${n.tier} · ${r+k}/${n.max}`),fx:L(n.d,n.de)+(k>1?` ×${k}`:''),fxEn:'',node:1,q:k>1?q:undefined,cat:SKILL_CAT[s.id],kind:'tree',a(){for(let j=0;j<k;j++)spendNode(s,i)}}}
+function nodeCard(s,i,q){const n=TREES[s.id][i],m=SPELLS[s.id],r=s.nodes[i]||0,k=Math.min(n.max-r,q&&q.k==='legendary'?3:q&&q.k==='epic'?2:1);return {g:m.g,badge:n.zh[0],c:m.col,skill:s.id,n:L(`${m.zh} · ${n.zh}`,`${m.en} · ${n.en}`)+(k>1?` ×${k}`:''),sub:L(`武学树 第 ${n.tier} 层 · ${r+k}/${n.max}`,`skill tree tier ${n.tier} · ${r+k}/${n.max}`),fx:L(n.d,n.de)+(k>1?` ×${k}`:''),fxEn:'',node:1,nodeFx:n.fx,q:k>1?q:undefined,cat:SKILL_CAT[s.id],kind:'tree',a(){for(let j=0;j<k;j++)spendNode(s,i)}}}
 /* ---------- spawning ---------- */
 const diff=t=>(1+t/110)*(t>240?1+(t-240)/120:1); // endless: the curve steepens after the first boss
 function spawnEnemy(type,x,y,mul=1,elite){
