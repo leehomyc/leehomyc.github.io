@@ -49,13 +49,65 @@ function metaAfterRun(){
   // streak: a day counts once any task is completed
   if(done.length){const dk=dayKey();SAVE.streak=SAVE.streak||{last:0,n:0};if(SAVE.streak.last!==dk){SAVE.streak.n=SAVE.streak.last===yesterdayKey()?SAVE.streak.n+1:1;SAVE.streak.last=dk;if(SAVE.streak.n%7===0){gold+=800;done.push([{id:'streak',goal:7},800])}}}
   const before=accountLv(),xp=runAxp();SAVE.axp=(SAVE.axp||0)+xp;const after=accountLv();
+  // first win / first run of the day pays double gold
+  const dk=dayKey();SAVE.first=SAVE.first||{};let firstBonus=null;
+  if(!G.abandoned){if(RIVAL_ON&&G.rival&&G.score>G.rival.score&&SAVE.first.pk!==dk){SAVE.first.pk=dk;firstBonus='pk'}else if(!RIVAL_ON&&SAVE.first.run!==dk&&G.t>=120){SAVE.first.run=dk;firstBonus='run'}}
+  // trophies and the road
+  const tr0=SAVE.trophies||0,dT=runTrophies();SAVE.trophies=Math.max(0,tr0+dT);SAVE.season=SAVE.season||{id:seasonKey(),peak:0};SAVE.season.peak=Math.max(SAVE.season.peak||0,SAVE.trophies);
+  const road=[];SAVE.road=SAVE.road||{};for(const [need,rw,zh,en] of TROPHY_ROAD){if(SAVE.trophies>=need&&!SAVE.road[need]){SAVE.road[need]=1;if(rw.gold)gold+=rw.gold;if(rw.title)SAVE.titles=[...(SAVE.titles||[]),rw.title];if(rw.weaponToken)SAVE.weaponTokens=(SAVE.weaponTokens||0)+1;road.push([need,zh,en])}}
+  // hero mastery
+  SAVE.mastery=SAVE.mastery||{};const m0=mastery(G.cls);SAVE.mastery[G.cls]=(SAVE.mastery[G.cls]||0)+Math.round(xp*.8);const m1=mastery(G.cls);
   SAVE.gold+=gold;persist();
-  return {done,gold,xp,before,after,levelUp:after.lv>before.lv};
+  return {done,gold,xp,before,after,levelUp:after.lv>before.lv,dT,trophies:SAVE.trophies,road,firstBonus,mastery:m1,masteryUp:m1.lv>m0.lv};
 }
 /* lobby rendering */
 function renderMeta(){
   const el=$('#meta');if(!el)return;const a=accountLv(),t=titleFor(a.lv),list=todayTasks(),st=SAVE.streak&&(SAVE.streak.last===dayKey()||SAVE.streak.last===yesterdayKey())?SAVE.streak.n:0;
   const tasks=list.map(task=>{const tx=taskText(task),g=TASK_GOLD[task.tier];return `<div class="task${task.done?' done':''}"><span class="ck">${task.done?'✓':'○'}</span><div><b>${L(tx.zh,tx.en)}</b><i><em style="width:${Math.min(100,(task.p||0)/task.goal*100)}%"></em></i></div><span class="rw">${task.done?L('已领 ','claimed ')+g:(task.p||0)+'/'+task.goal+' · +'+g+' '+L('金','gold')}</span></div>`}).join('');
   el.innerHTML=`<div class="acc"><div class="lvl"><b>${a.lv}</b><small>${L('江湖等级','Rank')}</small></div><div class="ti"><b>${L(t[1],t[2])}</b><i><em style="width:${a.x/a.need*100}%"></em></i><small>${a.x} / ${a.need} ${L('江湖经验 · 每局必得','renown · earned every run')}</small></div><div class="stk"><b>${st}</b><small>${L('连续天数','day streak')}</small><small>${L(`再 ${7-(st%7)} 天宝箱 +800 金`,`chest +800 gold in ${7-(st%7)} days`)}</small></div></div>
-  <h2><span>${L('每日任务','Daily tasks')}</span><b>${list.filter(x=>x.done).length}/3</b></h2><div class="tasks">${tasks}</div>`;
+  <h2><span>${L('每日任务','Daily tasks')}</span><b>${list.filter(x=>x.done).length}/3</b></h2><div class="tasks">${tasks}</div>
+  ${(()=>{const tr=SAVE.trophies||0,lad=ladderOf(tr),next=TROPHY_ROAD.find(r=>!(SAVE.road||{})[r[0]]),prev=TROPHY_ROAD.filter(r=>(SAVE.road||{})[r[0]]).slice(-1)[0],lo=prev?prev[0]:0,hi=next?next[0]:lo||1;
+    const ev=todayEvent(),lg=SAVE.login||{n:0},ms=Object.keys(CLASSES).map(k=>{const mm=mastery(k);return `<span class="ms" style="--c:${CLASSES[k].col}"><b>${CLASSES[k].g}</b> ${mm.lv}</span>`}).join('');
+    return `<h2 style="margin-top:10px"><span>🏆 ${L('奖杯之路','Trophy road')}</span><b>${tr}</b></h2>
+    <div class="road"><div class="lad"><b>${L(lad[1],lad[2])}</b><small>${L('段位','League')} · ${L(`赛季还剩 ${seasonDaysLeft()} 天`,`${seasonDaysLeft()} days left in the season`)}</small></div><div class="bar"><i><em style="width:${Math.min(100,(tr-lo)/Math.max(1,hi-lo)*100)}%"></em></i><small>${next?L(`下一奖励 ${next[0]} 🏆:${next[2]}`,`next at ${next[0]} 🏆: ${next[3]}`):L('奖杯之路已走完','Trophy road complete')}</small></div></div>
+    <div class="dailyrow"><div class="ev"><b>${L('今日活动','Today\'s event')}</b><span>${L(ev.zh,ev.en)}</span><small>${L('单人模式自动生效 · 金币 +50%','Applies to Solo · +50% gold')}</small></div><div class="ev"><b>${L('登录签到','Login calendar')}</b><span>${LOGIN_GOLD.map((g,i)=>`<i class="${i<(lg.n-1)%7+1?'got':''}">${g}</i>`).join('')}</span><small>${L(`连续 ${lg.n||0} 天 · 每日首胜金币翻倍`,`${lg.n||0} days in a row · first win of the day pays double`)}</small></div></div>
+    <div class="masteryrow"><b>${L('英雄熟练度','Hero mastery')}</b>${ms}<small>${L('每级 +1% 伤害(至 10 级)','+1% damage per level, up to 10')}</small></div>`})()}`;
 }
+
+/* ---------- trophies (奖杯) and the trophy road ---------- */
+const TROPHY_ROAD=[
+  [50,{gold:150},'金 150','150 gold'],[120,{title:'初露锋芒'},'称号:初露锋芒','Title: First Edge'],[200,{gold:300},'金 300','300 gold'],[300,{rerolls:1},'每局 +1 重抽','+1 reroll every run'],
+  [420,{gold:500},'金 500','500 gold'],[550,{weaponToken:1},'任意一把武器免费解锁','Unlock any weapon for free'],[700,{gold:800},'金 800','800 gold'],[850,{title:'江湖名宿'},'称号:江湖名宿','Title: Veteran'],
+  [1000,{core:1},'每局 +1 复生核心','+1 Revive Core every run'],[1200,{gold:1200},'金 1200','1200 gold'],[1500,{title:'一代宗师'},'称号:一代宗师','Title: Grandmaster of an Age'],[2000,{gold:2500},'金 2500','2500 gold'],
+];
+function seasonKey(){const d=tzDate();return d.getUTCFullYear()*100+(d.getUTCMonth()+1)}
+function seasonDaysLeft(){const d=tzDate();const end=Date.UTC(d.getUTCFullYear(),d.getUTCMonth()+1,1);return Math.max(1,Math.ceil((end-(d.getTime()))/86400000))}
+/* a new month: trophies above 600 are halved back toward 600 (soft reset), the peak pays season gold */
+function seasonTick(){const sk=seasonKey();SAVE.season=SAVE.season||{id:sk,peak:0};if(SAVE.season.id!==sk){const tr=SAVE.trophies||0,peak=Math.max(SAVE.season.peak||0,tr),reward=Math.round(peak*.8);SAVE.gold+=reward;SAVE.trophies=tr>600?600+Math.round((tr-600)/2):tr;SAVE.season={id:sk,peak:0,last:{peak,reward}};persist();return {peak,reward}}return null}
+function runTrophies(){
+  if(G.abandoned)return 0;const mins=G.t/60;
+  if(RIVAL_ON&&G.rival){const win=G.score>G.rival.score,tie=G.score===G.rival.score;const base=G.quick?25:35;return win?base+Math.min(15,Math.floor((G.score-G.rival.score)/400)):tie?5:-Math.min(12,Math.max(4,Math.round(base*.35)))}
+  if(BOSSRUSH)return Math.round(G.bossSlain*18+mins*2);
+  return Math.round(mins*3+G.bossSlain*20+ASURA_T*8+(typeof DAILY!=='undefined'&&DAILY?10:0));
+}
+/* ---------- hero mastery: per-hero XP, +1% damage per level (to 10), a title at 10 ---------- */
+function masteryNeed(lv){return 150+lv*90}
+function mastery(cls){let x=(SAVE.mastery||{})[cls]||0,lv=1;while(x>=masteryNeed(lv)&&lv<20){x-=masteryNeed(lv);lv++}return {lv,x,need:masteryNeed(lv)}}
+function masteryBonus(cls){return Math.min(10,mastery(cls).lv-1)*.01}
+/* ---------- login calendar: 7 escalating days, resets if a day is missed ---------- */
+const LOGIN_GOLD=[60,80,100,140,180,240,400];
+function loginTick(){const dk=dayKey();SAVE.login=SAVE.login||{last:0,n:0};if(SAVE.login.last===dk)return null;SAVE.login.n=SAVE.login.last===yesterdayKey()?SAVE.login.n+1:1;SAVE.login.last=dk;const g=LOGIN_GOLD[(SAVE.login.n-1)%7];SAVE.gold+=g;persist();return {day:SAVE.login.n,gold:g}}
+/* ---------- today's event: one rotating modifier for Solo, +50% gold ---------- */
+const EVENTS=[
+  {id:'elites',zh:'精英之日:精英翻倍,法宝掉落 +50%',en:'Elite Day: twice the elites, +50% relic drops',apply(){G.ev={elite:2,relic:1.5}}},
+  {id:'haste',zh:'疾风之日:冷却减半,敌人移速 +15%',en:'Haste Day: cooldowns halved, enemies +15% speed',apply(){G.P.haste*=2;G.curse.spd=1.15}},
+  {id:'glass',zh:'琉璃之日:伤害 +50%,生命上限 -30%',en:'Glass Day: +50% damage, −30% max HP',apply(){G.P.dmgBonus+=.5;G.P.maxHp=Math.round(G.P.maxHp*.7);G.P.hp=G.P.maxHp}},
+  {id:'rich',zh:'财运之日:宝箱翻倍,金币 +50%',en:'Fortune Day: twice the chests, +50% gold',apply(){G.ev={chest:2}}},
+  {id:'swarm',zh:'群魔之日:怪潮 +40%,经验 +40%',en:'Swarm Day: +40% spawns, +40% XP',apply(){G.curse.spawn=1.4;G.ev={xp:1.4}}},
+  {id:'boss',zh:'首领之日:首领每三分钟一位,首领金币翻倍',en:'Boss Day: a boss every three minutes, boss gold doubled',apply(){G.ev={bossEvery:180,bossGold:2}}},
+  {id:'crit',zh:'要害之日:暴击 +30%,受到伤害 +15%',en:'Vital Day: +30% crit, +15% damage taken',apply(){G.P.crit+=.3;G.P.def*=1.15}},
+];
+function todayEvent(){return EVENTS[dayKey()%EVENTS.length]}
+/* ---------- quick PK ladder: the AI rival scales with your trophies ---------- */
+const LADDER=[[0,'青铜','Bronze'],[150,'白银','Silver'],[350,'黄金','Gold'],[600,'铂金','Platinum'],[900,'钻石','Diamond'],[1300,'宗师','Master'],[1800,'传说','Legend']];
+function ladderOf(tr){let l=LADDER[0];for(const r of LADDER)if(tr>=r[0])l=r;return l}

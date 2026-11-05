@@ -192,7 +192,8 @@ function renderBuildStrip(){
 }
 function choose(i){
   if(!G.pick||!G.pick[i])return;
-  const cd=G.pick[i];cd.a();G.pick=null;$('#cards').hidden=true;drawSeals();SFX.pick(1);if(!G.picks.length)showBanner(cd.n,cd.n,1.1);openPick();
+  const cd=G.pick[i];cd.a();G.pick=null;$('#cards').hidden=true;drawSeals();SFX.pick(1);if(!G.picks.length)showBanner(cd.n,cd.n,1.1);
+  if(G.picks.length&&G.picks[0].kind==='level'&&G.t>60){G.pickHold=8;showBanner(L(`还有 ${G.picks.length} 次升级,8 秒后选`,`${G.picks.length} more level-up${G.picks.length>1?'s':''} in 8 s`),'',1)}else openPick();
 }
 function closeCards(){G.picks=[];G.pick=null;$('#cards').hidden=true;G.panel=false;$('#char').hidden=true}
 
@@ -213,6 +214,7 @@ function renderAsura(){
   const d=document.createElement('small');const sel=A.sel||0;d.textContent=sel?L(`第 ${sel} 层:`,`Tier ${sel}: `)+ASURA.slice(0,sel).map(x=>L(x.zh,x.en)).join(' · ')+L(` · 金币 +${Math.round(ASURA_GOLD*sel*100)}%`,` · gold +${Math.round(ASURA_GOLD*sel*100)}%`):L('一局斩杀两位首领即可解锁下一层;每层叠加一条规则,金币 +15%/层','Slay two bosses in one run to unlock the next tier; each tier stacks one rule and pays +15% gold');el.appendChild(d);
 }
 function renderTitle(){
+  if(typeof loginTick==='function'){const lg=loginTick();const se=typeof seasonTick==='function'?seasonTick():null;if(lg||se){const el=$('#loadnote');if(el)el.textContent=(lg?L(`签到第 ${lg.day} 天:金 +${lg.gold}`,`Login day ${lg.day}: +${lg.gold} gold`):'')+(se?L(` · 新赛季!上季峰值 ${se.peak} 🏆,奖励金 ${se.reward}`,` · New season! Last peak ${se.peak} 🏆, reward ${se.reward} gold`):'')}}
   const row=$('#classes');row.textContent='';
   for(const k in CLASSES){const C=CLASSES[k],b=document.createElement('button');b.className='cls'+(SAVE.cls===k?' sel':'');b.type='button';b.style.setProperty('--c',C.col);
     b.innerHTML=`<div class="g">${C.g}</div><div class="n">${LL(C)}</div><div class="d">${L(C.d,C.de)}</div><div class="sk">${[C.main,...C.skills].map(id=>`<span style="color:${SPELLS[id].col}">${SPELLS[id].g}</span>`).join('')}</div>`;
@@ -224,7 +226,7 @@ function renderTitle(){
     b.innerHTML=`<b>${LL(u)}</b><span class="rk">${'●'.repeat(r)}${'○'.repeat(u.max-r)}</span><span class="dd">${L(u.d,u.de)}</span><span class="pr">${r>=u.max?L('已满','Max'):cost+' '+L('金','gold')}</span>`;
     b.onclick=()=>{if(SAVE.gold>=cost&&r<u.max){SAVE.gold-=cost;SAVE.up[u.id]=r+1;persist();renderTitle();SFX.complete()}};shop.appendChild(b)});
   $('#record').textContent=(SAVE.runs?L(`${SAVE.runs} 局 · 最长存活 ${fmt(SAVE.best||0)} · 单局最多首领 ${SAVE.bosses||0}`,`${SAVE.runs} runs · best ${fmt(SAVE.best||0)} · most bosses ${SAVE.bosses||0}`):'')+(SAVE.pk?L(` · 对决 ${SAVE.pk.w} 胜 ${SAVE.pk.l} 负 · 最高 ${SAVE.pkBest||0} 分`,` · PK ${SAVE.pk.w}W ${SAVE.pk.l}L · best ${SAVE.pkBest||0} pts`):'');
-  RIVAL_ON=(SAVE.mode==='pk');seedSim(null);document.querySelectorAll('#mode button').forEach(b=>b.classList.toggle('on',b.dataset.m===(SAVE.mode||'solo')));$('#modenote').textContent=RIVAL_ON?L(`对决:与 AI 对手争分 ${PK_LEN/60} 分钟,谁补刀谁拿全部分数`,`PK: a ${PK_LEN/60}-minute score race against an AI rival; the last hit takes all the points`):SAVE.mode==='daily'?L(`每日挑战 · 种子 ${dayKey()} · 普通难度 · 不计永久强化 · 今天所有人面对同样的怪潮、宝箱与卡牌 · ${resetIn()} 后刷新`,`Daily challenge · seed ${dayKey()} · Normal · no permanent upgrades · same spawns, chests and cards for everyone today · resets in ${resetIn()}`)+(SAVE.daily&&SAVE.daily.day===dayKey()?L(` · 今日最佳 ${fmt(SAVE.daily.best)} / ${SAVE.daily.bosses} 首领`,` · today's best ${fmt(SAVE.daily.best)} / ${SAVE.daily.bosses} bosses`):''):SAVE.mode==='rush'?L('首领连战:从 Lv 8 开始,每 75 秒一位首领,经验加倍,没有统领与契约','Boss rush: start at Lv 8, a boss every 75 s, double XP, no warlord or pacts'):L('单人:无尽模式,活得越久首领越多','Solo: endless; survive and slay bosses');
+  RIVAL_ON=(SAVE.mode==='pk'||SAVE.mode==='qpk');seedSim(null);document.querySelectorAll('#mode button').forEach(b=>b.classList.toggle('on',b.dataset.m===(SAVE.mode||'solo')));$('#modenote').textContent=(RIVAL_ON&&SAVE.mode!=='qpk')?L(`对决:与 AI 对手争分 ${PK_LEN/60} 分钟,谁补刀谁拿全部分数`,`PK: a ${PK_LEN/60}-minute score race against an AI rival; the last hit takes all the points`):SAVE.mode==='daily'?L(`每日挑战 · 种子 ${dayKey()} · 普通难度 · 不计永久强化 · 今天所有人面对同样的怪潮、宝箱与卡牌 · ${resetIn()} 后刷新`,`Daily challenge · seed ${dayKey()} · Normal · no permanent upgrades · same spawns, chests and cards for everyone today · resets in ${resetIn()}`)+(SAVE.daily&&SAVE.daily.day===dayKey()?L(` · 今日最佳 ${fmt(SAVE.daily.best)} / ${SAVE.daily.bosses} 首领`,` · today's best ${fmt(SAVE.daily.best)} / ${SAVE.daily.bosses} bosses`):''):SAVE.mode==='qpk'?L(`快速对决:3 分钟,对手强度随你的段位(${L(ladderOf(SAVE.trophies||0)[1],ladderOf(SAVE.trophies||0)[2])} · ${SAVE.trophies||0} 🏆)提升;胜 +25🏆,负 -9🏆`,`Quick PK: 3 minutes; the rival scales with your league (${ladderOf(SAVE.trophies||0)[2]} · ${SAVE.trophies||0} 🏆); win +25 🏆, lose −9`):SAVE.mode==='rush'?L('首领连战:从 Lv 10 开始,每 75 秒一位首领,经验加倍,没有统领与契约','Boss rush: start at Lv 10, a boss every 75 s, double XP, no warlord or pacts'):L('单人:无尽模式,活得越久首领越多','Solo: endless; survive and slay bosses');
   renderAsura();
   document.querySelectorAll('#qual button').forEach(b=>b.classList.toggle('on',b.dataset.q===QLEVEL));
   DIFFID=SAVE.mode==='daily'?'normal':(SAVE.diff||'normal');document.querySelectorAll('#diff button').forEach(b=>{b.classList.toggle('on',b.dataset.d===DIFFID);b.disabled=SAVE.mode==='daily'});$('#diff').classList.toggle('locked',SAVE.mode==='daily');
@@ -247,19 +249,21 @@ function startRun(){
   $('#title').hidden=true;$('#intro').hidden=true;$('#end').hidden=true;$('#cards').hidden=true;$('#hud').hidden=false;$('#bossbar').hidden=true;$('#pause').hidden=true;$('#char').hidden=true;
   $('#banner').classList.remove('on');$('#pausebtn').textContent='II';
   SAVE_FIRST=!SAVE.played;SAVE.played=true;persist();
-  newGame(false,CLASS);if(!DAILY)applyUpgrades(G.P);G.day=dayKey();updateCores();drawSeals();drawRelics();
+  newGame(false,CLASS);if(!DAILY)applyUpgrades(G.P);G.day=dayKey();G.quick=SAVE.mode==='qpk';
+  if(!DAILY){G.P.dmgBonus+=masteryBonus(CLASS);if((SAVE.road||{})[300])G.rerolls++;if((SAVE.road||{})[1000]){G.cores++}}
+  if(SAVE.mode==='solo'){const ev=todayEvent();ev.apply();G.event=ev;showBanner(L('今日活动:','Event: ')+L(ev.zh,ev.en),'',2.4)}updateCores();drawSeals();drawRelics();
   showBanner(CLASSES[CLASS].zh+' 出山',CLASSES[CLASS].en+' sets out',2.2);
   SFX.start();SFX.setState('battle');
 }
 function showEnd(ok){
   G.ended=true;const box=$('#endb'),tot=G.spells.reduce((a,s)=>a+s.dmg,0)||1,max=Math.max(...G.spells.map(s=>s.dmg),1);
   checkAch();
-  const gold=Math.round((G.kills*.45+G.lv*3+G.bossSlain*220+Math.floor(G.t/10)*2+G.goldRun*.7+G.comboMax)*(1+.15*(SAVE.up.gold||0))*(G.relics.includes('bowl')?1.3:1)*(G.relics.includes('wolf')?1.6:1)*(G.curse.gold||1)*(1+ASURA_GOLD*ASURA_T)*D().gold);
+  const meta=typeof metaAfterRun==='function'?metaAfterRun():null;
+  const gold=Math.round((G.kills*.45+G.lv*3+G.bossSlain*220+Math.floor(G.t/10)*2+G.goldRun*.7+G.comboMax)*(meta&&meta.firstBonus?2:1)*(G.event?1.5:1)*(1+.15*(SAVE.up.gold||0))*(G.relics.includes('bowl')?1.3:1)*(G.relics.includes('wolf')?1.6:1)*(G.curse.gold||1)*(1+ASURA_GOLD*ASURA_T)*D().gold);
   let tierUp=false;if(ASURA_T>=0&&(SAVE.mode==='solo')&&G.bossSlain>=2&&!G.abandoned&&SAVE.asura.max<=ASURA_T&&ASURA_T<ASURA.length){SAVE.asura.max=ASURA_T+1;tierUp=true}if(G.bossSlain>=2&&ASURA_T>(SAVE.asura.best||0))SAVE.asura.best=ASURA_T;
   const pk=RIVAL_ON&&G.rival,pkRes=pk?(G.score>G.rival.score?'win':G.score<G.rival.score?'lose':'tie'):null;const pkBonus=pkRes==='win'?200:pkRes==='tie'?80:0;
   if(pk){SAVE.pk=SAVE.pk||{w:0,l:0};if(pkRes==='win')SAVE.pk.w++;else if(pkRes==='lose')SAVE.pk.l++;SAVE.pkBest=Math.max(SAVE.pkBest||0,G.score)}
   let dailyNew=false;if(DAILY){const dk=G.day||dayKey();if(!SAVE.daily||SAVE.daily.day!==dk)SAVE.daily={day:dk,best:0,bosses:0};if(G.t>SAVE.daily.best){SAVE.daily.best=G.t;SAVE.daily.bosses=G.bossSlain;dailyNew=true}}
-  const meta=typeof metaAfterRun==='function'?metaAfterRun():null;
   const record=!pk&&!G.abandoned&&G.t>(SAVE.best||0);SAVE.gold+=gold+pkBonus;SAVE.runs++;SAVE.wins+=G.bossSlain;SAVE.bosses=Math.max(SAVE.bosses||0,G.bossSlain);if(record)SAVE.best=G.t;persist();
   const rows=G.spells.slice().sort((a,b)=>b.dmg-a.dmg).map(s=>{const f=s.els.length===2?FUS[fusion(s)][1]:s.els[0]?ELS[s.els[0]].en:'';
     const casts=SPELLS[s.id].auto?'':L(` · ${s.casts} 次 · ${s.casts?Math.round(s.dmg/s.casts):0}/次`,` · ${s.casts} casts · ${s.casts?Math.round(s.dmg/s.casts):0} per cast`);
@@ -272,7 +276,7 @@ function showEnd(ok){
   ${(!ok&&G.killer)?(()=>{const T=G.t,log=(G.dmgLog||[]).filter(d=>d.t>=T-5),tot=log.reduce((a,d)=>a+d.n,0)||1,by={};for(const d of log){const k=d.src[0]+'|'+d.src[1];by[k]=(by[k]||0)+d.n}const rows=Object.entries(by).sort((a,b)=>b[1]-a[1]).slice(0,4).map(([k,n])=>{const [zh,en]=k.split('|');return `<span>${L(zh,en)} ${Math.round(n/tot*100)}%</span>`}).join('');return `<div class="killed"><b>${L('死于 '+G.killer[0],'Killed by '+G.killer[1])}</b><div class="srcs"><small>${L('最后 5 秒受到的伤害:','Damage in the last 5 s:')}</small>${rows}</div></div>`})():''}
   ${tierUp?`<div class="nextgoal tier"><b>${L('修罗','Ascension')}</b> ${L(`第 ${ASURA_T+1} 层已解锁:${ASURA[ASURA_T].zh}`,`Tier ${ASURA_T+1} unlocked: ${ASURA[ASURA_T].en}`)}</div>`:''}
   ${(()=>{const g=nextGoal();return g?`<div class="nextgoal"><b>${L('下一局试试','Next run, try')}</b> ${L(g[0],g[1])}</div>`:''})()}
-  ${meta?`<div class="metarow"><span>${L('江湖经验','Renown')} +${meta.xp}${meta.levelUp?` · <b>${L('江湖等级','Rank')} ${meta.after.lv}!</b> ${L(titleFor(meta.after.lv)[1],titleFor(meta.after.lv)[2])}`:` · Lv ${meta.after.lv} (${meta.after.x}/${meta.after.need})`}</span>${meta.done.map(([t,g])=>`<span class="td">✓ ${t.id==='streak'?L('七日连续','7-day streak'):L(taskText(t).zh,taskText(t).en)} +${g} ${L('金','gold')}</span>`).join('')}</div>`:''}
+  ${meta?`<div class="metarow"><span>🏆 ${meta.dT>=0?'+':''}${meta.dT} → <b>${meta.trophies}</b> ${L(ladderOf(meta.trophies)[1],ladderOf(meta.trophies)[2])}</span>${meta.firstBonus?`<span class="td">${L('每日首胜/首局:金币 ×2','First of the day: gold ×2')}</span>`:''}${meta.road.map(([n,zh,en])=>`<span class="td">🏆 ${n} · ${L(zh,en)}</span>`).join('')}${meta.masteryUp?`<span class="td">${L(`${CLASSES[G.cls].zh}熟练度 ${meta.mastery.lv}`,`${CLASSES[G.cls].en} mastery ${meta.mastery.lv}`)}</span>`:''}<span>${L('江湖经验','Renown')} +${meta.xp}${meta.levelUp?` · <b>${L('江湖等级','Rank')} ${meta.after.lv}!</b> ${L(titleFor(meta.after.lv)[1],titleFor(meta.after.lv)[2])}`:` · Lv ${meta.after.lv} (${meta.after.x}/${meta.after.need})`}</span>${meta.done.map(([t,g])=>`<span class="td">✓ ${t.id==='streak'?L('七日连续','7-day streak'):L(taskText(t).zh,taskText(t).en)} +${g} ${L('金','gold')}</span>`).join('')}</div>`:''}
   <div class="dmg">${rows}</div>${cmp}<div class="btns"><button class="go" id="againbtn">${L('再来一局','Play again')}</button><button class="go alt" id="buildbtn">${L('换个构筑','Change build')}</button><button class="go alt" id="lobbybtn">${L('回到山门','Lobby')}</button></div>`;
   $('#end').hidden=false;$('#againbtn').onclick=startRun;$('#lobbybtn').onclick=toLobby;$('#buildbtn').onclick=()=>{toLobby();setTimeout(()=>{const w=$('#weapons');if(w)w.scrollIntoView({behavior:'smooth',block:'center'})},50)};$('#againbtn').focus();
   if(typeof submitRun==='function')submitRun(box);
@@ -312,10 +316,11 @@ let lobbyTab=(()=>{try{return localStorage.getItem('sl_tab')||''}catch(_){return
 function showTab(t){lobbyTab=t;try{localStorage.setItem('sl_tab',t)}catch(_){}document.querySelectorAll('.tabbar button[data-t]').forEach(b=>b.classList.toggle('on',b.dataset.t===t));document.querySelectorAll('.lobby .panel').forEach(p=>p.classList.toggle('on',p.dataset.p===t))}
 document.querySelectorAll('.tabbar button[data-t]').forEach(b=>b.onclick=()=>{showTab(lobbyTab===b.dataset.t?'':b.dataset.t);SFX.pick(1)});
 showTab(lobbyTab);
+function runSummaryX(){}
 function runSummary(){const C=CLASSES[SAVE.cls]||CLASSES.swordsman;const tsel=(SAVE.mode==='solo'||SAVE.mode==='rush')?Math.min(SAVE.asura.sel||0,SAVE.asura.max||0):0;return `${LL(C)} · ${LL(SPELLS[weaponOf(SAVE.cls)])} · ${SAVE.mode==='pk'?L('对决','PK'):SAVE.mode==='daily'?L('每日','Daily'):SAVE.mode==='rush'?L('首领连战','Boss rush'):L('单人','Solo')} · ${LL(DIFF[SAVE.mode==='daily'?'normal':(SAVE.diff||'normal')])}${tsel?` · ${L('修罗','Asc.')} ${tsel}`:''} · ${LL(MAPS[MAPID])}`}
 function renderStatus(){const sb=$('#stickystart');if(sb)sb.querySelector('small').textContent=runSummary();const rs=$('#runsummary');if(rs)rs.textContent=runSummary();
   document.querySelectorAll('#mode button,#diff button,#qual button,.langbtn,.tabbar button[data-t],.cls,.wp,.mapb').forEach(b=>b.setAttribute('aria-pressed',b.classList.contains('on')||b.classList.contains('sel')?'true':'false'));
-  const el=$('#status');if(!el)return;const a=typeof accountLv==='function'?accountLv():{lv:1};const t=typeof titleFor==='function'?titleFor(a.lv):['','',''];el.textContent=`${typeof CLOUD!=='undefined'?CLOUD.label():''} · Lv ${a.lv} ${L(t[1],t[2])} · ${SAVE.gold} ${L('金','gold')}`}
+  const el=$('#status');if(!el)return;const a=typeof accountLv==='function'?accountLv():{lv:1};const t=typeof titleFor==='function'?titleFor(a.lv):['','',''];el.textContent=`${typeof CLOUD!=='undefined'?CLOUD.label():''} · 🏆 ${SAVE.trophies||0} ${typeof ladderOf==='function'?L(ladderOf(SAVE.trophies||0)[1],ladderOf(SAVE.trophies||0)[2]):''} · Lv ${a.lv} ${L(t[1],t[2])} · ${SAVE.gold} ${L('金','gold')}`}
 
 $('#stickybtn').onclick=startRun;
 

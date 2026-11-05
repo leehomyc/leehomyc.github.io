@@ -18,8 +18,8 @@ function setEnemy(e){
   else if(k==='giant'){y+=Math.abs(Math.sin(ph*1.1))*1.6;roll=Math.sin(ph*1.1)*.07;tilt=.08}
   if(e.frz>0){roll=0;tilt=0}
   if(e.tumble!==undefined){tilt=e.tumble;roll=e.tumble*.5}
-  const pop=e.flash>0?1+e.flash*1.6:1;
-  dummy.position.set(e.x,y+(age-1)*16,e.y);dummy.rotation.set(tilt,yaw,roll);const s=(.2+.8*age)*(e.sc||1);dummy.scale.set(s*sx*pop,s*sy*pop,s*sx*pop);dummy.updateMatrix();im.setMatrixAt(i,dummy.matrix);
+  const pop=e.flash>0?1+e.flash*1.6:1,sq=e.sq>0?e.sq:0;
+  dummy.position.set(e.x+(e.sqx||0)*sq*6,y+(age-1)*16,e.y+(e.sqy||0)*sq*6);dummy.rotation.set(tilt+(e.sqy||0)*sq*.9,yaw,roll-(e.sqx||0)*sq*.9);const s=(.2+.8*age)*(e.sc||1);dummy.scale.set(s*sx*pop*(1+sq*.35),s*sy*pop*(1-sq*.4),s*sx*pop*(1+sq*.35));dummy.updateMatrix();im.setMatrixAt(i,dummy.matrix);
   let r=e.tn,g=e.tn,b=e.tn;
   if(e.elite){r*=1.25;g*=1.1;b*=.75}
   if(e.role==='charger'){r*=1.3;g*=.8;b*=.6}else if(e.role==='shaman'){r*=.7;g*=1.3;b*=.8}
@@ -144,6 +144,7 @@ function render(rdt){
   const useRing=(x,y,z,r,hex,op)=>{if(ring>=ringPool.length)return;const m=ringPool[ring++];m.visible=true;m.position.set(x,y,z);m.scale.set(r,1,r);m.material.color.setRGB(...rgb(hex).map(v=>v*2.8));m.material.opacity=op};
   for(const b of G.bombs){const k=b.t/b.T,col=b.s.els[0]?ELS[b.s.els[0]].col:'#ffd75a';useRing(b.x,.8,b.y,b.r,col,.45+k*.45);useRing(b.x,.8,b.y,b.r*(1-k),col,.7)}
   for(const f of G.fx){
+    if(f.k==='crit'){const k=1-f.t/f.T;for(let i=0;i<6;i++){const a=i/6*TAU+k*2;glow(f.x+Math.cos(a)*(8+k*34),10+k*8,f.y+Math.sin(a)*(8+k*34),'#ffd75a',12*(1-k)+4,2*(1-k))}glow(f.x,12,f.y,'#ffffff',30*(1-k)+6,2.5*(1-k))}
     if(f.k==='ring'){const k=1-f.t/f.T;useRing(f.x,1.1,f.y,f.r*(.3+.7*Math.pow(k,.55)),f.c,(1-k)*.95);useRing(f.x,1.1,f.y,f.r*(.15+.6*k),f.c,(1-k)*.42);if(k<.45)glow(f.x,10,f.y,f.c,f.r*2.6*(1-k),1.5*(1-k/.45));
       if(f.thunder&&k<.5){for(let i=0;i<14;i++){const yy=i*9,jx=Math.sin(i*7.3+tm*40)*4,jz=Math.cos(i*5.1+tm*33)*4;glow(f.x+jx,yy+4,f.y+jz,i%3?'#ffe9a0':'#ffffff',8*(1-k*2)+3,2.2)}glow(f.x,60,f.y,'#ffd75a',120*(1-k*2),.9)}
       if(!f.boom&&f.r>16){f.boom=1;addFlash(f.x,f.y,f.c,clamp(f.r/16,1,5),.28);const S=scorch[scorchI++%scorch.length];S.t=7;S.m.visible=true;S.m.position.x=f.x;S.m.position.z=f.y;S.m.scale.set(f.r*1.7,1,f.r*1.7);if(G.fx.length<640){for(let i=0;i<Math.min(30,f.r*.8);i++){const a=vrnd(TAU),v=vrnd(16,f.r*2.6+20);G.fx.push({k:'p',x:f.x,y:f.y,h:vrnd(2,8),vx:Math.cos(a)*v,vy:Math.sin(a)*v,vh:vrnd(14,95),t:vrnd(.35,.8),T:.8,c:i%3?f.c:'#fff1d0',sz:vrnd(2,4.6),g:1})}}}}
@@ -216,8 +217,9 @@ function drawOverlay(){
     const dx=x-cx,dy=y-cy,k=Math.min((ow/2-mx)/Math.abs(dx||1),(oh/2-my)/Math.abs(dy||1)),ax=cx+dx*k,ay=cy+dy*k,a=Math.atan2(dy,dx);
     c.save();c.translate(ax,ay);c.rotate(a);c.shadowColor=col;c.shadowBlur=14*S;c.fillStyle=col;c.beginPath();c.moveTo(16*S,0);c.lineTo(-10*S,-11*S);c.lineTo(-5*S,0);c.lineTo(-10*S,11*S);c.closePath();c.fill();c.restore();
     if(txt){const t2=txt+' · '+dist+'m';c.font=`800 ${13*S}px "Alegreya Sans","PingFang SC","Microsoft YaHei",system-ui,sans-serif`;const hw=c.measureText(t2).width/2+12*S,off=28*S,lx=clamp(ax-Math.cos(a)*off,hw+4*S,ow-hw-4*S),ly=clamp(ay-Math.sin(a)*off,24*S,oh-24*S);label(lx,ly,t2,col,false)}};
+  if(!G.auto&&P.down<=0){const [hx,hy]=toScreen(P.x,0,P.y);c.save();c.globalAlpha=.55;c.lineWidth=2*S;c.strokeStyle=CLASSES[G.cls].col;c.beginPath();c.ellipse(hx,hy,16*S,9*S,0,0,TAU);c.stroke();c.restore()}
   if(G.rival&&G.rival.down<=0){const R=G.rival,[x,y]=toScreen(R.x,36,R.y);if(x>-40&&x<ow+40&&y>-20&&y<oh+20){label(x,y,`${L(R.name[0],R.name[1])} · Lv ${R.lv} · ${R.score} ${L('分','pts')}`,'#ff9c5a',false);c.fillStyle='#160b12cc';c.fillRect(x-20*S,y+13*S,40*S,4*S);c.fillStyle='#ff9c5a';c.fillRect(x-20*S,y+13*S,40*S*R.hp/R.maxHp,4*S)}}
-  if(!G.auto){for(const f of G.fx){if(f.k==='relic')arrow(f.x,f.y,RELICS[f.id].cursed?'#ff3a3a':RELICS[f.id].col,(RELICS[f.id].cursed?L('诅咒法宝 ','Cursed relic: '):L('法宝 ','Relic: '))+LL(RELICS[f.id]))}for(const ch of G.chests)arrow(ch.x,ch.y,'#ffd27a',L('宝箱','Chest'));if(G.rival)arrow(G.rival.x,G.rival.y,'#ff9c5a',G.rival.down>0?G.rival.name[0]+' (倒地)':undefined);
+  if(!G.auto){for(const f of G.fx){if(f.k==='relic')arrow(f.x,f.y,RELICS[f.id].cursed?'#ff3a3a':RELICS[f.id].col,(RELICS[f.id].cursed?L('诅咒法宝 ','Cursed relic: '):L('法宝 ','Relic: '))+LL(RELICS[f.id]))}for(const ch of G.chests){if(G.mission)c.globalAlpha=.45;arrow(ch.x,ch.y,'#ffd27a',L('宝箱','Chest'));c.globalAlpha=1}if(G.rival)arrow(G.rival.x,G.rival.y,'#ff9c5a',G.rival.down>0?G.rival.name[0]+' (倒地)':undefined);
     if(G.mission){const mt=missionTarget(),m=G.mission;if(mt)arrow(mt.x,mt.y,m.k==='mush'?'#ff8a52':'#ff5fe8',`${m.k==='mush'?L('采集灵芝','Gather lingzhi'):L('摧毁邪碑','Destroy steles')} ${m.N-m.n}/${m.N} · ${Math.ceil(m.t)}s`)}if(G.boss&&!G.boss.dead)arrow(G.boss.x,G.boss.y,'#ff5a45',L(G.boss.name,G.boss.en));
     // minimap
     const mw=(PHONE?92:130)*S,mh=mw*H/W,mx=ow-mw-14*S,my=(PHONE?104:70)*S,k=mw/W;
