@@ -194,12 +194,13 @@ function openPick(){
 }
 function renderBuildStrip(){
   const el=$('#build');if(!el)return;el.textContent='';const P=G.P;
-  G.spells.forEach((s,i)=>{const m=SPELLS[s.id],d=document.createElement('div');d.className='bs';d.dataset.skill=s.id;d.style.setProperty('--c',m.col);
+  const touched=new Set((G.pick||[]).map(c=>c.skill).filter(Boolean));
+  G.spells.forEach((s,i)=>{if(touched.size&&!touched.has(s.id))return;const m=SPELLS[s.id],d=document.createElement('div');d.className='bs';d.dataset.skill=s.id;d.style.setProperty('--c',m.col);
     const nodes=Object.values(s.nodes||{}).reduce((a,b)=>a+b,0),cat=CATS[SKILL_CAT[s.id]]||CATS.passive;
     const tags=[i===0?L('普攻','normal attack'):L(cat[0],cat[1]),s.els.length?s.els.map(k=>LL(ELS[k])).join('+'):'',s.awake?L('觉醒','awakened'):''].filter(Boolean).join(' · ');
     d.innerHTML=`${typeof ICON!=='undefined'?ICON.spell(s.id,'sm'):`<span class="g">${m.g}</span>`}<div><b>${LL(m)} <small>Lv ${s.lv}</small></b><small>${tags}</small></div>`;el.appendChild(d)});
-  for(let i=G.spells.length;i<4;i++){const d=document.createElement('div');d.className='bs empty';const nx=[3,6,10].find(l=>l>G.lv);d.innerHTML=`<span class="g">·</span><div><b>${L('空位','Empty')} <small>${L('键','key')} ${SPELL_KEYS[i]}</small></b><small>${nx?L(`Lv ${nx} 时可选新武学`,`new skill offered at Lv ${nx}`):L('本局不再提供新武学','no more new skills this run')}</small></div>`;el.appendChild(d)}
-  const st=document.createElement('div');st.className='bstats';st.innerHTML=`<span class="lbl">${L('你的属性','Your stats')}</span><span>${L('生命','HP')} <b>${Math.ceil(P.hp)}/${P.maxHp}</b></span><span>${L('伤害','Damage')} <b>×${(P.dmg*(1+P.dmgBonus)).toFixed(2)}</b></span><span>${L('暴击','Crit')} <b>${Math.round(P.crit*100)}%</b></span><span>${L('减伤','Mitigation')} <b>${Math.round((1-P.def)*100)}%</b></span><span>${L('移速','Speed')} <b>×${P.spd.toFixed(2)}</b></span><span>${L('内力','Qi')} <b>${P.maxMana}</b> +${P.regen.toFixed(1)}/s</span><span>${L('法宝','Relics')} <b>${G.relics.length}</b></span>`;el.appendChild(st);
+  for(let i=G.spells.length;i<4&&!touched.size;i++){const d=document.createElement('div');d.className='bs empty';const nx=[3,6,10].find(l=>l>G.lv);d.innerHTML=`<span class="g">·</span><div><b>${L('空位','Empty')} <small>${L('键','key')} ${SPELL_KEYS[i]}</small></b><small>${nx?L(`Lv ${nx} 时可选新武学`,`new skill offered at Lv ${nx}`):L('本局不再提供新武学','no more new skills this run')}</small></div>`;el.appendChild(d)}
+  const st=document.createElement('div');st.className='bstats';st.hidden=!G.pick||G.pick.every(c=>c.skill);st.innerHTML=`<span class="lbl">${L('你的属性','Your stats')}</span><span>${L('生命','HP')} <b>${Math.ceil(P.hp)}/${P.maxHp}</b></span><span>${L('伤害','Damage')} <b>×${(P.dmg*(1+P.dmgBonus)).toFixed(2)}</b></span><span>${L('暴击','Crit')} <b>${Math.round(P.crit*100)}%</b></span><span>${L('减伤','Mitigation')} <b>${Math.round((1-P.def)*100)}%</b></span><span>${L('移速','Speed')} <b>×${P.spd.toFixed(2)}</b></span><span>${L('内力','Qi')} <b>${P.maxMana}</b> +${P.regen.toFixed(1)}/s</span><span>${L('法宝','Relics')} <b>${G.relics.length}</b></span>`;el.appendChild(st);
   const adv=typeof buildAdvice==='function'?buildAdvice():null;
   if(adv){const a=document.createElement('div');a.className='badv';a.style.setProperty('--cc',(CATS[adv.cat]||CATS.passive)[2]);a.innerHTML=`<b>${L('提示','Tip')}</b> ${L(adv.zh,adv.en)}`;el.appendChild(a)}
   return adv;
@@ -237,7 +238,7 @@ function renderTitle(){
   renderWeapons();if(typeof renderMeta==='function')renderMeta();if(typeof renderCodex==='function')renderCodex();renderStatus();if(typeof renderAccount==='function')renderAccount();if(typeof LB!=='undefined'&&$('#lbbtn'))$('#lbbtn').hidden=!LB.enabled();
   $('#gold').textContent=SAVE.gold;
   const shop=$('#shop');shop.textContent='';
-  UPGRADES.forEach(u=>{const r=SAVE.up[u.id]||0,cost=u.cost(r),b=document.createElement('button');b.className='up';b.type='button';b.disabled=r>=u.max||SAVE.gold<cost;
+  if(!shop.hidden)UPGRADES.forEach(u=>{const r=SAVE.up[u.id]||0,cost=u.cost(r),b=document.createElement('button');b.className='up';b.type='button';b.disabled=r>=u.max||SAVE.gold<cost;
     b.innerHTML=`<b>${LL(u)}</b><span class="rk">${'●'.repeat(r)}${'○'.repeat(u.max-r)}</span><span class="dd">${L(u.d,u.de)}</span><span class="pr">${r>=u.max?L('已满','Max'):cost+' '+L('金','gold')}</span>`;
     b.onclick=()=>{if(SAVE.gold>=cost&&r<u.max){SAVE.gold-=cost;SAVE.up[u.id]=r+1;persist();renderTitle();SFX.complete()}};shop.appendChild(b)});
   $('#record').textContent=(SAVE.runs?L(`${SAVE.runs} 局 · 最长存活 ${fmt(SAVE.best||0)} · 单局最多首领 ${SAVE.bosses||0}`,`${SAVE.runs} runs · best ${fmt(SAVE.best||0)} · most bosses ${SAVE.bosses||0}`):'')+(SAVE.pk?L(` · 对决 ${SAVE.pk.w} 胜 ${SAVE.pk.l} 负 · 最高 ${SAVE.pkBest||0} 分`,` · PK ${SAVE.pk.w}W ${SAVE.pk.l}L · best ${SAVE.pkBest||0} pts`):'');
@@ -333,7 +334,7 @@ document.querySelectorAll('.langbtn').forEach(b=>{b.classList.toggle('on',b.data
 let lobbyTab=(()=>{try{return localStorage.getItem('sl_tab')||''}catch(_){return ''}})();
 function showTab(t){lobbyTab=t;try{localStorage.setItem('sl_tab',t)}catch(_){}document.querySelectorAll('.tabbar button[data-t]').forEach(b=>b.classList.toggle('on',b.dataset.t===t));document.querySelectorAll('.lobby .panel').forEach(p=>p.classList.toggle('on',p.dataset.p===t))}
 document.querySelectorAll('.tabbar button[data-t]').forEach(b=>b.onclick=()=>{showTab(lobbyTab===b.dataset.t?'':b.dataset.t);SFX.pick(1)});
-showTab(lobbyTab);
+if(lobbyTab==='shop')lobbyTab='';showTab(lobbyTab);
 function runSummaryX(){}
 function runSummary(){const C=CLASSES[SAVE.cls]||CLASSES.swordsman;const tsel=(SAVE.mode==='solo'||SAVE.mode==='rush')?Math.min(SAVE.asura.sel||0,SAVE.asura.max||0):0;return `${LL(C)} · ${LL(SPELLS[weaponOf(SAVE.cls)])} · ${SAVE.mode==='pk'?L('对决','PK'):SAVE.mode==='daily'?L('每日','Daily'):SAVE.mode==='rush'?L('首领连战','Boss rush'):SAVE.mode==='room'?L('多人房间','Room'):L('单人','Solo')} · ${LL(DIFF[SAVE.mode==='daily'?'normal':(SAVE.diff||'normal')])}${tsel?` · ${L('修罗','Asc.')} ${tsel}`:''} · ${LL(MAPS[MAPID])}`}
 function renderStatus(){const sb=$('#stickystart');if(sb)sb.querySelector('small').textContent=runSummary();const rs=$('#runsummary');if(rs)rs.textContent=runSummary();

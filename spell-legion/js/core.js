@@ -49,7 +49,7 @@ const onPond=(x,y,pad=1.15)=>PONDS.some(p=>hyp((x-p[0])/p[2],(y-p[1])/p[3])<pad)
 /* colliders */
 let rocks=[],maples=[],lanterns=[];
 function buildArena(){
-  rocks=[];maples=[];lanterns=[];
+  rocks=[];maples=[];lanterns=[];rockGrid=null;
   const taken=[[W/2,H/2,250],...PONDS.map(p=>[p[0],p[1],p[2]+60]),...SHRINES.map(s=>[s[0],s[1],70]),...PAVS.map(p=>[p[0],p[1],110])];
   const free=(x,y,r)=>!taken.some(t=>hyp(t[0]-x,t[1]-y)<t[2]+r)&&!onTrail(x,y,r);
   // pavilion columns and the four archways on the plaza
@@ -64,9 +64,13 @@ function buildArena(){
   for(let i=0;i<500&&maples.length<58;i++){const x=rnd(70,W-70),y=rnd(70,H-70);if(!free(x,y,34))continue;const k=rnd(.8,1.5);maples.push([x,y,k,Math.random()<.5?0:1]);rocks.push({x:x-3,y:y-3,w:6,h:6,tree:1});taken.push([x,y,30])}
   for(const t of TRAILS){const p=t.pts;let acc=0;for(let i=1;i<p.length;i++){const l=hyp(p[i][0]-p[i-1][0],p[i][1]-p[i-1][1]);acc+=l;if(acc>230){acc=0;const nx=-(p[i][1]-p[i-1][1])/l,ny=(p[i][0]-p[i-1][0])/l,side=lanterns.length%2?1:-1,x=p[i][0]+nx*side*(t.w*.5+10),y=p[i][1]+ny*side*(t.w*.5+10);if(x>40&&x<W-40&&y>40&&y<H-40&&!onPond(x,y,1.3)&&hyp(x-W/2,y-H/2)>170)lanterns.push([x,y,Math.atan2(nx*side,ny*side)])}}}
 }
+/* static spatial grid over the obstacles (64 px cells) so collisions check a handful of rocks instead of all ~130 */
+const RG=64,RGW=Math.ceil(W/RG)+1;let rockGrid=null;
+function buildRockGrid(){rockGrid=new Array(RGW*(Math.ceil(H/RG)+1));for(const b of rocks){const x0=Math.max(0,(b.x-24)/RG|0),x1=Math.min(RGW-1,(b.x+b.w+24)/RG|0),y0=Math.max(0,(b.y-24)/RG|0),y1=Math.min(Math.ceil(H/RG),(b.y+b.h+24)/RG|0);for(let y=y0;y<=y1;y++)for(let x=x0;x<=x1;x++){const k=y*RGW+x;(rockGrid[k]||(rockGrid[k]=[])).push(b)}}}
+function rocksNear(x,y){if(!rockGrid)buildRockGrid();const k=(y/RG|0)*RGW+(x/RG|0);return rockGrid[k]||[]}
 function collide(o,r){
   o.x=clamp(o.x,20+r,W-20-r);o.y=clamp(o.y,20+r,H-20-r);
-  for(const b of rocks){
+  for(const b of rocksNear(o.x,o.y)){
     const nx=clamp(o.x,b.x,b.x+b.w),ny=clamp(o.y,b.y,b.y+b.h),dx=o.x-nx,dy=o.y-ny,d2=dx*dx+dy*dy;
     if(d2<r*r){
       if(d2>0.0001){const d=Math.sqrt(d2);o.x=nx+dx/d*r;o.y=ny+dy/d*r}
@@ -75,4 +79,4 @@ function collide(o,r){
     }
   }
 }
-const blocked=(x,y)=>rocks.some(r=>!r.tree&&x>r.x&&x<r.x+r.w&&y>r.y&&y<r.y+r.h);
+const blocked=(x,y)=>{for(const r of rocksNear(x,y))if(!r.tree&&x>r.x&&x<r.x+r.w&&y>r.y&&y<r.y+r.h)return true;return false};

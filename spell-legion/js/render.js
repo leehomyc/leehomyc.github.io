@@ -200,8 +200,8 @@ function render(rdt){
   const ga=glowPts.geometry.attributes;ga.position.needsUpdate=true;ga.aColor.needsUpdate=true;ga.aSize.needsUpdate=true;glowPts.geometry.setDrawRange(0,glowN);
   /* post uniforms */
   const h=G.fx.find(f=>f.k==='hurt');const fu=finalPass.uniforms;fu.uHurt.value=reduced?0:(h?h.t/h.T:0);fu.uLow.value=(!G.auto&&P.hp<P.maxHp*.3&&P.down<=0)?1:0;fu.uDark.value=nightDark+((G.over==='lose'||P.down>0)?1:0);
-  G.flash=Math.max(0,G.flash-rdt*2.2);fu.uFlash.value=reduced?0:G.flash;fu.uCA.value=reduced?0:Math.min(1,G.hitStop*8+tr*.4);
-  [fu.uS0,fu.uS1,fu.uS2].forEach((u,i)=>{const s=G.shocks[i];if(!s||reduced){u.value.set(0,0,0,0);return}const [sx,sy]=toScreen(s.x,4,s.y),k=s.t/s.T;u.value.set(sx/ov.width,1-sy/ov.height,k*s.R/VH*.5,s.str*(1-k))});
+  G.flash=Math.max(0,G.flash-rdt*2.2);fu.uFlash.value=reduced?0:G.flash*(MAP().bright?.3:.7);fu.uCA.value=(reduced||SHAKE==='off')?0:Math.min(1,G.hitStop*8+tr*.4)*(SHAKE==='high'?1:.5);
+  [fu.uS0,fu.uS1,fu.uS2].forEach((u,i)=>{const s=G.shocks[i];if(!s||reduced||SHAKE==='off'){u.value.set(0,0,0,0);return}const [sx,sy]=toScreen(s.x,4,s.y),k=s.t/s.T;u.value.set(sx/ov.width,1-sy/ov.height,k*s.R/VH*.5,s.str*(1-k)*(SHAKE==='high'?1:.55))});
   comp.render();
   drawOverlay();
 }

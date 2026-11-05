@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>魔咒军团</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=ZCOOL+XiaoWei&family=Alegreya+Sans:wght@400;700;800&display=swap">
-<link rel="stylesheet" href="css/style.css?v=202611052324">
+<link rel="stylesheet" href="css/style.css?v=202611052342">
 <script src="vendor/three.min.js"></script>
 <script src="vendor/CopyShader.js"></script>
 <script src="vendor/LuminosityHighPassShader.js"></script>
@@ -58,9 +58,9 @@
           <div class="langrow"><button type="button" class="langbtn" data-l="zh">中文</button><button type="button" class="langbtn" data-l="en">English</button><span class="status" id="status"></span></div>
           <div id="menubtns"></div>
           <span id="loadnote" class="note"></span><span id="autonote" hidden></span>
-          <div class="tabbar"><button type="button" data-t="shop"><span class="zh">山门</span><span class="en">Upgrades</span> <b id="gold">0</b></button><button type="button" data-t="tasks"><span class="zh">任务</span><span class="en">Tasks</span></button><button type="button" data-t="ach"><span class="zh">成就</span><span class="en">Achievements</span> <b id="achcount">0/0</b></button><button type="button" data-t="codex"><span class="zh">图鉴</span><span class="en">Codex</span> <b id="codexcount">0/0</b></button><button type="button" id="lbbtn" hidden><span class="zh">排行榜</span><span class="en">Leaderboard</span></button><button type="button" data-t="settings"><span class="zh">设置</span><span class="en">Settings</span></button></div>
+          <div class="tabbar"><b id="gold" hidden>0</b><button type="button" data-t="tasks"><span class="zh">任务</span><span class="en">Tasks</span></button><button type="button" data-t="ach"><span class="zh">成就</span><span class="en">Achievements</span> <b id="achcount">0/0</b></button><button type="button" data-t="codex"><span class="zh">图鉴</span><span class="en">Codex</span> <b id="codexcount">0/0</b></button><button type="button" id="lbbtn" hidden><span class="zh">排行榜</span><span class="en">Leaderboard</span></button><button type="button" data-t="settings"><span class="zh">设置</span><span class="en">Settings</span></button></div>
           <div class="lobby">
-            <div class="panel" data-p="shop"><h2><span><span class="zh">山门 · 永久强化</span><span class="en">Permanent upgrades</span></span></h2><div id="shop"></div><div id="record"></div></div>
+            <div id="shop" hidden></div><div id="record" hidden></div>
             <div class="panel" data-p="tasks"><div id="meta"></div></div>
             <div class="panel" data-p="ach"><div id="ach"></div></div>
             <div class="panel" data-p="codex"><div id="codex"></div></div>
@@ -105,21 +105,21 @@
   <div id="lb" class="overlay" hidden><div class="cbox"><div class="ch"><h2><span class="zh">排行榜</span><span class="en">Leaderboard</span> <small><span class="zh">最长存活</span><span class="en">longest survival</span></small></h2><div class="tabs" id="lbtabs"><button type="button" data-b="all" class="on"><span class="zh">总榜</span><span class="en">All time</span></button><button type="button" data-b="today"><span class="zh">今日</span><span class="en">Today</span></button></div><button type="button" id="lbclose"><span class="zh">关闭</span><span class="en">Close</span></button></div><div id="lbbody"></div></div></div>
   <div id="end" class="overlay" hidden><div class="endb" id="endb"></div></div>
 </div>
-<script src="js/core.js?v=202611052324"></script>
-<script src="js/content.js?v=202611052324"></script>
-<script src="js/icons.js?v=202611052324"></script>
-<script src="js/audio.js?v=202611052324"></script>
-<script src="js/gfx.js?v=202611052324"></script>
-<script src="js/sim.js?v=202611052324"></script>
-<script src="js/render.js?v=202611052324"></script>
-<script src="js/leaderboard.js?v=202611052324"></script>
-<script src="js/cloud.js?v=202611052324"></script>
-<script src="js/net.js?v=202611052324"></script>
-<script src="js/room.js?v=202611052324"></script>
-<script src="js/meta.js?v=202611052324"></script>
-<script src="js/ui.js?v=202611052324"></script>
-<script src="js/lobby.js?v=202611052324"></script>
-<script src="js/main.js?v=202611052324"></script>
+<script src="js/core.js?v=202611052342"></script>
+<script src="js/content.js?v=202611052342"></script>
+<script src="js/icons.js?v=202611052342"></script>
+<script src="js/audio.js?v=202611052342"></script>
+<script src="js/gfx.js?v=202611052342"></script>
+<script src="js/sim.js?v=202611052342"></script>
+<script src="js/render.js?v=202611052342"></script>
+<script src="js/leaderboard.js?v=202611052342"></script>
+<script src="js/cloud.js?v=202611052342"></script>
+<script src="js/net.js?v=202611052342"></script>
+<script src="js/room.js?v=202611052342"></script>
+<script src="js/meta.js?v=202611052342"></script>
+<script src="js/ui.js?v=202611052342"></script>
+<script src="js/lobby.js?v=202611052342"></script>
+<script src="js/main.js?v=202611052342"></script>
 <!--/PAGE-->
 </body>
 </html>

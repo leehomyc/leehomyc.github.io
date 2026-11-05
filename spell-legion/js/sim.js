@@ -85,7 +85,7 @@ function takeRelic(id){const R=RELICS[id],P=G.P;if(hasR(id)){G.goldRun+=40;showB
   showBanner(`法宝:${R.zh}`,`${R.en} · ${R.de}`,2);trauma(.2);G.flash=Math.max(G.flash,.25);if(typeof SFX!=='undefined')SFX.chest();if(typeof drawSeals==='function')drawSeals();if(typeof drawRelics==='function')drawRelics()}
 /* ---------- feel ---------- */
 function trauma(n,dx,dy){G.trauma=Math.min(1,G.trauma+n);if(dx!==undefined){G.shX+=dx*n*40;G.shY+=dy*n*40}}
-function hitStop(t){G.hitStop=Math.max(G.hitStop,t)}
+function hitStop(t){G.hitStop=Math.max(G.hitStop,t*(typeof SHAKE!=='undefined'&&SHAKE==='off'?.5:SHAKE==='high'?1:.75))}
 function shock(x,y,R,str,T=.45){if(G.shocks.length>=3)G.shocks.shift();G.shocks.push({x,y,t:0,T,R,str})}
 
 /* ---------- spatial ---------- */

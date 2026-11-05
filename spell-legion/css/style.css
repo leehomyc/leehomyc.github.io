@@ -385,7 +385,7 @@ html[lang=en] .zh{display:none!important}html[lang=zh] .en{display:none!importan
 .card .gw .bd{position:absolute;right:-8px;bottom:-4px;width:30px;height:30px;border-radius:50%;background:#1c101a;box-shadow:0 0 0 2px #1c101a}
 .card .gw .bd.t{border:1.5px solid var(--c);color:var(--c);font-family:var(--brush);font-size:18px;line-height:27px;text-align:center}
 .card .gw .bd.new{font:900 10px var(--ui);letter-spacing:.04em;color:#fff;background:var(--cinnabar);border-color:#ffb79f}
-@media (max-width:760px){.card .gw{width:52px;height:52px;font-size:52px}.card .gw .ic{width:52px;height:52px}.card .gw .bd{width:24px;height:24px;font-size:14px;line-height:21px}}
+@media (max-width:760px){.card .gw .bd{width:24px;height:24px;font-size:14px;line-height:21px}}
 .bs .ic.sm{width:30px;height:30px}
 
 /* ===== menu screen ===== */
@@ -479,3 +479,19 @@ html[lang=en] .zh{display:none!important}html[lang=zh] .en{display:none!importan
 #stickystart.room{display:none!important}
 @media (max-width:640px){#roomboard{top:46px;min-width:140px;max-width:170px;font-size:11px}#roomcount b{font-size:80px}}
 @media (max-height:760px){.hfoot{position:static;background:none}}
+
+/* ===== phones: the three cards must fit on one screen, no scrolling ===== */
+@media (max-width:760px){
+  #cards{gap:8px;padding:6px 8px;justify-content:flex-start;padding-top:max(8px,env(safe-area-inset-top))}
+  #cards h2{font-size:24px;line-height:1.05}#cards h2 small{font-size:11px}
+  #build{gap:4px;width:100%}.bs{min-width:0;flex:0 1 auto;max-width:none;padding:3px 8px;gap:5px;border-left-width:2px}.bs .ic.sm{width:22px;height:22px}.bs b{font-size:11px}.bs small{display:none}.bs div b small{display:inline;font-size:10px}.bs.empty{display:none}
+  .bstats{display:none}.badv{font-size:11px;padding:4px 8px}
+  #cardrow{grid-template-columns:minmax(0,1fr);max-width:480px;gap:8px}
+  .card{display:grid;grid-template-columns:56px minmax(0,1fr);grid-template-areas:"hd hd" "gw n" "gw sub" "gw fx" "gw fxe";column-gap:10px;row-gap:1px;padding:7px 10px 8px;animation:none}
+  .card .hd{grid-area:hd;margin-bottom:2px;min-height:16px;font-size:10px}
+  .card .gw{grid-area:gw;width:52px;height:52px;font-size:52px;margin:2px 0 0;align-self:start}.card .gw .ic{width:52px;height:52px}.card .gw .gm{font-size:12px;right:-4px;top:-3px}
+  .card .n{grid-area:n;font-size:14.5px;line-height:1.2}.card .sub{grid-area:sub;font-size:10.5px}.card .fx{grid-area:fx;font-size:13px;line-height:1.3;margin-top:1px}.card .fxe{grid-area:fxe;font-size:10.5px;line-height:1.3}.card .k{display:none}
+  .card:hover{transform:none}
+  #reroll{padding:8px 18px;font-size:14px}
+}
+@media (max-width:760px) and (max-height:700px){#cards h2{font-size:20px}#cards h2 small{display:inline;margin-left:6px}.card .fxe{display:none}#build{display:none}}

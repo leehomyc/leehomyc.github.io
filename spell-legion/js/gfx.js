@@ -328,38 +328,72 @@ function buildHero(cls='swordsman',slot='player',weapon){
 function buildHeroModel(cls,slot,weaponId){
   weaponId=weaponId||CLASSES[cls].main;
   const m=mat('plain',{rough:.7,metal:.02,rimI:.28,rim:'#bff4e6'});
-  const V={swordsman:{robe:'#ece7d8',robeT:'#f8f5ee',collar:'#2c4f6b',sash:'#b8322b',sleeve:'#ece7d8',cape:'#24405a',capeT:'#3f6a86',gem:[3,9,11]},
-           taoist:{robe:'#3a4e66',robeT:'#5b7a9a',collar:'#d9a641',sash:'#d9a641',sleeve:'#3a4e66',cape:'#2a3a52',capeT:'#4a6a8a',gem:[11,7,2]},
-           blademaster:{robe:'#4a2420',robeT:'#8a3a2c',collar:'#2a1a14',sash:'#1a1a1a',sleeve:'#c38a60',cape:'#3a1a16',capeT:'#6a2a22',gem:[11,4,1.5]},
-           qin:{robe:'#1f4a52',robeT:'#3f8a90',collar:'#e9e4d6',sash:'#d9a641',sleeve:'#1f4a52',cape:'#163a40',capeT:'#2a6a70',gem:[3,10,12]}}[cls];
+  const V={swordsman:{robe:'#ece7d8',robeT:'#f8f5ee',skirt:'#e2dccb',collar:'#2c4f6b',sash:'#b8322b',sleeve:'#ece7d8',cape:'#24405a',capeT:'#3f6a86',hair:'#1a1420',gem:[3,9,11]},
+           taoist:{robe:'#3a4e66',robeT:'#5b7a9a',skirt:'#2e3f55',collar:'#d9a641',sash:'#d9a641',sleeve:'#3a4e66',cape:'#2a3a52',capeT:'#4a6a8a',hair:'#24202a',gem:[11,7,2]},
+           blademaster:{robe:'#5a2622',robeT:'#8a3a2c',skirt:'#3a1a16',collar:'#2a1a14',sash:'#1a1a1a',sleeve:'#6a2a24',cape:'#3a1a16',capeT:'#6a2a22',hair:'#15121a',gem:[11,4,1.5]},
+           qin:{robe:'#2f6f78',robeT:'#5fb0b8',skirt:'#f1ece0',collar:'#f6f1e6',sash:'#e9a0b4',sleeve:'#8fd3d8',cape:'#f3c6d2',capeT:'#fde8ee',hair:'#1a1420',gem:[3,10,12]}}[cls];
+  const female=cls==='qin',skin='#f3d2b0',SK=female?.86:1; // the qin master is slimmer and taller in the skirt
   const grp=new T3.Group();grp.userData.cls=cls;scene.add(grp);
-  const robeGeo=merge([part(CYL(3.6,10.6,18,18),V.robe,{p:[0,9,0],top:V.robeT}),part(CYL(3.8,3.9,2.2,18),V.collar,{p:[0,16.9,0]}),part(CYL(6.2,6.6,2.4,18),V.sash,{p:[0,10.8,0],emit:cls==='taoist'?'#6a4a10':'#5a0d0a',ei:.3}),part(BOX(1.6,9,.5),V.sash,{p:[1.5,5.5,6.4],r:[-.28,0,0]}),part(BOX(1.6,8,.5),V.sash,{p:[-1.5,6,6.3],r:[-.28,0,0]}),
-    part(SPH(5,16,12),'#f1cfa8',{p:[0,21.5,0]}),part(SPH(5.35,14,10),'#16121a',{p:[0,22.4,-1.5],s:[1,.95,.9]}),part(SPH(2.1,10,8),'#16121a',{p:[0,27.6,-1.8]}),part(CYL(.35,.35,9,6),'#d9a641',{p:[0,27.8,-1.8],r:[0,0,1.5708],emit:'#6a4a10',ei:.5}),
-    part(SPH(.75,8,6),'#15141a',{p:[1.8,22,4.6]}),part(SPH(.75,8,6),'#15141a',{p:[-1.8,22,4.6]}),part(BOX(2,.45,.5),'#15141a',{p:[1.8,23.6,4.4],r:[0,0,-.22]}),part(BOX(2,.45,.5),'#15141a',{p:[-1.8,23.6,4.4],r:[0,0,.22]}),
-    ...(cls==='blademaster'?[part(BOX(2.6,1.4,.6),'#3a2a22',{p:[0,19.6,4.4]})]:[]),
-    part(CYL(2,3.6,8,10),V.sleeve,{p:[-7.4,14,1],r:[.6,0,.3],top:V.sleeve}),part(SPH(1.7,10,7),'#f1cfa8',{p:[-8.6,10.6,3.6]})]);
+  const body=[
+    // boots and legs (mostly under the robe)
+    part(BOX(3,2.2,4.2),'#2a1a14',{p:[-2.6,1.1,.6]}),part(BOX(3,2.2,4.2),'#2a1a14',{p:[2.6,1.1,.6]}),
+    part(CYL(1.3,1.5,7,8),V.skirt,{p:[-2.6,5,0]}),part(CYL(1.3,1.5,7,8),V.skirt,{p:[2.6,5,0]}),
+    // skirt (lower robe), flared
+    part(CYL(5.6*SK,female?10.6:10,female?15:13,20),V.skirt,{p:[0,female?8.5:9.5,0],top:V.robe}),
+    // torso and layered robe
+    part(CYL(4.6*SK,6.2*SK,10,18),V.robe,{p:[0,19,0],top:V.robeT}),
+    part(SPH(2.6*SK,10,8),V.robe,{p:[-5.4*SK,22.6,0]}),part(SPH(2.6*SK,10,8),V.robe,{p:[5.4*SK,22.6,0]}),
+    // sash with a knot and hanging ends
+    part(CYL(6.3*SK,6.5*SK,2.4,18),V.sash,{p:[0,14.6,0],emit:cls==='taoist'?'#6a4a10':female?'#5a2030':'#5a0d0a',ei:.25}),part(BOX(2.6,1.8,1.4),V.sash,{p:[0,14.6,6.2*SK]}),
+    part(BOX(1.4,7,.5),V.sash,{p:[1.3,10.6,6.1*SK],r:[-.18,0,0]}),part(BOX(1.4,6,.5),V.sash,{p:[-1.3,11,6*SK],r:[-.18,0,0]}),
+    // crossed collar
+    part(BOX(1.4,7.2,.7),V.collar,{p:[1.9*SK,22.2,5*SK],r:[0,0,.52]}),part(BOX(1.4,7.2,.7),V.collar,{p:[-1.9*SK,22.2,5.05*SK],r:[0,0,-.52]}),
+    // left sleeve and hand
+    part(CYL(2.1,female?3.2:4.2,female?12:10,10),V.sleeve,{p:[-7.6*SK,16.5,1],r:[.35,0,.28],top:V.sleeve}),part(SPH(1.5,10,7),skin,{p:[-9.2*SK,11,3.6]}),
+    // neck and head
+    part(CYL(1.5,1.8,2.4,8),skin,{p:[0,25,0]}),
+    part(SPH(4.6,18,14),skin,{p:[0,29.4,0],s:[1,1.06,.96]}),
+    // hair cap and bangs
+    part(SPH(4.95,16,12),V.hair,{p:[0,30.3,-.7],s:[1,.92,.98]}),part(BOX(6.4,1.8,1.2),V.hair,{p:[0,32.4,3.6],r:[.25,0,0]}),
+    // eyes, highlights, brows, mouth
+    part(SPH(female?.82:.72,8,6),'#15141a',{p:[1.75,29.5,4.15],s:[1,female?1.25:1.1,.6]}),part(SPH(female?.82:.72,8,6),'#15141a',{p:[-1.75,29.5,4.15],s:[1,female?1.25:1.1,.6]}),
+    part(SPH(.26,6,4),'#ffffff',{p:[2.05,29.85,4.55],emit:'#ffffff',ei:.8}),part(SPH(.26,6,4),'#ffffff',{p:[-1.45,29.85,4.55],emit:'#ffffff',ei:.8}),
+    part(BOX(2,cls==='blademaster'?.55:.38,.4),V.hair,{p:[1.75,31,4.3],r:[0,0,cls==='blademaster'?-.3:-.18]}),part(BOX(2,cls==='blademaster'?.55:.38,.4),V.hair,{p:[-1.75,31,4.3],r:[0,0,cls==='blademaster'?.3:.18]}),
+    part(BOX(female?1.1:1.3,.4,.3),female?'#d8657a':'#b06a5a',{p:[0,27.6,4.45]}),
+    ...(female?[part(BOX(2.2,.3,.3),V.hair,{p:[1.9,30.5,4.5],r:[0,0,-.1]}),part(BOX(2.2,.3,.3),V.hair,{p:[-1.9,30.5,4.5],r:[0,0,.1]}),part(SPH(.9,8,6),'#f0a0a8',{p:[2.9,28.4,3.4],s:[1,.6,.4]}),part(SPH(.9,8,6),'#f0a0a8',{p:[-2.9,28.4,3.4],s:[1,.6,.4]})]:[]),
+    ...(cls==='blademaster'?[part(BOX(.5,2.2,.3),'#a03a30',{p:[-2.6,28.2,4.3],r:[0,0,.3]}),part(BOX(7.4,2.2,7.4),V.hair,{p:[0,22.5,-3.6],s:[1,.2,1]}),part(BOX(7,2.4,3),'#2a1a14',{p:[-6.2,23.6,0],top:'#5a3a2a'}),part(BOX(7,2.4,3),'#2a1a14',{p:[6.2,23.6,0],top:'#5a3a2a'})]:[]),
+    ...(cls==='taoist'?[part(CONE(1,2.8,6),'#3a3240',{p:[0,26.3,3.6],r:[Math.PI,0,0]})]:[]),
+  ];
+  const robeGeo=merge(body);
   const rb=new T3.Mesh(robeGeo,m);rb.castShadow=true;grp.add(rb);
-  const cg=new T3.PlaneGeometry(13,17,8,8);cg.translate(0,-8.5,0);
-  const cape=new T3.Mesh(merge([part(cg,V.cape,{top:V.capeT})]),mat('plain',{rough:.8,rimI:.3,m:{side:T3.DoubleSide}}));cape.position.set(0,18,-4.6);cape.rotation.x=.12;cape.castShadow=true;grp.add(cape);
-  const hat=new T3.Group();hat.position.set(0,25.4,0);grp.add(hat);
+  // cape: a flowing cloak for the men, a long gauze ribbon for the qin master
+  const cg=new T3.PlaneGeometry(female?4.5:13,female?13:16,6,8);cg.translate(0,female?-6.5:-8,0);
+  const cape=new T3.Mesh(merge([part(cg,V.cape,{top:V.capeT})]),mat('plain',{rough:.8,rimI:.3,m:{side:T3.DoubleSide}}));cape.position.set(female?-3.5:0,female?16:22,-4.6*SK);cape.rotation.x=.12;cape.castShadow=true;grp.add(cape);
+  // head-top group (hat, buns, hairpins) animated as the "hat"
+  const hat=new T3.Group();hat.position.set(0,33.2,0);grp.add(hat);
   let hatGeo;
-  if(cls==='swordsman')hatGeo=merge([part(CONE(12.6,5.4,20),'#c8a86c',{p:[0,2.7,0],top:'#e6cf96'}),part(CYL(12.7,12.7,.5,20),'#8a6a3a',{p:[0,.1,0]}),part(CONE(1.6,2.4,8),'#8a6a3a',{p:[0,6.4,0]})]);
-  else if(cls==='qin')hatGeo=merge([part(CYL(2.4,2.4,2.2,8),'#1a1a22',{p:[0,2.6,-1.8]}),part(BOX(1.4,.4,6),'#e9e4d6',{p:[0,3.6,-1.8],r:[0,0,0]}),part(SPH(.9,8,6),'#8fe3ff',{p:[3,3.6,-1.8],emit:'#8fe3ff',ei:2})]);
-  else if(cls==='taoist')hatGeo=merge([part(CYL(2.6,2.2,3,8),'#1a1a22',{p:[0,2.8,-1.8],top:'#2e2e3a'}),part(BOX(2.2,1.6,1.2),'#d9a641',{p:[0,3.4,.4],emit:'#6a4a10',ei:.6}),part(CYL(.3,.3,7,6),'#d9a641',{p:[0,3.2,-1.8],r:[0,0,1.5708]})]);
-  else hatGeo=merge([part(SPH(5.5,14,10),'#b8322b',{p:[0,-2.2,-.6],s:[1,.5,1]}),part(BOX(1.2,6,.5),'#b8322b',{p:[-3.5,-4.5,-4],r:[.4,0,.5]}),part(BOX(1.2,5,.5),'#b8322b',{p:[-4.4,-4.8,-3.6],r:[.5,0,.9]})]);
+  if(cls==='swordsman')hatGeo=merge([part(SPH(1.7,10,8),V.hair,{p:[0,1.6,-.6]}),part(CYL(5.2,5.2,1.1,16),'#e9e4d6',{p:[0,-2.6,0]}),part(CONE(11.4,4.6,22),'#c8a86c',{p:[0,3.2,0],top:'#e6cf96'}),part(CYL(11.5,11.5,.5,22),'#8a6a3a',{p:[0,1,0]}),part(CONE(1.4,2.2,8),'#8a6a3a',{p:[0,6.4,0]})]);
+  else if(cls==='qin')hatGeo=merge([part(SPH(2,12,9),V.hair,{p:[-3.6,-.2,-.6],s:[1,1.1,1]}),part(SPH(2,12,9),V.hair,{p:[3.6,-.2,-.6],s:[1,1.1,1]}),part(SPH(1.1,8,6),V.hair,{p:[0,.9,-1]}),
+    part(CYL(2.4,1.3,13,10),V.hair,{p:[0,-7.5,-4.4]}),part(CYL(.22,.22,9,6),'#d9a641',{p:[0,.6,-.4],r:[0,0,1.5708],emit:'#6a4a10',ei:.5}),part(SPH(.8,8,6),'#f3c6d2',{p:[4.6,.6,-.4],emit:'#f3c6d2',ei:.6}),part(SPH(.5,8,6),'#8fe3ff',{p:[-4.6,.6,-.4],emit:'#8fe3ff',ei:2}),
+    part(SPH(1,8,6),'#ff9fb6',{p:[3.9,1.6,.9],s:[1,.6,1],emit:'#ff9fb6',ei:.5}),part(SPH(.6,8,6),'#ff9fb6',{p:[4.9,1.1,.3],s:[1,.6,1],emit:'#ff9fb6',ei:.5}),part(SPH(.6,8,6),'#ff9fb6',{p:[3,1.2,1.8],s:[1,.6,1],emit:'#ff9fb6',ei:.5})]);
+  else if(cls==='taoist')hatGeo=merge([part(SPH(1.8,10,8),V.hair,{p:[0,.8,-1.2]}),part(CYL(2.4,2,3,8),'#1a1a22',{p:[0,1.6,-1.2],top:'#2e2e3a'}),part(BOX(2.4,1.8,1),'#d9a641',{p:[0,2.2,.4],emit:'#6a4a10',ei:.6}),part(CYL(.3,.3,7,6),'#d9a641',{p:[0,1.6,-1.2],r:[0,0,1.5708]})]);
+  else hatGeo=merge([part(SPH(2.1,10,8),V.hair,{p:[0,1.4,-1.2]}),part(CYL(.5,.5,6,6),'#d9a641',{p:[0,1.8,-1.2],r:[0,0,1.2]}),part(CYL(5.1,5.1,1.4,16,true),'#b8322b',{p:[0,-2.4,0]}),part(BOX(1.2,7,.4),'#b8322b',{p:[-3.6,-5.2,-3.4],r:[.4,0,.5]}),part(BOX(1.2,6,.4),'#b8322b',{p:[-4.6,-5.4,-3],r:[.5,0,.9]})]);
   const hatM=new T3.Mesh(hatGeo,mat('plain',{rough:.8,rimI:.25}));hatM.castShadow=true;hat.add(hatM);
-  const arm=new T3.Group();arm.position.set(7.2,15,1.5);grp.add(arm);
-  let weapon;
+  // right arm group: sleeve, hand and the weapon; cast animation rotates this group from the shoulder
+  const arm=new T3.Group();arm.position.set(6.4*SK,22,1.2);grp.add(arm);
+  let weapon;const WY=-8.2,WZ=-.6; // the legacy weapon parts were authored around a lower pivot
   if(weaponId==='great')weapon=[part(BOX(7,1.2,1.2),'#d9a641',{p:[1.2,.6,5.4],emit:'#6a4a10',ei:.5}),part(CYL(.8,.8,7,6),'#2a1a14',{p:[1.2,-3.4,5.4]}),part(SPH(1.3,8,6),'#d9a641',{p:[1.2,-7.2,5.4]}),part(BOX(3.4,26,.5),'#c9d6e8',{p:[1.2,13.5,5.4],top:'#ffffff',emit:'#9fc4ff',ei:.3}),part(BOX(.7,24,.6),'#ffffff',{p:[1.2,13,5.4],emit:'#dfeaff',ei:1.1}),part(BOX(3.6,2.4,.6),'#8a3a2c',{p:[1.2,2.6,5.4],emit:'#ff6a3c',ei:.6})];
   else if(weaponId==='whisk')weapon=[part(CYL(.45,.55,15,6),'#3a2418',{p:[1.2,5.5,5.4],top:'#6a4a2a'}),part(CYL(1,1,1.4,8),'#d9a641',{p:[1.2,13.4,5.4],emit:'#6a4a10',ei:.5}),...Array.from({length:14},(_,i)=>{const a=i/14*TAU,r=1.6+(i%3)*.5;return part(CYL(.12,.05,9,4),'#f4efe0',{p:[1.2+Math.cos(a)*r*.9,18.2,5.4+Math.sin(a)*r*.9],r:[Math.sin(a)*.5,0,-Math.cos(a)*.5],emit:'#ffffff',ei:.55})}),part(SPH(1.1,8,6),'#8fe3ff',{p:[1.2,14.6,5.4],emit:'#8fe3ff',ei:1.6})];
   else if(weaponId==='nodachi')weapon=[part(BOX(4.2,.9,1),'#d9a641',{p:[1.2,.6,5.4],emit:'#6a4a10',ei:.5}),part(CYL(.6,.6,10,6),'#1a1a22',{p:[1.2,-4.8,5.4]}),part(BOX(1.9,34,.4),'#e8edf2',{p:[1.6,17.5,5.4],top:'#ffffff',emit:'#ffb080',ei:.35}),part(BOX(.5,33,.45),'#ffffff',{p:[2.3,17.3,5.4],emit:'#ffd0a0',ei:1.3}),part(BOX(.5,5,.5),'#b8322b',{p:[1.2,-9.6,5.4]})];
-  else if(weaponId==='drum')weapon=[part(CYL(5.2,5.2,3.4,16),'#8a2a22',{p:[1.2,3.5,8.5],r:[1.5708,0,0],top:'#b8322b'}),part(CYL(4.6,4.6,.4,16),'#f1dfc0',{p:[1.2,3.5,10.4],r:[1.5708,0,0],emit:'#ffd27a',ei:.5}),part(CYL(5.4,5.4,.5,16),'#d9a641',{p:[1.2,3.5,6.6],r:[1.5708,0,0],emit:'#6a4a10',ei:.6}),part(CYL(.4,.4,13,6),'#3a2418',{p:[1.2,6.5,5.4],top:'#6a4a2a'}),part(SPH(1.3,8,6),'#ffd27a',{p:[1.2,13.5,5.4],emit:'#ffd27a',ei:1.4}),part(CYL(.4,.4,12,6),'#3a2418',{p:[-1.5,5.5,7.8],r:[0,0,.3]}),part(SPH(1.2,8,6),'#ffd27a',{p:[-3.2,11.2,7.8],emit:'#ffd27a',ei:1.2})];
+  else if(weaponId==='drum')weapon=[part(CYL(5.2,5.2,3.4,16),'#8a2a22',{p:[-2,2,10],r:[1.5708,0,0],top:'#b8322b'}),part(CYL(4.6,4.6,.4,16),'#f1dfc0',{p:[-2,2,11.9],r:[1.5708,0,0],emit:'#ffd27a',ei:.5}),part(CYL(5.4,5.4,.5,16),'#d9a641',{p:[-2,2,8.1],r:[1.5708,0,0],emit:'#6a4a10',ei:.6}),part(CYL(.4,.4,13,6),'#3a2418',{p:[1.2,6.5,5.4],top:'#6a4a2a'}),part(SPH(1.3,8,6),'#ffd27a',{p:[1.2,13.5,5.4],emit:'#ffd27a',ei:1.4})];
   else if(cls==='swordsman')weapon=[part(BOX(4.6,.8,.9),'#d9a641',{p:[1.2,.6,5.4],emit:'#6a4a10',ei:.5}),part(CYL(.6,.6,5,6),'#2a1a14',{p:[1.2,-2.4,5.4]}),part(SPH(.9,8,6),'#d9a641',{p:[1.2,-5.1,5.4]}),part(BOX(1.1,22,.32),'#dfe6ee',{p:[1.2,11.8,5.4],top:'#ffffff',emit:'#88c8ff',ei:.35}),part(BOX(.4,20,.45),'#ffffff',{p:[1.2,11.5,5.4],emit:'#9fe3f0',ei:1.2})];
   else if(cls==='taoist')weapon=[part(CYL(.5,.6,18,6),'#5a3a22',{p:[1.2,6,5.4],top:'#8a5a32'}),part(CYL(1,1,1.2,8),'#d9a641',{p:[1.2,15.2,5.4],emit:'#6a4a10',ei:.5}),part(CONE(2.4,11,10),'#f4efe0',{p:[1.2,20.4,5.4],top:'#ffffff',emit:'#ffd27a',ei:.25}),part(SPH(1.1,8,6),'#d9a641',{p:[1.2,-3.2,5.4]})];
-  else if(cls==='qin')weapon=[part(BOX(16,1.2,4.6),'#3a2418',{p:[1.2,6.5,5.4],r:[0,0,.1],top:'#6a4a2a'}),part(BOX(15,.3,.15),'#e8e4d8',{p:[1.2,7.3,4.2],emit:'#8fe3ff',ei:1}),part(BOX(15,.3,.15),'#e8e4d8',{p:[1.2,7.3,5.4],emit:'#8fe3ff',ei:1}),part(BOX(15,.3,.15),'#e8e4d8',{p:[1.2,7.3,6.6],emit:'#8fe3ff',ei:1})];
+  else if(cls==='qin')weapon=[part(BOX(17,1.3,5),'#3a2418',{p:[-5.5,0,8.6],r:[0,.12,.08],top:'#6a4a2a'}),part(BOX(16,.3,.16),'#e8e4d8',{p:[-5.5,.9,7.4],r:[0,.12,.08],emit:'#8fe3ff',ei:1}),part(BOX(16,.3,.16),'#e8e4d8',{p:[-5.5,.95,8.6],r:[0,.12,.08],emit:'#8fe3ff',ei:1}),part(BOX(16,.3,.16),'#e8e4d8',{p:[-5.5,1,9.8],r:[0,.12,.08],emit:'#8fe3ff',ei:1}),part(SPH(.8,8,6),'#d9a641',{p:[2.4,.9,8.6],emit:'#6a4a10',ei:.5})];
   else weapon=[part(BOX(5,1,1),'#d9a641',{p:[1.2,.6,5.4],emit:'#6a4a10',ei:.5}),part(CYL(.7,.7,7,6),'#2a1a14',{p:[1.2,-3.2,5.4]}),part(BOX(2.6,20,.4),'#d7dde6',{p:[1.6,11,5.4],top:'#ffffff',emit:'#ffb080',ei:.3}),part(BOX(.6,19,.5),'#ffffff',{p:[2.4,10.8,5.4],emit:'#ff9c5a',ei:1}),part(BOX(.5,4,.5),'#b8322b',{p:[1.2,-7.5,5.4]})];
-  const armM=new T3.Mesh(merge([part(CYL(2,3.8,8,10),V.sleeve,{p:[-.6,-1,1.5],r:[.8,0,-.25],top:V.sleeve}),part(SPH(1.8,10,7),'#f1cfa8',{p:[1.2,-1,4.2]}),...weapon]),m);armM.castShadow=true;arm.add(armM);
-  const cry=new T3.Mesh(new T3.OctahedronGeometry(1.6,1),new T3.MeshBasicMaterial({color:new T3.Color(...V.gem)}));cry.position.set(1.2,weaponId==='whisk'?21:weaponId==='drum'?14:weaponId==='nodachi'?35:weaponId==='great'?27:cls==='taoist'?26:cls==='qin'?9:23.6,5.4);arm.add(cry);
+  weapon.forEach(w=>w.translate(0,WY,WZ));
+  const forearm=cls==='blademaster'?[part(CYL(1.5,1.7,6,8),skin,{p:[1,-6,3.2],r:[.55,0,-.1]}),part(CYL(1.75,1.75,2.4,8),'#e9e4d6',{p:[1.1,-5,3.6],r:[.55,0,-.1]})]:[];
+  const armM=new T3.Mesh(merge([part(CYL(2.1,female?3.2:4.2,female?11:9,10),V.sleeve,{p:[.2,-3.8,1.6],r:[.55,0,-.18],top:V.sleeve}),...forearm,part(SPH(1.6,10,7),skin,{p:[1.2,-9.2,4.2]}),...weapon]),m);armM.castShadow=true;arm.add(armM);
+  const cry=new T3.Mesh(new T3.OctahedronGeometry(1.6,1),new T3.MeshBasicMaterial({color:new T3.Color(...V.gem)}));cry.position.set(1.2,WY+(weaponId==='whisk'?21:weaponId==='drum'?14:weaponId==='nodachi'?35:weaponId==='great'?27:cls==='taoist'?26:cls==='qin'?2:23.6),5.4+WZ);if(cls==='qin'&&weaponId==='wave')cry.position.set(-12,WY+1.5,8.2);arm.add(cry);
   const sigil=new T3.Mesh(new T3.PlaneGeometry(1,1),new T3.MeshBasicMaterial({map:sigilTex(),transparent:true,opacity:.75,blending:T3.AdditiveBlending,depthWrite:false,color:new T3.Color(.55,1.6,1.8)}));sigil.rotation.x=-Math.PI/2;sigil.scale.set(slot==='player'?50:36,slot==='player'?50:36,1);scene.add(sigil);
   if(slot==='player')for(let i=0;i<14;i++){const gm=new T3.Mesh(robeGeo,new T3.MeshBasicMaterial({color:new T3.Color(.6,2.4,3),transparent:true,opacity:.5,blending:T3.AdditiveBlending,depthWrite:false}));gm.visible=false;gm.scale.set(.9,.9,.9);scene.add(gm);ghostM.push(gm)}
   return {g:grp,hat,arm,crystal:cry,cape,sigil,cls,slot,gem:V.gem,weapon:weaponId};
@@ -411,7 +445,7 @@ function buildPost(){
   if(rn.capabilities.isWebGL2&&T3.WebGLMultisampleRenderTarget&&Q().msaa){target=new T3.WebGLMultisampleRenderTarget(4,4,pars);target.samples=4}else target=new T3.WebGLRenderTarget(4,4,pars);
   comp=new T3.EffectComposer(rn,target);
   comp.addPass(new T3.RenderPass(scene,cam));
-  bloomPass=new T3.UnrealBloomPass(new T3.Vector2(512,512),PHONE?.5:.62,.72,1.02);comp.addPass(bloomPass);
+  if(!PHONE){bloomPass=new T3.UnrealBloomPass(new T3.Vector2(512,512),.62,.72,MAP().bright?1.12:1.02);comp.addPass(bloomPass)}else bloomPass=null;
   finalPass=new T3.ShaderPass({uniforms:{tDiffuse:{value:null},uTime:U.uTime,uHurt:{value:0},uLow:{value:0},uTilt:{value:Q().tilt},uFade:{value:1},uDark:{value:0},uFlash:{value:0},uAspect:{value:1.78},uS0:{value:new T3.Vector4(0,0,0,0)},uS1:{value:new T3.Vector4(0,0,0,0)},uS2:{value:new T3.Vector4(0,0,0,0)},uCA:{value:0}},
     vertexShader:'varying vec2 vU;void main(){vU=uv;gl_Position=vec4(position.xy,0.,1.);}',
     fragmentShader:`varying vec2 vU;uniform sampler2D tDiffuse;uniform float uTime,uHurt,uLow,uTilt,uFade,uDark,uFlash,uAspect,uCA;uniform vec4 uS0,uS1,uS2;
@@ -440,11 +474,11 @@ function buildPost(){
 }
 function initGfx(){
   rn=new T3.WebGLRenderer({canvas:cv,antialias:false,powerPreference:'high-performance',stencil:false});
-  rn.shadowMap.enabled=true;rn.shadowMap.type=T3.PCFSoftShadowMap;rn.toneMapping=T3.NoToneMapping;rn.outputEncoding=T3.LinearEncoding;
+  rn.shadowMap.enabled=true;rn.shadowMap.type=PHONE?T3.PCFShadowMap:T3.PCFSoftShadowMap;rn.toneMapping=T3.NoToneMapping;rn.outputEncoding=T3.LinearEncoding;
   scene=new T3.Scene();const fogC=lin(MAP().fog);scene.background=fogC;scene.fog=new T3.Fog(fogC,560,1500);
   cam=new T3.PerspectiveCamera(32,1,20,3600);
   hemiL=new T3.HemisphereLight(lin(MAP().hemi[0]),lin(MAP().hemi[1]),.46);scene.add(hemiL);
-  sun=new T3.DirectionalLight(lin(MAP().sun),1.85);sun.castShadow=true;sun.shadow.mapSize.set(Q().shadow,Q().shadow);sun.shadow.bias=-.0004;sun.shadow.normalBias=.8;sun.shadow.radius=QLEVEL==='low'?2:3.5;scene.add(sun,sun.target);
+  sun=new T3.DirectionalLight(lin(MAP().sun),1.85*(MAP().sunI||1));sun.castShadow=true;sun.shadow.mapSize.set(Q().shadow,Q().shadow);sun.shadow.bias=MAP().bright?-.0002:-.0004;sun.shadow.normalBias=MAP().bright?1.6:.8;sun.shadow.radius=QLEVEL==='low'?2:3.5;scene.add(sun,sun.target);
   orbL=new T3.PointLight(lin('#6fe3ff'),1.5,150,1.6);scene.add(orbL);
   buildArena();
   paintGround();buildPonds();buildWorld();buildCreatures();buildFxPools();buildGlow();buildPost();
@@ -476,9 +510,9 @@ function dayNight(phase){
   if(!_dayInit){_sunBase.copy(sun.color);_fogBase.copy(scene.fog.color);_dayInit=true}
   let a=DAY[0],b=DAY[1];for(let i=0;i<DAY.length-1;i++){if(phase>=DAY[i].t&&phase<=DAY[i+1].t){a=DAY[i];b=DAY[i+1];break}}
   const k0=(phase-a.t)/(b.t-a.t||1),k=k0*k0*(3-2*k0);
-  _c1.copy(a.sun?lin(a.sun):_sunBase);_c2.copy(b.sun?lin(b.sun):_sunBase);sun.color.copy(_c1).lerp(_c2,k);sun.intensity=a.si+(b.si-a.si)*k;hemiL.intensity=a.hi+(b.hi-a.hi)*k;
+  _c1.copy(a.sun?lin(a.sun):_sunBase);_c2.copy(b.sun?lin(b.sun):_sunBase);sun.color.copy(_c1).lerp(_c2,k);sun.intensity=(a.si+(b.si-a.si)*k)*(MAP().sunI||1);hemiL.intensity=a.hi+(b.hi-a.hi)*k;
   const f=[0,1,2].map(i=>a.fog[i]+(b.fog[i]-a.fog[i])*k);scene.fog.color.copy(_fogBase).multiply(_c1.setRGB(f[0],f[1],f[2]));scene.background.copy(scene.fog.color);
-  const dark=a.dark+(b.dark-a.dark)*k,bl=a.bloom+(b.bloom-a.bloom)*k;if(bloomPass)bloomPass.strength=(PHONE?.5:.62)+bl;orbL.intensity=1.5+dark*4;return dark;
+  const dark=a.dark+(b.dark-a.dark)*k,bl=a.bloom+(b.bloom-a.bloom)*k;if(bloomPass)bloomPass.strength=.62+bl*(MAP().bright?.5:1);orbL.intensity=1.5+dark*4;return dark;
 }
 
 /* trees between the camera and the hero shrink away so the fight stays visible */
@@ -497,7 +531,7 @@ let PV=null;
 function previewInit(canvas){
   if(PV)return PV;
   const r=new T3.WebGLRenderer({canvas,alpha:true,antialias:true,powerPreference:'low-power'});r.setPixelRatio(Math.min(devicePixelRatio||1,2));r.outputEncoding=T3.sRGBEncoding;r.toneMapping=T3.ACESFilmicToneMapping;r.toneMappingExposure=1.25;r.setClearColor(0x000000,0);
-  const sc=new T3.Scene();const cm=new T3.PerspectiveCamera(28,1,1,600);cm.position.set(0,32,112);cm.lookAt(0,20,0);
+  const sc=new T3.Scene();const cm=new T3.PerspectiveCamera(28,1,1,600);cm.position.set(0,30,100);cm.lookAt(0,18.5,0);
   sc.add(new T3.HemisphereLight(lin('#dfeeff'),lin('#3a2418'),1));const d=new T3.DirectionalLight(lin('#fff1dc'),1.7);d.position.set(50,90,70);sc.add(d);const d2=new T3.DirectionalLight(lin('#6fd3e8'),.9);d2.position.set(-70,30,-50);sc.add(d2);
   const pl=new T3.PointLight(lin('#ffd27a'),1.4,200,1.5);pl.position.set(0,40,40);sc.add(pl);
   const disc=new T3.Mesh(new T3.CircleGeometry(30,40),new T3.MeshBasicMaterial({color:new T3.Color(.02,.01,.03),transparent:true,opacity:.55}));disc.rotation.x=-Math.PI/2;disc.position.y=-.5;sc.add(disc);
