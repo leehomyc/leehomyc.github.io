@@ -335,3 +335,14 @@ kbd{font:700 13px var(--ui);border:1px solid var(--dim);padding:0 5px;border-rad
 #account .who{font-weight:800;display:flex;align-items:center;gap:6px}#account .dot{width:8px;height:8px;border-radius:50%;background:#6b5230;display:inline-block}#account .dot.on{background:#7dffb0;box-shadow:0 0 8px #7dffb0}
 #account small{flex:1 1 100%;font-size:11px;color:var(--dim)}#account .note{font-size:11px;color:#7dffb0}
 .seal.autosw{border-color:#6b5230;opacity:.85}.seal.autosw .g{color:var(--dim);font-size:26px}.seal.autosw.on{border-color:#8fd8ff;opacity:1}.seal.autosw.on .g{color:#8fd8ff}
+/* language: one language visible at a time */
+html[lang=en] .zh{display:none!important}html[lang=zh] .en{display:none!important}
+.langrow{display:flex;gap:6px;margin:0 0 8px}.langbtn{border-radius:6px;background:#2a1822;border:1px solid #6b5230;color:var(--bone);font:700 12px var(--ui);padding:5px 12px;cursor:pointer}.langbtn.on{background:var(--cinnabar);border-color:#ffb79f;color:#fff}
+/* simplified lobby: hero area + tabbed panels */
+.langrow{align-items:center}.langrow .status{margin-left:auto;font-size:12px;color:var(--dim)}
+.tag{margin:4px 0 10px;font-size:14px;line-height:1.5;color:var(--bone)}
+.startrow{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:10px 0 4px}.go.big{font-size:20px;padding:14px 34px}
+#mode{display:flex;gap:4px}#mode button{border-radius:6px;background:#2a1822;border:1px solid #6b5230;color:var(--bone);font:700 12px var(--ui);padding:8px 12px;cursor:pointer}#mode button.on{background:#9a3a2a;border-color:#ffb79f;color:#fff}
+.tabbar{display:flex;gap:4px;flex-wrap:wrap;margin:12px 0 0;border-bottom:1px solid #6b523066}.tabbar button{background:none;border:none;border-bottom:2px solid transparent;color:var(--dim);font:700 13px var(--ui);padding:8px 12px;cursor:pointer;margin-bottom:-1px}.tabbar button.on{color:var(--bone);border-bottom-color:var(--brass)}.tabbar button b{color:var(--brass);margin-left:4px}
+.lobby .panel{display:none;padding-top:10px}.lobby .panel.on{display:block}
+.lobby h2{margin:4px 0 8px}

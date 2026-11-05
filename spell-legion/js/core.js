@@ -3,6 +3,12 @@
 const $=s=>document.querySelector(s);
 const W=2600,H=2000,TAU=Math.PI*2;
 /* simulation RNG: seedable so a daily challenge is the same for everyone; rendering/audio keep Math.random */
+/* language: 'zh' or 'en'; L(zh,en) picks one string */
+let LANG=(()=>{try{const l=localStorage.getItem('sl_lang');if(l==='zh'||l==='en')return l}catch(_){}return (navigator.language||'').toLowerCase().startsWith('zh')?'zh':'en'})();
+document.documentElement.lang=LANG;
+const L=(zh,en)=>LANG==='zh'?zh:(en!==undefined?en:zh);
+const LL=o=>o?(LANG==='zh'?(o.zh!==undefined?o.zh:o.d):(o.en!==undefined?o.en:o.de)):'';
+function setLang(l){LANG=l;try{localStorage.setItem('sl_lang',l)}catch(_){}document.documentElement.lang=l;document.title=L('魔咒军团','Spell Legion')}
 let SIMR=Math.random;
 function seedSim(seed){if(seed===null||seed===undefined){SIMR=Math.random;return}let a=seed|0;SIMR=function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296}}
 const rnd=(a=1,b)=>b===undefined?SIMR()*a:a+SIMR()*(b-a);

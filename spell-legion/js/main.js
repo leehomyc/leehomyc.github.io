@@ -18,11 +18,11 @@ function frame(now){
 }
 function boot(){
   DPR=Math.min(devicePixelRatio||1,PHONE?1.2:1.5);
-  const startLabel=$('#startbtn').textContent;$('#startbtn').disabled=true;$('#startbtn').textContent='载入中 Loading';
+  const startLabel=$('#startbtn').innerHTML;$('#startbtn').disabled=true;$('#startbtn').textContent=L('载入中…','Loading…');
   CLASS=SAVE.cls;renderTitle();if(typeof cloudInit==='function')cloudInit();
   setTimeout(()=>{
-    try{initGfx();resize();newGame(true,SAVE.cls);demoBoost();requestAnimationFrame(frame);$('#startbtn').disabled=false;$('#startbtn').textContent=startLabel}
-    catch(err){console.error(err);$('#loadnote').textContent='This game needs WebGL. Open it in a recent desktop browser with hardware acceleration turned on.';$('#startbtn').textContent='无法运行 Unavailable'}
+    try{initGfx();resize();newGame(true,SAVE.cls);demoBoost();requestAnimationFrame(frame);$('#startbtn').disabled=false;$('#startbtn').innerHTML=startLabel}
+    catch(err){console.error(err);$('#loadnote').textContent=L('需要 WebGL:请在开启硬件加速的新版浏览器中打开。','This game needs WebGL. Open it in a recent browser with hardware acceleration turned on.');$('#startbtn').textContent=L('无法运行','Unavailable')}
   },40);
 }
 addEventListener('resize',()=>{if(rn)resize()});

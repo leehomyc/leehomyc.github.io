@@ -73,10 +73,10 @@ const PERKS=[
   {g:'杀',zh:'致命',en:'Deadly',d:'暴击率 +8%(双倍伤害)',de:'+8% chance of double damage',a:P=>P.crit+=.08},
 ];
 const ETYPES={
-  assassin:{hp:10,spd:66,dmg:6,r:5,xp:1,zh:'刺客'},
-  bandit:{hp:26,spd:33,dmg:9,r:6,xp:2,zh:'刀客'},
-  archer:{hp:20,spd:30,dmg:7,r:6,xp:3,shoot:1,zh:'弓手'},
-  giant:{hp:140,spd:23,dmg:16,r:10,xp:8,zh:'铁甲力士'},
+  assassin:{hp:10,spd:66,dmg:6,r:5,xp:1,zh:'刺客',en:'assassin'},
+  bandit:{hp:26,spd:33,dmg:9,r:6,xp:2,zh:'刀客',en:'bandit'},
+  archer:{hp:20,spd:30,dmg:7,r:6,xp:3,shoot:1,zh:'弓手',en:'archer'},
+  giant:{hp:140,spd:23,dmg:16,r:10,xp:8,zh:'铁甲力士',en:'iron giant'},
 };
 const BOSS_NAME=['血魔教主','Blood Demon Patriarch'];
 
@@ -85,7 +85,8 @@ const BOSS_NAME=['血魔教主','Blood Demon Patriarch'];
    dmg (+12%/rank), cd (-8%/rank), count (+1 projectile/piece), pierce (+1), size (+15%/rank),
    cost (-15% qi/rank), dur (+1s/rank), knock (+50%/rank), crit (+5%/rank), life (2% lifesteal/rank), chain (15%/rank chance to arc) */
 const NODE_FX={dmg:.10,cd:.08,count:1,pierce:1,size:.15,cost:.15,dur:1,knock:.5,crit:.05,life:.02,chain:.15};
-const N=(fx,zh,en,max,tier,d)=>({fx,zh,en,max,tier,d});
+const NODE_EN={"+1 刀气 / 级": "+1 blade qi / rank", "+1 卦符 / 级": "+1 trigram / rank", "+1 掌风 / 级": "+1 palm wave / rank", "+1 波剑雨 / 级": "+1 sword-rain wave / rank", "+1 牵连目标 / 级": "+1 chained target / rank", "+1 符箓 / 级": "+1 talisman / rank", "+1 音波 / 级": "+1 wave / rank", "+1 飞剑 / 级": "+1 flying sword / rank", "+1 鼓波 / 级": "+1 drum ring / rank", "+2 方向 / 级": "+2 directions / rank", "一次掷出两符": "Throws two talismans at once", "伤害 +12% / 级": "Damage +12% / rank", "内力消耗 -15% / 级": "Qi cost -15% / rank", "冷却 -8% / 级": "Cooldown -8% / rank", "出刀 +8% / 级": "Draw speed +8% / rank", "出手 +8% / 级": "Attack speed +8% / rank", "击退 +50% / 级": "Knockback +50% / rank", "刀光 +15% / 级": "Arc length +15% / rank", "半径 +15% / 级": "Radius +15% / rank", "吸血更多": "Stronger lifesteal", "命中回复生命": "Hits heal you", "命中有几率引发剑气跳击": "Hits may chain sword qi to another enemy", "命中有几率引发电弧": "Hits may arc lightning", "回复更多": "Heals more", "射程 +15% / 级": "Range +15% / rank", "护罩 +1s / 级": "Shield +1 s / rank", "持续 +1s / 级": "Duration +1 s / rank", "挥速 +8% / 级": "Swing speed +8% / rank", "攻速 +8% / 级": "Attack speed +8% / rank", "暴击 +5% / 级": "Crit +5% / rank", "波及范围 +15% / 级": "Reach +15% / rank", "爆裂范围 +15% / 级": "Blast radius +15% / rank", "眩晕 +1s / 级": "Stun +1 s / rank", "穿透 +1 / 级": "Pierce +1 / rank", "突进留下伤敌残影": "The lunge leaves a damaging afterimage", "范围 +15% / 级": "Area +15% / rank", "蓄满时有几率引雷": "At full charge, may call lightning", "血战伤害 +12% / 级": "Frenzy damage +12% / rank", "震地有几率引发连锁震击": "Slams may chain a second quake", "震开伤害 +12% / 级": "Shockwave damage +12% / rank", "震开范围 +15% / 级": "Shockwave radius +15% / rank", "鞭速 +8% / 级": "Lash speed +8% / rank", "鼓波命中有几率震出余波": "Drum hits may ripple an aftershock", "鼓速 +8% / 级": "Beat speed +8% / rank"};
+const N=(fx,zh,en,max,tier,d)=>({fx,zh,en,max,tier,d,de:NODE_EN[d]||d});
 const TREES={
   great:[N('dmg','沉重','Heft',3,1,'伤害 +12% / 级'),N('size','阔刃','Broad Blade',3,1,'范围 +15% / 级'),N('cd','挥洒','Fluid Swing',3,2,'挥速 +8% / 级'),N('knock','崩山','Avalanche',2,2,'击退 +50% / 级'),N('crit','断金','Steel Breaker',2,3,'暴击 +5% / 级'),N('chain','地裂','Fissure',2,3,'震地有几率引发连锁震击')],
   whisk:[N('dmg','拂劲','Lash Force',3,1,'伤害 +12% / 级'),N('cd','疾鞭','Quick Lash',3,1,'鞭速 +8% / 级'),N('size','长拂','Long Reach',2,2,'射程 +15% / 级'),N('count','牵丝','Silk Threads',2,2,'+1 牵连目标 / 级'),N('crit','点穴','Pressure Point',2,3,'暴击 +5% / 级'),N('chain','雷拂','Thunder Whisk',2,3,'蓄满时有几率引雷')],

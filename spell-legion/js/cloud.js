@@ -8,7 +8,7 @@ const CLOUD={ready:false,user:null,db:null,auth:null,status:'off',pushT:0,lastPu
   on(){return this.ready&&!!this.user},
   uid(){return this.user?this.user.uid:null},
   isGuest(){return !!(this.user&&this.user.isAnonymous)},
-  label(){if(!this.ready)return this.status==='loading'?'连接中… connecting':'离线 offline';if(!this.user)return '未登录';return this.isGuest()?'游客 Guest':(this.user.displayName||this.user.email||'已登录')},
+  label(){if(!this.ready)return this.status==='loading'?L('连接中…','connecting…'):L('离线','offline');if(!this.user)return L('未登录','not signed in');return this.isGuest()?L('游客','Guest'):(this.user.displayName||this.user.email||L('已登录','signed in'))},
 };
 function loadScript(src){return new Promise((res,rej)=>{const s=document.createElement('script');s.src=src;s.async=true;s.onload=res;s.onerror=()=>rej(new Error('load '+src));document.head.appendChild(s)})}
 async function cloudInit(){
@@ -61,22 +61,23 @@ async function cloudPush(now){
 function cloudSchedulePush(){if(!CLOUD.on())return;clearTimeout(CLOUD.pushT);CLOUD.pushT=setTimeout(()=>cloudPush(false),2500)}
 /* ---- Google sign-in: link the guest account so nothing is lost; if the Google account already has a save, merge into it ---- */
 async function cloudGoogle(){
-  if(!CLOUD.ready)return showMsg('无法连接账号服务 · Account service unreachable');
+  if(!CLOUD.ready)return showMsg(L('无法连接账号服务','Account service unreachable'));
   const prov=new firebase.auth.GoogleAuthProvider();
   try{
     if(CLOUD.user&&CLOUD.user.isAnonymous){
       try{await CLOUD.user.linkWithPopup(prov)}
       catch(e){if(e.code==='auth/credential-already-in-use'){const local=JSON.parse(JSON.stringify(SAVE));await CLOUD.auth.signInWithCredential(e.credential);Object.assign(SAVE,local);SAVE.ts=Date.now()}else throw e}
     }else await CLOUD.auth.signInWithPopup(prov);
-    showMsg('已登录 Google · Signed in');
-  }catch(e){console.warn(e);showMsg('登录未完成 · Sign-in not completed')}
+    showMsg(L('已登录 Google','Signed in with Google'));
+  }catch(e){console.warn(e);showMsg(L('登录未完成','Sign-in not completed'))}
 }
-async function cloudSignOut(){if(!CLOUD.ready)return;try{await CLOUD.auth.signOut()}catch(_){}showMsg('已退出,继续以游客身份游玩 · Signed out, playing as guest')}
+async function cloudSignOut(){if(!CLOUD.ready)return;try{await CLOUD.auth.signOut()}catch(_){}showMsg(L('已退出,继续以游客身份游玩','Signed out; playing as guest'))}
 function showMsg(t){const el=$('#accmsg');if(el){el.textContent=t;setTimeout(()=>{if(el.textContent===t)el.textContent=''},5000)}}
 function renderAccount(){
+  if(typeof renderStatus==='function')renderStatus();
   const el=$('#account');if(!el)return;
   const guest=!CLOUD.on()||CLOUD.isGuest();
-  el.innerHTML=`<span class="who"><i class="dot ${CLOUD.on()?'on':''}"></i>${CLOUD.label()}</span>${CLOUD.ready?(guest?`<button type="button" class="go sm" id="googlebtn">Google 登录 Sign in</button>`:`<button type="button" class="go sm alt" id="signoutbtn">退出 Sign out</button>`):''}<small>${CLOUD.on()?(guest?'游客进度已自动云端保存在此设备账号;登录 Google 可跨设备同步 · Guest progress is cloud-saved for this device; sign in to sync across devices':'进度已跨设备同步 · Progress syncs across your devices'):'账号服务不可用,进度保存在本机 · Account service unreachable; progress stays on this device'}</small><span id="accmsg" class="note"></span>`;
+  el.innerHTML=`<span class="who"><i class="dot ${CLOUD.on()?'on':''}"></i>${CLOUD.label()}</span>${CLOUD.ready?(guest?`<button type="button" class="go sm" id="googlebtn">${L('Google 登录','Sign in with Google')}</button>`:`<button type="button" class="go sm alt" id="signoutbtn">${L('退出','Sign out')}</button>`):''}<small>${CLOUD.on()?(guest?L('游客进度已云端保存在此设备;登录 Google 可跨设备同步','Guest progress is cloud-saved for this device; sign in to sync across devices'):L('进度已跨设备同步','Progress syncs across your devices')):L('账号服务不可用,进度保存在本机','Account service unreachable; progress stays on this device')}</small><span id="accmsg" class="note"></span>`;
   const g=$('#googlebtn');if(g)g.onclick=cloudGoogle;const so=$('#signoutbtn');if(so)so.onclick=cloudSignOut;
 }
 /* ---- leaderboard on Firestore ---- */

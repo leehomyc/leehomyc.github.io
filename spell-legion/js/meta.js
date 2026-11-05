@@ -53,7 +53,7 @@ function metaAfterRun(){
 /* lobby rendering */
 function renderMeta(){
   const el=$('#meta');if(!el)return;const a=accountLv(),t=titleFor(a.lv),list=todayTasks(),st=SAVE.streak&&SAVE.streak.last>=dayKey()-1?SAVE.streak.n:0;
-  const tasks=list.map(task=>{const tx=taskText(task),g=TASK_GOLD[task.tier];return `<div class="task${task.done?' done':''}"><span class="ck">${task.done?'✓':'○'}</span><div><b>${tx.zh}</b><small>${tx.en}</small><i><em style="width:${Math.min(100,(task.p||0)/task.goal*100)}%"></em></i></div><span class="rw">${task.done?'已领 '+g:(task.p||0)+'/'+task.goal+' · +'+g+' 金'}</span></div>`}).join('');
-  el.innerHTML=`<div class="acc"><div class="lvl"><b>${a.lv}</b><small>江湖等级</small></div><div class="ti"><b>${t[1]} <small>${t[2]}</small></b><i><em style="width:${a.x/a.need*100}%"></em></i><small>${a.x} / ${a.need} 江湖经验 · 每局必得 · XP every run</small></div><div class="stk"><b>${st}</b><small>连续天数 streak</small><small>再 ${7-(st%7)} 天宝箱 +800 金</small></div></div>
-  <h2><span>每日任务 Daily tasks</span><b>${list.filter(x=>x.done).length}/3</b></h2><div class="tasks">${tasks}</div>`;
+  const tasks=list.map(task=>{const tx=taskText(task),g=TASK_GOLD[task.tier];return `<div class="task${task.done?' done':''}"><span class="ck">${task.done?'✓':'○'}</span><div><b>${L(tx.zh,tx.en)}</b><i><em style="width:${Math.min(100,(task.p||0)/task.goal*100)}%"></em></i></div><span class="rw">${task.done?L('已领 ','claimed ')+g:(task.p||0)+'/'+task.goal+' · +'+g+' '+L('金','gold')}</span></div>`}).join('');
+  el.innerHTML=`<div class="acc"><div class="lvl"><b>${a.lv}</b><small>${L('江湖等级','Rank')}</small></div><div class="ti"><b>${L(t[1],t[2])}</b><i><em style="width:${a.x/a.need*100}%"></em></i><small>${a.x} / ${a.need} ${L('江湖经验 · 每局必得','renown · earned every run')}</small></div><div class="stk"><b>${st}</b><small>${L('连续天数','day streak')}</small><small>${L(`再 ${7-(st%7)} 天宝箱 +800 金`,`chest +800 gold in ${7-(st%7)} days`)}</small></div></div>
+  <h2><span>${L('每日任务','Daily tasks')}</span><b>${list.filter(x=>x.done).length}/3</b></h2><div class="tasks">${tasks}</div>`;
 }

@@ -22,24 +22,24 @@ const LB={
     return r.json();
   },
 };
-const clsZh=k=>(CLASSES[k]||{}).zh||k,mapZh=k=>(MAPS[k]||{}).zh||k,diffZh=k=>(DIFF[k]||{}).zh||k;
+const clsZh=k=>CLASSES[k]?LL(CLASSES[k]):k,mapZh=k=>MAPS[k]?LL(MAPS[k]):k,diffZh=k=>DIFF[k]?LL(DIFF[k]):k;
 function renderBoard(el,data,opts={}){
   el.textContent='';
-  if(!data||!data.ok){el.innerHTML='<p class="lbnote">排行榜暂时无法加载。 Leaderboard unavailable right now.</p>';return}
-  if(!data.rows.length){el.innerHTML='<p class="lbnote">还没有记录,来做第一个。 No runs yet; be the first.</p>';return}
+  if(!data||!data.ok){el.innerHTML=`<p class="lbnote">${L('排行榜暂时无法加载。','Leaderboard unavailable right now.')}</p>`;return}
+  if(!data.rows.length){el.innerHTML=`<p class="lbnote">${L('还没有记录,来做第一个。','No runs yet; be the first.')}</p>`;return}
   const t=document.createElement('table');t.className='lbt';
-  t.innerHTML='<thead><tr><th>#</th><th>侠客 Hero</th><th>存活 Time</th><th>首领</th><th>击杀</th><th>连斩</th><th>地图 · 难度</th></tr></thead>';
+  t.innerHTML=`<thead><tr><th>#</th><th>${L('侠客','Hero')}</th><th>${L('存活','Time')}</th><th>${L('首领','Bosses')}</th><th>${L('击杀','Kills')}</th><th>${L('连斩','Streak')}</th><th>${L('地图 · 难度','Map · difficulty')}</th></tr></thead>`;
   const tb=document.createElement('tbody');
   data.rows.forEach((r,i)=>{const tr=document.createElement('tr');if((opts.uid&&r.uid===opts.uid)||(!opts.uid&&opts.me&&r.name===opts.me))tr.className='me';
-    const cells=[String(i+1),'',fmt(r.time),String(r.bosses),String(r.kills),'×'+r.combo,`${mapZh(r.map)} · ${diffZh(r.diff)}${r.mode&&r.mode!=='solo'?' · '+(r.mode==='pk'?'对决':'每日'):''}`];
+    const cells=[String(i+1),'',fmt(r.time),String(r.bosses),String(r.kills),'×'+r.combo,`${mapZh(r.map)} · ${diffZh(r.diff)}${r.mode&&r.mode!=='solo'?' · '+(r.mode==='pk'?L('对决','PK'):L('每日','daily')):''}`];
     cells.forEach((v,j)=>{const td=document.createElement('td');if(j===1){const b=document.createElement('b');b.textContent=r.name;const s=document.createElement('small');s.textContent=' '+clsZh(r.cls);td.appendChild(b);td.appendChild(s)}else td.textContent=v;tr.appendChild(td)});
     tb.appendChild(tr)});
   t.appendChild(tb);el.appendChild(t);
-  if(data.myRank){const p=document.createElement('p');p.className='lbnote';p.textContent=`你的最佳排名 Your best rank: #${data.myRank} / ${data.count}`;el.appendChild(p)}
+  if(data.myRank){const p=document.createElement('p');p.className='lbnote';p.textContent=L(`你的最佳排名:#${data.myRank} / ${data.count}`,`Your best rank: #${data.myRank} / ${data.count}`);el.appendChild(p)}
 }
 let lbBoard='all';
 async function openLeaderboard(){
-  const ov=$('#lb');ov.hidden=false;$('#lbbody').innerHTML='<p class="lbnote">载入中… Loading…</p>';
+  const ov=$('#lb');ov.hidden=false;$('#lbbody').innerHTML=`<p class="lbnote">${L('载入中…','Loading…')}</p>`;
   document.querySelectorAll('#lbtabs button').forEach(b=>b.classList.toggle('on',b.dataset.b===lbBoard));
   try{const d=await LB.fetch(lbBoard);renderBoard($('#lbbody'),d,{me:LB.name(),uid:LB.cloud()?CLOUD.uid():null})}catch(e){renderBoard($('#lbbody'),null)}
 }
@@ -53,14 +53,14 @@ async function submitRun(container){
   if(!LB.enabled())return;
   const box=document.createElement('div');box.className='lbsubmit';
   const saved=LB.name();
-  box.innerHTML=`<label>江湖名号 Name <input id="lbname" maxlength="16" placeholder="无名侠客" value=""></label><button type="button" class="go sm" id="lbsend">上榜 Submit score</button><span id="lbmsg"></span>`;
+  box.innerHTML=`<label>${L('江湖名号','Name')} <input id="lbname" maxlength="16" placeholder="${L('无名侠客','Nameless')}" value=""></label><button type="button" class="go sm" id="lbsend">${L('上榜','Submit score')}</button><span id="lbmsg"></span>`;
   container.appendChild(box);
   const inp=$('#lbname');inp.value=saved;
   $('#lbsend').onclick=async()=>{
-    const name=(inp.value||'').trim().slice(0,16)||'无名侠客';LB.setName(name);$('#lbsend').disabled=true;$('#lbmsg').textContent='提交中… Sending…';
+    const name=(inp.value||'').trim().slice(0,16)||L('无名侠客','Nameless');LB.setName(name);$('#lbsend').disabled=true;$('#lbmsg').textContent=L('提交中…','Sending…');
     try{const r=await LB.submit({name,cls:G.cls,map:MAPID,diff:DIFFID,mode:SAVE.mode||'solo',score:G.score||0,time:Math.round(G.t),kills:G.kills,bosses:G.bossSlain,level:G.lv,combo:G.comboMax,relics:G.relics.length});
-      if(r.ok){$('#lbmsg').textContent='已上榜! On the board.';const d=await LB.fetch('all');const el=document.createElement('div');el.className='lbinline';renderBoard(el,d,{me:name});box.appendChild(el)}
-      else{$('#lbmsg').textContent=r.error==='rate'?'请稍后再试。 Try again in a moment.':'未能提交。 Not accepted.';$('#lbsend').disabled=false}}
-    catch(e){$('#lbmsg').textContent='网络错误。 Network error.';$('#lbsend').disabled=false}
+      if(r.ok){$('#lbmsg').textContent=L('已上榜!','On the board.');const d=await LB.fetch('all');const el=document.createElement('div');el.className='lbinline';renderBoard(el,d,{me:name});box.appendChild(el)}
+      else{$('#lbmsg').textContent=r.error==='rate'?L('请稍后再试。','Try again in a moment.'):L('未能提交。','Not accepted.');$('#lbsend').disabled=false}}
+    catch(e){$('#lbmsg').textContent=L('网络错误。','Network error.');$('#lbsend').disabled=false}
   };
 }

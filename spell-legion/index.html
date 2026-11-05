@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="zh-Hans">
+<html lang="zh">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
@@ -23,29 +23,29 @@
     <div class="top">
       <div id="xpbar"><div id="xp"></div></div>
       <div class="row">
-        <div class="lft"><b id="lv">Lv 1</b><button id="charbtn" aria-label="Character">角色 C<span id="ptsbadge" hidden></span></button><span id="cores"></span><div id="relics"></div></div>
+        <div class="lft"><b id="lv">Lv 1</b><button id="charbtn" aria-label="Character"><span class="zh">角色 C</span><span class="en">Hero C</span><span id="ptsbadge" hidden></span></button><span id="cores"></span><div id="relics"></div></div>
         <div class="tm"><b id="timer">0:00</b><span id="nextboss"></span></div>
         <div class="rgt"><span id="kills">0</span><button id="pausebtn" aria-label="Pause">II</button></div>
       </div>
       <div id="bossbar" hidden><span id="bossname">血魔教主 · Blood Demon Patriarch</span><div id="bosshp"><i></i></div></div>
-      <div id="score" hidden><span>你 <b id="s-you">0</b></span><div id="s-bar"><i></i></div><span><b id="s-riv">0</b> <span id="s-rname"></span></span></div>
+      <div id="score" hidden><span><span class="zh">你</span><span class="en">You</span> <b id="s-you">0</b></span><div id="s-bar"><i></i></div><span><b id="s-riv">0</b> <span id="s-rname"></span></span></div>
       <div id="obj" hidden></div>
       <div id="buff" hidden></div>
     </div>
     <div class="bottom">
-      <div class="globe hp"><div class="fill" id="hpfill"></div><div class="gloss"></div><div class="num" id="hpnum"></div><div class="lab">生命</div></div>
+      <div class="globe hp"><div class="fill" id="hpfill"></div><div class="gloss"></div><div class="num" id="hpnum"></div><div class="lab"><span class="zh">生命</span><span class="en">HP</span></div></div>
       <div id="seals"></div>
-      <div class="globe mp"><div class="fill" id="mpfill"></div><div class="gloss"></div><div class="num" id="mpnum"></div><div class="lab">内力</div></div>
+      <div class="globe mp"><div class="fill" id="mpfill"></div><div class="gloss"></div><div class="num" id="mpnum"></div><div class="lab"><span class="zh">内力</span><span class="en">Qi</span></div></div>
     </div>
   </div>
   <div id="banner"></div><div id="tip"></div>
   <div id="intro" hidden></div>
   <button id="sndbtn" aria-label="Mute / unmute" title="静音 / 开启 Mute / unmute">🔊</button>
   <div id="sndpanel" hidden>
-    <label>音乐 Music <input type="range" id="musicvol" min="0" max="100" value="60"></label>
-    <label>音效 Effects <input type="range" id="sfxvol" min="0" max="100" value="80"></label>
-    <label class="chk"><input type="checkbox" id="snd-mute"> 静音 Mute (M)</label>
-    <button type="button" id="sndclose">关闭 Close</button>
+    <label><span class="zh">音乐</span><span class="en">Music</span> <input type="range" id="musicvol" min="0" max="100" value="60"></label>
+    <label><span class="zh">音效</span><span class="en">Effects</span> <input type="range" id="sfxvol" min="0" max="100" value="80"></label>
+    <label class="chk"><input type="checkbox" id="snd-mute"> <span class="zh">静音</span><span class="en">Mute</span> (M)</label>
+    <button type="button" id="sndclose"><span class="zh">关闭</span><span class="en">Close</span></button>
   </div>
 
   <div id="title" class="overlay">
@@ -53,35 +53,36 @@
       <div class="vname">魔咒军团</div>
       <div class="ttb">
         <h1>Spell Legion</h1>
-        <p>无尽江湖。选一位侠客出山,普攻自动施展,武学按 <kbd>1</kbd><kbd>2</kbd><kbd>3</kbd> 释放(消耗内力、有冷却),<kbd>Space</kbd> 轻功闪避。敌人越来越强,每四分钟一位首领,能撑多久?<br>
-        Endless mode. Your normal attack fires by itself; cast skills with 1/2/3. Enemies keep growing stronger and a new boss arrives every four minutes. How long can you last?</p>
+        <div class="langrow"><button type="button" class="langbtn" data-l="zh">中文</button><button type="button" class="langbtn" data-l="en">English</button><span class="status" id="status"></span></div>
+        <p class="tag"><span class="zh">选一位侠客出山。普攻自动,武学按 <kbd>1</kbd><kbd>2</kbd><kbd>3</kbd>,<kbd>Space</kbd> 轻功。每四分钟一位首领,能撑多久?</span><span class="en">Pick a hero. Normal attack is automatic; <kbd>1</kbd><kbd>2</kbd><kbd>3</kbd> cast skills, <kbd>Space</kbd> dashes. A boss every four minutes — how long can you last?</span></p>
         <div id="classes"></div><div id="weapons"></div>
-        <div class="btns"><button class="go" id="startbtn">出山 Start</button><button class="go alt" id="lbbtn" hidden>排行榜 Leaderboard</button></div>
-        <p class="note"><span id="autonote"></span> <kbd>WASD</kbd> / arrows or drag to move · <kbd>Space</kbd> dash · <kbd>P</kbd> pause (auto-cast toggle there) · <kbd>M</kbd> mute. <span id="loadnote"></span></p>
-        <div class="opts"><div id="mode"><span>模式 Mode</span><button type="button" data-m="solo">单人 Solo</button><button type="button" data-m="pk">对决 PK vs AI</button><button type="button" data-m="daily">每日挑战 Daily</button></div><div id="diff"><span>难度 Difficulty</span><button type="button" data-d="easy">简单 Easy</button><button type="button" data-d="normal">普通 Normal</button><button type="button" data-d="hard">困难 Hard</button></div><div id="qual"><span>画质 Quality</span><button type="button" data-q="low">低 Low</button><button type="button" data-q="med">中 Med</button><button type="button" data-q="high">高 High</button></div></div>
-        <p class="note" id="modenote"></p><div id="maps"></div>
+        <div class="startrow"><button class="go big" id="startbtn"><span class="zh">出山</span><span class="en">Start</span></button><div id="mode"><button type="button" data-m="solo"><span class="zh">单人</span><span class="en">Solo</span></button><button type="button" data-m="pk"><span class="zh">对决 · AI</span><span class="en">PK vs AI</span></button><button type="button" data-m="daily"><span class="zh">每日挑战</span><span class="en">Daily</span></button></div></div>
+        <p class="note" id="modenote"></p><span id="autonote" hidden></span><span id="loadnote" class="note"></span>
+        <div class="tabbar"><button type="button" data-t="shop"><span class="zh">山门</span><span class="en">Upgrades</span> <b id="gold">0</b></button><button type="button" data-t="tasks"><span class="zh">任务</span><span class="en">Tasks</span></button><button type="button" data-t="ach"><span class="zh">成就</span><span class="en">Achievements</span> <b id="achcount">0/0</b></button><button type="button" id="lbbtn" hidden><span class="zh">排行榜</span><span class="en">Leaderboard</span></button><button type="button" data-t="settings"><span class="zh">设置</span><span class="en">Settings</span></button></div>
         <div class="lobby">
-          <div id="account"></div>
-          <div id="meta"></div>
-          <h2><span>山门 · 永久强化 Lobby upgrades</span><b id="gold">0</b></h2>
-          <div id="shop"></div>
-          <div id="record"></div>
-          <div id="savebox"><button type="button" class="go sm alt" id="exportbtn">导出存档码 Export save</button><button type="button" class="go sm alt" id="importbtn">导入存档码 Import save</button><span class="note">存档(金币、解锁、纪录)保存在这台设备的浏览器里,没有账号;用存档码可搬到别的设备。 Progress lives in this browser; use a save code to move it.</span><div id="savepanel" hidden><textarea id="savecode" rows="3" spellcheck="false"></textarea><div class="btns"><button type="button" class="go sm" id="saveapply">应用 Apply</button><button type="button" class="go sm alt" id="saveclose">关闭 Close</button></div><span id="savemsg" class="note"></span></div></div>
-          <h2 style="margin-top:6px"><span>成就 · 解锁 Achievements</span><b id="achcount">0/0</b></h2>
-          <div id="ach"></div>
+          <div class="panel" data-p="shop"><h2><span><span class="zh">山门 · 永久强化</span><span class="en">Permanent upgrades</span></span></h2><div id="shop"></div><div id="record"></div></div>
+          <div class="panel" data-p="tasks"><div id="meta"></div></div>
+          <div class="panel" data-p="ach"><div id="ach"></div></div>
+          <div class="panel" data-p="settings">
+            <div class="opts"><div id="diff"><span><span class="zh">难度</span><span class="en">Difficulty</span></span><button type="button" data-d="easy"><span class="zh">简单</span><span class="en">Easy</span></button><button type="button" data-d="normal"><span class="zh">普通</span><span class="en">Normal</span></button><button type="button" data-d="hard"><span class="zh">困难</span><span class="en">Hard</span></button></div><div id="qual"><span><span class="zh">画质</span><span class="en">Quality</span></span><button type="button" data-q="low"><span class="zh">低</span><span class="en">Low</span></button><button type="button" data-q="med"><span class="zh">中</span><span class="en">Medium</span></button><button type="button" data-q="high"><span class="zh">高</span><span class="en">High</span></button></div></div>
+            <div id="maps"></div>
+            <p class="note"><span class="zh"><kbd>WASD</kbd> / 方向键 / 拖动 移动 · <kbd>Space</kbd> 轻功 · <kbd>P</kbd> 暂停 · <kbd>M</kbd> 静音 · 右键或底部「自/手」切换自动施放</span><span class="en"><kbd>WASD</kbd> / arrows / drag to move · <kbd>Space</kbd> dash · <kbd>P</kbd> pause · <kbd>M</kbd> mute · right-click or the 自/手 seal toggles auto-cast</span></p>
+            <div id="account"></div>
+            <div id="savebox"><button type="button" class="go sm alt" id="exportbtn"><span class="zh">导出存档码</span><span class="en">Export save code</span></button><button type="button" class="go sm alt" id="importbtn"><span class="zh">导入存档码</span><span class="en">Import save code</span></button><span class="note"><span class="zh">存档码可把进度搬到另一台设备(登录 Google 后会自动同步)。</span><span class="en">A save code moves progress to another device (signing in with Google syncs it automatically).</span></span><div id="savepanel" hidden><textarea id="savecode" rows="3" spellcheck="false"></textarea><div class="btns"><button type="button" class="go sm" id="saveapply"><span class="zh">应用</span><span class="en">Apply</span></button><button type="button" class="go sm alt" id="saveclose"><span class="zh">关闭</span><span class="en">Close</span></button></div><span id="savemsg" class="note"></span></div></div>
+          </div>
         </div>
-        <button class="go alt" id="exitbtn" hidden>退出 Quit</button>
+        <button class="go alt" id="exitbtn" hidden><span class="zh">退出</span><span class="en">Quit</span></button>
       </div>
     </div>
   </div>
-  <div id="cards" class="overlay" hidden><h2 id="cardtitle"></h2><div id="build"></div><div id="cardrow"></div><button type="button" class="go alt" id="reroll" hidden>重抽 Reroll</button></div>
-  <div id="pause" class="overlay" hidden><div class="pbox"><h2>暂停</h2><button class="go" id="resumebtn">继续 Resume</button><button class="go alt" id="autobtn">武学:自动施放</button><button class="go alt" id="mutebtn">声音 Sound</button><button class="go alt" id="quitbtn">放弃本局 Abandon run</button><p>1/2/3 skills · Space dash · P resume · M mute</p></div></div>
+  <div id="cards" class="overlay" hidden><h2 id="cardtitle"></h2><div id="build"></div><div id="cardrow"></div><button type="button" class="go alt" id="reroll" hidden><span class="zh">重抽</span><span class="en">Reroll</span></button></div>
+  <div id="pause" class="overlay" hidden><div class="pbox"><h2><span class="zh">暂停</span><span class="en">Paused</span></h2><button class="go" id="resumebtn"><span class="zh">继续</span><span class="en">Resume</span></button><button class="go alt" id="autobtn"></button><button class="go alt" id="mutebtn"></button><button class="go alt" id="quitbtn"><span class="zh">放弃本局</span><span class="en">Abandon run</span></button><p><span class="zh">1/2/3 武学 · Space 轻功 · P 继续 · M 静音</span><span class="en">1/2/3 skills · Space dash · P resume · M mute</span></p></div></div>
   <div id="char" class="overlay" hidden><div class="cbox">
-    <div class="ch"><h2>角色 <small>Character</small></h2><div class="pts"><span>已学武学树节点 Tree upgrades taken <b id="sp">0</b></span></div><button type="button" id="charclose">关闭 C</button></div>
-    <div class="tabs"><button type="button" id="tab-tree" class="on">武学树 Skill Trees</button><button type="button" id="tab-attr">属性 Stats</button></div>
+    <div class="ch"><h2><span class="zh">角色</span><span class="en">Hero</span></h2><div class="pts"><span><span class="zh">已学武学树节点</span><span class="en">Tree upgrades taken</span> <b id="sp">0</b></span></div><button type="button" id="charclose"><span class="zh">关闭 C</span><span class="en">Close C</span></button></div>
+    <div class="tabs"><button type="button" id="tab-tree" class="on"><span class="zh">武学树</span><span class="en">Skill trees</span></button><button type="button" id="tab-attr"><span class="zh">属性</span><span class="en">Stats</span></button></div>
     <div id="trees"></div><div id="attrs" hidden></div>
   </div></div>
-  <div id="lb" class="overlay" hidden><div class="cbox"><div class="ch"><h2>排行榜 <small>Leaderboard · longest survival</small></h2><div class="tabs" id="lbtabs"><button type="button" data-b="all" class="on">总榜 All time</button><button type="button" data-b="today">今日 Today</button></div><button type="button" id="lbclose">关闭 Close</button></div><div id="lbbody"></div></div></div>
+  <div id="lb" class="overlay" hidden><div class="cbox"><div class="ch"><h2><span class="zh">排行榜</span><span class="en">Leaderboard</span> <small><span class="zh">最长存活</span><span class="en">longest survival</span></small></h2><div class="tabs" id="lbtabs"><button type="button" data-b="all" class="on"><span class="zh">总榜</span><span class="en">All time</span></button><button type="button" data-b="today"><span class="zh">今日</span><span class="en">Today</span></button></div><button type="button" id="lbclose"><span class="zh">关闭</span><span class="en">Close</span></button></div><div id="lbbody"></div></div></div>
   <div id="end" class="overlay" hidden><div class="endb" id="endb"></div></div>
 </div>
 <script src="js/core.js"></script>
