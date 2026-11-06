@@ -69,7 +69,7 @@ const FUS={
   'dark+ice':['玄冰','Abyssal Ice','减速的敌人死亡时冻结周围。','Slowed enemies freeze neighbours when they die.'],
   'acid+lightning':['雷毒','Thunder Venom','毒雾会放出电弧。','Mist discharges arcs.'],
   'dark+lightning':['幽雷','Nether Thunder','电弧击杀必定回血。','Arc kills always heal you.'],
-  'acid+dark':['瘟疫','Plague','中毒的敌人死亡时留下毒雾。','Poisoned enemies leave mist when they die.'],
+  'acid+dark':['尸毒','Corpse Venom','中毒的敌人死亡时留下毒雾。','Poisoned enemies leave mist when they die.'],
 };
 const fusKey=(a,b)=>[a,b].sort().join('+');
 const AUGS={

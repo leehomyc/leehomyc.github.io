@@ -682,3 +682,6 @@ body.picking #tip,body.picking #side{display:none}
 body.touchhud #pause .pbox>p{display:none}
 .langbtn{white-space:nowrap}
 #hero{grid-template-columns:minmax(0,1fr)}#hero>*{min-width:0}#hero .hhead{min-width:0;max-width:100%}
+
+#bossheal[hidden]{display:none}
+#coretm{font-size:11px;color:#9fe3f0;margin-left:4px;font-weight:700}#coretm[hidden]{display:none}
