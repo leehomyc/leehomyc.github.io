@@ -169,10 +169,13 @@ function renderPanel(){
     d.innerHTML=`<span>${L('生命','HP')} <b>${Math.ceil(P.hp)}/${P.maxHp}</b></span><span>${L('内力','Qi')} <b>${Math.floor(P.mana)}/${P.maxMana}</b> (+${(P.regen).toFixed(1)}/s)</span><span>${L('伤害','Damage')} <b>×${(P.dmg*(1+P.dmgBonus)).toFixed(2)}</b></span><span>${L('暴击','Crit')} <b>${Math.round(P.crit*100)}%</b></span><span>${L('移速','Speed')} <b>×${P.spd.toFixed(2)}</b></span><span>${L('减伤','Mitigation')} <b>${Math.round((1-P.def)*100)}%</b></span>`;A.appendChild(d);
   }else{T.textContent='';
     G.spells.forEach((s,si)=>{const m=SPELLS[s.id],col=document.createElement('div');col.className='tree';col.style.setProperty('--c',m.col);
-      col.innerHTML=`<div class="th"><span class="g">${m.g}</span><div><b>${LL(m)}</b><small>Lv ${s.lv} · ${s.pts} ${L('点','pts')}</small></div></div>`;
-      (TREES[s.id]||[]).forEach((n,i)=>{const r=s.nodes[i]||0,need=n.tier===1?0:n.tier===2?2:4,locked=s.pts<need;
-        const b=document.createElement('div');b.className='node t'+n.tier+(r>=n.max?' max':'')+(locked?' locked':'')+(r>0?' has':'');
-        b.innerHTML=`${ICON.node(n.fx,SPELLS[s.id].col,'sm')}<span class="nn">${LL(n)}</span><span class="nd">${L(n.d,n.de)}</span><span class="nr">${r}/${n.max}${locked?L(' · 需先学 '+need+' 项',' · needs '+need+' taken'):''}</span>`;col.appendChild(b)});
+      col.innerHTML=`<div class="th"><span class="g">${m.g}</span><div><b>${LL(m)}</b><small>Lv ${s.lv}</small></div></div>`;
+      const T0=TREES[s.id]||[];
+      for(const grp of ['trait','num']){const idx=T0.map((n,i)=>i).filter(i=>(grp==='trait')===isTrait(T0[i]));if(!idx.length)continue;
+        const h=document.createElement('small');h.className='tgrp';h.textContent=grp==='trait'?L('特性 · 升级时选卡获得,改变打法','Traits · picked from cards, change how it plays'):L(`数值 · 每 ${LV_PER_RANK} 级自动 +1`,`Numbers · +1 rank every ${LV_PER_RANK} levels, automatic`);col.appendChild(h);
+        idx.forEach(i=>{const n=T0[i],r=s.nodes[i]||0,locked=!nodeOpen(s,i)&&r<n.max,trait=grp==='trait',need=trait?(n.tier===1?1:n.tier===2?4:10):0;
+          const b=document.createElement('div');b.className='node t'+n.tier+(r>=n.max?' max':'')+(locked&&trait?' locked':'')+(r>0?' has':'')+(trait?' trait':' num');
+          b.innerHTML=`${ICON.node(n.fx,SPELLS[s.id].col,'sm')}<span class="nn">${LL(n)}</span><span class="nd">${L(n.d,n.de)}</span><span class="nr">${r}/${n.max}${locked&&trait&&s.lv<need?L(` · Lv ${need} 开放`,` · opens at Lv ${need}`):''}</span>`;col.appendChild(b)})}
       T.appendChild(col)});
   }
 }
@@ -298,7 +301,7 @@ function startRun(){tipT=0;{const sd=$('#side');if(sd)sd.hidden=false}const _tp=
   $('#title').hidden=true;$('#intro').hidden=true;$('#end').hidden=true;$('#cards').hidden=true;$('#hud').hidden=false;$('#bossbar').hidden=true;$('#pause').hidden=true;$('#char').hidden=true;
   $('#banner').classList.remove('on');$('#pausebtn').textContent='II';
   SAVE_FIRST=!SAVE.played;SAVE.played=true;persist();
-  newGame(false,CLASS);G.room=!!inRoom;if(!DAILY)applyUpgrades(G.P);G.day=dayKey();if(inRoom){const seat=ROOM.host?roomPlayerList().find(p=>p.ai):null;if(seat){mkRival(CLASS,seat);G.rivalSeat=seat.uid}else G.rivalSeat=null;ROOM.ended=false;ROOM.rewarded=false;roomSetMe({score:0,hp:1,lv:1,kills:0,alive:true,done:false,t:0,cls:CLASS});drawRoomBoard()}else{const rb=$('#roomboard');if(rb)rb.hidden=true}if(typeof codexSee==='function')codexSee('weapon',weaponOf(CLASS));G.quick=SAVE.mode==='qpk';
+  newGame(false,CLASS);G.room=!!inRoom;if(!DAILY)applyUpgrades(G.P);G.day=dayKey();if(inRoom){const seat=ROOM.host?roomPlayerList().find(p=>p.ai):null;if(seat){mkRival(CLASS,seat);G.rivalSeat=seat.uid}else G.rivalSeat=null;if(typeof arenaStart==='function'&&arenaStart())showBanner('同场对决:抢怪、抢首领','One arena: race them for every kill',2.2);ROOM.ended=false;ROOM.rewarded=false;roomSetMe({score:0,hp:1,lv:1,kills:0,alive:true,done:false,t:0,cls:CLASS});drawRoomBoard()}else{const rb=$('#roomboard');if(rb)rb.hidden=true}if(typeof codexSee==='function')codexSee('weapon',weaponOf(CLASS));G.quick=SAVE.mode==='qpk';
   if(!DAILY){G.P.dmgBonus+=masteryBonus(CLASS);if((SAVE.road||{})[300])G.rerolls++;if((SAVE.road||{})[1000]){G.cores++}}
   if(SAVE.mode==='solo'&&!inRoom){const ev=todayEvent();ev.apply();G.event=ev;showBanner(L('今日活动:','Event: ')+L(ev.zh,ev.en),'',2.4)}updateCores();drawSeals();drawRelics();
   showBanner(CLASSES[CLASS].zh+' 出山',CLASSES[CLASS].en+' sets out',2.2);

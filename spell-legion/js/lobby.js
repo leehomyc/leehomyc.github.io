@@ -36,7 +36,7 @@ function skillDetail(id){
   const m=SPELLS[id];if(!m)return '';const tree=TREES[id]||[],cat=CATS[SKILL_CAT[id]]||CATS.passive;
   const meta=m.auto?L('普攻 · 自动','Normal attack · automatic'):L(`${m.cost} 内力 · 冷却 ${m.cd}s${m.dur?` · 持续 ${m.dur}s`:''}`,`${m.cost} qi · ${m.cd}s cooldown${m.dur?` · ${m.dur}s`:''}`);
   const info=WEAPON_INFO[id];
-  return `<div class="sdh">${ICON.spell(id)}<div><b>${LL(m)} <span class="catd" style="--cc:${cat[2]}">${L(cat[0],cat[1])}</span></b><small>${meta}</small></div></div><p>${L(m.d,m.de)}</p>${info&&info.awake?`<p class="aw">${ICON.misc('awake','#ffd27a','sm')} <b>${L('觉醒 Lv '+AWAKE_LV,'Awakening at Lv '+AWAKE_LV)}</b> ${L(info.awake[0],info.awake[1])}</p>`:''}${tree.length?`<div class="tree compact"><small class="tl">${L('武学树','Skill tree')}</small>${tree.map(n=>`<span class="tn" title="${L(n.d,n.de)}">${ICON.node(n.fx,m.col,'sm')}<em>${L(n.zh,n.en)}</em></span>`).join('')}</div>`:''}`;
+  return `<div class="sdh">${ICON.spell(id)}<div><b>${LL(m)} <span class="catd" style="--cc:${cat[2]}">${L(cat[0],cat[1])}</span></b><small>${meta}</small></div></div><p>${L(m.d,m.de)}</p>${info&&info.awake?`<p class="aw">${ICON.misc('awake','#ffd27a','sm')} <b>${L('觉醒 Lv '+AWAKE_LV,'Awakening at Lv '+AWAKE_LV)}</b> ${L(info.awake[0],info.awake[1])}</p>`:''}${tree.some(isTrait)?`<div class="tree compact"><small class="tl">${L('特性','Traits')}</small>${tree.filter(isTrait).map(n=>`<span class="tn" title="${L(n.d,n.de)}">${ICON.node(n.fx,m.col,'sm')}<em>${L(n.zh,n.en)}</em><small>${L(n.d,n.de)}</small></span>`).join('')}</div>`:''}`;
 }
 function renderHero(){
   const C=CLASSES[SAVE.cls]||CLASSES.swordsman,cls=SAVE.cls;

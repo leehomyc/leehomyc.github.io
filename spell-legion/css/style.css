@@ -868,3 +868,6 @@ body.touchhud #pause .pbox>p{display:none}
 #asura .ic{width:16px;height:16px;vertical-align:-3px}#asura button:disabled{opacity:.4;cursor:not-allowed}
 #road .titles,#road .ranks,#road .tiers{display:none}
 #asura{overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}#asura::-webkit-scrollbar{display:none}#asura>span{white-space:nowrap;flex:none}#asura button{flex:none}
+
+#trees .tgrp{display:block;margin:8px 0 3px;font-size:11px;color:var(--dim);font-weight:700}#trees .node.num{opacity:.85}#trees .node.num .nr{color:var(--dim)}
+.tree.compact .tn small{display:block;font-size:10.5px;color:var(--dim);font-weight:400}

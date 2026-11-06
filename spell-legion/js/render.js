@@ -31,13 +31,13 @@ function setEnemy(e){
 }
 /* other players in a duel room: their hero walks the same arena from the position they sync (lerped between updates) */
 const ROOMH={};
-function roomHeroList(){if(typeof ROOM==='undefined'||!ROOM.code||!ROOM.playing||!G||!G.room)return [];const me=roomUid();return roomPlayerList().filter(p=>p.uid!==me&&p.uid!==G.rivalSeat&&p.x!=null&&p.alive!==false&&!p.done)}
+function roomHeroList(){if(typeof ROOM==='undefined'||!ROOM.code||!ROOM.playing||!G||!G.room)return [];if(G.shared&&typeof arenaHeroList==='function')return arenaHeroList();const me=roomUid();return roomPlayerList().filter(p=>p.uid!==me&&p.uid!==G.rivalSeat&&p.x!=null&&p.alive!==false&&!p.done)}
 function drawRoomHeroes(tm,rdt){
   const list=roomHeroList(),seen={};
   for(const p of list){seen[p.uid]=1;let r=ROOMH[p.uid];const cls=CLASSES[p.cls]?p.cls:'swordsman',weapon=SPELLS[p.weapon]?p.weapon:CLASSES[cls].main;
-    if(!r||r.h.cls!==cls||r.h.weapon!==weapon){if(r){scene.remove(r.h.g);scene.remove(r.h.sigil)}r=ROOMH[p.uid]={h:buildHeroModel(cls,'ghost',weapon),S:{x:p.x,y:p.y,lx:p.x,ly:p.y,yaw:0,yaw0:0,anim:0,cast:0,dash:0,vK:0,hp:1,maxHp:1},tx:p.x,ty:p.y,castT:0,p}}
+    if(!r||r.h.cls!==cls||r.h.weapon!==weapon){if(r){scene.remove(r.h.g);scene.remove(r.h.sigil)}r=ROOMH[p.uid]={h:buildHeroModel(cls,'ghost',weapon),S:{x:p.x,y:p.y,lx:p.x,ly:p.y,yaw:0,yaw0:0,anim:0,cast:0,dash:0,vK:0,hp:1,maxHp:1,spells:[],down:0,inv:0,shield:0,frenzy:0},tx:p.x,ty:p.y,castT:0,p}}
     r.p=p;if(p.x!==r.tx||p.y!==r.ty){r.tx=p.x;r.ty=p.y}
-    const S=r.S,k=Math.min(1,rdt*3.2);S.x+=(r.tx-S.x)*k;S.y+=(r.ty-S.y)*k;S.hp=Math.max(0,p.hp||0);
+    const S=r.S,k=Math.min(1,rdt*(G.shared?11:3.2));S.x+=(r.tx-S.x)*k;S.y+=(r.ty-S.y)*k;S.hp=Math.max(0,p.hp||0);
     r.castT-=rdt;if(r.castT<=0){r.castT=.8+Math.random()*1.6;S.cast=1}
     animHero(r.h,S,false,tm,rdt);
   }

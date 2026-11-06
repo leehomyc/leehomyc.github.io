@@ -85,19 +85,24 @@ function roomLeave(silent){
 function roomSetMe(patch){if(!ROOM.code)return;return netT().setPlayer(ROOM.code,roomUid(),patch)}
 function roomSetReady(v){roomSetMe({ready:!!v,cls:SAVE.cls,weapon:weaponOf(SAVE.cls),name:roomName()})}
 async function roomHostSet(patch){if(!ROOM.code||!ROOM.host)return;await netT().setRoom(ROOM.code,patch)}
-function roomPlayerList(){const now=Date.now();return Object.entries(ROOM.players).filter(([uid,p])=>p.ai||uid===roomUid()||now-(ROOM.lastSeen[uid]||now)<70000).map(([uid,p])=>({uid,...p})).sort((a,b)=>(a.joined||0)-(b.joined||0))}
+/* AI seats live in the room document (the host owns it), not in players/: the server only lets a player write their own player doc */
+function roomAIMap(){return (ROOM.data&&ROOM.data.ai)||{}}
+function aiPut(uid,patch){ROOM.aiPend=ROOM.aiPend||{};ROOM.aiPend[uid]=patch===null?null:{...(ROOM.aiPend[uid]||{}),...patch}}
+async function aiFlush(){if(!ROOM.code||!ROOM.host||!ROOM.aiPend)return;const cur=roomAIMap(),next={...cur};for(const u in ROOM.aiPend){const v=ROOM.aiPend[u];next[u]=v===null?null:{...(cur[u]||{}),...v}}ROOM.aiPend=null;if(ROOM.data)ROOM.data.ai=next;try{await roomHostSet({ai:next})}catch(e){console.warn('ai seats',e)}if(typeof renderRoom==='function')renderRoom()}
+function roomPlayerList(){const now=Date.now();const ai=Object.entries(roomAIMap()).filter(([u,v])=>v).map(([uid,p])=>({uid,...p,ai:true}));return Object.entries(ROOM.players).filter(([uid,p])=>p.ai||uid===roomUid()||now-(ROOM.lastSeen[uid]||now)<70000).map(([uid,p])=>({uid,...p})).concat(ai).sort((a,b)=>(a.joined||0)-(b.joined||0))}
 /* ---- AI seats: opponents the host adds; the host's client plays them as score bots calibrated to the host's league ---- */
 const AI_NAMES=[['无名剑客','Nameless Blade'],['黑衣客','Dark Robe'],['醉道人','Drunk Taoist'],['冷面僧','Stone Monk'],['夜游神','Night Walker'],['笑面狐','Smiling Fox'],['铁扇子','Iron Fan'],['小旋风','Little Whirlwind']];
 function roomAICount(){return roomPlayerList().filter(p=>p.ai).length}
 async function roomAddAI(){if(!ROOM.code||!ROOM.host)return;const ps=roomPlayerList();if(ps.length>=(ROOM.data.max||4))return;const n=roomAICount();const cls=pick(Object.keys(CLASSES)),nm=AI_NAMES[n%AI_NAMES.length];const li=typeof ladderIdx==='function'?ladderIdx(SAVE.trophies||0):0;
-  await netT().setPlayer(ROOM.code,'ai-'+n+'-'+Date.now().toString(36),{ai:true,name:L(nm[0],nm[1]),cls,weapon:weaponOf(cls),ready:true,score:0,hp:1,lv:1,kills:0,alive:true,done:false,t:0,joined:Date.now(),lvA:3+li*4,skill:clamp(.55+li*.12+Math.random()*.25,.4,1.6)})}
-async function roomRemoveAI(uid){if(!ROOM.code||!ROOM.host)return;await netT().removePlayer(ROOM.code,uid)}
+  aiPut('ai-'+n+'-'+Date.now().toString(36),{ai:true,name:L(nm[0],nm[1]),cls,weapon:weaponOf(cls),ready:true,score:0,hp:1,lv:1,kills:0,alive:true,done:false,t:0,joined:Date.now(),lvA:3+li*4,skill:clamp(.55+li*.12+Math.random()*.25,.4,1.6)});await aiFlush()}
+async function roomRemoveAI(uid){if(!ROOM.code||!ROOM.host)return;if(ROOM.players[uid])await netT().removePlayer(ROOM.code,uid);aiPut(uid,null);await aiFlush()}
 /* the host advances every AI seat once a second: a score curve that accelerates like a real build, a level that climbs, an HP line that dips and recovers, and in endless mode a fall at some point */
 function roomAITick(){if(!ROOM.host||!ROOM.data||!ROOM.playing)return;const d=ROOM.data,len=d.mode==='time'?d.len:600;const wall=Math.max(0,(Date.now()-((d.startedAt||Date.now())+(d.delay||0)))/1000),hostT=(G&&!G.auto&&G.room)?G.t:0;let t=Math.max(wall,hostT);if(G&&!G.auto&&G.room&&G.over&&d.mode==='time')t=Math.max(t,len); // AI seats follow the host's clock; when the host's run is over the AIs finish too
   for(const p of roomPlayerList()){if(!p.ai||p.done)continue;const k=p.skill||.8;
-    if(G&&!G.auto&&G.room&&G.rival&&G.rivalSeat===p.uid){const R=G.rival;const over=(d.mode==='time'&&t>=len)||!!G.over;netT().setPlayer(ROOM.code,p.uid,{score:R.score,lv:R.lv,hp:Math.max(0,R.hp/R.maxHp),kills:R.kills,alive:true,done:over,t:Math.round(Math.min(t,len)),bosses:R.bosses||0,x:Math.round(R.x),y:Math.round(R.y)});continue}const final=(520+280*k)*(len/180);const f=Math.min(1,t/len);let score=Math.round(final*Math.pow(f,1.55)*(1+Math.sin(t*.37+k*9)*.03));const lv=Math.max(1,Math.round(1+Math.sqrt(t)*(.9+k*.5)));const hp=clamp(.55+.45*Math.sin(t*.21+k*5)*Math.cos(t*.07),.12,1);const kills=Math.round(score/2.4);
+    if(G&&!G.auto&&G.room&&G.rival&&G.rivalSeat===p.uid){const R=G.rival;const over=(d.mode==='time'&&t>=len)||!!G.over;aiPut(p.uid,{score:R.score,lv:R.lv,hp:Math.max(0,R.hp/R.maxHp),kills:R.kills,alive:true,done:over,t:Math.round(Math.min(t,len)),bosses:R.bosses||0,x:Math.round(R.x),y:Math.round(R.y)});continue}const final=(520+280*k)*(len/180);const f=Math.min(1,t/len);let score=Math.round(final*Math.pow(f,1.55)*(1+Math.sin(t*.37+k*9)*.03));const lv=Math.max(1,Math.round(1+Math.sqrt(t)*(.9+k*.5)));const hp=clamp(.55+.45*Math.sin(t*.21+k*5)*Math.cos(t*.07),.12,1);const kills=Math.round(score/2.4);
     let alive=true,done=false;if(d.mode==='last'){const fallAt=(150+k*260);if(t>=fallAt){alive=false;done=true;score=Math.round(final*Math.pow(fallAt/len,1.55))}}else if(t>=len){done=true;score=Math.round(final*(1+Math.sin(k*9)*.03))}
-    const pos=roomAIPos(p.uid,k);netT().setPlayer(ROOM.code,p.uid,{score,lv,hp:alive?hp:0,kills,alive,done,t:Math.round(Math.min(t,len)),bosses:Math.floor(t/240),x:pos.x,y:pos.y})}}
+    const pos=roomAIPos(p.uid,k);aiPut(p.uid,{score,lv,hp:alive?hp:0,kills,alive,done,t:Math.round(Math.min(t,len)),bosses:Math.floor(t/240),x:pos.x,y:pos.y})}
+  ROOM.aiN=(ROOM.aiN||0)+1;if(ROOM.aiN%2===0||roomPlayerList().some(p=>p.ai&&ROOM.aiPend&&ROOM.aiPend[p.uid]&&ROOM.aiPend[p.uid].done))aiFlush()}
 /* an AI seat wanders the arena (one step per tick) so the others see a hero fighting somewhere, not just a number on the board */
 function roomAIPos(uid,k){ROOM.aiPos=ROOM.aiPos||{};let s=ROOM.aiPos[uid];const bounds=()=>({w:typeof W!=='undefined'?W:2600,h:typeof H!=='undefined'?H:2000});const {w,h}=bounds();
   if(!s){const a=Math.random()*Math.PI*2;s=ROOM.aiPos[uid]={x:w/2+Math.cos(a)*300,y:h/2+Math.sin(a)*240,tx:0,ty:0,rest:0};}
@@ -108,12 +113,13 @@ function roomAIPos(uid,k){ROOM.aiPos=ROOM.aiPos||{};let s=ROOM.aiPos[uid];const 
 setInterval(()=>{if(ROOM.code&&!ROOM.playing)roomSetMe({beat:Date.now()})},20000);
 setInterval(()=>{if(ROOM.code&&ROOM.playing&&ROOM.host)roomAITick()},1000); // AI seats keep moving even after the host's own run has ended
 addEventListener('pagehide',()=>{if(ROOM.code&&!ROOM.playing)roomLeave(true)});
-function roomCanStart(){const ps=roomPlayerList();return ROOM.host&&ps.length>=2&&ps.every(p=>p.ready||p.ai)}
+function roomLinkWait(){if(!ROOM.host||typeof linkOpenTo!=='function'||typeof RTCPeerConnection==='undefined')return 0;const now=Date.now();let w=0;for(const p of roomPlayerList()){if(p.ai||p.uid===roomUid()||linkOpenTo(p.uid))continue;const t0=(ROOM.firstSeen||{})[p.uid]||now;w=Math.max(w,20000-(now-t0))}return Math.max(0,w)}
+function roomCanStart(){const ps=roomPlayerList();return ROOM.host&&ps.length>=2&&ps.every(p=>p.ready||p.ai)&&roomLinkWait()<=0}
 async function roomStart(){
   if(!roomCanStart())return;const seed=(Math.floor(Math.random()*2**31)|1);
   await roomHostSet({state:'play',seed,round:(ROOM.data.round||0)+1,startedAt:Date.now(),delay:4000});
 }
-async function roomBackToLobby(){if(!ROOM.host)return;await roomHostSet({state:'lobby'});await roomSetMe({ready:true,score:0,hp:1,lv:1,kills:0,alive:true,done:false,t:0});for(const p of roomPlayerList())if(p.ai)await netT().setPlayer(ROOM.code,p.uid,{score:0,hp:1,lv:1,kills:0,alive:true,done:false,t:0})}
+async function roomBackToLobby(){if(!ROOM.host)return;await roomHostSet({state:'lobby'});await roomSetMe({ready:true,score:0,hp:1,lv:1,kills:0,alive:true,done:false,t:0});for(const p of roomPlayerList())if(p.ai)aiPut(p.uid,{score:0,hp:1,lv:1,kills:0,alive:true,done:false,t:0});await aiFlush()}
 /* ---- snapshots ---- */
 function roomOnRoom(data){
   if(!ROOM.code)return;
@@ -124,10 +130,11 @@ function roomOnRoom(data){
     if(!ROOM.host)roomSetMe({ready:false,score:0,hp:1,lv:1,kills:0,alive:true,done:false,t:0});
     if(!$('#end').hidden&&typeof toLobby==='function'){toLobby();showScreen('hero')}
     if(typeof renderRoom==='function')renderRoom()}
+  if(ROOM.playing&&G&&!G.auto){roomCheckFinished();if(typeof drawRoomBoard==='function')drawRoomBoard()} // AI seats arrive with the room document
   if(typeof renderRoom==='function')renderRoom();
 }
 function roomOnPlayers(map){
-  if(!ROOM.code)return;const now=Date.now();for(const uid in map){const p=map[uid],old=ROOM.players[uid];if(!old||JSON.stringify(old)!==JSON.stringify(p))ROOM.lastSeen[uid]=now}
+  if(!ROOM.code)return;const now=Date.now();ROOM.firstSeen=ROOM.firstSeen||{};for(const uid in map){if(!ROOM.firstSeen[uid])ROOM.firstSeen[uid]=now;const p=map[uid],old=ROOM.players[uid];if(!old||JSON.stringify(old)!==JSON.stringify(p))ROOM.lastSeen[uid]=now}
   ROOM.players=map;
   if(ROOM.playing&&G&&!G.auto){
     if(ROOM.data&&ROOM.data.mode==='last'&&!G.over){const dead=roomPlayerList().find(p=>p.uid!==roomUid()&&p.alive===false);if(dead){roomEndRun('last',dead)}}
@@ -138,11 +145,13 @@ function roomOnPlayers(map){
 }
 function roomOnEvent(ev){
   if(!ROOM.code||!ev||ev.from===roomUid()||ROOM.evSeen.has(ev.id))return;ROOM.evSeen.add(ev.id);
+  if(ev.k==='rtc'){if(typeof linkOnSignal==='function')linkOnSignal(ev);return}
+  if(G&&G.shared)return;
   if(!ROOM.playing||!G||G.auto||G.over)return;
   if(ev.k==='wave'){const n=Math.min(16,ev.n||6),P=G.P;for(let i=0;i<n;i++){const a=i/n*TAU+SIMR()*.3,d=150+SIMR()*60;spawnEnemy(ev.big?'bandit':'assassin',clamp(P.x+Math.cos(a)*d,30,W-30),clamp(P.y+Math.sin(a)*d,30,H-30),1.1)}
     showBanner(`${ev.name||'?'} 送来 ${n} 名伏兵!`,`${ev.name||'?'} sent ${n} ambushers!`,1.6);trauma(.25);if(typeof SFX!=='undefined')SFX.throw()}
 }
-function roomSendWave(n,big){if(!ROOM.code||!ROOM.playing)return;netT().addEvent(ROOM.code,{from:roomUid(),name:roomName(),k:'wave',n,big:!!big})}
+function roomSendWave(n,big){if(!ROOM.code||!ROOM.playing||(G&&G.shared))return;netT().addEvent(ROOM.code,{from:roomUid(),name:roomName(),k:'wave',n,big:!!big})}
 /* ---- match flow ---- */
 function roomBeginCountdown(data){
   ROOM.seed=data.seed;ROOM.countdown=Date.now()+(data.delay||4000);ROOM.ended=false;ROOM.results=null;ROOM.evSeen=new Set();
