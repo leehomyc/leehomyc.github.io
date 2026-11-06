@@ -772,7 +772,7 @@ function step(dt){
   orbits(dt);
   for(const g of G.ghosts)g.t-=dt;G.ghosts=G.ghosts.filter(g=>g.t>0);
   spawnTick(dt);bossAI(dt);shrineTick(dt);rivalTick(dt);
-  if(!G.mission&&!G.boss){G.missionT-=dt;if(G.missionT<=0)startMission()}
+  if(!G.mission){if(!G.boss){G.missionT-=dt;if(G.missionT<=0)startMission()}}
   else{const m=G.mission;m.t-=dt;
     if(m.k==='seal'){const inside=hyp(P.x-m.x,P.y-m.y)<m.r;if(inside&&P.down<=0){m.n-=dt;m.pulse+=dt;if(m.pulse>1.2){m.pulse=0;spawnTick(0);for(let i=0;i<4;i++){const a=rnd(TAU);spawnEnemy('assassin',clamp(m.x+Math.cos(a)*220,30,W-30),clamp(m.y+Math.sin(a)*220,30,H-30),.8)}ring(m.x,m.y,m.r,'#ff5fe8')}if(m.n<=0){m.n=0;checkMission()}}}
     if(m.k==='hunt'&&m.target){const e=m.target;if(e.dead){m.n=0;checkMission()}else{const dx=e.x-P.x,dy=e.y-P.y,d=hyp(dx,dy)||1;if(d<260){e.flee=1;e.fx=dx/d;e.fy=dy/d}else e.flee=0}}
