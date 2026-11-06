@@ -2,11 +2,11 @@
 /* lobby.js — menu-first front end: main menu → hero select (3D preview, weapon, skills, stats) → start. */
 const ROLES={swordsman:['远程 · 均衡','Ranged · Balanced'],taoist:['法术 · 符咒','Caster · Talismans'],blademaster:['近战 · 重击','Melee · Bruiser'],qin:['控场 · 减速','Control · Slows'],monk:['近战 · 坚韧','Melee · Tank'],physician:['远程 · 毒伤','Ranged · Poison']};
 const MENU_MODES=[
-  {m:'solo',zh:'出山',en:'Play',szh:()=>`单人无尽 · ${LL(DIFF[SAVE.diff||'normal'])}${(SAVE.asura&&SAVE.asura.sel)?` · 修罗 ${SAVE.asura.sel}`:''}`,sen:()=>`Solo endless · ${LL(DIFF[SAVE.diff||'normal'])}${(SAVE.asura&&SAVE.asura.sel)?` · Ascension ${SAVE.asura.sel}`:''}`,big:1},
-  {m:'qpk',zh:'快速对决',en:'Quick PK',szh:()=>`3 分钟 · ${L(ladderOf(SAVE.trophies||0)[1],'')} ${SAVE.trophies||0} 🏆`,sen:()=>`3 minutes · ${ladderOf(SAVE.trophies||0)[2]} ${SAVE.trophies||0} 🏆`},
-  {m:'daily',zh:'每日挑战',en:'Daily',szh:()=>(SAVE.daily&&SAVE.daily.day===dayKey())?`今日最佳 ${fmt(SAVE.daily.best)} · ${resetIn()} 后刷新`:`今日同一张图、同一波怪 · ${resetIn()} 后刷新`,sen:()=>(SAVE.daily&&SAVE.daily.day===dayKey())?`Today's best ${fmt(SAVE.daily.best)} · resets in ${resetIn()}`:`Same map, same waves for everyone · resets in ${resetIn()}`},
-  {m:'rush',zh:'首领连战',en:'Boss rush',szh:()=>'从 Lv 10 起 · 每 75 秒一位首领',sen:()=>'Start at Lv 10 · a boss every 75 s'},
-  {m:'pk',zh:'对决 10′',en:'PK 10′',szh:()=>SAVE.pk?`对决 ${SAVE.pk.w} 胜 ${SAVE.pk.l} 负`:'与 AI 对手争分十分钟',sen:()=>SAVE.pk?`PK ${SAVE.pk.w}W ${SAVE.pk.l}L`:'A ten-minute score race against an AI rival'},
+  {m:'solo',ic:['sword','#ffb79f'],zh:'出山',en:'Play',szh:()=>`单人无尽 · ${LL(DIFF[SAVE.diff||'normal'])}${(SAVE.asura&&SAVE.asura.sel)?` · 修罗 ${SAVE.asura.sel}`:''}`,sen:()=>`Solo endless · ${LL(DIFF[SAVE.diff||'normal'])}${(SAVE.asura&&SAVE.asura.sel)?` · Ascension ${SAVE.asura.sel}`:''}`,big:1},
+  {m:'qpk',ic:['swords','#ff9c5a'],zh:'快速对决',en:'Quick PK',szh:()=>`3 分钟 · ${L(ladderOf(SAVE.trophies||0)[1],'')} ${SAVE.trophies||0} 🏆`,sen:()=>`3 minutes · ${ladderOf(SAVE.trophies||0)[2]} ${SAVE.trophies||0} 🏆`},
+  {m:'daily',ic:['calendar','#ffd27a'],zh:'每日挑战',en:'Daily',szh:()=>(SAVE.daily&&SAVE.daily.day===dayKey())?`今日最佳 ${fmt(SAVE.daily.best)} · ${resetIn()} 后刷新`:`今日同一张图、同一波怪 · ${resetIn()} 后刷新`,sen:()=>(SAVE.daily&&SAVE.daily.day===dayKey())?`Today's best ${fmt(SAVE.daily.best)} · resets in ${resetIn()}`:`Same map, same waves for everyone · resets in ${resetIn()}`},
+  {m:'rush',ic:['boss','#ff5a45'],zh:'首领连战',en:'Boss rush',szh:()=>'从 Lv 10 起 · 每 75 秒一位首领',sen:()=>'Start at Lv 10 · a boss every 75 s'},
+  {m:'pk',ic:['trophy','#ffd27a'],zh:'对决 10′',en:'PK 10′',szh:()=>SAVE.pk?`对决 ${SAVE.pk.w} 胜 ${SAVE.pk.l} 负`:'与 AI 对手争分十分钟',sen:()=>SAVE.pk?`PK ${SAVE.pk.w}W ${SAVE.pk.l}L`:'A ten-minute score race against an AI rival'},
 ];
 let SCREEN='menu',HSKILL=null;
 function showScreen(s){
@@ -18,7 +18,7 @@ function showScreen(s){
 function renderMenu(){
   const box=$('#menubtns');if(!box)return;box.textContent='';
   MENU_MODES.forEach(o=>{const b=document.createElement('button');b.type='button';b.className='mb'+(o.big?' big':'');b.dataset.m=o.m;
-    b.innerHTML=`<b>${L(o.zh,o.en)}</b><small>${L(o.szh(),o.sen())}</small>`;
+    b.innerHTML=`${ICON.misc(o.ic[0],o.ic[1])}<div><b>${L(o.zh,o.en)}</b><small>${L(o.szh(),o.sen())}</small></div>`;
     b.onclick=()=>{SAVE.mode=o.m;persist();renderTitle();showScreen('hero');SFX.pick(1)};box.appendChild(b)});
 }
 function statBars(C){
@@ -46,3 +46,5 @@ function renderHero(){
 $('#backbtn').onclick=()=>{showScreen('menu');SFX.pick(1)};
 (()=>{let s='menu';try{s=sessionStorage.getItem('sl_screen')||'menu'}catch(_){}showScreen(s==='hero'?'hero':'menu')})();
 if(/iPhone|iPad|iPod/.test(navigator.userAgent)&&!navigator.standalone)document.documentElement.classList.add('ios');
+/* emblems on tab and mode buttons (data-ic) */
+document.querySelectorAll('[data-ic]').forEach(b=>{if(b.querySelector('.ic'))return;const col={scroll:'#efe4cd',trophy:'#ffd27a',book:'#c7a4f0',crown:'#ffe9a0',gear:'#9fe3f0',sword:'#ffb79f',swords:'#ff9c5a',calendar:'#ffd27a',boss:'#ff5a45'}[b.dataset.ic]||'#ffd27a';b.insertAdjacentHTML('afterbegin',ICON.misc(b.dataset.ic,col,'sm'))});

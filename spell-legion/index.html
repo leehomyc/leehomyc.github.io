@@ -4,12 +4,12 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>魔咒军团</title>
-<meta name="build" content="202611061153">
+<meta name="build" content="202611061212">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="theme-color" content="#0b060e">
 <link rel="apple-touch-icon" href="icons/icon-192.png"><link rel="icon" href="icons/icon-192.png">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=ZCOOL+XiaoWei&family=Alegreya+Sans:wght@400;700;800&display=swap">
-<link rel="stylesheet" href="css/style.css?v=202611061153">
+<link rel="stylesheet" href="css/style.css?v=202611061212">
 <script src="vendor/three.min.js"></script>
 <script src="vendor/CopyShader.js"></script>
 <script src="vendor/LuminosityHighPassShader.js"></script>
@@ -63,7 +63,7 @@
           <div class="langrow"><button type="button" class="langbtn" data-l="zh">中文</button><button type="button" class="langbtn" data-l="en">English</button><button type="button" id="sndbtn2" class="sndb" aria-label="Mute / unmute">🔊</button><span class="status" id="status"></span></div>
           <div id="menubtns"></div>
           <span id="loadnote" class="note"></span><span id="autonote" hidden></span>
-          <div class="tabbar"><b id="gold" hidden>0</b><button type="button" data-t="tasks"><span class="zh">任务</span><span class="en">Tasks</span></button><button type="button" data-t="ach"><span class="zh">成就</span><span class="en">Achievements</span> <b id="achcount">0/0</b></button><button type="button" data-t="codex"><span class="zh">图鉴</span><span class="en">Codex</span> <b id="codexcount">0/0</b></button><button type="button" id="lbbtn" hidden><span class="zh">排行榜</span><span class="en">Leaderboard</span></button><button type="button" data-t="settings"><span class="zh">设置</span><span class="en">Settings</span></button></div>
+          <div class="tabbar"><b id="gold" hidden>0</b><button type="button" data-t="tasks" data-ic="scroll"><span class="zh">任务</span><span class="en">Tasks</span></button><button type="button" data-t="ach" data-ic="trophy"><span class="zh">成就</span><span class="en">Achievements</span> <b id="achcount">0/0</b></button><button type="button" data-t="codex" data-ic="book"><span class="zh">图鉴</span><span class="en">Codex</span> <b id="codexcount">0/0</b></button><button type="button" id="lbbtn" data-ic="crown" hidden><span class="zh">排行榜</span><span class="en">Leaderboard</span></button><button type="button" data-t="settings" data-ic="gear"><span class="zh">设置</span><span class="en">Settings</span></button></div>
           <div class="lobby">
             <div id="shop" hidden></div><div id="record" hidden></div>
             <div class="panel" data-p="tasks"><div id="meta"></div></div>
@@ -81,7 +81,7 @@
       </div>
     </div>
     <div id="hero" class="screen" hidden>
-      <div class="hhead"><button type="button" class="back" id="backbtn">‹ <span class="zh">返回</span><span class="en">Back</span></button><h2><span class="zh">选择侠客</span><span class="en">Choose your hero</span></h2><div id="mode"><button type="button" data-m="solo"><span class="zh">单人</span><span class="en">Solo</span></button><button type="button" data-m="qpk"><span class="zh">快速对决 3′</span><span class="en">Quick PK 3′</span></button><button type="button" data-m="pk"><span class="zh">对决 10′</span><span class="en">PK 10′</span></button><button type="button" data-m="daily"><span class="zh">每日挑战</span><span class="en">Daily</span></button><button type="button" data-m="rush"><span class="zh">首领连战</span><span class="en">Boss rush</span></button><button type="button" data-m="room" class="room"><span class="zh">多人房间</span><span class="en">Room</span></button></div></div>
+      <div class="hhead"><button type="button" class="back" id="backbtn">‹ <span class="zh">返回</span><span class="en">Back</span></button><h2><span class="zh">选择侠客</span><span class="en">Choose your hero</span></h2><div id="mode"><button type="button" data-m="solo" data-ic="sword"><span class="zh">单人</span><span class="en">Solo</span></button><button type="button" data-m="qpk" data-ic="swords"><span class="zh">快速对决 3′</span><span class="en">Quick PK 3′</span></button><button type="button" data-m="pk" data-ic="trophy"><span class="zh">对决 10′</span><span class="en">PK 10′</span></button><button type="button" data-m="daily" data-ic="calendar"><span class="zh">每日挑战</span><span class="en">Daily</span></button><button type="button" data-m="rush" data-ic="boss"><span class="zh">首领连战</span><span class="en">Boss rush</span></button><button type="button" data-m="room" data-ic="crown" class="room"><span class="zh">多人房间</span><span class="en">Room</span></button></div></div>
       <div class="hbody">
         <div id="classes"></div>
         <div class="hview"><canvas id="pv"></canvas><div class="hname"><span class="hg" id="hglyph"></span><b id="hname"></b><small id="hrole"></small></div><p id="hdesc"></p></div>
@@ -111,21 +111,21 @@
   <div id="lb" class="overlay" hidden><div class="cbox"><div class="ch"><h2><span class="zh">排行榜</span><span class="en">Leaderboard</span> <small><span class="zh">最长存活</span><span class="en">longest survival</span></small></h2><div class="tabs" id="lbtabs"><button type="button" data-b="all" class="on"><span class="zh">总榜</span><span class="en">All time</span></button><button type="button" data-b="today"><span class="zh">今日</span><span class="en">Today</span></button></div><button type="button" id="lbclose"><span class="zh">关闭</span><span class="en">Close</span></button></div><div id="lbbody"></div></div></div>
   <div id="end" class="overlay" hidden><div class="endb" id="endb"></div></div>
 </div>
-<script src="js/core.js?v=202611061153"></script>
-<script src="js/content.js?v=202611061153"></script>
-<script src="js/icons.js?v=202611061153"></script>
-<script src="js/audio.js?v=202611061153"></script>
-<script src="js/gfx.js?v=202611061153"></script>
-<script src="js/sim.js?v=202611061153"></script>
-<script src="js/render.js?v=202611061153"></script>
-<script src="js/leaderboard.js?v=202611061153"></script>
-<script src="js/cloud.js?v=202611061153"></script>
-<script src="js/net.js?v=202611061153"></script>
-<script src="js/room.js?v=202611061153"></script>
-<script src="js/meta.js?v=202611061153"></script>
-<script src="js/ui.js?v=202611061153"></script>
-<script src="js/lobby.js?v=202611061153"></script>
-<script src="js/main.js?v=202611061153"></script>
+<script src="js/core.js?v=202611061212"></script>
+<script src="js/content.js?v=202611061212"></script>
+<script src="js/icons.js?v=202611061212"></script>
+<script src="js/audio.js?v=202611061212"></script>
+<script src="js/gfx.js?v=202611061212"></script>
+<script src="js/sim.js?v=202611061212"></script>
+<script src="js/render.js?v=202611061212"></script>
+<script src="js/leaderboard.js?v=202611061212"></script>
+<script src="js/cloud.js?v=202611061212"></script>
+<script src="js/net.js?v=202611061212"></script>
+<script src="js/room.js?v=202611061212"></script>
+<script src="js/meta.js?v=202611061212"></script>
+<script src="js/ui.js?v=202611061212"></script>
+<script src="js/lobby.js?v=202611061212"></script>
+<script src="js/main.js?v=202611061212"></script>
 <!--/PAGE-->
 </body>
 </html>

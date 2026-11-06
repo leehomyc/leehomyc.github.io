@@ -19,7 +19,7 @@ function newGame(auto,cls){
      shrines:SHRINES.map(s=>({x:s[0],y:s[1],cd:0})),elites:0,combo:0,comboT:0,comboMax:0,over9:0,chests:[],chestT:30,goldRun:0,rerolls:1,wave:0,ambush:0,warlord:0,bossN:0,bossSlain:0,warlordN:0,relics:[],novas:[],hazards:[],score:0,curse:{},contractN:0,hintT:0,hintN:0};
   if(typeof buildHero==='function')buildHero(cls,'player',weaponOf(cls));
   if(tier(5)){P.maxHp=Math.round(P.maxHp*.85);P.hp=P.maxHp}
-  if(BOSSRUSH){G.lv=10;G.need=xpNeed(10);for(let i=0;i<9;i++)autoGrow();G.rerolls=3;G.spells[1].lv=4;G.spells.push(mkSpell(C.skills[1]));G.spells[2].lv=3}
+  if(BOSSRUSH){G.lv=10;G.need=xpNeed(10);for(let i=0;i<9;i++)autoGrow();G.rerolls=3;G.spells[1].lv=4;G.spells.push(mkSpell(C.skills[1]));G.spells[2].lv=3;if(!auto){for(let i=0;i<3;i++)G.picks.push({kind:'level'});G.pickHold=3}} // boss rush: three opening cards so the build is yours, not auto-rolled
   if(RIVAL_ON)mkRival(cls);else{G.rival=null;if(typeof HEROES!=='undefined'&&HEROES.rival){scene.remove(HEROES.rival.g);scene.remove(HEROES.rival.sigil);HEROES.rival=null}}
   if(!auto&&typeof drawSeals==='function'){drawSeals();updateCores()}
 }
@@ -135,7 +135,7 @@ function hit(e,d,s,noEl,col,kx=0,ky=0){
   e.hp-=m;e.flash=crit?.14:.08;e.sq=crit?.5:.3;if(kx||ky){const l=hyp(kx,ky)||1;e.sqx=kx/l;e.sqy=ky/l}if(s)s.dmg+=m;if(rv)G.rival.dmgDealt+=m;
   const kk=e.type==='boss'?.12:e.type==='giant'?.4:e.type==='statue'?0:1;
   e.kx=(e.kx||0)+kx*kk;e.ky=(e.ky||0)+ky*kk;
-  if(!rv&&G.floats.length<CAP.fl&&(crit||m>=Math.max(18,e.maxHp*.25)))G.floats.push({x:e.x+rnd(-4,4),y:e.y-e.r-3,t:.6,v:Math.round(m),c:crit?'#ffd75a':(col||'#efe4cd'),crit});
+  if(!rv&&G.floats.length<CAP.fl&&(m>=Math.max(18,e.maxHp*.25)||(crit&&(G.P.crit<.5||e.type==='boss'||e.elite||SIMR()<.2)))&&(G.en.length<120||e.type==='boss'||e.elite||m>=e.maxHp*.5))G.floats.push({x:e.x+rnd(-4,4),y:e.y-e.r-3,t:.6,v:Math.round(m),c:crit?'#ffd75a':(col||'#efe4cd'),crit});
   if(crit&&!rv){if(typeof SHAKE!=='undefined'&&SHAKE==='high')hitStop(.045);trauma(.1,kx,ky);if(G.fx.length<CAP.fx)G.fx.push({k:'crit',x:e.x,y:e.y,t:.22,T:.22})}
   if(s&&!noEl&&s.els.length)applyEls(e,m,s);
   if(s&&has(s,'dark')&&e.type!=='boss'&&e.type!=='statue'&&e.hp>0&&e.hp<e.maxHp*.12)e.hp=0;
@@ -194,7 +194,7 @@ function kill(e,s,kx=0,ky=0){
   else{G.kills++;comboHit();const gain=Math.round(pv*((RIVAL_ON||G.room)?comboMult():1));G.score+=gain;G.sc=G.sc||{kill:0,big:0,ev:0};if(e.type==='boss'||e.elite||e.warlord||e.role||e.affix)G.sc.big+=gain;else G.sc.kill+=gain;if((RIVAL_ON||G.room)&&(pv>=3||G.floats.length<CAP.fl)&&G.floats.length<80)G.floats.push({x:e.x,y:e.y-e.r-6,t:.8,v:'+'+gain,c:pv>=8?'#ffd27a':'#9fe3f0',score:1})}
   if((e.type==='giant'||e.elite)&&!(s&&s.owner==='rival')){hitStop(.06);trauma(.3)}
   const drops=e.elite?4:1;
-  for(let i=0;i<drops;i++)if(G.gems.length<CAP.gem)G.gems.push({x:e.x+rnd(-8,8),y:e.y+rnd(-8,8),v:e.xp,big:e.xp>=3});
+  for(let i=0;i<drops;i++){if(G.gems.length<CAP.gem)G.gems.push({x:e.x+rnd(-8,8),y:e.y+rnd(-8,8),v:e.xp,big:e.xp>=3});else gainXP(e.xp)} // when the field is full of gems the XP is granted directly, so late-game leveling never stalls
   if(e.elite)G.gems.push({x:e.x,y:e.y,v:10,big:1});
   if(!(s&&s.owner==='rival')&&hasR('charm')&&e.type!=='boss'){const x=e.x,y=e.y;later(.03,()=>{near(x,y,24,o=>{if(hyp(o.x-x,o.y-y)<20+o.r)hit(o,10*G.P.dmg*(1+G.P.dmgBonus),null,true,'#ff7a2c',(o.x-x)*4,(o.y-y)*4)});ring(x,y,20,'#ff7a2c')})}
   if((e.elite&&SIMR()<.3)||e.warlord||e.type==='boss')dropRelic(e.x,e.y);
@@ -596,7 +596,7 @@ function buildCards(q){
 
 /* level curve: slow early, keeps paying out late (gem values also rise every 4 minutes) */
 /* level curve: the first levels are nearly free (Lv 2 after a handful of kills), then it settles into the long curve */
-function xpNeed(lv){return lv<=8?Math.round(4+lv*3+lv*lv*.5):Math.round(12+lv*6+lv*lv*.85-60*Math.max(0,(16-lv)/8))}
+function xpNeed(lv){return lv<=8?Math.round(4+lv*3+lv*lv*.5):Math.round(12+lv*6+lv*lv*Math.min(1.3,.65+Math.max(0,lv-45)*.012)-60*Math.max(0,(16-lv)/8))}
 function autoGrow(){const P=G.P;P.maxHp+=7;P.hp=Math.min(P.maxHp,P.hp+12);P.dmgBonus+=.02;P.maxMana+=5;P.mana=Math.min(P.maxMana,P.mana+10);P.regen*=1.03;P.spd*=1.01;P.crit+=.004;P.attr.str++;P.attr.vit++;P.attr.spr++;P.attr.agi++}
 function spendAttr(id){const P=G.P;if(P.ap<=0)return false;P.ap--;P.attr[id]++;
   if(id==='str')P.dmgBonus+=.04;if(id==='vit'){P.maxHp+=8;P.hp+=8}if(id==='spr'){P.maxMana+=6;P.mana+=6;P.regen*=1.04}if(id==='agi'){P.spd*=1.02;P.crit+=.01}return true}
@@ -607,7 +607,7 @@ function nodeCard(s,i,q){const n=TREES[s.id][i],m=SPELLS[s.id],r=s.nodes[i]||0,k
 /* ---------- spawning ---------- */
 /* entity caps: phones get fewer particles, bullets and bodies on screen so the frame stays smooth */
 const CAP=(typeof PHONE!=='undefined'&&PHONE)?{en:340,fx:300,bu:170,gem:220,fl:22}:{en:560,fx:640,bu:280,gem:360,fl:40};
-const diff=t=>Math.min(40,(1+t/110)*(t>240?1+(t-240)/180:1)); // enemy HP: steepens after the first boss, capped at 40x so late minions never become sponges
+const diff=t=>Math.min(24,(1+t/120)*(t>240?1+(t-240)/220:1)); // enemy HP: steepens after the first boss, capped at 40x so late minions never become sponges
 /* 怨气 doom: from 15 minutes the run must end — enemies hit harder every minute and healing tapers, so a stalemate (can't kill, can't die) cannot happen */
 const DOOM_T=900;const doomDmg=t=>(t>DOOM_T?1+(t-DOOM_T)/600:1)*(t>1800?1+(t-1800)/300:1); // +10%/min after 15 min, steeper after 30: a good player goes much longer, nobody goes forever
 const dodgeDmg=t=>(1+t/200)*doomDmg(t); // arrows, bombs, charges and ground attacks keep scaling — they can all be dodged or parried
@@ -619,7 +619,7 @@ function spawnEnemy(type,x,y,mul=1,elite){
   let affix=null;const afT=tier(4)?120:300;if(t>afT&&SIMR()<Math.min(.35,(t-afT)/1500))affix=pick(['swift','explode','armor']);
   let role=null;if(type==='bandit'&&t>90&&SIMR()<.22)role='charger';if(type==='archer'&&t>200&&SIMR()<.3)role='shaman';
   const hp=b.hp*sc*mul*(el?5:1)*(affix==='armor'?1.8:1)*D().hp;
-  G.en.push({x,y,type,hp,maxHp:hp,t0:t,spd:b.spd*rnd(.92,1.08)*(el?.9:1)*(affix==='swift'?1.5:1)*Math.min(1.35,1+Math.max(0,t-240)/900)*(G.curse.spd||1),dmg:b.dmg*Math.min(6,(1+t/300)*(t>240?1+(t-240)/420:1))*doomDmg(t)*(el?1.4:1)*D().dmg,r:b.r*(el?1.4:1),xp:b.xp*(1+Math.floor(t/240)*.5)|0||1,fr:rnd(1),vx:0,vy:0,shoot:b.shoot&&role!=='shaman',st:rnd(1,3),elite:el,sc:(el?1.5:1)*(affix==='armor'?1.15:1)*(role==='charger'?1.12:1),kx:0,ky:0,affix,role,ct:rnd(2,4)});
+  G.en.push({x,y,type,hp,maxHp:hp,t0:t,spd:b.spd*rnd(.92,1.08)*(el?.9:1)*(affix==='swift'?1.5:1)*Math.min(1.35,1+Math.max(0,t-240)/900)*(G.curse.spd||1),dmg:b.dmg*Math.min(6,(1+t/300)*(t>240?1+(t-240)/420:1))*doomDmg(t)*(el?1.4:1)*D().dmg,r:b.r*(el?1.4:1),xp:b.xp*(1+t/160)|0||1,fr:rnd(1),vx:0,vy:0,shoot:b.shoot&&role!=='shaman',st:rnd(1,3),elite:el,sc:(el?1.5:1)*(affix==='armor'?1.15:1)*(role==='charger'?1.12:1),kx:0,ky:0,affix,role,ct:rnd(2,4)});
   const ne=G.en[G.en.length-1];if(b.mesh){ne.mesh=b.mesh;ne.sc=(ne.sc||1)*(b.sc||1);ne.tintv=b.tint;ne.ghost=b.ghost;ne.bomb=b.bomb;ne.shield=type==='brute'}
   if(el)G.elites++;
 }
