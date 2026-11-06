@@ -669,7 +669,7 @@ body.picking #tip,body.picking #side{display:none}
 @media (min-width:761px){#hero .hfoot .hopts{display:grid;grid-template-columns:auto 1fr;align-items:center}#hero .hfoot #maps{flex-wrap:nowrap;overflow-x:auto}}
 @media (max-height:900px) and (min-width:761px){#classes .cls{padding:6px 10px}#classes .cls .ic{width:40px;height:40px}#classes .cls .sk{font-size:14px}}
 /* phone: the mode bar scrolls sideways instead of wrapping into three-line buttons */
-@media (max-width:760px){#hero #mode{display:flex;flex-wrap:nowrap;overflow-x:auto;gap:6px;padding-bottom:4px;scrollbar-width:none}#hero #mode::-webkit-scrollbar{display:none}#hero #mode button{flex:none;white-space:nowrap;padding:8px 12px}}
+@media (max-width:760px){#hero #mode{display:flex;flex-wrap:nowrap;overflow-x:auto;gap:6px;padding-bottom:4px;scrollbar-width:none;min-width:0;width:100%;flex:1 1 100%;box-sizing:border-box}#hero #mode::-webkit-scrollbar{display:none}#hero #mode button{flex:none;white-space:nowrap;padding:8px 12px}}
 
 /* pause: build summary */
 .pbuild{display:grid;gap:4px;margin:0 auto 10px;max-width:360px;text-align:left}
@@ -680,3 +680,5 @@ body.picking #tip,body.picking #side{display:none}
 @media (max-height:700px){.pbuild .pb{padding:2px 8px}.pbuild .pb .ic{width:22px;height:22px}}
 
 body.touchhud #pause .pbox>p{display:none}
+.langbtn{white-space:nowrap}
+#hero{grid-template-columns:minmax(0,1fr)}#hero>*{min-width:0}#hero .hhead{min-width:0;max-width:100%}

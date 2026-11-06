@@ -124,7 +124,7 @@ function affinity(e,s,noEl){
 function hit(e,d,s,noEl,col,kx=0,ky=0){
   if(e.dead)return;
   if(s&&e.type!=='boss'&&e.type!=='statue'){const af=affinity(e,s,noEl);if(af.k!==1){d*=af.k;if(af.k===0)d=0;
-    if((!G.floats||G.floats.length<60)&&(af.why==='weak'||(!e.afSaid&&G.en.length<90))){e.afSaid=1;if((e.afT||-9)<G.t-.7){e.afT=G.t;G.floats.push({x:e.x+rnd(-3,3),y:e.y-e.r-10,t:.75,v:af.why==='weak'?L('克!','WEAK!'):af.k===0?L('免疫','IMMUNE'):L('抗','RESIST'),c:af.why==='weak'?'#ffe066':'#9a9a9a',crit:af.why==='weak'})}}
+    if(!G.auto&&(!G.floats||G.floats.length<60)&&(af.why==='weak'||(!e.afSaid&&G.en.length<90))){e.afSaid=1;if((e.afT||-9)<G.t-.7){e.afT=G.t;G.floats.push({x:e.x+rnd(-3,3),y:e.y-e.r-10,t:.75,v:af.why==='weak'?L('克!','WEAK!'):af.k===0?L('免疫','IMMUNE'):L('抗','RESIST'),c:af.why==='weak'?'#ffe066':'#9a9a9a',crit:af.why==='weak'})}}
     if(d===0)return}}
   if(e.shield&&(kx||ky)){const fx=G.P.x-e.x,fy=G.P.y-e.y,fl=hyp(fx,fy)||1,kl=hyp(kx,ky)||1;if((-kx/kl*fx/fl-ky/kl*fy/fl)>.3){d*=.3;if(G.fx.length<CAP.fx&&SIMR()<.3)G.fx.push({k:'ring',x:e.x,y:e.y,r:10,t:.2,T:.2,c:'#9fc4ff'})}}
   if(e.sleep>0&&e.sleepS)d*=1+NODE_FX.dmg*nd(e.sleepS,'dmg');
