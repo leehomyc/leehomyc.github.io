@@ -43,7 +43,7 @@ const LocalT={
 };
 function netPick(){if(location.search.includes('local=1'))return LocalT;return (typeof CLOUD!=='undefined'&&CLOUD.on())?FirestoreT:LocalT}
 function netT(){return ROOM.T||netPick()} // a room keeps the transport it was opened with, even if the cloud connects later
-function netOnline(){return !netIsLocal()}
+function netOnline(){return !netIsLocal()&&!ROOM.cloudFail}
 function netIsLocal(){return netT()===LocalT}
 /* ---- room lifecycle ---- */
 /* room operations run one at a time: the lobby's auto-open and an explicit create/join can otherwise interleave and strand the player */
@@ -52,8 +52,12 @@ function roomCreate(opts={}){return roomQueue(()=>roomCreateNow(opts))}
 function roomJoin(code,isNew){return roomQueue(()=>roomJoinNow(code,isNew))}
 async function roomCreateNow(opts={}){
   if(ROOM.code&&!opts.force)return ROOM.code; // already in a room: that one stands
-  const T=netPick();ROOM.T=T;const uid=roomUid();let code='',tries=0;
-  while(tries++<6){code=roomCode();try{await T.createRoom(code,{host:uid,mode:opts.mode||'time',len:opts.len||180,max:Math.min(8,Math.max(2,opts.max||4)),state:'lobby',map:MAPID,diff:'normal',round:0,created:Date.now()});break}catch(e){if(e.message!=='exists')throw e;code=''}}
+  let T=netPick();ROOM.T=T;ROOM.cloudFail=false;let uid=roomUid();let code='',tries=0;
+  const mk=()=>({host:uid,mode:opts.mode||'time',len:opts.len||180,max:Math.min(8,Math.max(2,opts.max||4)),state:'lobby',map:MAPID,diff:'normal',round:0,created:Date.now()});
+  while(tries++<6){code=roomCode();try{await Promise.race([T.createRoom(code,mk()),new Promise((_,rej)=>setTimeout(()=>rej(new Error('timeout')),6000))]);break}
+    catch(e){if(e.message==='exists'){code='';continue}
+      if(T===FirestoreT){console.warn('cloud room unavailable, falling back to a local room',e);T=LocalT;ROOM.T=T;ROOM.cloudFail=true;uid=roomUid();code='';tries=0;continue} // cloud rooms not reachable: AI-only room on this device
+      throw e}}
   if(!code)throw new Error('no code');
   await roomJoinNow(code,true);return code;
 }

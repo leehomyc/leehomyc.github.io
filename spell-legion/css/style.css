@@ -841,3 +841,5 @@ body.touchhud #pause .pbox>p{display:none}
 #opp{display:none!important}
 
 #hero .hfoot.room{position:static;background:none}
+
+#hero>#roompanel{margin:0 0 6px}
