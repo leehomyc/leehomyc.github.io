@@ -38,7 +38,7 @@ function renderRoom(){
 function drawRoomBoard(){
   const el=$('#roomboard');if(!el||!ROOM.code||!ROOM.playing){if(el)el.hidden=true;return}el.hidden=false;
   const me=roomUid(),ps=roomRank(),d=ROOM.data||{};
-  const left=d.mode==='time'?Math.max(0,d.len-G.t):null;
+  const left=d.mode==='time'?Math.max(0,d.len-Math.max(G.t,d.startedAt?(Date.now()-(d.startedAt+(d.delay||0)))/1000:0)):null;
   el.innerHTML=`<div class="rbh">${d.mode==='time'?`<b>${fmt(left)}</b> ${L('剩余','left')}`:`<b>${L('无尽','Endless')}</b> ${L('有人倒下即结束','ends on first death')}`}</div>`+ps.map((p,i)=>{const C=CLASSES[p.cls]||CLASSES.swordsman,score=p.uid===me?G.score:(p.score||0),hp=p.uid===me?Math.max(0,G.P.hp/G.P.maxHp):(p.hp??1),dead=p.uid===me?!!G.over&&G.over!=='pk':p.alive===false;
     return `<div class="rb ${p.uid===me?'me':''} ${dead?'dead':''}"><i>${i+1}</i><span class="g" style="color:${C.col}">${C.g}</span><b>${p.name||'?'}</b><em><s style="width:${Math.round(hp*100)}%"></s></em><span class="sc">${score}</span></div>`}).join('');
 }

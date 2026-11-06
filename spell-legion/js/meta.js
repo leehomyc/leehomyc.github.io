@@ -48,7 +48,7 @@ function metaAfterRun(){
     if(task.p>=task.goal){task.done=1;const g=TASK_GOLD[task.tier];gold+=g;done.push([task,g])}}
   // streak: a day counts once any task is completed
   if(done.length){const dk=dayKey();SAVE.streak=SAVE.streak||{last:0,n:0};if(SAVE.streak.last!==dk){SAVE.streak.n=SAVE.streak.last===yesterdayKey()?SAVE.streak.n+1:1;SAVE.streak.last=dk;if(SAVE.streak.n%7===0){gold+=800;done.push([{id:'streak',goal:7},800])}}}
-  const before=accountLv(),xp=runAxp();SAVE.axp=(SAVE.axp||0)+xp;const after=accountLv();
+  const before=accountLv(),xp=runAxp();SAVE.axp=(SAVE.axp||0)+xp;const after=accountLv();let lvGold=0;for(let l=before.lv+1;l<=after.lv;l++)lvGold+=100+l*20;gold+=lvGold;
   // first win / first run of the day pays double gold
   const dk=dayKey();SAVE.first=SAVE.first||{};let firstBonus=null;
   if(!G.abandoned){if(RIVAL_ON&&G.rival&&G.score>G.rival.score&&SAVE.first.pk!==dk){SAVE.first.pk=dk;firstBonus='pk'}else if(!RIVAL_ON&&SAVE.first.run!==dk&&G.t>=120){SAVE.first.run=dk;firstBonus='run'}}
@@ -58,7 +58,7 @@ function metaAfterRun(){
   // hero mastery
   SAVE.mastery=SAVE.mastery||{};const m0=mastery(G.cls);SAVE.mastery[G.cls]=(SAVE.mastery[G.cls]||0)+Math.round(xp*.8);const m1=mastery(G.cls);
   SAVE.gold+=gold;persist();
-  return {done,gold,xp,before,after,levelUp:after.lv>before.lv,dT,trophies:SAVE.trophies,road,firstBonus,mastery:m1,masteryUp:m1.lv>m0.lv};
+  return {done,gold,xp,before,after,levelUp:after.lv>before.lv,lvGold,dT,trophies:SAVE.trophies,road,firstBonus,mastery:m1,masteryUp:m1.lv>m0.lv};
 }
 /* lobby rendering */
 function renderMeta(){

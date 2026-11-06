@@ -4,12 +4,12 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>魔咒军团</title>
-<meta name="build" content="202611061959">
+<meta name="build" content="202611062037">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="theme-color" content="#0b060e">
 <link rel="apple-touch-icon" href="icons/icon-192.png"><link rel="icon" href="icons/icon-192.png">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=ZCOOL+XiaoWei&family=Alegreya+Sans:wght@400;700;800&display=swap">
-<link rel="stylesheet" href="css/style.css?v=202611061959">
+<link rel="stylesheet" href="css/style.css?v=202611062037">
 <script src="vendor/three.min.js"></script>
 <script src="vendor/CopyShader.js"></script>
 <script src="vendor/LuminosityHighPassShader.js"></script>
@@ -61,19 +61,19 @@
         <div class="ttb">
           <h1>Spell Legion</h1>
           <div class="langrow"><button type="button" class="langbtn" data-l="zh">中文</button><button type="button" class="langbtn" data-l="en">English</button><button type="button" id="sndbtn2" class="sndb" aria-label="Mute / unmute">🔊</button><span class="status" id="status"></span></div>
-          <div id="menubtns"></div>
+          <div id="prog"></div><div id="menubtns"></div>
           <span id="loadnote" class="note"></span><span id="autonote" hidden></span>
-          <div class="tabbar"><b id="gold" hidden>0</b><button type="button" data-t="tasks" data-ic="scroll"><span class="zh">任务</span><span class="en">Tasks</span></button><button type="button" data-t="ach" data-ic="trophy"><span class="zh">成就</span><span class="en">Achievements</span> <b id="achcount">0/0</b></button><button type="button" data-t="codex" data-ic="book"><span class="zh">图鉴</span><span class="en">Codex</span> <b id="codexcount">0/0</b></button><button type="button" id="lbbtn" data-ic="crown" hidden><span class="zh">排行榜</span><span class="en">Leaderboard</span></button><button type="button" data-t="settings" data-ic="gear"><span class="zh">设置</span><span class="en">Settings</span></button></div>
+          <div class="tabbar"><b id="gold" hidden>0</b><button type="button" data-t="road" data-ic="crown"><span class="zh">江湖</span><span class="en">Journey</span></button><button type="button" data-t="ach" data-ic="trophy"><span class="zh">成就</span><span class="en">Achievements</span> <b id="achcount">0/0</b></button><b id="codexcount" hidden>0/0</b><button type="button" id="lbbtn" hidden></button><button type="button" data-t="settings" data-ic="gear"><span class="zh">设置</span><span class="en">Settings</span></button></div>
           <div class="lobby">
-            <div id="shop" hidden></div><div id="record" hidden></div>
+            <div class="panel" data-p="road"><div id="road"></div><div id="shop" hidden></div><div id="record" hidden></div></div>
             <div class="panel" data-p="tasks"><div id="meta"></div></div>
             <div class="panel" data-p="ach"><div id="ach"></div></div>
-            <div class="panel" data-p="codex"><div id="codex"></div></div>
+            <div class="panel" data-p="codex"><details class="codexwrap"><summary><span class="zh">图鉴</span><span class="en">Codex</span> <b id="codexcount2">0/0</b></summary><div id="codex"></div></details></div>
             <div class="panel" data-p="settings">
-              <div class="opts"><div id="qual"><span><span class="zh">画质</span><span class="en">Quality</span></span><button type="button" data-q="low"><span class="zh">低</span><span class="en">Low</span></button><button type="button" data-q="med"><span class="zh">中</span><span class="en">Medium</span></button><button type="button" data-q="high"><span class="zh">高</span><span class="en">High</span></button></div></div>
-              <p class="note keys"><span class="zh"><kbd>WASD</kbd> / 方向键 / 拖动 移动 · <kbd>Space</kbd> 轻功 · <kbd>P</kbd> 暂停 · <kbd>M</kbd> 静音 · 右键或底部「自/手」切换自动施放</span><span class="en"><kbd>WASD</kbd> / arrows / drag to move · <kbd>Space</kbd> dash · <kbd>P</kbd> pause · <kbd>M</kbd> mute · right-click or the 自/手 seal toggles auto-cast</span></p>
-              <div class="rmrow"><button type="button" class="go alt sm" id="fsbtn"><span class="zh">全屏</span><span class="en">Fullscreen</span></button><small class="note ioshint"><span class="zh">iPhone:Safari「分享 → 添加到主屏幕」后从主屏幕打开即全屏</span><span class="en">iPhone: Safari Share → Add to Home Screen, then launch from there</span></small></div>
-              <div id="account"></div><p class="note tiny" id="buildnote"></p>
+              <div class="srow"><span class="sl"><span class="zh">画质</span><span class="en">Quality</span></span><div id="qual"><button type="button" data-q="low"><span class="zh">低</span><span class="en">Low</span></button><button type="button" data-q="med"><span class="zh">中</span><span class="en">Medium</span></button><button type="button" data-q="high"><span class="zh">高</span><span class="en">High</span></button></div></div>
+              <div class="srow"><span class="sl"><span class="zh">显示</span><span class="en">Display</span></span><div class="rmrow"><button type="button" class="go alt sm" id="fsbtn"><span class="zh">全屏</span><span class="en">Fullscreen</span></button><small class="note ioshint"><span class="zh">iPhone:Safari「分享 → 添加到主屏幕」后从主屏幕打开即全屏</span><span class="en">iPhone: Safari Share → Add to Home Screen, then launch from there</span></small></div></div>
+              <div class="srow"><span class="sl"><span class="zh">账号</span><span class="en">Account</span></span><div id="account"></div></div>
+              <p class="note tiny" id="buildnote"></p>
             </div>
           </div>
           <button class="go alt" id="exitbtn" hidden><span class="zh">退出</span><span class="en">Quit</span></button>
@@ -101,7 +101,7 @@
       <div id="stickystart"><button type="button" class="go" id="stickybtn"><span class="zh">出山</span><span class="en">Start</span></button><small></small></div>
     </div>
   </div>
-  <div id="cards" class="overlay" hidden><h2 id="cardtitle"></h2><div id="build"></div><div id="cardrow"></div><div id="cardtip" class="badv" hidden></div><button type="button" class="go alt" id="reroll" hidden><span class="zh">重抽</span><span class="en">Reroll</span></button></div>
+  <div id="cards" class="overlay" hidden><h2 id="cardtitle"></h2><small id="picktimer" class="picktimer"></small><div id="build"></div><div id="cardrow"></div><div id="cardtip" class="badv" hidden></div><button type="button" class="go alt" id="reroll" hidden><span class="zh">重抽</span><span class="en">Reroll</span></button></div>
   <div id="pause" class="overlay" hidden><div class="pbox"><h2><span class="zh">暂停</span><span class="en">Paused</span></h2><div id="pausebuild" class="pbuild"></div><button class="go" id="resumebtn"><span class="zh">继续</span><span class="en">Resume</span></button><button class="go alt" id="autobtn"></button><button class="go alt" id="mutebtn"></button><button class="go alt" id="quitbtn"><span class="zh">放弃本局</span><span class="en">Abandon run</span></button><p><span class="zh">1/2/3 武学 · Space 轻功 · P 继续 · M 静音</span><span class="en">1/2/3 skills · Space dash · P resume · M mute</span></p></div></div>
   <div id="char" class="overlay" hidden><div class="cbox">
     <div class="ch"><h2><span class="zh">角色</span><span class="en">Hero</span></h2><div class="pts"><span><span class="zh">已学武学树节点</span><span class="en">Tree upgrades taken</span> <b id="sp">0</b></span></div><button type="button" id="charclose"><span class="zh">关闭 C</span><span class="en">Close C</span></button></div>
@@ -111,22 +111,23 @@
   <div id="lb" class="overlay" hidden><div class="cbox"><div class="ch"><h2><span class="zh">排行榜</span><span class="en">Leaderboard</span> <small><span class="zh">最长存活</span><span class="en">longest survival</span></small></h2><div class="tabs" id="lbtabs"><button type="button" data-b="all" class="on"><span class="zh">总榜</span><span class="en">All time</span></button><button type="button" data-b="today"><span class="zh">今日</span><span class="en">Today</span></button></div><button type="button" id="lbclose"><span class="zh">关闭</span><span class="en">Close</span></button></div><div id="lbbody"></div></div></div>
   <div id="end" class="overlay" hidden><div class="endb" id="endb"></div></div>
 </div>
-<script src="js/core.js?v=202611061959"></script>
-<script src="js/content.js?v=202611061959"></script>
-<script src="js/icons.js?v=202611061959"></script>
-<script src="js/audio.js?v=202611061959"></script>
-<script src="js/gfx.js?v=202611061959"></script>
-<script src="js/sim.js?v=202611061959"></script>
-<script src="js/director.js?v=202611061959"></script>
-<script src="js/render.js?v=202611061959"></script>
-<script src="js/leaderboard.js?v=202611061959"></script>
-<script src="js/cloud.js?v=202611061959"></script>
-<script src="js/net.js?v=202611061959"></script>
-<script src="js/room.js?v=202611061959"></script>
-<script src="js/meta.js?v=202611061959"></script>
-<script src="js/ui.js?v=202611061959"></script>
-<script src="js/lobby.js?v=202611061959"></script>
-<script src="js/main.js?v=202611061959"></script>
+<script src="js/core.js?v=202611062037"></script>
+<script src="js/content.js?v=202611062037"></script>
+<script src="js/icons.js?v=202611062037"></script>
+<script src="js/audio.js?v=202611062037"></script>
+<script src="js/gfx.js?v=202611062037"></script>
+<script src="js/sim.js?v=202611062037"></script>
+<script src="js/director.js?v=202611062037"></script>
+<script src="js/road.js?v=202611062037"></script>
+<script src="js/render.js?v=202611062037"></script>
+<script src="js/leaderboard.js?v=202611062037"></script>
+<script src="js/cloud.js?v=202611062037"></script>
+<script src="js/net.js?v=202611062037"></script>
+<script src="js/room.js?v=202611062037"></script>
+<script src="js/meta.js?v=202611062037"></script>
+<script src="js/ui.js?v=202611062037"></script>
+<script src="js/lobby.js?v=202611062037"></script>
+<script src="js/main.js?v=202611062037"></script>
 <!--/PAGE-->
 </body>
 </html>

@@ -123,7 +123,7 @@ function roomBeginCountdown(data){
 function roomNetTick(dt){
   if(!ROOM.code||!ROOM.playing||!G||G.auto)return;ROOM.sendT-=dt;
   if(ROOM.sendT<=0){ROOM.sendT=1;const P=G.P;roomSetMe({score:G.score,hp:Math.max(0,P.hp/P.maxHp),lv:G.lv,kills:G.kills,alive:!G.over||G.over==='pk',done:!!G.ended||!!ROOM.ended,t:Math.round(G.t),cls:G.cls,bosses:G.bossSlain});if(typeof drawRoomBoard==='function')drawRoomBoard()}
-  const d=ROOM.data;if(d&&d.mode==='time'&&G.t>=d.len&&!G.over)roomEndRun('time');
+  const d=ROOM.data;if(d&&d.mode==='time'&&!G.over){const wall=d.startedAt?(Date.now()-(d.startedAt+(d.delay||0)))/1000:G.t;if(G.t>=d.len||wall>=d.len)roomEndRun('time')}
 }
 function roomEndRun(why,who){
   if(!G||G.over)return;closeCards();G.over='pk';G.slow=1.2;G.flash=.6;trauma(.3);ROOM.endWhy=why;ROOM.endWho=who;

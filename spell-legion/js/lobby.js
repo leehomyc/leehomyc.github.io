@@ -16,12 +16,17 @@ function showScreen(s){
   if(typeof renderStatus==='function')renderStatus();
 }
 function renderMenu(){
+  if(typeof renderProg==='function')try{renderProg()}catch(e){console.warn('prog',e)}
   const box=$('#menubtns');if(!box)return;box.textContent='';
+  const row=document.createElement('div');row.className='mrow';
   MENU_MODES.forEach(o=>{const b=document.createElement('button');b.type='button';b.className='mb'+(o.big?' big':'');b.dataset.m=o.m;
-    b.innerHTML=`${ICON.misc(o.ic[0],o.ic[1])}<div><b>${L(o.zh,o.en)}</b><small>${L(o.szh(),o.sen())}</small>${o.subs?`<span class="subs">${o.subs.map(s=>`<i data-m="${s.m}" role="button" tabindex="0">${L(s.zh,s.en)}</i>`).join('')}</span>`:''}</div>`;
+    if(o.big){ // the main card: your hero, your tier, and today's next goal — the reason to press it
+      const C=CLASSES[SAVE.cls]||CLASSES.swordsman,A=SAVE.asura||{},tier=Math.min(A.sel||0,A.max||0);const tasks=typeof todayTasks==='function'?todayTasks():[];const nt=tasks.find(t=>!t.done);const tt=nt&&typeof taskText==='function'?taskText(nt):null;const TGOLD=typeof TASK_GOLD!=='undefined'?TASK_GOLD:[150,220,320];
+      b.innerHTML=`${ICON.cls(SAVE.cls)}<div><b>${L(o.zh,o.en)}</b><small>${LL(C)} · ${LL(DIFF[SAVE.diff||'normal'])}${tier?` · ${L(`修罗 ${tier} 层`,`Tier ${tier}`)}`:''}</small>${tt?`<span class="goal"><em>${L('今日','Today')}</em>${L(tt.zh,tt.en)}<i><u style="width:${Math.min(100,Math.round(100*(nt.p||0)/nt.goal))}%"></u></i><b>+${TGOLD[nt.tier]||150}</b></span>`:''}</div>`}
+    else b.innerHTML=`${ICON.misc(o.ic[0],o.ic[1])}<div><b>${L(o.zh,o.en)}</b><small>${L(o.szh(),o.sen())}</small>${o.subs?`<span class="subs">${o.subs.map(s=>`<i data-m="${s.m}" role="button" tabindex="0">${L(s.zh,s.en)}</i>`).join('')}</span>`:''}</div>`;
     const go=m=>{SAVE.mode=m;persist();renderTitle();showScreen('hero');SFX.pick(1)};
     b.onclick=ev=>{const sub=ev.target.closest&&ev.target.closest('.subs i');go(sub?sub.dataset.m:o.m)};
-    b.querySelectorAll('.subs i').forEach(i=>i.onkeydown=ev=>{if(ev.key==='Enter'||ev.key===' '){ev.preventDefault();ev.stopPropagation();go(i.dataset.m)}});box.appendChild(b)});
+    b.querySelectorAll('.subs i').forEach(i=>i.onkeydown=ev=>{if(ev.key==='Enter'||ev.key===' '){ev.preventDefault();ev.stopPropagation();go(i.dataset.m)}});if(o.big)box.appendChild(b);else row.appendChild(b)});box.appendChild(row);
 }
 function statBars(C){
   const all=Object.values(CLASSES);const mx=k=>Math.max(...all.map(c=>c[k]));
