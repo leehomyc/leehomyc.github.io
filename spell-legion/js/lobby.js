@@ -3,11 +3,11 @@
 const ROLES={swordsman:['远程 · 均衡','Ranged · Balanced'],taoist:['法术 · 符咒','Caster · Talismans'],blademaster:['近战 · 重击','Melee · Bruiser'],qin:['控场 · 减速','Control · Slows'],monk:['近战 · 坚韧','Melee · Tank'],physician:['远程 · 毒伤','Ranged · Poison']};
 const MENU_MODES=[
   {m:'solo',ic:['sword','#ffb79f'],zh:'出山',en:'Play',szh:()=>`单人无尽 · ${LL(DIFF[SAVE.diff||'normal'])}${(SAVE.asura&&SAVE.asura.sel)?` · 修罗 ${SAVE.asura.sel}`:''}`,sen:()=>`Solo endless · ${LL(DIFF[SAVE.diff||'normal'])}${(SAVE.asura&&SAVE.asura.sel)?` · Ascension ${SAVE.asura.sel}`:''}`,big:1},
-  {m:'qpk',ic:['swords','#ff9c5a'],zh:'快速对决',en:'Quick PK',szh:()=>`3 分钟 · ${L(ladderOf(SAVE.trophies||0)[1],'')} ${SAVE.trophies||0} 🏆`,sen:()=>`3 minutes · ${ladderOf(SAVE.trophies||0)[2]} ${SAVE.trophies||0} 🏆`},
+  {m:'qpk',ic:['swords','#ff9c5a'],zh:'对决',en:'Duel',szh:()=>`3 分钟天梯 · ${L(ladderOf(SAVE.trophies||0)[1],'')} ${SAVE.trophies||0} 🏆`,sen:()=>`3-minute ladder · ${ladderOf(SAVE.trophies||0)[2]} ${SAVE.trophies||0} 🏆`,
+    subs:[{m:'qpk',zh:'3 分钟天梯',en:'3-min ladder'},{m:'room',zh:'多人房间',en:'Room with friends'}]},
   {m:'daily',ic:['calendar','#ffd27a'],zh:'每日挑战',en:'Daily',szh:()=>(SAVE.daily&&SAVE.daily.day===dayKey())?`今日最佳 ${fmt(SAVE.daily.best)} · ${resetIn()} 后刷新`:`今日同一张图、同一波怪 · ${resetIn()} 后刷新`,sen:()=>(SAVE.daily&&SAVE.daily.day===dayKey())?`Today's best ${fmt(SAVE.daily.best)} · resets in ${resetIn()}`:`Same map, same waves for everyone · resets in ${resetIn()}`},
-  {m:'rush',ic:['boss','#ff5a45'],zh:'首领连战',en:'Boss rush',szh:()=>'从 Lv 10 起 · 每 75 秒一位首领',sen:()=>'Start at Lv 10 · a boss every 75 s'},
-  {m:'pk',ic:['trophy','#ffd27a'],zh:'对决 10′',en:'PK 10′',szh:()=>SAVE.pk?`对决 ${SAVE.pk.w} 胜 ${SAVE.pk.l} 负`:'与 AI 对手争分十分钟',sen:()=>SAVE.pk?`PK ${SAVE.pk.w}W ${SAVE.pk.l}L`:'A ten-minute score race against an AI rival'},
 ];
+/* retired entries (kept playable through SAVE.mode for old links, not offered): 'pk' ten-minute AI race, 'rush' boss rush */
 let SCREEN='menu',HSKILL=null;
 function showScreen(s){
   SCREEN=s;const m=$('#menu'),h=$('#hero');if(!m||!h)return;m.hidden=s!=='menu';h.hidden=s!=='hero';$('#title').classList.toggle('heroview',s==='hero');
@@ -18,8 +18,10 @@ function showScreen(s){
 function renderMenu(){
   const box=$('#menubtns');if(!box)return;box.textContent='';
   MENU_MODES.forEach(o=>{const b=document.createElement('button');b.type='button';b.className='mb'+(o.big?' big':'');b.dataset.m=o.m;
-    b.innerHTML=`${ICON.misc(o.ic[0],o.ic[1])}<div><b>${L(o.zh,o.en)}</b><small>${L(o.szh(),o.sen())}</small></div>`;
-    b.onclick=()=>{SAVE.mode=o.m;persist();renderTitle();showScreen('hero');SFX.pick(1)};box.appendChild(b)});
+    b.innerHTML=`${ICON.misc(o.ic[0],o.ic[1])}<div><b>${L(o.zh,o.en)}</b><small>${L(o.szh(),o.sen())}</small>${o.subs?`<span class="subs">${o.subs.map(s=>`<i data-m="${s.m}" role="button" tabindex="0">${L(s.zh,s.en)}</i>`).join('')}</span>`:''}</div>`;
+    const go=m=>{SAVE.mode=m;persist();renderTitle();showScreen('hero');SFX.pick(1)};
+    b.onclick=ev=>{const sub=ev.target.closest&&ev.target.closest('.subs i');go(sub?sub.dataset.m:o.m)};
+    b.querySelectorAll('.subs i').forEach(i=>i.onkeydown=ev=>{if(ev.key==='Enter'||ev.key===' '){ev.preventDefault();ev.stopPropagation();go(i.dataset.m)}});box.appendChild(b)});
 }
 function statBars(C){
   const all=Object.values(CLASSES);const mx=k=>Math.max(...all.map(c=>c[k]));

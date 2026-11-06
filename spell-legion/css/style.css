@@ -685,3 +685,13 @@ body.touchhud #pause .pbox>p{display:none}
 
 #bossheal[hidden]{display:none}
 #coretm{font-size:11px;color:#9fe3f0;margin-left:4px;font-weight:700}#coretm[hidden]{display:none}
+
+/* status chips */
+#status{display:inline-flex;gap:6px;align-items:center;margin-left:auto;font-size:13px}
+#status .chip{display:inline-flex;align-items:center;gap:5px;padding:4px 9px 4px 6px;border-radius:999px;background:#140b12cc;border:1px solid #6b523066;color:var(--bone);font-weight:800;position:relative;overflow:hidden}
+#status .chip .ic{width:18px;height:18px;flex:none}#status .chip b{font-size:13px}
+#status .chip.acct i{position:absolute;left:0;bottom:0;height:2px;width:var(--p,0%);background:#ffe9a0;opacity:.8}
+#status .chip.acct:not(.on){opacity:.75}
+/* duel card sub-choices */
+.mb .subs{display:flex;gap:6px;margin-top:5px}.mb .subs i{font-style:normal;font-size:12px;font-weight:700;padding:3px 10px;border-radius:999px;border:1px solid #6b5230;background:#140b12cc;color:var(--bone)}
+.mb .subs i:hover,.mb .subs i:focus{border-color:var(--brass);color:#ffe9a0;outline:none}
