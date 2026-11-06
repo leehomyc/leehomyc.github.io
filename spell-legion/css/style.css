@@ -733,7 +733,7 @@ body.touchhud #pause .pbox>p{display:none}
 .mb .goal em{font-style:normal;font-size:10px;font-weight:800;letter-spacing:.1em;color:var(--brass);border:1px solid #6b5230;border-radius:4px;padding:1px 5px}
 .mb .goal i{grid-area:bar;display:block;height:4px;border-radius:2px;background:#ffffff14;overflow:hidden}.mb .goal i u{display:block;height:100%;background:#ffe9a0}
 .mb .goal b{grid-area:gold;font-size:12px;color:#ffd27a}
-.mrow .mb{padding:10px 12px}.mrow .mb .ic{width:38px;height:38px}.mrow .mb b{font-size:16px}.mrow .mb small{font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mrow .mb{padding:10px 12px}.mrow .mb .ic{width:38px;height:38px}.mrow .mb b{font-size:16px}.mrow .mb small{font-size:11px;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .mrow .mb .subs{margin-top:4px;flex-wrap:wrap}.mrow .mb .subs i{padding:2px 8px;font-size:11px;white-space:nowrap}
 @media (max-width:760px){.mrow{gap:6px}.mrow .mb{padding:8px 10px}.mrow .mb .ic{width:32px;height:32px}.mrow .mb b{font-size:14px}.mb.big b{font-size:20px}.mb.big .ic{width:46px;height:46px}}
 
@@ -761,3 +761,11 @@ body.touchhud #pause .pbox>p{display:none}
 #hero .hfoot #maps{display:flex;gap:6px;flex-wrap:nowrap;margin-left:auto}
 @media (max-width:760px){#hero .hfoot #maps{margin-left:0;flex-wrap:wrap}}
 @media (max-width:760px){#hero #runsummary{display:none}.modechip{margin-left:0}}
+
+/* ---- stripped-down menu ---- */
+#loadnote{display:block;max-height:0;overflow:hidden;opacity:0;transition:max-height .3s,opacity .3s}#loadnote.on{max-height:40px;opacity:1}
+#prog{margin-top:6px}#prog .pr b em{font-size:11px;margin-left:4px}
+.cls .sk{display:none}
+#skilldetail .tree.compact{display:flex;flex-wrap:wrap;gap:5px;align-items:center}#skilldetail .tree.compact .tl{flex:1 1 100%;font-size:10px;letter-spacing:.12em;color:var(--brass);text-transform:uppercase}
+#skilldetail .tree.compact .tn{display:inline-flex;align-items:center;gap:5px;padding:4px 9px 4px 5px;border-radius:999px;background:#0d0810cc;border:1px solid #6b523066;font-size:12px;cursor:help}#skilldetail .tree.compact .tn .ic{width:16px;height:16px}#skilldetail .tree.compact .tn em{font-style:normal;font-weight:700}
+.srow .langrow{margin:0;display:flex;gap:6px;align-items:center}

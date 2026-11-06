@@ -3,9 +3,9 @@
 const ROLES={swordsman:['远程 · 均衡','Ranged · Balanced'],taoist:['法术 · 符咒','Caster · Talismans'],blademaster:['近战 · 重击','Melee · Bruiser'],qin:['控场 · 减速','Control · Slows'],monk:['近战 · 坚韧','Melee · Tank'],physician:['远程 · 毒伤','Ranged · Poison']};
 const MENU_MODES=[
   {m:'solo',ic:['sword','#ffb79f'],zh:'出山',en:'Play',szh:()=>`单人无尽 · ${LL(DIFF[SAVE.diff||'normal'])}${(SAVE.asura&&SAVE.asura.sel)?` · 修罗 ${SAVE.asura.sel}`:''}`,sen:()=>`Solo endless · ${LL(DIFF[SAVE.diff||'normal'])}${(SAVE.asura&&SAVE.asura.sel)?` · Ascension ${SAVE.asura.sel}`:''}`,big:1},
-  {m:'qpk',ic:['swords','#ff9c5a'],zh:'对决',en:'Duel',szh:()=>`${L(ladderOf(SAVE.trophies||0)[1],'')} ${SAVE.trophies||0} 🏆`,sen:()=>`${ladderOf(SAVE.trophies||0)[2]} ${SAVE.trophies||0} 🏆`,
-    subs:[{m:'qpk',zh:'天梯 3′',en:'Ladder 3′'},{m:'room',zh:'好友房间',en:'Room'}]},
-  {m:'daily',ic:['calendar','#ffd27a'],zh:'每日挑战',en:'Daily',szh:()=>(SAVE.daily&&SAVE.daily.day===dayKey())?`最佳 ${fmt(SAVE.daily.best)} · ${resetIn()} 后刷新`:`全服同图同怪 · ${resetIn()} 后刷新`,sen:()=>(SAVE.daily&&SAVE.daily.day===dayKey())?`Best ${fmt(SAVE.daily.best)} · resets in ${resetIn()}`:`Same run for everyone · resets in ${resetIn()}`},
+  {m:'qpk',ic:['swords','#ff9c5a'],zh:'对决',en:'Duel',szh:()=>`3 分钟比分数 · ${L(ladderOf(SAVE.trophies||0)[1],'')} ${SAVE.trophies||0} 🏆`,sen:()=>`3-minute score race · ${ladderOf(SAVE.trophies||0)[2]} ${SAVE.trophies||0} 🏆`,
+    subs:[{m:'qpk',zh:'打 AI 对手',en:'vs AI'},{m:'room',zh:'约好友联机',en:'With friends'}]},
+  {m:'daily',ic:['calendar','#ffd27a'],zh:'每日挑战',en:'Daily',szh:()=>(SAVE.daily&&SAVE.daily.day===dayKey())?`今日最佳 ${fmt(SAVE.daily.best)} · ${resetIn()} 后换图`:`全服同一局,比谁活得久 · ${resetIn()} 后换图`,sen:()=>(SAVE.daily&&SAVE.daily.day===dayKey())?`Today's best ${fmt(SAVE.daily.best)} · new map in ${resetIn()}`:`Same run for everyone, longest survival wins · new map in ${resetIn()}`},
 ];
 /* retired entries (kept playable through SAVE.mode for old links, not offered): 'pk' ten-minute AI race, 'rush' boss rush */
 let SCREEN='menu',HSKILL=null;
@@ -37,7 +37,7 @@ function skillDetail(id){
   const m=SPELLS[id];if(!m)return '';const tree=TREES[id]||[],cat=CATS[SKILL_CAT[id]]||CATS.passive;
   const meta=m.auto?L('普攻 · 自动','Normal attack · automatic'):L(`${m.cost} 内力 · 冷却 ${m.cd}s${m.dur?` · 持续 ${m.dur}s`:''}`,`${m.cost} qi · ${m.cd}s cooldown${m.dur?` · ${m.dur}s`:''}`);
   const info=WEAPON_INFO[id];
-  return `<div class="sdh">${ICON.spell(id)}<div><b>${LL(m)} <span class="catd" style="--cc:${cat[2]}">${L(cat[0],cat[1])}</span></b><small>${meta}</small></div></div><p>${L(m.d,m.de)}</p>${info&&info.awake?`<p class="aw">${ICON.misc('awake','#ffd27a','sm')} <b>${L('觉醒 Lv '+AWAKE_LV,'Awakening at Lv '+AWAKE_LV)}</b> ${L(info.awake[0],info.awake[1])}</p>`:''}${tree.length?`<div class="tree">${tree.map(n=>`<span class="tn" title="${L(n.d,n.de)}">${ICON.node(n.fx,m.col,'sm')}<em>${L(n.zh,n.en)}</em><small>${L(n.d,n.de)}</small></span>`).join('')}</div>`:''}`;
+  return `<div class="sdh">${ICON.spell(id)}<div><b>${LL(m)} <span class="catd" style="--cc:${cat[2]}">${L(cat[0],cat[1])}</span></b><small>${meta}</small></div></div><p>${L(m.d,m.de)}</p>${info&&info.awake?`<p class="aw">${ICON.misc('awake','#ffd27a','sm')} <b>${L('觉醒 Lv '+AWAKE_LV,'Awakening at Lv '+AWAKE_LV)}</b> ${L(info.awake[0],info.awake[1])}</p>`:''}${tree.length?`<div class="tree compact"><small class="tl">${L('武学树','Skill tree')}</small>${tree.map(n=>`<span class="tn" title="${L(n.d,n.de)}">${ICON.node(n.fx,m.col,'sm')}<em>${L(n.zh,n.en)}</em></span>`).join('')}</div>`:''}`;
 }
 function renderHero(){
   const C=CLASSES[SAVE.cls]||CLASSES.swordsman,cls=SAVE.cls;

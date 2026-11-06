@@ -4,12 +4,12 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>魔咒军团</title>
-<meta name="build" content="202611062058">
+<meta name="build" content="202611062142">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="theme-color" content="#0b060e">
 <link rel="apple-touch-icon" href="icons/icon-192.png"><link rel="icon" href="icons/icon-192.png">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=ZCOOL+XiaoWei&family=Alegreya+Sans:wght@400;700;800&display=swap">
-<link rel="stylesheet" href="css/style.css?v=202611062058">
+<link rel="stylesheet" href="css/style.css?v=202611062142">
 <script src="vendor/three.min.js"></script>
 <script src="vendor/CopyShader.js"></script>
 <script src="vendor/LuminosityHighPassShader.js"></script>
@@ -60,7 +60,6 @@
         <div class="vname">魔咒军团</div>
         <div class="ttb">
           <h1>Spell Legion</h1>
-          <div class="langrow"><button type="button" class="langbtn" data-l="zh">中文</button><button type="button" class="langbtn" data-l="en">English</button><button type="button" id="sndbtn2" class="sndb" aria-label="Mute / unmute">🔊</button><span class="status" id="status"></span></div>
           <div id="prog"></div><div id="menubtns"></div>
           <span id="loadnote" class="note"></span><span id="autonote" hidden></span>
           <div class="tabbar"><b id="gold" hidden>0</b><button type="button" data-t="road" data-ic="crown"><span class="zh">江湖</span><span class="en">Journey</span></button><button type="button" data-t="ach" data-ic="trophy"><span class="zh">成就</span><span class="en">Achievements</span> <b id="achcount">0/0</b></button><b id="codexcount" hidden>0/0</b><button type="button" id="lbbtn" hidden></button><button type="button" data-t="settings" data-ic="gear"><span class="zh">设置</span><span class="en">Settings</span></button></div>
@@ -70,6 +69,7 @@
             <div class="panel" data-p="ach"><div id="ach"></div></div>
             <div class="panel" data-p="codex"><details class="codexwrap"><summary><span class="zh">图鉴</span><span class="en">Codex</span> <b id="codexcount2">0/0</b></summary><div id="codex"></div></details></div>
             <div class="panel" data-p="settings">
+              <div class="srow"><span class="sl"><span class="zh">语言</span><span class="en">Language</span></span><div class="langrow"><button type="button" class="langbtn" data-l="zh">中文</button><button type="button" class="langbtn" data-l="en">English</button><button type="button" id="sndbtn2" class="sndb" aria-label="Mute / unmute">🔊</button></div><span class="status" id="status" hidden></span></div>
               <div class="srow"><span class="sl"><span class="zh">画质</span><span class="en">Quality</span></span><div id="qual"><button type="button" data-q="low"><span class="zh">低</span><span class="en">Low</span></button><button type="button" data-q="med"><span class="zh">中</span><span class="en">Medium</span></button><button type="button" data-q="high"><span class="zh">高</span><span class="en">High</span></button></div></div>
               <div class="srow"><span class="sl"><span class="zh">显示</span><span class="en">Display</span></span><div class="rmrow"><button type="button" class="go alt sm" id="fsbtn"><span class="zh">全屏</span><span class="en">Fullscreen</span></button><small class="note ioshint"><span class="zh">iPhone:Safari「分享 → 添加到主屏幕」后从主屏幕打开即全屏</span><span class="en">iPhone: Safari Share → Add to Home Screen, then launch from there</span></small></div></div>
               <div class="srow"><span class="sl"><span class="zh">账号</span><span class="en">Account</span></span><div id="account"></div></div>
@@ -110,23 +110,23 @@
   <div id="lb" class="overlay" hidden><div class="cbox"><div class="ch"><h2><span class="zh">排行榜</span><span class="en">Leaderboard</span> <small><span class="zh">最长存活</span><span class="en">longest survival</span></small></h2><div class="tabs" id="lbtabs"><button type="button" data-b="all" class="on"><span class="zh">总榜</span><span class="en">All time</span></button><button type="button" data-b="today"><span class="zh">今日</span><span class="en">Today</span></button></div><button type="button" id="lbclose"><span class="zh">关闭</span><span class="en">Close</span></button></div><div id="lbbody"></div></div></div>
   <div id="end" class="overlay" hidden><div class="endb" id="endb"></div></div>
 </div>
-<script src="js/core.js?v=202611062058"></script>
-<script src="js/content.js?v=202611062058"></script>
-<script src="js/icons.js?v=202611062058"></script>
-<script src="js/audio.js?v=202611062058"></script>
-<script src="js/gfx.js?v=202611062058"></script>
-<script src="js/sim.js?v=202611062058"></script>
-<script src="js/director.js?v=202611062058"></script>
-<script src="js/road.js?v=202611062058"></script>
-<script src="js/render.js?v=202611062058"></script>
-<script src="js/leaderboard.js?v=202611062058"></script>
-<script src="js/cloud.js?v=202611062058"></script>
-<script src="js/net.js?v=202611062058"></script>
-<script src="js/room.js?v=202611062058"></script>
-<script src="js/meta.js?v=202611062058"></script>
-<script src="js/ui.js?v=202611062058"></script>
-<script src="js/lobby.js?v=202611062058"></script>
-<script src="js/main.js?v=202611062058"></script>
+<script src="js/core.js?v=202611062142"></script>
+<script src="js/content.js?v=202611062142"></script>
+<script src="js/icons.js?v=202611062142"></script>
+<script src="js/audio.js?v=202611062142"></script>
+<script src="js/gfx.js?v=202611062142"></script>
+<script src="js/sim.js?v=202611062142"></script>
+<script src="js/director.js?v=202611062142"></script>
+<script src="js/road.js?v=202611062142"></script>
+<script src="js/render.js?v=202611062142"></script>
+<script src="js/leaderboard.js?v=202611062142"></script>
+<script src="js/cloud.js?v=202611062142"></script>
+<script src="js/net.js?v=202611062142"></script>
+<script src="js/room.js?v=202611062142"></script>
+<script src="js/meta.js?v=202611062142"></script>
+<script src="js/ui.js?v=202611062142"></script>
+<script src="js/lobby.js?v=202611062142"></script>
+<script src="js/main.js?v=202611062142"></script>
 <!--/PAGE-->
 </body>
 </html>

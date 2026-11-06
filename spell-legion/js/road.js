@@ -13,7 +13,7 @@ function tierPips(max,sel,total){let s='';for(let i=1;i<=total;i++)s+=`<i class=
 /* compact strip on the menu */
 function renderProg(){const el=$('#prog');if(!el)return;const b=roadBits();const xpPct=Math.round(100*(b.a.x||0)/Math.max(1,b.a.need||1));
   el.innerHTML=`
-  <button type="button" class="pr lv" data-t="road" title="${L('江湖等级:每局都涨,升级得金币','Renown: every run adds XP; each level pays gold')}">${ICON.misc('crown','#ffe9a0')}<div><b>Lv ${b.a.lv}</b><small>${L(b.t[1],b.t[2])}</small><span class="bar"><i style="width:${xpPct}%"></i></span></div></button>
+  <button type="button" class="pr lv" data-t="road" title="${L('江湖等级:每局都涨,升级得金币','Renown: every run adds XP; each level pays gold')}">${ICON.misc('crown','#ffe9a0')}<div><b>Lv ${b.a.lv} <em>${SAVE.gold} ${L('金','g')}</em></b><small>${L(b.t[1],b.t[2])}</small><span class="bar"><i style="width:${xpPct}%"></i></span></div></button>
   <button type="button" class="pr tier" data-t="road" title="${L('修罗层:单人难度阶梯,一局斩两位首领开下一层','Ascension: the solo ladder; two bosses in one run opens the next tier')}">${ICON.misc('boss','#ff5a45')}<div><b>${b.tier?L(`修罗 ${b.tier} 层`,`Tier ${b.tier}`):L('修罗','Ascension')}</b><span class="pips">${tierPips(b.tier,b.tierSel,b.tierMax)}</span></div></button>
   <button type="button" class="pr lad" data-t="road" title="${L('天梯:3 分钟对决赢奖杯,升段','Ladder: win trophies in 3-minute duels to rank up')}">${ICON.misc('trophy',b.lcol)}<div><b>${L(b.lad[1],b.lad[2])} <em>${b.tr}</em></b><span class="bar lad"><i style="width:${b.lpct}%;background:${b.lcol}"></i></span></div></button>`;
   el.querySelectorAll('.pr').forEach(x=>x.onclick=()=>{showTab('road');SFX.pick(1);const p=$('#road');if(p&&p.scrollIntoView)try{p.scrollIntoView({block:'start',behavior:'smooth'})}catch(_){}});}
