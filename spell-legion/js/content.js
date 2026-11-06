@@ -96,7 +96,28 @@ const ETYPES={
   brute:{hp:95,spd:26,dmg:14,r:9,xp:6,zh:'盾卫',en:'shield guard',mesh:'giant',sc:.78,tint:[.7,.85,1.25]},
   bomber:{hp:24,spd:28,dmg:7,r:6,xp:4,shoot:1,bomb:1,zh:'火药匪',en:'bomber',mesh:'archer',sc:1.05,tint:[1.5,.9,.5]},
   wraith:{hp:30,spd:58,dmg:9,r:6,xp:5,zh:'怨灵',en:'wraith',mesh:'assassin',sc:1.3,tint:[1.3,.6,1.9],ghost:1},
+  firewisp:{hp:34,spd:46,dmg:10,r:6,xp:6,zh:'火煞',en:'fire wisp',mesh:'assassin',sc:1.2,tint:[2.2,.9,.3],ghost:1,burn:1},
+  icesprite:{hp:40,spd:40,dmg:9,r:6,xp:6,zh:'冰魄',en:'ice sprite',mesh:'assassin',sc:1.2,tint:[.5,1.4,2.2],ghost:1,chill:1},
 };
+/* 克制 counters (tower-defence style): every monster has what it is weak to (×1.6, or ×2 for the big ones) and what it shrugs off (×0.5).
+   cat = skill category (SKILL_CAT), el = element. Shown in the codex, on themed-wave banners and as 克/抗 marks on hits. */
+const AFFINITY={
+  assassin:{weak:{cat:'control'},resist:null,tip:['怕控制:减速、眩晕、音阵','weak to control: slows, stuns, fields']},
+  bandit:{weak:{cat:'melee'},resist:null,tip:['怕近战横扫','weak to melee sweeps']},
+  archer:{weak:{cat:'melee'},resist:{cat:'ranged'},tip:['怕近战,远程打它只有一半','weak to melee; ranged hits do half']},
+  giant:{weak:{el:'acid'},resist:{el:'fire'},tip:['铁甲怕酸蚀,不怕火','armour corrodes under acid; fire does half']},
+  brute:{weak:{el:'lightning'},resist:{cat:'ranged'},tip:['盾挡远程,雷电穿甲','shield blocks ranged; lightning pierces']},
+  bomber:{weak:{cat:'ranged'},resist:{cat:'melee'},tip:['远程打掉它,近身会被炸','kill it at range; melee gets you blown up']},
+  wraith:{weak:{cat:'heal'},resist:{auto:1},tip:['普攻只有一半,驱邪/禅定/回春类武学双倍','normal attacks do half; exorcism, zen and healing skills do double']},
+  firewisp:{weak:{el:'ice'},resist:{el:'fire'},tip:['免疫火,怕冰','immune to fire, weak to ice']},
+  icesprite:{weak:{el:'fire'},resist:{el:'ice'},tip:['免疫冰,怕火','immune to ice, weak to fire']},
+  boss:null,statue:null,
+};
+const THEMES=[
+  {type:'assassin',zh:'刺客潮',en:'Assassin surge',from:120},{type:'bandit',zh:'刀客潮',en:'Bandit surge',from:120},{type:'archer',zh:'箭雨',en:'Arrow storm',from:150},
+  {type:'brute',zh:'盾阵',en:'Shield wall',from:200},{type:'bomber',zh:'火药队',en:'Powder squad',from:240},{type:'giant',zh:'铁甲阵',en:'Iron column',from:300},
+  {type:'wraith',zh:'怨灵夜',en:'Wraith night',from:330},{type:'firewisp',zh:'火煞潮',en:'Fire wisps',from:360},{type:'icesprite',zh:'冰魄潮',en:'Ice sprites',from:360},
+];
 const BOSS_NAME=['血魔教主','Blood Demon Patriarch'];
 
 /* ---------- skill trees (Diablo / Last Epoch style) ----------
@@ -252,6 +273,8 @@ const CONTRACTS=[
 
 /* codex: what the player has met */
 const CODEX_ENEMIES=[
+  {id:'firewisp',g:'煞',zh:'火煞',en:'Fire Wisp',d:'燃着的游魂,碰到就着火;免疫火,怕冰。',de:'A burning spirit that sets you alight; immune to fire, weak to ice.'},
+  {id:'icesprite',g:'魄',zh:'冰魄',en:'Ice Sprite',d:'寒气逼人,碰到就减速;免疫冰,怕火。',de:'A freezing spirit that chills on touch; immune to ice, weak to fire.'},
   {id:'assassin',g:'刺',zh:'刺客',en:'Assassin',d:'快而脆,成群扑来。',de:'Fast and fragile; comes in packs.'},
   {id:'bandit',g:'匪',zh:'刀客',en:'Bandit',d:'中等体型的近战,数量是关键。',de:'Mid-weight melee; numbers are the threat.'},
   {id:'archer',g:'弓',zh:'弓手',en:'Archer',d:'保持距离放箭,箭可以被轻功躲开。',de:'Keeps its distance and shoots; arrows can be dashed through.'},

@@ -109,10 +109,23 @@ function has(s,el){return s&&s.els.includes(el)}
 function fusion(s){return s&&s.els.length===2?fusKey(s.els[0],s.els[1]):null}
 
 /* ---------- combat ---------- */
+/* 克制: multiplier for this skill against this monster; elites with affixes add their own */
+function affinity(e,s,noEl){
+  const A=AFFINITY[e.type];let k=1,why=null;
+  if(A&&s){const m=SPELLS[s.id],cat=SKILL_CAT[s.id],el=noEl?null:(s.els&&s.els[0]);
+    const match=q=>q&&((q.cat&&q.cat===cat)||(q.el&&q.el===el)||(q.auto&&m.auto));
+    if(match(A.weak)){k*=e.type==='wraith'||e.type==='firewisp'||e.type==='icesprite'?2:1.6;why='weak'}
+    if(match(A.resist)){k*=A.resist.el?0:.5;why='resist'}}
+  if(e.affix==='armor'&&s&&SKILL_CAT[s.id]==='ranged'){k*=.6;why=why||'resist'}
+  if(e.affix==='swift'&&s&&SKILL_CAT[s.id]==='control'){k*=1.5;why=why||'weak'}
+  return {k,why};
+}
 function hit(e,d,s,noEl,col,kx=0,ky=0){
   if(e.dead)return;
+  if(s&&e.type!=='boss'&&e.type!=='statue'){const af=affinity(e,s,noEl);if(af.k!==1){d*=af.k;if(af.k===0)d=0;
+    if(!G.floats||G.floats.length<60){if((e.afT||-9)<G.t-.7){e.afT=G.t;G.floats.push({x:e.x+rnd(-3,3),y:e.y-e.r-10,t:.75,v:af.why==='weak'?L('克!','WEAK!'):af.k===0?L('免疫','IMMUNE'):L('抗','RESIST'),c:af.why==='weak'?'#ffe066':'#9a9a9a',crit:af.why==='weak'})}}
+    if(d===0)return}}
   if(e.shield&&(kx||ky)){const fx=G.P.x-e.x,fy=G.P.y-e.y,fl=hyp(fx,fy)||1,kl=hyp(kx,ky)||1;if((-kx/kl*fx/fl-ky/kl*fy/fl)>.3){d*=.3;if(G.fx.length<640&&SIMR()<.3)G.fx.push({k:'ring',x:e.x,y:e.y,r:10,t:.2,T:.2,c:'#9fc4ff'})}}
-  if(e.ghost&&s)d*=SPELLS[s.id].auto?.5:2;
   if(e.sleep>0&&e.sleepS)d*=1+NODE_FX.dmg*nd(e.sleepS,'dmg');
   const P=G.P,rv=s&&s.owner==='rival',O=rv?G.rival:P;let m=d*O.dmg*(1+(O.dmgBonus||0))*(e.shred>0?1.25:1)*(!rv&&P.buff&&P.buff.k==='dmg'?1.3:1)*(s&&!SPELLS[s.id].auto?ACTIVE_MULT*(P.parryBoost||1):1)*(e.type==='boss'&&e.exposed>0?1.6:1); // active skills hit much harder per cast than the normal attack: they cost qi and have cooldowns
   const cc=O.crit+(s?NODE_FX.crit*nd(s,'crit'):0),crit=SIMR()<Math.min(1,cc);if(crit)m*=2+Math.max(0,cc-1)*2; // crit chance caps at 100%; the overflow becomes crit damage
@@ -621,8 +634,16 @@ function spawnTick(dt){
     if(t>85&&r<.14)ty='archer';
     if(t>150&&r<.07)ty='giant';
     if(t>150&&r>.45&&r<.53)ty='brute';if(t>210&&r>.53&&r<.585)ty='bomber';if(t>300&&r>.585&&r<.64)ty='wraith';
+    if(t>360&&r>.64&&r<.67)ty='firewisp';if(t>360&&r>.67&&r<.70)ty='icesprite';
+    if(G.theme&&rnd()<.7)ty=G.theme.type;
     spawnEnemy(ty,o.x,o.y);
   }
+  // themed surges: one monster type floods in for 22 s; the banner names what it is weak to, so the right skill matters
+  if(!G.boss&&!BOSSRUSH&&t>120){G.themeT=(G.themeT===undefined?40:G.themeT)-dt;
+    if(G.theme&&t>G.theme.until){G.theme=null}
+    if(G.themeT<=0&&!G.theme){G.themeT=75+rnd(0,20);const opts=THEMES.filter(th=>t>=th.from&&!(G.ev&&G.ev.noTheme));const th=pick(opts);const A=AFFINITY[th.type];G.theme={type:th.type,until:t+22,zh:th.zh,en:th.en};
+      showBanner(`${th.zh}! ${A.tip[0]}`,`${th.en}! ${A.tip[1]}`,2.6);if(typeof SFX!=='undefined')SFX.wave();
+      const n=Math.round(10+t/60);for(let i=0;i<n;i++){const o=edgePoint();spawnEnemy(th.type,o.x,o.y)}}}
   const wave=Math.floor(t/30);if(wave>G.wave&&!G.boss){G.wave=wave;const mix=t>150?'刀客 · 弓手 · 铁甲力士':t>85?'刀客 · 弓手':t>25?'刺客 · 刀客':'刺客';showBanner(`第 ${wave} 波`,`Wave ${wave} · ${mix}`,1);if(typeof SFX!=='undefined')SFX.wave()}
   G.swarmT-=dt;
   if(G.swarmT<=0&&!G.boss){G.swarmT=50;const P=G.P,n=18+Math.floor(t/8);
@@ -718,6 +739,7 @@ function step(dt){
   if(hasR('pill'))heal(dt);
   for(const f of G.fx){if(f.k==='relic'&&P.down<=0&&hyp(f.x-P.x,f.y-P.y)<18){f.t=0;takeRelic(f.id)}}
   hazardTick(dt);
+  if(G.P.burnT>0){G.P.burnT-=dt;G.P.btk=(G.P.btk||0)-dt;if(G.P.btk<=0){G.P.btk=.5;dmgP(G.P.burnD,G.P.x,G.P.y,'火煞');G.P.inv=0}}if(G.P.chillT>0)G.P.chillT-=dt;
   if(!G.doomWarned&&G.t>=DOOM_T){G.doomWarned=1;showBanner('怨气弥漫:此后敌人愈发凶狠,治疗逐渐衰减','Dread rises: enemies hit harder each minute and healing fades',3.5);if(typeof SFX!=='undefined')SFX.roar()}
   if(G.pickHold>0){G.pickHold-=dt;if(G.pickHold<=0&&G.picks.length&&!G.pick&&typeof openPick==='function')openPick()}
   if(P.parry>0)P.parry-=dt;
@@ -736,7 +758,7 @@ function step(dt){
     near(P.x,P.y,26,e=>{if(e.type==='statue'||P.dashHit.has(e))return;if(hyp(e.x-P.x,e.y-P.y)<e.r+12){P.dashHit.add(e);hit(e,12*P.dmg,null,true,'#bff4ff',P.dx*150,P.dy*150)}});
   }else{
     let v=G.auto?autopilot():input();if(P.confuse>0){P.confuse-=dt;v={x:-v.x,y:-v.y}}
-    if(v.x||v.y){const l=hyp(v.x,v.y)||1,m=Math.min(1,l),s=92*P.spd*(P.buff&&P.buff.k==='spd'?1.35:1)*(G.over9?1.12:1)*(P.frenzy>0?1.25:1)*m;P.x+=v.x/l*s*dt;P.y+=v.y/l*s*dt;P.walk+=dt*8;P.dx=v.x/l;P.dy=v.y/l;collide(P,6)}
+    if(v.x||v.y){const l=hyp(v.x,v.y)||1,m=Math.min(1,l),s=92*P.spd*(P.buff&&P.buff.k==='spd'?1.35:1)*(G.over9?1.12:1)*(P.frenzy>0?1.25:1)*(P.chillT>0?.6:1)*m;P.x+=v.x/l*s*dt;P.y+=v.y/l*s*dt;P.walk+=dt*8;P.dx=v.x/l;P.dy=v.y/l;collide(P,6)}
     const main=G.spells[0];if(main&&main.cd<=0&&!autoFire(main))main.cd=.08;
     P.shield=Math.max(0,P.shield-dt);
     if(G.auto||AUTOCAST)autoCast();
@@ -779,7 +801,7 @@ function step(dt){
     e.x+=(ax*sp+sx*7)*dt;e.y+=(ay*sp+sy*7)*dt;e.fr+=dt*(3+sp*.07);
     if(e.flee){e.x+=e.fx*e.spd*1.6*dt;e.y+=e.fy*e.spd*1.6*dt;e.x=clamp(e.x,30,W-30);e.y=clamp(e.y,30,H-30)}
     if(!e.ghost)collide(e,e.r);
-    if(useR){if(d<e.r+6)rivalHurt(e.dmg,e.x,e.y)}else if(P.down<=0&&d<e.r+6)dmgP(e.dmg,e.x,e.y,srcName(e));
+    if(useR){if(d<e.r+6)rivalHurt(e.dmg,e.x,e.y)}else if(P.down<=0&&d<e.r+6){dmgP(e.dmg,e.x,e.y,srcName(e));const b=ETYPES[e.type];if(b.burn){P.burnT=1.5;P.burnD=e.dmg*.15}if(b.chill)P.chillT=1.2}
     if(!useR&&R&&R.down<=0&&hyp(R.x-e.x,R.y-e.y)<e.r+6)rivalHurt(e.dmg*.5,e.x,e.y);
   }
   G.en=G.en.filter(e=>!e.dead);
@@ -867,6 +889,9 @@ function demoBoost(){
 function buildAdvice(){
   const t=G.taken||{},P=G.P,def=(t.defense||0)+(t.heal||0),off=(t.melee||0)+(t.ranged||0)+(t.summon||0)+(t.all||0),ctrl=t.control||0;
   const recent=G.dmgTaken-(G._advDmg||0);G._advDmg=G.dmgTaken;
+  // counters: if the most common monster on the field right now is weak to a category the build lacks, say so
+  const cnt={};for(const e of G.en)if(!e.dead&&AFFINITY[e.type])cnt[e.type]=(cnt[e.type]||0)+1;const top=Object.keys(cnt).sort((a,b)=>cnt[b]-cnt[a])[0];
+  if(top&&cnt[top]>=12){const A=AFFINITY[top];if(A.weak.cat&&!(t[A.weak.cat]>0)&&!G.spells.some(x=>SKILL_CAT[x.id]===A.weak.cat))return {cat:A.weak.cat,zh:`场上${ETYPES[top].zh}很多,它们${A.tip[0]}`,en:`Lots of ${ETYPES[top].en}s out there: ${A.tip[1]}`}}
   if(G.lv>=4&&def===0&&(P.hp<P.maxHp*.6||G.lv>=8))return {cat:'defense',zh:'还没有防御或治疗,挨打会越来越疼',en:'Nothing for defense or healing yet; hits will start to hurt'};
   if(G.lv>=6&&off<def)return {cat:'melee',zh:'构筑偏防守,补点伤害会清得更快',en:'Build leans defensive; more damage clears faster'};
   if(G.lv>=10&&ctrl===0&&G.en.length>200)return {cat:'control',zh:'怪群很密,控制类武学能拉开空间',en:'Crowds are thick; a control skill buys space'};

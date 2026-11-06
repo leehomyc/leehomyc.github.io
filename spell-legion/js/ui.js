@@ -95,7 +95,7 @@ function hud(dt){
   if(IS_TOUCH){$('#hpfill2').style.width=(P.hp/P.maxHp*100)+'%';$('#hpnum2').textContent=Math.ceil(P.hp)+'/'+P.maxHp;$('#mpfill2').style.width=(P.mana/P.maxMana*100)+'%';$('#mpnum2').textContent=Math.floor(P.mana)+'/'+P.maxMana}
   $('#lv').textContent='Lv '+G.lv;
   $('#ptsbadge').hidden=true;
-  $('#timer').textContent=fmt(G.t);$('#nextboss').textContent=G.boss?L('首领战','BOSS'):L('首领 ','boss in ')+fmt(nextBossIn());
+  $('#timer').textContent=fmt(G.t);$('#nextboss').textContent=G.theme?`${L(G.theme.zh,G.theme.en)} · ${L(AFFINITY[G.theme.type].tip[0],AFFINITY[G.theme.type].tip[1])}`:G.boss?L('首领战','BOSS'):L('首领 ','boss in ')+fmt(nextBossIn());$('#nextboss').classList.toggle('theme',!!G.theme);
   $('#kills').textContent=G.kills+L(' 击杀',' kills');
   if(G.rival){const R=G.rival,tot=Math.max(1,G.score+R.score);$('#score').hidden=false;$('#s-you').textContent=G.score;$('#s-riv').textContent=R.score;$('#s-rname').textContent=L(R.name[0],R.name[1]);$('#s-bar i').style.width=(G.score/tot*100)+'%';$('#score').classList.toggle('lead',G.score>=R.score);$('#nextboss').textContent=(G.boss?L('首领战 · ','BOSS · '):'')+L('剩余 ','left ')+fmt(Math.max(0,PK_LEN-G.t))}
   const o=$('#obj');o.hidden=!G.mission;if(G.mission)o.textContent=missionText();
