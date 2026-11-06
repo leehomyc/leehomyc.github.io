@@ -613,3 +613,10 @@ body.touchhud #tip{bottom:auto;top:84px}
 #seals.opening .seal:not(.main):not(.empty):not(.dash):not(.poor){animation:castnow .5s ease-in-out infinite alternate;border-color:#ffd27a}
 @keyframes castnow{from{box-shadow:0 0 10px #ffd27a88}to{box-shadow:0 0 26px #ffd27aff;transform:translateY(-3px)}}
 .killed .dodge{display:block;color:#9fe3f0;margin:2px 0 4px;font-size:12px}
+
+#bosshp{position:relative}#bosshp s{position:absolute;top:0;bottom:0;background:repeating-linear-gradient(90deg,#9ff06a99 0 4px,#4fa03a99 4px 8px);text-decoration:none;pointer-events:none}#bosshp s[hidden]{display:none}
+#bosspois{color:#b6ff8a;font-size:11px;font-weight:800;text-align:center;text-shadow:0 1px 0 #000}#bosspois[hidden]{display:none}
+#parrylbl{position:absolute;left:50%;bottom:118px;transform:translateX(-50%);background:#1a0e16e0;border:1px solid #ffd27a;color:#ffe9a0;font:800 12px var(--ui);padding:4px 12px;border-radius:12px;box-shadow:0 0 16px #ffd27a88;pointer-events:none;white-space:nowrap}#parrylbl[hidden]{display:none}
+#seals.parry .seal:not(.main):not(.empty):not(.dash):not(.poor){border-color:#ffd27a;box-shadow:0 0 22px #ffd27acc;animation:castnow .4s ease-in-out infinite alternate}
+.dmg .bar.heal i{background:linear-gradient(90deg,#4fa03a,#9ff06a)}
+@media (max-width:640px){#parrylbl{bottom:auto;top:70px;font-size:11px}}

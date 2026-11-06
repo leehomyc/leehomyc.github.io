@@ -52,7 +52,7 @@ function animHero(h,P,isP,tm,rdt){
   if(isP){orbL.position.copy(v3);orbL.position.y+=4;orbL.color.setRGB(oc[0]*1.2,oc[1]*1.2,oc[2]*1.2);orbL.intensity=(P.down>0?0:1.4)+P.cast*2.6+Math.sin(tm*5)*.08}
   if(P.down<=0&&!blink){glow(v3.x,v3.y,v3.z,orbHex,17+P.cast*26,1.8+P.cast*2);glow(v3.x,v3.y,v3.z,'#ffffff',5,1.6)}
   const sig=(P.shield||0)>0?rgb('#7dffb0'):isP?oc:rgb('#ff9c5a');
-  h.sigil.position.set(P.x,.55,P.y);h.sigil.rotation.z=tm*.35;h.sigil.visible=P.down<=0;h.sigil.material.opacity=(isP?.42:.3)+P.cast*.5+Math.sin(tm*2.6)*.06;h.sigil.material.color.setRGB(sig[0]*1.4+.05,sig[1]*1.4+.05,sig[2]*1.4+.05);
+  h.sigil.position.set(P.x,.55,P.y);h.sigil.rotation.z=tm*.35;h.sigil.visible=P.down<=0;h.sigil.material.opacity=((isP?.42:.3)+P.cast*.5+Math.sin(tm*2.6)*.06)*(MAP().bright?.4:1);h.sigil.material.color.setRGB(sig[0]*1.4+.05,sig[1]*1.4+.05,sig[2]*1.4+.05);
   if((P.shield||0)>0){for(let i=0;i<10;i++){const a=tm*1.8+i*.628;glow(P.x+Math.cos(a)*16,14+Math.sin(tm*3+i)*5,P.y+Math.sin(a)*16,'#7dffb0',6,1.6)}glow(P.x,14,P.y,'#7dffb0',46,.5)}
   if(isP&&P.frenzy>0){for(let i=0;i<6;i++){const a=tm*9+i*1.047;glow(P.x+Math.cos(a)*10,6+((tm*30+i*9)%28),P.y+Math.sin(a)*10,'#ff4a4a',5,2)}glow(P.x,14,P.y,'#ff2a2a',40,.6)}
   const gl=spells.find(s=>s.id==='guangling'&&s.active>0);if(gl){const R=120;for(let i=0;i<20;i++){const a=i/20*TAU+tm*.8,rr=R*(.5+.5*((tm*.6+i*.05)%1));glow(P.x+Math.cos(a)*rr,10+Math.sin(tm*3+i)*4,P.y+Math.sin(a)*rr,i%2?'#ffd27a':'#8fe3ff',8,1.2)}for(let i=0;i<32;i++){const a=i/32*TAU-tm*.5;glow(P.x+Math.cos(a)*R,3,P.y+Math.sin(a)*R,'#ffd27a',7,1.1)}}
@@ -228,7 +228,7 @@ function drawOverlay(){
       /* strike pips: the greatsword's third strike (second awakened) slams the ground — three dots under the hero fill up, gold when the slam is next */
       if(w.id==='great'||w.id==='staff'||w.id==='fist'){const every=w.id==='great'?(w.awake?2:3):w.id==='staff'?(w.awake?2:4):(w.awake?3:5),k=(w.swing||0)%every,ready=k===every-1;
         for(let i=0;i<every;i++){const x=hx+(i-(every-1)/2)*7*S,y=hy+22*S;c.beginPath();c.arc(x,y,2.6*S,0,TAU);c.fillStyle=i<=k-1||ready?(ready?'#ffd27a':'#ffffff'):'#00000099';c.globalAlpha=ready?1:.8;c.fill();c.lineWidth=1*S;c.strokeStyle='#160b12';c.stroke()}
-        if(ready){c.globalAlpha=.6+Math.sin(tm*12)*.3;c.beginPath();c.arc(hx,hy+22*S,9*S,0,TAU);c.strokeStyle='#ffd27a';c.lineWidth=1.5*S;c.stroke()}c.globalAlpha=1}}}
+        if(ready){c.globalAlpha=.6+Math.sin(U.uTime.value*12)*.3;c.beginPath();c.arc(hx,hy+22*S,9*S,0,TAU);c.strokeStyle='#ffd27a';c.lineWidth=1.5*S;c.stroke()}c.globalAlpha=1}}}
   for(const e of G.en){if(e.dead||(e.type!=='giant'&&e.type!=='statue'&&!e.elite)||(e.hp>=e.maxHp&&e.type!=='statue'))continue;
     const [x,y]=toScreen(e.x,e.type==='statue'?60:e.type==='giant'?54:e.r*4+10,e.y),w=(e.type==='statue'?44:32)*S,hh=4*S;c.fillStyle='#160b12cc';c.fillRect(x-w/2-1,y-1,w+2,hh+2);c.fillStyle=e.type==='statue'?'#ff5fe8':e.elite?'#ffd27a':'#ff5a45';c.fillRect(x-w/2,y,w*e.hp/e.maxHp,hh)}
   const label=(x,y,txt,col,big)=>{c.font=`800 ${(big?15:13)*S}px "Alegreya Sans","PingFang SC","Microsoft YaHei",system-ui,sans-serif`;const w=c.measureText(txt).width+18*S,h=22*S;c.fillStyle='#0a0710d9';c.strokeStyle=col;c.lineWidth=1.2*S;c.beginPath();c.roundRect(x-w/2,y-h/2,w,h,5*S);c.fill();c.stroke();c.fillStyle=col;c.fillText(txt,x,y+1)};

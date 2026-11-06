@@ -52,11 +52,11 @@ async function cloudPull(){
 }
 async function cloudPush(now){
   if(!CLOUD.on())return;
-  const body=JSON.stringify(SAVE);if(body===CLOUD.lastPushed&&!now)return;
-  try{await CLOUD.db.collection('saves').doc(CLOUD.uid()).set({save:SAVE,ts:firebase.firestore.FieldValue.serverTimestamp()});CLOUD.lastPushed=body;
+  const body=JSON.stringify(SAVE);if(body===CLOUD.lastPushed&&!now)return;const clean=JSON.parse(body); // Firestore rejects undefined fields; JSON round-trip drops them
+  try{await CLOUD.db.collection('saves').doc(CLOUD.uid()).set({save:clean,ts:firebase.firestore.FieldValue.serverTimestamp()});CLOUD.lastPushed=body;CLOUD.syncErr='';
     const a=typeof accountLv==='function'?accountLv():{lv:1};const t=typeof titleFor==='function'?titleFor(a.lv):['','',''];
     await CLOUD.db.collection('profiles').doc(CLOUD.uid()).set({name:LB.name()||'无名侠客',lv:a.lv,title:t[1],guest:CLOUD.isGuest(),ts:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});
-  }catch(e){console.warn('push failed',e)}
+  }catch(e){console.warn('push failed',e);CLOUD.syncErr=String(e&&e.message||e).slice(0,80);renderAccount()}
 }
 function cloudSchedulePush(){if(!CLOUD.on())return;clearTimeout(CLOUD.pushT);CLOUD.pushT=setTimeout(()=>cloudPush(false),2500)}
 /* ---- Google sign-in: link the guest account so nothing is lost; if the Google account already has a save, merge into it ---- */
@@ -77,7 +77,7 @@ function renderAccount(){
   if(typeof renderStatus==='function')renderStatus();
   const el=$('#account');if(!el)return;
   const guest=!CLOUD.on()||CLOUD.isGuest();
-  el.innerHTML=`<span class="who"><i class="dot ${CLOUD.on()?'on':''}"></i>${CLOUD.label()}</span>${CLOUD.ready?(guest?`<button type="button" class="go sm" id="googlebtn">${L('Google 登录','Sign in with Google')}</button>`:`<button type="button" class="go sm alt" id="signoutbtn">${L('退出','Sign out')}</button>`):''}<small>${CLOUD.on()?(guest?L('游客进度已云端保存在此设备;登录 Google 可跨设备同步','Guest progress is cloud-saved for this device; sign in to sync across devices'):L('进度已跨设备同步','Progress syncs across your devices')):L('账号服务不可用,进度保存在本机','Account service unreachable; progress stays on this device')}</small><span id="accmsg" class="note"></span>`;
+  el.innerHTML=`<span class="who"><i class="dot ${CLOUD.on()?'on':''}"></i>${CLOUD.label()}</span>${CLOUD.ready?(guest?`<button type="button" class="go sm" id="googlebtn">${L('Google 登录','Sign in with Google')}</button>`:`<button type="button" class="go sm alt" id="signoutbtn">${L('退出','Sign out')}</button>`):''}<small>${CLOUD.syncErr?L('云端同步失败,进度暂时仅保存在本机:','Cloud sync failed; progress is saved on this device only: ')+CLOUD.syncErr:CLOUD.on()?(guest?L('游客进度已云端保存在此设备;登录 Google 可跨设备同步','Guest progress is cloud-saved for this device; sign in to sync across devices'):L('进度已跨设备同步','Progress syncs across your devices')):L('账号服务不可用,进度保存在本机','Account service unreachable; progress stays on this device')}</small><span id="accmsg" class="note"></span>`;
   const g=$('#googlebtn');if(g)g.onclick=cloudGoogle;const so=$('#signoutbtn');if(so)so.onclick=cloudSignOut;
 }
 /* ---- leaderboard on Firestore ---- */

@@ -40,8 +40,8 @@ const SPELLS={
   pouch:{g:'囊',zh:'药囊',en:'Herb Pouch',col:'#b6ff8a',auto:1,d:'普攻:将药囊掷向最密集处,炸开一片毒雾。',de:'Normal attack. Lobs a pouch at the thickest crowd; it bursts into poison mist.'},
   plague:{g:'疫',zh:'瘟疫',en:'Plague',col:'#c6ff5a',cost:32,cd:9,d:'标记附近八名敌人,持续中毒;死亡时留下毒雾。',de:'Marks eight nearby enemies with a wasting poison; they leave mist when they die.'},
   gu:{g:'蛊',zh:'蛊虫',en:'Gu Swarm',col:'#9ff06a',cost:28,cd:6,d:'放出四只追魂蛊虫,穿透并减速、叠毒。',de:'Four homing gu that pierce, slow and stack poison.'},
-  rejuv:{g:'春',zh:'回春',en:'Rejuvenation',col:'#7fc98a',cost:36,cd:14,dur:3,d:'三秒内回复两成生命,解除迷乱并获得短暂护罩。',de:'Heal 20% over three seconds, cure bewitchment and gain a brief shield.'},
-  numb:{g:'麻',zh:'麻沸散',en:'Anesthesia',col:'#dcb0ff',cost:50,cd:18,d:'周围敌人昏睡 2.5 秒,其间受到伤害 +30%。',de:'Everything nearby sleeps for 2.5 s and takes 30% more damage meanwhile.'},
+  rejuv:{g:'春',zh:'回春',en:'Rejuvenation',col:'#7fc98a',cost:36,cd:14,dur:3,d:'三秒内回复两成生命,解除迷乱并获得短暂护罩;附近每个中毒敌人多回 2%(各消耗一层毒)。',de:'Heal 20% over three seconds, cure bewitchment and gain a brief shield; +2% per poisoned enemy nearby (each loses a stack).'},
+  numb:{g:'麻',zh:'麻沸散',en:'Anesthesia',col:'#dcb0ff',cost:50,cd:18,d:'周围敌人昏睡 2.5 秒,其间受到伤害 +30%;已中毒的目标毒伤一次引爆。',de:'Everything nearby sleeps for 2.5 s and takes 30% more damage; poisoned targets have their poison detonated at once.'},
 };
 const SPELL_KEYS=['','1','2','3'];
 const CLASSES={
@@ -74,7 +74,8 @@ const FUS={
 const fusKey=(a,b)=>[a,b].sort().join('+');
 const AUGS={
   burst:{g:'连',zh:'连击',en:'Double Strike',d:'每次施放连发两轮。',de:'Every cast fires twice in a row.',for:['sword','palm','talis','charm','slash','leap','roar','wave','ambush','sunder','exorcise','needle','gu','tiger','fist','staff']},
-  split:{g:'裂',zh:'分光',en:'Split',d:'命中时分裂成两道。符咒则分裂成子符。',de:'Shots split on hit. Talismans drop sub-talismans.',for:['sword','palm','talis','charm','wave','ambush','needle','gu','pouch']},
+  split:{g:'裂',zh:'分光',en:'Split',d:'命中时分裂成两道。符咒则分裂成子符。',de:'Shots split on hit. Talismans drop sub-talismans.',for:['sword','palm','talis','charm','wave','ambush','needle','gu','pouch'],
+    by:{sword:['飞剑命中后分出两柄子剑(各 60% 伤害)','Each sword splits into two on hit (60% damage each)'],palm:['掌风命中后分成两道(各 60%)','Palm gusts split in two on hit (60% each)'],talis:['天雷符落地后再落两张子符','Each talisman drops two smaller ones'],charm:['符咒命中后分出两张子符,继续追踪','Charms split into two homing sub-charms'],wave:['音波命中后分成两道(各 60%)','Waves split in two on hit (60% each)'],ambush:['埋伏的音刃分成两道','Ambush blades split in two'],needle:['毒针命中后再分出两枚子针,子针也叠毒','Needles split into two more on hit; they stack poison too'],gu:['蛊虫命中后分成两只,各自继续追踪叠毒','Each gu splits into two that keep homing and poisoning'],pouch:['药囊炸开时再抛出两个小囊,各留一片小毒雾','Pouches scatter two smaller ones, each leaving a little mist']}},
   giant:{g:'雄',zh:'雄浑',en:'Mighty',d:'更大,伤害 +30%,出手稍慢。',de:'Bigger, +30% damage, slightly slower.',for:['sword','palm','talis','array','charm','slash','whirl','leap','roar','bagua','wave','flow','ambush','guangling','sunder','exorcise','staff','tiger','sarira','zen','pouch','plague','numb','vajra']},
   extra:{g:'增',zh:'增阵',en:'Wider Array',d:'阵法多两件法器,转得更快。',de:'Two more pieces in the array, spinning faster.',for:['array','bagua']},
 };
