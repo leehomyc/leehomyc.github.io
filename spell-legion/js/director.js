@@ -27,6 +27,7 @@ function dirMeasure(){const P=G.P,D=G.dir,S=G.dirStat,t=G.t;
   S.dmgRate=(G.dmgTaken-h30.taken)/Math.max(1,t-h30.t)/P.maxHp;S.kpm=(G.kills-h0.kills)/Math.max(1,t-h0.t)*60;S.parries=(G.dodges||0)-h0.dodges;
   const tot=G.spells.reduce((a,s)=>a+s.dmg,0)||1;S.actShare=G.spells.filter(s=>!SPELLS[s.id].auto).reduce((a,s)=>a+s.dmg,0)/tot;S.elitesAlive=G.en.filter(e=>!e.dead&&e.elite).length;S.comboNow=G.combo;
   if(r<.55)D.lastLow=t;
+  D.posHist=(D.posHist||[]).concat([{t,x:P.x,y:P.y}]).filter(h=>h.t>=t-8);const p0=D.posHist[0];S.still=p0?hyp(P.x-p0.x,P.y-p0.y)<40&&(t-p0.t)>=6:false;
 }
 /* which monster the current build handles worst: the type whose resistance matches the category carrying the damage */
 function dirCounter(){const tot=G.spells.reduce((a,s)=>a+s.dmg,0)||1;const by={};for(const s of G.spells){const c=SKILL_CAT[s.id]||'passive';by[c]=(by[c]||0)+s.dmg/tot}const main=Object.keys(by).sort((a,b)=>by[b]-by[a])[0];
@@ -60,6 +61,7 @@ function directorTick(dt){if(!dirOn())return;if(!G.dir)dirInit();const D=G.dir,t
   if(D.lowHp<.2)D.I=Math.min(D.I,D.base*.85); // mercy, silent: a near-death buys a softer half minute
   const early=clamp((t-120)/360,0,1);D.I=clamp(D.I,D.base*.75,D.base*(1+1.6*early)); // the first minutes belong to the build: the director only starts leaning in after 2 min and reaches full reach at 8
   if(t<120)D.I=Math.min(D.I,1);
+  if(S.still&&t>150){D.counter=t>210&&rnd()<.4?'bomber':'archer';D.counterP=Math.max(D.counterP,.5)} // a player who stands still gets shot at: archers and bombers do full damage at range
   D.spawn=D.mood==='pressure'?Math.min(1.6,D.I):D.mood==='relief'?.7:Math.min(1.15,D.I);D.hp=clamp(Math.pow(D.I,.5),.8,1.6);D.dmg=clamp(Math.pow(D.I,.45),.8,1+.5*early);D.elite=clamp(D.I,.8,1+1.2*early);D.heal=D.mood==='pressure'?1.6:1;
 }
 /* across runs: a veteran's director starts hotter; a player who keeps dying gets a gentler start */

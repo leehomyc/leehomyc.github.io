@@ -162,7 +162,10 @@ function arc(from,d,s,n){
     if(fk==='dark+lightning'&&was>0&&e.dead)heal(1.5);
   }
 }
-function heal(n,s){const P=G.P;const b=P.hp,want=n*healMul(G.t)*(G.curse.heal||1);P.hp=Math.min(P.maxHp,P.hp+want);const got=P.hp-b;if(P.hp>P.maxHp*.35)G._nd=0;G.healed=(G.healed||0)+got;G.overheal=(G.overheal||0)+(want-got);if(s){s.healed=(s.healed||0)+got;s.overheal=(s.overheal||0)+(want-got)}}
+const healCap=t=>t<180?.12:Math.max(.045,.12-(t-180)/600*.075); // max healing per second as a share of max HP: 10% early, 3.5% from ~16 min
+function heal(n,s){const P=G.P;const b=P.hp;let want=n*healMul(G.t)*(G.curse.heal||1);
+  {const sec=Math.floor(G.t);if(G.healSec!==sec){G.healSec=sec;G.healIn=0}const room=P.maxHp*healCap(G.t)-G.healIn;if(want>room){G.healCapped=(G.healCapped||0)+(want-Math.max(0,room));want=Math.max(0,room)}G.healIn+=want}
+  P.hp=Math.min(P.maxHp,P.hp+want);const got=P.hp-b;if(P.hp>P.maxHp*.35)G._nd=0;G.healed=(G.healed||0)+got;G.overheal=(G.overheal||0)+(want-got);if(s){s.healed=(s.healed||0)+got;s.overheal=(s.overheal||0)+(want-got)}}
 function pool(x,y,r,t,dps,s,o={}){
   if(G.pools.length>45)G.pools.shift();
   const fk=fusion(s);
@@ -232,7 +235,7 @@ function chestTick(dt){if(G.curse.nochest)return;
 function srcName(e){if(!e)return ['未知','unknown'];if(e.type==='boss')return [e.name,e.en];if(e.champion)return [e.name,e.en];if(e.warlord)return ['铁甲统领','Iron Warlord'];const t=ETYPES[e.type]||{};const pre=e.illusion?['幻影','illusion ']:e.elite?['精英','elite ']:e.affix==='explode'?['爆裂','exploding ']:e.affix==='swift'?['疾风','swift ']:e.affix==='armor'?['重甲','armoured ']:e.role==='charger'?['冲锋','charging ']:e.role==='shaman'?['巫','shaman ']:['',''];return [pre[0]+(t.zh||e.type),pre[1]+(t.en||e.type)]}
 function dmgP(n,fx,fy,src){
   if(typeof src==='string')src=[src,src];const P=G.P;if(P.down>0||P.inv>0||P.dash>0||G.over)return;
-  if(P.shield>0){P.inv=.3;G.absorbed=(G.absorbed||0)+n;ring(P.x,P.y,30,'#7dffb0');if(typeof SFX!=='undefined')SFX.block();return}
+  if(P.shield>0){const cap=P.shieldHp===undefined?n:P.shieldHp;const abs=Math.min(n,cap);P.inv=.15;G.absorbed=(G.absorbed||0)+abs;if(P.shieldHp!==undefined)P.shieldHp-=abs;ring(P.x,P.y,30,'#7dffb0');if(typeof SFX!=='undefined')SFX.block();n-=abs;if(P.shieldHp!==undefined&&P.shieldHp<=0){P.shield=0;showBanner('护罩破碎','Ward shattered',.9)}if(n<=.5)return}
   if(P.vajra>0){const vs=G.spells.find(x=>x.id==='vajra');const st=vs?stat(vs):{m:1,size:1};G.skillBlocked=(G.skillBlocked||0)+n*.7;if(vs)vs.blocked=(vs.blocked||0)+n*.7;n*=.3;near(P.x,P.y,50*st.size,e=>{if(e.type==='statue')return;const dx=e.x-P.x,dy=e.y-P.y,d=hyp(dx,dy)||1;if(d<50*st.size+e.r){hit(e,14*st.m,vs,false,'#ffe9a0',dx/d*220,dy/d*220);e.goldT=.35;if(vs)vs.refl=(vs.refl||0)+1}});if(vs&&nd(vs,'life'))heal(2*nd(vs,'life'),vs);ring(P.x,P.y,40,'#ffe9a0')}
   {const dm=Math.max(.4,P.def);if(dm<1)G.mitigated=(G.mitigated||0)+n*(1-dm);else G.vulnerable=(G.vulnerable||0)+n*(dm-1);n*=dm}P.hp-=n;P.inv=.4;G.dmgTaken+=n; // mitigation caps at 60%
   G.dmgBy=G.dmgBy||{};{const k=(src||['敌人','enemy']).join('|');G.dmgBy[k]=(G.dmgBy[k]||0)+n}
@@ -353,13 +356,14 @@ function autoFire(s){ // the normal attack of each class
   return true;
 }
 function canCast(i){const s=G.spells[i];if(!s||SPELLS[s.id].auto)return false;return s.cd<=0&&G.P.mana>=skillCost(s)&&G.P.down<=0}
+const CD_FLOOR={ward:10,rejuv:9,zen:9,vajra:9};
 function castSkill(i){
   const s=G.spells[i];if(!s)return false;const sp=SPELLS[s.id],P=G.P;
   if(sp.auto)return false;
   const cost=skillCost(s);
   if(s.cd>0||P.mana<cost){if(!G.auto){G.fx.push({k:'deny',i,t:.3});if(typeof SFX!=='undefined')SFX.deny()}return false}
   const st=stat(s);
-  P.mana-=cost;s.cd=sp.cd*st.cdM/P.haste;s.casts++;P.cast=1;if(P.parry>0){P.parry=0;P.parryBoost=1.6;later(1.2,()=>{P.parryBoost=1});ring(P.x,P.y,60,'#ffd27a')}
+  P.mana-=cost;s.cd=Math.max(CD_FLOOR[s.id]||0,sp.cd*st.cdM/P.haste);s.casts++;P.cast=1;if(P.parry>0){P.parry=0;P.parryBoost=1.6;later(1.2,()=>{P.parryBoost=1});ring(P.x,P.y,60,'#ffd27a')}
   if(s.id==='palm'){
     const fn=()=>{const a=aimDir(260),n=5+Math.floor(s.lv/3)+st.n;P.dx=Math.cos(a);P.dy=Math.sin(a);P.yaw0=Math.atan2(P.dx,P.dy);
       for(let i=0;i<n;i++)shoot(P.x+Math.cos(a)*8,P.y+Math.sin(a)*8-6,a+(i-(n-1)/2)*.17,s,18*st.m,{v:235,life:.52*st.size,pierce:4+st.pierce,knock:190*st.knock,r:4.5*st.size});
@@ -369,7 +373,7 @@ function castSkill(i){
   }else if(s.id==='array'||s.id==='bagua'){
     s.active=sp.dur+s.lv*.25+st.dur;s.a=0;ring(P.x,P.y,60,sp.col);trauma(.2);if(typeof SFX!=='undefined')SFX.array();
   }else if(s.id==='ward'){
-    heal(P.maxHp*.25*st.m,s);P.shield=4+s.lv*.15+st.dur;aoe(P.x,P.y,80*st.size,8*st.m,s,sp.col,false,{quiet:1});trauma(.25);shock(P.x,P.y,170,.03);if(typeof SFX!=='undefined')SFX.ward();
+    heal(P.maxHp*.25*st.m,s);P.shield=Math.min(7,3.5+s.lv*.06)+st.dur*.5;P.shieldHp=P.maxHp*(.35+.012*s.lv)*st.m; // the ward is a budget, not a wall: it breaks after absorbing a share of your max HPaoe(P.x,P.y,80*st.size,8*st.m,s,sp.col,false,{quiet:1});trauma(.25);shock(P.x,P.y,170,.03);if(typeof SFX!=='undefined')SFX.ward();
   }else if(s.id==='whirl'){
     s.active=sp.dur+s.lv*.06+st.dur;s.tk=0;trauma(.15);if(typeof SFX!=='undefined')SFX.whirl();
   }else if(s.id==='leap'){
