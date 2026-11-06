@@ -3,8 +3,7 @@
 const ROLES={swordsman:['远程 · 均衡','Ranged · Balanced'],taoist:['法术 · 符咒','Caster · Talismans'],blademaster:['近战 · 重击','Melee · Bruiser'],qin:['控场 · 减速','Control · Slows'],monk:['近战 · 坚韧','Melee · Tank'],physician:['远程 · 毒伤','Ranged · Poison']};
 const MENU_MODES=[
   {m:'solo',ic:['sword','#ffb79f'],zh:'出山',en:'Play',szh:()=>`单人无尽 · ${LL(DIFF[SAVE.diff||'normal'])}${(SAVE.asura&&SAVE.asura.sel)?` · 修罗 ${SAVE.asura.sel}`:''}`,sen:()=>`Solo endless · ${LL(DIFF[SAVE.diff||'normal'])}${(SAVE.asura&&SAVE.asura.sel)?` · Ascension ${SAVE.asura.sel}`:''}`,big:1},
-  {m:'qpk',ic:['swords','#ff9c5a'],zh:'对决',en:'Duel',szh:()=>`3 分钟比分数 · ${L(ladderOf(SAVE.trophies||0)[1],'')} ${SAVE.trophies||0} 🏆`,sen:()=>`3-minute score race · ${ladderOf(SAVE.trophies||0)[2]} ${SAVE.trophies||0} 🏆`,
-    subs:[{m:'qpk',zh:'打 AI 对手',en:'vs AI'},{m:'room',zh:'约好友联机',en:'With friends'}]},
+  {m:'qpk',ic:['swords','#ff9c5a'],zh:'对决',en:'Duel',szh:()=>`3 分钟比分数 · AI 或好友 · ${L(ladderOf(SAVE.trophies||0)[1],'')} ${SAVE.trophies||0} 🏆`,sen:()=>`3-minute score race · AI or friends · ${ladderOf(SAVE.trophies||0)[2]} ${SAVE.trophies||0} 🏆`},
   {m:'daily',ic:['calendar','#ffd27a'],zh:'每日挑战',en:'Daily',szh:()=>(SAVE.daily&&SAVE.daily.day===dayKey())?`今日最佳 ${fmt(SAVE.daily.best)} · ${resetIn()} 后换图`:`全服同一局,比谁活得久 · ${resetIn()} 后换图`,sen:()=>(SAVE.daily&&SAVE.daily.day===dayKey())?`Today's best ${fmt(SAVE.daily.best)} · new map in ${resetIn()}`:`Same run for everyone, longest survival wins · new map in ${resetIn()}`},
 ];
 /* retired entries (kept playable through SAVE.mode for old links, not offered): 'pk' ten-minute AI race, 'rush' boss rush */
@@ -25,7 +24,7 @@ function renderMenu(){
       b.innerHTML=`${ICON.cls(SAVE.cls)}<div><b>${L(o.zh,o.en)}</b><small>${LL(C)} · ${LL(DIFF[SAVE.diff||'normal'])}${tier?` · ${L(`修罗 ${tier} 层`,`Tier ${tier}`)}`:''}</small>${tt?`<span class="goal"><em>${L('今日','Today')}</em><span class="gt">${L(tt.zh,tt.en)}</span><b>+${TGOLD[nt.tier]||150}</b><i><u style="width:${Math.min(100,Math.round(100*(nt.p||0)/nt.goal))}%"></u></i></span>`:''}</div>`}
     else b.innerHTML=`${ICON.misc(o.ic[0],o.ic[1])}<div><b>${L(o.zh,o.en)}</b><small>${L(o.szh(),o.sen())}</small>${o.subs?`<span class="subs">${o.subs.map(s=>`<i data-m="${s.m}" role="button" tabindex="0">${L(s.zh,s.en)}</i>`).join('')}</span>`:''}</div>`;
     const go=m=>{SAVE.mode=m;persist();renderTitle();showScreen('hero');SFX.pick(1)};
-    b.onclick=ev=>{const sub=ev.target.closest&&ev.target.closest('.subs i');go(sub?sub.dataset.m:o.m)};
+    b.onclick=ev=>{const sub=ev.target.closest&&ev.target.closest('.subs i');go(sub?sub.dataset.m:(o.m==='qpk'&&SAVE.mode==='room'?'room':o.m))};
     b.querySelectorAll('.subs i').forEach(i=>i.onkeydown=ev=>{if(ev.key==='Enter'||ev.key===' '){ev.preventDefault();ev.stopPropagation();go(i.dataset.m)}});if(o.big)box.appendChild(b);else row.appendChild(b)});box.appendChild(row);
 }
 function statBars(C){
