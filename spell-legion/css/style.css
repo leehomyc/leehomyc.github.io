@@ -833,3 +833,11 @@ body.touchhud #pause .pbox>p{display:none}
 #prog .pr.lv b{white-space:nowrap;display:flex;align-items:baseline;gap:6px}#prog .pr.lv b .tt{margin:0}
 
 .tabbar button[hidden],[hidden]{display:none!important}
+
+/* ---- duel lobby ---- */
+.rp .aitag{font-style:normal;font-size:10px;font-weight:800;color:#1a0e16;background:#9fe3f0;border-radius:4px;padding:1px 5px;margin-left:4px;vertical-align:middle}
+.rp .rmx{margin-left:auto;background:none;border:1px solid #6b523066;color:var(--dim);border-radius:999px;width:26px;height:26px;cursor:pointer;font:700 14px var(--ui)}.rp .rmx:hover{color:#ff8a8a;border-color:#ff8a8a}
+.rp.seat{display:flex;gap:8px;align-items:center;flex-wrap:wrap;border-style:dashed;opacity:.95}.rp.seat .note{font-size:11px}
+#opp{display:none!important}
+
+#hero .hfoot.room{position:static;background:none}

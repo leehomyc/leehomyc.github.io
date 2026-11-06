@@ -41,21 +41,28 @@ const LocalT={
     const f=m=>{if(m.data&&m.data.code===code)push()};this.bc().addEventListener('message',f);const sf=e=>{if(e.key===this.key(code))push()};addEventListener('storage',sf);push.code=code;(this.subs=this.subs||[]).push(push);setTimeout(push,0);
     return ()=>{this.bc().removeEventListener('message',f);removeEventListener('storage',sf);this.subs=this.subs.filter(x=>x!==push)}},
 };
-function netT(){if(location.search.includes('local=1'))return LocalT;return (typeof CLOUD!=='undefined'&&CLOUD.on())?FirestoreT:LocalT}
+function netPick(){if(location.search.includes('local=1'))return LocalT;return (typeof CLOUD!=='undefined'&&CLOUD.on())?FirestoreT:LocalT}
+function netT(){return ROOM.T||netPick()} // a room keeps the transport it was opened with, even if the cloud connects later
+function netOnline(){return !netIsLocal()}
 function netIsLocal(){return netT()===LocalT}
 /* ---- room lifecycle ---- */
-async function roomCreate(opts={}){
-  const T=netT(),uid=roomUid();let code='',tries=0;
+/* room operations run one at a time: the lobby's auto-open and an explicit create/join can otherwise interleave and strand the player */
+let roomOp=Promise.resolve();function roomQueue(fn){const p=roomOp.then(fn,fn);roomOp=p.catch(()=>{});return p}
+function roomCreate(opts={}){return roomQueue(()=>roomCreateNow(opts))}
+function roomJoin(code,isNew){return roomQueue(()=>roomJoinNow(code,isNew))}
+async function roomCreateNow(opts={}){
+  if(ROOM.code&&!opts.force)return ROOM.code; // already in a room: that one stands
+  const T=netPick();ROOM.T=T;const uid=roomUid();let code='',tries=0;
   while(tries++<6){code=roomCode();try{await T.createRoom(code,{host:uid,mode:opts.mode||'time',len:opts.len||180,max:Math.min(8,Math.max(2,opts.max||4)),state:'lobby',map:MAPID,diff:'normal',round:0,created:Date.now()});break}catch(e){if(e.message!=='exists')throw e;code=''}}
   if(!code)throw new Error('no code');
-  await roomJoin(code,true);return code;
+  await roomJoinNow(code,true);return code;
 }
-async function roomJoin(code,isNew){
+async function roomJoinNow(code,isNew){
   code=String(code||'').toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,4);if(code.length!==4)throw new Error('badcode');
-  const T=netT(),uid=roomUid();const data=await T.getRoom(code);if(!data)throw new Error('nosuch');
+  if(ROOM.code===code)return;const T=isNew?ROOM.T:netPick(),uid=roomUid();const data=await T.getRoom(code);if(!data)throw new Error('nosuch');
   if(data.state==='play'&&!isNew)throw new Error('playing');
   if(data.map&&MAPS[data.map]&&data.map!==MAPID){roomLeave(true);try{localStorage.setItem('sl_map',data.map);sessionStorage.setItem('sl_rejoin',code)}catch(_){}location.reload();return}
-  roomLeave(true);
+  roomLeave(true);ROOM.T=T;
   ROOM.code=code;ROOM.data=data;ROOM.host=data.host===uid;ROOM.joinedAt=Date.now();ROOM.playing=false;ROOM.ended=false;ROOM.results=null;ROOM.evSeen=new Set();ROOM.lastSeen={};
   await T.setPlayer(code,uid,{name:roomName(),cls:SAVE.cls,weapon:weaponOf(SAVE.cls),ready:ROOM.host,score:0,hp:1,lv:1,kills:0,alive:true,done:false,t:0,joined:Date.now(),lvA:(typeof accountLv==='function'?accountLv().lv:1)});
   ROOM.unsub=T.subscribe(code,{room:roomOnRoom,players:roomOnPlayers,event:roomOnEvent});
@@ -66,23 +73,35 @@ function roomLeave(silent){
   if(!ROOM.code)return;const T=netT(),uid=roomUid(),code=ROOM.code;
   if(ROOM.unsub){ROOM.unsub();ROOM.unsub=null}
   T.removePlayer(code,uid);if(ROOM.host&&ROOM.data&&ROOM.data.state!=='play')T.setRoom(code,{state:'closed'});
-  ROOM.code=null;ROOM.data=null;ROOM.players={};ROOM.host=false;ROOM.playing=false;ROOM.countdown=null;
+  ROOM.code=null;ROOM.data=null;ROOM.players={};ROOM.host=false;ROOM.playing=false;ROOM.countdown=null;ROOM.T=null;
   try{sessionStorage.removeItem('sl_rejoin')}catch(_){}
   if(!silent&&typeof renderRoom==='function')renderRoom();
 }
 function roomSetMe(patch){if(!ROOM.code)return;return netT().setPlayer(ROOM.code,roomUid(),patch)}
 function roomSetReady(v){roomSetMe({ready:!!v,cls:SAVE.cls,weapon:weaponOf(SAVE.cls),name:roomName()})}
 async function roomHostSet(patch){if(!ROOM.code||!ROOM.host)return;await netT().setRoom(ROOM.code,patch)}
-function roomPlayerList(){const now=Date.now();return Object.entries(ROOM.players).filter(([uid])=>uid===roomUid()||now-(ROOM.lastSeen[uid]||now)<70000).map(([uid,p])=>({uid,...p})).sort((a,b)=>(a.joined||0)-(b.joined||0))}
+function roomPlayerList(){const now=Date.now();return Object.entries(ROOM.players).filter(([uid,p])=>p.ai||uid===roomUid()||now-(ROOM.lastSeen[uid]||now)<70000).map(([uid,p])=>({uid,...p})).sort((a,b)=>(a.joined||0)-(b.joined||0))}
+/* ---- AI seats: opponents the host adds; the host's client plays them as score bots calibrated to the host's league ---- */
+const AI_NAMES=[['无名剑客','Nameless Blade'],['黑衣客','Dark Robe'],['醉道人','Drunk Taoist'],['冷面僧','Stone Monk'],['夜游神','Night Walker'],['笑面狐','Smiling Fox'],['铁扇子','Iron Fan'],['小旋风','Little Whirlwind']];
+function roomAICount(){return roomPlayerList().filter(p=>p.ai).length}
+async function roomAddAI(){if(!ROOM.code||!ROOM.host)return;const ps=roomPlayerList();if(ps.length>=(ROOM.data.max||4))return;const n=roomAICount();const cls=pick(Object.keys(CLASSES)),nm=AI_NAMES[n%AI_NAMES.length];const li=typeof ladderIdx==='function'?ladderIdx(SAVE.trophies||0):0;
+  await netT().setPlayer(ROOM.code,'ai-'+n+'-'+Date.now().toString(36),{ai:true,name:L(nm[0],nm[1]),cls,weapon:weaponOf(cls),ready:true,score:0,hp:1,lv:1,kills:0,alive:true,done:false,t:0,joined:Date.now(),lvA:3+li*4,skill:clamp(.55+li*.12+Math.random()*.25,.4,1.6)})}
+async function roomRemoveAI(uid){if(!ROOM.code||!ROOM.host)return;await netT().removePlayer(ROOM.code,uid)}
+/* the host advances every AI seat once a second: a score curve that accelerates like a real build, a level that climbs, an HP line that dips and recovers, and in endless mode a fall at some point */
+function roomAITick(){if(!ROOM.host||!ROOM.data||!ROOM.playing)return;const d=ROOM.data,len=d.mode==='time'?d.len:600;const wall=Math.max(0,(Date.now()-((d.startedAt||Date.now())+(d.delay||0)))/1000),hostT=(G&&!G.auto&&G.room)?G.t:0;let t=Math.max(wall,hostT);if(G&&!G.auto&&G.room&&G.over&&d.mode==='time')t=Math.max(t,len); // AI seats follow the host's clock; when the host's run is over the AIs finish too
+  for(const p of roomPlayerList()){if(!p.ai||p.done)continue;const k=p.skill||.8;const final=(520+280*k)*(len/180);const f=Math.min(1,t/len);let score=Math.round(final*Math.pow(f,1.55)*(1+Math.sin(t*.37+k*9)*.03));const lv=Math.max(1,Math.round(1+Math.sqrt(t)*(.9+k*.5)));const hp=clamp(.55+.45*Math.sin(t*.21+k*5)*Math.cos(t*.07),.12,1);const kills=Math.round(score/2.4);
+    let alive=true,done=false;if(d.mode==='last'){const fallAt=(150+k*260);if(t>=fallAt){alive=false;done=true;score=Math.round(final*Math.pow(fallAt/len,1.55))}}else if(t>=len){done=true;score=Math.round(final*(1+Math.sin(k*9)*.03))}
+    netT().setPlayer(ROOM.code,p.uid,{score,lv,hp:alive?hp:0,kills,alive,done,t:Math.round(Math.min(t,len)),bosses:Math.floor(t/240)})}}
 /* lobby heartbeat so stale players (closed tab, lost connection) drop out of the list; leaving on unload */
 setInterval(()=>{if(ROOM.code&&!ROOM.playing)roomSetMe({beat:Date.now()})},20000);
+setInterval(()=>{if(ROOM.code&&ROOM.playing&&ROOM.host)roomAITick()},1000); // AI seats keep moving even after the host's own run has ended
 addEventListener('pagehide',()=>{if(ROOM.code&&!ROOM.playing)roomLeave(true)});
-function roomCanStart(){const ps=roomPlayerList();return ROOM.host&&ps.length>=2&&ps.every(p=>p.ready)}
+function roomCanStart(){const ps=roomPlayerList();return ROOM.host&&ps.length>=2&&ps.every(p=>p.ready||p.ai)}
 async function roomStart(){
   if(!roomCanStart())return;const seed=(Math.floor(Math.random()*2**31)|1);
   await roomHostSet({state:'play',seed,round:(ROOM.data.round||0)+1,startedAt:Date.now(),delay:4000});
 }
-async function roomBackToLobby(){if(!ROOM.host)return;await roomHostSet({state:'lobby'});await roomSetMe({ready:true,score:0,hp:1,lv:1,kills:0,alive:true,done:false,t:0})}
+async function roomBackToLobby(){if(!ROOM.host)return;await roomHostSet({state:'lobby'});await roomSetMe({ready:true,score:0,hp:1,lv:1,kills:0,alive:true,done:false,t:0});for(const p of roomPlayerList())if(p.ai)await netT().setPlayer(ROOM.code,p.uid,{score:0,hp:1,lv:1,kills:0,alive:true,done:false,t:0})}
 /* ---- snapshots ---- */
 function roomOnRoom(data){
   if(!ROOM.code)return;
@@ -133,7 +152,7 @@ function roomOnDeath(){ // called by lose(): in a room, a death is final and tel
   if(!ROOM.code||!ROOM.playing)return;ROOM.endWhy=ROOM.data.mode==='last'?'last':'time';ROOM.endWho={uid:roomUid()};
   roomSetMe({alive:false,done:true,score:G.score,hp:0,t:Math.round(G.t),lv:G.lv,kills:G.kills});
 }
-function roomAllDone(){const ps=roomPlayerList(),now=Date.now();return ps.length>0&&ps.every(p=>p.done||p.alive===false||(now-(ROOM.lastSeen[p.uid]||now)>25000))}
+function roomAllDone(){const ps=roomPlayerList(),now=Date.now();return ps.length>0&&ps.every(p=>p.done||p.alive===false||(!p.ai&&now-(ROOM.lastSeen[p.uid]||now)>25000))}
 function roomCheckFinished(){if(ROOM.results||!ROOM.ended)return;if(roomAllDone()){ROOM.results=roomRank();if(typeof renderRoomResults==='function')renderRoomResults()}}
 function roomRank(){
   const ps=roomPlayerList(),mode=ROOM.data?ROOM.data.mode:'time';

@@ -23,8 +23,8 @@ function renderMenu(){
       const C=CLASSES[SAVE.cls]||CLASSES.swordsman,A=SAVE.asura||{},tier=Math.min(A.sel||0,A.max||0);const tasks=typeof todayTasks==='function'?todayTasks():[];const nt=tasks.find(t=>!t.done);const tt=nt&&typeof taskText==='function'?taskText(nt):null;const TGOLD=typeof TASK_GOLD!=='undefined'?TASK_GOLD:[150,220,320];
       b.innerHTML=`${ICON.cls(SAVE.cls)}<div><b>${L(o.zh,o.en)}</b><small>${LL(C)}${tier?` · ${L(`修罗 ${tier} 层`,`Tier ${tier}`)}`:''}</small>${tt?`<span class="goal"><em>${L('今日','Today')}</em><span class="gt">${L(tt.zh,tt.en)}</span><b>+${TGOLD[nt.tier]||150}</b><i><u style="width:${Math.min(100,Math.round(100*(nt.p||0)/nt.goal))}%"></u></i></span>`:''}</div>`}
     else b.innerHTML=`${ICON.misc(o.ic[0],o.ic[1])}<div><b>${L(o.zh,o.en)}</b><small>${L(o.szh(),o.sen())}</small>${o.subs?`<span class="subs">${o.subs.map(s=>`<i data-m="${s.m}" role="button" tabindex="0">${L(s.zh,s.en)}</i>`).join('')}</span>`:''}</div>`;
-    const go=m=>{SAVE.mode=m;persist();renderTitle();showScreen('hero');SFX.pick(1)};
-    b.onclick=ev=>{const sub=ev.target.closest&&ev.target.closest('.subs i');go(sub?sub.dataset.m:(o.m==='qpk'&&SAVE.mode==='room'?'room':o.m))};
+    const go=m=>{if(m!=='room'&&typeof ROOM!=='undefined'&&ROOM.code)roomLeave(true);SAVE.mode=m;persist();renderTitle();showScreen('hero');SFX.pick(1)};
+    b.onclick=ev=>{const sub=ev.target.closest&&ev.target.closest('.subs i');go(sub?sub.dataset.m:(o.m==='qpk'?'room':o.m))};
     b.querySelectorAll('.subs i').forEach(i=>i.onkeydown=ev=>{if(ev.key==='Enter'||ev.key===' '){ev.preventDefault();ev.stopPropagation();go(i.dataset.m)}});if(o.big)box.appendChild(b);else row.appendChild(b)});box.appendChild(row);
 }
 function statBars(C){
