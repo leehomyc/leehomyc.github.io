@@ -729,12 +729,12 @@ body.touchhud #pause .pbox>p{display:none}
 /* ---- main menu layout: one hero card, two half cards ---- */
 .mrow{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .mb.big{padding:14px 16px;border-left-width:5px}.mb.big .ic{width:54px;height:54px}.mb.big b{font-size:24px}
-.mb .goal{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:6px 8px;margin-top:8px;padding:6px 9px;border-radius:8px;background:#0d0810b0;border:1px solid #6b523055;font-size:12px;color:var(--bone)}
+.mb .goal{display:grid;grid-template-columns:auto 1fr auto;grid-template-areas:'em txt gold' 'bar bar bar';align-items:center;gap:5px 8px;margin-top:8px;padding:6px 9px;border-radius:8px;background:#0d0810b0;border:1px solid #6b523055;font-size:12px;color:var(--bone)}.mb .goal em{grid-area:em}.mb .goal .gt{grid-area:txt;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .mb .goal em{font-style:normal;font-size:10px;font-weight:800;letter-spacing:.1em;color:var(--brass);border:1px solid #6b5230;border-radius:4px;padding:1px 5px}
-.mb .goal i{grid-column:1/3;display:block;height:4px;border-radius:2px;background:#ffffff14;overflow:hidden}.mb .goal i u{display:block;height:100%;background:#ffe9a0}
-.mb .goal b{font-size:12px;color:#ffd27a;grid-row:1/3;align-self:center}
+.mb .goal i{grid-area:bar;display:block;height:4px;border-radius:2px;background:#ffffff14;overflow:hidden}.mb .goal i u{display:block;height:100%;background:#ffe9a0}
+.mb .goal b{grid-area:gold;font-size:12px;color:#ffd27a}
 .mrow .mb{padding:10px 12px}.mrow .mb .ic{width:38px;height:38px}.mrow .mb b{font-size:16px}.mrow .mb small{font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.mrow .mb .subs{margin-top:4px}.mrow .mb .subs i{padding:2px 8px;font-size:11px}
+.mrow .mb .subs{margin-top:4px;flex-wrap:wrap}.mrow .mb .subs i{padding:2px 8px;font-size:11px;white-space:nowrap}
 @media (max-width:760px){.mrow{gap:6px}.mrow .mb{padding:8px 10px}.mrow .mb .ic{width:32px;height:32px}.mrow .mb b{font-size:14px}.mb.big b{font-size:20px}.mb.big .ic{width:46px;height:46px}}
 
 /* phone card screen: one strong line per card, the rest trimmed */
@@ -749,3 +749,15 @@ body.touchhud #pause .pbox>p{display:none}
 .picktimer{display:block;text-align:center;color:#ff9c5a;font-size:12px;font-weight:800;margin:-4px 0 6px}.picktimer:empty{display:none}
 
 #quitbtn small{display:block;font-size:11px;font-weight:600;opacity:.75}
+
+/* ---- hero screen: fewer words, one footer row ---- */
+#mode[hidden]{display:none!important}
+.modechip{display:inline-flex;align-items:center;gap:6px;margin-left:auto;padding:5px 11px;border-radius:999px;background:#140b12cc;border:1px solid #6b523088;font-size:13px;color:var(--bone)}.modechip .ic{width:16px;height:16px}
+#weapons .wp .dd{display:none}#weapons .wp{padding:8px 10px}
+#hero .hfoot .hopts{display:flex;flex-wrap:wrap;gap:8px 18px;align-items:center}
+#hero .hfoot #modenote{display:none}
+#hero .hfoot #maps .mapb{min-width:120px;padding:5px 9px}#hero .hfoot .mapb small{font-size:10px}
+#asura{display:flex;gap:4px;align-items:center;flex-wrap:nowrap;font-size:12px;color:var(--dim)}#asura small{display:none}
+#hero .hfoot #maps{display:flex;gap:6px;flex-wrap:nowrap;margin-left:auto}
+@media (max-width:760px){#hero .hfoot #maps{margin-left:0;flex-wrap:wrap}}
+@media (max-width:760px){#hero #runsummary{display:none}.modechip{margin-left:0}}
