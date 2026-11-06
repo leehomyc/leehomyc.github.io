@@ -606,3 +606,10 @@ body.touchhud #tip{bottom:auto;top:84px}
 @media (max-width:640px) and (orientation:portrait){body.touchhud .bottom{width:200px;height:210px}body.touchhud .seal{width:58px;height:58px}body.touchhud .seal .g,body.touchhud .seal .g .ic{width:34px;height:34px}body.touchhud #sealdash{width:78px;height:78px;right:10px;bottom:12px}body.touchhud #sealdash .g,body.touchhud #sealdash .g .ic{width:46px;height:46px}body.touchhud #seal1{right:100px;bottom:16px}body.touchhud #seal2{right:82px;bottom:88px}body.touchhud #seal3{right:22px;bottom:108px}body.touchhud #autosw{right:150px;bottom:92px;width:40px;height:40px}}
 @media (max-height:480px){body.touchhud .bottom{width:220px;height:200px}body.touchhud .seal{width:58px;height:58px}body.touchhud #sealdash{width:78px;height:78px;right:10px;bottom:10px}body.touchhud #seal1{right:102px;bottom:14px}body.touchhud #seal2{right:84px;bottom:86px}body.touchhud #seal3{right:22px;bottom:104px}body.touchhud #autosw{right:152px;bottom:92px}}
 #nextboss.theme{color:#ffe066;text-shadow:0 0 8px #ffb04a,0 1px 0 #000}
+
+/* opening window: boss bar turns gold with a draining countdown; skill seals pulse "cast now" */
+#bossbar.open #bosshp{border-color:#ffd27a;box-shadow:0 0 22px #ffd27acc}#bossbar.open #bosshp i{background:linear-gradient(180deg,#ffe9a0,#ffb04a 55%,#8a4a10)}
+#openbar{height:9px;border-radius:5px;background:linear-gradient(90deg,#ffd27a,#fff1b0);font:900 8px var(--ui);line-height:9px;color:#1a0e16;text-align:left;padding-left:6px;white-space:nowrap;overflow:hidden;box-shadow:0 0 12px #ffd27a;transition:width .1s linear}#openbar[hidden]{display:none}
+#seals.opening .seal:not(.main):not(.empty):not(.dash):not(.poor){animation:castnow .5s ease-in-out infinite alternate;border-color:#ffd27a}
+@keyframes castnow{from{box-shadow:0 0 10px #ffd27a88}to{box-shadow:0 0 26px #ffd27aff;transform:translateY(-3px)}}
+.killed .dodge{display:block;color:#9fe3f0;margin:2px 0 4px;font-size:12px}

@@ -234,7 +234,8 @@ function dmgP(n,fx,fy,src){
   const P=G.P;if(P.down>0||P.inv>0||P.dash>0||G.over)return;
   if(P.shield>0){P.inv=.3;ring(P.x,P.y,30,'#7dffb0');if(typeof SFX!=='undefined')SFX.block();return}
   if(P.vajra>0){const vs=G.spells.find(x=>x.id==='vajra');const st=vs?stat(vs):{m:1,size:1};n*=.3;near(P.x,P.y,50*st.size,e=>{if(e.type==='statue')return;const dx=e.x-P.x,dy=e.y-P.y,d=hyp(dx,dy)||1;if(d<50*st.size+e.r)hit(e,14*st.m,vs,false,'#ffe9a0',dx/d*220,dy/d*220)});if(vs&&nd(vs,'life'))heal(2*nd(vs,'life'));ring(P.x,P.y,40,'#ffe9a0')}
-  n*=Math.max(.4,P.def);P.hp-=n;P.inv=.4;G.dmgTaken+=n; // mitigation caps at 60%
+  G.mitigated=(G.mitigated||0)+n*(1-Math.max(.4,P.def));n*=Math.max(.4,P.def);P.hp-=n;P.inv=.4;G.dmgTaken+=n; // mitigation caps at 60%
+  G.dmgBy=G.dmgBy||{};{const k=(src||['敌人','enemy']).join('|');G.dmgBy[k]=(G.dmgBy[k]||0)+n}
   G.dmgLog=G.dmgLog||[];G.dmgLog.push({t:G.t,n,src:src||['敌人','enemy']});if(G.dmgLog.length>60)G.dmgLog.shift();if(P.hp<=0)G.killer=src||['敌人','enemy'];
   const dx=fx!==undefined?P.x-fx:0,dy=fy!==undefined?P.y-fy:0,l=hyp(dx,dy)||1;
   trauma(.55,dx/l,dy/l);hitStop(.07);
@@ -671,7 +672,7 @@ function bossAI(dt){
   if(k==='bloodrain'){ // Blood Demon: blood pools fall around the hero
     for(let i=0;i<5;i++){const a=rnd(TAU),d=i===0?0:rnd(40,130);hazard(clamp(P.x+Math.cos(a)*d,30,W-30),clamp(P.y+Math.sin(a)*d,30,H-30),30,1.1,3.5,14*(1+B.n*.3),6,'#ff2a3a')}}
   if(k==='drain'){ // Blood Demon: leech beam - stand still and it heals him
-    B.drain=2.2;B.healed=0;B.drainHit=0;ring(B.x,B.y,60,'#ff4a6a');ring(B.x,B.y,230,'#ff2a3a');showBanner('吸血!远离他','DRAINING - move away!',1.4);trauma(.2)}
+    B.drain=2.2;B.healed=0;B.drainHit=0;B.drainOut=0;B.drainHits=(B.drainHits||0)+1;ring(B.x,B.y,60,'#ff4a6a');ring(B.x,B.y,230,'#ff2a3a');showBanner('吸血!远离他','DRAINING - move away!',1.4);trauma(.2)}
   if(k==='spiral'){ // Ghost-Mask: rotating blade spiral
     const o=rnd(TAU),dir=SIMR()<.5?1:-1;for(let w=0;w<16;w++)later(w*.09,()=>{if(B.dead)return;for(let j=0;j<3;j++)bullet(B.x,B.y,o+dir*w*.42+j/3*TAU,96,11)})}
   if(k==='blink'){ // Ghost-Mask: vanish, reappear beside the hero, slash fan
@@ -717,10 +718,10 @@ function hazardTick(dt){
   const B=G.boss;if(B&&!B.dead){
     if(B.hide>0)B.hide-=dt;
     if(B.exposed>0)B.exposed-=dt;
-    if(B.drain>0){B.drain-=dt;const d=hyp(P.x-B.x,P.y-B.y);if(B.drain<=0&&d>=230&&!B.drainHit){B.exposed=3;showBanner('破绽!全力输出','OPENING - hit him now!',1.4);ring(B.x,B.y,70,'#ffd27a');trauma(.2);if(typeof SFX!=='undefined')SFX.levelup()}if(d<230&&P.down<=0){B.drainHit=1;const hb=B.hp;B.hp=Math.min(B.maxHp,B.hp+B.maxHp*.003*dt*60*.5);B.healed=(B.healed||0)+(B.hp-hb);if(B.healed>=200&&G.floats.length<80){G.floats.push({x:B.x,y:B.y-30,t:.9,v:'+'+Math.round(B.healed),c:'#7dffb0'});B.healed=0}if(SIMR()<dt*6)dmgP(2,B.x,B.y,['吸血','leech beam']);G.fx.push({k:'p',x:P.x+rnd(-8,8),y:P.y+rnd(-8,8),h:6,vx:(B.x-P.x)*1.4,vy:(B.y-P.y)*1.4,vz:0,t:.5,T:.5,c:'#ff2a3a'})}}
+    if(B.drain>0){B.drain-=dt;const d=hyp(P.x-B.x,P.y-B.y);if(d>=230&&!B.drainOut){B.drainOut=1;showBanner('已脱离吸血范围','Out of the drain',.8)}if(B.drain<=0&&d>=230&&!B.drainHit){B.exposed=3;showBanner('破绽!全力输出','OPENING - hit him now!',1.4);ring(B.x,B.y,70,'#ffd27a');trauma(.2);if(typeof SFX!=='undefined')SFX.levelup()}if(d<230&&P.down<=0){B.drainHit=1;const hb=B.hp;B.hp=Math.min(B.maxHp,B.hp+B.maxHp*.003*dt*60*.5);B.healed=(B.healed||0)+(B.hp-hb);if(B.healed>=200&&G.floats.length<80){G.floats.push({x:B.x,y:B.y-30,t:.9,v:'+'+Math.round(B.healed),c:'#7dffb0'});B.healed=0}if(SIMR()<dt*6)dmgP(2,B.x,B.y,['吸血','leech beam']);G.fx.push({k:'p',x:P.x+rnd(-8,8),y:P.y+rnd(-8,8),h:6,vx:(B.x-P.x)*1.4,vy:(B.y-P.y)*1.4,vz:0,t:.5,T:.5,c:'#ff2a3a'})}}
   }
 }
-function parry(){const P=G.P;if(P.parryCd>0)return;P.parryCd=6;P.parry=4;showBanner('破招!下一式威力大增','PARRY - next skill empowered',1);ring(P.x,P.y,40,'#ffd27a');trauma(.25);G.slow=Math.max(G.slow,.25);if(typeof SFX!=='undefined')SFX.block()}
+function parry(){const P=G.P;G.dodges=(G.dodges||0)+1;if(P.parryCd>0)return;P.parryCd=6;P.parry=4;showBanner('破招!下一式威力大增','PARRY - next skill empowered',1);ring(P.x,P.y,40,'#ffd27a');trauma(.25);G.slow=Math.max(G.slow,.25);if(typeof SFX!=='undefined')SFX.block()}
 function bullet(x,y,a,v,d,arrow){if(G.bullets.length<280)G.bullets.push({x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v,life:5,d,boss:arrow?0:1})}
 
 /* ---------- step ---------- */
