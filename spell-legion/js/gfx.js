@@ -5,6 +5,7 @@ const T3=THREE;
 const QUAL={low:{shadow:1024,grass:7000,dpr:1,msaa:false,flies:90,trees:.55,tilt:0,ground:2048},med:{shadow:2048,grass:15000,dpr:1.25,msaa:false,flies:180,trees:.8,tilt:1,ground:3072},high:{shadow:4096,grass:30000,dpr:1.5,msaa:true,flies:320,trees:1,tilt:1,ground:4096}};
 function detectQuality(){if(PHONE)return 'low';const cores=navigator.hardwareConcurrency||4,mem=navigator.deviceMemory||8;if(cores<=4||mem<=4)return 'low';if(cores<=8)return 'med';return 'high'}
 let QLEVEL=(()=>{try{const q=localStorage.getItem('sl_quality');if(q&&QUAL[q])return q}catch(_){}return detectQuality()})();
+if(PHONE){QUAL.low={shadow:512,grass:2200,dpr:.9,msaa:false,flies:36,trees:.45,tilt:0,ground:1024};QUAL.med={shadow:1024,grass:5000,dpr:1,msaa:false,flies:80,trees:.6,tilt:0,ground:1536};QUAL.high={shadow:1024,grass:9000,dpr:1.2,msaa:false,flies:140,trees:.8,tilt:1,ground:2048}}
 const Q=()=>QUAL[QLEVEL];
 let SHAKE='off'; // screen shake, hit-stop freezes and screen ripples are removed for good: the view never jolts
 let MAPID=(()=>{try{const m=localStorage.getItem('sl_map');if(m&&MAPS[m])return m}catch(_){}return 'valley'})();
@@ -497,7 +498,7 @@ function resize(){
   const r=$('#stage').getBoundingClientRect(),w=Math.max(1,r.width),h=Math.max(1,r.height);
   rn.setPixelRatio(1);rn.setSize(Math.round(w*DPR),Math.round(h*DPR),false);cv.style.width='100%';cv.style.height='100%';
   comp.setSize(Math.round(w*DPR),Math.round(h*DPR));
-  ov.width=Math.round(w*Math.min(devicePixelRatio||1,2));ov.height=Math.round(h*Math.min(devicePixelRatio||1,2));
+  const odpr=Math.min(devicePixelRatio||1,PHONE?1.5:2);ov.width=Math.round(w*odpr);ov.height=Math.round(h*odpr);
   cam.aspect=w/h;viewK=Math.max(1.5,280/(218*cam.aspect));
   const vh0=218*viewK;VW=vh0*cam.aspect;VH=vh0/.82;
   glowPts.material.uniforms.uScale.value=(h*DPR)/(2*Math.tan(cam.fov*Math.PI/360));
