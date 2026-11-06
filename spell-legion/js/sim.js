@@ -191,7 +191,7 @@ function kill(e,s,kx=0,ky=0){
   if(e.type==='statue'){if(G.mission&&G.mission.k==='statue'){G.mission.n--;checkMission()}return}
   const pv=pts(e);
   if(s&&s.owner==='rival'){const R=G.rival;R.kills++;R.combo=(R.combo||0)+1;R.comboT=2.4;R.comboMax=Math.max(R.comboMax||0,R.combo);R.score+=Math.round(pv*(1+Math.min(.6,Math.floor(R.combo/10)*.1)));G.rival.xp+=e.xp*2.2*G.rival.ai;if(RIVAL_ON&&pv>=8&&G.floats.length<80)G.floats.push({x:e.x,y:e.y-e.r-6,t:.9,v:L('对手','Rival')+' +'+pv,c:'#ff9c5a'})}
-  else{G.kills++;comboHit();const gain=Math.round(pv*((RIVAL_ON||G.room)?comboMult():1));G.score+=gain;if((RIVAL_ON||G.room)&&(pv>=3||G.floats.length<CAP.fl)&&G.floats.length<80)G.floats.push({x:e.x,y:e.y-e.r-6,t:.8,v:'+'+gain,c:pv>=8?'#ffd27a':'#9fe3f0',score:1})}
+  else{G.kills++;comboHit();const gain=Math.round(pv*((RIVAL_ON||G.room)?comboMult():1));G.score+=gain;G.sc=G.sc||{kill:0,big:0,ev:0};if(e.type==='boss'||e.elite||e.warlord||e.role||e.affix)G.sc.big+=gain;else G.sc.kill+=gain;if((RIVAL_ON||G.room)&&(pv>=3||G.floats.length<CAP.fl)&&G.floats.length<80)G.floats.push({x:e.x,y:e.y-e.r-6,t:.8,v:'+'+gain,c:pv>=8?'#ffd27a':'#9fe3f0',score:1})}
   if((e.type==='giant'||e.elite)&&!(s&&s.owner==='rival')){hitStop(.06);trauma(.3)}
   const drops=e.elite?4:1;
   for(let i=0;i<drops;i++)if(G.gems.length<CAP.gem)G.gems.push({x:e.x+rnd(-8,8),y:e.y+rnd(-8,8),v:e.xp,big:e.xp>=3});
@@ -211,7 +211,7 @@ function kill(e,s,kx=0,ky=0){
 const COMBO_TIERS=[[10,'连斩','Combo'],[25,'无双','Unrivalled'],[50,'血洗','Bloodbath'],[100,'天下无敌','Invincible'],[200,'武林神话','Legend']];
 function comboMult(){return 1+Math.min(.6,Math.floor(G.combo/10)*.1)}
 function comboHit(){
-  G.combo++;G.comboT=2.4;if(G.combo>G.comboMax)G.comboMax=G.combo;
+  G.combo++;G.comboT=Math.max(1.1,2.4-G.t/900);if(G.combo>G.comboMax)G.comboMax=G.combo;
   const t=COMBO_TIERS.find(t=>t[0]===G.combo);
   if(t){showBanner(`${t[1]} ×${G.combo}`,t[2]+' · '+Math.round((comboMult()-1)*100)+'% bonus',1.3);trauma(.3);if(G.room&&G.combo>=100)roomSendWave(6);G.slow=Math.max(G.slow,.12);G.flash=Math.max(G.flash,.25);if(typeof SFX!=='undefined')SFX.combo(COMBO_TIERS.indexOf(t))}
   if(G.combo>=30&&!G.over9){G.over9=1;showBanner('狂暴','Overdrive: faster strikes, faster feet',1.4);if(typeof SFX!=='undefined')SFX.overdrive()}
@@ -225,7 +225,7 @@ function chestTick(dt){if(G.curse.nochest)return;
     for(let i=0;i<10;i++){const a=i/10*TAU;G.gems.push({x:c.x+Math.cos(a)*18,y:c.y+Math.sin(a)*18,v:3,big:1})}
     if(trap){for(let i=0;i<14;i++){const a=i/14*TAU;spawnEnemy('assassin',clamp(c.x+Math.cos(a)*60,30,W-30),clamp(c.y+Math.sin(a)*60,30,H-30),1.2)}G.en.slice(-14).forEach(e=>{e.affix='swift';e.spd*=1.4});showBanner('机关!刺客从箱中涌出','A trap! Assassins pour out',1.2);trauma(.4)}
     if(gold){dropRelic(c.x,c.y);G.picks.push({kind:'level',forceQ:'legendary'})}
-    G.goldRun+=Math.round(25*(trap?2:1)*(gold?2:1)*(hasR('bowl')?1.3:1));G.chestsOpened=(G.chestsOpened||0)+1;G.score+=PK_EVENTS.chest;if(RIVAL_ON)G.floats.push({x:c.x,y:c.y-14,t:1,v:L('宝箱','Chest')+' +'+PK_EVENTS.chest,c:'#ffd27a',score:1});if(!gold&&SIMR()<.5)dropRelic(c.x,c.y);ring(c.x,c.y,70,gold?'#ffe9a0':trap?'#ff6a6a':'#ffd27a');spark(c.x,c.y,'#ffd27a',40,160);trauma(.35);shock(c.x,c.y,160,.03);G.slow=Math.max(G.slow,.2);
+    G.goldRun+=Math.round(25*(trap?2:1)*(gold?2:1)*(hasR('bowl')?1.3:1));G.chestsOpened=(G.chestsOpened||0)+1;G.score+=PK_EVENTS.chest;(G.sc=G.sc||{kill:0,big:0,ev:0}).ev+=PK_EVENTS.chest;if(RIVAL_ON)G.floats.push({x:c.x,y:c.y-14,t:1,v:L('宝箱','Chest')+' +'+PK_EVENTS.chest,c:'#ffd27a',score:1});if(!gold&&SIMR()<.5)dropRelic(c.x,c.y);ring(c.x,c.y,70,gold?'#ffe9a0':trap?'#ff6a6a':'#ffd27a');spark(c.x,c.y,'#ffd27a',40,160);trauma(.35);shock(c.x,c.y,160,.03);G.slow=Math.max(G.slow,.2);
     if(!gold)G.picks.push({kind:'level'});showBanner(gold?'金宝箱开启:法宝 + 传说卡':trap?'机关宝箱开启:双倍金币':'宝箱开启',gold?'Golden chest: relic + legendary card':trap?'Trapped chest: double gold':'+25 gold, mana and a bonus card',1.4);if(typeof SFX!=='undefined')SFX.chest();openPick()}}
   G.chests=G.chests.filter(c=>!c.dead);
 }
@@ -509,7 +509,7 @@ function startMission(){
   }
   const MB={mush:['密令:采集灵芝 ×5','Gather 5 lingzhi'],statue:['密令:摧毁邪碑 ×3','Destroy 3 cursed steles'],seal:['密令:封印邪阵 · 站入法阵 8 秒','Seal the rift: stand in the circle for 8 s'],hunt:['密令:猎杀逃犯 · 它在逃','Hunt the fugitive before it escapes']};showBanner(MB[k][0],MB[k][1]+' · reward: an augment card',1.8);if(typeof SFX!=='undefined')SFX.mission();
 }
-function checkMission(){if(G.mission&&G.mission.n<=0){G.mission=null;G.score+=PK_EVENTS.mission;if(RIVAL_ON)showBanner('密令 +'+PK_EVENTS.mission,'Mission bonus',1);G.missionT=45;G.mush=[];G.picks.push({kind:'aug'});if(typeof SFX!=='undefined')SFX.complete();openPick()}}
+function checkMission(){if(G.mission&&G.mission.n<=0){G.mission=null;G.score+=PK_EVENTS.mission;(G.sc=G.sc||{kill:0,big:0,ev:0}).ev+=PK_EVENTS.mission;if(RIVAL_ON)showBanner('密令 +'+PK_EVENTS.mission,'Mission bonus',1);G.missionT=45;G.mush=[];G.picks.push({kind:'aug'});if(typeof SFX!=='undefined')SFX.complete();openPick()}}
 function missionText(){
   const m=G.mission;if(!m)return '';
   const t=Math.ceil(m.t);
@@ -543,7 +543,7 @@ function shrineTick(dt){
 function gainXP(v){
   G.xp+=v*(BOSSRUSH?2.2:1)*((G.ev&&G.ev.xp)||1);
   while(G.xp>=G.need){G.xp-=G.need;G.lv++;G.need=xpNeed(G.lv);autoGrow();if(G.lv%5===0&&!(tier(8)&&G.lv%10!==0))G.rerolls++;G.picks.push({kind:'level'});if(typeof SFX!=='undefined'&&!G.auto)SFX.levelup()}
-  if(G.picks.length&&!(G.pickHold>0))openPick();
+  if(G.picks.length&&!(G.pickHold>0)){if(typeof introOn!=='undefined'&&introOn)G.pickHold=2.2;else openPick()}
 }
 const RARITY=[{k:'common',zh:'',en:'',w:62,x:1},{k:'rare',zh:'稀有',en:'Rare',w:26,x:1.6},{k:'epic',zh:'史诗',en:'Epic',w:10,x:2.4},{k:'legendary',zh:'传说',en:'Legendary',w:2,x:4}];
 function rollRarity(){let r=rnd(100);for(const q of RARITY){if(r<q.w)return q;r-=q.w}return RARITY[0]}

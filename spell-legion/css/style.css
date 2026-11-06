@@ -622,3 +622,6 @@ body.touchhud #tip{bottom:auto;top:84px}
 @media (max-width:640px){#parrylbl{bottom:auto;top:70px;font-size:11px}}
 .dmg .bar.def i{background:linear-gradient(90deg,#8a6a10,#ffe9a0)}.stat span small{display:block;font-size:9px;opacity:.7;letter-spacing:0;text-transform:none}
 .node{display:grid;grid-template-columns:30px 1fr;column-gap:8px;align-items:center}.node .ic.sm{grid-row:1/4;width:30px;height:30px}.node .nn,.node .nd,.node .nr{grid-column:2}.node.locked .ic{filter:grayscale(1) brightness(.5)}
+#pkfinal{justify-self:center;background:#1a0e16e6;border:1px solid #ffd27a;border-radius:12px;padding:5px 14px;font-size:13px;color:var(--bone);box-shadow:0 0 18px #ffd27a66;animation:pulse 1s infinite}#pkfinal[hidden]{display:none}#pkfinal b.lead{color:#7dffb0}#pkfinal b.behind{color:#ff6a6a}
+.scbreak{display:flex;gap:10px;flex-wrap:wrap;font-size:12px;margin-top:6px;color:var(--dim)}.scbreak b{color:var(--bone)}.cmp .rule{display:block;font-size:11px;color:var(--dim);margin-top:4px;line-height:1.4}
+.relic.more{font:800 10px var(--ui);color:var(--brass);letter-spacing:0}
