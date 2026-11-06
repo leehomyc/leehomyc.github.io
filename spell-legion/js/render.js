@@ -19,7 +19,7 @@ function setEnemy(e){
   if(e.frz>0){roll=0;tilt=0}
   if(e.tumble!==undefined){tilt=e.tumble;roll=e.tumble*.5}
   const pop=e.flash>0?1+e.flash*1.6:1,sq=e.sq>0?e.sq:0;
-  dummy.position.set(e.x+(e.sqx||0)*sq*6,y+(age-1)*16,e.y+(e.sqy||0)*sq*6);dummy.rotation.set(tilt+(e.sqy||0)*sq*.9,yaw,roll-(e.sqx||0)*sq*.9);const s=(.2+.8*age)*(e.sc||1);dummy.scale.set(s*sx*pop*(1+sq*.35),s*sy*pop*(1-sq*.4),s*sx*pop*(1+sq*.35));dummy.updateMatrix();im.setMatrixAt(i,dummy.matrix);
+  dummy.position.set(e.x+(e.sqx||0)*sq*6,y+(age-1)*16,e.y+(e.sqy||0)*sq*6);dummy.rotation.set(tilt+(e.sqy||0)*sq*.9,yaw,roll-(e.sqx||0)*sq*.9);const s=(.2+.8*age)*Math.min(e.warlord?2.2:1.9,e.sc||1);dummy.scale.set(s*sx*pop*(1+sq*.35),s*sy*pop*(1-sq*.4),s*sx*pop*(1+sq*.35));dummy.updateMatrix();im.setMatrixAt(i,dummy.matrix);
   let r=e.tn,g=e.tn,b=e.tn;
   if(e.elite){r*=1.25;g*=1.1;b*=.75}
   if(e.role==='charger'){r*=1.3;g*=.8;b*=.6}else if(e.role==='shaman'){r*=.7;g*=1.3;b*=.8}
@@ -239,9 +239,10 @@ function drawOverlay(){
     c.save();c.translate(ax,ay);c.rotate(a);c.shadowColor=col;c.shadowBlur=14*S;c.fillStyle=col;c.beginPath();c.moveTo(16*S,0);c.lineTo(-10*S,-11*S);c.lineTo(-5*S,0);c.lineTo(-10*S,11*S);c.closePath();c.fill();c.restore();
     if(txt){const t2=txt+' · '+dist+'m';c.font=`800 ${13*S}px "Alegreya Sans","PingFang SC","Microsoft YaHei",system-ui,sans-serif`;const hw=c.measureText(t2).width/2+12*S,off=28*S,lx=clamp(ax-Math.cos(a)*off,hw+4*S,ow-hw-4*S),ly=clamp(ay-Math.sin(a)*off,24*S,oh-24*S);label(lx,ly,t2,col,false)}};
   for(const e of G.en){if(e.dead||!e.healLine||e.healLine.t<=0)continue;const hl=e.healLine;hl.t-=1/60;const [ax,ay]=toScreen(hl.x,8,hl.y),[bx,by]=toScreen(e.x,e.r*1.2,e.y);c.save();c.globalAlpha=Math.min(1,hl.t*2)*.85;c.strokeStyle='#7fc98a';c.lineWidth=2.5*S;c.setLineDash([6*S,5*S]);c.beginPath();c.moveTo(ax,ay);c.lineTo(bx,by);c.stroke();c.setLineDash([]);c.restore()} // heal line: who is topping the boss up
+  let nearest=null,nd=1e9;for(const f of G.fx){if(f.k!=='relic'||!RELICS[f.id].cursed)continue;const d=hyp(f.x-G.P.x,f.y-G.P.y);if(d<nd){nd=d;nearest=f}}
   for(const f of G.fx){if(f.k!=='relic'||!RELICS[f.id].cursed)continue;const [x,y]=toScreen(f.x,6,f.y),d=hyp(f.x-G.P.x,f.y-G.P.y);if(d>120)continue;const k=Math.min(1,(f.hold||0)/1.1);
     c.save();c.lineWidth=3*S;c.strokeStyle='#ff3a3a';c.globalAlpha=.9;c.beginPath();c.arc(x,y,16*S,-Math.PI/2,-Math.PI/2+TAU*k);c.stroke();c.globalAlpha=.35;c.beginPath();c.arc(x,y,16*S,0,TAU);c.stroke();c.restore();
-    const R=RELICS[f.id];label(x,y-30*S,L(`诅咒法宝 · 停留拾取 · 代价:${R.d}`,`Cursed relic · stand to take · price: ${R.de}`),'#ff6a6a',false)}
+    const R=RELICS[f.id];if(f===nearest)label(x,y-30*S,L(`诅咒法宝 · 停留拾取 · 代价:${R.d}`,`Cursed relic · stand to take · price: ${R.de}`),'#ff6a6a',false)}
   if(!G.auto&&G.P.down<=0){const [hx,hy]=toScreen(G.P.x,0,G.P.y);let crowd=0;for(const e of G.en){if(!e.dead&&Math.abs(e.x-G.P.x)<34&&Math.abs(e.y-G.P.y)<34&&++crowd>=6)break}
     c.save();c.globalAlpha=.55;c.lineWidth=2*S;c.strokeStyle=CLASSES[G.cls].col;c.beginPath();c.ellipse(hx,hy,16*S,9*S,0,0,TAU);c.stroke();
     if(crowd>=6){/* buried: a bright beacon so you never lose yourself in a pile of enemies */const [tx,ty]=toScreen(G.P.x,44,G.P.y),pul=.75+Math.sin(U.uTime.value*8)*.25;c.globalAlpha=pul;c.lineWidth=3*S;c.strokeStyle='#ffffff';c.beginPath();c.ellipse(hx,hy,20*S,11*S,0,0,TAU);c.stroke();c.fillStyle='#ffffff';c.beginPath();c.moveTo(tx,ty+6*S);c.lineTo(tx-9*S,ty-10*S);c.lineTo(tx+9*S,ty-10*S);c.closePath();c.fill();c.font=`900 ${22*S}px "Ma Shan Zheng","Noto Serif SC",serif`;c.fillStyle=CLASSES[G.cls].col;c.strokeStyle='#160b12';c.lineWidth=4*S;c.strokeText(CLASSES[G.cls].g,tx,ty-24*S);c.fillText(CLASSES[G.cls].g,tx,ty-24*S)}c.restore()}

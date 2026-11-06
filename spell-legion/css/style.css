@@ -639,10 +639,10 @@ body.touchhud #tip{bottom:auto;top:84px}
 #bossheal{display:block;margin-top:3px;font-size:12px;color:var(--bone);opacity:.9}#bossheal i{font-style:normal;font-weight:800;padding:1px 6px;border-radius:4px;margin-right:4px}#bossheal i.wiz{background:#7fc98a33;color:#9fe3a8}#bossheal i.dr{background:#ff2a3a33;color:#ff8a8a}
 
 /* side toasts (relic pickups etc.) */
-#side{position:absolute;right:max(10px,env(safe-area-inset-right,0px));top:34%;display:flex;flex-direction:column;gap:6px;align-items:flex-end;pointer-events:none;z-index:6;max-width:min(46vw,320px)}
+#side{position:absolute;right:max(10px,env(safe-area-inset-right,0px));top:56%;display:flex;flex-direction:column;gap:6px;align-items:flex-end;pointer-events:none;z-index:6;max-width:min(46vw,320px)}
 #side .st{display:flex;align-items:center;gap:8px;background:#0a0710d9;border:1px solid var(--c);border-left-width:4px;border-radius:8px;padding:6px 10px;font-size:13px;font-weight:700;color:var(--bone);box-shadow:0 0 16px color-mix(in srgb,var(--c) 35%,transparent);opacity:0;transform:translateX(24px);transition:opacity .25s,transform .3s}
 #side .st.on{opacity:1;transform:none}#side .st .ic{flex:none}
-body.touchhud #side{top:22%;max-width:52vw;font-size:12px}
+body.touchhud #side{top:auto;bottom:34%;left:max(8px,env(safe-area-inset-left,0px));right:auto;align-items:flex-start;max-width:60vw;font-size:12px}body.touchhud #side .st{transform:translateX(-24px)}body.touchhud #side .st.on{transform:none}
 
 .nextgoal.near{border-left-color:#ffd27a;display:flex;align-items:center;gap:8px}.nextgoal.near .ic{flex:none}
 .endrows small.why{display:block;color:var(--dim);font-size:11px;margin-top:2px}
@@ -657,3 +657,5 @@ body.touchhud .globe .eff{display:none}
 .nextgoal.carry{border-left-color:#ffd27a;background:#1f1a10d9;display:flex;align-items:center;gap:10px}.nextgoal.carry .ic{flex:none;width:34px;height:34px}.nextgoal.carry b{color:#ffd27a;display:block}
 
 #bossbar.tired #bosshp i{filter:saturate(.6) brightness(1.15)}#bossbar.tired #bossname::after{content:' · 力竭';color:#ffd27a}html[lang=en] #bossbar.tired #bossname::after{content:' · tiring'}
+
+body.picking #tip,body.picking #side{display:none}
