@@ -843,3 +843,14 @@ body.touchhud #pause .pbox>p{display:none}
 #hero .hfoot.room{position:static;background:none}
 
 #hero>#roompanel{margin:0 0 6px}
+
+/* email sign-in form inside the account row */
+#emailform{flex:1 1 100%;display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:4px}
+#emailform input{min-width:0;font:inherit;font-size:13px;padding:8px 10px;border-radius:10px;border:1px solid #6b523066;background:#0d0810;color:var(--text,#f3e9d8)}
+#emailform input:focus{outline:none;border-color:#ffd27a99}
+#emailform .eb{grid-column:1/-1;display:flex;gap:6px;align-items:center}
+#emailform .lnk{margin-left:auto;background:none;border:0;color:var(--dim);font:inherit;font-size:12px;cursor:pointer;text-decoration:underline;padding:4px}
+#account .go.sm.on{box-shadow:inset 0 0 0 2px #ffd27a99}
+@media (max-width:520px){#emailform{grid-template-columns:1fr}}
+
+#roompanel .rmrow.join{margin-top:6px}#roompanel .rmrow.join input{width:5.5em;text-align:center;letter-spacing:.15em;font-weight:800}#roompanel .note.err{color:#ff9c8a}

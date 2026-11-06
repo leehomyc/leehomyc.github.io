@@ -71,14 +71,38 @@ async function cloudGoogle(){
     showMsg(L('已登录 Google','Signed in with Google'));
   }catch(e){console.warn(e);showMsg(L('登录未完成','Sign-in not completed'))}
 }
+/* ---- email + password: register links the guest account (progress kept); sign-in merges the local save into the account's cloud save on pull ---- */
+const AUTH_MSG={'auth/invalid-email':['邮箱格式不对','That email does not look right'],'auth/weak-password':['密码至少 6 位','Password needs 6+ characters'],'auth/email-already-in-use':['这个邮箱已注册,请直接登录','Already registered — sign in instead'],'auth/wrong-password':['密码不对','Wrong password'],'auth/invalid-credential':['邮箱或密码不对','Wrong email or password'],'auth/invalid-login-credentials':['邮箱或密码不对','Wrong email or password'],'auth/user-not-found':['没有这个账号,先注册','No account with this email — register first'],'auth/too-many-requests':['试得太多了,稍后再试','Too many attempts; try again later'],'auth/operation-not-allowed':['邮箱登录暂未开通','Email sign-in is not enabled yet'],'auth/network-request-failed':['网络不通','Network error'],'auth/missing-password':['请输入密码','Enter a password']};
+function authMsg(e){const m=AUTH_MSG[e&&e.code];return m?L(m[0],m[1]):L('没成功,再试一次','Did not work; try again')}
+function emailForm(){const f=$('#emailform');if(!f)return null;const em=(f.querySelector('.em').value||'').trim(),pw=f.querySelector('.pw').value||'';return {em,pw}}
+async function cloudEmail(kind){
+  if(!CLOUD.ready)return showMsg(L('无法连接账号服务','Account service unreachable'));
+  const v=emailForm();if(!v)return;if(!v.em)return showMsg(L('请输入邮箱','Enter your email'));
+  try{
+    if(kind==='reset'){await CLOUD.auth.sendPasswordResetEmail(v.em);return showMsg(L('重置邮件已发送,请查收','Reset email sent — check your inbox'))}
+    if(!v.pw)return showMsg(L('请输入密码','Enter a password'));
+    if(kind==='signup'){
+      if(CLOUD.user&&CLOUD.user.isAnonymous){const cred=firebase.auth.EmailAuthProvider.credential(v.em,v.pw);await CLOUD.user.linkWithCredential(cred);CLOUD.user=CLOUD.auth.currentUser;await cloudPush(true);renderAccount()}
+      else await CLOUD.auth.createUserWithEmailAndPassword(v.em,v.pw);
+      try{await CLOUD.auth.currentUser.sendEmailVerification()}catch(_){}
+      showMsg(L('注册成功,进度已绑定到邮箱','Registered — your progress is now tied to this email'));
+    }else{
+      const local=JSON.parse(JSON.stringify(SAVE));await CLOUD.auth.signInWithEmailAndPassword(v.em,v.pw);Object.assign(SAVE,local);SAVE.ts=Date.now(); // onAuthStateChanged pulls and merges with the account's cloud save
+      showMsg(L('已登录','Signed in'));
+    }
+    CLOUD.emailOpen=false;
+  }catch(e){console.warn(e);showMsg(authMsg(e))}
+}
 async function cloudSignOut(){if(!CLOUD.ready)return;try{await CLOUD.auth.signOut()}catch(_){}showMsg(L('已退出,继续以游客身份游玩','Signed out; playing as guest'))}
 function showMsg(t){const el=$('#accmsg');if(el){el.textContent=t;setTimeout(()=>{if(el.textContent===t)el.textContent=''},5000)}}
 function renderAccount(){
   if(typeof renderStatus==='function')renderStatus();
   const el=$('#account');if(!el)return;
   const guest=!CLOUD.on()||CLOUD.isGuest();
-  const who=(()=>{const u=CLOUD.user;if(!CLOUD.ready)return CLOUD.label();if(!u)return L('未登录','Not signed in');if(CLOUD.isGuest())return L('游客','Guest');const n=u.displayName||(u.email||'').split('@')[0]||L('已登录','Signed in');return n.length>18?n.slice(0,17)+'…':n})();el.innerHTML=`<span class="who" title="${CLOUD.user&&CLOUD.user.email||''}"><i class="dot ${CLOUD.on()?'on':''}"></i>${who}</span>${CLOUD.ready?(guest?`<button type="button" class="go sm" id="googlebtn">${L('Google 登录','Sign in with Google')}</button>`:`<button type="button" class="go sm alt" id="signoutbtn">${L('退出','Sign out')}</button>`):''}<small>${CLOUD.syncErr?L('云端同步失败,进度暂时仅保存在本机:','Cloud sync failed; progress is saved on this device only: ')+CLOUD.syncErr:CLOUD.on()?(guest?L('游客进度已云端保存在此设备;登录 Google 可跨设备同步','Guest progress is cloud-saved for this device; sign in to sync across devices'):L('进度已跨设备同步','Progress syncs across your devices')):L('账号服务不可用,进度保存在本机','Account service unreachable; progress stays on this device')}</small><span id="accmsg" class="note"></span>`;
+  const who=(()=>{const u=CLOUD.user;if(!CLOUD.ready)return CLOUD.label();if(!u)return L('未登录','Not signed in');if(CLOUD.isGuest())return L('游客','Guest');const n=u.displayName||(u.email||'').split('@')[0]||L('已登录','Signed in');return n.length>18?n.slice(0,17)+'…':n})();el.innerHTML=`<span class="who" title="${CLOUD.user&&CLOUD.user.email||''}"><i class="dot ${CLOUD.on()?'on':''}"></i>${who}</span>${CLOUD.ready?(guest?`<button type="button" class="go sm" id="googlebtn">${L('Google 登录','Google')}</button><button type="button" class="go sm alt${CLOUD.emailOpen?' on':''}" id="emailbtn">${L('邮箱','Email')}</button>${CLOUD.emailOpen?`<form id="emailform" autocomplete="on" onsubmit="return false"><input class="em" type="email" placeholder="${L('邮箱','email')}" autocomplete="email" value="${CLOUD.emailDraft||''}"><input class="pw" type="password" placeholder="${L('密码(至少 6 位)','password (6+)')}" autocomplete="current-password" minlength="6"><div class="eb"><button type="button" class="go sm" data-k="signin">${L('登录','Sign in')}</button><button type="button" class="go sm alt" data-k="signup">${L('注册','Register')}</button><button type="button" class="lnk" data-k="reset">${L('忘记密码','Forgot?')}</button></div></form>`:''}`:`<button type="button" class="go sm alt" id="signoutbtn">${L('退出','Sign out')}</button>`):''}<small>${CLOUD.syncErr?L('云端同步失败,进度暂时仅保存在本机:','Cloud sync failed; progress is saved on this device only: ')+CLOUD.syncErr:CLOUD.on()?(guest?L('游客进度已云端保存在此设备;登录 Google 可跨设备同步','Guest progress is cloud-saved for this device; sign in to sync across devices'):L('进度已跨设备同步','Progress syncs across your devices')):L('账号服务不可用,进度保存在本机','Account service unreachable; progress stays on this device')}</small><span id="accmsg" class="note"></span>`;
   const g=$('#googlebtn');if(g)g.onclick=cloudGoogle;const so=$('#signoutbtn');if(so)so.onclick=cloudSignOut;
+  const eb=$('#emailbtn');if(eb)eb.onclick=()=>{CLOUD.emailOpen=!CLOUD.emailOpen;renderAccount();if(CLOUD.emailOpen){const i=$('#emailform .em');if(i)i.focus()}};
+  const f=$('#emailform');if(f){f.querySelector('.em').oninput=e=>{CLOUD.emailDraft=e.target.value};f.querySelectorAll('[data-k]').forEach(b=>b.onclick=()=>cloudEmail(b.dataset.k));f.querySelector('.pw').onkeydown=e=>{if(e.key==='Enter')cloudEmail('signin')}}
 }
 /* ---- leaderboard on Firestore ---- */
 const CLB={

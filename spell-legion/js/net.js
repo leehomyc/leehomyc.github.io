@@ -43,6 +43,7 @@ const LocalT={
 };
 function netPick(){if(location.search.includes('local=1'))return LocalT;return (typeof CLOUD!=='undefined'&&CLOUD.on())?FirestoreT:LocalT}
 function netT(){return ROOM.T||netPick()} // a room keeps the transport it was opened with, even if the cloud connects later
+function netReady(ms=8000){const ok=()=>typeof CLOUD==='undefined'||!!CLOUD.user||(CLOUD.status!=='loading'&&CLOUD.status!=='ready');return new Promise(res=>{if(ok())return res();const t0=Date.now();const tick=()=>{if(ok()||Date.now()-t0>ms)return res();setTimeout(tick,150)};tick()})}
 function netOnline(){return !netIsLocal()&&!ROOM.cloudFail}
 function netIsLocal(){return netT()===LocalT}
 /* ---- room lifecycle ---- */
@@ -52,7 +53,7 @@ function roomCreate(opts={}){return roomQueue(()=>roomCreateNow(opts))}
 function roomJoin(code,isNew){return roomQueue(()=>roomJoinNow(code,isNew))}
 async function roomCreateNow(opts={}){
   if(ROOM.code&&!opts.force)return ROOM.code; // already in a room: that one stands
-  let T=netPick();ROOM.T=T;ROOM.cloudFail=false;let uid=roomUid();let code='',tries=0;
+  await netReady();let T=netPick();ROOM.T=T;ROOM.cloudFail=false;let uid=roomUid();let code='',tries=0;
   const mk=()=>({host:uid,mode:opts.mode||'time',len:opts.len||180,max:Math.min(8,Math.max(2,opts.max||4)),state:'lobby',map:MAPID,diff:'normal',round:0,created:Date.now()});
   while(tries++<6){code=roomCode();try{await Promise.race([T.createRoom(code,mk()),new Promise((_,rej)=>setTimeout(()=>rej(new Error('timeout')),6000))]);break}
     catch(e){if(e.message==='exists'){code='';continue}
@@ -170,4 +171,4 @@ async function roomAutoJoin(){
   if(!code)return;if(typeof CLOUD!=='undefined'&&!CLOUD.on()&&!netIsLocal()){setTimeout(roomAutoJoin,800);return}
   try{await roomJoin(code);if(typeof showScreen==='function')showScreen('hero');if(location.search.includes('room='))history.replaceState(null,'',location.pathname)}catch(e){ROOM.status=roomErr(e);try{sessionStorage.removeItem('sl_rejoin')}catch(_){}if(typeof renderRoom==='function')renderRoom()}
 }
-function roomErr(e){const m=e&&e.message||'';return m==='nosuch'?L('没有这个房间','No such room'):m==='badcode'?L('房间码是 4 位字母数字','Room codes are 4 letters/digits'):m==='playing'?L('这个房间正在对局中','That room is mid-match'):L('连接失败:','Connection failed: ')+m}
+function roomErr(e){const m=e&&e.message||'';return m==='nosuch'?(netOnline()?L('没有这个房间,检查一下房间码','No such room — check the code'):L('没找到房间:联机暂不可用,检查一下网络','Room not found: online rooms are unavailable — check your connection')):m==='badcode'?L('房间码是 4 位字母数字','Room codes are 4 letters/digits'):m==='playing'?L('这个房间正在对局中','That room is mid-match'):L('连接失败:','Connection failed: ')+m}
