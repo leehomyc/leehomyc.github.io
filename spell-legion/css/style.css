@@ -831,3 +831,5 @@ body.touchhud #pause .pbox>p{display:none}
 #loadnote{display:none!important}
 .mb.big small{font-size:13px}
 #prog .pr.lv b{white-space:nowrap;display:flex;align-items:baseline;gap:6px}#prog .pr.lv b .tt{margin:0}
+
+.tabbar button[hidden],[hidden]{display:none!important}

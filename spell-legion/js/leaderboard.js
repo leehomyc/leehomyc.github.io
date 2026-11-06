@@ -44,8 +44,8 @@ async function openLeaderboard(){
   try{const d=await LB.fetch(lbBoard);renderBoard($('#lbbody'),d,{me:LB.name(),uid:LB.cloud()?CLOUD.uid():null})}catch(e){renderBoard($('#lbbody'),null)}
 }
 function wireLeaderboard(){
-  const on=LB.enabled();$('#lbbtn').hidden=!on;
-  $('#lbbtn').onclick=openLeaderboard;$('#lbclose').onclick=()=>{$('#lb').hidden=true};
+  const on=LB.enabled();{const lb=$('#lbbtn');if(lb)lb.hidden=!on}
+  {const lb=$('#lbbtn');if(lb)lb.onclick=openLeaderboard}$('#lbclose').onclick=()=>{$('#lb').hidden=true};
   document.querySelectorAll('#lbtabs button').forEach(b=>b.onclick=()=>{lbBoard=b.dataset.b;openLeaderboard()});
 }
 /* called from the results screen */
