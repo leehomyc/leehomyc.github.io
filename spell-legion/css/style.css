@@ -620,3 +620,4 @@ body.touchhud #tip{bottom:auto;top:84px}
 #seals.parry .seal:not(.main):not(.empty):not(.dash):not(.poor){border-color:#ffd27a;box-shadow:0 0 22px #ffd27acc;animation:castnow .4s ease-in-out infinite alternate}
 .dmg .bar.heal i{background:linear-gradient(90deg,#4fa03a,#9ff06a)}
 @media (max-width:640px){#parrylbl{bottom:auto;top:70px;font-size:11px}}
+.dmg .bar.def i{background:linear-gradient(90deg,#8a6a10,#ffe9a0)}.stat span small{display:block;font-size:9px;opacity:.7;letter-spacing:0;text-transform:none}

@@ -98,6 +98,7 @@ function render(rdt){
     if(e.elite){glow(e.x,e.r*1.2,e.y,'#ffd27a',e.r*4,.5);if(Math.random()<.3)glow(e.x+vrnd(-8,8),vrnd(2,e.r*3),e.y+vrnd(-8,8),'#ffd27a',3,2)}
     if(e.burn>0&&glowN<GMAX*.7){const f=.7+Math.sin(tm*24+e.x)*.3;glow(e.x,e.r*1.7,e.y,'#ff7a2c',12*f+e.r,1.15);if(Math.random()<.22)G.fx.push({k:'p',x:e.x+vrnd(-3,3),y:e.y+vrnd(-3,3),h:e.r*1.4,vx:vrnd(-4,4),vy:vrnd(-4,4),vh:vrnd(18,42),t:.45,T:.45,c:'#ffb14a',sz:3})}
     if(e.frz>0&&glowN<GMAX*.7)glow(e.x,e.r,e.y,'#8fe4ff',e.r*3.3,.32);
+    if(e.goldT>0){e.goldT-=rdt;glow(e.x,e.r*1.6,e.y,'#ffe9a0',e.r*3,1.6)}
     if(e.pois>0&&glowN<GMAX*.7){glow(e.x,e.r*1.4,e.y,'#9ff06a',e.r*2.2+e.pois*1.5,.45);if(Math.random()<.08)G.fx.push({k:'p',x:e.x+vrnd(-4,4),y:e.y+vrnd(-4,4),h:e.r*1.2,vx:vrnd(-3,3),vy:vrnd(-3,3),vh:vrnd(10,22),t:.5,T:.5,c:'#b6ff8a',sz:2.4})}
     if(e.sleep>0&&glowN<GMAX*.7){glow(e.x+Math.sin(tm*3)*3,e.r*2.4+((tm*10)%12),e.y,'#dcb0ff',7,1.4)}
     if(e.shred>0&&Math.random()<.04)G.fx.push({k:'p',x:e.x,y:e.y,h:e.r*1.8,vx:vrnd(-5,5),vy:vrnd(-5,5),vh:vrnd(8,24),t:.5,T:.5,c:'#b4ff5c',sz:2.6});
@@ -229,6 +230,9 @@ function drawOverlay(){
       if(w.id==='great'||w.id==='staff'||w.id==='fist'){const every=w.id==='great'?(w.awake?2:3):w.id==='staff'?(w.awake?2:4):(w.awake?3:5),k=(w.swing||0)%every,ready=k===every-1;
         for(let i=0;i<every;i++){const x=hx+(i-(every-1)/2)*7*S,y=hy+22*S;c.beginPath();c.arc(x,y,2.6*S,0,TAU);c.fillStyle=i<=k-1||ready?(ready?'#ffd27a':'#ffffff'):'#00000099';c.globalAlpha=ready?1:.8;c.fill();c.lineWidth=1*S;c.strokeStyle='#160b12';c.stroke()}
         if(ready){c.globalAlpha=.6+Math.sin(U.uTime.value*12)*.3;c.beginPath();c.arc(hx,hy+22*S,9*S,0,TAU);c.strokeStyle='#ffd27a';c.lineWidth=1.5*S;c.stroke()}c.globalAlpha=1}}}
+  for(const f of G.fx){if(f.k!=='relic'||!RELICS[f.id].cursed)continue;const [x,y]=toScreen(f.x,6,f.y),d=hyp(f.x-G.P.x,f.y-G.P.y);if(d>120)continue;const k=Math.min(1,(f.hold||0)/1.1);
+    c.save();c.lineWidth=3*S;c.strokeStyle='#ff3a3a';c.globalAlpha=.9;c.beginPath();c.arc(x,y,16*S,-Math.PI/2,-Math.PI/2+TAU*k);c.stroke();c.globalAlpha=.35;c.beginPath();c.arc(x,y,16*S,0,TAU);c.stroke();c.restore();
+    const R=RELICS[f.id];label(x,y-30*S,L(`诅咒法宝 · 停留拾取 · 代价:${R.d}`,`Cursed relic · stand to take · price: ${R.de}`),'#ff6a6a',false)}
   for(const e of G.en){if(e.dead||(e.type!=='giant'&&e.type!=='statue'&&!e.elite)||(e.hp>=e.maxHp&&e.type!=='statue'))continue;
     const [x,y]=toScreen(e.x,e.type==='statue'?60:e.type==='giant'?54:e.r*4+10,e.y),w=(e.type==='statue'?44:32)*S,hh=4*S;c.fillStyle='#160b12cc';c.fillRect(x-w/2-1,y-1,w+2,hh+2);c.fillStyle=e.type==='statue'?'#ff5fe8':e.elite?'#ffd27a':'#ff5a45';c.fillRect(x-w/2,y,w*e.hp/e.maxHp,hh)}
   const label=(x,y,txt,col,big)=>{c.font=`800 ${(big?15:13)*S}px "Alegreya Sans","PingFang SC","Microsoft YaHei",system-ui,sans-serif`;const w=c.measureText(txt).width+18*S,h=22*S;c.fillStyle='#0a0710d9';c.strokeStyle=col;c.lineWidth=1.2*S;c.beginPath();c.roundRect(x-w/2,y-h/2,w,h,5*S);c.fill();c.stroke();c.fillStyle=col;c.fillText(txt,x,y+1)};

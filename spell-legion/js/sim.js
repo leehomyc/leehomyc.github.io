@@ -232,8 +232,8 @@ function chestTick(dt){if(G.curse.nochest)return;
 function srcName(e){if(!e)return ['未知','unknown'];if(e.type==='boss')return [e.name,e.en];if(e.warlord)return ['铁甲统领','Iron Warlord'];const t=ETYPES[e.type]||{};const pre=e.illusion?['幻影','illusion ']:e.elite?['精英','elite ']:e.affix==='explode'?['爆裂','exploding ']:e.affix==='swift'?['疾风','swift ']:e.affix==='armor'?['重甲','armoured ']:e.role==='charger'?['冲锋','charging ']:e.role==='shaman'?['巫','shaman ']:['',''];return [pre[0]+(t.zh||e.type),pre[1]+(t.en||e.type)]}
 function dmgP(n,fx,fy,src){
   const P=G.P;if(P.down>0||P.inv>0||P.dash>0||G.over)return;
-  if(P.shield>0){P.inv=.3;ring(P.x,P.y,30,'#7dffb0');if(typeof SFX!=='undefined')SFX.block();return}
-  if(P.vajra>0){const vs=G.spells.find(x=>x.id==='vajra');const st=vs?stat(vs):{m:1,size:1};n*=.3;near(P.x,P.y,50*st.size,e=>{if(e.type==='statue')return;const dx=e.x-P.x,dy=e.y-P.y,d=hyp(dx,dy)||1;if(d<50*st.size+e.r)hit(e,14*st.m,vs,false,'#ffe9a0',dx/d*220,dy/d*220)});if(vs&&nd(vs,'life'))heal(2*nd(vs,'life'));ring(P.x,P.y,40,'#ffe9a0')}
+  if(P.shield>0){P.inv=.3;G.absorbed=(G.absorbed||0)+n;ring(P.x,P.y,30,'#7dffb0');if(typeof SFX!=='undefined')SFX.block();return}
+  if(P.vajra>0){const vs=G.spells.find(x=>x.id==='vajra');const st=vs?stat(vs):{m:1,size:1};G.skillBlocked=(G.skillBlocked||0)+n*.7;if(vs)vs.blocked=(vs.blocked||0)+n*.7;n*=.3;near(P.x,P.y,50*st.size,e=>{if(e.type==='statue')return;const dx=e.x-P.x,dy=e.y-P.y,d=hyp(dx,dy)||1;if(d<50*st.size+e.r){hit(e,14*st.m,vs,false,'#ffe9a0',dx/d*220,dy/d*220);e.goldT=.35;if(vs)vs.refl=(vs.refl||0)+1}});if(vs&&nd(vs,'life'))heal(2*nd(vs,'life'),vs);ring(P.x,P.y,40,'#ffe9a0')}
   G.mitigated=(G.mitigated||0)+n*(1-Math.max(.4,P.def));n*=Math.max(.4,P.def);P.hp-=n;P.inv=.4;G.dmgTaken+=n; // mitigation caps at 60%
   G.dmgBy=G.dmgBy||{};{const k=(src||['敌人','enemy']).join('|');G.dmgBy[k]=(G.dmgBy[k]||0)+n}
   G.dmgLog=G.dmgLog||[];G.dmgLog.push({t:G.t,n,src:src||['敌人','enemy']});if(G.dmgLog.length>60)G.dmgLog.shift();if(P.hp<=0)G.killer=src||['敌人','enemy'];
@@ -744,7 +744,7 @@ function step(dt){
   for(const s of G.spells)s.cd=Math.max(0,s.cd-dt*(P.buff&&P.buff.k==='haste'?2:1)*(G.over9?1.3:1));
   comboTick(dt);chestTick(dt);if(!G.auto&&(G.t|0)%2===0&&G.t-Math.floor(G.t)<dt)checkAch();
   if(hasR('pill'))heal(dt);
-  for(const f of G.fx){if(f.k==='relic'&&P.down<=0&&hyp(f.x-P.x,f.y-P.y)<18){f.t=0;takeRelic(f.id)}}
+  for(const f of G.fx){if(f.k==='relic'&&P.down<=0&&hyp(f.x-P.x,f.y-P.y)<18){if(RELICS[f.id].cursed){f.hold=(f.hold||0)+dt;if(f.hold<1.1)continue}f.t=0;takeRelic(f.id)}else if(f.k==='relic'&&f.hold)f.hold=Math.max(0,f.hold-dt*2)}
   hazardTick(dt);
   if(G.P.burnT>0){G.P.burnT-=dt;G.P.btk=(G.P.btk||0)-dt;if(G.P.btk<=0){G.P.btk=.5;dmgP(G.P.burnD,G.P.x,G.P.y,'火煞');G.P.inv=0}}if(G.P.chillT>0)G.P.chillT-=dt;
   {const mk=Math.floor(G.t/300);if(mk>=4&&mk>(G.mkDone||3)){G.mkDone=mk;showBanner(`境界 · ${mk*5} 分钟!`,`${mk*5} minutes - a mark of mastery`,2);G.goldRun+=30;if(typeof SFX!=='undefined')SFX.complete()}}
@@ -900,7 +900,7 @@ function buildAdvice(){
   // counters: if the most common monster on the field right now is weak to a category the build lacks, say so
   const cnt={};for(const e of G.en)if(!e.dead&&AFFINITY[e.type])cnt[e.type]=(cnt[e.type]||0)+1;const top=Object.keys(cnt).sort((a,b)=>cnt[b]-cnt[a])[0];
   if(top&&cnt[top]>=12){const A=AFFINITY[top];if(A.weak.cat&&!(t[A.weak.cat]>0)&&!G.spells.some(x=>SKILL_CAT[x.id]===A.weak.cat))return {cat:A.weak.cat,zh:`场上${ETYPES[top].zh}很多,它们${A.tip[0]}`,en:`Lots of ${ETYPES[top].en}s out there: ${A.tip[1]}`}}
-  if(G.lv>=4&&def===0&&(P.hp<P.maxHp*.6||G.lv>=8))return {cat:'defense',zh:'还没有防御或治疗,挨打会越来越疼',en:'Nothing for defense or healing yet; hits will start to hurt'};
+  if(G.lv>=4&&def===0&&!G.spells.some(s=>SKILL_CAT[s.id]==='defense'||SKILL_CAT[s.id]==='heal')&&(P.hp<P.maxHp*.6||G.lv>=8))return {cat:'defense',zh:'还没有防御或治疗,挨打会越来越疼',en:'Nothing for defense or healing yet; hits will start to hurt'};
   if(G.lv>=6&&off<def)return {cat:'melee',zh:'构筑偏防守,补点伤害会清得更快',en:'Build leans defensive; more damage clears faster'};
   if(G.lv>=10&&ctrl===0&&G.en.length>200)return {cat:'control',zh:'怪群很密,控制类武学能拉开空间',en:'Crowds are thick; a control skill buys space'};
   const low=G.spells.filter(s=>s.lv<5&&!SPELLS[s.id].auto);if(G.lv>=8&&low.length)return {cat:SKILL_CAT[low[0].id],zh:`${SPELLS[low[0].id].zh} 还在低级,升到 7 级可灌注真气`,en:`${SPELLS[low[0].id].en} is still low; Lv 7 unlocks an element`};
