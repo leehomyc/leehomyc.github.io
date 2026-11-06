@@ -646,3 +646,10 @@ body.touchhud #side{top:22%;max-width:52vw;font-size:12px}
 
 .nextgoal.near{border-left-color:#ffd27a;display:flex;align-items:center;gap:8px}.nextgoal.near .ic{flex:none}
 .endrows small.why{display:block;color:var(--dim);font-size:11px;margin-top:2px}
+
+/* a skill set to manual while auto-cast is on */
+#seals.auto .seal.manual:not(.main):not(.empty):not(.dash){animation:none;border-color:#ffd27a}
+#seals.auto .seal.manual:not(.main):not(.empty):not(.dash) .key::after{content:' 手动';color:#ffd27a}html[lang=en] #seals.auto .seal.manual:not(.main):not(.empty):not(.dash) .key::after{content:' manual'}
+
+.globe .eff{position:absolute;left:50%;bottom:-18px;transform:translateX(-50%);white-space:nowrap;font-size:11px;font-weight:800;color:#9fe3a8;background:#0a0710d9;border:1px solid #7fc98a66;border-radius:10px;padding:1px 8px}.globe .eff[hidden]{display:none}
+body.touchhud .globe .eff{display:none}
