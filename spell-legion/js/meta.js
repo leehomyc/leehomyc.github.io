@@ -29,7 +29,8 @@ const TASK_GOLD=[150,220,320];
 function taskSeedRng(seed){let a=seed|0;return()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
 function todayTasks(){
   const dk=dayKey();
-  if(!SAVE.tasks||SAVE.tasks.day!==dk){
+  const stale=SAVE.tasks&&SAVE.tasks.list&&SAVE.tasks.list.some(t=>!TASKS.find(x=>x.id===t.id));
+  if(!SAVE.tasks||SAVE.tasks.day!==dk||stale){
     const r=taskSeedRng(dk*131+7),pool=TASKS.slice(),out=[];
     const classes=Object.keys(CLASSES);
     for(let i=0;i<3&&pool.length;i++){const easy=['kills','time','level','combo'];let idx=Math.floor(r()*pool.length);if(i===0){const cand=pool.map((t,j)=>easy.includes(t.id)?j:-1).filter(j=>j>=0);idx=cand[Math.floor(r()*cand.length)]} // the first task is always a plain one anyone can finish
@@ -38,7 +39,7 @@ function todayTasks(){
   }
   return SAVE.tasks.list;
 }
-function taskText(task){const t=TASKS.find(x=>x.id===task.id),C=task.c?CLASSES[task.c]:null;return {zh:t.zh.replace('{n}',task.goal).replace('{c}',C?C.zh:''),en:t.en.replace('{n}',task.goal).replace('{ce}',C?C.en:'')}}
+function taskText(task){const t=TASKS.find(x=>x.id===task.id)||{zh:'—',en:'—'},C=task.c?CLASSES[task.c]:null;return {zh:t.zh.replace('{n}',task.goal).replace('{c}',C?C.zh:''),en:t.en.replace('{n}',task.goal).replace('{ce}',C?C.en:'')}}
 /* called once at the end of every run: fold the run into today's tasks, pay out completed ones, grow the account */
 function metaAfterRun(){
   const list=todayTasks(),done=[];let gold=0;

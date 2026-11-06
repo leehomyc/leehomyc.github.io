@@ -256,7 +256,7 @@ function renderTitle(){
     b.innerHTML=`${typeof ICON!=='undefined'?ICON.cls(k):''}<div class="g">${C.g}</div><div class="n">${LL(C)}</div><div class="d">${typeof ROLES!=='undefined'?L(ROLES[k][0],ROLES[k][1]):L(C.d,C.de)}</div><div class="sk">${[weaponOf(k),...C.skills].map(id=>`<span style="color:${SPELLS[id].col}">${SPELLS[id].g}</span>`).join('')}</div>`;
     b.onclick=()=>{SAVE.cls=k;CLASS=k;persist();renderTitle();if(G&&G.auto){newGame(true,k);demoBoost()}SFX.pick(1)};row.appendChild(b)}
   if(typeof renderMenu==='function')renderMenu();if(typeof renderHero==='function'&&$('#hname'))renderHero();
-  renderWeapons();if(typeof renderMeta==='function')renderMeta();if(typeof renderCodex==='function')renderCodex();renderStatus();if(typeof renderAccount==='function')renderAccount();if(typeof LB!=='undefined'&&$('#lbbtn'))$('#lbbtn').hidden=!LB.enabled();
+  const safe=(n,f)=>{try{f()}catch(e){console.error('lobby:'+n,e)}};safe('weapons',renderWeapons);if(typeof renderMeta==='function')safe('meta',renderMeta);if(typeof renderCodex==='function')safe('codex',renderCodex);safe('status',renderStatus);if(typeof renderAccount==='function')safe('account',renderAccount);if(typeof LB!=='undefined'&&$('#lbbtn'))$('#lbbtn').hidden=!LB.enabled();
   $('#gold').textContent=SAVE.gold;
   const shop=$('#shop');shop.textContent='';shop.hidden=false;
   UPGRADES.forEach(u=>{const r=SAVE.up[u.id]||0,cost=u.cost(r),b=document.createElement('button');b.className='up';b.type='button';b.disabled=r>=u.max||SAVE.gold<cost;
