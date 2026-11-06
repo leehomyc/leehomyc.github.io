@@ -854,3 +854,17 @@ body.touchhud #pause .pbox>p{display:none}
 @media (max-width:520px){#emailform{grid-template-columns:1fr}}
 
 #roompanel .rmrow.join{margin-top:6px}#roompanel .rmrow.join input{width:5.5em;text-align:center;letter-spacing:.15em;font-weight:800}#roompanel .note.err{color:#ff9c8a}
+
+/* identity strip: name · level · gold, one row, everything centred on the same baseline */
+#prog{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr) auto;gap:6px;align-items:stretch;margin:0 0 10px}
+#prog .pr{display:flex;align-items:center;gap:8px;min-height:44px;padding:6px 10px}
+#prog .pr.id{cursor:default}#prog .pr.id .ic{width:30px;height:30px;flex:none}
+#prog .nm{display:flex;align-items:center;gap:6px;min-width:0;background:none;border:0;padding:0;color:var(--bone);font:inherit;cursor:pointer}
+#prog .nm b{font-size:15px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}#prog .nm .pen{font-style:normal;font-size:12px;color:var(--dim);flex:none}#prog .nm:hover .pen{color:var(--brass)}
+#prog .nmedit{min-width:0;flex:1;font:800 15px var(--ui);padding:4px 8px;border-radius:8px;border:1px solid var(--brass);background:#0d0810;color:var(--bone)}
+#prog .pr.lv>div{display:grid;gap:3px;flex:1;min-width:0}#prog .pr.lv b{font-size:14px}
+#prog .pr.gold{gap:6px}#prog .pr.gold b{font-size:14px;color:#ffd27a;font-weight:800}#prog .pr.gold .ic{width:22px;height:22px}
+@media (max-width:760px){#prog{grid-template-columns:minmax(0,1.5fr) minmax(0,1fr) auto;gap:4px}#prog .pr{padding:5px 7px;min-height:40px}#prog .nm b{font-size:14px}#prog .pr.lv b{font-size:13px}}
+#asura .ic{width:16px;height:16px;vertical-align:-3px}#asura button:disabled{opacity:.4;cursor:not-allowed}
+#road .titles,#road .ranks,#road .tiers{display:none}
+#asura{overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}#asura::-webkit-scrollbar{display:none}#asura>span{white-space:nowrap;flex:none}#asura button{flex:none}

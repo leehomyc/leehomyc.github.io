@@ -94,9 +94,16 @@ async function roomAddAI(){if(!ROOM.code||!ROOM.host)return;const ps=roomPlayerL
 async function roomRemoveAI(uid){if(!ROOM.code||!ROOM.host)return;await netT().removePlayer(ROOM.code,uid)}
 /* the host advances every AI seat once a second: a score curve that accelerates like a real build, a level that climbs, an HP line that dips and recovers, and in endless mode a fall at some point */
 function roomAITick(){if(!ROOM.host||!ROOM.data||!ROOM.playing)return;const d=ROOM.data,len=d.mode==='time'?d.len:600;const wall=Math.max(0,(Date.now()-((d.startedAt||Date.now())+(d.delay||0)))/1000),hostT=(G&&!G.auto&&G.room)?G.t:0;let t=Math.max(wall,hostT);if(G&&!G.auto&&G.room&&G.over&&d.mode==='time')t=Math.max(t,len); // AI seats follow the host's clock; when the host's run is over the AIs finish too
-  for(const p of roomPlayerList()){if(!p.ai||p.done)continue;const k=p.skill||.8;const final=(520+280*k)*(len/180);const f=Math.min(1,t/len);let score=Math.round(final*Math.pow(f,1.55)*(1+Math.sin(t*.37+k*9)*.03));const lv=Math.max(1,Math.round(1+Math.sqrt(t)*(.9+k*.5)));const hp=clamp(.55+.45*Math.sin(t*.21+k*5)*Math.cos(t*.07),.12,1);const kills=Math.round(score/2.4);
+  for(const p of roomPlayerList()){if(!p.ai||p.done)continue;const k=p.skill||.8;
+    if(G&&!G.auto&&G.room&&G.rival&&G.rivalSeat===p.uid){const R=G.rival;const over=(d.mode==='time'&&t>=len)||!!G.over;netT().setPlayer(ROOM.code,p.uid,{score:R.score,lv:R.lv,hp:Math.max(0,R.hp/R.maxHp),kills:R.kills,alive:true,done:over,t:Math.round(Math.min(t,len)),bosses:R.bosses||0,x:Math.round(R.x),y:Math.round(R.y)});continue}const final=(520+280*k)*(len/180);const f=Math.min(1,t/len);let score=Math.round(final*Math.pow(f,1.55)*(1+Math.sin(t*.37+k*9)*.03));const lv=Math.max(1,Math.round(1+Math.sqrt(t)*(.9+k*.5)));const hp=clamp(.55+.45*Math.sin(t*.21+k*5)*Math.cos(t*.07),.12,1);const kills=Math.round(score/2.4);
     let alive=true,done=false;if(d.mode==='last'){const fallAt=(150+k*260);if(t>=fallAt){alive=false;done=true;score=Math.round(final*Math.pow(fallAt/len,1.55))}}else if(t>=len){done=true;score=Math.round(final*(1+Math.sin(k*9)*.03))}
-    netT().setPlayer(ROOM.code,p.uid,{score,lv,hp:alive?hp:0,kills,alive,done,t:Math.round(Math.min(t,len)),bosses:Math.floor(t/240)})}}
+    const pos=roomAIPos(p.uid,k);netT().setPlayer(ROOM.code,p.uid,{score,lv,hp:alive?hp:0,kills,alive,done,t:Math.round(Math.min(t,len)),bosses:Math.floor(t/240),x:pos.x,y:pos.y})}}
+/* an AI seat wanders the arena (one step per tick) so the others see a hero fighting somewhere, not just a number on the board */
+function roomAIPos(uid,k){ROOM.aiPos=ROOM.aiPos||{};let s=ROOM.aiPos[uid];const bounds=()=>({w:typeof W!=='undefined'?W:2600,h:typeof H!=='undefined'?H:2000});const {w,h}=bounds();
+  if(!s){const a=Math.random()*Math.PI*2;s=ROOM.aiPos[uid]={x:w/2+Math.cos(a)*300,y:h/2+Math.sin(a)*240,tx:0,ty:0,rest:0};}
+  if(s.rest>0){s.rest--;return {x:Math.round(s.x),y:Math.round(s.y)}}
+  if(!s.tx||Math.hypot(s.tx-s.x,s.ty-s.y)<40){s.tx=80+Math.random()*(w-160);s.ty=80+Math.random()*(h-160);if(Math.random()<.35)s.rest=1+Math.floor(Math.random()*2)}
+  const sp=70+k*40,dx=s.tx-s.x,dy=s.ty-s.y,d=Math.hypot(dx,dy)||1,st=Math.min(d,sp);s.x+=dx/d*st;s.y+=dy/d*st;return {x:Math.round(s.x),y:Math.round(s.y)}}
 /* lobby heartbeat so stale players (closed tab, lost connection) drop out of the list; leaving on unload */
 setInterval(()=>{if(ROOM.code&&!ROOM.playing)roomSetMe({beat:Date.now()})},20000);
 setInterval(()=>{if(ROOM.code&&ROOM.playing&&ROOM.host)roomAITick()},1000); // AI seats keep moving even after the host's own run has ended
@@ -146,7 +153,7 @@ function roomBeginCountdown(data){
 }
 function roomNetTick(dt){
   if(!ROOM.code||!ROOM.playing||!G||G.auto)return;ROOM.sendT-=dt;
-  if(ROOM.sendT<=0){ROOM.sendT=1;const P=G.P;roomSetMe({score:G.score,hp:Math.max(0,P.hp/P.maxHp),lv:G.lv,kills:G.kills,alive:!G.over||G.over==='pk',done:!!G.ended||!!ROOM.ended,t:Math.round(G.t),cls:G.cls,bosses:G.bossSlain});if(typeof drawRoomBoard==='function')drawRoomBoard()}
+  if(ROOM.sendT<=0){ROOM.sendT=.6;const P=G.P;roomSetMe({x:Math.round(P.x),y:Math.round(P.y),score:G.score,hp:Math.max(0,P.hp/P.maxHp),lv:G.lv,kills:G.kills,alive:!G.over||G.over==='pk',done:!!G.ended||!!ROOM.ended,t:Math.round(G.t),cls:G.cls,bosses:G.bossSlain});if(typeof drawRoomBoard==='function')drawRoomBoard()}
   const d=ROOM.data;if(d&&d.mode==='time'&&!G.over){const wall=d.startedAt?(Date.now()-(d.startedAt+(d.delay||0)))/1000:G.t;if(G.t>=d.len||wall>=d.len)roomEndRun('time')}
 }
 function roomEndRun(why,who){
