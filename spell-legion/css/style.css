@@ -653,3 +653,7 @@ body.touchhud #side{top:22%;max-width:52vw;font-size:12px}
 
 .globe .eff{position:absolute;left:50%;bottom:-18px;transform:translateX(-50%);white-space:nowrap;font-size:11px;font-weight:800;color:#9fe3a8;background:#0a0710d9;border:1px solid #7fc98a66;border-radius:10px;padding:1px 8px}.globe .eff[hidden]{display:none}
 body.touchhud .globe .eff{display:none}
+
+.nextgoal.carry{border-left-color:#ffd27a;background:#1f1a10d9;display:flex;align-items:center;gap:10px}.nextgoal.carry .ic{flex:none;width:34px;height:34px}.nextgoal.carry b{color:#ffd27a;display:block}
+
+#bossbar.tired #bosshp i{filter:saturate(.6) brightness(1.15)}#bossbar.tired #bossname::after{content:' · 力竭';color:#ffd27a}html[lang=en] #bossbar.tired #bossname::after{content:' · tiring'}

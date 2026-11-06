@@ -19,8 +19,8 @@ const BOUNTIES=[
   {id:'elite',zh:'30 秒内击杀 3 个精英',en:'3 elites in 30 s',t:30,pick:S=>S.elitesAlive>=3?2:0,start(){this.base=G.eliteKills||0},prog(){return Math.min(1,((G.eliteKills||0)-this.base)/3)},done(){return (G.eliteKills||0)-this.base>=3},rw:{kind:'relic'},rzh:'一件法宝',ren:'a relic'},
   {id:'streak',zh:'连斩不断 30 秒',en:'Keep the streak alive 30 s',t:30,pick:S=>S.comboNow>=20?1:0,start(){this.c0=G.combo},prog(){return G.combo>0?1:-1},done(){return G.combo>0},rw:{kind:'card',q:'epic'},rzh:'史诗卡',ren:'an epic card'},
 ];
-function dirOn(){return !!G&&!G.auto&&!G.over&&!RIVAL_ON&&!G.room&&!(typeof DAILY!=='undefined'&&DAILY)}
-function dirInit(){const skill=(typeof SAVE!=='undefined'&&SAVE.skill)||0;G.dir={spawn:1,hp:1,dmg:1,elite:1,heal:1,counter:null,counterP:0,mood:'build',moodT:35,I:1,base:.9+skill*.45,lowHp:1,lastLow:0,peaks:0,champs:0,bounties:0,bountiesTried:0,hist:[]};G.dirStat={dmgRate:0,kpm:0,actShare:0,parries:0,elitesAlive:0,comboNow:0};G.dirT=0}
+function dirOn(){if(typeof window!=='undefined'&&window.__nodir)return false;return !!G&&!G.auto&&!G.over&&!RIVAL_ON&&!G.room&&!(typeof DAILY!=='undefined'&&DAILY)}
+function dirInit(){const skill=(typeof SAVE!=='undefined'&&SAVE.skill)||0;G.dir={spawn:1,hp:1,dmg:1,elite:1,heal:1,counter:null,counterP:0,mood:'build',moodT:35,I:1,base:.9+skill*.45,base0:.9+skill*.45,lowHp:1,lastLow:0,peaks:0,champs:0,bounties:0,bountiesTried:0,hist:[]};G.dirStat={dmgRate:0,kpm:0,actShare:0,parries:0,elitesAlive:0,comboNow:0};G.dirT=0}
 function dirMeasure(){const P=G.P,D=G.dir,S=G.dirStat,t=G.t;
   const r=P.hp/P.maxHp;D.hist.push({t,r,taken:G.dmgTaken,kills:G.kills,dodges:G.dodges||0});while(D.hist.length&&D.hist[0].t<t-60)D.hist.shift();
   const h0=D.hist[0],h30=D.hist.find(h=>h.t>=t-30)||h0;D.lowHp=Math.min(...D.hist.map(h=>h.r));
@@ -49,17 +49,18 @@ function directorTick(dt){if(!dirOn())return;if(!G.dir)dirInit();const D=G.dir,t
   G.dirT=(G.dirT||0)+dt;if(G.dirT<2)return;G.dirT-=2;dirMeasure();const S=G.dirStat,P=G.P;
   D.moodT-=2;const inBoss=!!G.boss;
   if(D.mood==='build'){ // calm: ease toward the baseline, let the build breathe
-    D.I+=(D.base-D.I)*.25;D.counterP=0;if(D.moodT<=0&&t>45&&!inBoss){D.mood='pressure';D.moodT=40;D.counter=dirCounter();D.counterP=.35;D.pushed=0}}
+    D.I+=(D.base-D.I)*.25;D.counterP=0;if(D.moodT<=0&&t>150&&!inBoss){D.mood='pressure';D.moodT=40;D.counter=dirCounter();D.counterP=.35;D.pushed=0}}
   else if(D.mood==='pressure'){ // push until the player actually dips, then let go
     D.pushed+=2;if(D.lowHp>.6&&S.dmgRate<.02)D.I=Math.min(D.base*2.6,D.I*1.09);
-    const dipped=(t-D.lastLow)<4;if(dipped||D.moodT<=0||inBoss){D.mood='relief';D.moodT=dipped?16:10;if(dipped){D.peaks++}}
+    const dipped=(t-D.lastLow)<4;if(dipped||D.moodT<=0||inBoss){D.mood='relief';D.moodT=dipped?16:10;if(dipped){D.peaks++;D.base=Math.max(D.base0*.8,D.base*.97)}else if(!inBoss)D.base=Math.min(D.base0*2.2,D.base*1.07)} // a push that never lands raises the baseline for the next one; a real dip relaxes it a little
     if(D.pushed>=18&&D.lowHp>.75&&S.dmgRate<.01&&t>120&&!G.en.some(e=>e.champion&&!e.dead))dirChampion();
     if(D.pushed===10&&!G.bounty&&rnd()<.7)dirBounty();}
   else { // relief: a breather with something to pick up, then rebuild
     D.I=Math.max(D.base*.8,D.I*.9);D.counterP=0;if(D.moodT<=0){D.mood='build';D.moodT=30+rnd(25)}}
   if(D.lowHp<.2)D.I=Math.min(D.I,D.base*.85); // mercy, silent: a near-death buys a softer half minute
-  D.I=clamp(D.I,D.base*.75,D.base*2.6);
-  D.spawn=D.mood==='pressure'?Math.min(1.6,D.I):D.mood==='relief'?.7:Math.min(1.15,D.I);D.hp=clamp(Math.pow(D.I,.5),.8,1.6);D.dmg=clamp(Math.pow(D.I,.45),.8,1.5);D.elite=clamp(D.I,.8,2.2);D.heal=D.mood==='pressure'?1.6:1;
+  const early=clamp((t-120)/360,0,1);D.I=clamp(D.I,D.base*.75,D.base*(1+1.6*early)); // the first minutes belong to the build: the director only starts leaning in after 2 min and reaches full reach at 8
+  if(t<120)D.I=Math.min(D.I,1);
+  D.spawn=D.mood==='pressure'?Math.min(1.6,D.I):D.mood==='relief'?.7:Math.min(1.15,D.I);D.hp=clamp(Math.pow(D.I,.5),.8,1.6);D.dmg=clamp(Math.pow(D.I,.45),.8,1+.5*early);D.elite=clamp(D.I,.8,1+1.2*early);D.heal=D.mood==='pressure'?1.6:1;
 }
 /* across runs: a veteran's director starts hotter; a player who keeps dying gets a gentler start */
 function dirRunEnd(){if(!G||!G.dir||typeof SAVE==='undefined'||RIVAL_ON||G.room)return;const mins=G.t/60,died=!!G.killer;let s=SAVE.skill||0;const target=clamp((mins-6)/24+(G.bossSlain*.04)-(died&&mins<8?.15:0),0,1);s+=(target-s)*.35;SAVE.skill=clamp(s,0,1);SAVE.dirPeaks=(SAVE.dirPeaks||0)+(G.dir.peaks||0)}
