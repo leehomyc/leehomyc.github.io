@@ -23,7 +23,6 @@ const TASKS=[
   {id:'pk',zh:'赢下 {n} 场对决',en:'Win {n} PK matches',goals:[1,1,2],cum:1,get:()=>(G.over==='pk'&&G.rival&&G.score>G.rival.score)?1:0},
   {id:'daily',zh:'每日挑战存活 {n} 分钟',en:'Survive {n} minutes in the daily challenge',goals:[5,8,10],best:1,get:()=>(typeof DAILY!=='undefined'&&DAILY)?Math.floor(G.t/60):0},
   {id:'tier',zh:'在修罗层斩杀 {n} 位首领',en:'Slay {n} bosses on an Ascension tier',goals:[1,2,3],cum:1,get:()=>ASURA_T>=1?G.bossSlain:0},
-  {id:'rush',zh:'首领连战中斩杀 {n} 位首领',en:'Slay {n} bosses in Boss rush',goals:[2,3,4],best:1,get:()=>BOSSRUSH?G.bossSlain:0},
   {id:'cls',zh:'用 {c} 斩杀一位首领',en:'Slay a boss as the {ce}',goals:[1,1,1],cum:1,cls:1,get:(t)=>G.cls===t.c&&G.bossSlain>0?1:0},
 ];
 const TASK_GOLD=[150,220,320];
@@ -64,14 +63,14 @@ function metaAfterRun(){
 function renderMeta(){
   const el=$('#meta');if(!el)return;const a=accountLv(),t=titleFor(a.lv),list=todayTasks(),st=SAVE.streak&&(SAVE.streak.last===dayKey()||SAVE.streak.last===yesterdayKey())?SAVE.streak.n:0;
   const tasks=list.map(task=>{const tx=taskText(task),g=TASK_GOLD[task.tier];return `<div class="task${task.done?' done':''}"><span class="ck">${task.done?ICON.misc('trophy','#7dffb0','sm'):ICON.misc('scroll','#efe4cd','sm')}</span><div><b>${L(tx.zh,tx.en)}</b><i><em style="width:${Math.min(100,(task.p||0)/task.goal*100)}%"></em></i></div><span class="rw">${task.done?L('已领 ','claimed ')+g:(task.p||0)+'/'+task.goal+' · +'+g+' '+L('金','gold')}</span></div>`}).join('');
-  el.innerHTML=`<div class="acc"><div class="lvl"><b>${a.lv}</b><small>${L('江湖等级','Rank')}</small></div><div class="ti"><b>${L(t[1],t[2])}</b><i><em style="width:${a.x/a.need*100}%"></em></i><small>${a.x} / ${a.need} ${L('江湖经验 · 每局必得','renown · earned every run')}</small></div><div class="stk"><b>${st}</b><small>${L('连续天数','day streak')}</small><small>${L(`再 ${7-(st%7)} 天宝箱 +800 金`,`chest +800 gold in ${7-(st%7)} days`)}</small></div></div>
+  el.innerHTML=`
   <h2><span>${L('每日任务','Daily tasks')}</span><b>${list.filter(x=>x.done).length}/3</b></h2><div class="tasks">${tasks}</div>
   ${(()=>{const tr=SAVE.trophies||0,lad=ladderOf(tr),next=TROPHY_ROAD.find(r=>!(SAVE.road||{})[r[0]]),prev=TROPHY_ROAD.filter(r=>(SAVE.road||{})[r[0]]).slice(-1)[0],lo=prev?prev[0]:0,hi=next?next[0]:lo||1;
     const ev=todayEvent(),lg=SAVE.login||{n:0},ms=Object.keys(CLASSES).map(k=>{const mm=mastery(k);return `<span class="ms" style="--c:${CLASSES[k].col}"><b>${CLASSES[k].g}</b> ${mm.lv}</span>`}).join('');
-    return `<h2 style="margin-top:10px"><span>🏆 ${L('奖杯之路','Trophy road')}</span><b>${tr}</b></h2>
-    <div class="road"><div class="lad"><b>${L(lad[1],lad[2])}</b><small>${L('段位','League')} · ${L(`赛季还剩 ${seasonDaysLeft()} 天`,`${seasonDaysLeft()} days left in the season`)}</small></div><div class="bar"><i><em style="width:${Math.min(100,(tr-lo)/Math.max(1,hi-lo)*100)}%"></em></i><small>${next?L(`下一奖励 ${next[0]} 🏆:${next[2]}`,`next at ${next[0]} 🏆: ${next[3]}`):L('奖杯之路已走完','Trophy road complete')}</small></div></div>
+    return `
+
     <div class="dailyrow"><div class="ev"><b>${L('今日活动','Today\'s event')}</b><span>${L(ev.zh,ev.en)}</span><small>${L('单人模式自动生效 · 金币 +50%','Applies to Solo · +50% gold')}</small></div><div class="ev"><b>${L('登录签到','Login calendar')}</b><span>${LOGIN_GOLD.map((g,i)=>`<i class="${i<(lg.n-1)%7+1?'got':''}">${g}</i>`).join('')}</span><small>${L(`连续 ${lg.n||0} 天 · 每日首胜金币翻倍`,`${lg.n||0} days in a row · first win of the day pays double`)}</small></div></div>
-    <div class="masteryrow"><b>${L('英雄熟练度','Hero mastery')}</b>${ms}<small>${L('每级 +1% 伤害(至 10 级)','+1% damage per level, up to 10')}</small></div>`})()}`;
+    `})()}`;
 }
 
 /* ---------- trophies (奖杯) and the trophy road ---------- */
