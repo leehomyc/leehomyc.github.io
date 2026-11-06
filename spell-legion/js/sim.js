@@ -83,7 +83,7 @@ const hasR=k=>G.relics.includes(k);
 function dropRelic(x,y){let left=Object.keys(RELICS).filter(k=>!hasR(k));if(!left.length){if(SIMR()<.5||(G.dupRelics||0)>=10){G.goldRun+=40;return}left=Object.keys(RELICS)} // a full set still drops now and then: duplicates become power (up to ten)
   const cursedOut=G.fx.filter(f=>f.k==='relic'&&RELICS[f.id].cursed).length;if(cursedOut>=2)left=left.filter(k=>!RELICS[k].cursed).concat(left.length?[]:[]);if(!left.length)left=Object.keys(RELICS).filter(k=>!RELICS[k].cursed);
   if(G.fx.length<CAP.fx)G.fx.push({k:'relic',id:pick(left),x,y,t:60,T:60})}
-function takeRelic(id){const R=RELICS[id],P=G.P;if(hasR(id)){if((G.dupRelics||0)>=10){G.goldRun+=40;if(typeof showSide==='function')showSide('重复法宝 → 金币 +40','Duplicate relic → +40 gold','#ffd27a','gold');return}P.dmgBonus+=.05;P.maxHp+=10;P.hp=Math.min(P.maxHp,P.hp+10);G.dupRelics=(G.dupRelics||0)+1;if(typeof showSide==='function')showSide(`重复法宝 → 伤害 +5%,生命 +10(${G.dupRelics}/10)`,`Duplicate relic: +5% damage, +10 HP (${G.dupRelics}/10)`,'#ffd27a','relic');spark(P.x,P.y,'#ffd27a',12,80);if(typeof SFX!=='undefined')SFX.chest();return}G.relics.push(id);if(typeof codexSee==='function')codexSee('relic',id);
+function takeRelic(id){const R=RELICS[id],P=G.P;if(hasR(id)){if((G.dupRelics||0)>=10){G.goldRun+=40;if(G.floats.length<CAP.fl)G.floats.push({x:P.x,y:P.y-30,t:.9,v:'+40',c:'#ffd27a'});return}P.dmgBonus+=.05;P.maxHp+=10;P.hp=Math.min(P.maxHp,P.hp+10);G.dupRelics=(G.dupRelics||0)+1;if(typeof showSide==='function')showSide(`重复法宝 → 伤害 +5%,生命 +10(${G.dupRelics}/10)`,`Duplicate relic: +5% damage, +10 HP (${G.dupRelics}/10)`,'#ffd27a','relic');spark(P.x,P.y,'#ffd27a',12,80);if(typeof SFX!=='undefined')SFX.chest();return}G.relics.push(id);if(typeof codexSee==='function')codexSee('relic',id);
   if(id==='boots')P.spd*=1.12;if(id==='feather'){G.cores++;updateCores()}if(id==='bowl')P.mag*=1.4;if(id==='chime')P.haste/=.85;if(id==='pill'){P.maxHp+=40;P.hp+=40}if(id==='shell')P.def*=.85;if(id==='bloodcurse'){P.dmgBonus+=.35;P.maxHp=Math.round(P.maxHp*.75);P.hp=Math.min(P.hp,P.maxHp)}if(id==='glass'){P.crit+=.25;P.def*=1.2}if(id==='wolf'){P.mag*=.7}if(id==='bind'){P.spd*=.9}
   if(typeof showSide==='function')showSide(`法宝 · ${R.zh}:${R.d}`,`Relic · ${R.en}: ${R.de}`,R.col||'#c7a4f0','relic');else showBanner(`法宝:${R.zh}`,`${R.en} · ${R.de}`,2);trauma(.2);G.flash=Math.max(G.flash,.25);if(typeof SFX!=='undefined')SFX.chest();if(typeof drawSeals==='function')drawSeals();if(typeof drawRelics==='function')drawRelics()}
 /* ---------- feel ---------- */
@@ -165,7 +165,7 @@ function arc(from,d,s,n){
 }
 const healCap=t=>t<180?.12:Math.max(.045,.12-(t-180)/600*.075); // max healing per second as a share of max HP: 10% early, 3.5% from ~16 min
 function heal(n,s){const P=G.P;const b=P.hp;let want=n*healMul(G.t)*(G.curse.heal||1);
-  {const sec=Math.floor(G.t);if(G.healSec!==sec){G.healSec=sec;G.healIn=0}const room=P.maxHp*healCap(G.t)-G.healIn;if(want>room){G.healCapped=(G.healCapped||0)+(want-Math.max(0,room));want=Math.max(0,room)}G.healIn+=want}
+  {const sec=Math.floor(G.t);if(G.healSec!==sec){G.healSec=sec;G.healIn=0}const room=P.maxHp*healCap(G.t)-G.healIn;if(want>room){const lost=Math.min(want-Math.max(0,room),Math.max(0,P.maxHp-P.hp-Math.max(0,room)));G.healCapped=(G.healCapped||0)+lost;want=Math.max(0,room)}G.healIn+=want}
   P.hp=Math.min(P.maxHp,P.hp+want);const got=P.hp-b;if(P.hp>P.maxHp*.35)G._nd=0;G.healed=(G.healed||0)+got;G.overheal=(G.overheal||0)+(want-got);if(s){s.healed=(s.healed||0)+got;s.overheal=(s.overheal||0)+(want-got)}}
 function pool(x,y,r,t,dps,s,o={}){
   if(G.pools.length>45)G.pools.shift();
@@ -201,7 +201,7 @@ function kill(e,s,kx=0,ky=0){
   for(let i=0;i<drops;i++){if(G.gems.length<CAP.gem)G.gems.push({x:e.x+rnd(-8,8),y:e.y+rnd(-8,8),v:e.xp,big:e.xp>=3});else gainXP(e.xp)} // when the field is full of gems the XP is granted directly, so late-game leveling never stalls
   if(e.elite)G.gems.push({x:e.x,y:e.y,v:10,big:1});
   if(!(s&&s.owner==='rival')&&hasR('charm')&&e.type!=='boss'){const x=e.x,y=e.y;later(.03,()=>{near(x,y,24,o=>{if(hyp(o.x-x,o.y-y)<20+o.r)hit(o,10*G.P.dmg*(1+G.P.dmgBonus),null,true,'#ff7a2c',(o.x-x)*4,(o.y-y)*4)});ring(x,y,20,'#ff7a2c')})}
-  if((e.elite&&SIMR()<.3)||e.warlord||e.type==='boss')dropRelic(e.x,e.y);
+  if((e.elite&&SIMR()<.3*Math.max(.15,1-G.relics.length/14))||e.warlord||e.type==='boss')dropRelic(e.x,e.y); // elites drop fewer relics as the set fills up
   if(e.affix==='explode'){const x=e.x,y=e.y,d=e.dmg*1.3;later(.08,()=>{ring(x,y,34,'#ff4a2a');spark(x,y,'#ff6a3a',14,120);const P=G.P;if(hyp(P.x-x,P.y-y)<34+6)dmgP(d,x,y,['爆裂敌人','exploding enemy']);if(G.rival&&hyp(G.rival.x-x,G.rival.y-y)<40)rivalHurt(d,x,y)})}
   if(e.warlord){G.chests.push({x:e.x,y:e.y,t:0});showBanner('统领已斩','Warlord slain: treasure drops',1.4);if(G.room)roomSendWave(8);trauma(.6);G.slow=Math.max(G.slow,.5);G.flash=.5;if(typeof SFX!=='undefined')SFX.win()}
   const fk=fusion(s);
@@ -907,7 +907,7 @@ function unlock(id){if(G.auto||!window.SAVE||SAVE.ach[id])return;const a=ACH.fin
 function checkAch(){if(G.auto)return;if(G.bossSlain>=1)unlock('boss1');if(G.bossSlain>=2)unlock('boss2');if(G.bossSlain>=4)unlock('boss4');if(G.comboMax>=100)unlock('combo100');if(G.comboMax>=200)unlock('combo200');if(G.t>=600)unlock('min10');if(G.t>=1200)unlock('min20');if(G.relics.length>=6)unlock('relic6');if(G.bossSlain>=1&&DIFFID==='hard')unlock('hard');
   if(G.bossSlain>=1){SAVE.clsWins=SAVE.clsWins||{};if(!SAVE.clsWins[G.cls]){SAVE.clsWins[G.cls]=true;persist()}if(Object.keys(CLASSES).every(k=>SAVE.clsWins[k]))unlock('allcls')}}
 function bossSlain(e){
-  {const dur=G.t-(e.t0||G.t),k0=G.bossK||1;G.bossK=clamp(k0*clamp(30/Math.max(2,dur),.75,3.5),1,1e4);G.bossDur=dur;G.bossDurs=(G.bossDurs||[]).concat([Math.round(dur)]);G.bossRef={dps:e.maxHp/Math.max(1.5,dur),pow:powerIdx()}} // the next boss scales to how fast this one fell: a 30 s duel, never a 2 s speed bump
+  {const dur=G.t-(e.t0||G.t),k0=G.bossK||1;G.bossK=clamp(k0*clamp(30/Math.max(2,dur),.75,3.5),1,1e4);G.bossDur=dur;G.bossDurs=(G.bossDurs||[]).concat([Math.round(dur)]);G.bossRef={dps:e.maxHp/Math.max(1.5,dur),pow:powerIdx(),corr:clamp(35/Math.max(10,dur),.5,1)}} // a fight that dragged makes the next boss smaller, whatever the power index says // the next boss scales to how fast this one fell: a 30 s duel, never a 2 s speed bump
   G.bossSlain++;G.bossN++;G.boss=null;G.rerolls+=2;if(!G.auto&&!BOSSRUSH&&!RIVAL_ON&&!G.room&&G.bossN%BOSSES.length===0){G.picks.push({kind:'ascend',cyc:G.bossN/BOSSES.length});G.pickHold=2.6}if(G.room)roomSendWave(12,true);G.goldRun+=(100+G.bossN*50)*((G.ev&&G.ev.bossGold)||1);
   G.chests.push({x:e.x,y:e.y,t:0});if(G.curse.bossLeg){G.picks.push({kind:'level',forceQ:'legendary'});G.pickHold=Math.max(G.pickHold||0,2.4)}for(let i=0;i<12;i++){const a=i/12*TAU;G.gems.push({x:e.x+Math.cos(a)*26,y:e.y+Math.sin(a)*26,v:6,big:1})}
   G.slow=Math.max(G.slow,1.2);G.flash=1;trauma(1);shock(e.x,e.y,520,.08,1.2);G.bullets=[];
@@ -918,7 +918,7 @@ function win(){if(G.auto)return;closeCards();G.over='win';G.slow=1.6;G.flash=1;t
 function lose(){if(G.auto){newGame(true);demoBoost();return}closeCards();G.over='lose';if(G.room&&typeof roomOnDeath==='function')roomOnDeath();G.slow=1;later(1.2,()=>showEnd(false));if(typeof SFX!=='undefined')SFX.lose()}
 /* how hard you hit right now, as one number; the last boss fight calibrates what that number means in HP per second */
 function powerIdx(){const P=G.P;let m=0;G.spells.forEach((s,i)=>{const c=SKILL_CAT[s.id];if(c==='heal'||c==='defense')return;m+=stat(s).m*(i===0?1:.3)});return P.dmg*(1+P.dmgBonus)*(1+Math.min(1,P.crit)*.8)*Math.max(.5,m)}
-function powerHp(sec){const r=G.bossRef,field=(G.dpsAvg||0)*sec*.3;/* crowd damage overstates single-target output, so only 30% of it counts */if(!r||!r.dps)return field;const ratio=Math.pow(clamp(powerIdx()/r.pow,1,2.2),.6);return Math.max(field*.8,r.dps*ratio*sec)}
+function powerHp(sec){const r=G.bossRef,field=(G.dpsAvg||0)*sec*.3;/* crowd damage overstates single-target output, so only 30% of it counts */if(!r||!r.dps)return field;const ratio=Math.pow(clamp(powerIdx()/r.pow,1,2.2),.6)*(r.corr||1);return Math.max(field*.8,r.dps*ratio*sec)}
 function bossDue(){if(G.curse.bossEvery&&G.cycAt!==undefined)return G.cycAt+(G.bossN-G.cycN)*G.curse.bossEvery+G.curse.bossEvery;return BOSSRUSH?25+G.bossN*75:(G.bossN+1)*((G.ev&&G.ev.bossEvery)||BOSS_AT)}
 function nextBossIn(){return Math.max(0,bossDue()-G.t)}
 function demoBoost(){

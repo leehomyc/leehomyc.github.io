@@ -288,7 +288,7 @@ function startRun(){tipT=0;const _tp=$('#tip');if(_tp)_tp.classList.remove('on')
   showBanner(CLASSES[CLASS].zh+' 出山',CLASSES[CLASS].en+' sets out',2.2);
   SFX.start();SFX.setState('battle');if(IS_TOUCH)goFullscreen(true);
 }
-function showEnd(ok){tipT=0;{const nb=$('#nextboss');if(nb&&G.rival)nb.textContent=L('对决结束','Match over')}if(typeof dirRunEnd==='function')try{dirRunEnd()}catch(_){}{const _tp=$('#tip');if(_tp)_tp.classList.remove('on')}
+function showEnd(ok){tipT=0;{const sd=$('#side');if(sd)sd.textContent=''}{const nb=$('#nextboss');if(nb&&G.rival)nb.textContent=L('对决结束','Match over')}if(typeof dirRunEnd==='function')try{dirRunEnd()}catch(_){}{const _tp=$('#tip');if(_tp)_tp.classList.remove('on')}
   G.ended=true;const box=$('#endb'),tot=G.spells.reduce((a,s)=>a+s.dmg,0)||1,max=Math.max(...G.spells.map(s=>s.dmg),1);
   checkAch();
   const meta=typeof metaAfterRun==='function'?metaAfterRun():null;

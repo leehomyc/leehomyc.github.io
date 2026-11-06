@@ -53,7 +53,7 @@ function directorTick(dt){if(!dirOn())return;if(!G.dir)dirInit();const D=G.dir,t
     D.I+=(D.base-D.I)*.25;D.counterP=0;if(D.moodT<=0&&t>150&&!inBoss){D.mood='pressure';D.moodT=40;D.counter=dirCounter();D.counterP=.35;D.pushed=0}}
   else if(D.mood==='pressure'){ // push until the player actually dips, then let go
     D.pushed+=2;if(D.lowHp>.6&&S.dmgRate<.02)D.I=Math.min(D.base*2.6,D.I*1.09);
-    const dipped=(t-D.lastLow)<4;if(dipped||D.moodT<=0||inBoss){D.mood='relief';D.moodT=dipped?16:10;if(dipped){D.peaks++;D.base=Math.max(D.base0*.8,D.base*.97)}else if(!inBoss)D.base=Math.min(D.base0*2.2,D.base*1.07)} // a push that never lands raises the baseline for the next one; a real dip relaxes it a little
+    const dipped=(t-D.lastLow)<4;if(dipped||D.moodT<=0||inBoss){D.mood='relief';D.moodT=dipped?16:10;if(dipped){D.peaks++;D.base=Math.max(D.base0*.8,D.base*.97)}else if(!inBoss)D.base=Math.min(D.base0*1.8,D.base*1.07)} // a push that never lands raises the baseline for the next one; a real dip relaxes it a little
     if(D.pushed>=18&&D.lowHp>.75&&S.dmgRate<.01&&t>120&&!G.en.some(e=>e.champion&&!e.dead))dirChampion();
     if(D.pushed===10&&!G.bounty&&rnd()<.7)dirBounty();}
   else { // relief: a breather with something to pick up, then rebuild
@@ -62,7 +62,7 @@ function directorTick(dt){if(!dirOn())return;if(!G.dir)dirInit();const D=G.dir,t
   const early=clamp((t-120)/360,0,1);D.I=clamp(D.I,D.base*.75,D.base*(1+1.6*early)); // the first minutes belong to the build: the director only starts leaning in after 2 min and reaches full reach at 8
   if(t<120)D.I=Math.min(D.I,1);
   if(S.still&&t>150){D.counter=t>210&&rnd()<.4?'bomber':'archer';D.counterP=Math.max(D.counterP,.5)} // a player who stands still gets shot at: archers and bombers do full damage at range
-  D.spawn=D.mood==='pressure'?Math.min(1.6,D.I):D.mood==='relief'?.7:Math.min(1.15,D.I);D.hp=clamp(Math.pow(D.I,.5),.8,1.6);D.dmg=clamp(Math.pow(D.I,.45),.8,1+.5*early);D.elite=clamp(D.I,.8,1+1.2*early);D.heal=D.mood==='pressure'?1.6:1;
+  D.spawn=D.mood==='pressure'?Math.min(1.6,D.I):D.mood==='relief'?.7:Math.min(1.15,D.I);D.hp=clamp(Math.pow(D.I,.4),.8,1.35);D.dmg=clamp(Math.pow(D.I,.45),.8,1+.5*early);D.elite=clamp(D.I,.8,1+1.2*early);D.heal=D.mood==='pressure'?1.6:1;
 }
 /* across runs: a veteran's director starts hotter; a player who keeps dying gets a gentler start */
 function dirRunEnd(){if(!G||!G.dir||typeof SAVE==='undefined'||RIVAL_ON||G.room)return;const mins=G.t/60,died=!!G.killer;let s=SAVE.skill||0;const target=clamp((mins-6)/24+(G.bossSlain*.04)-(died&&mins<8?.15:0),0,1);s+=(target-s)*.35;SAVE.skill=clamp(s,0,1);SAVE.dirPeaks=(SAVE.dirPeaks||0)+(G.dir.peaks||0)}
