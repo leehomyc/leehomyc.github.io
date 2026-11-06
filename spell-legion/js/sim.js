@@ -182,9 +182,9 @@ function aoe(x,y,r,d,s,col,noEl,o={}){
 function ring(x,y,r,c,o={}){G.fx.push({k:'ring',x,y,r,t:.3,T:.3,c,thunder:o.thunder})}
 function spark(x,y,c,n=4,sp=60,o={}){if(G.fx.length>CAP.fx)return;for(let i=0;i<n;i++){const a=o.dir!==undefined?o.dir+rnd(-.7,.7):rnd(TAU),v=rnd(sp*.3,sp);const T=rnd(.22,.5);G.fx.push({k:'p',x,y,h:rnd(3,12),vh:rnd(10,sp),vx:Math.cos(a)*v,vy:Math.sin(a)*v,t:T,T,c,g:1,sz:o.sz||rnd(2,3.6)})}}
 /* poison: stacking damage over time (physician); stacks cap at 8, each tick hits once per stack */
-function poison(e,d,s,n=1){if(e.dead||e.type==='statue')return;e.pois=Math.min(e.type==='boss'||e.warlord?8:6,(e.pois||0)+n);e.poisD=Math.max(e.poisD||0,d);e.poisS=s;e.poisT=4}
+function poison(e,d,s,n=1){if(e.dead||e.type==='statue')return;e.pois=Math.min(e.type==='boss'||e.warlord?10:5,(e.pois||0)+n);e.poisD=Math.max(e.poisD||0,d);e.poisS=s;e.poisT=4}
 function kill(e,s,kx=0,ky=0){
-  if(e.pois>0&&e.poisS&&!e.mistDone&&e.type!=='boss'){e.mistDone=1;const ps=e.poisS,st=stat(ps);const spread=e.plague||(ps.id==='needle'&&nd(ps,'chain')&&SIMR()<NODE_FX.chain*nd(ps,'chain')*2.5);if(spread)pool(e.x,e.y,26*(e.plague?1+NODE_FX.size*nd(e.plague,'size'):st.size),2.2,6*st.m,ps)}
+  if(e.pois>0&&e.poisS&&!e.mistDone&&e.type!=='boss'){e.mistDone=1;const ps=e.poisS,st=stat(ps);const spread=e.plague||(ps.id==='needle'&&nd(ps,'chain')&&SIMR()<NODE_FX.chain*nd(ps,'chain')*2.5);if(spread)pool(e.x,e.y,26*(e.plague?1+NODE_FX.size*nd(e.plague,'size'):st.size),2.2,5*st.m,ps)}
   if(e.dead)return;e.dead=1;
   if(!G.auto&&typeof codexSee==='function'){codexSee('en',e.type);if(e.role)codexSee('en',e.role);if(e.affix)codexSee('en',e.affix);if(e.elite)codexSee('en','elite');if(e.warlord)codexSee('en','warlord');if(e.illusion)codexSee('en','illusion');if(e.type==='boss')codexSee('boss',e.n%BOSSES.length)}
   const dir=Math.atan2(ky,kx);
@@ -330,7 +330,7 @@ function autoFire(s){ // the normal attack of each class
   }else if(s.id==='needle'){ // poison needles: thin fast volley, stacks poison
     const t=nearest(P.x,P.y,220,true);if(!t)return false;
     const fn=()=>{const tt=t.dead?nearest(P.x,P.y,230,true):t;if(!tt)return;const a=Math.atan2(tt.y-P.y,tt.x-P.x),n=3+Math.floor(s.lv/4)+st.n+(s.awake?2:0);
-      for(let i=0;i<n;i++)shoot(P.x,P.y-6,a+(i-(n-1)/2)*.09,s,9*st.m,{v:320,life:.8,pierce:1+st.pierce,r:2.6*st.size,knock:20*st.knock,pois:(s.awake?2:1)*st.m});P.cast=1;if(typeof SFX!=='undefined')SFX.throw()};
+      for(let i=0;i<n;i++)shoot(P.x,P.y-6,a+(i-(n-1)/2)*.09,s,8.5*st.m,{v:320,life:.8,pierce:1+st.pierce,r:2.6*st.size,knock:20*st.knock,pois:(s.awake?1.8:1)*st.m});P.cast=1;if(typeof SFX!=='undefined')SFX.throw()};
     fn();if(st.burst)later(.1,fn);s.cd=.5*st.cdM;
   }else if(s.id==='pouch'){ // herb pouch: lob at the thickest group, bursts into poison mist
     const cands=G.en.filter(e=>!e.dead&&e.type!=='statue'&&hyp(e.x-P.x,e.y-P.y)<220);if(!cands.length)return false;
@@ -852,7 +852,7 @@ function step(dt){
     near(b.x,b.y,b.r+22,e=>{
       if(b.life<=0||b.hitSet.has(e))return;
       if(hyp(e.x-b.x,e.y-b.y)<e.r+b.r){
-        b.hitSet.add(e);const vl=hyp(b.vx,b.vy)||1;hit(e,b.d,b.s,false,b.col,b.vx/vl*b.knock,b.vy/vl*b.knock);if(b.slow){if(!(e.slow>0)&&b.s)b.s.ctrl=(b.s.ctrl||0)+1;e.slow=Math.max(e.slow||0,b.slow)}if(b.pois)poison(e,b.pois*4,b.s,1);spark(b.x,b.y,b.col,3,60,{dir:Math.atan2(b.vy,b.vx)});
+        b.hitSet.add(e);const vl=hyp(b.vx,b.vy)||1;hit(e,b.d,b.s,false,b.col,b.vx/vl*b.knock,b.vy/vl*b.knock);if(b.slow){if(!(e.slow>0)&&b.s)b.s.ctrl=(b.s.ctrl||0)+1;e.slow=Math.max(e.slow||0,b.slow)}if(b.pois)poison(e,b.pois*3.5,b.s,1);spark(b.x,b.y,b.col,3,60,{dir:Math.atan2(b.vy,b.vx)});
         if(b.boom){const bx=b.x,by=b.y,bs=b.s,bd=b.d,bc=b.col;later(0,()=>{near(bx,by,32,o=>{if(o!==e&&hyp(o.x-bx,o.y-by)<20+o.r)hit(o,bd*.6,bs,false,bc,(o.x-bx)*3,(o.y-by)*3)});ring(bx,by,22,bc)})}
         if(b.split){const a=Math.atan2(b.vy,b.vx);for(const off of [-.7,.7])shoot(b.x,b.y,a+off,b.s,b.d*.55,{v:200,life:.35,nosplit:true,small:1,hitSet:new Set([e]),pois:b.pois,slow:b.slow,home:b.home})}
         if(b.pierce>0)b.pierce--;else b.life=0;
