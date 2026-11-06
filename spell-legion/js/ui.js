@@ -152,7 +152,7 @@ function renderPanel(){
       col.innerHTML=`<div class="th"><span class="g">${m.g}</span><div><b>${LL(m)}</b><small>Lv ${s.lv} · ${s.pts} ${L('点','pts')}</small></div></div>`;
       (TREES[s.id]||[]).forEach((n,i)=>{const r=s.nodes[i]||0,need=n.tier===1?0:n.tier===2?2:4,locked=s.pts<need;
         const b=document.createElement('div');b.className='node t'+n.tier+(r>=n.max?' max':'')+(locked?' locked':'')+(r>0?' has':'');
-        b.innerHTML=`<span class="nn">${LL(n)}</span><span class="nd">${L(n.d,n.de)}</span><span class="nr">${r}/${n.max}${locked?L(' · 需先学 '+need+' 项',' · needs '+need+' taken'):''}</span>`;col.appendChild(b)});
+        b.innerHTML=`${ICON.node(n.fx,SPELLS[s.id].col,'sm')}<span class="nn">${LL(n)}</span><span class="nd">${L(n.d,n.de)}</span><span class="nr">${r}/${n.max}${locked?L(' · 需先学 '+need+' 项',' · needs '+need+' taken'):''}</span>`;col.appendChild(b)});
       T.appendChild(col)});
   }
 }
@@ -288,7 +288,7 @@ function showEnd(ok){
   let dailyNew=false;if(DAILY){const dk=G.day||dayKey();if(!SAVE.daily||SAVE.daily.day!==dk)SAVE.daily={day:dk,best:0,bosses:0};if(G.t>SAVE.daily.best){SAVE.daily.best=G.t;SAVE.daily.bosses=G.bossSlain;dailyNew=true}}
   const room=!!G.room&&ROOM.code;if(room){ROOM.ended=true;roomSetMe({done:true,score:G.score,alive:!(G.over&&G.over!=='pk'),t:Math.round(G.t),lv:G.lv,kills:G.kills,hp:Math.max(0,G.P.hp/G.P.maxHp)})}
   const record=!pk&&!room&&!G.abandoned&&G.t>(SAVE.best||0);SAVE.gold+=gold+pkBonus;SAVE.runs++;SAVE.wins+=G.bossSlain;SAVE.bosses=Math.max(SAVE.bosses||0,G.bossSlain);if(record)SAVE.best=G.t;persist();
-  const rows=G.spells.slice().sort((a,b)=>b.dmg-a.dmg).map(s=>{const f=s.els.length===2?FUS[fusion(s)][1]:s.els[0]?ELS[s.els[0]].en:'';
+  const rows=G.spells.slice().sort((a,b)=>b.dmg-a.dmg).map(s=>{const f=s.els.length===2?L(FUS[fusion(s)][0],FUS[fusion(s)][1]):s.els[0]?LL(ELS[s.els[0]]):'';
     if(SKILL_CAT[s.id]==='defense'&&((s.blocked||0)>0||(s.refl||0)>0)){return `<span>${LL(SPELLS[s.id])} · Lv ${s.lv}<small>${L(` · 挡住 ${Math.round(s.blocked||0)} · 反击 ${s.refl||0} 次 · 反击伤害 ${Math.round(s.dmg)} · ${s.casts} 次`,` · blocked ${Math.round(s.blocked||0)} · ${s.refl||0} rebounds · ${Math.round(s.dmg)} rebound damage · ${s.casts} casts`)}</small></span><div class="bar def"><i style="width:${Math.min(100,(s.blocked||0)/Math.max(1,G.dmgTaken+(s.blocked||0))*100)}%"></i></div><span>${L('防御','defense')}</span>`}
     if(SKILL_CAT[s.id]==='heal'&&(s.healed||0)>0){const eff=s.healed/Math.max(1,s.healed+(s.overheal||0));return `<span>${LL(SPELLS[s.id])} · Lv ${s.lv}<small>${L(` · 治疗 ${Math.round(s.healed)} · 有效 ${Math.round(eff*100)}% · ${s.casts} 次`,` · healed ${Math.round(s.healed)} · ${Math.round(eff*100)}% effective · ${s.casts} casts`)}</small></span><div class="bar heal"><i style="width:${Math.min(100,s.healed/Math.max(1,G.healed||1)*100)}%"></i></div><span>${L('治疗','heal')}</span>`}
     const casts=SPELLS[s.id].auto?'':L(` · ${s.casts} 次 · ${s.casts?Math.round(s.dmg/s.casts):0}/次`,` · ${s.casts} casts · ${s.casts?Math.round(s.dmg/s.casts):0} per cast`);
@@ -342,7 +342,7 @@ function showTab(t){lobbyTab=t;try{localStorage.setItem('sl_tab',t)}catch(_){}do
 document.querySelectorAll('.tabbar button[data-t]').forEach(b=>b.onclick=()=>{showTab(lobbyTab===b.dataset.t?'':b.dataset.t);SFX.pick(1)});
 if(lobbyTab==='shop')lobbyTab='';showTab(lobbyTab);
 function runSummaryX(){}
-function runSummary(){const C=CLASSES[SAVE.cls]||CLASSES.swordsman;const tsel=(SAVE.mode==='solo'||SAVE.mode==='rush')?Math.min(SAVE.asura.sel||0,SAVE.asura.max||0):0;return `${LL(C)} · ${LL(SPELLS[weaponOf(SAVE.cls)])} · ${SAVE.mode==='pk'?L('对决','PK'):SAVE.mode==='daily'?L('每日','Daily'):SAVE.mode==='rush'?L('首领连战','Boss rush'):SAVE.mode==='room'?L('多人房间','Room'):L('单人','Solo')} · ${LL(DIFF[SAVE.mode==='daily'?'normal':(SAVE.diff||'normal')])}${tsel?` · ${L('修罗','Asc.')} ${tsel}`:''} · ${LL(MAPS[MAPID])}`}
+function runSummary(){const C=CLASSES[SAVE.cls]||CLASSES.swordsman;const tsel=(SAVE.mode==='solo'||SAVE.mode==='rush')?Math.min(SAVE.asura.sel||0,SAVE.asura.max||0):0;return `${LL(C)} · ${LL(SPELLS[weaponOf(SAVE.cls)])} · ${SAVE.mode==='pk'?L('对决','PK'):SAVE.mode==='qpk'?L('快速对决','Quick PK'):SAVE.mode==='daily'?L('每日','Daily'):SAVE.mode==='rush'?L('首领连战','Boss rush'):SAVE.mode==='room'?L('多人房间','Room'):L('单人','Solo')} · ${LL(DIFF[SAVE.mode==='daily'?'normal':(SAVE.diff||'normal')])}${tsel?` · ${L('修罗','Asc.')} ${tsel}`:''} · ${LL(MAPS[MAPID])}`}
 function renderStatus(){const sb=$('#stickystart');if(sb)sb.querySelector('small').textContent=runSummary();const rs=$('#runsummary');if(rs)rs.textContent=runSummary();
   document.querySelectorAll('#mode button,#diff button,#qual button,.langbtn,.tabbar button[data-t],.cls,.wp,.mapb').forEach(b=>b.setAttribute('aria-pressed',b.classList.contains('on')||b.classList.contains('sel')?'true':'false'));
   const el=$('#status');if(!el)return;const a=typeof accountLv==='function'?accountLv():{lv:1};const t=typeof titleFor==='function'?titleFor(a.lv):['','',''];el.textContent=`${typeof CLOUD!=='undefined'?CLOUD.label():''} · 🏆 ${SAVE.trophies||0} ${typeof ladderOf==='function'?L(ladderOf(SAVE.trophies||0)[1],ladderOf(SAVE.trophies||0)[2]):''} · Lv ${a.lv} ${L(t[1],t[2])} · ${SAVE.gold} ${L('金','gold')}`}

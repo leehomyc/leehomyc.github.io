@@ -621,3 +621,4 @@ body.touchhud #tip{bottom:auto;top:84px}
 .dmg .bar.heal i{background:linear-gradient(90deg,#4fa03a,#9ff06a)}
 @media (max-width:640px){#parrylbl{bottom:auto;top:70px;font-size:11px}}
 .dmg .bar.def i{background:linear-gradient(90deg,#8a6a10,#ffe9a0)}.stat span small{display:block;font-size:9px;opacity:.7;letter-spacing:0;text-transform:none}
+.node{display:grid;grid-template-columns:30px 1fr;column-gap:8px;align-items:center}.node .ic.sm{grid-row:1/4;width:30px;height:30px}.node .nn,.node .nd,.node .nr{grid-column:2}.node.locked .ic{filter:grayscale(1) brightness(.5)}
