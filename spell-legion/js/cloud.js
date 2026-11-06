@@ -45,7 +45,7 @@ function mergeSave(local,cloud){
 async function cloudPull(){
   if(!CLOUD.on())return;
   try{const snap=await CLOUD.db.collection('saves').doc(CLOUD.uid()).get();const data=snap.exists?snap.data():null;
-    if(data&&data.save){const merged=mergeSave(SAVE,data.save);Object.assign(SAVE,merged);persist(true)}
+    if(data&&data.save){const merged=mergeSave(SAVE,data.save);Object.assign(SAVE,merged);if(typeof normalizeSave==='function')normalizeSave();persist(true)}
     await cloudPush(true);
     if(typeof renderTitle==='function'&&!document.querySelector('#title').hidden)renderTitle();
   }catch(e){console.warn('pull failed',e)}

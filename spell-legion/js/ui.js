@@ -4,6 +4,9 @@ const SAVE_KEY='spell-legion-save';
 let SAVE={gold:0,up:{},cls:'swordsman',best:0,wins:0,runs:0,autocast:false,rival:false,bosses:0,played:false,ach:{},diff:'normal',clsWins:{}};
 try{const s=JSON.parse(localStorage.getItem(SAVE_KEY)||'null');if(s&&typeof s==='object')SAVE={...SAVE,...s}}catch(_){}
 SAVE.ach=SAVE.ach||{};SAVE.clsWins=SAVE.clsWins||{};SAVE.weapon=SAVE.weapon||{};SAVE.weaponOwned=SAVE.weaponOwned||{};SAVE.tips=SAVE.tips||{};SAVE.asura=SAVE.asura||{max:0,sel:0,best:0};window.SAVE=SAVE;
+/* a save written by an older build (or synced from another device) may name a retired mode, class or difficulty; fold it back onto what the menu offers */
+function normalizeSave(){const MODES=['solo','room','daily'];if(!MODES.includes(SAVE.mode))SAVE.mode='solo';if(typeof CLASSES!=='undefined'&&!CLASSES[SAVE.cls])SAVE.cls='swordsman';if(typeof DIFF!=='undefined'&&!DIFF[SAVE.diff])SAVE.diff='normal';if(SAVE.asura&&typeof ASURA!=='undefined'){SAVE.asura.max=Math.min(SAVE.asura.max||0,ASURA.length);SAVE.asura.sel=Math.min(SAVE.asura.sel||0,SAVE.asura.max)}}
+normalizeSave();
 function persist(quiet){if(!quiet)SAVE.ts=Date.now();try{localStorage.setItem(SAVE_KEY,JSON.stringify(SAVE))}catch(_){}if(!quiet&&typeof cloudSchedulePush==='function')cloudSchedulePush()}
 const UPGRADES=[
   {id:'hp',zh:'体魄',en:'Vigor',d:'生命上限 +10% / 级',de:'+10% max HP per rank',max:5,cost:r=>80+r*r*60+r*60},
