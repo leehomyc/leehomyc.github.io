@@ -174,7 +174,9 @@ if(typeof wireLeaderboard==='function')wireLeaderboard();
 $('#charbtn').onclick=()=>{togglePanel();$('#charbtn').blur()};
 $('#charclose').onclick=()=>togglePanel();
 $('#tab-attr').onclick=()=>{panelTab='attr';renderPanel()};$('#tab-tree').onclick=()=>{panelTab='tree';renderPanel()};
-function togglePause(){if(G.over||G.pick)return;G.paused=!G.paused;$('#pausebtn').textContent=G.paused?'▶':'II';$('#pause').hidden=!G.paused;if(G.paused)SFX.setState('title');else SFX.setState(G.boss?'boss':'battle')}
+/* the pause screen shows the build at a glance: every skill with its level, element and path, plus the relics */
+function renderPauseBuild(){const el=$('#pausebuild');if(!el)return;el.innerHTML=G.spells.map((s,i)=>{const m=SPELLS[s.id];const tags=[s.els.length===2?L(FUS[fusion(s)][0],FUS[fusion(s)][1]):s.els[0]?LL(ELS[s.els[0]]):'',s.path&&typeof PATHS!=='undefined'&&PATHS[s.path]?LL(PATHS[s.path]):'',s.awake?L('觉醒','awakened'):'',s.manual?L('手动','manual'):''].filter(Boolean).join(' · ');return `<div class="pb" style="--c:${m.col}">${ICON.spell(s.id,'sm')}<div><b>${LL(m)} <small>Lv ${s.lv}${s.tr?` · 真传 ${s.tr}`:''}</small></b><small>${tags||(i===0?L('普攻','normal attack'):L(CATS[SKILL_CAT[s.id]||'passive'][0],CATS[SKILL_CAT[s.id]||'passive'][1]))}</small></div></div>`}).join('')+`<div class="pbr">${G.relics.map(id=>`<span title="${L(RELICS[id].d,RELICS[id].de)}" style="--c:${RELICS[id].col||'#c7a4f0'}">${RELICS[id].g}</span>`).join('')}${G.relics.length?'':`<small>${L('尚无法宝','no relics yet')}</small>`}</div><small class="pbt">${L(`${fmt(G.t)} · Lv ${G.lv} · ${G.kills} 击杀 · 最高连斩 ×${G.comboMax}`,`${fmt(G.t)} · Lv ${G.lv} · ${G.kills} kills · best streak ×${G.comboMax}`)}</small>`}
+function togglePause(){if(G.over||G.pick)return;G.paused=!G.paused;$('#pausebtn').textContent=G.paused?'▶':'II';$('#pause').hidden=!G.paused;if(G.paused){renderPauseBuild();SFX.setState('title')}else SFX.setState(G.boss?'boss':'battle')}
 
 /* cards */
 let pickOpenedAt=0,pickArmed=false;addEventListener('keyup',()=>{if(G&&G.pick)pickArmed=true});
@@ -273,7 +275,7 @@ function dayKey(){return dayKeyOf(tzDate())}
 function yesterdayKey(){return dayKeyOf(tzDate(Date.now()-86400000))}
 function resetIn(){const d=tzDate();const s=86400-(d.getUTCHours()*3600+d.getUTCMinutes()*60+d.getUTCSeconds());return `${Math.floor(s/3600)}h ${Math.floor(s%3600/60)}m`}
 let DAILY=false;
-function startRun(){tipT=0;const _tp=$('#tip');if(_tp)_tp.classList.remove('on');
+function startRun(){tipT=0;{const sd=$('#side');if(sd)sd.hidden=false}const _tp=$('#tip');if(_tp)_tp.classList.remove('on');
   if($('#startbtn').disabled)return;
   CLASS=SAVE.cls;DIFFID=SAVE.diff||'normal';
   const inRoom=SAVE.mode==='room'&&ROOM.code&&ROOM.playing;if(SAVE.mode==='room'&&!inRoom)return; // rooms start from the room panel, never from the Start button
@@ -288,7 +290,7 @@ function startRun(){tipT=0;const _tp=$('#tip');if(_tp)_tp.classList.remove('on')
   showBanner(CLASSES[CLASS].zh+' 出山',CLASSES[CLASS].en+' sets out',2.2);
   SFX.start();SFX.setState('battle');if(IS_TOUCH)goFullscreen(true);
 }
-function showEnd(ok){tipT=0;{const sd=$('#side');if(sd)sd.textContent=''}{const nb=$('#nextboss');if(nb&&G.rival)nb.textContent=L('对决结束','Match over')}if(typeof dirRunEnd==='function')try{dirRunEnd()}catch(_){}{const _tp=$('#tip');if(_tp)_tp.classList.remove('on')}
+function showEnd(ok){tipT=0;G._zeroSaid=0;{const sd=$('#side');if(sd){sd.textContent='';sd.hidden=true}}{const nb=$('#nextboss');if(nb&&G.rival)nb.textContent=L('对决结束','Match over')}if(typeof dirRunEnd==='function')try{dirRunEnd()}catch(_){}{const _tp=$('#tip');if(_tp)_tp.classList.remove('on')}
   G.ended=true;const box=$('#endb'),tot=G.spells.reduce((a,s)=>a+s.dmg,0)||1,max=Math.max(...G.spells.map(s=>s.dmg),1);
   checkAch();
   const meta=typeof metaAfterRun==='function'?metaAfterRun():null;
@@ -301,7 +303,7 @@ function showEnd(ok){tipT=0;{const sd=$('#side');if(sd)sd.textContent=''}{const 
   const record=!pk&&!room&&!G.abandoned&&G.t>(SAVE.best||0);SAVE.gold+=gold+pkBonus;SAVE.runs++;SAVE.wins+=G.bossSlain;SAVE.bosses=Math.max(SAVE.bosses||0,G.bossSlain);if(record)SAVE.best=G.t;persist();
   const rows=G.spells.slice().sort((a,b)=>b.dmg-a.dmg).map(s=>{const f=s.els.length===2?L(FUS[fusion(s)][0],FUS[fusion(s)][1]):s.els[0]?LL(ELS[s.els[0]]):'';
     if(SKILL_CAT[s.id]==='defense'&&((s.blocked||0)>0||(s.refl||0)>0)){return `<span>${LL(SPELLS[s.id])} · Lv ${s.lv}<small>${L(` · 挡住 ${Math.round(s.blocked||0)} · 反击 ${s.refl||0} 次 · 反击伤害 ${Math.round(s.dmg)} · ${s.casts} 次`,` · blocked ${Math.round(s.blocked||0)} · ${s.refl||0} rebounds · ${Math.round(s.dmg)} rebound damage · ${s.casts} casts`)}</small></span><div class="bar def"><i style="width:${Math.min(100,(s.blocked||0)/Math.max(1,G.dmgTaken+(s.blocked||0))*100)}%"></i></div><span>${L('防御','defense')}</span>`}
-    const aw=typeof AUTO_WHEN!=='undefined'&&AUTO_WHEN[s.id];const never=!SPELLS[s.id].auto&&!s.casts&&aw?`<small class="why"> · ${L('0 次施放:自动施放只在「'+aw[0]+'」时触发,手动按键随时可放','0 casts: auto-cast fires only when '+aw[1]+'; press the key to cast any time')}</small>`:'';
+    const aw=typeof AUTO_WHEN!=='undefined'&&AUTO_WHEN[s.id];const firstZero=!SPELLS[s.id].auto&&!s.casts&&!G._zeroSaid;if(firstZero)G._zeroSaid=1;const never=!SPELLS[s.id].auto&&!s.casts&&aw?`<small class="why"> · ${firstZero?L('0 次施放:自动施放只在「'+aw[0]+'」时触发,手动按键随时可放','0 casts: auto-cast fires only when '+aw[1]+'; press the key to cast any time'):L('0 次施放(触发:'+aw[0]+')','0 casts (fires when '+aw[1]+')')}</small>`:'';
     if(never)return `<span>${LL(SPELLS[s.id])} · Lv ${s.lv}${never}</span><div class="bar"><i style="width:0%"></i></div><span>—</span>`;
     if((SKILL_CAT[s.id]==='control'||(s.ctrl||0)>20)&&(s.ctrl||0)>0){return `<span>${LL(SPELLS[s.id])} · Lv ${s.lv}<small>${L(` · 控制 ${s.ctrl} 人${s.det?` · 引爆毒伤 ${Math.round(s.det)}`:''}${s.healed?` · 治疗 ${Math.round(s.healed)}`:''} · ${s.casts} 次`,` · controlled ${s.ctrl}${s.det?` · detonated ${Math.round(s.det)} poison`:''}${s.healed?` · healed ${Math.round(s.healed)}`:''} · ${s.casts} casts`)}</small></span><div class="bar"><i style="width:${s.dmg/max*100}%"></i></div><span>${Math.round(s.dmg/tot*100)}%</span>`}
     if(SKILL_CAT[s.id]==='heal'&&(s.healed||0)>0){const eff=s.healed/Math.max(1,s.healed+(s.overheal||0));return `<span>${LL(SPELLS[s.id])} · Lv ${s.lv}<small>${L(` · 治疗 ${Math.round(s.healed)} · 有效 ${Math.round(eff*100)}% · ${s.casts} 次`,` · healed ${Math.round(s.healed)} · ${Math.round(eff*100)}% effective · ${s.casts} casts`)}</small></span><div class="bar heal"><i style="width:${Math.min(100,s.healed/Math.max(1,G.healed||1)*100)}%"></i></div><span>${L('治疗','heal')}</span>`}
@@ -331,7 +333,7 @@ $('#pausebtn').onclick=()=>{togglePause();$('#pausebtn').blur()};
 $('#resumebtn').onclick=()=>togglePause();
 $('#quitbtn').onclick=()=>{G.paused=false;$('#pause').hidden=true;G.abandoned=true;lose()};
 AUTOCAST=SAVE.autocast===true;
-function autoLabel(){const sb=$('#seals');if(sb)sb.classList.toggle('auto',AUTOCAST);$('#autobtn').textContent=AUTOCAST?L('武学:自动施放','Skills: auto-cast'):L('武学:手动施放','Skills: manual');$('#autonote').textContent=AUTOCAST?L('武学自动施放,按 1/2/3 也可手动。','Skills cast themselves; 1/2/3 still work.'):L('按 1/2/3 释放武学。','Press 1/2/3 to cast skills.')}
+function autoLabel(){const sb=$('#seals');if(sb)sb.classList.toggle('auto',AUTOCAST);$('#autobtn').textContent=AUTOCAST?L('自动施放:开(点击改为手动)','Auto-cast: ON (tap for manual)'):L('自动施放:关(点击开启)','Auto-cast: OFF (tap to enable)');$('#autonote').textContent=AUTOCAST?L('武学自动施放,按 1/2/3 也可手动。','Skills cast themselves; 1/2/3 still work.'):L('按 1/2/3 释放武学。','Press 1/2/3 to cast skills.')}
 $('#autobtn').onclick=()=>{AUTOCAST=!AUTOCAST;SAVE.autocast=AUTOCAST;persist();autoLabel()};autoLabel();
 function syncSound(){const m=SFX.muted;$('#mutebtn').textContent=m?L('声音:关','Sound: off'):L('声音:开','Sound: on');$('#sndbtn').textContent=m?'🔇':'🔊';$('#sndbtn').classList.toggle('off',m);const s2=$('#sndbtn2');if(s2){s2.textContent=m?'🔇':'🔊';s2.classList.toggle('off',m)}$('#musicvol').value=Math.round(SFX.musicVol*100);$('#sfxvol').value=Math.round(SFX.sfxVol*100);$('#snd-mute').checked=m}
 $('#mutebtn').onclick=()=>{SFX.toggleMute();syncSound()};

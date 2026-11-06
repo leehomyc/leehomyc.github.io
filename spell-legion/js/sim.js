@@ -136,7 +136,7 @@ function hit(e,d,s,noEl,col,kx=0,ky=0){
   if(e.tired)m*=e.tired;if(!rv)G.dealt=(G.dealt||0)+m;e.hp-=m;e.flash=crit?.14:.08;e.sq=crit?.5:.3;if(kx||ky){const l=hyp(kx,ky)||1;e.sqx=kx/l;e.sqy=ky/l}if(s)s.dmg+=m;if(rv)G.rival.dmgDealt+=m;
   const kk=e.type==='boss'?.12:e.type==='giant'?.4:e.type==='statue'?0:1;
   e.kx=(e.kx||0)+kx*kk;e.ky=(e.ky||0)+ky*kk;
-  if(!rv&&G.floats.length<CAP.fl&&(m>=Math.max(18,e.maxHp*.25)||(crit&&(G.P.crit<.5||e.type==='boss'||e.elite||SIMR()<.2)))&&(G.en.length<120||e.type==='boss'||e.elite||m>=e.maxHp*.5))G.floats.push({x:e.x+rnd(-4,4),y:e.y-e.r-3,t:.6,v:Math.round(m),c:crit?'#ffd75a':(col||'#efe4cd'),crit});
+  if(!rv&&!G.auto&&G.floats.length<CAP.fl&&(m>=Math.max(18,e.maxHp*.25)||(crit&&(G.P.crit<.5||e.type==='boss'||e.elite||SIMR()<.2)))&&(G.en.length<120||e.type==='boss'||e.elite||m>=e.maxHp*.5))G.floats.push({x:e.x+rnd(-4,4),y:e.y-e.r-3,t:.6,v:Math.round(m),c:crit?'#ffd75a':(col||'#efe4cd'),crit});
   if(crit&&!rv){if(typeof SHAKE!=='undefined'&&SHAKE==='high')hitStop(.045);trauma(.1,kx,ky);if(G.fx.length<CAP.fx)G.fx.push({k:'crit',x:e.x,y:e.y,t:.22,T:.22})}
   if(s&&!noEl&&s.els.length)applyEls(e,m,s);
   if(s&&has(s,'dark')&&e.type!=='boss'&&e.type!=='statue'&&e.hp>0&&e.hp<e.maxHp*.12)e.hp=0;

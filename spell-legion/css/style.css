@@ -659,3 +659,24 @@ body.touchhud .globe .eff{display:none}
 #bossbar.tired #bosshp i{filter:saturate(.6) brightness(1.15)}#bossbar.tired #bossname::after{content:' · 力竭';color:#ffd27a}html[lang=en] #bossbar.tired #bossname::after{content:' · tiring'}
 
 body.picking #tip,body.picking #side{display:none}
+
+/* hero screen: a tighter footer so the class list and stats are not buried under it on laptop heights */
+#hero .hfoot{gap:6px;background:linear-gradient(180deg,#0b060e00,#0b060ef6 10%);padding-top:6px}
+#hero .hfoot .hopts{gap:10px 16px}
+#hero .hfoot #maps .mapb{padding:5px 10px;min-width:140px}#hero .hfoot .mapb b{font-size:13px}#hero .hfoot .mapb small{font-size:10.5px}
+#hero .hfoot .startrow{margin:4px 0 0}#hero .hfoot .go.big{font-size:18px;padding:11px 28px}
+#hero .hfoot #modenote{margin:0;font-size:12px}
+@media (min-width:761px){#hero .hfoot .hopts{display:grid;grid-template-columns:auto 1fr;align-items:center}#hero .hfoot #maps{flex-wrap:nowrap;overflow-x:auto}}
+@media (max-height:900px) and (min-width:761px){#classes .cls{padding:6px 10px}#classes .cls .ic{width:40px;height:40px}#classes .cls .sk{font-size:14px}}
+/* phone: the mode bar scrolls sideways instead of wrapping into three-line buttons */
+@media (max-width:760px){#hero #mode{display:flex;flex-wrap:nowrap;overflow-x:auto;gap:6px;padding-bottom:4px;scrollbar-width:none}#hero #mode::-webkit-scrollbar{display:none}#hero #mode button{flex:none;white-space:nowrap;padding:8px 12px}}
+
+/* pause: build summary */
+.pbuild{display:grid;gap:4px;margin:0 auto 10px;max-width:360px;text-align:left}
+.pbuild .pb{display:flex;align-items:center;gap:8px;background:#140b12cc;border:1px solid #6b523066;border-left:3px solid var(--c);border-radius:8px;padding:4px 8px}
+.pbuild .pb .ic{flex:none;width:26px;height:26px}.pbuild .pb b{display:block;font-size:13px}.pbuild .pb b small{color:var(--brass);font-weight:700}.pbuild .pb>div>small{display:block;font-size:11px;color:var(--dim)}
+.pbuild .pbr{display:flex;flex-wrap:wrap;gap:4px;padding:2px 0}.pbuild .pbr span{font-family:var(--brush);font-size:18px;line-height:1;color:var(--c);text-shadow:0 0 10px var(--c);padding:3px 6px;border:1px solid #6b523066;border-radius:6px;background:#140b12cc}.pbuild .pbr small{color:var(--dim);font-size:11px}
+.pbuild .pbt{display:block;text-align:center;color:var(--dim);font-size:11px}
+@media (max-height:700px){.pbuild .pb{padding:2px 8px}.pbuild .pb .ic{width:22px;height:22px}}
+
+body.touchhud #pause .pbox>p{display:none}
