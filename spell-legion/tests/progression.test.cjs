@@ -77,3 +77,11 @@ test('equipped legendary attacks only activate in adventure; regular weapons are
 test('run experience and daily task rewards settle once; no streak or first-win multiplication remains',()=>{
   const c=context({SAVE:{gold:0,up:{},axp:0},G:{t:120,kills:5,bossSlain:0,lv:2,comboMax:0,relics:[]},dayKey:()=>20261107,CLASSES:{swordsman:{}},persist:()=>{}});vm.runInContext(source('meta'),c);const reward=c.metaAfterRun(),gold=c.SAVE.gold,xp=c.SAVE.axp;assert.ok(reward.xp>0);assert.equal(c.metaAfterRun(),reward);assert.equal(c.SAVE.gold,gold);assert.equal(c.SAVE.axp,xp);assert.equal(reward.firstBonus,undefined);assert.equal(c.SAVE.streak,undefined);
 });
+
+test('cloud merges keep all four codex sections initialized for fresh and partial saves',()=>{
+  const c=context();loadMerge(c);
+  const fresh=c.mergeSave({gold:0},{gold:0});
+  for(const k of ['en','boss','relic','weapon'])assert.deepEqual(plain(fresh.codex[k]),{});
+  const partial=c.mergeSave({codex:{weapon:{sword:1}}},{codex:{en:{firewisp:1}}});
+  assert.equal(partial.codex.weapon.sword,1);assert.equal(partial.codex.en.firewisp,1);assert.deepEqual(plain(partial.codex.boss),{});
+});

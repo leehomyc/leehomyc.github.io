@@ -51,7 +51,7 @@ function mergeSave(local,cloud){
   for(const k of ['weaponOwned','ach','clsWins','tips','road','seenCls','legendMigrated','rankRewards'])out[k]=unionMap(local[k],cloud[k]);
   out.titles=[...new Set([...(local.titles||[]),...(cloud.titles||[])])];
   out.bountyNames=[...new Set([...(local.bountyNames||[]),...(cloud.bountyNames||[])])];
-  out.codex={};for(const k of new Set([...Object.keys(local.codex||{}),...Object.keys(cloud.codex||{})]))out.codex[k]=unionMap(local.codex?.[k],cloud.codex?.[k]);
+  out.codex={en:{},boss:{},relic:{},weapon:{}};for(const k of new Set([...Object.keys(local.codex||{}),...Object.keys(cloud.codex||{})]))out.codex[k]=unionMap(local.codex?.[k],cloud.codex?.[k]);
   // Currency and trophies can go down. Pick their latest explicit mutation, not the maximum.
   for(const [key,stamp] of [['gold','goldTs'],['trophies','ladderTs']]){
     const a=Object.hasOwn(local,key),b=Object.hasOwn(cloud,key);
