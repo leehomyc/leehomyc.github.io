@@ -1428,3 +1428,8 @@ body.touchhud #healthwarning{bottom:calc(235px + env(safe-area-inset-bottom));fo
 #gearov{z-index:70}
 
 #end #roomres .room-wait{color:var(--bone);font-weight:700;padding:8px 0;line-height:1.4}
+
+/* Keep each player's equipment names on one quiet line beneath their class. */
+#roompanel .rp:not(.seat)>.ic-w{grid-row:1/4}
+#roompanel .rp .room-gear{grid-column:2/-1;grid-row:3;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:10.5px;line-height:1.4;margin-top:2px;color:var(--dim)}
+#roompanel .rp .rmx{grid-column:3;grid-row:1/3}

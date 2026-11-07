@@ -2,6 +2,11 @@
 /* room.js — multiplayer room UI: create / join by code, lobby with ready states, live scoreboard in the HUD, ranked results. */
 function roomHasAI(){return roomPlayerList().some(p=>p.ai)}
 function roomModeText(d){return d.mode==='last'?L('无尽','Endless'):L('限时 3′','Timed 3′')}
+function roomEquipmentText(p){
+  const items=p.uid===roomUid()?roomEquipment():Array.isArray(p.equipment)?p.equipment:[];
+  const names=items.filter(it=>it&&typeof it==='object').slice(0,4).map(it=>L(String(it.zh||it.en||'').slice(0,80),String(it.en||it.zh||'').slice(0,80))).filter(Boolean);
+  return L('装备：','Gear: ')+(names.length?names.join(L('、',', ')):L('无','None'));
+}
 function roomJoinRow(){return `<div class="rmjoin"><input id="rmcode" maxlength="4" placeholder="${L('好友房间码','Friend code')}" autocapitalize="characters" spellcheck="false"><button type="button" class="go alt sm" id="rmjoin">${L('加入','Join')}</button></div>`}
 function renderRoom(){
   const box=$('#roompanel');if(!box)return;const on=SAVE.mode==='room';box.hidden=!on;const sr=$('#hero .startrow');if(sr)sr.style.display=on?'none':'';const ss=$('#stickystart');if(ss)ss.classList.toggle('room',on);const hf=$('#hero .hfoot');if(hf)hf.classList.toggle('room',on);{const hp=$('#hero');if(hp)hp.classList.toggle('inroom',on)}
@@ -14,9 +19,9 @@ function renderRoom(){
     bindJoin();return;
   }
   const d=ROOM.data||{},ps=roomPlayerList(),me=roomUid(),mine=ROOM.players[me]||{},hasAI=ps.some(p=>p.ai),diff=d.diff||'normal';
-  const rows=ps.map(p=>{const C=CLASSES[p.cls]||CLASSES.swordsman,w=SPELLS[p.weapon]||SPELLS[C.main],isHost=p.uid===d.host;
+  const rows=ps.map(p=>{const C=CLASSES[p.cls]||CLASSES.swordsman,w=SPELLS[p.weapon]||SPELLS[C.main],isHost=p.uid===d.host,equipment=roomEquipmentText(p);
     const right=p.ai&&ROOM.host?`<button type="button" class="rmx" data-rm="${p.uid}" title="${L('移除','Remove')}">×</button>`:(isHost||p.ai)?'':`<span class="rd">${p.ready?L('已就绪','Ready'):L('未就绪','Not ready')}${(p.uid!==me&&typeof linkOpenTo==='function'&&(ROOM.host?linkOpenTo(p.uid):isHost&&linkOpenTo(p.uid)))?` <i class="lk" title="${L('已连上,同场对决','Linked: same arena')}">🔗</i>`:''}</span>`;
-    return `<div class="rp ${p.uid===me?'me':''} ${p.ready&&!isHost&&!p.ai?'ready':''}"><span class="ic-w">${p.av&&typeof avatarHTML==='function'?avatarHTML(p.av):ICON.cls(p.cls)}</span><b>${esc(p.name||'?')}${p.ai?` <em class="aitag">AI</em>`:''}${isHost?' <em>👑</em>':''}</b><small>${LL(C)} · ${LL(w)}${p.lvA?` · Lv ${p.lvA}`:''}</small>${right}</div>`}).join('');
+    return `<div class="rp ${p.uid===me?'me':''} ${p.ready&&!isHost&&!p.ai?'ready':''}"><span class="ic-w">${p.av&&typeof avatarHTML==='function'?avatarHTML(p.av):ICON.cls(p.cls)}</span><b>${esc(p.name||'?')}${p.ai?` <em class="aitag">AI</em>`:''}${isHost?' <em>👑</em>':''}</b><small>${LL(C)} · ${LL(w)}${p.lvA?` · Lv ${p.lvA}`:''}</small><small class="room-gear" title="${esc(equipment)}">${esc(equipment)}</small>${right}</div>`}).join('');
   const empty=Math.max(0,(d.max||4)-ps.length),canAI=ROOM.host&&empty>0,offline=!netOnline();
   const seat=empty>0&&(canAI||!offline)?`<div class="rp seat">${canAI?`<button type="button" class="seatb" id="rmai"><span>＋</span>${L('AI 对手','AI')}</button>`:''}${offline?'':`<button type="button" class="seatb" id="rmcopy"><span>✉</span>${L('邀请好友','Invite')}</button>`}</div>`:'';
   const opts=ROOM.host

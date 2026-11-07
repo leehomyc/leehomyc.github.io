@@ -55,7 +55,7 @@ for(const cls in WEAPONS)for(const w of WEAPONS[cls])if(WEAPON_INFO[w]?.need==='
 }
 const GEAR_INV_MAX=40;
 function gearSave(){SAVE.gear=SAVE.gear||{inv:[],eq:{},pity:0,seq:0,found:0};const g=SAVE.gear;g.inv=g.inv||[];g.eq=g.eq||{};g.removed=g.removed||{};return g}
-function gearChanged(it){const g=gearSave();g.ts=Date.now();if(it)it.ts=g.ts;persist()}
+function gearChanged(it){const g=gearSave();g.ts=Date.now();if(it)it.ts=g.ts;persist();if(typeof roomSyncEquipment==='function')roomSyncEquipment()}
 function gearRemove(it){const g=gearSave();g.removed[it.id]=Date.now();g.inv=g.inv.filter(x=>x.id!==it.id);g.ts=Date.now()}
 function gearById(id){return gearSave().inv.find(x=>x.id===id)}
 function gearWeaponFor(cls){const it=gearById(gearSave().eq.weapon),leg=it&&GEAR_LEG[it.leg];return leg&&leg.cls===cls?leg.weapon:null}
