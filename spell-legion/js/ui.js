@@ -22,63 +22,6 @@ let savedGold=SAVE.gold,savedTrophies=SAVE.trophies;
 function persist(quiet){if(!quiet){SAVE.ts=Date.now();if(SAVE.gold!==savedGold)SAVE.goldTs=SAVE.ts;if(SAVE.trophies!==savedTrophies)SAVE.ladderTs=SAVE.ts}savedGold=SAVE.gold;savedTrophies=SAVE.trophies;try{localStorage.setItem(SAVE_KEY,JSON.stringify(SAVE))}catch(_){}if(!quiet&&typeof cloudSchedulePush==='function')cloudSchedulePush()}
 function applyUpgrades(P){const u=SAVE.up;P.maxHp=Math.round(P.maxHp*(1+.1*(u.hp||0)));P.hp=P.maxHp;P.dmg*=1+.06*(u.dmg||0);P.regen*=1+.12*(u.qi||0);G.cores+=u.core||0;P.dmgBonus+=accountBonus();G.rerolls+=SAVE.perks?.rerolls||0;G.cores+=SAVE.perks?.cores||0}
 
-const keys=new Set();const touch={on:false,sx:0,sy:0,x:0,y:0};
-function handleGameKeydown(e){
-  if(e.defaultPrevented||e.isComposing||e.ctrlKey||e.metaKey||e.altKey)return;
-  const target=e.target;
-  if(target?.closest?.('input,textarea,select,[contenteditable]:not([contenteditable="false"]),[role="textbox"]'))return;
-  const k=e.key.toLowerCase();
-  if(target?.closest?.('button,a[href],[role="button"]')&&['enter',' ','arrowup','arrowdown','arrowleft','arrowright'].includes(k))return;
-  if(e.repeat&&!['w','a','s','d','arrowup','arrowdown','arrowleft','arrowright'].includes(k))return;
-  if(['#lb','#gearov'].some(id=>{const el=$(id);return el&&!el.hidden}))return;
-  SFX.start();
-  if(k==='m'){const m=SFX.toggleMute();syncSound();showBanner(m?'静音':'声音开启',m?'Muted':'Sound on',.8);return}
-  if(!G||G.auto){if(k==='enter'&&!$('#title').hidden)startRun();return}
-  if(G.pick&&['1','2','3','4','j','k','l'].includes(k)){if(e.repeat||!pickArmed||performance.now()-pickOpenedAt<420)return;const ci='1j'.includes(k)?0:'2k'.includes(k)?1:'3l'.includes(k)?2:3;if(G.pick[ci]){pickKeyHeld.add(k);choose(ci)}return}
-  if(pickKeyHeld.has(k))return;
-  if(G.pick||G.ended)return;
-  if(k==='c'||k==='t'){togglePanel();return}
-  if(k==='p'||k==='escape'){if(G.panel){togglePanel();return}togglePause();return}
-  if(G.paused||G.panel)return;
-  keys.add(k);
-  if(['arrowup','arrowdown','arrowleft','arrowright',' '].includes(k))e.preventDefault();
-  if(k==='1'||k==='j')castSkill(1);if(k==='2'||k==='k')castSkill(2);if(k==='3'||k==='l')castSkill(3);
-  if(k===' '||k==='shift')dash();
-}
-addEventListener('keydown',handleGameKeydown);
-const pickKeyHeld=new Set();
-addEventListener('keyup',e=>{const k=e.key.toLowerCase();keys.delete(k);pickKeyHeld.delete(k)});
-function clearGameInput(){keys.clear();pickKeyHeld.clear();touch.on=false}
-addEventListener('blur',clearGameInput);
-addEventListener('focusin',clearGameInput);
-addEventListener('pointerdown',()=>SFX.start(),{once:false});
-cv.addEventListener('pointerdown',e=>{if(e.button!==0)return;touch.on=true;touch.sx=touch.x=e.clientX;touch.sy=touch.y=e.clientY;try{cv.setPointerCapture(e.pointerId)}catch(_){}});
-cv.addEventListener('pointermove',e=>{if(touch.on){touch.x=e.clientX;touch.y=e.clientY}});
-['pointerup','pointercancel'].forEach(n=>cv.addEventListener(n,()=>touch.on=false));
-// Secondary clicks never change the casting mode or start movement.
-cv.addEventListener('contextmenu',e=>e.preventDefault());
-function input(){
-  let x=0,y=0;
-  if(keys.has('a')||keys.has('arrowleft'))x--;if(keys.has('d')||keys.has('arrowright'))x++;
-  if(keys.has('arrowup')||keys.has('w'))y--;if(keys.has('s')||keys.has('arrowdown'))y++;
-  if(touch.on){const dx=touch.x-touch.sx,dy=touch.y-touch.sy,l=hyp(dx,dy);if(l>6){x=dx/Math.max(l,36);y=dy/Math.max(l,36)}}
-  const gp=padState();if(gp&&(Math.abs(gp.x)>.2||Math.abs(gp.y)>.2)){x=gp.x;y=gp.y}
-  return {x,y};
-}
-/* gamepad: left stick / d-pad move, A dash, X/Y/B skills 1/2/3, Start pause; menus use A/B and d-pad */
-const PAD={prev:{},t:0};
-function padState(){try{const pads=navigator.getGamepads?navigator.getGamepads():[];const g=[...pads].find(p=>p&&p.connected);if(!g)return null;let x=g.axes[0]||0,y=g.axes[1]||0;const d=Math.hypot(x,y);if(d<.2){x=0;y=0}else{const k=Math.min(1,(d-.2)/.8)/d;x*=k;y*=k}if(g.buttons[14]&&g.buttons[14].pressed)x=-1;if(g.buttons[15]&&g.buttons[15].pressed)x=1;if(g.buttons[12]&&g.buttons[12].pressed)y=-1;if(g.buttons[13]&&g.buttons[13].pressed)y=1;return {x,y,g}}catch(_){return null}}
-function padTick(){
-  const s=padState();if(!s)return;const b=s.g.buttons,down=i=>!!(b[i]&&b[i].pressed),edge=i=>{const v=down(i),was=PAD.prev[i];PAD.prev[i]=v;return v&&!was};
-  if(!G)return;SFX.start();
-  if(!$('#title').hidden){if(edge(0)||edge(9))startRun();return}
-  if(!$('#end').hidden){if(edge(0))startRun();if(edge(1))toLobby();return}
-  if(G.pick){const n=G.pick.length;PAD.sel=PAD.sel||0;if(edge(14)||edge(4))PAD.sel=(PAD.sel+n-1)%n;if(edge(15)||edge(5))PAD.sel=(PAD.sel+1)%n;document.querySelectorAll('#cardrow .card').forEach((c,i)=>c.classList.toggle('padsel',i===PAD.sel));if(edge(0)&&performance.now()-pickOpenedAt>280)choose(PAD.sel);if(edge(3)&&G.rerolls>0)$('#reroll').click();return}
-  if(edge(9)){togglePause();return}if(G.paused){if(edge(0)||edge(1))togglePause();return}
-  if(edge(0))dash();if(edge(2))castSkill(1);if(edge(3))castSkill(2);if(edge(1))castSkill(3);
-}
-addEventListener('gamepadconnected',()=>{showBanner(L('手柄已连接','Controller connected'),'',1.2);if(!$('#loadnote'))return});
-
 /* HUD */
 const fmt=t=>`${Math.floor(t/60)}:${String(Math.floor(t%60)).padStart(2,'0')}`;
 let hudT=0;
@@ -107,12 +50,12 @@ function hud(dt){
   const P2=G.P,sl=$('#seals');if(sl){sl.classList.toggle('parry',P2.parry>0);const pl=$('#parrylbl');if(pl){pl.hidden=!(P2.parry>0||P2.parryBoost>1);pl.textContent=P2.parryBoost>1?L('破招加成 ×1.6 生效中','Parry bonus ×1.6 active'):L(`破招!下一式 ×1.6 · ${Math.ceil(P2.parry)}s`,`PARRY: next skill ×1.6 · ${Math.ceil(P2.parry)}s`)}}
   // skill cooldown sweeps
   for(let i=0;i<4;i++){const el=$('#seal'+i);if(!el)continue;const s=G.spells[i];if(!s)continue;const sp=SPELLS[s.id];
-    const cdT=sp.auto?0:(sp.cd*stat(s).cdM/P.haste),k=sp.auto?0:clamp(s.cd/Math.max(.01,cdT),0,1);
+    const cdT=sp.auto?0:skillCooldown(s),k=sp.auto?0:clamp(s.cd/Math.max(.01,cdT),0,1);
     const cost=sp.auto?0:skillCost(s),short=Math.ceil(cost-P.mana);el.style.setProperty('--cd',(k*360)+'deg');el.classList.toggle('cooling',k>0);el.classList.toggle('poor',!sp.auto&&short>0);el.classList.toggle('active',s.active>0);
     if(!sp.auto){let nd=el.querySelector('.need');if(!nd){nd=document.createElement('span');nd.className='need';el.appendChild(nd)}const txt=k>0?(s.cd<=5?String(Math.ceil(s.cd)):''):short>0?'-'+short:'';if(nd.textContent!==txt)nd.textContent=txt;nd.classList.toggle('qi',k<=0&&short>0);
       const ready=k<=0&&short<=0;if(ready&&el.dataset.was==='0'){el.classList.remove('ready');void el.offsetWidth;el.classList.add('ready')}el.dataset.was=ready?'1':'0'}
     const deny=G.fx.find(f=>f.k==='deny'&&f.i===i);el.classList.toggle('deny',!!deny)}
-  const d=$('#sealdash');d.style.setProperty('--cd',(clamp(P.dashCd/1.4,0,1)*360)+'deg');d.classList.toggle('cooling',P.dashCd>0);
+  const d=$('#sealdash');d.style.setProperty('--cd',(clamp(P.dashCd/dashCooldown(),0,1)*360)+'deg');d.classList.toggle('cooling',P.dashCd>0);
 }
 function drawRelics(){const box=$('#relics');if(!box)return;box.textContent='';const MAXS=PHONE?4:7,list=G.relics.length>MAXS?G.relics.slice(-(MAXS-1)):G.relics;for(const id of list){const R=RELICS[id],d=document.createElement('div');d.className='relic';d.style.color=R.col;d.textContent=R.g;d.title=`${LL(R)} · ${L(R.d,R.de)}`;box.appendChild(d)}
   if(G.relics.length>MAXS){const d=document.createElement('div');d.className='relic more';d.textContent='+'+(G.relics.length-(MAXS-1));d.title=G.relics.slice(0,-(MAXS-1)).map(id=>LL(RELICS[id])).join(' · ');box.appendChild(d)}}
@@ -132,12 +75,11 @@ function drawSeals(){
       if(s.els.length){const e=document.createElement('div');e.className='els';s.els.forEach(k=>{const b=document.createElement('i');b.style.background=ELS[k].col;b.style.color=ELS[k].col;e.appendChild(b)});d.appendChild(e)}
       if(s.augs.length){const a=document.createElement('div');a.className='aug';a.textContent=s.augs.map(k=>AUGS[k].g).join('');d.appendChild(a)}
       const cdm=document.createElement('div');cdm.className='cdm';d.appendChild(cdm);
-      d.title=LL(m)+(m.auto?'':L(` · ${m.cost} 内力 · ${m.cd}s`,` · ${m.cost} qi · ${m.cd}s`));
-      d.onpointerdown=ev=>{ev.preventDefault();if(!m.auto&&ev.button===0)castSkill(i)};
+            d.onpointerdown=ev=>{ev.preventDefault();if(!m.auto&&ev.button===0)castSkill(i)};
       d.oncontextmenu=ev=>{ev.preventDefault();ev.stopPropagation()};
     }else{const key=document.createElement('div');key.className='key';key.textContent=SPELL_KEYS[i];d.appendChild(key)}
     box.appendChild(d)}
-  const dd=document.createElement('button');dd.className='seal dash';dd.id='sealdash';dd.type='button';dd.innerHTML=`<div class="g">${typeof ICON!=='undefined'?ICON.misc('dash','#9fe3f0'):''}<span class="gm">轻</span></div><div class="lv">${L('轻功','dash')}</div><div class="key">${IS_TOUCH?L('点击','tap'):'Space'}</div><div class="cdm"></div>`;dd.onpointerdown=ev=>{ev.preventDefault();dash()};box.appendChild(dd);
+  const dd=document.createElement('button');dd.className='seal dash';dd.id='sealdash';dd.type='button';dd.innerHTML=`<div class="g">${typeof ICON!=='undefined'?ICON.misc('dash','#9fe3f0'):''}<span class="gm">轻</span></div><div class="lv">${L('轻功','dash')}</div><div class="key">${IS_TOUCH?L('点击','tap'):'Space'}</div><div class="cdm"></div>`;dd.onpointerdown=ev=>{ev.preventDefault();if(ev.button===0)dash()};box.appendChild(dd);
 }
 let bannerT=0;
 /* side toast: pickups and other low-stakes news stack at the right edge, away from the hero and the danger zone */
@@ -151,7 +93,6 @@ function renderPanel(){
   $('#tab-attr').classList.toggle('on',panelTab==='attr');$('#tab-tree').classList.toggle('on',panelTab==='tree');
   const A=$('#attrs');A.hidden=panelTab!=='attr';const T=$('#trees');T.hidden=panelTab!=='tree';
   if(panelTab==='attr'){A.textContent='';
-    const note=document.createElement('p');note.className='pnote';note.textContent=L(`每级:生命 +8 · 伤害 +3% · 内力 +5`,`Each level: +8 HP · +3% dmg · +5 qi`);A.appendChild(note);
     const d=document.createElement('div');d.className='derived';
     d.innerHTML=`<span>${L('生命','HP')} <b>${Math.ceil(P.hp)}/${P.maxHp}</b></span><span>${L('内力','Qi')} <b>${Math.floor(P.mana)}/${P.maxMana}</b> (+${(P.regen).toFixed(1)}/s)</span><span>${L('伤害','Damage')} <b>×${(P.dmg*(1+P.dmgBonus)).toFixed(2)}</b></span><span>${L('暴击','Crit')} <b>${Math.round(P.crit*100)}%</b></span><span>${L('移速','Speed')} <b>×${P.spd.toFixed(2)}</b></span><span>${L('减伤','Mitigation')} <b>${Math.round((1-P.def)*100)}%</b></span>`;A.appendChild(d);
   }else{T.textContent='';
@@ -175,11 +116,11 @@ $('#charbtn').onclick=()=>{togglePanel();$('#charbtn').blur()};
 $('#charclose').onclick=()=>togglePanel();
 $('#tab-attr').onclick=()=>{panelTab='attr';renderPanel()};$('#tab-tree').onclick=()=>{panelTab='tree';renderPanel()};
 /* the pause screen shows the build at a glance: every skill with its level, element and path, plus the relics */
-function renderPauseBuild(){const el=$('#pausebuild');if(!el)return;el.innerHTML=G.spells.map((s,i)=>{const m=SPELLS[s.id];const tags=[s.els.length===2?L(FUS[fusion(s)][0],FUS[fusion(s)][1]):s.els[0]?LL(ELS[s.els[0]]):'',s.path&&typeof PATHS!=='undefined'&&PATHS[s.path]?LL(PATHS[s.path]):'',s.awake?L('觉醒','awakened'):'',s.manual?L('手动','manual'):''].filter(Boolean).join(' · ');return `<div class="pb" style="--c:${m.col}">${ICON.spell(s.id,'sm')}<div><b>${LL(m)} <small>Lv ${s.lv}${s.tr?L(` · 真传 ${s.tr}`,` · Transcend ${s.tr}`):''}</small></b><small>${tags||(i===0?L('普攻','normal attack'):L(CATS[SKILL_CAT[s.id]||'passive'][0],CATS[SKILL_CAT[s.id]||'passive'][1]))}</small></div></div>`}).join('')+`<div class="pbr">${G.relics.map(id=>`<span title="${L(RELICS[id].d,RELICS[id].de)}" style="--c:${RELICS[id].col||'#c7a4f0'}">${RELICS[id].g}</span>`).join('')}${G.relics.length?'':`<small>${L('尚无法宝','no relics yet')}</small>`}</div><small class="pbt">${L(`${fmt(G.t)} · Lv ${G.lv} · ${G.kills} 击杀 · 最高连斩 ×${G.comboMax}`,`${fmt(G.t)} · Lv ${G.lv} · ${G.kills} kills · best streak ×${G.comboMax}`)}</small>`}
+function renderPauseBuild(){const el=$('#pausebuild');if(!el)return;el.innerHTML=G.spells.map((s,i)=>{const m=SPELLS[s.id];const tags=[s.els.length===2?L(FUS[fusion(s)][0],FUS[fusion(s)][1]):s.els[0]?LL(ELS[s.els[0]]):'',s.path&&typeof PATHS!=='undefined'&&PATHS[s.path]?LL(PATHS[s.path]):'',s.awake?L('觉醒','awakened'):''].filter(Boolean).join(' · ');return `<div class="pb" style="--c:${m.col}">${ICON.spell(s.id,'sm')}<div><b>${LL(m)} <small>Lv ${s.lv}${s.tr?L(` · 真传 ${s.tr}`,` · Transcend ${s.tr}`):''}</small></b><small>${tags||(i===0?L('普攻','normal attack'):L(CATS[SKILL_CAT[s.id]||'passive'][0],CATS[SKILL_CAT[s.id]||'passive'][1]))}</small></div></div>`}).join('')+`<div class="pbr">${G.relics.map(id=>`<span title="${L(RELICS[id].d,RELICS[id].de)}" style="--c:${RELICS[id].col||'#c7a4f0'}">${RELICS[id].g}</span>`).join('')}${G.relics.length?'':`<small>${L('尚无法宝','no relics yet')}</small>`}</div><small class="pbt">${L(`${fmt(G.t)} · Lv ${G.lv} · ${G.kills} 击杀 · 最高连斩 ×${G.comboMax}`,`${fmt(G.t)} · Lv ${G.lv} · ${G.kills} kills · best streak ×${G.comboMax}`)}</small>`}
 function togglePause(){if(G.over||G.pick)return;clearGameInput();G.paused=!G.paused;$('#pausebtn').textContent=G.paused?'▶':'II';$('#pause').hidden=!G.paused;if(G.paused){$('#pausesettings').open=false;renderPauseBuild();quitLabel();SFX.setState('title')}else SFX.setState(G.boss?'boss':'battle')}
 
 /* cards */
-let pickOpenedAt=0,pickArmed=false,pickTimer=null;const PICK_LIMIT=8;addEventListener('keyup',()=>{if(G&&G.pick)pickArmed=true});
+let pickOpenedAt=0,pickTimer=null;const PICK_LIMIT=8;
 function stopPickTimer(timer=pickTimer){
   if(timer!==null)clearInterval(timer);
   if(timer===pickTimer){pickTimer=null;const el=$('#picktimer');if(el)el.textContent=''}
@@ -189,7 +130,7 @@ function openPick(){
   const q=G.picks.shift(),cards=buildCards(q);
   if(!cards.length){return openPick()}
   if(G.auto){pick(cards).a();return openPick()}
-  G.pick=cards;pickOpenedAt=performance.now();pickArmed=false;$('#banner').classList.remove('on');bannerT=0;
+  G.pick=cards;pickOpenedAt=performance.now();$('#banner').classList.remove('on');bannerT=0;
   clearGameInput();stopPickTimer();
   if(RIVAL_ON||(G.room&&ROOM.code)){
     const game=G,selection=cards,openedAt=pickOpenedAt;
@@ -200,12 +141,12 @@ function openPick(){
       if(left<=0){const sug=document.querySelector('#cardrow .card.sugged');choose(sug?+sug.id.replace('card',''):0)}
     },200);pickTimer=timer;
   }
-  const sk=q.s?LL(SPELLS[q.s.id]):'';const T={level:q.jackpot?[L('天降横财!','Jackpot!'),L('全部获得','Take all')]:[L('升级','Level up'),L('三选一','pick one')],infuse:[L('灌注真气','Infuse an element'),sk],fuse:[L('真气融合','Fuse elements'),sk],aug:[L('密令完成','Mission complete'),''],awake:[L('武器觉醒','Weapon awakening'),sk],contract:[L('契约','Pact'),''],ascend:[L(`第 ${q.cyc} 轮七位首领皆灭`,`Cycle ${q.cyc}: all seven bosses slain`),'']}[q.kind]||(typeof KIND_TITLE!=='undefined'&&KIND_TITLE[q.kind]?KIND_TITLE[q.kind](q):[L('抉择','Choose'),'']);
+  const sk=q.s?LL(SPELLS[q.s.id]):'';const T={level:q.jackpot?[L('天降横财!','Jackpot!'),L('全部获得','Take all')]:[L('升级','Level up'),L('选择一项','pick one')],infuse:[L('灌注真气','Infuse an element'),sk],fuse:[L('真气融合','Fuse elements'),sk],aug:[L('密令完成','Mission complete'),''],awake:[L('武器觉醒','Weapon awakening'),sk],contract:[L('契约','Pact'),''],ascend:[L(`第 ${q.cyc} 轮七位首领皆灭`,`Cycle ${q.cyc}: all seven bosses slain`),'']}[q.kind]||(typeof KIND_TITLE!=='undefined'&&KIND_TITLE[q.kind]?KIND_TITLE[q.kind](q):[L('抉择','Choose'),'']);
   $('#cardtitle').innerHTML=`${T[0]}<small>${T[1]}${G.picks.length?` · +${G.picks.length}`:''}</small>`;
   const row=$('#cardrow');row.textContent='';
   const adv=renderBuildStrip();
   cards.forEach((cd,i)=>{const b=document.createElement('button');b.className='card'+(cd.q?' '+cd.q.k:'')+(cd.isNew?' newskill':'');b.id='card'+i;b.style.setProperty('--c',cd.c);b.style.animationDelay=(i*.08)+'s';
-    const cat=CATS[cd.cat]||CATS.passive,kind=cd.kind||'passive',K=KINDS[kind]||KINDS.passive;
+    const kind=cd.kind||'passive',K=KINDS[kind]||KINDS.passive;
     const sug=adv&&(cd.cat===adv.cat||(adv.cat==='defense'&&cd.cat==='heal')||(adv.cat==='melee'&&(cd.cat==='ranged'||cd.cat==='summon')));
     // header: what kind of card · category · rarity · suggested star
     b.dataset.kind=kind;b.style.setProperty('--k',K[2]);
@@ -227,7 +168,7 @@ function renderBuildStrip(){
   const el=$('#build');if(!el)return;el.textContent='';
   const touched=new Set((G.pick||[]).map(c=>c.skill).filter(Boolean));
   G.spells.forEach((s,i)=>{if(el.children.length>=4)return;const m=SPELLS[s.id],d=document.createElement('div');d.className='bs';d.dataset.skill=s.id;d.style.setProperty('--c',m.col);
-    const nodes=Object.values(s.nodes||{}).reduce((a,b)=>a+b,0),cat=CATS[SKILL_CAT[s.id]]||CATS.passive;
+    const cat=CATS[SKILL_CAT[s.id]]||CATS.passive;
     const tags=[i===0?'':L(cat[0],cat[1]),s.path&&typeof PATHS!=='undefined'&&PATHS[s.path]?LL(PATHS[s.path]):'',s.els.length?s.els.map(k=>LL(ELS[k])).join('+'):'',s.awake?L('觉醒','awakened'):''].filter(Boolean).join(' · ');
     d.classList.toggle('hl0',touched.has(s.id));d.dataset.lv='Lv '+s.lv;d.innerHTML=`<span class="slot">${i===0?L('普攻','main'):SPELL_KEYS[i]}</span>${typeof ICON!=='undefined'?ICON.spell(s.id,'sm'):`<span class="g">${m.g}</span>`}<div><b>${LL(m)} <small>Lv ${s.lv}${s.tr?L(` · 真传 ${s.tr}`,` · Transcend ${s.tr}`):''}</small></b><small>${tags}</small></div>`;el.appendChild(d)});
   const adv=typeof buildAdvice==='function'?buildAdvice():null;
@@ -339,7 +280,7 @@ function showEnd(ok){if(G.ended)return;if(typeof metricsEnd==='function')metrics
     return `<span>${LL(SPELLS[s.id])}${f?` · ${f}`:''} · Lv ${s.lv}<small>${casts}</small></span><div class="bar"><i style="width:${s.dmg/max*100}%"></i></div><span>${Math.round(s.dmg/tot*100)}%</span>`}).join('');
   const R=G.rival;
   const cmp=R?`<div class="cmp"><div class="hd"><span></span><b>${L('你','You')}</b><b>${L(R.name[0],R.name[1])}<small> ${LL(CLASSES[R.cls])}</small></b></div>
-    ${[[L('分数','Score'),G.score,R.score],[L('击杀','Kills'),G.kills,R.kills],[L('等级','Level'),G.lv,R.lv],[L('总伤害','Damage'),Math.round(damageTotal),Math.round(R.dmgDealt)],[L('倒地','Downs'),G.downs||0,R.downs]].map(([n,a,b])=>`<div class="r"><span>${n}</span><b class="${a>=b?'w':''}">${a}</b><b class="${b>a?'w':''}">${b}</b></div>`).join('')}
+    ${[[L('分数','Score'),G.score,R.score],[L('击杀','Kills'),G.kills,R.kills],[L('等级','Level'),G.lv,R.lv],[L('总伤害','Damage'),Math.round(damageTotal),Math.round(R.dmgDealt)],[L('倒地','Downs'),G.downs||0,R.downs||0,true]].map(([n,a,b,lower])=>`<div class="r"><span>${n}</span><b class="${(lower?a<b:a>b)?'w':''}">${a}</b><b class="${(lower?b<a:b>a)?'w':''}">${b}</b></div>`).join('')}
     <div class="scbreak"><b>${L('你的得分构成','Your score')}</b> ${(()=>{const sc=G.sc||{kill:0,big:0,ev:0},t=Math.max(1,sc.kill+sc.big+sc.ev);return `<span>${L('小怪','minions')} ${sc.kill} (${Math.round(sc.kill/t*100)}%)</span><span>${L('精英/首领','elites & bosses')} ${sc.big} (${Math.round(sc.big/t*100)}%)</span><span>${L('宝箱/密令/伏击','chests, missions & ambushes')} ${sc.ev} (${Math.round(sc.ev/t*100)}%)</span>`})()}</div>
     ${(()=>{const rs=G.rival&&G.rival.sc;if(!rs)return '';const t=Math.max(1,rs.kill+rs.big);return `<div class="scbreak rival"><b>${L('对手得分构成','Rival score')}</b> <span>${L('小怪','minions')} ${rs.kill} (${Math.round(rs.kill/t*100)}%)</span><span>${L('精英/首领','elites & bosses')} ${rs.big} (${Math.round(rs.big/t*100)}%)</span><span>${L('其中连斩加成','of which streak bonus')} ${rs.streak}</span></div>`})()}
 </div>`:'';
@@ -363,7 +304,7 @@ $('#quitbtn').onclick=()=>{G.paused=false;$('#pause').hidden=true;if(!RIVAL_ON&&
 function quitLabel(){const q=$('#quitbtn');if(!q||!G)return;const cash=!RIVAL_ON&&!G.room&&G.bossSlain>=1;q.innerHTML=cash?L('收官','Cash out'):L('放弃 · 金币 ×0.5','Abandon · gold ×0.5')}
 function syncSound(){
  const m=SFX.muted;
- document.querySelectorAll('#sndbtn,#sndbtn2').forEach(b=>{b.textContent=m?'🔇':'🔊';b.classList.toggle('off',m)});
+ document.querySelectorAll('#sndbtn').forEach(b=>{b.textContent=m?'🔇':'🔊';b.classList.toggle('off',m)});
  for(const [kind,value] of [['music',SFX.musicVol],['sfx',SFX.sfxVol]]){
   const percent=Math.round(value*100);
   document.querySelectorAll('[data-audio="'+kind+'"]').forEach(el=>el.value=percent);
@@ -371,16 +312,13 @@ function syncSound(){
   const off=kind==='music'?SFX.musicMuted:SFX.sfxMuted;
   document.querySelectorAll('[data-audio-mute="'+kind+'"]').forEach(b=>{b.textContent=off?'🔇':'🔊';b.classList.toggle('off',off);b.setAttribute('aria-pressed',String(off));const name=kind==='music'?L('音乐','Music'):L('音效','Effects');b.setAttribute('aria-label',name+' · '+(off?L('开启','Unmute'):L('静音','Mute'))) });
  }
- $('#snd-mute').checked=m;
 }
-document.querySelectorAll('#sndbtn,#sndbtn2').forEach(b=>b.onclick=()=>{SFX.start();SFX.toggleMute();syncSound();$('#sndpanel').hidden=true;b.blur()});
-$('#snd-mute').onchange=e=>{SFX.setMute(e.target.checked);syncSound()};
+document.querySelectorAll('#sndbtn').forEach(b=>b.onclick=()=>{SFX.start();SFX.toggleMute();syncSound();b.blur()});
 document.querySelectorAll('[data-audio]').forEach(el=>el.oninput=()=>{
  SFX.start();if(el.dataset.audio==='music')SFX.setMusic(el.value/100);else SFX.setSfx(el.value/100);
  syncSound();
 });
 document.querySelectorAll('[data-audio-mute]').forEach(b=>b.onclick=()=>{SFX.start();if(b.dataset.audioMute==='music')SFX.toggleMusicMute();else SFX.toggleSfxMute();syncSound()});
-$('#sndclose').onclick=()=>{$('#sndpanel').hidden=true};
 syncSound();
 if(window.desktop){$('#exitbtn').hidden=false;$('#exitbtn').onclick=()=>window.desktop.quit()}
 
@@ -397,7 +335,10 @@ if(window.desktop){$('#exitbtn').hidden=false;$('#exitbtn').onclick=()=>window.d
 /* switchLang(l, manual): manual picks are remembered and beat the IP guess from then on */
 function langRefresh(){document.querySelectorAll('.langbtn').forEach(x=>x.classList.toggle('on',x.dataset.l===LOC));if(typeof renderLangPick==='function')renderLangPick();
   renderTitle();syncSound();if(typeof renderGear==='function'&&$('#gearov')&&!$('#gearov').hidden)renderGear();if(typeof openLeaderboard==='function'&&!$('#lb').hidden)openLeaderboard();const bn=$('#buildnote');if(bn)bn.textContent=L('版本 ','Build ')+((document.querySelector('meta[name=build]')||{}).content||'dev');if(G&&!G.auto){drawSeals();drawRelics();if(G.paused){renderPauseBuild();quitLabel()}if(G.panel)renderPanel()}if(typeof showTab==='function'&&typeof lobbyTab!=='undefined')showTab(lobbyTab)}
-function switchLang(l,manual){if(!LANGS.includes(l))return;if(manual&&!SAVE.nameSet&&typeof randomName==='function'){const o=LANG;LANG=(l==='zh'||l==='zt')?'zh':'en';SAVE.name=randomName();LANG=o;try{localStorage.setItem('sl_name',SAVE.name)}catch(_){}persist()}setLang(l,langRefresh,!!manual)}
+function switchLang(l,manual){if(!LANGS.includes(l))return;setLang(l,()=>{
+  if(manual&&!SAVE.nameSet){SAVE.name=randomName();try{localStorage.setItem('sl_name',SAVE.name)}catch(_){}persist()}
+  langRefresh();
+},!!manual)}
 document.querySelectorAll('.langbtn').forEach(b=>{b.classList.toggle('on',b.dataset.l===LOC);b.onclick=()=>{switchLang(b.dataset.l,true);SFX.pick(1)}});
 /* language picker on the main menu: globe + the current language in its own script; the list names every language in its own script */
 const LANG_NAMES=LOC_NAME;
@@ -414,14 +355,16 @@ if(LANG_FROM_URL)try{const u=new URL(location.href);u.searchParams.delete('lang'
    Only switches while the player is still on the menus, never mid-run. */
 (async function langAuto(){let pick=null,cached=null;try{pick=localStorage.getItem('sl_lang');cached=localStorage.getItem('sl_lang_ip')}catch(_){}
   if(LANGS.includes(pick)||LANGS.includes(cached)||LANG_FROM_URL)return;
+  const request=I18N.request;
   const get=(url,key)=>fetch(url,{cache:'no-store'}).then(r=>r.ok?r.json():Promise.reject()).then(j=>j[key]?String(j[key]).toUpperCase():Promise.reject());
   const t=new Promise((_,rej)=>setTimeout(rej,2500));
   let cc=null;try{cc=await Promise.race([Promise.any([get('https://api.country.is/','country'),get('https://get.geojs.io/v1/ip/country.json','country')]),t])}catch(_){return}
+  if(request!==I18N.request)return;
   const l=LANG_BY_COUNTRY[cc]||'en';try{localStorage.setItem('sl_lang_ip',l)}catch(_){}
   if(l!==LOC&&(!G||G.auto)&&$('#end').hidden)switchLang(l,false)})();
 
-/* lobby tabs: one panel at a time, remembered */
-let lobbyTab=(()=>{try{return localStorage.getItem('sl_tab')||''}catch(_){return ''}})();
+/* Lobby pages share one visibility rule. */
+let lobbyTab='';
 function showTab(t){lobbyTab=t;const lb=document.querySelector('#menu .lobby');if(lb){lb.classList.toggle('open',!!t);if(t){lb.scrollTop=0;const ti=$('#lobbytitle');if(ti)ti.textContent=t==='road'?L('冒险','Journey'):t==='ach'?L('成就','Achievements'):L('设置','Settings')}}document.querySelectorAll('.tabbar button[data-t]').forEach(b=>b.classList.toggle('on',b.dataset.t===t));document.querySelectorAll('.lobby .panel').forEach(p=>{const on=p.dataset.p===t||(t==='road'&&['tasks','ach','codex'].includes(p.dataset.p));p.hidden=!on;p.classList.toggle('on',on)});if(t==='road'&&typeof renderRoad==='function')renderRoad()}
 document.querySelectorAll('.tabbar button[data-t]').forEach(b=>b.onclick=()=>{showTab(lobbyTab===b.dataset.t?'':b.dataset.t);SFX.pick(1)});
 lobbyTab='';showTab('');
@@ -430,10 +373,8 @@ addEventListener('keydown',e=>{if(e.key==='Escape'&&lobbyTab&&!$('#menu').hidden
 function runSummary(){const C=CLASSES[SAVE.cls]||CLASSES.swordsman;const tsel=(SAVE.mode==='solo'||SAVE.mode==='rush')?Math.min(SAVE.asura.sel||0,SAVE.asura.max||0):0;return `${LL(C)} · ${LL(SPELLS[weaponOf(SAVE.cls)])} · ${SAVE.mode==='pk'?L('对决','PK'):SAVE.mode==='qpk'?L('打 AI 对手 3′','vs AI 3′'):SAVE.mode==='daily'?L('每日','Daily'):SAVE.mode==='rush'?L('首领连战','Boss rush'):SAVE.mode==='room'?L('多人房间','Room'):L('单人','Solo')}${tsel?` · ${L(`修罗 ${tsel} 层`,`Ascension ${tsel}`)}`:''} · ${LL(MAPS[MAPID])}`}
 function renderStatus(){const sb=$('#stickystart');if(sb)sb.querySelector('small').textContent=runSummary();const rs=$('#runsummary');if(rs)rs.textContent=runSummary();
   document.querySelectorAll('#mode button,#diff button,[data-q],.langbtn,.tabbar button[data-t],.cls,.wp,.mapb').forEach(b=>b.setAttribute('aria-pressed',b.classList.contains('on')||b.classList.contains('sel')?'true':'false'));
-  /* status: three glyph chips (account · trophies · gold) with the words in tooltips, not on the screen */
-  const el=$('#status');if(!el)return;const a=typeof accountLv==='function'?accountLv():{lv:1,x:0,need:1};const t=typeof titleFor==='function'?titleFor(a.lv):['','',''];const lad=typeof ladderOf==='function'?ladderOf(SAVE.trophies||0):[0,'','',''];
-  const signed=typeof CLOUD!=='undefined'&&CLOUD.ready&&CLOUD.user&&!CLOUD.isGuest();const acctTip=typeof CLOUD!=='undefined'?CLOUD.label():'';const pct=Math.round(100*(a.x||0)/Math.max(1,a.need||1));
-  el.innerHTML=`<span class="chip" title="${L('金币','Gold')}">${ICON.misc('gold','#ffd27a','sm')}<b>${SAVE.gold}</b></span>`}
+}
+
 
 $('#stickybtn').onclick=startRun;
 document.querySelectorAll('#opp button').forEach(b=>b.onclick=()=>{SAVE.mode=b.dataset.o;persist();renderTitle();SFX.pick(1)});

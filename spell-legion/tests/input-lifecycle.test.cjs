@@ -4,6 +4,8 @@ const fs=require('node:fs');
 const vm=require('node:vm');
 const path=require('node:path');
 const ui=fs.readFileSync(path.join(__dirname,'../js/ui.js'),'utf8');
+const controls=fs.readFileSync(path.join(__dirname,'../js/input.js'),'utf8');
+const sim=fs.readFileSync(path.join(__dirname,'../js/sim.js'),'utf8');
 function setup(){
   const calls=[],listeners={},timers=new Map(),cleared=[];
   let clock=0,id=0;
@@ -12,13 +14,14 @@ function setup(){
   const c=vm.createContext({calls,addEventListener:(n,f)=>listeners[n]=f,
     $:s=>{if(!elements.has(s))elements.set(s,element());return elements.get(s)},
     SFX:{start(){},toggleMute(){calls.push('mute')}},syncSound(){},showBanner(){},
-    G:{auto:false,picks:[],pick:null},RIVAL_ON:true,ROOM:{},
+    G:{auto:false,picks:[],pick:null,P:{down:0}},RIVAL_ON:true,ROOM:{},
     startRun:()=>calls.push('start'),togglePanel:()=>calls.push('panel'),togglePause:()=>calls.push('pause'),
     castSkill:i=>calls.push('cast'+i),dash:()=>calls.push('dash'),
     performance:{now:()=>clock},setInterval:f=>{timers.set(++id,f);return id},clearInterval:n=>cleared.push(n),
-    document:{querySelector:()=>null},choose:i=>calls.push('choose'+i),
+    document:{addEventListener:(n,f)=>listeners[n]=f,querySelector:s=>s.includes('#gearov')?[...elements.entries()].find(([id,el])=>(id==='#gearov'||id==='#lb')&&!el.hidden)?.[1]||null:null},choose:i=>calls.push('choose'+i),
   });
-  vm.runInContext(ui.slice(ui.indexOf('const keys=new Set()'),ui.indexOf("addEventListener('pointerdown',()=>SFX.start()")),c);
+  vm.runInContext(sim.match(/^function canAct\(\).*$/m)[0],c);
+  vm.runInContext(controls.slice(controls.indexOf('const keys='),controls.indexOf("addEventListener('pointerdown',()=>SFX.start()")),c);
   vm.runInContext(ui.slice(ui.indexOf('let pickOpenedAt='),ui.indexOf('function openPick()')),c);
   vm.runInContext(ui.slice(ui.indexOf('function closeCards()'),ui.indexOf('/* title:')),c);
   const run=s=>vm.runInContext(s,c);

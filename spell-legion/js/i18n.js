@@ -39,19 +39,21 @@ function detectLoc(){
 }
 let LOC=detectLoc();
 let LANG=(LOC==='zh'||LOC==='zt')?'zh':'en';
-const I18N={D:{},P:{},cache:new Map(),miss:new Set(),loading:{},ready:[],
+const I18N={D:{},P:{},cache:new Map(),miss:new Set(),loading:{},ready:{},request:0,
   ver:(document.currentScript&&(document.currentScript.src.split('?v=')[1]||''))||''};
 /* data files call this */
-function I18N_LOAD(loc,data){I18N.D[loc]=data;I18N.P[loc]=null;I18N.cache.clear();
-  const cbs=I18N.ready;I18N.ready=[];cbs.forEach(f=>{try{f()}catch(e){console.error(e)}})}
+function i18nReady(loc,ok){const cbs=I18N.ready[loc]||[];delete I18N.ready[loc];cbs.forEach(f=>{try{f(ok)}catch(e){console.error(e)}})}
+function I18N_LOAD(loc,data){I18N.D[loc]=data;I18N.P[loc]=null;I18N.cache.clear();I18N.loading[loc]=0;i18nReady(loc,true)}
 function i18nFile(loc){return loc==='zt'?'zt':loc==='ja'||loc==='ko'?loc:null}
-/* load the active language's data before the rest of the game parses (synchronous on first load) */
+/* The initial language is loaded before the rest of the game parses. */
 (function(){const f=i18nFile(LOC);if(f)document.write(`<script src="i18n/${f}.js?v=${I18N.ver}"><\/script>`)})();
 function i18nEnsure(loc,cb){
-  const f=i18nFile(loc);if(!f||I18N.D[loc]){cb&&cb();return}
-  if(cb)I18N.ready.push(cb);
-  if(I18N.loading[f])return;I18N.loading[f]=1;
-  const s=document.createElement('script');s.src=`i18n/${f}.js?v=${I18N.ver}`;s.onerror=()=>{I18N.loading[f]=0};document.head.appendChild(s);
+  const f=i18nFile(loc);if(!f||I18N.D[loc]){cb&&cb(true);return}
+  if(cb)(I18N.ready[loc]||(I18N.ready[loc]=[])).push(cb);
+  if(I18N.loading[loc])return;I18N.loading[loc]=1;
+  const script=document.createElement('script');script.src=`i18n/${f}.js?v=${I18N.ver}`;
+  script.onerror=()=>{I18N.loading[loc]=0;script.remove();i18nReady(loc,false)};
+  document.head.appendChild(script);
 }
 /* templates → regexes, most specific first */
 function i18nPatterns(loc){
@@ -146,12 +148,13 @@ function locFont(kind){
 /* setLang(l, onReady, save=true): save=false is for automatic switches (IP guess) that must not count as the player's pick */
 function setLang(l,onReady,save){
   if(!LOCS.includes(l))l='en';
-  LOC=l;LANG=(l==='zh'||l==='zt')?'zh':'en';I18N.cache.clear();
-  if(save!==false)try{localStorage.setItem('sl_lang',l)}catch(_){}
-  document.documentElement.lang=LOC_HTML[l];
-  i18nFont();
-  const done=()=>{I18N.cache.clear();document.title=L('魔咒军团','Spell Legion');i18nStatic();onReady&&onReady()};
-  if(i18nFile(l)&&!I18N.D[l]){done();i18nEnsure(l,done)}else done();
+  const request=++I18N.request;
+  i18nEnsure(l,ok=>{
+    if(!ok||request!==I18N.request)return;
+    LOC=l;LANG=(l==='zh'||l==='zt')?'zh':'en';I18N.cache.clear();
+    if(save!==false)try{localStorage.setItem('sl_lang',l)}catch(_){}
+    document.documentElement.lang=LOC_HTML[l];i18nFont();i18nStatic();onReady&&onReady();
+  });
 }
 document.documentElement.lang=LOC_HTML[LOC];
 i18nFont();

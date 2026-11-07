@@ -390,16 +390,18 @@ function autoFire(s){ // the normal attack of each class
   }
   return true;
 }
-function canCast(i){const s=G.spells[i];if(!s||SPELLS[s.id].auto)return false;return s.cd<=0&&G.P.mana>=skillCost(s)&&G.P.down<=0}
+function canAct(){return !!G&&!G.over&&!G.ended&&!!G.P&&!(G.P.down>0)&&!!(G.auto||G._free||(!G.pick&&!G.paused&&!G.panel))}
+function canCast(i){if(!canAct())return false;const s=G.spells[i];if(!s||SPELLS[s.id].auto)return false;return s.cd<=0&&G.P.mana>=skillCost(s)}
 const CD_FLOOR={ward:10,rejuv:9,zen:9,vajra:9,numb:8};
+function skillCooldown(s,st=stat(s)){return Math.max(CD_FLOOR[s.id]||0,SPELLS[s.id].cd*st.cdM/G.P.haste)}
 function castSkill(i){
-  if(G.over||G.P.down>0)return false;
+  if(!canAct())return false;
   const s=G.spells[i];if(!s)return false;const sp=SPELLS[s.id],P=G.P;
   if(sp.auto)return false;
   const cost=skillCost(s);
   if(s.cd>0||P.mana<cost){if(!G.auto){G.fx.push({k:'deny',i,t:.3});if(typeof SFX!=='undefined')SFX.deny();if(!G.denyT||G.t-G.denyT>.6){G.denyT=G.t;G.floats.push({x:P.x,y:P.y-30,t:.8,v:s.cd>0?L(`冷却 ${Math.ceil(s.cd)}s`,`Cooldown ${Math.ceil(s.cd)}s`):L(`内力差 ${Math.ceil(cost-P.mana)}`,`${Math.ceil(cost-P.mana)} qi short`),c:s.cd>0?'#c9c2d6':'#6fd3e8'})}}return false}
   const st=stat(s);
-  P.mana-=cost;s.cd=Math.max(CD_FLOOR[s.id]||0,sp.cd*st.cdM/P.haste);s.casts++;P.cast=1;if(P.parry>0){P.parry=0;P.parryBoost=1.6;later(1.2,()=>{P.parryBoost=1});ring(P.x,P.y,60,'#ffd27a')}
+  P.mana-=cost;s.cd=skillCooldown(s,st);s.casts++;P.cast=1;if(P.parry>0){P.parry=0;P.parryBoost=1.6;later(1.2,()=>{P.parryBoost=1});ring(P.x,P.y,60,'#ffd27a')}
   if(s.id==='palm'){
     const fn=()=>{const a=aimDir(260),n=5+Math.floor(s.lv/3)+st.n;P.dx=Math.cos(a);P.dy=Math.sin(a);P.yaw0=Math.atan2(P.dx,P.dy);
       for(let i=0;i<n;i++)shoot(P.x+Math.cos(a)*8,P.y+Math.sin(a)*8-6,a+(i-(n-1)/2)*.17,s,18*st.m,{v:235,life:.52*st.size,pierce:4+st.pierce,knock:190*st.knock,r:4.5*st.size});
@@ -492,11 +494,9 @@ function orbits(dt){
   }
 }
 function countNear(x,y,r){let n=0;near(x,y,r,e=>{if(e.type!=='statue'&&hyp(e.x-x,e.y-y)<r)n++});return n}
-function autoSpend(){}
-const AUTO_WHEN={palm:['附近 ≥2 敌','≥2 enemies near'],array:['附近 ≥2 敌','≥2 enemies near'],bagua:['附近 ≥2 敌','≥2 enemies near'],talis:['附近 ≥4 敌','≥4 enemies near'],ward:['生命 <50% 或被围','HP <50% or surrounded'],whirl:['贴身 ≥3 敌','≥3 enemies close'],leap:['远处成群','a group at range'],roar:['被围或生命 <35%','surrounded or HP <35%'],sunder:['≥5 敌或首领战','≥5 enemies or a boss'],exorcise:['附近 ≥3 敌','≥3 enemies near'],frenzy:['附近 ≥5 敌','≥5 enemies near'],flow:['附近 ≥4 敌','≥4 enemies near'],ambush:['附近 ≥4 敌','≥4 enemies near'],guangling:['≥5 敌或生命 <40%','≥5 enemies or HP <40%'],tiger:['附近 ≥4 敌','≥4 enemies near'],vajra:['被围或生命 <45%','surrounded or HP <45%'],zen:['生命 <45% 或内力见底','HP <45% or qi empty'],sarira:['≥6 敌或首领战','≥6 enemies or a boss'],gu:['附近 ≥3 敌','≥3 enemies near'],plague:['附近 ≥6 敌','≥6 enemies near'],rejuv:['生命 <50%','HP <50%'],numb:['被围或毒已叠满','surrounded or poison stacked']};
 function autoCast(){ // casts each skill when it is worth the qi
   if(!G.auto)return; // Skill automation belongs to the title demo only.
-  const P=G.P;autoSpend();
+  const P=G.P;
   for(let i=1;i<G.spells.length;i++){
     const s=G.spells[i];if(!canCast(i))continue;const id=s.id;let go=false;
     if(id==='palm')go=countNear(P.x,P.y,150)>=2;
@@ -523,11 +523,13 @@ function autoCast(){ // casts each skill when it is worth the qi
     if(go)castSkill(i);
   }
 }
+function dashCooldown(){return hasR('boots')?.82:1.1}
 function dash(){
-  const P=G.P;if(P.dashCd>0||P.down>0||G.over)return false;
+  if(!canAct())return false;
+  const P=G.P;if(P.dashCd>0)return false;
   const v=G.auto?autopilot():input();let dx=v.x,dy=v.y;if(!dx&&!dy){dx=P.dx;dy=P.dy}
   const l=hyp(dx,dy)||1;P.dx=dx/l;P.dy=dy/l;P.yaw0=Math.atan2(P.dx,P.dy);
-  P.dash=.17;P.dashCd=hasR('boots')?.82:1.1;P.ghostT=0;P.dashHit=new Set();trauma(.12,-P.dx,-P.dy);
+  P.dash=.17;P.dashCd=dashCooldown();P.ghostT=0;P.dashHit=new Set();trauma(.12,-P.dx,-P.dy);
   if(typeof SFX!=='undefined')SFX.dash();
   return true;
 }
@@ -657,8 +659,8 @@ function buildCards(q){
   const adv=typeof buildAdvice==='function'?buildAdvice():null; // the warning on the card screen always comes with a concrete fix
   if(adv&&q.kind==='level'){const fits=pool.filter(p=>!used.has(p.n)&&(p.cat===adv.cat||(adv.cat==='defense'&&p.cat==='heal')||(adv.cat==='melee'&&(p.cat==='ranged'||p.cat==='summon'))));if(fits.length){const p=pick(fits);used.add(p.n);out.push(p)}}
   let guard=0;while(out.length<3&&guard++<80){const p=pick(pool);if(!used.has(p.n)&&!(out.some(c=>c.isNew)&&p.isNew)){used.add(p.n);out.push(p)}}
-  if(SIMR()<.03&&q.kind==='level'){ // jackpot: take all three
-    const acts=out.map(c=>c.a);let done=false;out.forEach(c=>{c.jackpot=1;c.a=()=>{if(done)return;done=true;acts.forEach(f=>f());if(typeof showSide==='function')showSide('天降横财 · 三张全拿','Jackpot: all three taken','#ffd27a','jackpot')}});q.jackpot=1}
+  if(SIMR()<.03&&q.kind==='level'){ // A jackpot grants every offered card once.
+    const acts=out.map(c=>c.a);let done=false;out.forEach(c=>{c.jackpot=1;c.a=()=>{if(done)return;done=true;acts.forEach(f=>f());if(typeof showSide==='function')showSide('天降横财 · 全部获得','Jackpot: all taken','#ffd27a','jackpot')}});q.jackpot=1}
   return out;
 }
 
@@ -978,7 +980,6 @@ function demoBoost(){
 /* build advice shown on the card screen: which category the build is thin on (a suggestion, never a rule) */
 function buildAdvice(){
   const t=G.taken||{},P=G.P,def=(t.defense||0)+(t.heal||0),off=(t.melee||0)+(t.ranged||0)+(t.summon||0)+(t.all||0),ctrl=t.control||0;
-  const recent=G.dmgTaken-(G._advDmg||0);G._advDmg=G.dmgTaken;
   // counters: if the most common monster on the field right now is weak to a category the build lacks, say so
   const cnt={};for(const e of G.en)if(!e.dead&&AFFINITY[e.type])cnt[e.type]=(cnt[e.type]||0)+1;const top=Object.keys(cnt).sort((a,b)=>cnt[b]-cnt[a])[0];
   if(top&&cnt[top]>=12){const A=AFFINITY[top];if(A.weak.cat&&!(t[A.weak.cat]>0)&&!G.spells.some(x=>SKILL_CAT[x.id]===A.weak.cat)){const can=G.spells.length<4&&CLASSES[G.cls].skills.some(k=>!G.spells.some(x=>x.id===k)&&SKILL_CAT[k]===A.weak.cat);if(can)return {cat:A.weak.cat,zh:`${ETYPES[top].zh}多:${A.tip[0]}`,en:`${ETYPES[top].en}s: ${A.tip[1]}`};

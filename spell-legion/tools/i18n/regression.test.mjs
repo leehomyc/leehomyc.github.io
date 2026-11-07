@@ -122,3 +122,16 @@ test('training labels describe their actual attributes in Japanese and Korean',(
     assert.doesNotMatch(evaluate("tr('Heals, shields and knocks back nearby enemies.')"),/Heals|shields|four seconds/);
   }
 });
+
+test('elimination and revive messages keep their meaning and values in Japanese and Korean',()=>{
+  const {evaluate}=setup();
+  for(const loc of ['ja','ko']) {
+    evaluate(`setLang('${loc}');I18N.miss.clear();I18N.cache.clear()`);
+    for(const input of ['Host eliminated — keep fighting','Out of lives = out · last survivor wins','Eliminated','Reviving in 12 s','Jackpot: all taken']) {
+      const output=evaluate(`tr(${JSON.stringify(input)})`);
+      assert.doesNotMatch(output,/Host|eliminated|lives|survivor|Reviving|Jackpot/);
+      if(input.includes('12'))assert.ok(output.includes('12'));
+    }
+    assert.equal(evaluate('I18N.miss.size'),0);
+  }
+});

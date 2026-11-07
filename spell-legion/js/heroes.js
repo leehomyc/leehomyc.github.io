@@ -95,7 +95,6 @@ AUGS.burst.for.push('katana','lightstick','mic','fireball','thunder','wink','fro
 AUGS.split.for.push('katana','wink');
 AUGS.split.by=AUGS.split.by||{};Object.assign(AUGS.split.by,{katana:['刀光命中后分出两道小月牙','Crescents split into two smaller ones on hit'],wink:['爱心命中后分成两颗小爱心','Hearts split into two smaller hearts on hit']});
 AUGS.giant.for.push('katana','kusari','mic','pyro','arcane','fireball','meteor','bell','thunder','flute','seal','sakura','blackhole','frostnova','encore','dance','flash','blink');
-Object.assign(AUTO_WHEN,{flash:['前方成群','a group ahead'],onibi:['附近 ≥3 敌','≥3 enemies near'],seal:['附近 ≥5 敌或首领战','≥5 enemies or a boss'],sakura:['附近 ≥6 敌或首领战','≥6 enemies or a boss'],wink:['附近 ≥4 敌','≥4 enemies near'],dance:['被围或生命 <50%','surrounded or HP <50%'],fanchant:['附近 ≥6 敌或首领战','≥6 enemies or a boss'],encore:['其他武学都在冷却','other skills on cooldown'],blink:['被围或生命 <40%','surrounded or HP <40%'],frostnova:['贴身 ≥4 敌','≥4 enemies close'],manashield:['生命 <60% 且内力充足','HP <60% with qi to spare'],blackhole:['附近 ≥7 敌或首领战','≥7 enemies or a boss']});
 
 /* ---------------- unlocks ---------------- */
 /* ---------------- helpers ---------------- */
@@ -216,8 +215,8 @@ const HS={
   blackhole(s,st){const P=G.P,t=densest(240,70),x=t?t.x:P.x+P.dx*110,y=t?t.y:P.y+P.dy*110;hx().holes.push({x,y,R:150*st.size,t:0,T:SPELLS.blackhole.dur+st.dur*.5,tk:0,s});G.flash=Math.max(G.flash,.2);trauma(.25);sfx('void','array')},
 };
 {const _cs=castSkill;castSkill=function(i){const s=G.spells[i];const ok=_cs(i);if(ok&&s&&HS[s.id])HS[s.id](s,stat(s));return ok}}
-{const _ac=autoCast;autoCast=function(){_ac();const P=G.P;
-  for(let i=1;i<G.spells.length;i++){const s=G.spells[i];if(!HS[s.id])continue;if(s.manual&&!G.auto)continue;if(!canCast(i))continue;const id=s.id;let go=false;
+{const _ac=autoCast;autoCast=function(){if(!G.auto)return;_ac();const P=G.P;
+  for(let i=1;i<G.spells.length;i++){const s=G.spells[i];if(!HS[s.id])continue;if(!canCast(i))continue;const id=s.id;let go=false;
     if(id==='flash')go=countNear(P.x,P.y,170)>=3;
     else if(id==='onibi')go=countNear(P.x,P.y,190)>=3;
     else if(id==='seal')go=countNear(P.x,P.y,220)>=5||!!G.boss;
