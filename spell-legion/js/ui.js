@@ -194,14 +194,14 @@ function renderWeapons(){
   });
 }
 function renderAsura(){
-  const el=$('#asura');if(!el)return;const on=SAVE.mode==='solo';el.hidden=!on;if(!on)return;
+  const el=$('#asura'),bestEl=$('#endlessbest');if(!el)return;const on=SAVE.mode==='solo';el.hidden=!on;
+  if(bestEl){bestEl.hidden=!on;if(on){const score=SAVE.lb?.bestRun?.score;bestEl.textContent=`${L('最高分','Personal best')} ${Number.isFinite(score)?Math.round(score).toLocaleString('en-US'):'—'}`}}
+  if(!on)return;
   const A=SAVE.asura,max=Math.min(A.max||0,ASURA.length),sel=Math.min(A.sel||0,max);
   A.sel=sel;const oldScroll=el.querySelector('.asura-rail')?.scrollLeft;
   el.replaceChildren();
   const head=document.createElement('div');head.className='asura-head';
   const title=document.createElement('strong');title.innerHTML=`${ICON.misc('boss','#ff5a45','sm')}${L('修罗','Ascension')} <span>${max}/${ASURA.length}</span>`;head.appendChild(title);
-  const best=document.createElement('span');best.className='asura-best';const score=SAVE.lb?.bestRun?.score;
-  best.textContent=`${L('最高分','Personal best')} ${Number.isFinite(score)?Math.round(score).toLocaleString('en-US'):'—'}`;head.appendChild(best);
   el.appendChild(head);
   const rail=document.createElement('div');rail.className='asura-rail';rail.setAttribute('role','group');rail.setAttribute('aria-label',L('修罗难度','Ascension tiers'));
   for(let i=0;i<=ASURA.length;i++){

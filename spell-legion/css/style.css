@@ -1056,7 +1056,6 @@ html[lang=zh] #menu .ttb h1.entitle{display:none}
 #diff[hidden]{display:none!important}
 #asura{display:flex;align-items:center;gap:6px;flex-wrap:nowrap;overflow:visible;font-size:12px;color:var(--dim);min-width:0}
 #asura .al{display:inline-flex;align-items:center;gap:4px;font-weight:800;color:#ffb3a6;white-space:nowrap}
-#asura .asura-best{flex:none;white-space:nowrap;font-weight:800;color:#ffd27a;font-variant-numeric:tabular-nums}
 #asura .st{width:30px;height:30px;padding:0;border-radius:50%;background:#2a1822;border:1px solid #6b5230;color:var(--bone);font:900 18px/1 var(--ui);cursor:pointer;display:grid;place-items:center;min-width:0}
 #asura .st:hover:not(:disabled){border-color:#ff5a45;color:#fff}#asura .st:disabled{opacity:.3;cursor:not-allowed}
 #asura .av{min-width:2.2em;text-align:center;font:900 18px var(--ui);color:var(--bone);cursor:help}
@@ -1244,7 +1243,6 @@ html[lang=ja] #menu .vname.vzh{font-size:clamp(30px,min(6vw,8vh),64px);white-spa
 #asura .asura-head{display:flex;align-items:center;justify-content:space-between;gap:12px;min-width:0}
 #asura .asura-head strong{display:inline-flex;align-items:center;gap:5px;color:#ffb3a6;font-size:14px;white-space:nowrap}
 #asura .asura-head strong span{color:var(--dim);font-size:12px}
-#asura .asura-best{font-size:13px}
 #asura .asura-rail{display:flex;gap:8px;overflow-x:auto;overflow-y:hidden;min-width:0;padding:2px 2px 8px;scrollbar-width:thin;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch;touch-action:pan-x}
 #asura .asura-card{flex:0 0 154px;min-height:86px;display:flex;flex-direction:column;align-items:flex-start;gap:5px;text-align:left;padding:9px 10px;border:1px solid #6b523088;border-radius:10px;background:#21141f;color:var(--bone);font:inherit;cursor:pointer;scroll-snap-align:start;min-width:0}
 #asura .asura-card .tier{font-weight:900;color:#ffb3a6;font-size:12px}
@@ -1253,4 +1251,7 @@ html[lang=ja] #menu .vname.vzh{font-size:clamp(30px,min(6vw,8vh),64px);white-spa
 #asura .asura-card.on{border-color:#ff9c5a;background:#4a2330;box-shadow:inset 0 0 0 1px #ff9c5a77}
 #asura .asura-card.locked{opacity:.54;cursor:not-allowed}
 #asura .asura-hint{display:block!important;max-width:none;color:var(--dim);font-size:11px;white-space:normal}
-@media(max-width:760px){#hero #asura{padding:9px 10px}#asura .asura-card{flex-basis:145px}#asura .asura-head strong{font-size:13px}#asura .asura-best{font-size:12px}}
+@media(max-width:760px){#hero #asura{padding:9px 10px}#asura .asura-card{flex-basis:145px}#asura .asura-head strong{font-size:13px}}
+
+#hero #endlessbest{justify-self:end;color:#ffd27a;font-size:13px;font-weight:800;font-variant-numeric:tabular-nums}
+#hero #endlessbest[hidden]{display:none}
