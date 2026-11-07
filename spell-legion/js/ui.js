@@ -201,6 +201,10 @@ function renderAsura(){
   const unlockTip=L('一局斩杀两位首领,开启下一层','Slay two bosses in one run to open the next tier');
   el.textContent='';el.classList.toggle('lockedall',max===0);el.classList.toggle('lit',sel>0);
   const lab=document.createElement('span');lab.className='al';lab.innerHTML=`${ICON.misc('boss','#ff5a45','sm')}${L('修罗','Ascension')}`;el.appendChild(lab);
+  const best=document.createElement('span');best.className='asura-best';
+  const bestScore=SAVE.lb?.bestRun?.score;
+  best.textContent=`${L('最高分','Personal best')} ${Number.isFinite(bestScore)?Math.round(bestScore).toLocaleString('en-US'):'—'}`;
+  el.appendChild(best);
   if(max===0){const n=document.createElement('small');n.className='ad';n.textContent=L('🔒 首领 ×2','🔒 2 bosses');el.appendChild(n);return}
   const step=d=>{const t=sel+d;if(t<0||t>max)return;A.sel=t;persist();renderTitle();SFX.pick(1)};
   const mk=(txt,d,dis,tip)=>{const b=document.createElement('button');b.type='button';b.className='st';b.textContent=txt;b.disabled=dis;b.title=tip;b.setAttribute('aria-label',tip);b.onclick=()=>step(d);return b};

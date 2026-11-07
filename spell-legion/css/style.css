@@ -1056,6 +1056,7 @@ html[lang=zh] #menu .ttb h1.entitle{display:none}
 #diff[hidden]{display:none!important}
 #asura{display:flex;align-items:center;gap:6px;flex-wrap:nowrap;overflow:visible;font-size:12px;color:var(--dim);min-width:0}
 #asura .al{display:inline-flex;align-items:center;gap:4px;font-weight:800;color:#ffb3a6;white-space:nowrap}
+#asura .asura-best{flex:none;white-space:nowrap;font-weight:800;color:#ffd27a;font-variant-numeric:tabular-nums}
 #asura .st{width:30px;height:30px;padding:0;border-radius:50%;background:#2a1822;border:1px solid #6b5230;color:var(--bone);font:900 18px/1 var(--ui);cursor:pointer;display:grid;place-items:center;min-width:0}
 #asura .st:hover:not(:disabled){border-color:#ff5a45;color:#fff}#asura .st:disabled{opacity:.3;cursor:not-allowed}
 #asura .av{min-width:2.2em;text-align:center;font:900 18px var(--ui);color:var(--bone);cursor:help}
