@@ -128,6 +128,15 @@ test('boss volleys outpace a running hero and scale their damage with the boss',
   run('G.boss.dmg=44;G.bossT=0;bossAI(.016)');
   near(run('G.bullets.at(-1).d'),30);
 });
+test('contract costs still apply alongside their rewards',()=>{
+  const {run}=setup();
+  run("CONTRACTS.find(c=>c.id==='thin').apply();CONTRACTS.find(c=>c.id==='greed').apply()");
+  assert.equal(run('G.P.maxHp'),80);
+  near(run('G.P.dmgBonus'),.2);
+  assert.equal(run('G.curse.nochest'),1);
+  assert.equal(run('G.goldRun'),200);
+  near(run('G.curse.gold'),1.5);
+});
 test('relics dropped in obstacles move to reachable ground; cursed relics can be collected after a short hold',()=>{
   const {c,run}=setup();const rock={x:90,y:90,w:40,h:40};c.rocksNear=()=>[rock];c.blocked=(x,y)=>x>90&&x<130&&y>90&&y<130;
   run('dropRelic(110,110)');const f=run('G.fx.at(-1)');assert.ok(Math.hypot(f.x-110,f.y-110)>=24);

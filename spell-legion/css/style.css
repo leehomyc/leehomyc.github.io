@@ -1255,6 +1255,10 @@ html[lang=ja] #menu .vname.vzh{font-size:clamp(30px,min(6vw,8vh),64px);white-spa
 #asura .asura-hint{display:block!important;max-width:none;color:var(--dim);font-size:11px;white-space:normal}
 @media(max-width:760px){#hero #asura{padding:9px 10px}#asura .asura-card{flex-basis:145px}#asura .asura-head strong{font-size:13px}}
 
+/* A bargain's price must remain visible even where secondary card text is trimmed. */
+#cards .card[data-kind="contract"] .fx,#cards .card[data-kind="ascend"] .fx{color:#a9f0bc}
+#cards .card[data-kind="contract"] .fxe,#cards .card[data-kind="ascend"] .fxe{display:block;color:#ffaaa3;font-size:12px;line-height:1.35;font-weight:800;white-space:normal;overflow:visible}
+
 #hero #endlessbest{justify-self:end;display:flex;justify-content:flex-end;flex-wrap:wrap;gap:6px;color:#ffd27a;font-size:13px;font-weight:800;font-variant-numeric:tabular-nums;text-align:right}
 #hero #endlessbest span{display:inline-flex;align-items:center;min-height:27px;padding:3px 9px;border:1px solid #6b523088;border-radius:999px;background:#140b12d9;white-space:nowrap}
 #hero #endlessbest[hidden]{display:none}
