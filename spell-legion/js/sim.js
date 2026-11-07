@@ -91,11 +91,13 @@ function rivalHurt(n,fx,fy){const R=G.rival;if(!R||R.eliminated||R.down>0||R.inv
 
 /* ---------- relics ---------- */
 const hasR=k=>G.relics.includes(k);
-function dropRelic(x,y){let left=Object.keys(RELICS).filter(k=>!hasR(k));if(!left.length){if(SIMR()<.5||(G.dupRelics||0)>=10){G.goldRun+=40;return}left=Object.keys(RELICS)} // a full set still drops now and then: duplicates become power (up to ten)
+function relicChoice(guaranteed=false){let left=Object.keys(RELICS).filter(k=>!hasR(k));if(!left.length){if(!guaranteed&&(SIMR()<.5||(G.dupRelics||0)>=10))return null;left=Object.keys(RELICS)} // a full set still drops now and then: duplicates become power (up to ten)
   const cursedOut=G.fx.filter(f=>f.k==='relic'&&RELICS[f.id].cursed).length;if(cursedOut>=2)left=left.filter(k=>!RELICS[k].cursed).concat(left.length?[]:[]);if(!left.length)left=Object.keys(RELICS).filter(k=>!RELICS[k].cursed);
+  return pick(left)}
+function dropRelic(x,y){const id=relicChoice();if(!id){G.goldRun+=40;return}
   const clear=(px,py)=>px>=32&&py>=32&&px<=W-32&&py<=H-32&&!blocked(px,py)&&!rocksNear(px,py).some(b=>{if(b.tree)return false;const dx=px-clamp(px,b.x,b.x+b.w),dy=py-clamp(py,b.y,b.y+b.h);return dx*dx+dy*dy<24*24});
   if(!clear(x,y)){outer:for(let r=32;r<=192;r+=16)for(let i=0;i<16;i++){const a=i*TAU/16,px=clamp(x+Math.cos(a)*r,32,W-32),py=clamp(y+Math.sin(a)*r,32,H-32);if(clear(px,py)){x=px;y=py;break outer}}}
-  if(G.fx.length<CAP.fx)G.fx.push({k:'relic',id:pick(left),x,y,t:60,T:60})}
+  if(G.fx.length<CAP.fx)G.fx.push({k:'relic',id,x,y,t:60,T:60})}
 function takeRelic(id){const R=RELICS[id],P=G.P;if(hasR(id)){if((G.dupRelics||0)>=10){G.goldRun+=40;if(G.floats.length<CAP.fl)G.floats.push({x:P.x,y:P.y-30,t:.9,v:'+40',c:'#ffd27a'});return}P.dmgBonus+=.05;P.maxHp+=10;P.hp=Math.min(P.maxHp,P.hp+10);G.dupRelics=(G.dupRelics||0)+1;if(typeof showSide==='function')showSide(`重复法宝 → 伤害 +5%,生命 +10(${G.dupRelics}/10)`,`Duplicate relic: +5% damage, +10 HP (${G.dupRelics}/10)`,'#ffd27a','relic');spark(P.x,P.y,'#ffd27a',12,80);if(typeof SFX!=='undefined')SFX.chest();return}G.relics.push(id);if(typeof codexSee==='function')codexSee('relic',id);
   if(id==='boots')P.spd*=1.12;if(id==='feather'){G.cores++;updateCores()}if(id==='bowl')P.mag*=1.4;if(id==='chime')P.haste/=.85;if(id==='pill'){P.maxHp+=40;P.hp+=40}if(id==='shell')P.def*=.85;if(id==='bloodcurse'){P.dmgBonus+=.35;P.maxHp=Math.round(P.maxHp*.75);P.hp=Math.min(P.hp,P.maxHp)}if(id==='glass'){P.crit+=.25;P.def*=1.2}if(id==='wolf'){P.mag*=.7}if(id==='bind'){P.spd*=.9}
   if(typeof showSide==='function')showSide(`法宝 · ${R.zh}:${R.d}`,`Relic · ${R.en}: ${R.de}`,R.col||'#c7a4f0','relic');else showBanner(`法宝:${R.zh}`,`${R.en} · ${R.de}`,2);trauma(.2);G.flash=Math.max(G.flash,.25);if(typeof SFX!=='undefined')SFX.chest();if(typeof drawSeals==='function')drawSeals();if(typeof drawRelics==='function')drawRelics()}

@@ -127,7 +127,7 @@ function stopPickTimer(timer=pickTimer){
 }
 function openPick(){
   if(G.pick||!G.picks.length)return;
-  const q=G.picks.shift(),cards=buildCards(q);
+  const queued=G.picks.shift(),q=(typeof kindOpen==='function'&&!kindOpen(queued.kind)&&['aug','contract'].includes(queued.kind))?{...queued,kind:'level'}:queued,cards=buildCards(q);
   if(!cards.length){return openPick()}
   if(G.auto){pick(cards).a();return openPick()}
   G.pick=cards;pickOpenedAt=performance.now();$('#banner').classList.remove('on');bannerT=0;

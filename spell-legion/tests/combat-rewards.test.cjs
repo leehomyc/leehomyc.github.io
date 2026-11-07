@@ -137,6 +137,12 @@ test('contract costs still apply alongside their rewards',()=>{
   assert.equal(run('G.goldRun'),200);
   near(run('G.curse.gold'),1.5);
 });
+test('Pact of Wind grants its relic immediately instead of leaving a timed drop on the ground',()=>{
+  const {run}=setup();run("const pact=CONTRACTS.find(c=>c.id==='swift');pact.apply();pact.reward()");
+  assert.equal(run('G.curse.spd'),1.2);
+  assert.equal(run('G.relics.length'),1);
+  assert.equal(run("G.fx.filter(f=>f.k==='relic').length"),0);
+});
 test('relics dropped in obstacles move to reachable ground; cursed relics can be collected after a short hold',()=>{
   const {c,run}=setup();const rock={x:90,y:90,w:40,h:40};c.rocksNear=()=>[rock];c.blocked=(x,y)=>x>90&&x<130&&y>90&&y<130;
   run('dropRelic(110,110)');const f=run('G.fx.at(-1)');assert.ok(Math.hypot(f.x-110,f.y-110)>=24);

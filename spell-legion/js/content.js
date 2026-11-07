@@ -291,7 +291,7 @@ Object.assign(RELICS,{
 });
 /* contracts: an in-run bargain - take a curse for the rest of the run, get something big now */
 const CONTRACTS=[
-  {id:'swift',zh:'疾风契',en:'Pact of Wind',cost:['敌人移速 +20%','Enemies +20% speed'],gain:['立即获得一件法宝','A relic right now'],apply(){G.curse.spd=1.2},reward(){dropRelic(G.P.x+30,G.P.y)}},
+  {id:'swift',zh:'疾风契',en:'Pact of Wind',cost:['敌人移速 +20%','Enemies +20% speed'],gain:['立即获得一件法宝','A relic right now'],apply(){G.curse.spd=1.2},reward(){takeRelic(relicChoice(true))}},
   {id:'horde',zh:'群魔契',en:'Pact of Hordes',cost:['怪潮 +30%','Spawns +30%'],gain:['一张传说卡','A legendary card'],apply(){G.curse.spawn=1.3},reward(){G.picks.unshift({kind:'level',forceQ:'legendary'})}},
   {id:'thin',zh:'薄命契',en:'Pact of Thin Blood',cost:['生命上限 -20%','Max HP -20%'],gain:['伤害 +20%(本局)','+20% damage this run'],apply(){G.P.maxHp=Math.round(G.P.maxHp*.8);G.P.hp=Math.min(G.P.hp,G.P.maxHp);G.P.dmgBonus+=.2},reward(){}},
   {id:'greed',zh:'贪婪契',en:'Pact of Greed',cost:['不再掉落宝箱','No more chests'],gain:['金币 +200 并 +50% 金币','+200 gold now and +50% gold'],apply(){G.curse.nochest=1;G.goldRun+=200;G.curse.gold=1.5},reward(){}},
