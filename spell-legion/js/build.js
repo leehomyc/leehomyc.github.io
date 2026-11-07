@@ -47,9 +47,9 @@ function bondCards(q){const a=q.a,b=q.b,ma=SPELLS[a.id],mb=SPELLS[b.id];
   const name=k=>L(`${mx.g}${my.g}${BOND_KINDS[k].zh}`,`${mx.en} & ${my.en}: ${BOND_KINDS[k].en}`);
   const txt=k=>L(BOND_KINDS[k].d.replace('{a}',mx.zh).replace('{b}',my.zh),BOND_KINDS[k].de.replace('{a}',mx.en).replace('{b}',my.en));
   const done=k=>{G.bonds[bondKey(a,b)]={k,x,y};trauma(.4);G.flash=.4;showBanner(`羁绊 · ${mx.g}${my.g}${BOND_KINDS[k].zh}`,`Bond: ${mx.en} & ${my.en}`,1.6);if(typeof SFX!=='undefined')SFX.chest()};
-  const out=[{g:mx.g,badge:my.g,c:'#ffb0e0',skill:x.id,n:name('proc'),sub:L('羁绊 · 本局有效','bond · lasts the run'),fx:txt('proc'),fxEn:'',q:RARITY[2],kind:'bond',cat:SKILL_CAT[y.id],a(){done('proc')}}];
-  if(x.els.length&&y.els.length<2&&x.els.some(e=>!y.els.includes(e)))out.push({g:my.g,badge:mx.g,c:'#ffb0e0',skill:y.id,n:name('share'),sub:L('羁绊 · 本局有效','bond · lasts the run'),fx:txt('share'),fxEn:'',q:RARITY[2],kind:'bond',cat:SKILL_CAT[y.id],a(){for(const e of x.els)if(!y.els.includes(e)&&y.els.length<2)y.els.push(e);levelUp(x,2);levelUp(y,2);done('share')}});
-  else out.push({g:my.g,badge:mx.g,c:'#ffb0e0',skill:y.id,n:L(`${mx.g}${my.g}同修`,`${mx.en} & ${my.en}: Shared Cultivation`),sub:L('羁绊 · 本局有效','bond · lasts the run'),fx:L(`「${mx.zh}」与「${my.zh}」各 +3 级`,`${mx.en} and ${my.en} +3 levels each`),fxEn:'',q:RARITY[2],kind:'bond',cat:SKILL_CAT[y.id],a(){levelUp(x,3);levelUp(y,3);done('share')}});
+  const out=[{g:mx.g,badge:my.g,c:'#ffb0e0',skill:x.id,n:name('proc'),sub:'',fx:txt('proc'),fxEn:'',q:RARITY[2],kind:'bond',cat:SKILL_CAT[y.id],a(){done('proc')}}];
+  if(x.els.length&&y.els.length<2&&x.els.some(e=>!y.els.includes(e)))out.push({g:my.g,badge:mx.g,c:'#ffb0e0',skill:y.id,n:name('share'),sub:'',fx:txt('share'),fxEn:'',q:RARITY[2],kind:'bond',cat:SKILL_CAT[y.id],a(){for(const e of x.els)if(!y.els.includes(e)&&y.els.length<2)y.els.push(e);levelUp(x,2);levelUp(y,2);done('share')}});
+  else out.push({g:my.g,badge:mx.g,c:'#ffb0e0',skill:y.id,n:L(`${mx.g}${my.g}同修`,`${mx.en} & ${my.en}: Shared Cultivation`),sub:'',fx:L(`「${mx.zh}」与「${my.zh}」各 +3 级`,`${mx.en} and ${my.en} +3 levels each`),fxEn:'',q:RARITY[2],kind:'bond',cat:SKILL_CAT[y.id],a(){levelUp(x,3);levelUp(y,3);done('share')}});
   out.push({g:'缓',c:'#efe4cd',n:L('暂不结缘','Not now'),sub:'',fx:L('这一对之后不再出现','This pair will not be offered again'),fxEn:'',kind:'passive',cat:'passive',a(){}});
   return out}
 xOn('hit',(e,m,s)=>{if(!s||!G.bonds||G._free)return m;for(const k in G.bonds){const B=G.bonds[k];if(!B||B.k!=='proc'||B.x!==s)continue;if(G.t-(B.t||-9)<Math.max(1.5,(SPELLS[B.y.id].cd||2)*.35)||SIMR()>=.08)continue;B.t=G.t;B.n=(B.n||0)+1;const y=B.y;later(.02,()=>freeFire(y,.7))}return m});
@@ -68,7 +68,7 @@ function cardSig(cd){return (cd.kind||'')+'|'+(cd.skill||'')+'|'+(cd.kind==='tre
   if(out.every(ok))return out;const keep=out.filter(ok),seen=new Set(keep.map(c=>c.n));
   for(let t=0;t<6&&keep.length<3;t++){const more=bc({...q,exclude:[...(q.exclude||[]),...seen]});for(const c of more){if(keep.length>=3)break;if(ok(c)&&!seen.has(c.n)&&!(c.isNew&&keep.some(k=>k.isNew))){keep.push(c);seen.add(c.n)}}}
   return keep.length?keep:out}})();
-function variantCards(q){const s=q.s,m=SPELLS[s.id];return variantOpts(s).map(k=>{const V=VARIANTS[k];return {g:m.g,badge:V.zh[0],c:m.col,skill:s.id,n:L(`${m.zh} · ${V.zh}`,`${m.en} · ${V.en}`),sub:L('变式 · 三选一,不可更改','variant · pick one, it is permanent'),fx:L(V.d,V.de),fxEn:'',q:RARITY[2],cat:SKILL_CAT[s.id],kind:'variant',a(){setVariant(s,k);trauma(.4);G.flash=.4;showBanner(`${m.zh} · ${V.zh}`,`${m.en}: ${V.en}`,1.6);if(typeof SFX!=='undefined')SFX.chest();if(typeof drawSeals==='function')drawSeals()}}})}
+function variantCards(q){const s=q.s,m=SPELLS[s.id];return variantOpts(s).map(k=>{const V=VARIANTS[k];return {g:m.g,badge:V.zh[0],c:m.col,skill:s.id,n:L(`${m.zh} · ${V.zh}`,`${m.en} · ${V.en}`),sub:'',fx:L(V.d,V.de),fxEn:'',q:RARITY[2],cat:SKILL_CAT[s.id],kind:'variant',a(){setVariant(s,k);trauma(.4);G.flash=.4;showBanner(`${m.zh} · ${V.zh}`,`${m.en}: ${V.en}`,1.6);if(typeof SFX!=='undefined')SFX.chest();if(typeof drawSeals==='function')drawSeals()}}})}
 Object.assign(KINDS,{variant:['变式','Variant','#ff8ad8','变'],bond:['羁绊','Bond','#ffb0e0','缘']});
 Object.assign(KIND_HINT,{variant:['改变这门武学的打法,一局一次','Changes how this skill plays, once per run'],bond:['两门武学结成羁绊','Two skills bound together']});
 const KIND_TITLE={variant:q=>[L('武学变式','Skill variant'),LL(SPELLS[q.s.id])],bond:q=>[L('武学羁绊','A bond is offered'),`${LL(SPELLS[q.a.id])} · ${LL(SPELLS[q.b.id])}`]};
@@ -95,14 +95,7 @@ xCss(`
 const xFirstCard=new Set();
 xOn('card',(b,cd,i,q)=>{if(!G||G.auto)return;
   // first time this kind of card is ever shown: a ribbon, so new systems announce themselves
-  SAVE.seenK=SAVE.seenK||{};if(cd.kind&&KIND_NAME[cd.kind]&&!SAVE.seenK[cd.kind]){const lv=typeof accountLv==='function'?accountLv().lv:99;if(soloRun()&&lv<=(KIND_GATE[cd.kind]||1)+2){const r=document.createElement('span');r.className='xnew';r.textContent=L('新系统','New');b.appendChild(r)}if(!xFirstCard.has(cd.kind)){xFirstCard.add(cd.kind);setTimeout(()=>{SAVE.seenK[cd.kind]=1;persist(true)},300)}}
-  // fit tags
-  const tags=[];const top=G.spells.slice().sort((x,y)=>y.dmg-x.dmg)[0];
-  if(cd.skill&&top&&top.id===cd.skill&&top.dmg>0&&['level','tree','augment','element','path'].includes(cd.kind))tags.push(L('主力武学','Your top damage'));
-  if(cd.kind==='element'){const s=G.spells.find(x=>x.id===cd.skill);if(s&&s.els.length===0)tags.push(L('Lv 14 可再融合','Fuses at Lv 14'))}
-  if(cd.kind==='new'&&kindOpen('bond'))tags.push(L('可与现有武学结羁绊','Can bond with your skills'));
-  if(cd.kind==='level'&&cd.skill){const s=G.spells.find(x=>x.id===cd.skill);if(s&&!s.vari&&s.lv<6&&s.lv+(cd.q&&cd.q.k!=='common'?3:1)>=6&&kindOpen('variant'))tags.push(L('将解锁变式','Unlocks a variant'))}
-  if(tags.length){const t=document.createElement('div');t.className='xtag';t.textContent=tags[0];b.appendChild(t)}
+  SAVE.seenK=SAVE.seenK||{};if(cd.kind&&KIND_NAME[cd.kind]&&!SAVE.seenK[cd.kind]){const lv=typeof accountLv==='function'?accountLv().lv:99;if(soloRun()&&lv<=(KIND_GATE[cd.kind]||1)+2){const r=document.createElement('span');r.className='xnew';r.textContent=L('新','New');b.appendChild(r)}if(!xFirstCard.has(cd.kind)){xFirstCard.add(cd.kind);setTimeout(()=>{SAVE.seenK[cd.kind]=1;persist(true)},300)}}
   // banish
   if(q&&q.kind==='level'&&!q.jackpot&&(G.banish||0)>0&&cd.kind!=='path'&&kindOpen('augment')){const x=document.createElement('button');x.type='button';x.className='xban';x.textContent=L(`封禁 (${G.banish})`,`Banish (${G.banish})`);x.title=L('本局不再出现这张卡,并重抽这一手','Remove this option for the run and redraw the hand');
     x.onclick=ev=>{ev.stopPropagation();if(!G.pick||(G.banish||0)<=0)return;G.banish--;G.banned.add(cardSig(cd));const prev=G.pick.map(c=>c.n);G.pick=null;G.picks.unshift({...q,exclude:prev});if(typeof SFX!=='undefined')SFX.throw();openPick();showBanner(L('已封禁','Banished'),'',.7)};b.appendChild(x)}});

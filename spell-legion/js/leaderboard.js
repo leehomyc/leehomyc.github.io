@@ -50,7 +50,7 @@ async function openLeaderboard(board){
     const prof=await LB.profiles(myI>=50?[...top,d.rows[myI]]:top);if(seq!==lbSeq)return;
     const rows=lbDecorate(top,prof);
     body.innerHTML=lbPodium(rows.slice(0,3))+(rows.length>3?`<ol class="lbl">${rows.slice(3).map((r,i)=>lbRow(r,i+3)).join('')}</ol>`:'')+(rows.length?'':`<p class="lbnote big">${L('还没人上榜','No one yet')}</p>`);
-    mine.innerHTML=myI>=0?`<ol class="lbl">${lbRow(lbDecorate([d.rows[myI]],prof)[0],myI)}</ol>`:`<p class="lbnote cta">${L('刷新个人最佳会自动上榜','Beat your best to get on the board')}</p>`;
+    mine.innerHTML=myI>=0?`<ol class="lbl">${lbRow(lbDecorate([d.rows[myI]],prof)[0],myI)}</ol>`:`<p class="lbnote cta">${L('未上榜','Unranked')}</p>`;
   }catch(e){console.warn(e);if(seq===lbSeq)body.innerHTML=`<p class="lbnote">${L('暂时无法加载','Unavailable right now')}</p>`}
 }
 function closeLeaderboard(){$('#lb').hidden=true;lbSeq++;lbMenuRank()}
@@ -79,15 +79,14 @@ async function submitRun(container){
   let posted=false;
   if(allPB||dayPB){try{const r=await LB.submit({name:LB.name()||L('无名侠客','Nameless'),av:SAVE.avatar,cls:G.cls,map:MAPID,diff:DIFFID,mode:SAVE.mode||'solo',score:G.score||0,day:dk,tier:ASURA_T||0,time:t,kills:G.kills,bosses:G.bossSlain,level:G.lv,combo:G.comboMax,relics:G.relics.length,allTime:allPB});posted=!!(r&&r.ok)}catch(_){}
     if(posted){if(allPB)S.best=t;S.dayBest=Math.max(S.dayBest||0,t);persist();lbMenuRank()}}
-  if((allPB||dayPB)&&!posted){line.innerHTML=`<span class="rk">!</span><span class="tx">${L('成绩没传上去,点击重试','Run not posted. Tap to retry')}</span><span class="arr">↻</span>`;line.onclick=()=>{SFX.pick(1);line.remove();submitRun(container)};return}
+  if((allPB||dayPB)&&!posted){line.innerHTML=`<span class="rk">!</span><span class="tx">${L('上传失败','Upload failed')}</span><span class="arr">↻</span>`;line.onclick=()=>{SFX.pick(1);line.remove();submitRun(container)};return}
   if(!all||!all.ok){line.remove();return}
   /* rank with this run counted (only if it was posted) */
   const others=all.rows.filter(r=>!LB.isMe(r)),old=all.rows.find(r=>LB.isMe(r)),oldI=all.rows.indexOf(old);
   const best=posted&&allPB?{time:t,bosses:G.bossSlain,kills:G.kills}:old;
-  if(!best){line.innerHTML=`<span class="rk">—</span><span class="tx">${posted?L('已上今日榜','On today’s board'):L('刷新个人最佳即可上榜','Beat your best to rank')}</span><span class="arr">›</span>`;return}
+  if(!best){line.innerHTML=`<span class="rk">—</span><span class="tx">${posted?L('已上今日榜','On today’s board'):L('未上榜','Unranked')}</span><span class="arr">›</span>`;return}
   const list=[...others,best].sort((a,b)=>b.time-a.time||(b.bosses||0)-(a.bosses||0)),i=list.indexOf(best),above=list[i-1];
-  let aboveName='';if(above){const p=await LB.profiles([above]);aboveName=lbDecorate([above],p)[0].name}
   const up=posted&&allPB?(oldI<0?'NEW':oldI-i>0?'▲'+(oldI-i):''):'';
-  line.innerHTML=`<span class="rk${i<3?' gold':''}">#${i+1}</span>${up?`<span class="up">${up}</span>`:''}<span class="tx">${above?L(`再撑 ${fmt(Math.max(1,above.time-best.time+1))} 超过 ${esc(aboveName)}`,`${fmt(Math.max(1,above.time-best.time+1))} more to pass ${esc(aboveName)}`):L('全服第一','Top of the board')}</span><span class="arr">›</span>`;
+  line.innerHTML=`<span class="rk${i<3?' gold':''}">#${i+1}</span>${up?`<span class="up">${up}</span>`:''}<span class="tx">${L('总榜','All time')}</span><span class="arr">›</span>`;
   if(up){line.classList.add('pop')}
 }

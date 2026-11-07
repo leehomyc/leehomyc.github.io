@@ -42,8 +42,7 @@ function weaponDetail(w){
 }
 function skillDetail(id,start){
   const m=SPELLS[id];if(!m)return '';const cat=CATS[SKILL_CAT[id]]||CATS.passive;
-  const how=start?L('开局自带 · 键 1','Yours from the start · key 1'):L('升级时可选','Offered on level-up');
-  return `<div class="sdh">${ICON.spell(id)}<div><b>${LL(m)} <span class="catd" style="--cc:${cat[2]}">${L(cat[0],cat[1])}</span></b><small>${how} · ${L(`${m.cost} 内力 · 冷却 ${m.cd}s`,`${m.cost} qi · ${m.cd}s cooldown`)}</small></div></div><p>${L(m.d,m.de)}</p>`;
+  return `<div class="sdh">${ICON.spell(id)}<div><b>${LL(m)} <span class="catd" style="--cc:${cat[2]}">${L(cat[0],cat[1])}</span></b><small>${L(`${m.cost} 内力 · 冷却 ${m.cd}s`,`${m.cost} qi · ${m.cd}s cooldown`)}</small></div></div><p>${L(m.d,m.de)}</p>`;
 }
 function renderHero(){
   const C=CLASSES[SAVE.cls]||CLASSES.swordsman,cls=SAVE.cls;
@@ -51,7 +50,7 @@ function renderHero(){
   const w=weaponOf(cls);if(HSKILL&&!C.skills.includes(HSKILL))HSKILL=null;
   const wd=$('#wdetail');if(wd){wd.innerHTML=weaponDetail(w);const aw=(WEAPON_INFO[w]||{}).awake;wd.title=aw?L(`Lv ${AWAKE_LV} 觉醒:${aw[0]}`,`Lv ${AWAKE_LV} awakening: ${aw[1]}`):'';wd.style.setProperty('--c',SPELLS[w].col)}
   const sk=$('#hskills');sk.textContent='';C.skills.forEach((id,i)=>{const m=SPELLS[id],b=document.createElement('button');b.type='button';b.className='ks'+(i===0?' start':'')+(id===HSKILL?' on':'');b.style.setProperty('--c',m.col);
-    b.innerHTML=`<span class="ring">${ICON.spell(id)}${i===0?`<em>${L('开局','Start')}</em>`:'<em class="up">↑</em>'}</span><b>${LL(m)}</b>`;b.title=LL(m)+' · '+(i===0?L('开局自带','yours from the start'):L('升级时可选','offered on level-up'));
+    b.innerHTML=`<span class="ring">${ICON.spell(id)}${i===0?`<em>${L('开局','Start')}</em>`:'<em class="up">↑</em>'}</span><b>${LL(m)}</b>`;b.title=LL(m);
     b.onclick=()=>{HSKILL=HSKILL===id?null:id;renderHero();SFX.pick(1)};sk.appendChild(b)});
   const sd=$('#skilldetail');sd.hidden=!HSKILL;sd.innerHTML=HSKILL?skillDetail(HSKILL,HSKILL===C.skills[0]):'';if(HSKILL)sd.style.setProperty('--c',SPELLS[HSKILL].col);
   $('#hstats').innerHTML=statBars(C);

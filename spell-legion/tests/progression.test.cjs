@@ -85,3 +85,10 @@ test('cloud merges keep all four codex sections initialized for fresh and partia
   const partial=c.mergeSave({codex:{weapon:{sword:1}}},{codex:{en:{firewisp:1}}});
   assert.equal(partial.codex.weapon.sword,1);assert.equal(partial.codex.en.firewisp,1);assert.deepEqual(plain(partial.codex.boss),{});
 });
+test('settings shows only controls after visiting adventure, achievements and codex',()=>{
+  const panels=['road','tasks','ach','codex','settings'].map(p=>({dataset:{p},hidden:false,classList:{toggle(k,on){this[k]=on}}}));
+  const title={};const c=context({lobbyTab:'',L:zh=>zh,$:()=>title,renderRoad:()=>{},document:{querySelector:()=>({classList:{toggle(){}},scrollTop:0}),querySelectorAll:s=>s==='.lobby .panel'?panels:[]}});
+  vm.runInContext(source('ui').split('\n').find(l=>l.startsWith('function showTab(')),c);
+  for(const prev of ['road','ach','codex','']){c.showTab(prev);c.showTab('settings');assert.deepEqual(panels.filter(p=>!p.hidden).map(p=>p.dataset.p),['settings']);assert.equal(title.textContent,'设置')}
+  c.showTab('road');assert.deepEqual(panels.filter(p=>!p.hidden).map(p=>p.dataset.p),['road','tasks','ach','codex']);
+});

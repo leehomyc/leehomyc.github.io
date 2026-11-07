@@ -197,7 +197,7 @@ html[lang=ko] .gcell.eq::after{content:'착'}
 `);
 let gearSel=null,gearFilt='all';
 function gearIcon(it){return it?(it.leg?GEAR_LEG[it.leg].zh[0]:GEAR_SLOTS[it.slot].g):'·'}
-function gearDetail(it){if(!it)return `<div class="gdet"><span class="meta">${L('点一件装备查看','Tap an item to see it')}</span></div>`;const R=GEAR_RAR[it.r],g=gearSave(),cur=g.eq[it.slot]&&gearById(g.eq[it.slot]),isEq=cur&&cur.id===it.id;
+function gearDetail(it){if(!it)return '';const R=GEAR_RAR[it.r],g=gearSave(),cur=g.eq[it.slot]&&gearById(g.eq[it.slot]),isEq=cur&&cur.id===it.id;
   const diff=cur&&!isEq?gearScore(it)-gearScore(cur):0;
   return `<div class="gdet" style="--rc:${R.col}"><h3>${xEsc(L(it.zh,it.en))}</h3><div class="meta">${L(R.zh,R.en)} · ${LL(GEAR_SLOTS[it.slot])} · ${L('品阶','Tier')} ${it.t}${isEq?L(' · 已装备',' · equipped'):''}</div>
   <ul>${it.a.map(a=>`<li>${afxText(a)}</li>`).join('')}</ul>${it.leg?`<div class="leg">✦ ${L(GEAR_LEG[it.leg].d,GEAR_LEG[it.leg].de)}</div>`:''}
@@ -211,7 +211,7 @@ function renderGear(){const box=$('#gearbody');if(!box)return;const g=gearSave()
 
   const sel=gearSel&&gearById(gearSel);
   box.innerHTML=`<div class="gwrap"><div><div class="gsec"><span>${L('已装备','Equipped')}</span></div><div class="geq">${slots}</div>${gearDetail(sel)}</div>
-    <div><div class="gsec"><span>${L('行囊','Bag')} ${g.inv.length}/${GEAR_INV_MAX}</span><span>${L('仅出山生效 · 对决与每日不计','Solo only · not used in duels or the daily')}</span></div><div class="gfilt">${filt}</div><div class="ginv">${cells||`<span class="meta" style="grid-column:1/-1;color:#a99f8d;font-size:13px">${L('还没有装备。斩杀首领、统领、悬赏和打开金宝箱会掉落装备,存活越久、击败首领越多,掉落品质越高。','No gear yet. Bosses, the Warlord, bounties and golden chests drop it; survive longer and slay more bosses for better gear.')}</span>`}</div>
+    <div><div class="gsec"><span>${L('行囊','Bag')} ${g.inv.length}/${GEAR_INV_MAX}</span></div><div class="gfilt">${filt}</div><div class="ginv">${cells||`<span class="meta" style="grid-column:1/-1;color:#a99f8d;font-size:13px">${L('暂无装备','No equipment')}</span>`}</div>
     </div></div>`;
   box.querySelectorAll('[data-sl]').forEach(b=>b.onclick=()=>{const id=eq[b.dataset.sl];if(id){gearSel=id;renderGear()}else{gearFilt=b.dataset.sl;renderGear()}});
   box.querySelectorAll('[data-id]').forEach(b=>b.onclick=()=>{gearSel=b.dataset.id;const it=gearById(gearSel);if(it&&it.new){it.new=0;gearChanged(it)}renderGear();if(typeof SFX!=='undefined')SFX.pick(1)});
@@ -220,7 +220,7 @@ function renderGear(){const box=$('#gearbody');if(!box)return;const g=gearSave()
     if(a==='eq'){eq[it.slot]=it.id;it.new=0;const lg=GEAR_LEG[it.leg];if(lg?.weapon){SAVE.weapon=SAVE.weapon||{};SAVE.weapon[lg.cls]=lg.weapon}if(typeof SFX!=='undefined')SFX.chest()}else if(a==='off'){delete eq[it.slot]}else if(a==='lock'){it.lock=!it.lock}else if(a==='sal'){SAVE.gold+=gearSalvage(it);gearRemove(it);gearSel=null;if(typeof SFX!=='undefined')SFX.pick(1)}
     gearChanged(it);renderGear();if(typeof renderProg==='function')renderProg()});
 }
-function openGear(){let ov=$('#gearov');if(!ov){ov=document.createElement('div');ov.id='gearov';ov.className='overlay';ov.hidden=true;ov.innerHTML=`<div class="cbox"><div class="ch"><h2><span data-l10n="行囊|Gear">${L('行囊','Gear')}</span> <small data-l10n="仅在冒险中生效|Adventure only">${L('仅在冒险中生效','Adventure only')}</small></h2><button type="button" class="go alt sm" id="gearclose" data-l10n="关闭|Close">${L('关闭','Close')}</button></div><div id="gearbody"></div></div>`;document.body.appendChild(ov);$('#gearclose').onclick=()=>{ov.hidden=true;if(typeof renderProg==='function')renderProg()};ov.addEventListener('click',e=>{if(e.target===ov)$('#gearclose').click()})}
+function openGear(){let ov=$('#gearov');if(!ov){ov=document.createElement('div');ov.id='gearov';ov.className='overlay';ov.hidden=true;ov.innerHTML=`<div class="cbox"><div class="ch"><h2><span data-l10n="行囊|Gear">${L('行囊','Gear')}</span></h2><button type="button" class="go alt sm" id="gearclose" data-l10n="关闭|Close">${L('关闭','Close')}</button></div><div id="gearbody"></div></div>`;document.body.appendChild(ov);$('#gearclose').onclick=()=>{ov.hidden=true;if(typeof renderProg==='function')renderProg()};ov.addEventListener('click',e=>{if(e.target===ov)$('#gearclose').click()})}
   if(!gearSel){const eq=gearSave().eq;gearSel=eq.weapon||null}renderGear();ov.hidden=false}
 function gearNewCount(){return gearSave().inv.filter(x=>x.new).length}
 /* a 行囊 chip on the menu strip */
