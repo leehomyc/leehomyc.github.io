@@ -120,6 +120,7 @@ const L=(zh,en)=>tr(LANG==='zh'?zh:(en!==undefined?en:zh));
 const LL=o=>o?tr(LANG==='zh'?(o.zh!==undefined?o.zh:o.d):(o.en!==undefined?o.en:o.de)):'';
 /* static page text: <span class="zh">…</span><span class="en">…</span> pairs and a few attributes */
 function i18nStatic(){
+  document.title=L('魔咒军团','Spell Legion');
   document.querySelectorAll('.zh,.en').forEach(el=>{
     if(el.dataset.src===undefined)el.dataset.src=el.innerHTML;
     const src=el.dataset.src,isZh=el.classList.contains('zh');

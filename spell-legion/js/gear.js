@@ -171,6 +171,7 @@ xCss(`
 .gslot b{display:block;color:var(--rc,#efe4cd);font-size:14px}.gslot small{display:block;color:#a99f8d;font-size:12px}
 .ginv{display:grid;grid-template-columns:repeat(auto-fill,minmax(52px,1fr));gap:6px;align-content:start}
 .gcell{position:relative;aspect-ratio:1;border-radius:8px;border:1px solid var(--rc);background:#0c070bcc;color:var(--rc);font-family:var(--brush);font-size:24px;display:grid;place-items:center;cursor:pointer;padding:0;text-shadow:0 0 10px var(--rc)}
+.gico .ic,.gcell .ic{width:28px;height:28px}
 .gcell.sel{outline:2px solid #fff}.gcell.eq::after{content:'装';position:absolute;right:2px;top:1px;font:700 10px var(--ui);color:#7dffb0}
 html[lang=en] .gcell.eq::after{content:'E'}
 html[lang=zh-Hant] .gcell.eq::after{content:'裝'}
@@ -196,7 +197,7 @@ html[lang=ko] .gcell.eq::after{content:'착'}
 .endgear{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:6px 0}.endgear span{padding:3px 9px;border-radius:999px;border:1px solid var(--rc);color:var(--rc);font-size:13px;background:#0c070bcc}
 `);
 let gearSel=null,gearFilt='all';
-function gearIcon(it){return it?(it.leg?GEAR_LEG[it.leg].zh[0]:GEAR_SLOTS[it.slot].g):'·'}
+function gearIcon(it){if(!it)return '·';const key={weapon:'sword',armor:'ward',trinket:'relic',manual:'book'}[it.slot]||'relic';return typeof ICON!=='undefined'?ICON.misc(key,GEAR_RAR[it.r]?.col||'#cfc6b2'):'◆'}
 function gearDetail(it){if(!it)return '';const R=GEAR_RAR[it.r],g=gearSave(),cur=g.eq[it.slot]&&gearById(g.eq[it.slot]),isEq=cur&&cur.id===it.id;
   const diff=cur&&!isEq?gearScore(it)-gearScore(cur):0;
   return `<div class="gdet" style="--rc:${R.col}"><h3>${xEsc(L(it.zh,it.en))}</h3><div class="meta">${L(R.zh,R.en)} · ${LL(GEAR_SLOTS[it.slot])} · ${L('品阶','Tier')} ${it.t}${isEq?L(' · 已装备',' · equipped'):''}</div>
@@ -204,7 +205,7 @@ function gearDetail(it){if(!it)return '';const R=GEAR_RAR[it.r],g=gearSave(),cur
   ${cur&&!isEq?`<div class="cmp">${L('对比当前','vs equipped')} ${xEsc(L(cur.zh,cur.en))}: <b class="${diff>=0?'up':'dn'}">${diff>=0?'▲':'▼'} ${Math.abs(diff).toFixed(1)}</b></div>`:''}
   <div class="gbtns">${isEq?`<button type="button" class="go alt sm" data-ga="off">${L('卸下','Unequip')}</button>`:`<button type="button" class="go sm" data-ga="eq">${L('装备','Equip')}</button>`}<button type="button" class="go alt sm" data-ga="lock">${it.lock?L('解锁','Unlock'):L('锁定','Lock')}</button>${isEq||it.lock?'':`<button type="button" class="go alt sm" data-ga="sal">${L('分解','Salvage')} +${gearSalvage(it)} ${L('金','gold')}</button>`}</div></div>`}
 function renderGear(){const box=$('#gearbody');if(!box)return;const g=gearSave(),eq=g.eq;
-  const slots=Object.keys(GEAR_SLOTS).map(k=>{const it=eq[k]&&gearById(eq[k]),R=it?GEAR_RAR[it.r]:null;return `<button type="button" class="gslot${gearSel&&it&&gearSel===it.id?' on':''}" data-sl="${k}" style="--rc:${R?R.col:'#6a6256'}"><span class="gico">${it?gearIcon(it):GEAR_SLOTS[k].g}</span><span><b>${it?xEsc(L(it.zh,it.en)):LL(GEAR_SLOTS[k])}</b><small>${it?it.a.slice(0,2).map(afxText).join(' · ')+(it.leg?' · ✦':''):L('空','empty')}</small></span></button>`}).join('');
+  const slots=Object.keys(GEAR_SLOTS).map(k=>{const it=eq[k]&&gearById(eq[k]),R=it?GEAR_RAR[it.r]:null;return `<button type="button" class="gslot${gearSel&&it&&gearSel===it.id?' on':''}" data-sl="${k}" style="--rc:${R?R.col:'#6a6256'}"><span class="gico">${gearIcon(it||{slot:k})}</span><span><b>${it?xEsc(L(it.zh,it.en)):LL(GEAR_SLOTS[k])}</b><small>${it?it.a.slice(0,2).map(afxText).join(' · ')+(it.leg?' · ✦':''):L('空','empty')}</small></span></button>`}).join('');
   const list=g.inv.filter(it=>gearFilt==='all'||it.slot===gearFilt).sort((a,b)=>(b.r-a.r)||(b.t-a.t)||(gearScore(b)-gearScore(a)));
   const cells=list.map(it=>{const R=GEAR_RAR[it.r],isEq=Object.values(eq).includes(it.id),cur=eq[it.slot]&&gearById(eq[it.slot]),up=!isEq&&gearScore(it)>gearScore(cur);return `<button type="button" class="gcell${gearSel===it.id?' sel':''}${isEq?' eq':''}${up?' up':''}${it.new?' nw':''}" data-id="${it.id}" style="--rc:${R.col}" title="${xEsc(L(it.zh,it.en))}">${gearIcon(it)}${it.lock?'<span class="lk">🔒</span>':''}</button>`}).join('');
   const filt=['all',...Object.keys(GEAR_SLOTS)].map(k=>`<button type="button" data-f="${k}" class="${gearFilt===k?'on':''}">${k==='all'?L('全部','All'):LL(GEAR_SLOTS[k])}</button>`).join('');

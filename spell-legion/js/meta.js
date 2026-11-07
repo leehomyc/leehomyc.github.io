@@ -89,11 +89,11 @@ function migrateProgression(s=SAVE){
 function codexSee(kind,id){SAVE.codex=SAVE.codex||{en:{},boss:{},relic:{},weapon:{}};const k=SAVE.codex[kind]=SAVE.codex[kind]||{};if(!k[id]){k[id]=1;persist()}}
 function renderCodex(){
   const el=$('#codex');if(!el)return;const cx=SAVE.codex||{en:{},boss:{},relic:{},weapon:{}};
-  const sec=(title,items)=>{const seen=items.filter(i=>i.seen).length;return `<h2><span>${title}</span><b>${seen}/${items.length}</b></h2><div class="cdx">${items.map(i=>`<div class="ce${i.seen?'':' un'}" style="--c:${i.col||'#efe4cd'}"><span class="g">${i.seen?i.g:'?'}</span><div><b>${i.seen?L(i.zh,i.en):L('未遇见','Not yet met')}</b><small>${i.seen?L(i.d,i.de):(i.hint?L(i.hint[0],i.hint[1]):'')}</small></div></div>`).join('')}</div>`};
+  const sec=(title,items)=>{const seen=items.filter(i=>i.seen).length;return `<h2><span>${title}</span><b>${seen}/${items.length}</b></h2><div class="cdx">${items.map(i=>`<div class="ce${i.seen?'':' un'}" style="--c:${i.col||'#efe4cd'}"><span class="g">${i.seen?i.g:'?'}</span><div><b>${i.seen?L(i.zh,i.en):L('未发现','Undiscovered')}</b><small>${i.seen?L(i.d,i.de):(i.hint?L(i.hint[0],i.hint[1]):'')}</small></div></div>`).join('')}</div>`};
   const en=CODEX_ENEMIES.map(e=>{const A=AFFINITY[e.id];return {...e,d:e.d+(A?' 克制:'+A.tip[0]:''),de:e.de+(A?' Counter: '+A.tip[1]:''),seen:!!cx.en[e.id],col:'#ff8e5a'}});
   const bosses=BOSSES.map((b,i)=>({g:'首',zh:b[0],en:b[1],d:BOSS_HINT[i]?BOSS_HINT[i][0]:'',de:BOSS_HINT[i]?BOSS_HINT[i][1]:'',seen:!!cx.boss[i],col:b[2]||'#ff5a5a',hint:[`第 ${i+1} 位首领 · ${(i+1)*4}:00 现身`,`Boss ${i+1} · arrives at ${(i+1)*4}:00`]}));
   const relics=Object.keys(RELICS).map(k=>{const r=RELICS[k];return {g:r.g,zh:r.zh,en:r.en,d:r.d,de:r.de,seen:!!cx.relic[k],col:r.cursed?'#ff3a3a':r.col,hint:r.cursed?['诅咒法宝','Cursed relic']:['精英、统领、宝箱掉落','Drops from elites, the Warlord and chests']}});
   const weapons=[];for(const cls in WEAPONS)for(const w of WEAPONS[cls]){const m=SPELLS[w];weapons.push({g:m.g,zh:m.zh,en:m.en,d:m.d,de:m.de,seen:!!cx.weapon[w],col:m.col,hint:[CLASSES[cls].zh+' 的武器',CLASSES[cls].en+' weapon']})}
   el.innerHTML=sec(L('敌人','Enemies'),en)+sec(L('首领','Bosses'),bosses)+sec(L('法宝','Relics'),relics)+sec(L('武器','Weapons'),weapons);
-  const tot=en.length+bosses.length+relics.length+weapons.length,seen=[...en,...bosses,...relics,...weapons].filter(i=>i.seen).length;const cb=$('#codexcount');if(cb)cb.textContent=`${seen}/${tot}`;
+  const tot=en.length+bosses.length+relics.length+weapons.length,seen=[...en,...bosses,...relics,...weapons].filter(i=>i.seen).length;for(const id of ['#codexcount','#codexcount2']){const cb=$(id);if(cb)cb.textContent=`${seen}/${tot}`}
 }
