@@ -1,0 +1,15 @@
+[
+["CRIT","会心","치명타"],
+["OVERDRIVE","暴走","폭주"],
+["(down)","(ダウン)","(쓰러짐)"],
+[" · Transcend {0}"," · 超越 {0}"," · 초월 {0}"],
+["Character","キャラクター","캐릭터"],
+["Pause","一時停止","일시 정지"],
+["; press the key to cast any time","。キーを押せばいつでも使える",". 키를 누르면 언제든 사용 가능"],
+["0 casts: auto-cast fires only when {0}; press the key to cast any time","使用0回：オートは「{0}」の時だけ発動。キーを押せばいつでも使える","사용 0회: 자동 시전은 '{0}'일 때만 발동. 키를 누르면 언제든 사용 가능"],
+["0 casts (fires when {0})","使用0回（発動条件：{0}）","사용 0회 (발동 조건: {0})"],
+["Killed by {0}","{0}に倒された","{0}에게 쓰러짐"],
+[" · unlocks fusion"," · 合成を解放"," · 융합 해금"],
+[" · unlocks an element"," · 属性を解放"," · 속성 해금"],
+[" · reward: an augment card"," · 報酬：強化カード"," · 보상: 강화 카드"]
+]

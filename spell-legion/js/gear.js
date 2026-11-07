@@ -173,6 +173,9 @@ xCss(`
 .gcell{position:relative;aspect-ratio:1;border-radius:8px;border:1px solid var(--rc);background:#0c070bcc;color:var(--rc);font-family:var(--brush);font-size:24px;display:grid;place-items:center;cursor:pointer;padding:0;text-shadow:0 0 10px var(--rc)}
 .gcell.sel{outline:2px solid #fff}.gcell.eq::after{content:'装';position:absolute;right:2px;top:1px;font:700 10px var(--ui);color:#7dffb0}
 html[lang=en] .gcell.eq::after{content:'E'}
+html[lang=zh-Hant] .gcell.eq::after{content:'裝'}
+html[lang=ja] .gcell.eq::after{content:'装'}
+html[lang=ko] .gcell.eq::after{content:'착'}
 .gcell.up::before{content:'▲';position:absolute;left:3px;top:1px;font:700 10px var(--ui);color:#7dffb0;text-shadow:none}
 .gcell.nw{box-shadow:0 0 0 1px var(--rc),0 0 12px var(--rc)}
 .gcell .lk{position:absolute;right:2px;bottom:0;font-size:10px}
@@ -217,7 +220,7 @@ function renderGear(){const box=$('#gearbody');if(!box)return;const g=gearSave()
     if(a==='eq'){eq[it.slot]=it.id;it.new=0;const lg=GEAR_LEG[it.leg];if(lg?.weapon){SAVE.weapon=SAVE.weapon||{};SAVE.weapon[lg.cls]=lg.weapon}if(typeof SFX!=='undefined')SFX.chest()}else if(a==='off'){delete eq[it.slot]}else if(a==='lock'){it.lock=!it.lock}else if(a==='sal'){SAVE.gold+=gearSalvage(it);gearRemove(it);gearSel=null;if(typeof SFX!=='undefined')SFX.pick(1)}
     gearChanged(it);renderGear();if(typeof renderProg==='function')renderProg()});
 }
-function openGear(){let ov=$('#gearov');if(!ov){ov=document.createElement('div');ov.id='gearov';ov.className='overlay';ov.hidden=true;ov.innerHTML=`<div class="cbox"><div class="ch"><h2><span>${L('行囊','Gear')}</span> <small>${L('仅在冒险中生效','Adventure only')}</small></h2><button type="button" class="go alt sm" id="gearclose">${L('关闭','Close')}</button></div><div id="gearbody"></div></div>`;document.body.appendChild(ov);$('#gearclose').onclick=()=>{ov.hidden=true;if(typeof renderProg==='function')renderProg()};ov.addEventListener('click',e=>{if(e.target===ov)$('#gearclose').click()})}
+function openGear(){let ov=$('#gearov');if(!ov){ov=document.createElement('div');ov.id='gearov';ov.className='overlay';ov.hidden=true;ov.innerHTML=`<div class="cbox"><div class="ch"><h2><span data-l10n="行囊|Gear">${L('行囊','Gear')}</span> <small data-l10n="仅在冒险中生效|Adventure only">${L('仅在冒险中生效','Adventure only')}</small></h2><button type="button" class="go alt sm" id="gearclose" data-l10n="关闭|Close">${L('关闭','Close')}</button></div><div id="gearbody"></div></div>`;document.body.appendChild(ov);$('#gearclose').onclick=()=>{ov.hidden=true;if(typeof renderProg==='function')renderProg()};ov.addEventListener('click',e=>{if(e.target===ov)$('#gearclose').click()})}
   if(!gearSel){const eq=gearSave().eq;gearSel=eq.weapon||null}renderGear();ov.hidden=false}
 function gearNewCount(){return gearSave().inv.filter(x=>x.new).length}
 /* a 行囊 chip on the menu strip */

@@ -464,14 +464,14 @@ function orbits(dt){
     if(s.active<=0)s.pos=null;
   }
 }
-let AUTOCAST=false;
 function countNear(x,y,r){let n=0;near(x,y,r,e=>{if(e.type!=='statue'&&hyp(e.x-x,e.y-y)<r)n++});return n}
 function autoSpend(){}
 const AUTO_WHEN={palm:['附近 ≥2 敌','≥2 enemies near'],array:['附近 ≥2 敌','≥2 enemies near'],bagua:['附近 ≥2 敌','≥2 enemies near'],talis:['附近 ≥4 敌','≥4 enemies near'],ward:['生命 <50% 或被围','HP <50% or surrounded'],whirl:['贴身 ≥3 敌','≥3 enemies close'],leap:['远处成群','a group at range'],roar:['被围或生命 <35%','surrounded or HP <35%'],sunder:['≥5 敌或首领战','≥5 enemies or a boss'],exorcise:['附近 ≥3 敌','≥3 enemies near'],frenzy:['附近 ≥5 敌','≥5 enemies near'],flow:['附近 ≥4 敌','≥4 enemies near'],ambush:['附近 ≥4 敌','≥4 enemies near'],guangling:['≥5 敌或生命 <40%','≥5 enemies or HP <40%'],tiger:['附近 ≥4 敌','≥4 enemies near'],vajra:['被围或生命 <45%','surrounded or HP <45%'],zen:['生命 <45% 或内力见底','HP <45% or qi empty'],sarira:['≥6 敌或首领战','≥6 enemies or a boss'],gu:['附近 ≥3 敌','≥3 enemies near'],plague:['附近 ≥6 敌','≥6 enemies near'],rejuv:['生命 <50%','HP <50%'],numb:['被围或毒已叠满','surrounded or poison stacked']};
 function autoCast(){ // casts each skill when it is worth the qi
-  const P=G.P;if(G.auto)autoSpend();
+  if(!G.auto)return; // Skill automation belongs to the title demo only.
+  const P=G.P;autoSpend();
   for(let i=1;i<G.spells.length;i++){
-    const s=G.spells[i];if(s.manual&&!G.auto)continue;if(!canCast(i))continue;const id=s.id;let go=false;
+    const s=G.spells[i];if(!canCast(i))continue;const id=s.id;let go=false;
     if(id==='palm')go=countNear(P.x,P.y,150)>=2;
     else if(id==='array'||id==='bagua')go=countNear(P.x,P.y,140)>=2;
     else if(id==='talis')go=countNear(P.x,P.y,230)>=4;
@@ -816,7 +816,7 @@ function step(dt){
     if(v.x||v.y){const l=hyp(v.x,v.y)||1,m=Math.min(1,l),s=92*P.spd*(P.buff&&P.buff.k==='spd'?1.35:1)*(G.over9?1.12:1)*(P.frenzy>0?1.25:1)*(P.dance>0?1.4:1)*(P.chillT>0?.6:1)*m;P.x+=v.x/l*s*dt;P.y+=v.y/l*s*dt;P.walk+=dt*8;P.dx=v.x/l;P.dy=v.y/l;collide(P,6)}
     const main=G.spells[0];if(main&&main.cd<=0&&!autoFire(main))main.cd=.08;
     P.shield=Math.max(0,P.shield-dt);
-    if(G.auto||AUTOCAST)autoCast();
+    if(G.auto)autoCast();
     if(G.auto&&P.dashCd<=0&&SIMR()<.015)dash();
   }
   orbits(dt);

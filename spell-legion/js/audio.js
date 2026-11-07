@@ -1,7 +1,7 @@
 'use strict';
-/* audio.js — procedural wuxia soundtrack and sound effects (Web Audio, no files) */
+/* audio.js — procedural electropop soundtrack and sound effects (Web Audio, no files) */
 const SFX=(()=>{
-  let ac=null,master,musicG,sfxG,muted=false,state='title',nextBeat=0,beat=0,bar=0,drone=null,lastHit=0,lastTick=0,started=false,musicVol=.6,sfxVol=.8;
+  let ac=null,master,musicG,sfxG,muted=false,state='title',nextBeat=0,beat=0,bar=0,lastHit=0,started=false,musicVol=.6,sfxVol=.8;
   const save=()=>{try{localStorage.setItem('sl_audio',JSON.stringify({muted,musicVol,sfxVol}))}catch(_){}};
   try{const o=JSON.parse(localStorage.getItem('sl_audio')||'null');if(o){muted=!!o.muted;if(o.musicVol!==undefined)musicVol=o.musicVol;if(o.sfxVol!==undefined)sfxVol=o.sfxVol}}catch(_){}
   function ensure(){
@@ -15,7 +15,10 @@ const SFX=(()=>{
     // reverb from a synthetic impulse
     const len=ac.sampleRate*2.2,buf=ac.createBuffer(2,len,ac.sampleRate);
     for(let c=0;c<2;c++){const d=buf.getChannelData(c);for(let i=0;i<len;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/len,2.6)*.5}
-    const rv=ac.createConvolver();rv.buffer=buf;const rg=ac.createGain();rg.gain.value=.32;rv.connect(rg);rg.connect(master);ac.rv=rv;
+    for(const [key,dest] of [['rv',sfxG],['musicRv',musicG]]){
+      const rv=ac.createConvolver();rv.buffer=buf;const rg=ac.createGain();rg.gain.value=.22;
+      rv.connect(rg);rg.connect(dest);ac[key]=rv;
+    }
     return true;
   }
   const now=()=>ac.currentTime;
@@ -25,7 +28,7 @@ const SFX=(()=>{
     e.gain.setValueAtTime(0,t0);e.gain.linearRampToValueAtTime(g,t0+(o.a||.005));e.gain.exponentialRampToValueAtTime(.0001,t0+dur);
     v.connect(e);let out=e;
     if(o.lp){const f2=ac.createBiquadFilter();f2.type='lowpass';f2.frequency.value=o.lp;f2.Q.value=o.q||.7;e.connect(f2);out=f2}
-    out.connect(dest||sfxG);if(o.rv)out.connect(ac.rv);
+    out.connect(dest||sfxG);if(o.rv)out.connect(dest===musicG?ac.musicRv:ac.rv);
     v.start(t0);v.stop(t0+dur+.05);return v;
   }
   function noise(t0,dur,g,dest,o={}){
@@ -33,64 +36,62 @@ const SFX=(()=>{
     for(let i=0;i<n;i++)d[i]=Math.random()*2-1;
     const s=ac.createBufferSource();s.buffer=b;const e=ac.createGain();e.gain.setValueAtTime(g,t0);e.gain.exponentialRampToValueAtTime(.0001,t0+dur);
     const f=ac.createBiquadFilter();f.type=o.type||'bandpass';f.frequency.setValueAtTime(o.f||1800,t0);if(o.slide)f.frequency.exponentialRampToValueAtTime(o.slide,t0+dur);f.Q.value=o.q||.8;
-    s.connect(f);f.connect(e);e.connect(dest||sfxG);if(o.rv)e.connect(ac.rv);s.start(t0);s.stop(t0+dur+.02);
+    s.connect(f);f.connect(e);e.connect(dest||sfxG);if(o.rv)e.connect(dest===musicG?ac.musicRv:ac.rv);s.start(t0);s.stop(t0+dur+.02);
   }
   /* instruments */
-  function guqin(f,t0,g=.5,dur=1.6){ // plucked silk string
-    osc('triangle',f,t0,dur,g*.7,musicG,{lp:f*3.5,q:1.2,rv:1});osc('sine',f*2.01,t0,dur*.5,g*.22,musicG,{rv:1});osc('sine',f*.5,t0,dur*.9,g*.18,musicG);
-    noise(t0,.05,g*.35,musicG,{f:f*4,q:2});
+  const hz=n=>440*Math.pow(2,(n-69)/12);
+  function pluck(n,t,g=.13,dur=.32){
+    const f=hz(n);osc('triangle',f,t,dur,g,musicG,{lp:Math.min(8000,f*5),rv:1});
+    osc('sine',f*2,t,dur*.55,g*.2,musicG);
   }
-  function dizi(f,t0,dur,g=.3){ // bamboo flute with breath
-    const v=ac.createOscillator(),e=ac.createGain(),lfo=ac.createOscillator(),lg=ac.createGain();
-    v.type='sine';v.frequency.value=f;lfo.frequency.value=5.2;lg.gain.value=f*.012;lfo.connect(lg);lg.connect(v.frequency);
-    e.gain.setValueAtTime(0,t0);e.gain.linearRampToValueAtTime(g,t0+.18);e.gain.setValueAtTime(g,t0+dur-.25);e.gain.linearRampToValueAtTime(0,t0+dur);
-    v.connect(e);e.connect(musicG);e.connect(ac.rv);v.start(t0);lfo.start(t0);v.stop(t0+dur+.05);lfo.stop(t0+dur+.05);
-    osc('sine',f*2,t0,dur,g*.12,musicG,{a:.2});noise(t0,dur,g*.08,musicG,{f:f*2,q:3});
-  }
-  function taiko(t0,g=.8,low=70){osc('sine',low*2.2,t0,.42,g,musicG,{slide:low,slideT:.3});noise(t0,.12,g*.35,musicG,{f:900,type:'lowpass'})}
-  function bell(f,t0,g=.3){osc('sine',f,t0,2.2,g,musicG,{rv:1});osc('sine',f*2.76,t0,1.1,g*.35,musicG,{rv:1});osc('sine',f*5.4,t0,.5,g*.12,musicG)}
-  function woodblock(t0,g=.25){osc('square',1700,t0,.05,g*.4,musicG,{lp:2500});noise(t0,.03,g*.5,musicG,{f:3000,q:2})}
-  /* music: 宫调 pentatonic in D */
-  const SC=[146.83,164.81,185.00,220.00,246.94,293.66,329.63,369.99,440.00,493.88,587.33];
-  const PHRASES=[[5,7,8,7,5,3,5,-1],[8,10,8,7,5,-1,3,5],[3,5,7,5,3,2,0,-1],[7,8,10,8,7,5,7,-1],[5,-1,7,-1,8,7,5,3]];
-  let phrase=0,pi=0,fluteT=0;
+  function kick(t,g=.48){osc('sine',145,t,.26,g,musicG,{slide:45,slideT:.45});noise(t,.025,g*.16,musicG,{f:3600,type:'highpass'})}
+  function clap(t,g=.16){noise(t,.12,g,musicG,{f:1700,q:.6});noise(t+.018,.075,g*.5,musicG,{f:3200,q:.5})}
+  function hat(t,open=false){noise(t,open?.12:.035,open?.055:.035,musicG,{f:7200,type:'highpass',q:.5})}
+  function taiko(t0,g=.8,low=70){osc('sine',low*2.2,t0,.42,g,sfxG,{slide:low,slideT:.3});noise(t0,.12,g*.35,sfxG,{f:900,type:'lowpass'})}
+  function bell(f,t0,g=.3,dest=sfxG){osc('sine',f,t0,2.2,g,dest,{rv:1});osc('sine',f*2.76,t0,1.1,g*.35,dest,{rv:1});osc('sine',f*5.4,t0,.5,g*.12,dest)}
+  /* Four-bar pop harmony (C–G–Am–F), with a recurring eight-bar hook.
+     Every state shares the theme; boss fights add drive rather than random notes. */
+  const SC=[146.83,164.81,185,220,246.94,293.66,329.63,369.99,440,493.88,587.33]; // effect pitches
+  const CHORDS=[[48,55,60,64],[43,55,59,62],[45,57,60,64],[41,53,57,60]];
+  const HOOK=[
+    [76,-1,79,-1,81,79,76,-1,74,-1,76,79,-1,76,72,-1],
+    [74,-1,79,-1,83,81,79,-1,74,-1,71,74,-1,79,-1,-1],
+    [76,-1,81,-1,84,83,81,-1,79,-1,76,79,-1,76,72,-1],
+    [77,-1,81,-1,79,77,76,-1,72,-1,74,76,-1,72,-1,-1],
+    [76,-1,79,81,-1,79,76,-1,74,76,79,-1,84,-1,79,-1],
+    [83,-1,81,79,-1,74,79,-1,83,-1,81,79,74,-1,-1,-1],
+    [81,-1,84,-1,83,81,79,-1,76,79,81,-1,84,-1,83,-1],
+    [81,-1,79,77,-1,76,74,-1,72,-1,76,79,77,-1,76,-1]
+  ];
   function schedule(){
-    if(!ac||state==='off')return;
+    if(!ac||ac.state!=='running'||state==='off')return;
     const t=now();
-    while(nextBeat<t+.4){
-      const bpm=state==='boss'?138:state==='battle'?104:72,bl=60/bpm;
-      const b16=beat%16,b4=beat%4;
-      if(state==='title'){
-        if(b4===0&&Math.random()<.85){const n=PHRASES[phrase][pi];pi=(pi+1)%8;if(pi===0)phrase=(phrase+1)%PHRASES.length;if(n>=0)guqin(SC[n],nextBeat,.5,2.4);if(Math.random()<.3)guqin(SC[n>=0?n:5]/2,nextBeat+bl*.5,.3,2)}
-        if(b16===0&&Math.random()<.5)bell(SC[8],nextBeat,.16);
-        if(b16===8&&Math.random()<.6)dizi(SC[vpick([5,7,8,10])],nextBeat,bl*5,.22);
-      }else if(state==='battle'){
-        if(b4===0||b4===2){const n=PHRASES[phrase][pi];pi=(pi+1)%8;if(pi===0)phrase=(phrase+1)%PHRASES.length;if(n>=0)guqin(SC[n],nextBeat,.45,1.4);}
-        if(b16===0||b16===10)taiko(nextBeat,.7);if(b16===4||b16===12)taiko(nextBeat,.45,100);
-        if(b4===1||b4===3)woodblock(nextBeat,.22);
-        if(b16===0&&bar%2===0)dizi(SC[vpick([7,8,10])],nextBeat+bl,bl*6,.2);
-        if(b16===0)guqin(SC[0],nextBeat,.5,3);
-      }else if(state==='boss'){
-        if(b4===0||b4===2||b4===3){const n=PHRASES[(phrase+2)%PHRASES.length][pi];pi=(pi+1)%8;if(n>=0)guqin(SC[n]*(b4===3?.5:1),nextBeat,.5,.9)}
-        if(b4===0)taiko(nextBeat,.9,60);if(b16%4===2)taiko(nextBeat,.5,110);if(b16===14)taiko(nextBeat+bl*.5,.6,80);
-        woodblock(nextBeat,b4===1?.3:.14);
-        if(b16===0){guqin(SC[0]/2,nextBeat,.6,3);bell(SC[3],nextBeat,.2)}
-        if(b16===8)dizi(SC[vpick([8,10])],nextBeat,bl*4,.25);
-      }else if(state==='win'){
-        if(b4===0){bell(SC[[5,7,8,10][bar%4]],nextBeat,.3);guqin(SC[[5,7,8,10][bar%4]],nextBeat,.5,2.5)}
-        if(b4===2)guqin(SC[[8,10,5,7][bar%4]]/2,nextBeat,.35,2);
+    // Resume on the next step; never replay minutes of missed beats after backgrounding.
+    if(nextBeat<t-.15)nextBeat=t+.025;
+    while(nextBeat<t+.12){
+      const bpm=state==='boss'?132:state==='battle'?124:state==='win'?124:112,step=60/bpm/4;
+      const pos=beat%16,chord=CHORDS[bar%4],busy=state==='boss',soft=state==='title';
+      if(pos===0){
+        for(const n of chord.slice(1))osc('triangle',hz(n),nextBeat,step*14,soft?.032:.024,musicG,{a:.08,lp:1800,rv:1});
       }
-      beat++;if(beat%16===0)bar++;nextBeat+=bl;
+      // A syncopated bass line under a steady dance beat.
+      if([0,3,6,8,11,14].includes(pos))osc('sine',hz(chord[0]-(pos===6||pos===14?0:12)),nextBeat,step*1.7,soft?.14:.2,musicG);
+      if(pos%4===0&&(!soft||pos%8===0))kick(nextBeat,soft?.25:.43);
+      if(pos===4||pos===12)clap(nextBeat,soft?.075:.14);
+      if(pos%2===0)hat(nextBeat,pos===14&&!soft);
+      if(busy&&pos%2===1)hat(nextBeat);
+      if(!soft&&pos%2===1)pluck(chord[1+(pos>>1)%3]+12,nextBeat,.035,step*.8);
+      const melody=HOOK[bar%HOOK.length][pos];
+      if(melody>=0){pluck(melody,nextBeat,soft?.12:.15,step*(soft?2.8:1.8));if(busy)pluck(melody-12,nextBeat,.045,step*1.2)}
+      if(state==='win'&&pos===0)bell(hz(chord[3]+12),nextBeat,.12,musicG);
+      beat++;if(beat%16===0)bar++;nextBeat+=step;
     }
   }
-  function setState(s){if(s===state)return;state=s;beat=0;if(ac)nextBeat=Math.max(nextBeat,now()+.1)}
+  function setState(s){if(s===state)return;state=s;beat=0;bar=0;if(ac)nextBeat=now()+.04}
   function start(){
-    if(started)return;if(!ensure())return;started=true;
-    if(ac.state==='suspended')ac.resume();
-    nextBeat=now()+.1;setInterval(schedule,120);
-    // ambience: wind and insects
-    const wind=ac.createGain();wind.gain.value=.05;wind.connect(master);
-    (function loopWind(){if(!ac)return;const t=now();noise(t,6,.5,wind,{type:'lowpass',f:280,q:.5,slide:vrnd(160,420)});setTimeout(loopWind,5200)})();
+    if(!ensure())return;
+    if(ac.state==='suspended')ac.resume().catch(()=>{});
+    if(started)return;started=true;nextBeat=now()+.05;setInterval(schedule,50);
   }
   const rl=(ms)=>{const t=performance.now();if(t-lastHit<ms)return false;lastHit=t;return true};
   const fx={

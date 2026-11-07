@@ -998,6 +998,8 @@ body.touchhud #roomboard{min-width:120px;max-width:150px}
 
 /* one title, in the player's language, breathing light */
 html[lang=en] #menu .vname{display:none}
+/* The hero's brush glyph is decoration; English keeps the illustrated hero and name. */
+html[lang=en] #hglyph{display:none}
 html[lang=zh] #menu .ttb h1.entitle{display:none}
 #menu .vname{animation:breathe 3.8s ease-in-out 1.4s infinite}
 @keyframes breathe{0%,100%{filter:drop-shadow(0 0 8px #6fd3e840)}50%{filter:drop-shadow(0 0 22px #6fd3e8a0) drop-shadow(0 0 40px #ffd27a33)}}
@@ -1211,3 +1213,17 @@ html[lang=ko]{--brush:"Song Myung","AppleMyungjo","Batang","Noto Serif KR",serif
 #account .unv{font-size:11px;font-weight:800;color:#ffd27a;background:#ffd27a1f;border:1px solid #ffd27a66;border-radius:999px;padding:2px 8px}
 #account .acct{display:inline-flex;gap:10px;margin-left:auto}#account .lnk.danger{color:#ff8a8a}
 #account .lnk{background:none;border:0;color:var(--dim);font:inherit;font-size:12px;cursor:pointer;text-decoration:underline;padding:4px}#account .lnk:hover{color:var(--bone)}
+
+/* Mobile hero button uses the active language too. */
+@media (max-width:640px){
+  html[lang=en] #charbtn::before{content:'C'}
+  html[lang=ja] #charbtn::before{content:'人'}
+  html[lang=ko] #charbtn::before{content:'캐'}
+}
+
+/* Pause settings keep secondary controls away from Resume and Abandon. */
+#pausesettings{border:1px solid var(--brass);border-radius:18px;background:#241723ed;text-align:left;overflow:hidden}
+#pausesettings summary{cursor:pointer;padding:16px 20px;font-family:var(--cute);font-size:20px;min-height:48px;box-sizing:border-box}
+.pauseoptions{display:grid;gap:12px;padding:0 16px 16px}
+#pause .controlnote{display:block;color:var(--bone);line-height:1.7;font-size:14px;text-align:left}
+#pause .pbox{max-height:calc(100dvh - 40px);overflow-y:auto;padding:4px}
