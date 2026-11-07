@@ -1220,3 +1220,10 @@ html[lang=ko]{--brush:"Song Myung","AppleMyungjo","Batang","Noto Serif KR",serif
   html[lang=ja] #charbtn::before{content:'人'}
   html[lang=ko] #charbtn::before{content:'캐'}
 }
+
+/* Pause settings keep secondary controls away from Resume and Abandon. */
+#pausesettings{border:1px solid var(--brass);border-radius:18px;background:#241723ed;text-align:left;overflow:hidden}
+#pausesettings summary{cursor:pointer;padding:16px 20px;font-family:var(--cute);font-size:20px;min-height:48px;box-sizing:border-box}
+.pauseoptions{display:grid;gap:12px;padding:0 16px 16px}
+#pause .controlnote{display:block;color:var(--bone);line-height:1.7;font-size:14px;text-align:left}
+#pause .pbox{max-height:calc(100dvh - 40px);overflow-y:auto;padding:4px}

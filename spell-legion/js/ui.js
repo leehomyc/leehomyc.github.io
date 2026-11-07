@@ -1,11 +1,11 @@
 'use strict';
 /* ui.js — HUD, cards, title/class select, lobby upgrades, results, input */
 const SAVE_KEY='spell-legion-save';
-let SAVE={gold:0,up:{},cls:'swordsman',best:0,wins:0,runs:0,autocast:false,rival:false,bosses:0,played:false,ach:{},diff:'normal',clsWins:{}};
+let SAVE={gold:0,up:{},cls:'swordsman',best:0,wins:0,runs:0,rival:false,bosses:0,played:false,ach:{},diff:'normal',clsWins:{}};
 try{const s=JSON.parse(localStorage.getItem(SAVE_KEY)||'null');if(s&&typeof s==='object')SAVE={...SAVE,...s}}catch(_){}
 SAVE.ach=SAVE.ach||{};SAVE.clsWins=SAVE.clsWins||{};SAVE.clsBest=SAVE.clsBest||{};if(!CLASSES[SAVE.cls])SAVE.cls='swordsman';SAVE.weapon=SAVE.weapon||{};SAVE.weaponOwned=SAVE.weaponOwned||{};SAVE.tips=SAVE.tips||{};SAVE.asura=SAVE.asura||{max:0,sel:0,best:0};window.SAVE=SAVE;
 /* a save written by an older build (or synced from another device) may name a retired mode, class or difficulty; fold it back onto what the menu offers */
-function normalizeSave(){const MODES=['solo','room','daily'];if(!MODES.includes(SAVE.mode))SAVE.mode='solo';if(typeof CLASSES!=='undefined'&&!CLASSES[SAVE.cls])SAVE.cls='swordsman';if(typeof DIFF!=='undefined'&&!DIFF[SAVE.diff])SAVE.diff='normal';if(SAVE.asura&&typeof ASURA!=='undefined'){SAVE.asura.max=Math.min(SAVE.asura.max||0,ASURA.length);SAVE.asura.sel=Math.min(SAVE.asura.sel||0,SAVE.asura.max)}}
+function normalizeSave(){delete SAVE.autocast;const MODES=['solo','room','daily'];if(!MODES.includes(SAVE.mode))SAVE.mode='solo';if(typeof CLASSES!=='undefined'&&!CLASSES[SAVE.cls])SAVE.cls='swordsman';if(typeof DIFF!=='undefined'&&!DIFF[SAVE.diff])SAVE.diff='normal';if(SAVE.asura&&typeof ASURA!=='undefined'){SAVE.asura.max=Math.min(SAVE.asura.max||0,ASURA.length);SAVE.asura.sel=Math.min(SAVE.asura.sel||0,SAVE.asura.max)}}
 normalizeSave();
 /* a random anime-style name and avatar so nobody starts as "Nameless"; tap either to change; both travel with the save (so with the account) */
 const NAME_ZA=['星','月','夜','雪','樱','风','雷','炎','霜','影','绯','苍','白','黑','紫','空','雾','焰','光','桃'],NAME_ZM=['野','宫','原','见','乃','川','森','濑','花','咲'],NAME_ZB=['凛','葵','斗','羽','音','叶','真','琉','翔','奈','空','零','七','瞳','岚','由','希','遥','千','夏'],NAME_ZS=['酱','君','丸','姬','之刃','猫','狐','兔','喵','大人'];
@@ -50,10 +50,9 @@ addEventListener('pointerdown',()=>SFX.start(),{once:false});
 cv.addEventListener('pointerdown',e=>{touch.on=true;touch.sx=touch.x=e.clientX;touch.sy=touch.y=e.clientY;try{cv.setPointerCapture(e.pointerId)}catch(_){}});
 cv.addEventListener('pointermove',e=>{if(touch.on){touch.x=e.clientX;touch.y=e.clientY}});
 ['pointerup','pointercancel'].forEach(n=>cv.addEventListener(n,()=>touch.on=false));
-function toggleAuto(){if(!G||G.auto)return;AUTOCAST=!AUTOCAST;SAVE.autocast=AUTOCAST;persist();autoLabel();drawSeals();showBanner(AUTOCAST?'武学自动施放':'武学手动施放',AUTOCAST?'Skills cast themselves':'Press 1 / 2 / 3 to cast',1.2);SFX.pick(1)}
-// right-click anywhere on the battlefield (not on menus) toggles auto-cast; the HUD switch does the same for touch
-document.addEventListener('contextmenu',e=>{if(e.target.closest&&e.target.closest('#title,#cards,#pause,#char,#end,#lb,#sndpanel,input,textarea'))return;e.preventDefault();toggleAuto()});
-cv.addEventListener('pointerdown',e=>{if(e.button===2)touch.on=false});
+// Secondary clicks never change the casting mode or start movement.
+cv.addEventListener('contextmenu',e=>e.preventDefault());
+cv.addEventListener('pointerdown',e=>{if(e.button!==0)touch.on=false});
 function input(){
   let x=0,y=0;
   if(keys.has('a')||keys.has('arrowleft'))x--;if(keys.has('d')||keys.has('arrowright'))x++;
@@ -62,7 +61,7 @@ function input(){
   const gp=padState();if(gp&&(Math.abs(gp.x)>.2||Math.abs(gp.y)>.2)){x=gp.x;y=gp.y}
   return {x,y};
 }
-/* gamepad: left stick / d-pad move, A dash, X/Y/B skills 1/2/3, Start pause, RB toggles auto-cast; menus use A/B and d-pad */
+/* gamepad: left stick / d-pad move, A dash, X/Y/B skills 1/2/3, Start pause; menus use A/B and d-pad */
 const PAD={prev:{},t:0};
 function padState(){try{const pads=navigator.getGamepads?navigator.getGamepads():[];const g=[...pads].find(p=>p&&p.connected);if(!g)return null;let x=g.axes[0]||0,y=g.axes[1]||0;const d=Math.hypot(x,y);if(d<.2){x=0;y=0}else{const k=Math.min(1,(d-.2)/.8)/d;x*=k;y*=k}if(g.buttons[14]&&g.buttons[14].pressed)x=-1;if(g.buttons[15]&&g.buttons[15].pressed)x=1;if(g.buttons[12]&&g.buttons[12].pressed)y=-1;if(g.buttons[13]&&g.buttons[13].pressed)y=1;return {x,y,g}}catch(_){return null}}
 function padTick(){
@@ -72,7 +71,7 @@ function padTick(){
   if(!$('#end').hidden){if(edge(0))startRun();if(edge(1))toLobby();return}
   if(G.pick){const n=G.pick.length;PAD.sel=PAD.sel||0;if(edge(14)||edge(4))PAD.sel=(PAD.sel+n-1)%n;if(edge(15)||edge(5))PAD.sel=(PAD.sel+1)%n;document.querySelectorAll('#cardrow .card').forEach((c,i)=>c.classList.toggle('padsel',i===PAD.sel));if(edge(0)&&performance.now()-pickOpenedAt>280)choose(PAD.sel);if(edge(3)&&G.rerolls>0)$('#reroll').click();return}
   if(edge(9)){togglePause();return}if(G.paused){if(edge(0)||edge(1))togglePause();return}
-  if(edge(0))dash();if(edge(2))castSkill(1);if(edge(3))castSkill(2);if(edge(1))castSkill(3);if(edge(5))toggleAuto();
+  if(edge(0))dash();if(edge(2))castSkill(1);if(edge(3))castSkill(2);if(edge(1))castSkill(3);
 }
 addEventListener('gamepadconnected',()=>{showBanner(L('手柄已连接','Controller connected'),'',1.2);if(!$('#loadnote'))return});
 
@@ -90,7 +89,6 @@ const TIPS={
   mission:{when:()=>!!G.mission,zh:'跟着洋红箭头做密令',en:'Follow the magenta arrow'},
   combo:{when:()=>G.combo>=10,zh:'连斩越长,经验越多',en:'Longer streak, more XP'},
   warlord:{when:()=>G.en.some(e=>e.warlord&&!e.dead),zh:'铁甲统领:必掉法宝',en:'Iron Warlord: always drops a relic'},
-  auto:{when:()=>G.t>25&&!AUTOCAST,zh:IS_TOUCH?'点「自动」自动施放':'右键战场:自动施放',en:IS_TOUCH?'Tap AUTO to auto-cast':'Right-click: auto-cast'},
 };
 let tipT=0,tipQ=null;
 function tipTick(dt){
@@ -137,10 +135,9 @@ function drawRelics(){const box=$('#relics');if(!box)return;box.textContent='';c
 let introT=null,introOn=false;
 function bossIntro(zh,en,n){const el=$('#intro');el.innerHTML=`<div class="lb"></div><div class="bn"><small>${n>=BOSSES.length?L(`第 ${Math.floor(n/BOSSES.length)+1} 轮 · ${n%BOSSES.length+1}/${BOSSES.length} `,`Cycle ${Math.floor(n/BOSSES.length)+1} · ${n%BOSSES.length+1}/${BOSSES.length}`):L(`第 ${n+1} 位首领`,`Boss ${n+1}`)}</small><b>${L(zh,en)}</b>${BOSS_HINT[n%BOSS_HINT.length]?`<em>${L(BOSS_HINT[n%BOSS_HINT.length][0],BOSS_HINT[n%BOSS_HINT.length][1])}</em>`:''}</div><div class="lb"></div>`;el.hidden=false;el.classList.remove('on');void el.offsetWidth;el.classList.add('on');introOn=true;$('#banner').classList.remove('on');clearTimeout(introT);introT=setTimeout(()=>{el.classList.remove('on');introOn=false;setTimeout(()=>el.hidden=true,500)},3400)}
 function updateCores(){const e=$('#cores');e.textContent='';for(let i=0;i<Math.max(2,G.cores);i++){const s=document.createElement('i');s.className='core'+(i<G.cores?'':' off');e.appendChild(s);e.append(' ')}}
-function toggleManual(i){const s=G.spells[i];if(!s)return;s.manual=!s.manual;drawSeals();showBanner(s.manual?`${SPELLS[s.id].zh}:改为手动,自动施放不再放它`:`${SPELLS[s.id].zh}:恢复自动施放`,s.manual?`${SPELLS[s.id].en}: manual — auto-cast leaves it to you`:`${SPELLS[s.id].en}: auto-cast again`,1.4);if(typeof SFX!=='undefined')SFX.pick(1)}
 function drawSeals(){
   if(G.auto)return;
-  const box=$('#seals');box.textContent='';box.classList.toggle('auto',AUTOCAST);
+  const box=$('#seals');box.textContent='';
   for(let i=0;i<4;i++){const s=G.spells[i],d=document.createElement('button');d.className='seal'+(s?'':' empty')+(i===0?' main':'');d.id='seal'+i;d.type='button';
     if(s){const m=SPELLS[s.id];
       const g=document.createElement('div');g.className='g';g.innerHTML=typeof ICON!=='undefined'?ICON.spell(s.id)+`<span class="gm">${m.g}</span>`:m.g;g.style.color=s.els[0]?ELS[s.els[0]].col:m.col;d.appendChild(g);
@@ -152,14 +149,11 @@ function drawSeals(){
       if(s.augs.length){const a=document.createElement('div');a.className='aug';a.textContent=s.augs.map(k=>AUGS[k].g).join('');d.appendChild(a)}
       const cdm=document.createElement('div');cdm.className='cdm';d.appendChild(cdm);
       d.title=LL(m)+(m.auto?'':L(` · ${m.cost} 内力 · ${m.cd}s`,` · ${m.cost} qi · ${m.cd}s`));
-      d.classList.toggle('manual',!!s.manual);
-      /* tap casts; right-click or a long press flips this one skill between auto and manual (dash/leap skills you want to time yourself) */
-      let lp=null;d.onpointerdown=ev=>{ev.preventDefault();if(m.auto)return;if(ev.button===2)return;lp=setTimeout(()=>{lp=null;toggleManual(i)},480);castSkill(i)};
-      d.onpointerup=d.onpointercancel=d.onpointerleave=()=>{if(lp){clearTimeout(lp);lp=null}};d.oncontextmenu=ev=>{ev.preventDefault();ev.stopPropagation();if(!m.auto)toggleManual(i)};
+      d.onpointerdown=ev=>{ev.preventDefault();if(!m.auto&&ev.button===0)castSkill(i)};
+      d.oncontextmenu=ev=>{ev.preventDefault();ev.stopPropagation()};
     }else{const key=document.createElement('div');key.className='key';key.textContent=SPELL_KEYS[i];d.appendChild(key)}
     box.appendChild(d)}
   const dd=document.createElement('button');dd.className='seal dash';dd.id='sealdash';dd.type='button';dd.innerHTML=`<div class="g">${typeof ICON!=='undefined'?ICON.misc('dash','#9fe3f0'):''}<span class="gm">轻</span></div><div class="lv">${L('轻功','dash')}</div><div class="key">${IS_TOUCH?L('点击','tap'):'Space'}</div><div class="cdm"></div>`;dd.onpointerdown=ev=>{ev.preventDefault();dash()};box.appendChild(dd);
-  const at=document.createElement('button');at.className='seal autosw'+(AUTOCAST?' on':'');at.id='autosw';at.type='button';at.innerHTML=`<div class="g">${typeof ICON!=='undefined'?ICON.misc(AUTOCAST?'auto':'manual',AUTOCAST?'#7dffb0':'#ffd27a'):''}<span class="gm">${AUTOCAST?'自':'手'}</span></div><div class="lv">${AUTOCAST?L('自动','auto'):L('手动','manual')}</div><div class="key">${IS_TOUCH?L('切换','toggle'):L('右键','R-click')}</div>`;at.title=L('切换武学自动/手动施放(右键也可)','Toggle auto-cast (right-click also works)');at.onpointerdown=ev=>{ev.preventDefault();toggleAuto()};box.appendChild(at);
 }
 let bannerT=0;
 /* side toast: pickups and other low-stakes news stack at the right edge, away from the hero and the danger zone */
@@ -197,7 +191,7 @@ $('#charclose').onclick=()=>togglePanel();
 $('#tab-attr').onclick=()=>{panelTab='attr';renderPanel()};$('#tab-tree').onclick=()=>{panelTab='tree';renderPanel()};
 /* the pause screen shows the build at a glance: every skill with its level, element and path, plus the relics */
 function renderPauseBuild(){const el=$('#pausebuild');if(!el)return;el.innerHTML=G.spells.map((s,i)=>{const m=SPELLS[s.id];const tags=[s.els.length===2?L(FUS[fusion(s)][0],FUS[fusion(s)][1]):s.els[0]?LL(ELS[s.els[0]]):'',s.path&&typeof PATHS!=='undefined'&&PATHS[s.path]?LL(PATHS[s.path]):'',s.awake?L('觉醒','awakened'):'',s.manual?L('手动','manual'):''].filter(Boolean).join(' · ');return `<div class="pb" style="--c:${m.col}">${ICON.spell(s.id,'sm')}<div><b>${LL(m)} <small>Lv ${s.lv}${s.tr?L(` · 真传 ${s.tr}`,` · Transcend ${s.tr}`):''}</small></b><small>${tags||(i===0?L('普攻','normal attack'):L(CATS[SKILL_CAT[s.id]||'passive'][0],CATS[SKILL_CAT[s.id]||'passive'][1]))}</small></div></div>`}).join('')+`<div class="pbr">${G.relics.map(id=>`<span title="${L(RELICS[id].d,RELICS[id].de)}" style="--c:${RELICS[id].col||'#c7a4f0'}">${RELICS[id].g}</span>`).join('')}${G.relics.length?'':`<small>${L('尚无法宝','no relics yet')}</small>`}</div><small class="pbt">${L(`${fmt(G.t)} · Lv ${G.lv} · ${G.kills} 击杀 · 最高连斩 ×${G.comboMax}`,`${fmt(G.t)} · Lv ${G.lv} · ${G.kills} kills · best streak ×${G.comboMax}`)}</small>`}
-function togglePause(){if(G.over||G.pick)return;G.paused=!G.paused;$('#pausebtn').textContent=G.paused?'▶':'II';$('#pause').hidden=!G.paused;if(G.paused){renderPauseBuild();quitLabel();SFX.setState('title')}else SFX.setState(G.boss?'boss':'battle')}
+function togglePause(){if(G.over||G.pick)return;G.paused=!G.paused;$('#pausebtn').textContent=G.paused?'▶':'II';$('#pause').hidden=!G.paused;if(G.paused){$('#pausesettings').open=false;renderPauseBuild();quitLabel();SFX.setState('title')}else SFX.setState(G.boss?'boss':'battle')}
 
 /* cards */
 let pickOpenedAt=0,pickArmed=false,pickTimer=null;const PICK_LIMIT=8;addEventListener('keyup',()=>{if(G&&G.pick)pickArmed=true});
@@ -345,7 +339,7 @@ function showEnd(ok){if(typeof metricsEnd==='function')metricsEnd(G.abandoned?'a
   const record=!pk&&!room&&!G.abandoned&&G.t>(SAVE.best||0);SAVE.gold+=gold+pkBonus;SAVE.runs++;SAVE.wins+=G.bossSlain;SAVE.bosses=Math.max(SAVE.bosses||0,G.bossSlain);if(record)SAVE.best=G.t;persist();
   const rows=G.spells.slice().sort((a,b)=>b.dmg-a.dmg).map(s=>{const f=s.els.length===2?L(FUS[fusion(s)][0],FUS[fusion(s)][1]):s.els[0]?LL(ELS[s.els[0]]):'';
     if(SKILL_CAT[s.id]==='defense'&&((s.blocked||0)>0||(s.refl||0)>0)){return `<span>${LL(SPELLS[s.id])} · Lv ${s.lv}<small>${L(` · 挡住 ${Math.round(s.blocked||0)} · 反击 ${s.refl||0} 次 · 反击伤害 ${Math.round(s.dmg)} · ${s.casts} 次`,` · blocked ${Math.round(s.blocked||0)} · ${s.refl||0} rebounds · ${Math.round(s.dmg)} rebound damage · ${s.casts} casts`)}</small></span><div class="bar def"><i style="width:${Math.min(100,(s.blocked||0)/Math.max(1,G.dmgTaken+(s.blocked||0))*100)}%"></i></div><span>${L('防御','defense')}</span>`}
-    const aw=typeof AUTO_WHEN!=='undefined'&&AUTO_WHEN[s.id];const firstZero=!SPELLS[s.id].auto&&!s.casts&&!G._zeroSaid;if(firstZero)G._zeroSaid=1;const never=!SPELLS[s.id].auto&&!s.casts&&aw?`<small class="why"> · ${firstZero?L('0 次施放:自动施放只在「'+aw[0]+'」时触发,手动按键随时可放','0 casts: auto-cast fires only when '+aw[1]+'; press the key to cast any time'):L('0 次施放(触发:'+aw[0]+')','0 casts (fires when '+aw[1]+')')}</small>`:'';
+    const never=!SPELLS[s.id].auto&&!s.casts?`<small class="why"> · ${L('0 次施放:点击技能图标或按 1/2/3 手动释放','0 casts: tap the skill icon or press 1/2/3 to cast')}</small>`:'';
     if(never)return `<span>${LL(SPELLS[s.id])} · Lv ${s.lv}${never}</span><div class="bar"><i style="width:0%"></i></div><span>—</span>`;
     if((SKILL_CAT[s.id]==='control'||(s.ctrl||0)>20)&&(s.ctrl||0)>0){return `<span>${LL(SPELLS[s.id])} · Lv ${s.lv}<small>${L(` · 控制 ${s.ctrl} 人${s.det?` · 引爆毒伤 ${Math.round(s.det)}`:''}${s.healed?` · 治疗 ${Math.round(s.healed)}`:''} · ${s.casts} 次`,` · controlled ${s.ctrl}${s.det?` · detonated ${Math.round(s.det)} poison`:''}${s.healed?` · healed ${Math.round(s.healed)}`:''} · ${s.casts} casts`)}</small></span><div class="bar"><i style="width:${s.dmg/max*100}%"></i></div><span>${Math.round(s.dmg/tot*100)}%</span>`}
     if(SKILL_CAT[s.id]==='heal'&&(s.healed||0)>0){const eff=s.healed/Math.max(1,s.healed+(s.overheal||0));return `<span>${LL(SPELLS[s.id])} · Lv ${s.lv}<small>${L(` · 治疗 ${Math.round(s.healed)} · 有效 ${Math.round(eff*100)}% · ${s.casts} 次`,` · healed ${Math.round(s.healed)} · ${Math.round(eff*100)}% effective · ${s.casts} casts`)}</small></span><div class="bar heal"><i style="width:${Math.min(100,s.healed/Math.max(1,G.healed||1)*100)}%"></i></div><span>${L('治疗','heal')}</span>`}
@@ -375,9 +369,6 @@ $('#pausebtn').onclick=()=>{togglePause();$('#pausebtn').blur()};
 $('#resumebtn').onclick=()=>togglePause();
 $('#quitbtn').onclick=()=>{G.paused=false;$('#pause').hidden=true;if(!RIVAL_ON&&!G.room&&G.bossSlain>=1){G.retired=1;G.retireBonus=1;win()}else{G.abandoned=true;lose()}};
 function quitLabel(){const q=$('#quitbtn');if(!q||!G)return;const cash=!RIVAL_ON&&!G.room&&G.bossSlain>=1;q.innerHTML=cash?L('收官结算<small>奖励不打折</small>','Cash out<small>full rewards</small>'):L('放弃本局<small>奖励减半</small>','Abandon run<small>half rewards</small>')}
-AUTOCAST=SAVE.autocast===true;
-function autoLabel(){const sb=$('#seals');if(sb)sb.classList.toggle('auto',AUTOCAST);$('#autobtn').textContent=AUTOCAST?L('自动施放:开(点击改为手动)','Auto-cast: ON (tap for manual)'):L('自动施放:关(点击开启)','Auto-cast: OFF (tap to enable)');$('#autonote').textContent=AUTOCAST?L('武学自动施放,按 1/2/3 也可手动。','Skills cast themselves; 1/2/3 still work.'):L('按 1/2/3 释放武学。','Press 1/2/3 to cast skills.')}
-$('#autobtn').onclick=()=>{AUTOCAST=!AUTOCAST;SAVE.autocast=AUTOCAST;persist();autoLabel()};autoLabel();
 function syncSound(){const m=SFX.muted;$('#mutebtn').textContent=m?L('声音:关','Sound: off'):L('声音:开','Sound: on');$('#sndbtn').textContent=m?'🔇':'🔊';$('#sndbtn').classList.toggle('off',m);const s2=$('#sndbtn2');if(s2){s2.textContent=m?'🔇':'🔊';s2.classList.toggle('off',m)}$('#musicvol').value=Math.round(SFX.musicVol*100);$('#sfxvol').value=Math.round(SFX.sfxVol*100);$('#snd-mute').checked=m}
 $('#mutebtn').onclick=()=>{SFX.toggleMute();syncSound()};
 $('#sndbtn').onclick=$('#sndbtn2').onclick=()=>{SFX.start();const m=SFX.toggleMute();syncSound();$('#sndpanel').hidden=true;$('#sndbtn').blur();showBanner(m?'静音':'声音开启',m?'Muted':'Sound on',.7)};
@@ -400,7 +391,7 @@ if(window.desktop){$('#exitbtn').hidden=false;$('#exitbtn').onclick=()=>window.d
 
 /* switchLang(l, manual): manual picks are remembered and beat the IP guess from then on */
 function langRefresh(){document.querySelectorAll('.langbtn').forEach(x=>x.classList.toggle('on',x.dataset.l===LOC));if(typeof renderLangPick==='function')renderLangPick();
-  renderTitle();autoLabel();syncSound();const bn=$('#buildnote');if(bn)bn.textContent=L('版本 ','Build ')+((document.querySelector('meta[name=build]')||{}).content||'dev');if(G&&!G.auto){drawSeals();drawRelics();if(G.paused){renderPauseBuild();quitLabel()}if(G.panel)renderPanel()}if(typeof showTab==='function'&&typeof lobbyTab!=='undefined')showTab(lobbyTab)}
+  renderTitle();syncSound();const bn=$('#buildnote');if(bn)bn.textContent=L('版本 ','Build ')+((document.querySelector('meta[name=build]')||{}).content||'dev');if(G&&!G.auto){drawSeals();drawRelics();if(G.paused){$('#pausesettings').open=false;renderPauseBuild();quitLabel()}if(G.panel)renderPanel()}if(typeof showTab==='function'&&typeof lobbyTab!=='undefined')showTab(lobbyTab)}
 function switchLang(l,manual){if(!LANGS.includes(l))return;if(manual&&!SAVE.nameSet&&typeof randomName==='function'){const o=LANG;LANG=(l==='zh'||l==='zt')?'zh':'en';SAVE.name=randomName();LANG=o;try{localStorage.setItem('sl_name',SAVE.name)}catch(_){}persist()}setLang(l,langRefresh,!!manual)}
 document.querySelectorAll('.langbtn').forEach(b=>{b.classList.toggle('on',b.dataset.l===LOC);b.onclick=()=>{switchLang(b.dataset.l,true);SFX.pick(1)}});
 /* language picker on the main menu: globe + the current language in its own script; the list names every language in its own script */
@@ -473,7 +464,7 @@ function nextGoal(){
     if(hasDef&&tip)return [tip[0],tip[1]];
     if(hasDef)return ['防守技能等首领蓄力再开。','Save your defense for the boss wind-ups.'];
     return ['红圈亮起就轻功。','Dash when the red rings light up.']};
-  if(actShare<.2&&casts<mins*4)return ['武学几乎没用上(伤害占比 '+Math.round(actShare*100)+'%):开自动施放,或在怪群最密时按 1/2/3。','Your skills barely fired ('+Math.round(actShare*100)+'% of damage): turn on auto-cast, or press 1/2/3 when the crowd is thickest.'];
+  if(actShare<.2&&casts<mins*4)return ['武学几乎没用上(伤害占比 '+Math.round(actShare*100)+'%):在怪群最密时按 1/2/3 或点击技能图标。','Your skills barely fired ('+Math.round(actShare*100)+'% of damage): press 1/2/3 or tap the skill icons when the crowd is thickest.'];
   if((G.healed||0)>G.dmgTaken*.8&&G.kills<mins*120)return ['太稳了,多拿伤害卡。','Too safe. Take more damage cards.'];
   if(G.relics.length<=1&&mins>4)return ['法宝太少,去开宝箱、打统领。','Too few relics. Open chests, hunt warlords.'];
   if(G.comboMax<50&&mins>3)return ['连斩很少超过 ×50:别在空地等怪,主动贴着怪群边缘走,经验加成会滚起来。','Streaks rarely passed ×50: don\'t wait in open ground; skirt the edge of the crowd and the XP bonus snowballs.'];
