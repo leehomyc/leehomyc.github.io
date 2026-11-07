@@ -65,6 +65,7 @@ const ICON=(()=>{
     hourglass:c=>S.dur(c),
     heartplus:c=>heart(c)+P('M26 28H38M32 22V34',{s:'#fff',w:3}),
     flag:c=>P('M16 10V56',{s:'#fff',w:4})+P('M18 12H50L42 24L50 36H18Z',{f:c,s:'#fff',w:2}),
+    podium:c=>P('M24 28H40V54H24Z',{f:c,s:'#fff',w:2.5})+P('M8 38H24V54H8Z',{f:c,s:'#fff',w:2.5,o:.85})+P('M40 44H56V54H40Z',{f:c,s:'#fff',w:2.5,o:.7})+P('M32 6L34.6 11.4L40.4 12.1L36.1 16.1L37.2 21.9L32 19L26.8 21.9L27.9 16.1L23.6 12.1L29.4 11.4Z',{f:'#fff',s:'none'}),
     crown:c=>P('M10 46L14 20L26 32L32 14L38 32L50 20L54 46Z',{f:c,s:'#fff',w:2.5})+P('M10 46H54V52H10Z',{f:'#fff',s:'none'})+C(32,42,2.5,{f:'#120a14',s:'none'}),
     // ---- elements ----
     fire:c=>flame(c,32,36,1),

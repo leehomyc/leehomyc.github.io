@@ -23,7 +23,7 @@ async function cloudInit(){
     CLOUD.auth.onAuthStateChanged(async u=>{
       CLOUD.user=u;renderAccount();
       if(!u){try{await CLOUD.auth.signInAnonymously()}catch(e){console.warn('anon sign-in failed',e);CLOUD.status='noauth';renderAccount()}return}
-      await cloudPull();renderAccount();
+      await cloudPull();renderAccount();if(typeof lbMenuRank==='function')lbMenuRank();
     });
   }catch(e){console.warn('cloud unavailable',e);CLOUD.ready=false;CLOUD.status='off';renderAccount()}
 }
@@ -104,22 +104,42 @@ function renderAccount(){
   const eb=$('#emailbtn');if(eb)eb.onclick=()=>{CLOUD.emailOpen=!CLOUD.emailOpen;renderAccount();if(CLOUD.emailOpen){const i=$('#emailform .em');if(i)i.focus()}};
   const f=$('#emailform');if(f){f.querySelector('.em').oninput=e=>{CLOUD.emailDraft=e.target.value};f.querySelectorAll('[data-k]').forEach(b=>b.onclick=()=>cloudEmail(b.dataset.k));f.querySelector('.pw').onkeydown=e=>{if(e.key==='Enter')cloudEmail('signin')}}
 }
-/* ---- leaderboard on Firestore ---- */
+/* ---- leaderboard on Firestore ----
+   runs/{auto}            every posted personal best (all-time board)
+   days/{day}/runs/{auto} the same run, filed under the day (today board)
+   profiles/{uid}         current names are read from here, so a rename shows up on old posts
+   run.av (avatar) is optional: if the security rules refuse it the run is posted without it. */
 const CLB={
+  cache:{},
+  noAv:(()=>{try{return localStorage.getItem('sl_lb_noav')==='1'}catch(_){return false}})(),
+  col(board){return board==='all'?CLOUD.db.collection('runs'):CLOUD.db.collection('days').doc(String(dayKey())).collection('runs')},
+  async raw(board){ // newest copy within 45 s is reused: opening the board, the menu pill and the results card share one read
+    const c=this.cache[board];if(c&&Date.now()-c.t<45000)return c.rows;
+    let rows;
+    const snap=await this.col(board).orderBy('time','desc').limit(150).get();rows=snap.docs.map(d=>d.data());
+    this.cache[board]={t:Date.now(),rows};return rows;
+  },
   async fetch(board,filters={}){
-    const col=board==='today'?CLOUD.db.collection('days').doc(String(dayKey())).collection('runs'):CLOUD.db.collection('runs');
-    const snap=await col.orderBy('time','desc').limit(200).get();
-    let rows=snap.docs.map(d=>d.data());
-    for(const k of ['map','diff','cls','mode'])if(filters[k])rows=rows.filter(r=>r[k]===filters[k]);
+    let rows=(await this.raw(board)).slice();
+    rows=rows.filter(r=>r.mode!=='pk'&&r.mode!=='qpk'&&r.mode!=='room'); // duels are a fixed 3 minutes, not survival
     const best={};for(const r of rows){const k=r.uid||r.name;if(!best[k]||r.time>best[k].time)best[k]=r}
-    rows=Object.values(best).sort((a,b)=>b.time-a.time);
-    const mine=rows.findIndex(r=>r.uid===CLOUD.uid());
-    return {ok:true,count:rows.length,myRank:mine>=0?mine+1:null,rows:rows.slice(0,50)};
+    rows=Object.values(best).sort((a,b)=>b.time-a.time||b.bosses-a.bosses||b.kills-a.kills);
+    return {ok:true,count:rows.length,rows,me:CLOUD.uid()};
+  },
+  async profiles(uids){ // current name / level / avatar for the rows on screen; best effort
+    const out={},need=[...new Set(uids.filter(Boolean))].slice(0,90);
+    try{for(let i=0;i<need.length;i+=30){const snap=await CLOUD.db.collection('profiles').where(firebase.firestore.FieldPath.documentId(),'in',need.slice(i,i+30)).get();snap.docs.forEach(d=>{out[d.id]=d.data()})}}catch(e){console.warn('profiles lookup',e)}
+    return out;
   },
   async submit(run){
     if(!CLOUD.on())return {ok:false,error:'disabled'};
     const doc={name:String(run.name||'无名侠客').slice(0,16),cls:run.cls,map:run.map,diff:run.diff,mode:run.mode||'solo',time:Math.round(run.time),kills:Math.round(run.kills),bosses:Math.round(run.bosses),level:Math.round(run.level),combo:Math.round(run.combo),relics:Math.round(run.relics),score:Math.round(run.score||0),day:run.day||dayKey(),tier:Math.round(run.tier||0),uid:CLOUD.uid(),ts:firebase.firestore.FieldValue.serverTimestamp()};
-    try{await CLOUD.db.collection('runs').add(doc);await CLOUD.db.collection('days').doc(String(doc.day)).collection('runs').add(doc);return {ok:true}}
-    catch(e){console.warn('submit failed',e);return {ok:false,error:e.code==='permission-denied'?'implausible':'network'}}
+    const post=async d=>{if(run.allTime!==false)await CLOUD.db.collection('runs').add(d);await CLOUD.db.collection('days').doc(String(d.day)).collection('runs').add(d)};
+    try{
+      if(!this.noAv&&run.av){try{await post({...doc,av:{e:run.av.e|0,h:run.av.h|0}})}catch(e){if(e.code!=='permission-denied')throw e;this.noAv=true;try{localStorage.setItem('sl_lb_noav','1')}catch(_){}await post(doc)}}
+      else await post(doc);
+      for(const b of ['all','today'])delete this.cache[b];
+      return {ok:true};
+    }catch(e){console.warn('submit failed',e);return {ok:false,error:e.code==='permission-denied'?'implausible':'network'}}
   }
 };

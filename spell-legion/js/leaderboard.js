@@ -1,19 +1,26 @@
 'use strict';
-/* leaderboard.js — online leaderboard client (Google Apps Script backend, see service/README.md) */
-const LEADERBOARD_URL='';   // paste the deployed web-app URL here; the board stays hidden while empty
+/* leaderboard.js — kept deliberately simple:
+   · no typing: a new personal best is posted automatically under the hero name/avatar from the top of the menu
+   · results screen: one line, your rank and who is next above you
+   · board: 今日 / 总榜, top three on a podium, your own row pinned at the bottom
+   Backend: Firestore through CLB in cloud.js. */
+const LEADERBOARD_URL='';   // optional Google Apps Script web-app URL, used only when Firebase is unavailable
 const LB={
   token(){let t=null;try{t=localStorage.getItem('sl_token');if(!t){t=Array.from(crypto.getRandomValues(new Uint8Array(12)),b=>b.toString(16).padStart(2,'0')).join('');localStorage.setItem('sl_token',t)}}catch(_){t=t||'anon'}return t},
   name(){let n=(typeof SAVE!=='undefined'&&SAVE.name)||'';if(!n)try{n=localStorage.getItem('sl_name')||''}catch(_){}if(!n&&typeof CLOUD!=='undefined'&&CLOUD.user&&!CLOUD.user.isAnonymous&&CLOUD.user.displayName)n=CLOUD.user.displayName.slice(0,16);return n},
   setName(n){n=String(n||'').trim().slice(0,12);if(!n)return;if(typeof SAVE!=='undefined'){SAVE.name=n;SAVE.nameSet=true;persist()}try{localStorage.setItem('sl_name',n)}catch(_){}},
   cloud(){return typeof CLOUD!=='undefined'&&CLOUD.on()},
   enabled(){return this.cloud()||!!LEADERBOARD_URL},
+  me(){return this.cloud()?CLOUD.uid():null},
+  isMe(r){const u=this.me();return u?r.uid===u:r.name===this.name()},
   async fetch(board,filters={}){
     if(this.cloud())return CLB.fetch(board,filters);
-    if(!LEADERBOARD_URL)return null;
-    const q=new URLSearchParams({board,token:this.token(),...filters});
+    if(!LEADERBOARD_URL||board==='ladder')return null;
+    const q=new URLSearchParams({board:board==='daily'?'today':board,token:this.token(),...filters});
     const r=await fetch(LEADERBOARD_URL+'?'+q.toString(),{method:'GET'});
     return r.json();
   },
+  async profiles(rows){if(!this.cloud())return {};return CLB.profiles(rows.map(r=>r.uid))},
   async submit(run){
     if(this.cloud())return CLB.submit(run);
     if(!LEADERBOARD_URL)return {ok:false,error:'disabled'};
@@ -22,45 +29,64 @@ const LB={
     return r.json();
   },
 };
-const clsZh=k=>CLASSES[k]?LL(CLASSES[k]):k,mapZh=k=>MAPS[k]?LL(MAPS[k]):k,diffZh=k=>DIFF[k]?LL(DIFF[k]):k;
-function renderBoard(el,data,opts={}){
-  el.textContent='';
-  if(!data||!data.ok){el.innerHTML=`<p class="lbnote">${L('排行榜暂时无法加载。','Leaderboard unavailable right now.')}</p>`;return}
-  if(!data.rows.length){el.innerHTML=`<p class="lbnote">${L('还没有记录,来做第一个。','No runs yet; be the first.')}</p>`;return}
-  const t=document.createElement('table');t.className='lbt';
-  t.innerHTML=`<thead><tr><th>#</th><th>${L('侠客','Hero')}</th><th>${L('存活','Time')}</th><th>${L('首领','Bosses')}</th><th>${L('击杀','Kills')}</th><th>${L('连斩','Streak')}</th><th>${L('地图 · 难度','Map · difficulty')}</th></tr></thead>`;
-  const tb=document.createElement('tbody');
-  data.rows.forEach((r,i)=>{const tr=document.createElement('tr');if((opts.uid&&r.uid===opts.uid)||(!opts.uid&&opts.me&&r.name===opts.me))tr.className='me';
-    const cells=[String(i+1),'',fmt(r.time),String(r.bosses),String(r.kills),'×'+r.combo,`${mapZh(r.map)} · ${diffZh(r.diff)}${r.mode&&r.mode!=='solo'?' · '+(r.mode==='pk'?L('对决','PK'):r.mode==='rush'?L('连战','rush'):L('每日','daily')):''}${r.tier?' · '+L('修罗','Asc.')+' '+r.tier:''}`];
-    cells.forEach((v,j)=>{const td=document.createElement('td');if(j===1){const b=document.createElement('b');b.textContent=r.name;const s=document.createElement('small');s.textContent=' '+clsZh(r.cls);td.appendChild(b);td.appendChild(s)}else td.textContent=v;tr.appendChild(td)});
-    tb.appendChild(tr)});
-  t.appendChild(tb);el.appendChild(t);
-  if(data.myRank){const p=document.createElement('p');p.className='lbnote';p.textContent=L(`你的最佳排名:#${data.myRank} / ${data.count}`,`Your best rank: #${data.myRank} / ${data.count}`);el.appendChild(p)}
+const MEDAL=['🥇','🥈','🥉'];
+function lbAvOf(r){if(r.av&&r.av.e!==undefined)return r.av;const s=String(r.uid||r.name||'?');let h=0;for(let i=0;i<s.length;i++)h=(h*31+s.charCodeAt(i))>>>0;return {e:h%AVATARS.length,h:(h>>>8)%360}}
+function lbDecorate(rows,prof){return rows.map(r=>{const p=(prof&&r.uid&&prof[r.uid])||{};const mine=LB.isMe(r);return {...r,name:mine?(LB.name()||r.name):(p.name||r.name||'?'),av:mine?SAVE.avatar:(p.av||lbAvOf(r)),mine}})}
+function lbCls(k){const C=CLASSES[k];return C?`<span class="lbcls" style="--c:${C.col}">${C.g}</span>${esc(LL(C))}`:''}
+function lbRow(r,i){return `<li class="lbr${r.mine?' me':''}"><span class="rk">${i<3?MEDAL[i]:i+1}</span>${avatarHTML(r.av)}<span class="who"><b>${esc(r.name)}</b><small>${lbCls(r.cls)}</small></span><b class="mv">${fmt(r.time)}</b></li>`}
+function lbPodium(rows){const slot=(r,i)=>r?`<div class="pod p${i+1}${r.mine?' me':''}"><span class="md">${MEDAL[i]}</span>${avatarHTML(r.av,'big')}<b>${esc(r.name)}</b><span class="pv">${fmt(r.time)}</span><i class="step"></i></div>`:`<div class="pod p${i+1} empty"><span class="md">${MEDAL[i]}</span><span class="av big ghost">?</span><b>—</b><i class="step"></i></div>`;
+  return `<div class="podium3">${slot(rows[1],1)}${slot(rows[0],0)}${slot(rows[2],2)}</div>`}
+/* ---- the board ---- */
+let lbBoard='all',lbSeq=0;
+async function openLeaderboard(board){
+  if(board==='all'||board==='today')lbBoard=board;const seq=++lbSeq;$('#lb').hidden=false;
+  $('#lbbox').innerHTML=`<div class="lbhead"><div class="lbtabs">${[['today','今日','Today'],['all','总榜','All time']].map(t=>`<button type="button" data-b="${t[0]}" class="${lbBoard===t[0]?'on':''}">${L(t[1],t[2])}</button>`).join('')}</div><button type="button" class="lbx" id="lbclose" aria-label="${L('关闭','Close')}">✕</button></div><div class="lbscroll" id="lbbody"><p class="lbnote">${L('载入中…','Loading…')}</p></div><div class="lbmine" id="lbmine"></div>`;
+  $('#lbclose').onclick=closeLeaderboard;document.querySelectorAll('#lbbox [data-b]').forEach(b=>b.onclick=()=>{SFX.pick(1);openLeaderboard(b.dataset.b)});
+  const body=$('#lbbody'),mine=$('#lbmine');
+  try{
+    const d=await LB.fetch(lbBoard);if(seq!==lbSeq)return;
+    if(!d||!d.ok){body.innerHTML=`<p class="lbnote">${L('暂时无法加载','Unavailable right now')}</p>`;return}
+    const myI=d.rows.findIndex(r=>LB.isMe(r)),top=d.rows.slice(0,50);
+    const prof=await LB.profiles(myI>=50?[...top,d.rows[myI]]:top);if(seq!==lbSeq)return;
+    const rows=lbDecorate(top,prof);
+    body.innerHTML=lbPodium(rows.slice(0,3))+(rows.length>3?`<ol class="lbl">${rows.slice(3).map((r,i)=>lbRow(r,i+3)).join('')}</ol>`:'')+(rows.length?'':`<p class="lbnote big">${L('还没人上榜','No one yet')}</p>`);
+    mine.innerHTML=myI>=0?`<ol class="lbl">${lbRow(lbDecorate([d.rows[myI]],prof)[0],myI)}</ol>`:`<p class="lbnote cta">${L('刷新个人最佳会自动上榜','Beat your best to get on the board')}</p>`;
+  }catch(e){console.warn(e);if(seq===lbSeq)body.innerHTML=`<p class="lbnote">${L('暂时无法加载','Unavailable right now')}</p>`}
 }
-let lbBoard='all';
-async function openLeaderboard(){
-  const ov=$('#lb');ov.hidden=false;$('#lbbody').innerHTML=`<p class="lbnote">${L('载入中…','Loading…')}</p>`;
-  document.querySelectorAll('#lbtabs button').forEach(b=>b.classList.toggle('on',b.dataset.b===lbBoard));
-  try{const d=await LB.fetch(lbBoard);renderBoard($('#lbbody'),d,{me:LB.name(),uid:LB.cloud()?CLOUD.uid():null})}catch(e){renderBoard($('#lbbody'),null)}
-}
+function closeLeaderboard(){$('#lb').hidden=true;lbSeq++;lbMenuRank()}
 function wireLeaderboard(){
-  const on=LB.enabled();{const lb=$('#lbbtn');if(lb)lb.hidden=!on}
-  {const lb=$('#lbbtn');if(lb)lb.onclick=openLeaderboard}$('#lbclose').onclick=()=>{$('#lb').hidden=true};
-  document.querySelectorAll('#lbtabs button').forEach(b=>b.onclick=()=>{lbBoard=b.dataset.b;openLeaderboard()});
+  const b=$('#lbbtn');if(b)b.onclick=()=>{SFX.pick(1);openLeaderboard()};
+  $('#lb').addEventListener('click',e=>{if(e.target.id==='lb')closeLeaderboard()});
+  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('#lb').hidden)closeLeaderboard()});
+  lbMenuRank();
 }
-/* called from the results screen */
+async function lbMenuRank(){
+  const b=$('#lbbtn'),rk=$('#lbrank');if(!b)return;b.hidden=!LB.enabled();if(b.hidden)return;
+  try{const d=await LB.fetch('all');if(!d||!d.ok)return;const i=d.rows.findIndex(r=>LB.isMe(r));rk.textContent=i>=0?'#'+(i+1):''}catch(_){}
+}
+/* ---- after a run: post a new best automatically, show one line ---- */
 async function submitRun(container){
   if(!LB.enabled())return;
-  const box=document.createElement('div');box.className='lbsubmit';
-  const saved=LB.name();
-  box.innerHTML=`<label>${L('江湖名号','Name')} <input id="lbname" maxlength="16" placeholder="${L('无名侠客','Nameless')}" value=""></label><button type="button" class="go sm" id="lbsend">${L('上榜','Submit score')}</button><span id="lbmsg"></span>`;
-  container.appendChild(box);
-  const inp=$('#lbname');inp.value=saved;
-  $('#lbsend').onclick=async()=>{
-    const name=(inp.value||'').trim().slice(0,16)||L('无名侠客','Nameless');LB.setName(name);$('#lbsend').disabled=true;$('#lbmsg').textContent=L('提交中…','Sending…');
-    try{const r=await LB.submit({name,cls:G.cls,map:MAPID,diff:DIFFID,mode:SAVE.mode||'solo',score:G.score||0,day:G.day,tier:ASURA_T||0,time:Math.round(G.t),kills:G.kills,bosses:G.bossSlain,level:G.lv,combo:G.comboMax,relics:G.relics.length});
-      if(r.ok){$('#lbmsg').textContent=L('已上榜!','On the board.');const d=await LB.fetch('all');const el=document.createElement('div');el.className='lbinline';renderBoard(el,d,{me:name});box.appendChild(el)}
-      else{$('#lbmsg').textContent=r.error==='rate'?L('请稍后再试。','Try again in a moment.'):L('未能提交。','Not accepted.');$('#lbsend').disabled=false}}
-    catch(e){$('#lbmsg').textContent=L('网络错误。','Network error.');$('#lbsend').disabled=false}
-  };
+  if((typeof RIVAL_ON!=='undefined'&&RIVAL_ON)||G.room||G.abandoned||G.t<20||SAVE.mode==='qpk'||SAVE.mode==='room')return;
+  const dk=G.day||dayKey(),t=Math.round(G.t);
+  const line=document.createElement('button');line.type='button';line.className='lbline';line.innerHTML=`<span class="rk">…</span><span class="tx">${L('排名结算中','Ranking…')}</span>`;
+  line.onclick=()=>{SFX.pick(1);openLeaderboard('all')};
+  const anchor=container.querySelector('.stat.main');if(anchor)anchor.before(line);else container.appendChild(line);
+  let all=null,today=null;try{[all,today]=await Promise.all([LB.fetch('all').catch(()=>null),LB.fetch('today').catch(()=>null)])}catch(_){}
+  const S=SAVE.lb&&typeof SAVE.lb==='object'?SAVE.lb:(SAVE.lb={best:0,day:0,dayBest:0});if(S.day!==dk){S.day=dk;S.dayBest=0}
+  const mineT=d=>{if(!d||!d.ok)return null;const m=d.rows.find(r=>LB.isMe(r));return m?m.time:0};
+  const ba=mineT(all),bd=mineT(today),allPB=t>(ba===null?S.best||0:ba),dayPB=t>(bd===null?S.dayBest||0:bd);
+  let posted=false;
+  if(allPB||dayPB){try{const r=await LB.submit({name:LB.name()||L('无名侠客','Nameless'),av:SAVE.avatar,cls:G.cls,map:MAPID,diff:DIFFID,mode:SAVE.mode||'solo',score:G.score||0,day:dk,tier:ASURA_T||0,time:t,kills:G.kills,bosses:G.bossSlain,level:G.lv,combo:G.comboMax,relics:G.relics.length,allTime:allPB});posted=!!(r&&r.ok)}catch(_){}
+    if(posted){if(allPB)S.best=t;S.dayBest=Math.max(S.dayBest||0,t);persist();lbMenuRank()}}
+  if(!all||!all.ok){line.remove();return}
+  /* rank with this run counted (only if it was posted) */
+  const others=all.rows.filter(r=>!LB.isMe(r)),old=all.rows.find(r=>LB.isMe(r)),oldI=all.rows.indexOf(old);
+  const best=posted&&allPB?{time:t,bosses:G.bossSlain,kills:G.kills}:old;
+  if(!best){line.innerHTML=`<span class="rk">—</span><span class="tx">${posted?L('已上今日榜','On today’s board'):L('刷新个人最佳即可上榜','Beat your best to rank')}</span><span class="arr">›</span>`;return}
+  const list=[...others,best].sort((a,b)=>b.time-a.time||(b.bosses||0)-(a.bosses||0)),i=list.indexOf(best),above=list[i-1];
+  let aboveName='';if(above){const p=await LB.profiles([above]);aboveName=lbDecorate([above],p)[0].name}
+  const up=posted&&allPB?(oldI<0?'NEW':oldI-i>0?'▲'+(oldI-i):''):'';
+  line.innerHTML=`<span class="rk${i<3?' gold':''}">#${i+1}</span>${up?`<span class="up">${up}</span>`:''}<span class="tx">${above?L(`再撑 ${fmt(Math.max(1,above.time-best.time+1))} 超过 ${esc(aboveName)}`,`${fmt(Math.max(1,above.time-best.time+1))} more to pass ${esc(aboveName)}`):L('全服第一','Top of the board')}</span><span class="arr">›</span>`;
+  if(up){line.classList.add('pop')}
 }
