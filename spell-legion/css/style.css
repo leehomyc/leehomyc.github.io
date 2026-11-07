@@ -1159,3 +1159,9 @@ html[lang=en] #menu .vname.ven{display:block}
   #hero .hfoot #maps .mapb{min-width:0}#hero .hfoot .mapb b{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:12px}
   #stickystart small{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 }
+/* legendary (神兵) weapons: gold frame and a tag */
+#title .wp.legend,.wp.legend{border-color:#ffd27a99;background:linear-gradient(160deg,#3a2410e6,#160c10f0);box-shadow:inset 0 0 0 1px #ffd27a33,0 0 16px #ffb04a22}
+.wp.legend.sel{box-shadow:0 0 0 2px #ffd27a,0 0 26px #ffb04a88}
+.wp .lg{font-style:normal;font-size:10px;font-weight:900;color:#1a0e06;background:linear-gradient(90deg,#ffe9a0,#ffb04a);border-radius:6px;padding:1px 6px;margin-left:6px;vertical-align:2px;letter-spacing:.06em}
+#weapons .wp{flex:1 1 140px;min-width:0}#weapons .wp .ic{width:38px;height:38px}#weapons .wp b{font-size:13px}#weapons .wp .lk,#weapons .wp .buy{font-size:11px}
+#weapons .wp{position:relative}#weapons .wp .lg{position:absolute;top:-9px;right:10px;margin:0;white-space:nowrap;box-shadow:0 2px 8px #0008}#weapons .wp .lk,#weapons .wp .buy{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}

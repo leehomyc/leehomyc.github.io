@@ -47,11 +47,13 @@ const SPELL_KEYS=['','1','2','3'];
 const CLASSES={
   swordsman:{zh:'剑客',en:'Swordsman',g:'剑',col:'#9fe3f0',main:'sword',skills:['palm','array','talis','sunder'],hp:100,mana:100,regen:13,dmg:1,spd:1,d:'御剑远攻,攻守均衡。',de:'Ranged flying swords. Balanced attack and defence.'},
   taoist:{zh:'道士',en:'Taoist',g:'道',col:'#ffd27a',main:'charm',skills:['talis','bagua','ward','exorcise'],hp:90,mana:150,regen:19,dmg:.95,spd:1,d:'体弱而内力深厚,符咒法术繁多。',de:'Fragile, but deep qi reserves and plenty of talisman magic.'},
-  blademaster:{zh:'刀客',en:'Blademaster',g:'刀',col:'#ff9c5a',main:'slash',skills:['whirl','leap','roar','frenzy'],hp:125,mana:80,regen:12,dmg:1.08,spd:1.06,d:'近身刀法,皮糙肉厚,伤害最高。',de:'Up-close blade work. Tough, fast and the hardest hitter.'},
+  /* blademaster retired Nov 2026 (kept in RETIRED below so it can return) */
+  _bm:{zh:'刀客',en:'Blademaster',g:'刀',col:'#ff9c5a',main:'slash',skills:['whirl','leap','roar','frenzy'],hp:125,mana:80,regen:12,dmg:1.08,spd:1.06,d:'近身刀法,皮糙肉厚,伤害最高。',de:'Up-close blade work. Tough, fast and the hardest hitter.'},
   qin:{zh:'琴师',en:'Qin Master',g:'琴',col:'#8fe3ff',main:'wave',skills:['flow','ambush','guangling','exorcise'],hp:100,mana:130,regen:16,dmg:.9,spd:1.03,d:'以琴音御敌,减速与控场见长。',de:'Fights with music: slows, fields and crowd control.'},
   monk:{zh:'武僧',en:'Monk',g:'僧',col:'#f0b35a',main:'staff',skills:['tiger','vajra','zen','sarira'],hp:135,mana:90,regen:12,dmg:1,spd:1,d:'禅杖横扫,金刚不坏;越打越稳的近战。',de:'Staff sweeps and an unbreakable body: the steadiest melee hero.'},
   physician:{zh:'医师',en:'Physician',g:'医',col:'#9ff06a',main:'needle',skills:['gu','plague','rejuv','numb'],hp:85,mana:140,regen:18,dmg:.92,spd:1.05,d:'毒针叠伤,瘟疫蔓延;慢慢毒死一切。',de:'Stacking poison and spreading plague: everything dies slowly, then all at once.'},
 };
+const RETIRED={blademaster:CLASSES._bm};delete CLASSES._bm;
 const ELS={
   fire:{g:'火',zh:'烈火真气',en:'Fire',col:'#ff8a3c',d:'命中点燃,持续灼烧。',de:'Hits ignite enemies.'},
   ice:{g:'冰',zh:'寒冰真气',en:'Ice',col:'#8fdcf0',d:'减速,有几率冻结。',de:'Slows, with a chance to freeze.'},
@@ -207,13 +209,13 @@ const ACH=[
   {id:'min10',zh:'十分钟',en:'Ten Minutes',d:'存活 10 分钟',de:'Survive 10 minutes',gold:150},
   {id:'min20',zh:'半炷香',en:'Twenty Minutes',d:'存活 20 分钟',de:'Survive 20 minutes',gold:400},
   {id:'relic6',zh:'法宝收藏家',en:'Collector',d:'一局集齐 6 件法宝',de:'Hold 6 relics in one run',gold:150},
-  {id:'allcls',zh:'四大高手',en:'Master of Four',d:'用四个职业各击败一位首领',de:'Slay a boss with every class',gold:500},
+  {id:'allcls',zh:'八方高手',en:'Master of Eight',d:'用每个职业各击败一位首领',de:'Slay a boss with every class',gold:800},
   {id:'hard',zh:'炼狱',en:'Inferno',d:'修罗 5 层击败一位首领',de:'Slay a boss at Ascension 5',gold:300},
 ];
 const DIFF={easy:{zh:'简单',en:'Easy',hp:.7,dmg:.7,gold:.8},normal:{zh:'普通',en:'Normal',hp:1,dmg:1,gold:1},hard:{zh:'困难',en:'Hard',hp:1.4,dmg:1.35,gold:1.4}};
 
 /* weapons: the normal attack of a class is swappable; chosen on the title screen */
-const WEAPONS={swordsman:['sword','great'],taoist:['charm','whisk'],blademaster:['slash','nodachi'],qin:['wave','drum'],monk:['staff','fist'],physician:['needle','pouch']};
+const WEAPONS={swordsman:['sword','great','swordcase'],taoist:['charm','whisk','thunder'],qin:['wave','drum','flute'],monk:['staff','fist','bell'],physician:['needle','pouch','goldgu']};
 const WEAPON_INFO={
   sword:{trait:['快而多','Fast, many blades'],awake:['剑雨·飞剑数 +2,伤害 +25%','Sword Rain: +2 blades, +25% damage']},
   great:{need:'clsboss',cost:500,trait:['重击·震地','Heavy hits, ground slam'],awake:['开山·每第二击震地,震地范围 +40%','Mountain Splitter: slam every second swing, +40% slam radius']},

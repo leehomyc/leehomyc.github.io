@@ -1,6 +1,6 @@
 'use strict';
 /* lobby.js — menu-first front end: main menu → hero select (3D preview, weapon, skills, stats) → start. */
-const ROLES={swordsman:['远程 · 均衡','Ranged · Balanced'],taoist:['法术 · 符咒','Caster · Talismans'],blademaster:['近战 · 重击','Melee · Bruiser'],qin:['控场 · 减速','Control · Slows'],monk:['近战 · 坚韧','Melee · Tank'],physician:['远程 · 毒伤','Ranged · Poison']};
+const ROLES={swordsman:['远程 · 均衡','Ranged · Balanced'],taoist:['法术 · 符咒','Caster · Talismans'],blademaster:['近战 · 重击','Melee · Bruiser'],qin:['控场 · 减速','Control · Slows'],monk:['近战 · 坚韧','Melee · Tank'],physician:['远程 · 毒伤','Ranged · Poison'],oni:['近战 · 爆发','Melee · Burst'],idol:['远程 · 魅惑','Ranged · Charm'],wizard:['法术 · 奥术','Caster · Arcane']};
 const MENU_MODES=[
   {m:'solo',ic:['sword','#ffb79f'],zh:'出山',en:'Play',szh:()=>`单人无尽${(SAVE.asura&&SAVE.asura.sel)?` · 修罗 ${SAVE.asura.sel} 层`:''}`,sen:()=>`Solo endless${(SAVE.asura&&SAVE.asura.sel)?` · Ascension ${SAVE.asura.sel}`:''}`,big:1},
   {m:'qpk',ic:['swords','#ff9c5a'],zh:'对决',en:'Duel',szh:()=>`AI 或好友`,sen:()=>`AI or friends`},

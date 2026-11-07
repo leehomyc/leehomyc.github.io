@@ -32,10 +32,10 @@ function mergeSave(local,cloud){
   if(!cloud)return local;const out=JSON.parse(JSON.stringify(local));
   const max=k=>{out[k]=Math.max(+local[k]||0,+cloud[k]||0)};['gold','axp','best','wins','runs','bosses','pkBest'].forEach(max);
   out.up=Object.assign({},cloud.up||{});for(const k in (local.up||{}))out.up[k]=Math.max(out.up[k]||0,local.up[k]||0);
-  ['weaponOwned','ach','clsWins','tips'].forEach(k=>{out[k]=Object.assign({},cloud[k]||{},local[k]||{})});
+  ['weaponOwned','ach','clsWins','tips'].forEach(k=>{out[k]=Object.assign({},cloud[k]||{},local[k]||{})});{const a=cloud.clsBest||{},b=local.clsBest||{};out.clsBest={};for(const k of new Set([...Object.keys(a),...Object.keys(b)]))out.clsBest[k]=Math.max(a[k]||0,b[k]||0)}
   if(cloud.pk||local.pk)out.pk={w:(cloud.pk?.w||0)>(local.pk?.w||0)?cloud.pk.w:(local.pk?.w||0),l:Math.max(cloud.pk?.l||0,local.pk?.l||0)};
   const newer=(+cloud.ts||0)>(+local.ts||0)?cloud:local;
-  ['cls','weapon','mode','diff','autocast','name'].forEach(k=>{if(newer[k]!==undefined)out[k]=newer[k]});
+  ['cls','weapon','mode','diff','autocast','name'].forEach(k=>{if(newer[k]!==undefined)out[k]=newer[k]});if(typeof CLASSES!=='undefined'&&!CLASSES[out.cls])out.cls='swordsman';
   const dayOf=o=>o&&o.tasks&&o.tasks.day||0;out.tasks=dayOf(cloud)>dayOf(local)?cloud.tasks:dayOf(local)>dayOf(cloud)?local.tasks:(local.tasks||cloud.tasks);
   if(out.tasks&&cloud.tasks&&local.tasks&&cloud.tasks.day===local.tasks.day){out.tasks.list=local.tasks.list.map((t,i)=>{const c=cloud.tasks.list[i];return c&&c.id===t.id?{...t,p:Math.max(t.p||0,c.p||0),done:t.done||c.done}:t})}
   const sd=o=>o&&o.streak&&o.streak.last||0;out.streak=sd(cloud)>sd(local)?cloud.streak:local.streak||cloud.streak;

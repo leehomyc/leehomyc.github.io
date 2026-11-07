@@ -3,7 +3,7 @@
 const SAVE_KEY='spell-legion-save';
 let SAVE={gold:0,up:{},cls:'swordsman',best:0,wins:0,runs:0,autocast:false,rival:false,bosses:0,played:false,ach:{},diff:'normal',clsWins:{}};
 try{const s=JSON.parse(localStorage.getItem(SAVE_KEY)||'null');if(s&&typeof s==='object')SAVE={...SAVE,...s}}catch(_){}
-SAVE.ach=SAVE.ach||{};SAVE.clsWins=SAVE.clsWins||{};SAVE.weapon=SAVE.weapon||{};SAVE.weaponOwned=SAVE.weaponOwned||{};SAVE.tips=SAVE.tips||{};SAVE.asura=SAVE.asura||{max:0,sel:0,best:0};window.SAVE=SAVE;
+SAVE.ach=SAVE.ach||{};SAVE.clsWins=SAVE.clsWins||{};SAVE.clsBest=SAVE.clsBest||{};if(!CLASSES[SAVE.cls])SAVE.cls='swordsman';SAVE.weapon=SAVE.weapon||{};SAVE.weaponOwned=SAVE.weaponOwned||{};SAVE.tips=SAVE.tips||{};SAVE.asura=SAVE.asura||{max:0,sel:0,best:0};window.SAVE=SAVE;
 /* a save written by an older build (or synced from another device) may name a retired mode, class or difficulty; fold it back onto what the menu offers */
 function normalizeSave(){const MODES=['solo','room','daily'];if(!MODES.includes(SAVE.mode))SAVE.mode='solo';if(typeof CLASSES!=='undefined'&&!CLASSES[SAVE.cls])SAVE.cls='swordsman';if(typeof DIFF!=='undefined'&&!DIFF[SAVE.diff])SAVE.diff='normal';if(SAVE.asura&&typeof ASURA!=='undefined'){SAVE.asura.max=Math.min(SAVE.asura.max||0,ASURA.length);SAVE.asura.sel=Math.min(SAVE.asura.sel||0,SAVE.asura.max)}}
 normalizeSave();
@@ -256,8 +256,10 @@ function renderWeapons(){
   const wr=$('#weapons');if(!wr)return;wr.textContent='';const cls=SAVE.cls,cur=weaponOf(cls);
   const h=document.createElement('span');h.className='wh';h.textContent=L('武器','Weapon');wr.appendChild(h);
   (WEAPONS[cls]||[]).forEach(w=>{const m=SPELLS[w],info=WEAPON_INFO[w]||{},own=weaponUnlocked(cls,w),b=document.createElement('button');b.type='button';b.className='wp'+(w===cur?' sel':'')+(own?'':' locked');b.style.setProperty('--c',m.col);
-    const lock=own?'':(SAVE.gold>=(info.cost||0)?`<span class="buy">${L('解锁','Unlock')} · ${info.cost} ${L('金','gold')}</span>`:`<span class="lk" title="${L(`用此职业斩杀一名首领,或花 ${info.cost} 金解锁`,`Slay a boss with this class, or pay ${info.cost} gold`)}">🔒 ${info.cost} ${L('金','gold')}</span>`);
-    b.innerHTML=`${typeof ICON!=='undefined'?ICON.spell(w):''}<span class="t"><b>${LL(m)} <span class="g">${m.g}</span></b><small>${info.trait?L(info.trait[0],info.trait[1]):''}</small><small class="dd">${L(m.d,m.de)}</small>${lock}</span>`;
+    const n3=info.need==='clsboss3',best=(SAVE.clsBest&&SAVE.clsBest[cls])||0;
+    const lock=own?'':(SAVE.gold>=(info.cost||0)?`<span class="buy">${L('解锁','Unlock')} · ${info.cost} ${L('金','gold')}</span>`:`<span class="lk" title="${n3?L(`用此职业一局斩杀三名首领(最佳 ${best}/3),或花 ${info.cost} 金解锁`,`Slay three bosses in one run with this hero (best ${best}/3), or pay ${info.cost} gold`):L(`用此职业斩杀一名首领,或花 ${info.cost} 金解锁`,`Slay a boss with this class, or pay ${info.cost} gold`)}">🔒 ${n3?`☠${best}/3 · `:''}${info.cost} ${L('金','gold')}</span>`);
+    if(n3)b.classList.add('legend');
+    b.innerHTML=`${typeof ICON!=='undefined'?ICON.spell(w):''}<span class="t"><b>${LL(m)} <span class="g">${m.g}</span>${n3?`<i class="lg">${L('神兵','Legendary')}</i>`:''}</b><small>${info.trait?L(info.trait[0],info.trait[1]):''}</small><small class="dd">${L(m.d,m.de)}</small>${lock}</span>`;
     b.onclick=()=>{if(!own){if(SAVE.gold>=(info.cost||0)){SAVE.gold-=info.cost;SAVE.weaponOwned[w]=true;persist();SFX.complete()}else{SFX.throw();return}}SAVE.weapon[cls]=w;persist();renderTitle();if(G&&G.auto){newGame(true,cls);demoBoost()}SFX.pick(1)};
     wr.appendChild(b)});
 }

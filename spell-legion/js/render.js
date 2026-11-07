@@ -151,6 +151,7 @@ function render(rdt){
   const putTalis=(x,y,z,yaw,pitch,roll,sc)=>{if(ti>=tCap)return;dummy.position.set(x,y,z);dummy.rotation.set(pitch,yaw,roll);dummy.scale.set(sc,sc,sc);dummy.updateMatrix();talisMesh.setMatrixAt(ti,dummy.matrix);ti++};
   for(const b of G.shots){const r=b.r*(b.small?.72:1),vl=hyp(b.vx,b.vy)||1,ux=b.vx/vl,uz=b.vy/vl,yaw=Math.atan2(b.vx,b.vy);
     if(b.kind==='sword'){putSword(b.x,9.5,b.y,yaw,0,b.spin,b.small?.7:(b.r>4?1.4:1),b.col);for(let i=1;i<=4;i++){const d=i*r*2.4,k=1-i/5;glow(b.x-ux*d,9.5,b.y-uz*d,(i%2&&b.col2)?b.col2:b.col,r*3.2*(.4+.6*k),1.1*k)}}
+    else if(typeof heroShot==='function'&&heroShot(b,r,ux,uz,yaw,putSword,putTalis)){}
     else if(b.kind==='charm'){putTalis(b.x,9.5,b.y,yaw,0,b.spin,b.small?.5:.8);for(let i=1;i<=3;i++){const d=i*r*2;glow(b.x-ux*d,9.5,b.y-uz*d,b.col,r*3,.8*(1-i/4))}glow(b.x,9.5,b.y,'#ffffff',r*1.6,1.4)}
     else{ // palm / slash crescents
       const px=-uz,pz=ux,n=b.kind==='slash'?3:4;for(let i=-n;i<=n;i++){const k=1-Math.abs(i)/(n+1);glow(b.x+px*i*r*.9-ux*Math.abs(i)*r*.5,9.5,b.y+pz*i*r*.9-uz*Math.abs(i)*r*.5,i%2?(b.col2||b.col):b.col,r*3.2*k+2,1.6*k)}
@@ -160,6 +161,7 @@ function render(rdt){
     for(const [x,z,a] of s.pos){const yy=12+Math.sin(tm*4+x*.1)*1.4;if(s.id==='array')putSword(x,yy,z,-a+Math.PI,0,Math.sin(tm*6+a)*.3,gi2,col);else putTalis(x,yy,z,-a,0,tm*4,gi2);glow(x,yy,z,col,16*gi2,1.1);glow(x,yy*.1+.6,z,col2,10*gi2,.4)}}
   for(const b of G.bombs){const k=b.t/b.T,x=b.x0+(b.x-b.x0)*k,z=b.y0+(b.y-b.y0)*k,y=12+Math.sin(k*Math.PI)*52-(k*12);const col=b.s.els[0]?ELS[b.s.els[0]].col:'#ffd75a';
     putTalis(x,y,z,tm*5,k*6,Math.sin(tm*9)*.5,1.1);glow(x,y,z,col,18,1.5);glow(x-(b.x-b.x0)*.04,y-3,z-(b.y-b.y0)*.04,col,12,.7)}
+  if(typeof heroDraw1==='function')heroDraw1(tm,putSword,putTalis);
   swordMesh.count=si;swordMesh.instanceMatrix.needsUpdate=true;if(swordMesh.instanceColor)swordMesh.instanceColor.needsUpdate=true;
   talisMesh.count=ti;talisMesh.instanceMatrix.needsUpdate=true;
   /* rings, pools, scorch, waves */
@@ -176,6 +178,7 @@ function render(rdt){
   }
   /* the hero's locator */
   if(locator.g){const L0=locator.g,on=!!(G&&G.P&&!G.auto&&G.P.down<=0);L0.visible=on;if(on){const P0=G.P,dashing=P0.dash>0;L0.position.set(P0.x,1.4,P0.y);const r=17+(dashing?5:0)+Math.sin(tm*3)*.8;L0.scale.set(r,1,r);L0.rotation.y=tm*.8;for(const m of locator.parts)m.material.opacity=P0.hp<P0.maxHp*.3?.6+Math.sin(tm*8)*.35:.9}}
+  if(typeof heroDraw2==='function')heroDraw2(tm,useRing);
   for(const S of scorch){if(S.t>0){S.t-=rdt;S.m.material.opacity=clamp(S.t/3,0,1)*.75;if(S.t<=0)S.m.visible=false}}
   for(const S of splats){if(S.t>0){S.t-=rdt;S.m.material.opacity=clamp(S.t/4,0,1)*.85;if(S.t<=0)S.m.visible=false}}
   for(const p of G.pools){if(poolI>=poolPool.length)break;const m=poolPool[poolI++],fade=clamp(p.t/.6,0,1)*clamp((p.T-p.t)/.2,0,1);m.visible=true;m.position.set(p.x,.5+poolI*.01,p.y);m.scale.set(p.r*2.15,1,p.r*2.15);const c=rgb(p.col),br2=p.steam?.34:.82;m.material.color.setRGB(c[0]*br2,c[1]*br2,c[2]*br2);m.material.opacity=fade*(.5+Math.sin(tm*5+p.x)*.07);
@@ -197,7 +200,7 @@ function render(rdt){
   for(const f of G.fx){if(f.k!=='relic')continue;const R=RELICS[f.id],bob=8+Math.sin(tm*3+f.x)*3;glow(f.x,bob,f.y,R.col,26,1.3+Math.sin(tm*7)*.3);glow(f.x,bob,f.y,'#ffffff',8,2);for(let i=0;i<5;i++){const a=tm*2+i*1.256;glow(f.x+Math.cos(a)*12,4+((tm*18+i*8)%20),f.y+Math.sin(a)*12,R.col,3.5,1.5)}useRing(f.x,.9,f.y,16+Math.sin(tm*5)*2,R.col,.7)}
   if(typeof extRender==='function')extRender(tm,useRing);
   for(const w of G.pwaves){useRing(w.x,1.2,w.y,w.r,w.col,.9*(1-w.r/w.R)+.2);useRing(w.x,1.2,w.y,Math.max(2,w.r-7),'#ffffff',.4*(1-w.r/w.R));for(let i=0;i<16;i++){const a=i/16*TAU+tm*2;glow(w.x+Math.cos(a)*w.r,7,w.y+Math.sin(a)*w.r,w.col,10,1.3*(1-w.r/w.R)+.3)}}
-  for(const sp of G.spells)if(sp.beam){const b=sp.beam,col=sp.els[0]?ELS[sp.els[0]].col:'#f4efe0';for(let k=0;k<b.pts.length-1;k++){const [x1,y1]=b.pts[k],[x2,y2]=b.pts[k+1],n=8;for(let i=0;i<=n;i++){const q=i/n,wob=Math.sin(tm*40+i*1.7+k)*2.5*(1-b.hold*.5);glow(x1+(x2-x1)*q+wob,10+Math.sin(tm*30+i)*2,y1+(y2-y1)*q-wob,i%2?col:'#ffffff',8+b.hold*8,1.2+b.hold)}}}
+  for(const sp of G.spells)if(sp.beam){const b=sp.beam,col=sp.els[0]?ELS[sp.els[0]].col:(b.col||'#f4efe0');for(let k=0;k<b.pts.length-1;k++){const [x1,y1]=b.pts[k],[x2,y2]=b.pts[k+1],n=8;for(let i=0;i<=n;i++){const q=i/n,wob=Math.sin(tm*40+i*1.7+k)*2.5*(1-b.hold*.5);glow(x1+(x2-x1)*q+wob,10+Math.sin(tm*30+i)*2,y1+(y2-y1)*q-wob,i%2?col:'#ffffff',8+b.hold*8,1.2+b.hold)}}}
   if(G.mission&&G.mission.k==='seal'){const m=G.mission,inside=hyp(P.x-m.x,P.y-m.y)<m.r;useRing(m.x,1.2,m.y,m.r,inside?'#ff5fe8':'#c060d0',.8);useRing(m.x,1.2,m.y,m.r*(1-m.n/m.N),'#ffffff',.5);for(let i=0;i<12;i++){const a=i/12*TAU+tm*1.5;glow(m.x+Math.cos(a)*m.r,8+Math.sin(tm*6+i)*4,m.y+Math.sin(a)*m.r,'#ff5fe8',12,inside?1.8:1)}}
   if(G.mission&&G.mission.k==='hunt'&&G.mission.target&&!G.mission.target.dead){const e=G.mission.target;useRing(e.x,1.2,e.y,e.r+10+Math.sin(tm*8)*3,'#ff5fe8',.9)}
   for(const h of G.hazards){ // boss ground hazards: pulsing telegraph ring, then a burning disc

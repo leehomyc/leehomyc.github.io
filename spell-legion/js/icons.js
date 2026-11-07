@@ -112,7 +112,7 @@ const ICON=(()=>{
     gold:c=>C(32,32,18,{f:c,s:'#fff',w:2.5})+P('M26 24H38M26 32H38M32 20V44',{s:'#7a4a10',w:3}),
     trophy:c=>P('M20 10H44V26C44 36 36 40 32 40C28 40 20 36 20 26Z',{f:c,s:'#fff',w:2.5})+P('M20 14H12V22C12 28 18 30 20 30M44 14H52V22C52 28 46 30 44 30',{s:'#fff',w:2.5})+P('M32 40V50M22 54H42',{s:'#fff',w:3.5}),
   };
-  const CLS={swordsman:'sword',taoist:'talis',blademaster:'slash',qin:'wave',monk:'staff',physician:'needle'};
+  const CLS={swordsman:'sword',taoist:'talis',blademaster:'slash',qin:'wave',monk:'staff',physician:'needle',oni:'katana',idol:'lightstick',wizard:'arcane'};
   const NODE_GLYPH={};
   function svg(shape,c,cls=''){const f=S[shape]||S.relic;return `<svg class="ic ${cls}" viewBox="0 0 64 64" style="--c:${c}" aria-hidden="true"><circle cx="32" cy="32" r="30" fill="#120a14" stroke="${c}" stroke-width="2.5"/><circle cx="32" cy="32" r="27" fill="${c}" opacity=".14"/><circle cx="32" cy="32" r="27.5" fill="none" stroke="#000" stroke-width="1.2" opacity=".55"/><g>${f(c)}</g></svg>`}
   return {
