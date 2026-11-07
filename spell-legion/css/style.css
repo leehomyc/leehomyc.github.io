@@ -1187,3 +1187,9 @@ html[lang=en] #menu .vname.ven{display:block}
 .langmenu button:hover,.langmenu button:focus-visible{background:#2a1822;outline:none}
 .langmenu button.on{color:#ffd27a}.langmenu button i{font-style:normal;color:#ffd27a}
 @media (max-width:640px){.langpick{top:max(10px,env(safe-area-inset-top));right:max(10px,env(safe-area-inset-right))}.langchip{height:34px;padding:0 10px 0 8px;font-size:13px;gap:5px}.langchip .glb{width:17px;height:17px}}
+/* contact / feedback: a quiet line under the menu buttons */
+.mfoot{display:flex;align-items:center;justify-content:center;gap:10px;margin-top:14px;font-size:13px}
+.mfoot a{display:inline-flex;align-items:center;gap:6px;color:var(--dim);text-decoration:none;padding:6px 8px;border-radius:8px;transition:color .15s,background .15s}
+.mfoot a:hover,.mfoot a:focus-visible{color:var(--bone);background:#2a182288;outline:none}
+.mfoot svg{width:16px;height:16px;flex:none}.mfoot .sep{color:#6b5230}
+@media (max-width:640px){.mfoot{margin-top:10px;padding-bottom:4px}}
