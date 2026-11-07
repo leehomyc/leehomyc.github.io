@@ -394,7 +394,23 @@ if(window.desktop){$('#exitbtn').hidden=false;$('#exitbtn').onclick=()=>window.d
 
 
 
-document.querySelectorAll('.langbtn').forEach(b=>{b.classList.toggle('on',b.dataset.l===LANG);b.onclick=()=>{setLang(b.dataset.l);document.querySelectorAll('.langbtn').forEach(x=>x.classList.toggle('on',x.dataset.l===LANG));renderTitle();autoLabel();syncSound();if(G&&!G.auto){drawSeals()}}});
+/* switchLang(l, manual): manual picks are remembered and beat the IP guess from then on */
+function switchLang(l,manual){if(!LANGS.includes(l))return;if(manual)setLang(l);else{LANG=l;document.documentElement.lang=l;document.title=L('魔咒军团','Spell Legion')}
+  document.querySelectorAll('.langbtn').forEach(x=>x.classList.toggle('on',x.dataset.l===LANG));const lc=$('#langchip');if(lc)lc.textContent=LANG==='zh'?'EN':'中';
+  renderTitle();autoLabel();syncSound();if(G&&!G.auto){drawSeals()}}
+document.querySelectorAll('.langbtn').forEach(b=>{b.classList.toggle('on',b.dataset.l===LANG);b.onclick=()=>switchLang(b.dataset.l,true)});
+{const lc=$('#langchip');if(lc){lc.textContent=LANG==='zh'?'EN':'中';lc.title='中文 / English';lc.onclick=()=>{switchLang(LANG==='zh'?'en':'zh',true);SFX.pick(1)}}}
+/* ?lang= has done its job once it is saved: tidy the address bar (other params such as ?room= stay) */
+if(LANG_FROM_URL)try{const u=new URL(location.href);u.searchParams.delete('lang');history.replaceState(null,'',u.pathname+u.search+u.hash)}catch(_){}
+/* first visit with no pick yet: ask which country the IP is in (two free services, first answer wins), cache it, and switch if it differs.
+   Only switches while the player is still on the menus, never mid-run. */
+(async function langAuto(){let pick=null,cached=null;try{pick=localStorage.getItem('sl_lang');cached=localStorage.getItem('sl_lang_ip')}catch(_){}
+  if(LANGS.includes(pick)||LANGS.includes(cached)||LANG_FROM_URL)return;
+  const get=(url,key)=>fetch(url,{cache:'no-store'}).then(r=>r.ok?r.json():Promise.reject()).then(j=>j[key]?String(j[key]).toUpperCase():Promise.reject());
+  const t=new Promise((_,rej)=>setTimeout(rej,2500));
+  let cc=null;try{cc=await Promise.race([Promise.any([get('https://api.country.is/','country'),get('https://get.geojs.io/v1/ip/country.json','country')]),t])}catch(_){return}
+  const l=LANG_BY_COUNTRY[cc]||'en';try{localStorage.setItem('sl_lang_ip',l)}catch(_){}
+  if(l!==LANG&&(!G||G.auto)&&$('#end').hidden)switchLang(l,false)})();
 
 /* lobby tabs: one panel at a time, remembered */
 let lobbyTab=(()=>{try{return localStorage.getItem('sl_tab')||''}catch(_){return ''}})();
