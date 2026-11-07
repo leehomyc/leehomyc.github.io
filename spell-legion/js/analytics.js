@@ -6,32 +6,35 @@ const METRICS={session:crypto.randomUUID(),uid:null,visible:0,play:0,run:null,qu
 function metricsUser(){
  const user=typeof CLOUD==='undefined'?null:CLOUD.user,uid=user?.uid||null;
  if(uid!==METRICS.uid){
+  METRICS.pending=!!METRICS.pending;METRICS.reported=false;
   METRICS.session=crypto.randomUUID();METRICS.queue=[];METRICS.visible=METRICS.play=0;
   METRICS.run=null;METRICS.uid=uid;METRICS.last=performance.now();
  }
  return user;
 }
+function metricsNewRun(){return {id:crypto.randomUUID(),mode:SAVE.mode,cls:CLASS,difficulty:DIFFID,playMs:0,simSeconds:0,kills:0,bosses:0,level:1,ended:false,outcome:'in_progress'};}
 function metricsStart(){
- if(!metricsUser()||typeof G==='undefined'||!G||G.auto)return;
- metricsEnd('abandoned');
- METRICS.run={id:crypto.randomUUID(),mode:SAVE.mode,cls:CLASS,difficulty:DIFFID,playMs:0,simSeconds:0,kills:0,bosses:0,level:1,ended:false,outcome:'in_progress'};
- metricsFlush();
+ if(typeof G==='undefined'||!G||G.auto)return;
+ if(!metricsUser()){METRICS.pending=true;return;}
+ metricsEnd('abandoned');METRICS.pending=false;METRICS.run=metricsNewRun();metricsFlush();
 }
-function metricsSample(){
+function metricsSample(report=true){
  const user=metricsUser(),n=performance.now(),dt=Math.min(1500,Math.max(0,n-METRICS.last));METRICS.last=n;
  METRICS.active=false;if(!user||document.hidden)return;METRICS.visible+=dt;
+ if(METRICS.pending&&typeof G!=='undefined'&&G&&!G.auto&&!G.ended&&!G.over){METRICS.pending=false;METRICS.run=metricsNewRun();}
  const active=typeof G!=='undefined'&&G&&!G.auto&&!G.ended&&!G.over&&(G.shared||(!G.pick&&!G.paused&&!G.panel));
  METRICS.active=!!active;
  if(active){METRICS.play+=dt;if(METRICS.run)METRICS.run.playMs+=dt;}
  if(METRICS.run&&typeof G!=='undefined'&&G&&!G.auto)Object.assign(METRICS.run,{simSeconds:G.t||0,kills:G.kills||0,bosses:G.bossSlain||0,level:G.lv||1});
+ if(report&&!METRICS.reported)metricsFlush();
 }
 function metricsEnd(outcome){
- metricsSample();if(!METRICS.run)return;
+ metricsSample(false);METRICS.pending=false;if(!METRICS.run)return;
  METRICS.run.ended=true;METRICS.run.outcome=outcome||((typeof G!=='undefined'&&G?.abandoned)?'abandoned':typeof G!=='undefined'&&G?.over==='lose'?'lose':'finished');
  metricsFlush();METRICS.run=null;
 }
 async function metricsFlush(){
- const user=metricsUser();if(!user)return;
+ const user=metricsUser();if(!user)return;METRICS.reported=true;
  let source='';try{const ref=new URL(document.referrer);if(ref.origin!==location.origin)source=ref.origin;}catch{}
  const b={id:crypto.randomUUID(),session:METRICS.session,visibleMs:Math.min(120000,Math.round(METRICS.visible)),playMs:Math.min(120000,Math.round(METRICS.play)),playing:!!METRICS.active&&!!METRICS.run&&!METRICS.run.ended&&!document.hidden,source,device:/Mobi|Android|iPhone/i.test(navigator.userAgent)?'mobile':'desktop',run:METRICS.run?{...METRICS.run,playMs:Math.min(120000,Math.round(METRICS.run.playMs))}:null};
  METRICS.visible=METRICS.play=0;if(METRICS.run)METRICS.run.playMs=0;
