@@ -76,6 +76,9 @@ function trDict(s,loc,depth){
   /* tolerate surrounding spaces / trailing punctuation the code adds */
   const m0=/^(\s*)([\s\S]*?)(\s*[:·,]?\s*)$/.exec(s);
   if(m0&&(m0[1]||m0[3])&&D[m0[2]]!==undefined)return m0[1]+D[m0[2]]+m0[3];
+  /* Resolve joined content names before broad suffix templates such as "{0} Awakening".
+     Otherwise "Needles · Rude Awakening" treats a trait name as a weapon awakening. */
+  if(s.includes(' · ')){const names=s.split(' · ');if(names.every(x=>D[x]!==undefined))return names.map(x=>D[x]).join(' · ')}
   if(depth<4)for(const p of i18nPatterns(loc)){
     if(p.anchor&&s.indexOf(p.anchor)<0)continue;
     const m=p.re.exec(s);if(!m)continue;
@@ -125,7 +128,7 @@ function i18nStatic(){
   /* the brush logo stays in Chinese characters: traditional for 繁體/한국어 (hanja), Japanese forms for 日本語 */
   const v=document.querySelector('#menu .vname'),vt={zh:'魔咒军团',zt:'魔咒軍團',en:'魔咒军团',ja:'魔呪軍団',ko:'魔咒軍團'}[LOC];
   if(v){if(v.dataset.ink)[...v.children].forEach((sp,i)=>{sp.textContent=vt[i]||''});else v.textContent=vt;v.setAttribute('aria-label',vt)}
-  document.querySelectorAll('[data-l10n]').forEach(el=>{const [zh,en]=el.dataset.l10n.split('|');const v=L(zh,en);if(el.dataset.l10nAttr)el.setAttribute(el.dataset.l10nAttr,v);else el.textContent=v});
+  document.querySelectorAll('[data-l10n]').forEach(el=>{const [zh,en]=el.dataset.l10n.split('|');const v=L(zh,en);if(el.dataset.l10nAttr)el.dataset.l10nAttr.split(/\s+/).filter(Boolean).forEach(a=>el.setAttribute(a,v));else el.textContent=v});
 }
 /* per-language fonts: brush titles and UI text need kana / hangul / traditional glyphs */
 const LOC_FONT={zt:'LXGW+WenKai+TC:wght@400;700',ja:'Yuji+Syuku&family=Zen+Kaku+Gothic+New:wght@500;700',ko:'Song+Myung&family=Gowun+Dodum'};

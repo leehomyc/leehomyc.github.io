@@ -138,10 +138,10 @@ const ICON=(()=>{
         else if(au)badge=svg(au,'#d6a54a','bd');
         else if(cd.nodeFx)badge=svg(S[cd.nodeFx]?cd.nodeFx:'dmg','#ffd27a','bd');
         else if(cd.kind==='new')badge='';
-        else badge=`<span class="bd t">${cd.badge}</span>`}
+        else badge=`<span class="bd t">${LANG==='zh'?tr(cd.badge):({path:'◇',ascend:'↑'}[cd.kind]||'✧')}</span>`}
       else if(cd.isNew||cd.kind==='new')badge=`<span class="bd t new">${L('新','NEW')}</span>`;
       else if(cd.kind==='level')badge=`<span class="bd t lvl">↑</span>`;
-      else if(cd.kind==='passive')badge=`<span class="bd t pas">卷</span>`;
+      else if(cd.kind==='passive')badge=`<span class="bd t pas">▤</span>`;
       return main+badge;
     }
   };

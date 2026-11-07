@@ -1211,3 +1211,10 @@ html[lang=ko]{--brush:"Song Myung","AppleMyungjo","Batang","Noto Serif KR",serif
 #account .unv{font-size:11px;font-weight:800;color:#ffd27a;background:#ffd27a1f;border:1px solid #ffd27a66;border-radius:999px;padding:2px 8px}
 #account .acct{display:inline-flex;gap:10px;margin-left:auto}#account .lnk.danger{color:#ff8a8a}
 #account .lnk{background:none;border:0;color:var(--dim);font:inherit;font-size:12px;cursor:pointer;text-decoration:underline;padding:4px}#account .lnk:hover{color:var(--bone)}
+
+/* Mobile hero button uses the active language too. */
+@media (max-width:640px){
+  html[lang=en] #charbtn::before{content:'C'}
+  html[lang=ja] #charbtn::before{content:'人'}
+  html[lang=ko] #charbtn::before{content:'캐'}
+}
