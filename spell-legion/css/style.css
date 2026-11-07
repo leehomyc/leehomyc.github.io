@@ -1082,8 +1082,9 @@ html[lang=zh] #menu .ttb h1.entitle{display:none}
 .lbbox{display:flex;flex-direction:column;gap:8px;width:min(100%,460px);max-height:calc(100dvh - 32px);background:radial-gradient(130% 60% at 50% 0%,#3c2230,#140b12 60%);border:2px solid #d6a54a88;border-radius:24px;padding:12px 12px 0;box-shadow:0 24px 70px #000d;overflow:hidden}
 .lbhead{display:flex;align-items:center;gap:8px}
 .lbtabs{flex:1;display:flex;gap:4px;padding:4px;border-radius:999px;background:#0008}
-.lbtabs button{flex:1;border:0;border-radius:999px;background:none;color:var(--dim);font:800 14px var(--cute);padding:8px 6px;cursor:pointer}
+.lbtabs button{flex:1;min-width:0;border:0;border-radius:999px;background:none;color:var(--dim);font:800 14px var(--cute);padding:8px 4px;white-space:nowrap;cursor:pointer}
 .lbtabs button.on{background:linear-gradient(#ffe9a0,#ffb347);color:#3a1a00}
+@media (max-width:380px){.lbtabs button{font-size:12px;padding-inline:2px}}
 .lbx{width:36px;height:36px;border-radius:50%;border:2px solid #ffffff1f;background:#ffffff0d;color:var(--bone);font:800 16px var(--ui);cursor:pointer;flex:none}
 .lbscroll{flex:1 1 auto;min-height:120px;overflow-y:auto;overscroll-behavior:contain;margin:0 -12px;padding:2px 12px 12px}
 .lbnote{margin:6px 0;font-size:13px;color:var(--dim);text-align:center}

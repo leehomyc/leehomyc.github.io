@@ -121,12 +121,13 @@ async function cloudPush(now){
     if(!cloudSession(uid,epoch)||CLOUD.syncedUid!==uid)return false;
     const body=JSON.stringify(SAVE);if(body===CLOUD.lastPushed&&!now)return true;
     const clean=JSON.parse(body),a=typeof accountLv==='function'?accountLv():{lv:1},t=typeof titleFor==='function'?titleFor(a.lv):['','',''];
-    const profile={name:LB.name()||'无名侠客',lv:a.lv,title:t[1],guest:CLOUD.isGuest(),ts:firebase.firestore.FieldValue.serverTimestamp()};
+    const profile={name:LB.name()||'无名侠客',lv:a.lv,axp:Math.max(0,SAVE.axp||0),trophies:Math.max(0,SAVE.trophies||0),cls:SAVE.cls,guest:CLOUD.isGuest(),title:t[1],ts:firebase.firestore.FieldValue.serverTimestamp(),...(SAVE.avatar?{av:{e:SAVE.avatar.e|0,h:SAVE.avatar.h|0}}:{})};
     try{
       await CLOUD.db.collection('saves').doc(uid).set({save:clean,ts:firebase.firestore.FieldValue.serverTimestamp()});
       if(!cloudSession(uid,epoch))return false;
       await CLOUD.db.collection('profiles').doc(uid).set(profile,{merge:true});
       if(!cloudSession(uid,epoch))return false;
+      if(typeof CLB!=='undefined')delete CLB.cache.profiles;
       CLOUD.lastPushed=body;CLOUD.syncErr='';return true;
     }catch(e){if(cloudSession(uid,epoch)){CLOUD.syncErr=String(e?.message||e).slice(0,80);renderAccount()}console.warn('push failed',e);return false}
   });
@@ -238,7 +239,7 @@ const CLB={
     }finally{clearTimeout(timer)}
   },
   async raw(board){
-    const day=board==='all'?0:dayKey(),key=board==='all'?'all':'today:'+day;
+    const day=board==='today'?dayKey():0,key=day?'today:'+day:'endless';
     const c=this.cache[key];if(c&&Date.now()-c.t<45000)return c.rows;
     if(this.pending[key])return this.pending[key];
     const epoch=this.epoch;
@@ -249,9 +250,18 @@ const CLB={
     try{return await pending}finally{if(this.pending[key]===pending)delete this.pending[key]}
   },
   async fetch(board){
+    if(board==='ladder'||board==='level'){
+      const key='profiles',cached=this.cache[key];
+      const profiles=cached&&Date.now()-cached.t<45000?cached.rows:await this.query('',{from:[{collectionId:'profiles'}],limit:500});
+      if(!cached||Date.now()-cached.t>=45000)this.cache[key]={t:Date.now(),rows:profiles};
+      const field=board==='ladder'?'trophies':'lv';
+      const rows=profiles.filter(p=>p._id&&p.name).map(p=>({uid:p._id,name:p.name,av:p.av,cls:p.cls,score:Math.max(0,Number(p[field])||0),axp:p.axp||0}));
+      rows.sort((a,b)=>b.score-a.score||(board==='level'?b.axp-a.axp:0)||String(a.uid).localeCompare(String(b.uid)));
+      return {ok:true,count:rows.length,rows,me:CLOUD.uid()};
+    }
     const raw=await this.raw(board),best=new Map();
     for(const r of raw){
-      if(['pk','qpk','room'].includes(r.mode)||!Number.isFinite(r.score)||r.score<0)continue;
+      if((board==='endless'&&r.mode!=='solo')||['pk','qpk','room'].includes(r.mode)||!Number.isFinite(r.score)||r.score<0)continue;
       const k=r.uid||r.name;if(!k)continue;
       if(!best.has(k)||lbCompare(r,best.get(k))<0)best.set(k,r);
     }
