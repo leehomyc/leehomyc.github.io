@@ -1133,3 +1133,9 @@ html[lang=zh] #menu .ttb h1.entitle{display:none}
 .lbline .tx{flex:1;min-width:0}.lbline .arr{font-size:22px;color:var(--dim)}
 .lbline.pop{animation:lbpop .5s cubic-bezier(.34,1.56,.64,1) both}@keyframes lbpop{0%{transform:scale(.92);opacity:0}}
 @media (max-width:640px){#lb{padding:8px;align-items:stretch}.lbbox{max-height:none;height:100%}}
+
+/* duel: the room owns difficulty and map (switching map reloads the page and would drop the room); hide the solo pickers */
+#hero.inroom #diff,#hero.inroom #maps,#hero.inroom #modenote{display:none!important}
+#roompanel .chip.map{font-weight:600;color:var(--dim)}
+/* desktop HUD: the score panel sits under the minimap instead of on top of it */
+body:not(.touchhud) #roomboard{top:186px}

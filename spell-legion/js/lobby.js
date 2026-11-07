@@ -3,7 +3,7 @@
 const ROLES={swordsman:['远程 · 均衡','Ranged · Balanced'],taoist:['法术 · 符咒','Caster · Talismans'],blademaster:['近战 · 重击','Melee · Bruiser'],qin:['控场 · 减速','Control · Slows'],monk:['近战 · 坚韧','Melee · Tank'],physician:['远程 · 毒伤','Ranged · Poison']};
 const MENU_MODES=[
   {m:'solo',ic:['sword','#ffb79f'],zh:'出山',en:'Play',szh:()=>`单人无尽${(SAVE.asura&&SAVE.asura.sel)?` · 修罗 ${SAVE.asura.sel} 层`:''}`,sen:()=>`Solo endless${(SAVE.asura&&SAVE.asura.sel)?` · Ascension ${SAVE.asura.sel}`:''}`,big:1},
-  {m:'qpk',ic:['swords','#ff9c5a'],zh:'对决',en:'Duel',szh:()=>`3 分钟`,sen:()=>`3 minutes`},
+  {m:'qpk',ic:['swords','#ff9c5a'],zh:'对决',en:'Duel',szh:()=>`AI 或好友`,sen:()=>`AI or friends`},
   {m:'daily',ic:['calendar','#ffd27a'],zh:'每日挑战',en:'Daily',szh:()=>(SAVE.daily&&SAVE.daily.day===dayKey())?`今日最佳 ${fmt(SAVE.daily.best)}`:`全服排名`,sen:()=>(SAVE.daily&&SAVE.daily.day===dayKey())?`Today's best ${fmt(SAVE.daily.best)}`:`Ranked worldwide`},
 ];
 /* retired entries (kept playable through SAVE.mode for old links, not offered): 'pk' ten-minute AI race, 'rush' boss rush */
