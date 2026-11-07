@@ -87,6 +87,14 @@ test('daily and abandoned runs never overwrite the adventure survival record',()
     assert.equal(run('SAVE.best'),50);assert.equal(run('G.settlement.record'),false);
   }
 });
+test('one boss on the highest available Ascension tier unlocks and selects the next tier',()=>{
+  const first=setup();settlement(first.run);first.run('G.bossSlain=1;ASURA_T=0;settleRunRewards()');
+  assert.equal(first.run('SAVE.asura.max'),1);assert.equal(first.run('SAVE.asura.sel'),1);
+  const lower=setup();settlement(lower.run);lower.run('SAVE.asura.max=3;SAVE.asura.sel=1;ASURA_T=1;G.bossSlain=1;settleRunRewards()');
+  assert.equal(lower.run('SAVE.asura.max'),3);
+  const abandoned=setup();settlement(abandoned.run);abandoned.run('G.bossSlain=1;G.abandoned=true;settleRunRewards()');
+  assert.equal(abandoned.run('SAVE.asura.max'),0);
+});
 test('repeated end rendering invokes extension rewards only once',()=>{
   const {run}=setup();run("endCalls=0;xOn('end',()=>endCalls++);showEnd(false);showEnd(false)");assert.equal(run('endCalls'),1);
 });

@@ -255,7 +255,7 @@ function pts(e){if(e.type==='boss')return 300+150*(e.n||0);if(e.warlord)return 6
 const PK_EVENTS={chest:25,mission:40,ambush:50};
 const ACTIVE_MULT=2.6;  // damage multiplier for qi-costing skills (see hit())
 
-/* 修罗 Ascension tiers: stacked modifiers, unlocked by clearing the previous tier (two bosses in one run) */
+/* 修罗 Ascension tiers: stacked modifiers, unlocked by slaying one boss on the highest unlocked tier. */
 const ASURA=[
   {zh:'敌人生命 +15%',en:'Enemies +15% HP'},
   {zh:'精英更常出现',en:'Elites appear more often'},

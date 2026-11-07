@@ -1,5 +1,5 @@
 'use strict';
-/* heroes.js — Nov 2026 roster: three new heroes (斩鬼人 Oni Hunter, 偶像 Idol, 巫师 Wizard) and a third,
+/* heroes.js — Nov 2026 roster: three new heroes (阴阳师 Onmyoji, 偶像 Idol, 巫师 Wizard) and a third,
    legendary weapon (神兵) for every hero. Loaded after sim.js: it adds content to the tables in content.js
    and wraps a few sim functions (autoFire, castSkill, autoCast, orbits, dmgP, hit, kill, newGame, bossSlain).
    New mechanics: summoned minions (G.minis), charm (charmed monsters fight each other), falling drops
@@ -13,7 +13,7 @@ Object.assign(SPELLS,{
   flute:{g:'笛',zh:'玉笛',en:'Jade Flute',col:'#9ff0d0',auto:1,d:'普攻·神兵:笛声凝成一道长光束,贯穿一线所有敌人并减速,吹得越久越强。',de:'Normal attack · Legendary. The note becomes a long beam through every enemy in a line, slowing them; it grows the longer you hold it.'},
   bell:{g:'钟',zh:'铜钟',en:'Temple Bell',col:'#ffcf6a',auto:1,d:'普攻·神兵:巨钟从天而降砸向敌群,震晕并荡出钟波。',de:'Normal attack · Legendary. A great bell drops onto the crowd, stunning it and ringing out a shockwave.'},
   goldgu:{g:'蚕',zh:'金蚕蛊',en:'Golden Silkworm',col:'#ffd75a',auto:1,d:'普攻·神兵:金蚕常伴,扑咬敌人叠毒并吸血;它们杀死的敌人会孵出新蚕。',de:'Normal attack · Legendary. Golden gu stay with you, biting to stack poison and drain life; their kills hatch more.'},
-  // ---- 斩鬼人 Oni Hunter ----
+  // ---- 阴阳师 Onmyoji ----
   katana:{g:'刃',zh:'妖刀',en:'Moon Katana',col:'#ff6b8a',auto:1,d:'普攻:向前斩出贯穿的月牙刀光,每第三刀十字斩并留下刀痕。',de:'Normal attack. Crescent cuts that pierce everything ahead; every third is a cross-cut that leaves a lingering scar.'},
   kusari:{g:'镰',zh:'锁镰',en:'Chain Sickle',col:'#c9b6ff',auto:1,d:'普攻:锁链钩住远处的敌人,把一线敌人拽到身前,再回旋一镰。',de:'Normal attack. Hook a distant foe, yank the whole line to you, then spin the sickle through them.'},
   shiki:{g:'式',zh:'式神',en:'Shikigami',col:'#f4f0ff',auto:1,d:'普攻·神兵:召出纸鹤式神常伴左右,自行俯冲穿刺敌人。',de:'Normal attack · Legendary. Paper-crane spirits stay with you and dive through enemies on their own.'},
@@ -39,7 +39,7 @@ Object.assign(SPELLS,{
   blackhole:{g:'渊',zh:'黑洞',en:'Black Hole',col:'#b57cf0',cost:60,cd:20,dur:3,d:'在敌群中心撕开黑洞,三秒内吸入并碾压,最后坍缩爆炸。',de:'Tear open a black hole in the crowd: it drags enemies in for three seconds, then collapses in a blast.'},
 });
 Object.assign(CLASSES,{
-  oni:{zh:'斩鬼人',en:'Oni Hunter',g:'鬼',col:'#ff6b8a',main:'katana',skills:['flash','seal','onibi','sakura'],hp:110,mana:100,regen:14,dmg:1.04,spd:1.06,d:'妖刀斩月,结界封魔;以快打快的退魔剑士。',de:'A moon-cutting katana and binding seals: a fast, bursty demon hunter from the east.'},
+  oni:{zh:'阴阳师',en:'Onmyoji',g:'陰',col:'#ff6b8a',main:'katana',skills:['flash','seal','onibi','sakura'],hp:110,mana:100,regen:14,dmg:1.04,spd:1.06,d:'妖刀斩月,结界封魔;以快打快的退魔剑士。',de:'A moon-cutting katana and binding seals: a fast, bursty demon hunter from the east.'},
   idol:{zh:'偶像',en:'Idol',g:'星',col:'#ff8fd8',main:'lightstick',skills:['wink','dance','fanchant','encore'],hp:95,mana:120,regen:17,dmg:.96,spd:1.08,d:'爱心弹射,一个眨眼让怪物倒戈;舞台属于你。',de:'Bouncing heart beams and a wink that turns monsters on each other: the stage is yours.'},
   wizard:{zh:'巫师',en:'Wizard',g:'巫',col:'#a98bff',main:'arcane',skills:['frostnova','blink','manashield','blackhole'],hp:85,mana:150,regen:20,dmg:.97,spd:1,d:'奥术法球、冰霜与黑洞;来自西方的大法师。',de:'Arcane orbs, frost and black holes: a spellcaster from the far west.'},
 });
@@ -381,7 +381,7 @@ const NEW_HEROES=['oni','idol','wizard'];
 .endleg .pips{display:flex;gap:4px;font-style:normal}.endleg .pips span{width:12px;height:12px;border-radius:50%;border:1.5px solid #ffd27a88;background:#0006}.endleg .pips span.on{background:#ffd27a;box-shadow:0 0 8px #ffb04a}
 .endleg.got{box-shadow:0 0 0 2px #ffd27a,0 0 24px #ffb04a66}`;document.head.appendChild(st)})();
 
-/* ---------------- duel AI: rivals can be 斩鬼人 / 偶像 / 巫师 ----------------
+/* ---------------- duel AI: rivals can be 阴阳师 / 偶像 / 巫师 ----------------
    The core rival code only knows the original kits, so for these heroes we hold its attack and skill timers
    and drive them here with simplified versions of the same moves (rival-owned, so kills score for the rival). */
 function rivalNear(R,r){let b=null,bd=r;near(R.x,R.y,r,e=>{if(e.type==='statue')return;const d=hyp(e.x-R.x,e.y-R.y);if(d<bd){bd=d;b=e}});return b}

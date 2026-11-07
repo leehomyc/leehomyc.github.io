@@ -20,7 +20,7 @@ const BOUNTIES=[
   {id:'streak',zh:'连斩不断 30 秒',en:'Keep the streak alive 30 s',t:30,pick:S=>S.comboNow>=20?1:0,start(){this.c0=G.combo},prog(){return G.combo>0?1:-1},done(){return G.combo>0},rw:{kind:'card',q:'epic'},rzh:'史诗卡',ren:'an epic card'},
 ];
 function dirOn(){if(typeof window!=='undefined'&&window.__nodir)return false;return !!G&&!G.auto&&!G.over&&!RIVAL_ON&&!G.room&&!(typeof DAILY!=='undefined'&&DAILY)}
-function dirInit(){const skill=(typeof SAVE!=='undefined'&&SAVE.skill)||0;G.dir={spawn:1,hp:1,dmg:1,elite:1,heal:1,counter:null,counterP:0,mood:'build',moodT:35,I:1,base:.9+skill*.45,base0:.9+skill*.45,lowHp:1,lastLow:0,peaks:0,champs:0,bounties:0,bountiesTried:0,hist:[]};G.dirStat={dmgRate:0,kpm:0,actShare:0,parries:0,elitesAlive:0,comboNow:0};G.dirT=0}
+function dirInit(){const skill=(typeof SAVE!=='undefined'&&SAVE.skill)||0,solo=SAVE.mode==='solo',base=(solo?1.15:.9)+skill*.45;G.dir={spawn:1,hp:1,dmg:1,elite:1,heal:1,counter:null,counterP:0,mood:'build',moodT:35,I:base,base,base0:base,lowHp:1,lastLow:0,peaks:0,champs:0,bounties:0,bountiesTried:0,hist:[]};G.dirStat={dmgRate:0,kpm:0,actShare:0,parries:0,elitesAlive:0,comboNow:0};G.dirT=0}
 function dirMeasure(){const P=G.P,D=G.dir,S=G.dirStat,t=G.t;
   const r=P.hp/P.maxHp;D.hist.push({t,r,taken:G.dmgTaken,kills:G.kills,dodges:G.dodges||0});while(D.hist.length&&D.hist[0].t<t-60)D.hist.shift();
   const h0=D.hist[0],h30=D.hist.find(h=>h.t>=t-30)||h0;D.lowHp=Math.min(...D.hist.map(h=>h.r));
@@ -50,7 +50,7 @@ function directorTick(dt){if(!dirOn())return;if(!G.dir)dirInit();const D=G.dir,t
   G.dirT=(G.dirT||0)+dt;if(G.dirT<2)return;G.dirT-=2;dirMeasure();const S=G.dirStat,P=G.P;
   D.moodT-=2;const inBoss=!!G.boss;
   if(D.mood==='build'){ // calm: ease toward the baseline, let the build breathe
-    D.I+=(D.base-D.I)*.25;D.counterP=0;if(D.moodT<=0&&t>150&&!inBoss){D.mood='pressure';D.moodT=40;D.counter=dirCounter();D.counterP=.35;D.pushed=0}}
+    D.I+=(D.base-D.I)*.25;D.counterP=0;if(D.moodT<=0&&t>(SAVE.mode==='solo'?100:150)&&!inBoss){D.mood='pressure';D.moodT=40;D.counter=dirCounter();D.counterP=.35;D.pushed=0}}
   else if(D.mood==='pressure'){ // push until the player actually dips, then let go
     D.pushed+=2;if(D.lowHp>.6&&S.dmgRate<.02)D.I=Math.min(D.base*2.6,D.I*1.09);
     const dipped=(t-D.lastLow)<4;if(dipped||D.moodT<=0||inBoss){D.mood='relief';D.moodT=dipped?16:10;if(dipped){D.peaks++;D.base=Math.max(D.base0*.8,D.base*.97)}else if(!inBoss)D.base=Math.min(D.base0*1.8,D.base*1.07)} // a push that never lands raises the baseline for the next one; a real dip relaxes it a little
@@ -60,9 +60,9 @@ function directorTick(dt){if(!dirOn())return;if(!G.dir)dirInit();const D=G.dir,t
     D.I=Math.max(D.base*.8,D.I*.9);D.counterP=0;if(D.moodT<=0){D.mood='build';D.moodT=30+rnd(25)}}
   if(D.lowHp<.2)D.I=Math.min(D.I,D.base*.85); // mercy, silent: a near-death buys a softer half minute
   const early=clamp((t-120)/360,0,1);D.I=clamp(D.I,D.base*.75,D.base*(1+1.6*early)); // the first minutes belong to the build: the director only starts leaning in after 2 min and reaches full reach at 8
-  if(t<120)D.I=Math.min(D.I,1);
+  if(t<120)D.I=Math.min(D.I,SAVE.mode==='solo'?1.2:1);
   if(S.still&&t>150){D.counter=t>210&&rnd()<.4?'bomber':'archer';D.counterP=Math.max(D.counterP,.5)} // a player who stands still gets shot at: archers and bombers do full damage at range
-  D.spawn=D.mood==='pressure'?Math.min(1.6,D.I):D.mood==='relief'?.7:Math.min(1.15,D.I);D.hp=clamp(Math.pow(D.I,.4),.8,1.35);D.dmg=clamp(Math.pow(D.I,.45),.8,1+.5*early);D.elite=clamp(D.I,.8,1+1.2*early);D.heal=D.mood==='pressure'?1.6:1;
+  D.spawn=D.mood==='pressure'?Math.min(1.6,D.I):D.mood==='relief'?.7:Math.min(1.15,D.I);D.hp=clamp(Math.pow(D.I,.4),.8,1.35);D.dmg=clamp(Math.pow(D.I,.45),.8+(SAVE.mode==='solo'?.12:0),1+.5*early+(SAVE.mode==='solo'?.12:0));D.elite=clamp(D.I,.8,1+1.2*early+(SAVE.mode==='solo'?.15:0));D.heal=D.mood==='pressure'?1.6:1;
 }
 /* across runs: a veteran's director starts hotter; a player who keeps dying gets a gentler start */
 function dirRunEnd(){if(!G||!G.dir||typeof SAVE==='undefined'||RIVAL_ON||G.room)return;const mins=G.t/60,died=!!G.killer;let s=SAVE.skill||0;const target=clamp((mins-6)/24+(G.bossSlain*.04)-(died&&mins<8?.15:0),0,1);s+=(target-s)*.35;SAVE.skill=clamp(s,0,1);SAVE.dirPeaks=(SAVE.dirPeaks||0)+(G.dir.peaks||0)}

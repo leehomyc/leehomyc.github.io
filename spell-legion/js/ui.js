@@ -194,27 +194,30 @@ function renderWeapons(){
   });
 }
 function renderAsura(){
-  /* 修罗 = the only difficulty choice: one stepper, the reward always visible, the newest rule in one line.
-     Locked tiers are simply out of reach of the arrows; the next unlock lives in the ▶ tooltip. */
-  const el=$('#asura');if(!el)return;const A=SAVE.asura,on=SAVE.mode==='solo';el.hidden=!on;if(!on)return;
-  const max=A.max||0;if((A.sel||0)>max)A.sel=max;const sel=A.sel||0,gold=t=>Math.round(ASURA_GOLD*t*100);
-  const unlockTip=L('一局斩杀两位首领,开启下一层','Slay two bosses in one run to open the next tier');
-  el.textContent='';el.classList.toggle('lockedall',max===0);el.classList.toggle('lit',sel>0);
-  const lab=document.createElement('span');lab.className='al';lab.innerHTML=`${ICON.misc('boss','#ff5a45','sm')}${L('修罗','Ascension')}`;el.appendChild(lab);
-  const best=document.createElement('span');best.className='asura-best';
-  const bestScore=SAVE.lb?.bestRun?.score;
-  best.textContent=`${L('最高分','Personal best')} ${Number.isFinite(bestScore)?Math.round(bestScore).toLocaleString('en-US'):'—'}`;
-  el.appendChild(best);
-  if(max===0){const n=document.createElement('small');n.className='ad';n.textContent=L('🔒 首领 ×2','🔒 2 bosses');el.appendChild(n);return}
-  const step=d=>{const t=sel+d;if(t<0||t>max)return;A.sel=t;persist();renderTitle();SFX.pick(1)};
-  const mk=(txt,d,dis,tip)=>{const b=document.createElement('button');b.type='button';b.className='st';b.textContent=txt;b.disabled=dis;b.title=tip;b.setAttribute('aria-label',tip);b.onclick=()=>step(d);return b};
-  el.appendChild(mk('‹',-1,sel<=0,L('降一层','One tier down')));
-  const v=document.createElement('b');v.className='av';v.textContent=sel?String(sel):L('无','Off');v.title=sel?ASURA.slice(0,sel).map(x=>L(x.zh,x.en)).join('\n'):L('普通规则','Base rules');el.appendChild(v);
-  el.appendChild(mk('›',1,sel>=max,sel>=max?(max>=ASURA.length?L('已是最高层','Highest tier'):unlockTip):L('升一层','One tier up')));
-  const d=document.createElement('small');d.className='ad';
-  d.innerHTML=sel?`<em>${L(`金币 +${gold(sel)}%`,`+${gold(sel)}% gold`)}</em>${L(ASURA[sel-1].zh,ASURA[sel-1].en)}`:`${L('金币 +0%','+0% gold')}`;
-  d.title=sel?ASURA.slice(0,sel).map((x,i)=>`${i+1}. ${L(x.zh,x.en)}`).join('\n'):unlockTip;el.appendChild(d);
+  const el=$('#asura');if(!el)return;const on=SAVE.mode==='solo';el.hidden=!on;if(!on)return;
+  const A=SAVE.asura,max=Math.min(A.max||0,ASURA.length),sel=Math.min(A.sel||0,max);
+  A.sel=sel;const oldScroll=el.querySelector('.asura-rail')?.scrollLeft;
+  el.replaceChildren();
+  const head=document.createElement('div');head.className='asura-head';
+  const title=document.createElement('strong');title.innerHTML=`${ICON.misc('boss','#ff5a45','sm')}${L('修罗','Ascension')} <span>${max}/${ASURA.length}</span>`;head.appendChild(title);
+  const best=document.createElement('span');best.className='asura-best';const score=SAVE.lb?.bestRun?.score;
+  best.textContent=`${L('最高分','Personal best')} ${Number.isFinite(score)?Math.round(score).toLocaleString('en-US'):'—'}`;head.appendChild(best);
+  el.appendChild(head);
+  const rail=document.createElement('div');rail.className='asura-rail';rail.setAttribute('role','group');rail.setAttribute('aria-label',L('修罗难度','Ascension tiers'));
+  for(let i=0;i<=ASURA.length;i++){
+    const locked=i>max,selected=i===sel,rule=i?L(ASURA[i-1].zh,ASURA[i-1].en):L('普通规则','Base rules');
+    const card=document.createElement('button');card.type='button';card.className='asura-card'+(selected?' on':'')+(locked?' locked':'');card.disabled=locked;
+    card.setAttribute('aria-pressed',String(selected));card.title=rule;
+    card.innerHTML=`<span class="tier">${locked?'🔒 ':''}${i?L(`修罗 ${i} 层`,`Tier ${i}`):L('普通','Base')}</span><b>${rule}</b><small>${i?L(`金币 +${i*15}%`,`+${i*15}% gold`):L('金币 +0%','+0% gold')}</small>`;
+    card.onclick=()=>{A.sel=i;persist();renderTitle();SFX.pick(1)};rail.appendChild(card);
+  }
+  el.appendChild(rail);rail.scrollLeft=oldScroll===undefined?Math.max(0,sel*168-120):oldScroll;
+  const hint=document.createElement('small');hint.className='asura-hint';
+  hint.textContent=max<ASURA.length?L('在已解锁的最高层击败一位首领，即可解锁下一层','Slay one boss on your highest unlocked tier to open the next'):
+    L('所有修罗层已解锁','All Ascension tiers unlocked');
+  el.appendChild(hint);
 }
+
 function renderTitle(){
   const row=$('#classes');row.textContent='';
   for(const k in CLASSES){const C=CLASSES[k],b=document.createElement('button');b.className='cls'+(SAVE.cls===k?' sel':'');b.type='button';b.style.setProperty('--c',C.col);
@@ -265,7 +268,7 @@ function settleRunRewards(){
   checkAch();
   const meta=typeof metaAfterRun==='function'?metaAfterRun():null;
   const gold=Math.round((G.kills*.45+G.lv*3+G.bossSlain*220+Math.floor(G.t/10)*2+G.goldRun*.7+G.comboMax)*(1+.15*(SAVE.up.gold||0))*(G.relics.includes('bowl')?1.3:1)*(G.relics.includes('wolf')?1.6:1)*(G.curse.gold||1)*(1+ASURA_GOLD*ASURA_T)*D().gold*(G.retireBonus||1)*(G.abandoned?.5:1));
-  let tierUp=false;if(ASURA_T>=0&&(SAVE.mode==='solo')&&G.bossSlain>=2&&!G.abandoned&&SAVE.asura.max<=ASURA_T&&ASURA_T<(typeof ASURA_CAP!=='undefined'?ASURA_CAP:ASURA.length)){SAVE.asura.max=ASURA_T+1;tierUp=true}if(G.bossSlain>=2&&ASURA_T>(SAVE.asura.best||0))SAVE.asura.best=ASURA_T;
+  let tierUp=false;if(ASURA_T>=0&&SAVE.mode==='solo'&&G.bossSlain>=1&&!G.abandoned&&SAVE.asura.max<=ASURA_T&&ASURA_T<(typeof ASURA_CAP!=='undefined'?ASURA_CAP:ASURA.length)){SAVE.asura.max=ASURA_T+1;SAVE.asura.sel=SAVE.asura.max;tierUp=true}if(G.bossSlain>=1&&ASURA_T>(SAVE.asura.best||0))SAVE.asura.best=ASURA_T;
   const pk=RIVAL_ON&&G.rival,pkRes=pk?(G.score>G.rival.score?'win':G.score<G.rival.score?'lose':'tie'):null;const pkBonus=pkRes==='win'?200:pkRes==='tie'?80:0;
   if(pk){SAVE.pk=SAVE.pk||{w:0,l:0};if(pkRes==='win')SAVE.pk.w++;else if(pkRes==='lose')SAVE.pk.l++;SAVE.pkBest=Math.max(SAVE.pkBest||0,G.score)}
   let dailyNew=false;if(DAILY){const dk=G.day||dayKey();if(!SAVE.daily||SAVE.daily.day!==dk)SAVE.daily={day:dk,best:0,bosses:0};if(G.t>SAVE.daily.best){SAVE.daily.best=G.t;SAVE.daily.bosses=G.bossSlain;dailyNew=true}}
