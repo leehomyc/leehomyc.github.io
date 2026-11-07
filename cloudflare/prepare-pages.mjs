@@ -25,6 +25,8 @@ if(!cloud.includes('await CLOUD.auth.signInAnonymously();'))throw new Error('Ano
 cloud=cloud.replace('await CLOUD.auth.signInAnonymously();',"await (window.SPELL_CN_PROXY?Promise.race([CLOUD.auth.signInAnonymously(),new Promise((_,reject)=>setTimeout(()=>reject(new Error('auth/network-request-failed')),12000))]):CLOUD.auth.signInAnonymously());");
 if(!cloud.includes('  async query(parent,structuredQuery){'))throw new Error('Leaderboard insertion point missing');
 cloud=cloud.replace('  async query(parent,structuredQuery){','  async query(parent,structuredQuery){await window.SPELL_CONNECTION_READY;');
+if(!cloud.includes('  syncAuthButtons();\n}\n/* ---- leaderboard'))throw new Error('Account retry insertion point missing');
+cloud=cloud.replace('  syncAuthButtons();\n}\n/* ---- leaderboard',"  syncAuthButtons();\n  if(!CLOUD.ready&&!CLOUD.initializing){const retry=document.createElement('button');retry.type='button';retry.className='go sm alt';retry.textContent=L('重试连接','Retry connection');retry.onclick=()=>location.reload();el.appendChild(retry)}\n}\n/* ---- leaderboard");
 await writeFile(cloudPath,cloud);
 const revision=process.env.CF_PAGES_COMMIT_SHA||await readFile(resolve(root,'RELEASE_SOURCE'),'utf8').catch(()=> 'local');
 await writeFile(resolve(output,'version.json'),JSON.stringify({revision:revision.trim(),built:new Date().toISOString()}));

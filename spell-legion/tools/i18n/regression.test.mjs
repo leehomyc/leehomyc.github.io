@@ -89,7 +89,7 @@ test('death messages translate the whole sentence with the target language word 
 
 test('initial page title uses the selected language',()=>{
   const {evaluate}=setup();
-  for(const [loc,title] of [['en','Spell Legion'],['zh','魔咒军团'],['zt','魔咒軍團'],['ja','魔呪軍団'],['ko','주문군단']]) {
+  for(const [loc,title] of [['en','Spell Legion'],['zh','魔咒军团'],['zt','魔咒軍團'],['ja','スペルレギオン'],['ko','주문 군단']]) {
     evaluate(`LOC='${loc}';LANG='${loc==='zh'||loc==='zt'?'zh':'en'}';I18N.cache.clear();i18nStatic()`);
     assert.equal(evaluate('document.title'),title);
   }

@@ -96,8 +96,8 @@
 ],
 [
 "Spell Legion feedback",
-"魔呪軍団 フィードバック",
-"주문군단 피드백"
+"スペルレギオン フィードバック",
+"주문 군단 피드백"
 ],
 [
 "Legendary unlocked · {0}",
@@ -123,5 +123,10 @@
 "Run not posted. Tap to retry",
 "記録を送れなかった。タップで再送",
 "기록이 등록되지 않았어요. 눌러서 다시 시도"
+],
+[
+"Retry connection",
+"再接続",
+"다시 연결"
 ]
 ]

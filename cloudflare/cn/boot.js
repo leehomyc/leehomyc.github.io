@@ -12,7 +12,7 @@ window.SPELL_CONNECTION_READY=(async()=>{
       cn=response.ok&&(await response.json()).cn===true;
     }finally{clearTimeout(timer)}
   }catch(_){/* Keep the existing direct path if the region lookup is unavailable. */}
-  navigator.serviceWorker?.getRegistration('/').then(registration=>{
+  if(navigator.serviceWorker?.getRegistration)navigator.serviceWorker.getRegistration('/').then(registration=>{
     if(registration?.active?.scriptURL.endsWith('/cn-connection-sw.js'))return registration.unregister().then(()=>{
       if(!cn&&navigator.serviceWorker.controller)location.reload();
     });

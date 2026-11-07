@@ -128,9 +128,14 @@ function i18nStatic(){
     const src=el.dataset.src,isZh=el.classList.contains('zh');
     el.innerHTML=(isZh&&LOC==='zt')||(!isZh&&(LOC==='ja'||LOC==='ko'))?tr(src):src;
   });
-  /* the brush logo stays in Chinese characters: traditional for 繁體/한국어 (hanja), Japanese forms for 日本語 */
-  const v=document.querySelector('#menu .vname'),vt={zh:'魔咒军团',zt:'魔咒軍團',en:'魔咒军团',ja:'魔呪軍団',ko:'魔咒軍團'}[LOC];
-  if(v){if(v.dataset.ink)[...v.children].forEach((sp,i)=>{sp.textContent=vt[i]||''});else v.textContent=vt;v.setAttribute('aria-label',vt)}
+  const v=document.querySelector('#menu .vname.vzh'),vt={zh:'魔咒军团',zt:'魔咒軍團',en:'魔咒军团',ja:'スペルレギオン',ko:'주문 군단'}[LOC];
+  if(v){
+    if(v.dataset.ink){
+      v.replaceChildren();
+      [...vt].forEach((ch,i)=>{const sp=document.createElement('span');sp.textContent=ch===' '?' ':ch;sp.style.setProperty('--i',i);sp.setAttribute('aria-hidden','true');v.appendChild(sp)});
+    }else v.textContent=vt;
+    v.setAttribute('aria-label',vt);
+  }
   document.querySelectorAll('[data-l10n]').forEach(el=>{const [zh,en]=el.dataset.l10n.split('|');const v=L(zh,en);if(el.dataset.l10nAttr)el.dataset.l10nAttr.split(/\s+/).filter(Boolean).forEach(a=>el.setAttribute(a,v));else el.textContent=v});
 }
 /* per-language fonts: brush titles and UI text need kana / hangul / traditional glyphs */
