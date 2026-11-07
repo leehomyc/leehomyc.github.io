@@ -2172,6 +2172,8 @@ I18N_LOAD('ja',
 "🔒 slay two bosses in a run · +15% gold per tier": "🔒 1回でボスを2体倒す · 層ごとにゴールド+15%",
 "🔒 {0} bosses in a run · total {1}/{2}": "🔒 1回のプレイでボス{0}体 · 累計 {1}/{2}",
 "Password needs 7+ characters": "パスワードは7文字以上",
+"Now playing": "再生中",
+"Next track": "次の曲",
 "password (7+)": "パスワード(7文字以上)"
 }
 );

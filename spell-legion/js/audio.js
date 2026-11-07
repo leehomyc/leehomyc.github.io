@@ -82,7 +82,7 @@ const SFX=(()=>{
   function bell(f,t0,g=.3,dest=sfxG){osc('sine',f,t0,2.2,g,dest,{rv:1});osc('sine',f*2.76,t0,1.1,g*.35,dest,{rv:1});osc('sine',f*5.4,t0,.5,g*.12,dest)}
   const SC=[146.83,164.81,185,220,246.94,293.66,329.63,369.99,440,493.88,587.33]; // effect pitches
   /* Original compositions: each has its own harmony, melody, tempo and rhythm.
-     64 bars: intro 8 / verse 16 / chorus 16 / bridge 8 / final chorus 16.
+     32 bars: intro 4 / verse 8 / chorus 8 / bridge 4 / final chorus 8.
      Locale describes the pop style, not vocals or the player's interface language. */
   const TRACKS=[
     {id:'neon-river',locale:'zh',title:'霓虹星河',style:'C-pop / piano pop',bpm:112,voice:'piano',
@@ -138,7 +138,7 @@ const SFX=(()=>{
         [86,-1,84,82,79,-1,77,-1,74,-1,79,-1,79,-1,-1,-1]
       ]}
   ];
-  const SONG_BARS=64,retiredBuses=[];
+  const SONG_BARS=32,retiredBuses=[];
   let track=null,bag=[],previousTrack=-1;
   function beginTrack(t){
     if(!bag.length){
@@ -149,10 +149,11 @@ const SFX=(()=>{
     previousTrack=bag.shift();track=TRACKS[previousTrack];beat=bar=0;
     if(musicBus){musicBus.gain.cancelScheduledValues(t);musicBus.gain.setValueAtTime(1,t);musicBus.gain.linearRampToValueAtTime(0,t+.45);retiredBuses.push({node:musicBus,until:t+4})}
     musicBus=ac.createGain();musicBus.gain.setValueAtTime(0,t);musicBus.gain.linearRampToValueAtTime(1,t+.45);musicBus.connect(musicG);
+    if(typeof window.dispatchEvent==='function'&&typeof Event==='function')window.dispatchEvent(new Event('spell:music-track'));
   }
   function musicStep(t){
     const step=60/track.bpm/4,pos=beat%16,chord=track.chords[bar%track.chords.length];
-    const chorus=(bar>=24&&bar<40)||bar>=48,bridge=bar>=40&&bar<48,intro=bar<8,soft=state==='title',busy=state==='boss';
+    const chorus=(bar>=12&&bar<20)||bar>=24,bridge=bar>=20&&bar<24,intro=bar<4,soft=state==='title',busy=state==='boss';
     const energy=(soft?.67:1)*(bridge?.7:1),melody=track.hook[bar%track.hook.length][pos];
     // The final bar thins out before the next track's short crossfade.
     const tail=bar===SONG_BARS-1&&pos>=8?Math.max(.25,1-(pos-8)/10):1,g=energy*tail;
@@ -192,10 +193,11 @@ const SFX=(()=>{
     }
     if(started)return;started=true;nextBeat=now()+.05;beginTrack(nextBeat);setInterval(schedule,50);
   }
+  function nextTrack(){start();if(!ac)return;const t=now()+.05;beginTrack(t);nextBeat=t}
   const trackInfo=t=>({id:t.id,locale:t.locale,title:t.title,style:t.style,bpm:t.bpm,duration:SONG_BARS*4*60/t.bpm});
   const rl=(ms)=>{const t=performance.now();if(t-lastHit<ms)return false;lastHit=t;return true};
   const fx={
-    start,setState,
+    start,setState,nextTrack,
     get musicTrack(){return track?{...trackInfo(track),bar}:null},get musicTracks(){return TRACKS.map(trackInfo)},
     toggleMute(){return setMute(!(musicMuted&&sfxMuted))},setMute,
     toggleMusicMute(){return setMusicMute(!musicMuted)},toggleSfxMute(){return setSfxMute(!sfxMuted)},setMusicMute,setSfxMute,

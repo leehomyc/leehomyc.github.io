@@ -691,6 +691,7 @@ body.touchhud #pause .pbox>p{display:none}
 /* ---- settings rows ---- */
 .srow{display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid #6b523033}.srow:last-of-type{border-bottom:none}
 .srow .sl{flex:none;width:52px;font-size:12px;color:var(--dim);font-weight:700}.srow #account{display:flex;align-items:center;gap:10px;flex-wrap:wrap;flex:1}
+.musictrackrow .musictrack-name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px;font-weight:700}.musictrackrow .go{flex:none}
 .srow #account .who{display:inline-flex;align-items:center;gap:6px;font-weight:800;font-size:13px}.srow #account small{flex:1 1 100%;font-size:11px;color:var(--dim)}
 .tabbar{gap:8px}.tabbar button{padding:8px 10px}
 

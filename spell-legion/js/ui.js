@@ -312,7 +312,14 @@ function syncSound(){
   const off=kind==='music'?SFX.musicMuted:SFX.sfxMuted;
   document.querySelectorAll('[data-audio-mute="'+kind+'"]').forEach(b=>{b.textContent=off?'🔇':'🔊';b.classList.toggle('off',off);b.setAttribute('aria-pressed',String(off));const name=kind==='music'?L('音乐','Music'):L('音效','Effects');b.setAttribute('aria-label',name+' · '+(off?L('开启','Unmute'):L('静音','Mute'))) });
  }
+ syncMusicTrack();
 }
+function syncMusicTrack(){
+ const current=SFX.musicTrack;
+ document.querySelectorAll('[data-music-track]').forEach(el=>el.textContent=current?current.title:'—');
+}
+window.addEventListener('spell:music-track',syncMusicTrack);
+document.querySelectorAll('[data-next-music]').forEach(b=>b.onclick=()=>{SFX.nextTrack();syncMusicTrack()});
 document.querySelectorAll('#sndbtn').forEach(b=>b.onclick=()=>{SFX.start();SFX.toggleMute();syncSound();b.blur()});
 document.querySelectorAll('[data-audio]').forEach(el=>el.oninput=()=>{
  SFX.start();if(el.dataset.audio==='music')SFX.setMusic(el.value/100);else SFX.setSfx(el.value/100);

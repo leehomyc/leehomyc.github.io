@@ -67,6 +67,13 @@ test('four instrumental styles shuffle without repeats until all four have playe
   for(let i=1;i<seen.length;i++)assert.notEqual(seen[i],seen[i-1]);
   assert.deepEqual(Array.from(h.audio.musicTracks,t=>t.locale).sort(),['en','ja','ko','zh']);
   assert.equal(new Set(Array.from(h.audio.musicTracks,t=>t.bpm)).size,4);
+  assert.ok(h.audio.musicTracks.every(t=>t.duration>=50&&t.duration<=70));
+});
+test('next track skips immediately and never repeats the current track',()=>{
+  const h=setup({},true);h.audio.start();const seen=[h.audio.musicTrack.id];
+  for(let i=0;i<7;i++){h.audio.nextTrack();seen.push(h.audio.musicTrack.id)}
+  for(let i=0;i<seen.length;i+=4)assert.equal(new Set(seen.slice(i,i+4)).size,4);
+  for(let i=1;i<seen.length;i++)assert.notEqual(seen[i],seen[i-1]);
 });
 test('gameplay, pause and boss changes preserve the current song and musical phrase',()=>{
   const h=setup();h.audio.start();h.advance(12);const before=h.audio.musicTrack;assert.ok(before.bar>0);
@@ -81,9 +88,9 @@ test('music muted for a whole track allocates no new sources and preserves the e
   const h=setup({},true);h.audio.start();h.audio.setMusicMute(true);const before=h.stats.oscillators+h.stats.samples;h.advance(150);assert.equal(h.stats.oscillators+h.stats.samples,before);assert.equal(h.audio.sfxMuted,false);
 });
 
-test('iPhone audio uses the playback session and resumes an interrupted context',async()=>{
+test('iPhone audio mixes with other music and resumes an interrupted context',async()=>{
   const h=setup({},true,{initialState:'interrupted'});h.audio.start();await Promise.resolve();
-  assert.equal(h.navigator.audioSession.type,'playback');assert.equal(h.stats.resumes,1);assert.equal(h.stats.context.state,'running');
+  assert.equal(h.navigator.audioSession.type,'ambient');assert.equal(h.stats.resumes,1);assert.equal(h.stats.context.state,'running');
   assert.ok(h.stats.oscillators+h.stats.samples>0);assert.equal(h.stats.timers.length,1);
 });
 test('a rejected touch-down resume is retried on touch-end and native click',async()=>{
