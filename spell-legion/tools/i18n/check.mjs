@@ -6,12 +6,12 @@ import fs from 'fs';
 const [url, out, locsArg] = process.argv.slice(2);
 const locs = (locsArg || 'zh,zt,en,ja,ko').split(',');
 fs.mkdirSync(out, { recursive: true });
-const browser = await puppeteer.launch({ executablePath: '/usr/bin/google-chrome', headless: 'new',
+const browser = await puppeteer.launch({ executablePath: '/usr/bin/google-chrome', headless: 'new', protocolTimeout: 600000,
   args: ['--no-sandbox', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist', '--autoplay-policy=no-user-gesture-required'] });
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 const report = {};
 for (const loc of locs) {
-  for (const vp of [{ name: 'desk', width: 1280, height: 720 }, { name: 'phone', width: 844, height: 390, isMobile: true, hasTouch: true }]) {
+  for (const vp of [{ name: 'desk', width: +(process.env.W || 1280), height: +(process.env.H || 720) }, { name: 'phone', width: 844, height: 390, isMobile: true, hasTouch: true }]) {
     if (vp.name === 'phone' && process.env.NOPHONE) continue;
     const page = await browser.newPage();
     await page.setViewport({ width: vp.width, height: vp.height, deviceScaleFactor: 1, isMobile: !!vp.isMobile, hasTouch: !!vp.hasTouch });
@@ -19,11 +19,13 @@ for (const loc of locs) {
     page.on('pageerror', e => errs.push(String(e).slice(0, 200)));
     page.on('console', m => { if (m.type() === 'error') errs.push(m.text().slice(0, 200)) });
     await page.setRequestInterception(true);
-    page.on('request', r => { const u = r.url(); if (/googleapis|gstatic|firebase|google\.com|script\.google/.test(u)) r.abort(); else r.continue() });
+    page.on('request', r => { const u = r.url(); if (/googleapis|gstatic|firebase|google\.com|script\.google|country\.is|geojs/.test(u)) r.abort(); else r.continue() });
+    await page.evaluateOnNewDocument(() => { if (window.__slow) return; window.__slow = 1; const raf = window.requestAnimationFrame.bind(window); window.requestAnimationFrame = f => setTimeout(() => raf(f), +(localStorage.getItem('__raf') || 0)) });
+    if (process.env.SLOWRAF) await page.evaluateOnNewDocument(v => localStorage.setItem('__raf', v), process.env.SLOWRAF);
     await page.evaluateOnNewDocument(l => { try { localStorage.setItem('sl_lang', l); localStorage.setItem('sl_tutorial', '1') } catch (_) {} }, loc);
     await page.goto(url, { waitUntil: 'load' });
     await sleep(3500);
-    const shot = async n => { await page.screenshot({ path: `${out}/${loc}-${vp.name}-${n}.png` }) };
+    const shot = async n => { if (process.env.NOSHOT && !/1menu|5cards|10end/.test(n)) return; await page.screenshot({ path: `${out}/${loc}-${vp.name}-${n}.png` }) };
     const ev = async (f, ...a) => { try { return await page.evaluate(f, ...a) } catch (e) { errs.push('harness: ' + String(e).slice(0, 160)) } };
     await shot('1menu');
     if (vp.name === 'desk') {
