@@ -16,6 +16,7 @@ function frame(now){
     if(!G.auto)SFX.setState(G.over==='win'?'win':G.boss?'boss':'battle');
   }else{acc=0;if(G.hitStop>0)G.hitStop=0}
   render(dt);
+  updateVitalsFeedback();
   if(!G.auto)hud(dt);
 }
 function boot(){

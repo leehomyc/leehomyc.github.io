@@ -1319,3 +1319,38 @@ html[lang=ja] #menu .vname.vzh{font-size:clamp(30px,min(6vw,8vh),64px);white-spa
   #menu .duel-card>.duel-rank .ic{width:21px;height:21px}
   #menu .duel-rank strong{font-size:12px}
 }
+
+/* Skill descriptions sit above the combat bar and never intercept casting. */
+#skillhover{position:fixed;z-index:120;box-sizing:border-box;width:340px;max-width:calc(100vw - 16px);max-height:calc(100vh - 16px);overflow:auto;pointer-events:none;padding:15px 17px;border:1px solid #a98345;border-radius:14px;background:#170e19f5;box-shadow:0 8px 30px #000a;color:var(--bone);font:14px/1.45 var(--cute)}
+#skillhover[hidden]{display:none}
+#skillhover>strong{display:block;color:#ffe09a;font-size:17px}
+#skillhover p{margin:7px 0}#skillhover small{color:var(--dim)}
+#skillhover h4{margin:12px 0 5px;color:#ffd27a;font-size:13px}
+#skillhover ul{margin:0;padding-left:18px}#skillhover li+li{margin-top:6px}
+
+/* Leave room for the raised build slot; draw its ring inside the rounded border. */
+#build{box-sizing:border-box;padding:6px}
+#build .bs.hl{border-color:var(--c);outline:none;box-shadow:inset 0 0 0 2px var(--c),0 0 10px var(--c);transform:translateY(-2px)}
+@media(prefers-reduced-motion:reduce){#build .bs.hl{transform:none}}
+
+/* Larger mobile vitals with readable, named values. */
+body.touchhud #vbars{width:min(62vw,280px);gap:6px}
+body.touchhud .vb{height:23px;border-radius:9px;border-width:2px;box-shadow:0 2px 7px #0009}
+body.touchhud .vb b{font:800 13px/23px var(--cute)}
+body.touchhud .vb.hp{border-color:#ff8f7a}body.touchhud .vb.mp{border-color:#75cfff}
+body.touchhud #hpnum2::before{content:'HP ';color:#ffe4dc}body.touchhud #mpnum2::before{content:'Qi ';color:#d9f3ff}
+body.touchhud #roomboard{top:130px}
+#vitalsfx{position:fixed;inset:0;pointer-events:none;z-index:4;box-shadow:inset 0 0 55px 10px #e5303045;transition:box-shadow .16s}
+#vitalsfx[hidden],#healthwarning[hidden]{display:none}
+.health-hit #vitalsfx{box-shadow:inset 0 0 65px 18px #ff3e4290}
+.health-hit .vb.hp{border-color:#fff4d8;filter:brightness(1.3)}
+.health-low .vb.hp,.health-low .globe.hp{box-shadow:0 0 0 2px #ff8d75,0 0 18px #ff3a3a99}
+.health-critical #vitalsfx{animation:healthpulse 1.3s ease-in-out infinite}
+.health-critical .vb.hp{border-color:#fff0cc}
+.energy-low .vb.mp{border-color:#d5f5ff;box-shadow:0 0 0 1px #76cdff,0 0 12px #4fb0ff80}
+#healthwarning{position:fixed;bottom:130px;left:50%;transform:translateX(-50%);z-index:5;pointer-events:none;padding:6px 12px;border:1px solid #ff9d87;border-radius:999px;background:#3b0b15e8;color:#fff2df;box-shadow:0 2px 14px #0009;font:800 13px/1.3 var(--cute);text-align:center;max-width:calc(100vw - 32px)}
+.health-critical #healthwarning{background:#791928ed;border-color:#ffdbb6}
+body.touchhud #healthwarning{bottom:calc(235px + env(safe-area-inset-bottom));font-size:14px}
+@keyframes healthpulse{0%,100%{box-shadow:inset 0 0 65px 12px #e5303055}50%{box-shadow:inset 0 0 85px 20px #ff30308a}}
+@media(max-height:480px){body.touchhud .vb{height:20px}body.touchhud .vb b{font-size:12px;line-height:20px}body.touchhud #healthwarning{bottom:14px;left:45%;font-size:12px}body.touchhud #roomboard{top:116px}}
+@media(prefers-reduced-motion:reduce){.health-critical #vitalsfx{animation:none;box-shadow:inset 0 0 55px 10px #e5303055}#vitalsfx,.vb i{transition:none}.health-hit #vitalsfx{box-shadow:inset 0 0 50px 8px #ff3e4260}}

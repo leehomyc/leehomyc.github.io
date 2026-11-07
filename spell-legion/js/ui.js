@@ -26,7 +26,30 @@ function applyUpgrades(P){const u=SAVE.up;P.maxHp=Math.round(P.maxHp*(1+.1*(u.hp
 const fmt=t=>`${Math.floor(t/60)}:${String(Math.floor(t%60)).padStart(2,'0')}`;
 let hudT=0;
 const IS_TOUCH=matchMedia('(pointer:coarse)').matches;
+function vitalsStatus(hp,maxHp,mana,maxMana){
+  const ratio=Math.max(0,hp)/Math.max(1,maxHp);
+  return {low:hp>0&&ratio<=.3,critical:hp>0&&ratio<=.15,lowEnergy:mana/Math.max(1,maxMana)<=.2};
+}
+function updateVitalsFeedback(){
+  const fx=$('#vitalsfx'),warning=$('#healthwarning');if(!fx||!warning)return;
+  const P=G&&G.P,active=!!(P&&!G.auto&&!G.over&&!G.ended&&!G.paused&&!G.pick&&!G.panel&&P.down<=0);
+  const prior=G&&G._vitals;
+  if(P){
+    if(!prior||prior.player!==P)G._vitals={player:P,hp:P.hp,hitUntil:0};
+    else{if(active&&P.hp<prior.hp-.01)prior.hitUntil=Date.now()+450;prior.hp=P.hp}
+  }
+  const state=active?vitalsStatus(P.hp,P.maxHp,P.mana,P.maxMana):{low:false,critical:false,lowEnergy:false};
+  const hit=active&&Date.now()<(G._vitals?.hitUntil||0);
+  document.body.classList.toggle('health-hit',hit);
+  document.body.classList.toggle('health-low',state.low);
+  document.body.classList.toggle('health-critical',state.critical);
+  document.body.classList.toggle('energy-low',state.lowEnergy);
+  fx.hidden=!(hit||state.low);warning.hidden=!state.low;
+  const label=state.critical?L('濒危 · 立即避开攻击','CRITICAL HEALTH · Avoid attacks'):L('生命偏低','LOW HEALTH');
+  if(warning.textContent!==label)warning.textContent=label;
+}
 function hud(dt){
+  if(skillHoverAnchor&&(G.auto||G.over||G.ended||G.paused||G.pick||G.panel))hideSkillHover();
   hudT-=dt;if(hudT>0)return;hudT=.05;
   const P=G.P;
   $('#xp').style.width=(G.xp/G.need*100)+'%';
@@ -62,8 +85,46 @@ function drawRelics(){const box=$('#relics');if(!box)return;box.textContent='';c
 let introT=null,introOn=false;
 function bossIntro(zh,en,n){const el=$('#intro');el.innerHTML=`<div class="bn"><small>${n>=BOSSES.length?L(`第 ${Math.floor(n/BOSSES.length)+1} 轮 · ${n%BOSSES.length+1}/${BOSSES.length} `,`Cycle ${Math.floor(n/BOSSES.length)+1} · ${n%BOSSES.length+1}/${BOSSES.length}`):L(`第 ${n+1} 位首领`,`Boss ${n+1}`)}</small><b>${L(zh,en)}</b>${BOSS_HINT[n%BOSS_HINT.length]?`<em>${L(BOSS_HINT[n%BOSS_HINT.length][0],BOSS_HINT[n%BOSS_HINT.length][1])}</em>`:''}</div>`;el.hidden=false;el.classList.remove('on');void el.offsetWidth;el.classList.add('on');introOn=true;$('#banner').classList.remove('on');clearTimeout(introT);introT=setTimeout(()=>{el.classList.remove('on');introOn=false;setTimeout(()=>el.hidden=true,500)},3400)}
 function updateCores(){const e=$('#cores');e.textContent='';for(let i=0;i<Math.max(2,G.cores);i++){const s=document.createElement('i');s.className='core'+(i<G.cores?'':' off');e.appendChild(s);e.append(' ')}}
+/* Live skill inspection: only upgrades actually taken in this run are listed. */
+function skillHoverDetails(s){
+  const m=SPELLS[s.id],tree=TREES[s.id]||[];
+  const nodes=Object.entries(s.nodes||{}).filter(([i,r])=>r>0&&tree[i]).map(([i,r])=>{
+    const n=tree[i];return `${LL(n)} · ${r}/${n.max} — ${L(n.d,n.de)}`;
+  });
+  const extras=[];
+  if(s.path&&typeof PATHS!=='undefined'&&PATHS[s.path]){const p=PATHS[s.path];extras.push(`${LL(p)}${p.d?' — '+L(p.d,p.de):''}`)}
+  if(s.vari&&typeof VARIANTS!=='undefined'&&VARIANTS[s.vari]){const v=VARIANTS[s.vari];extras.push(`${LL(v)} — ${L(v.d,v.de)}`)}
+  for(const id of s.els||[]){const e=ELS[id];if(e)extras.push(`${LL(e)}${e.d?' — '+L(e.d,e.de):''}`)}
+  for(const id of s.augs||[]){const a=AUGS[id];if(a)extras.push(`${LL(a)} — ${L(a.d,a.de)}`)}
+  if(s.awake)extras.push(L('已觉醒','Awakened'));
+  return {name:`${LL(m)} · Lv ${s.lv}${s.tr?L(` · 真传 ${s.tr}`,` · Transcend ${s.tr}`):''}`,description:L(m.d,m.de),stats:m.auto?L('自动攻击','Automatic attack'):L(`消耗 ${skillCost(s)} 内力 · 基础冷却 ${m.cd}s`,`${skillCost(s)} qi · Base cooldown ${m.cd}s`),nodes,extras};
+}
+let skillHoverAnchor=null;
+function hideSkillHover(){const tip=document.getElementById('skillhover');if(tip)tip.hidden=true;if(skillHoverAnchor)skillHoverAnchor.removeAttribute('aria-describedby');skillHoverAnchor=null}
+function showSkillHover(index,anchor){
+  if(!G||G.auto||G.over||G.ended||G.paused||G.pick||G.panel)return;
+  const s=G.spells[index];if(!s)return;
+  hideSkillHover();
+  let tip=document.getElementById('skillhover');
+  if(!tip){tip=document.createElement('div');tip.id='skillhover';tip.setAttribute('role','tooltip');document.body.appendChild(tip)}
+  tip.textContent='';const details=skillHoverDetails(s);
+  const add=(tag,text)=>{const el=document.createElement(tag);el.textContent=text;tip.appendChild(el);return el};
+  add('strong',details.name);add('p',details.description);add('small',details.stats);
+  add('h4',L('已添加的技能树升级','Skill tree upgrades taken'));
+  if(details.nodes.length){const list=add('ul','');for(const text of details.nodes){const row=document.createElement('li');row.textContent=text;list.appendChild(row)}}
+  else add('p',L('尚未添加','None yet'));
+  if(details.extras.length){add('h4',L('其他强化','Other upgrades'));const list=add('ul','');for(const text of details.extras){const row=document.createElement('li');row.textContent=text;list.appendChild(row)}}
+  tip.hidden=false;skillHoverAnchor=anchor;anchor.setAttribute('aria-describedby','skillhover');
+  const r=anchor.getBoundingClientRect(),t=tip.getBoundingClientRect();
+  tip.style.left=Math.max(8,Math.min(innerWidth-t.width-8,r.left+r.width/2-t.width/2))+'px';
+  tip.style.top=Math.max(8,r.top-t.height-12>=8?r.top-t.height-12:Math.min(innerHeight-t.height-8,r.bottom+12))+'px';
+}
+addEventListener('resize',hideSkillHover);addEventListener('blur',hideSkillHover);
+document.addEventListener('keydown',e=>{if(e.key==='Escape')hideSkillHover()});
+document.addEventListener('visibilitychange',hideSkillHover);
 function drawSeals(){
   if(G.auto)return;
+  hideSkillHover();
   const box=$('#seals');box.textContent='';
   for(let i=0;i<4;i++){const s=G.spells[i],d=document.createElement('button');d.className='seal'+(s?'':' empty')+(i===0?' main':'');d.id='seal'+i;d.type='button';
     if(s){const m=SPELLS[s.id];
@@ -71,11 +132,14 @@ function drawSeals(){
       const l=document.createElement('div');l.className='lv';l.textContent='Lv '+s.lv;d.appendChild(l);
       const key=document.createElement('div');key.className='key';key.textContent=m.auto?L('自动','auto'):SPELL_KEYS[i];d.appendChild(key);
       if(!m.auto){const cst=document.createElement('div');cst.className='cost';cst.innerHTML=`<i>${L('内力','qi')}</i>${skillCost(s)}`;d.appendChild(cst)}
-      d.title=`${LL(m)} · Lv ${s.lv}${m.auto?L(' · 自动',' · auto'):L(` · 消耗 ${skillCost(s)} 内力 · 冷却 ${m.cd}s`,` · ${skillCost(s)} qi · ${m.cd}s cooldown`)}\n${L(m.d,m.de)}`;
+      d.setAttribute('aria-label',`${LL(m)} · Lv ${s.lv}`);
+      d.onpointerenter=ev=>{if(ev.pointerType!=='touch')showSkillHover(i,d)};
+      d.onpointerleave=()=>{if(document.activeElement!==d)hideSkillHover()};
+      d.onfocus=()=>showSkillHover(i,d);d.onblur=hideSkillHover;
       if(s.els.length){const e=document.createElement('div');e.className='els';s.els.forEach(k=>{const b=document.createElement('i');b.style.background=ELS[k].col;b.style.color=ELS[k].col;e.appendChild(b)});d.appendChild(e)}
       if(s.augs.length){const a=document.createElement('div');a.className='aug';a.textContent=s.augs.map(k=>AUGS[k].g).join('');d.appendChild(a)}
       const cdm=document.createElement('div');cdm.className='cdm';d.appendChild(cdm);
-            d.onpointerdown=ev=>{ev.preventDefault();if(!m.auto&&ev.button===0)castSkill(i)};
+            d.onpointerdown=ev=>{hideSkillHover();ev.preventDefault();if(!m.auto&&ev.button===0)castSkill(i)};
       d.oncontextmenu=ev=>{ev.preventDefault();ev.stopPropagation()};
     }else{const key=document.createElement('div');key.className='key';key.textContent=SPELL_KEYS[i];d.appendChild(key)}
     box.appendChild(d)}
