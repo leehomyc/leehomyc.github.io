@@ -7,8 +7,9 @@ const TITLES=[[1,'新手上路','Newcomer'],[3,'小有名气','Known Name'],[6,'
 function axpNeed(lv){return Math.round(120+lv*60+lv*lv*14)}
 function accountLv(){let lv=1,x=SAVE.axp||0;while(x>=axpNeed(lv)&&lv<99){x-=axpNeed(lv);lv++}return {lv,x,need:axpNeed(lv)}}
 function titleFor(lv){let t=TITLES[0];for(const r of TITLES)if(lv>=r[0])t=r;return t}
-/* XP for a run: time, kills, bosses, score; every run pays something, so a lost run still moves the account forward */
-function runAxp(){return Math.round(G.t*.6+G.kills*.08+G.bossSlain*60+(RIVAL_ON?G.score*.05:0)+G.lv*2)}
+/* A run needs a kill, 30 seconds of survival or an earned event before it pays out. */
+function earnedRunRewards(){return G.kills>0||G.t>=30||G.bossSlain>0||(G.warlordSlain||0)>0||(G.goldRun||0)>0}
+function runAxp(){return earnedRunRewards()?Math.round(G.t*.6+G.kills*.08+G.bossSlain*60+(RIVAL_ON?G.score*.05:0)+G.lv*2):0}
 
 /* ---------- daily tasks ---------- */
 /* each template: id, text, goal, how progress is measured (cumulative across runs today, or best single run) */

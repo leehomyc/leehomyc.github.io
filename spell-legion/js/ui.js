@@ -276,7 +276,7 @@ function settleRunRewards(){
   const goldBeforeSettlement=SAVE.gold;
   checkAch();
   const meta=typeof metaAfterRun==='function'?metaAfterRun():null;
-  const gold=Math.round((G.kills*.45+G.lv*3+G.bossSlain*220+Math.floor(G.t/10)*2+G.goldRun*.7+G.comboMax)*(1+.15*(SAVE.up.gold||0))*(G.relics.includes('bowl')?1.3:1)*(G.relics.includes('wolf')?1.6:1)*(G.curse.gold||1)*(1+ASURA_GOLD*ASURA_T)*D().gold*(G.retireBonus||1)*(G.abandoned?.5:1));
+  const gold=earnedRunRewards()?Math.round((G.kills*.45+G.lv*3+G.bossSlain*220+Math.floor(G.t/10)*2+G.goldRun*.7+G.comboMax)*(1+.15*(SAVE.up.gold||0))*(G.relics.includes('bowl')?1.3:1)*(G.relics.includes('wolf')?1.6:1)*(G.curse.gold||1)*(1+ASURA_GOLD*ASURA_T)*D().gold*(G.retireBonus||1)*(G.abandoned?.5:1)):0;
   const ascensionKill=(G.warlordSlain||0)>=1||G.bossSlain>=1;
   let tierUp=false;if(ASURA_T>=0&&SAVE.mode==='solo'&&ascensionKill&&!G.abandoned&&SAVE.asura.max<=ASURA_T&&ASURA_T<(typeof ASURA_CAP!=='undefined'?ASURA_CAP:ASURA.length)){SAVE.asura.max=ASURA_T+1;SAVE.asura.sel=SAVE.asura.max;tierUp=true}if(ascensionKill&&ASURA_T>(SAVE.asura.best||0))SAVE.asura.best=ASURA_T;
   const pk=RIVAL_ON&&G.rival,pkRes=pk?(G.score>G.rival.score?'win':G.score<G.rival.score?'lose':'tie'):null;const pkBonus=pkRes==='win'?200:pkRes==='tie'?80:0;

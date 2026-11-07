@@ -74,7 +74,12 @@ test('automatic replacement preserves equipped and locked gear and credits its s
   assert.equal(run("!!gearById('old0')"),true);assert.equal(run("!!gearById('old1')"),false);assert.equal(run("!!gearById('old2')"),true);assert.equal(run("!!gearById('upgrade')"),true);
   assert.equal(run('SAVE.gear.inv.length'),40);assert.ok(run('G.gearGold>0'));
 });
-function settlement(run){const s=source('ui');run(s.slice(s.indexOf('function settleRunRewards('),s.indexOf('function showEnd(')));run('checkAch=()=>{};dayKey=()=>20261107');}
+function settlement(run){const m=source('meta'),s=source('ui');run(m.slice(m.indexOf('function earnedRunRewards('),m.indexOf('function runAxp(')));run(s.slice(s.indexOf('function settleRunRewards('),s.indexOf('function showEnd(')));run('checkAch=()=>{};dayKey=()=>20261107');}
+test('a one-second abandoned run with no kill or earned event pays no gold',()=>{
+  const {run}=setup();settlement(run);
+  run('G.t=1;G.abandoned=true;metaAfterRun=()=>({xp:0,ranks:[]});settleRunRewards()');
+  assert.equal(run('G.settlement.gold'),0);assert.equal(run('SAVE.gold'),100);
+});
 test('settlement includes automatic salvage plus achievement and level rewards, with no second payout',()=>{
   const {run}=setup();settlement(run);
   run('SAVE.gold=140;G.gearGold=40;checkAch=()=>{SAVE.gold+=20};metaAfterRun=()=>{SAVE.gold+=30;return {xp:10}};settleRunRewards()');
