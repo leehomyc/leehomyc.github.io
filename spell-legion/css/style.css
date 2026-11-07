@@ -12,7 +12,7 @@ html,body{touch-action:manipulation;overscroll-behavior:none;-webkit-text-size-a
 button,.card,.overlay{touch-action:manipulation}
 canvas#cv{position:absolute;inset:0;width:100%;height:100%;touch-action:none;display:block}
 canvas#ov{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;display:block}
-#hud{position:absolute;inset:0;pointer-events:none;display:flex;flex-direction:column;justify-content:space-between;
+#hud{position:absolute;inset:0;isolation:isolate;pointer-events:none;display:flex;flex-direction:column;justify-content:space-between;
   padding-block:10px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
 #hud[hidden]{display:none}
 .top{display:grid;gap:6px}
@@ -1354,3 +1354,6 @@ body.touchhud #healthwarning{bottom:calc(235px + env(safe-area-inset-bottom));fo
 @keyframes healthpulse{0%,100%{box-shadow:inset 0 0 65px 12px #e5303055}50%{box-shadow:inset 0 0 85px 20px #ff30308a}}
 @media(max-height:480px){body.touchhud .vb{height:20px}body.touchhud .vb b{font-size:12px;line-height:20px}body.touchhud #healthwarning{bottom:14px;left:45%;font-size:12px}body.touchhud #roomboard{top:116px}}
 @media(prefers-reduced-motion:reduce){.health-critical #vitalsfx{animation:none;box-shadow:inset 0 0 55px 10px #e5303055}#vitalsfx,.vb i{transition:none}.health-hit #vitalsfx{box-shadow:inset 0 0 50px 8px #ff3e4260}}
+
+/* Pausing hides combat countdowns; resuming restores their current values. */
+#stage:has(#pause:not([hidden])) .seal .need{visibility:hidden}
