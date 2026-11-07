@@ -208,7 +208,7 @@ const ACH=[
   {id:'min20',zh:'半炷香',en:'Twenty Minutes',d:'存活 20 分钟',de:'Survive 20 minutes',gold:400},
   {id:'relic6',zh:'法宝收藏家',en:'Collector',d:'一局集齐 6 件法宝',de:'Hold 6 relics in one run',gold:150},
   {id:'allcls',zh:'四大高手',en:'Master of Four',d:'用四个职业各击败一位首领',de:'Slay a boss with every class',gold:500},
-  {id:'hard',zh:'炼狱',en:'Inferno',d:'困难难度击败一位首领',de:'Slay a boss on Hard',gold:300},
+  {id:'hard',zh:'炼狱',en:'Inferno',d:'修罗 5 层击败一位首领',de:'Slay a boss at Ascension 5',gold:300},
 ];
 const DIFF={easy:{zh:'简单',en:'Easy',hp:.7,dmg:.7,gold:.8},normal:{zh:'普通',en:'Normal',hp:1,dmg:1,gold:1},hard:{zh:'困难',en:'Hard',hp:1.4,dmg:1.35,gold:1.4}};
 

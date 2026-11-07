@@ -2,9 +2,9 @@
 /* lobby.js — menu-first front end: main menu → hero select (3D preview, weapon, skills, stats) → start. */
 const ROLES={swordsman:['远程 · 均衡','Ranged · Balanced'],taoist:['法术 · 符咒','Caster · Talismans'],blademaster:['近战 · 重击','Melee · Bruiser'],qin:['控场 · 减速','Control · Slows'],monk:['近战 · 坚韧','Melee · Tank'],physician:['远程 · 毒伤','Ranged · Poison']};
 const MENU_MODES=[
-  {m:'solo',ic:['sword','#ffb79f'],zh:'出山',en:'Play',szh:()=>`单人无尽 · ${LL(DIFF[SAVE.diff||'normal'])}${(SAVE.asura&&SAVE.asura.sel)?` · 修罗 ${SAVE.asura.sel}`:''}`,sen:()=>`Solo endless · ${LL(DIFF[SAVE.diff||'normal'])}${(SAVE.asura&&SAVE.asura.sel)?` · Ascension ${SAVE.asura.sel}`:''}`,big:1},
-  {m:'qpk',ic:['swords','#ff9c5a'],zh:'对决',en:'Duel',szh:()=>`3 分钟 · 打 AI 或好友`,sen:()=>`3 minutes · AI or friends`},
-  {m:'daily',ic:['calendar','#ffd27a'],zh:'每日挑战',en:'Daily',szh:()=>(SAVE.daily&&SAVE.daily.day===dayKey())?`今日最佳 ${fmt(SAVE.daily.best)}`:`每天一张新图,全服比排名`,sen:()=>(SAVE.daily&&SAVE.daily.day===dayKey())?`Today's best ${fmt(SAVE.daily.best)}`:`A new map every day, ranked`},
+  {m:'solo',ic:['sword','#ffb79f'],zh:'出山',en:'Play',szh:()=>`单人无尽${(SAVE.asura&&SAVE.asura.sel)?` · 修罗 ${SAVE.asura.sel} 层`:''}`,sen:()=>`Solo endless${(SAVE.asura&&SAVE.asura.sel)?` · Ascension ${SAVE.asura.sel}`:''}`,big:1},
+  {m:'qpk',ic:['swords','#ff9c5a'],zh:'对决',en:'Duel',szh:()=>`3 分钟`,sen:()=>`3 minutes`},
+  {m:'daily',ic:['calendar','#ffd27a'],zh:'每日挑战',en:'Daily',szh:()=>(SAVE.daily&&SAVE.daily.day===dayKey())?`今日最佳 ${fmt(SAVE.daily.best)}`:`全服排名`,sen:()=>(SAVE.daily&&SAVE.daily.day===dayKey())?`Today's best ${fmt(SAVE.daily.best)}`:`Ranked worldwide`},
 ];
 /* retired entries (kept playable through SAVE.mode for old links, not offered): 'pk' ten-minute AI race, 'rush' boss rush */
 let SCREEN='menu',HSKILL=null;
@@ -30,7 +30,7 @@ function renderMenu(){
 function statBars(C){
   const all=Object.values(CLASSES);const mx=k=>Math.max(...all.map(c=>c[k]));
   const rows=[['hp',L('生命','HP'),C.hp,mx('hp'),'#ff6a6a'],['mana',L('内力','Qi'),C.mana,mx('mana'),'#6fd3e8'],['dmg',L('伤害','Damage'),C.dmg,mx('dmg'),'#ffb04a'],['spd',L('移速','Speed'),C.spd,mx('spd'),'#7dffb0'],['regen',L('回气','Qi regen'),C.regen,mx('regen'),'#c7a4f0']];
-  return rows.map(([k,n,v,m,c])=>`<div class="sb"><span>${n}</span><i style="--w:${Math.round(v/m*100)}%;--c:${c}"></i><b>${k==='dmg'||k==='spd'?'×'+v.toFixed(2):v}</b></div>`).join('');
+  return rows.map(([k,n,v,m,c])=>`<div class="sb" title="${n} ${k==='dmg'||k==='spd'?'×'+v.toFixed(2):v}"><span>${n}</span><i style="--w:${Math.round(v/m*100)}%;--c:${c}"></i><b>${k==='dmg'||k==='spd'?'×'+v.toFixed(2):v}</b></div>`).join('');
 }
 /* Two different things, shown two different ways:
    武器 — chosen here, before the run: big selectable cards, the selected one explains its normal attack below.
@@ -38,7 +38,7 @@ function statBars(C){
    They are shown as a quiet row of seals (no selection frame), tap one to peek at it. */
 function weaponDetail(w){
   const m=SPELLS[w],info=WEAPON_INFO[w]||{};if(!m)return '';
-  return `<p><span class="wtag">${L('普攻 · 自动','Auto attack')}</span>${L(m.d,m.de).replace(/^(普攻[:：]|Normal attack\.\s*)/,'')}</p>${info.awake?`<p class="aw">${ICON.misc('awake','#ffd27a','sm')}<b>${L('Lv '+AWAKE_LV+' 觉醒','Lv '+AWAKE_LV+' awakening')}</b><span>${L(info.awake[0],info.awake[1])}</span></p>`:''}`;
+  return `<p><span class="wtag">${L('普攻 · 自动','Auto attack')}</span>${L(m.d,m.de).replace(/^(普攻[:：]|Normal attack\.\s*)/,'')}</p>`;
 }
 function skillDetail(id,start){
   const m=SPELLS[id];if(!m)return '';const cat=CATS[SKILL_CAT[id]]||CATS.passive;
@@ -49,7 +49,7 @@ function renderHero(){
   const C=CLASSES[SAVE.cls]||CLASSES.swordsman,cls=SAVE.cls;
   const hn=$('#hname');if(!hn)return;hn.textContent=LL(C);$('#hglyph').textContent=C.g;$('#hglyph').style.color=C.col;$('#hrole').textContent=L(ROLES[cls][0],ROLES[cls][1]);$('#hdesc').textContent=L(C.d,C.de);
   const w=weaponOf(cls);if(HSKILL&&!C.skills.includes(HSKILL))HSKILL=null;
-  const wd=$('#wdetail');if(wd){wd.innerHTML=weaponDetail(w);wd.style.setProperty('--c',SPELLS[w].col)}
+  const wd=$('#wdetail');if(wd){wd.innerHTML=weaponDetail(w);const aw=(WEAPON_INFO[w]||{}).awake;wd.title=aw?L(`Lv ${AWAKE_LV} 觉醒:${aw[0]}`,`Lv ${AWAKE_LV} awakening: ${aw[1]}`):'';wd.style.setProperty('--c',SPELLS[w].col)}
   const sk=$('#hskills');sk.textContent='';C.skills.forEach((id,i)=>{const m=SPELLS[id],b=document.createElement('button');b.type='button';b.className='ks'+(i===0?' start':'')+(id===HSKILL?' on':'');b.style.setProperty('--c',m.col);
     b.innerHTML=`<span class="ring">${ICON.spell(id)}${i===0?`<em>${L('开局','Start')}</em>`:'<em class="up">↑</em>'}</span><b>${LL(m)}</b>`;b.title=LL(m)+' · '+(i===0?L('开局自带','yours from the start'):L('升级时可选','offered on level-up'));
     b.onclick=()=>{HSKILL=HSKILL===id?null:id;renderHero();SFX.pick(1)};sk.appendChild(b)});

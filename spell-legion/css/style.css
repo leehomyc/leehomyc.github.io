@@ -1072,3 +1072,28 @@ html[lang=zh] #menu .ttb h1.entitle{display:none}
 #skilldetail .sdh .ic{width:36px;height:36px}#skilldetail .sdh b{font-size:14px}
 @media (max-width:760px){.ks .ring{width:44px;height:44px}.ks .ring .ic{width:34px;height:34px}.ks b{font-size:10.5px}}
 #weapons .wp .lk,#weapons .wp .buy{font-size:11.5px;line-height:1.3}#wdetail .aw b{white-space:nowrap}
+/* difficulty row retired: 修罗 is the one challenge dial */
+#diff[hidden]{display:none!important}
+#asura{display:flex;align-items:center;gap:6px;flex-wrap:nowrap;overflow:visible;font-size:12px;color:var(--dim);min-width:0}
+#asura .al{display:inline-flex;align-items:center;gap:4px;font-weight:800;color:#ffb3a6;white-space:nowrap}
+#asura .st{width:30px;height:30px;padding:0;border-radius:50%;background:#2a1822;border:1px solid #6b5230;color:var(--bone);font:900 18px/1 var(--ui);cursor:pointer;display:grid;place-items:center;min-width:0}
+#asura .st:hover:not(:disabled){border-color:#ff5a45;color:#fff}#asura .st:disabled{opacity:.3;cursor:not-allowed}
+#asura .av{min-width:2.2em;text-align:center;font:900 18px var(--ui);color:var(--bone);cursor:help}
+#asura.lit .av{color:#ff7a62;text-shadow:0 0 12px #ff5a4580}
+#asura small,#asura .ad{display:inline-block!important;font-size:12px;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:340px;cursor:help}
+#asura .ad em{font-style:normal;font-weight:800;color:#ffd27a;margin-right:6px}#asura .ad i{font-style:normal;opacity:.7;margin-left:6px}
+#asura.lockedall .ad{color:#c8a86c}
+@media (max-width:760px){#asura .ad{max-width:52vw}}
+/* less text on the hero screen: the left list already names the hero and role; the start button already says what you're starting */
+#hero .modechip{display:none}
+#hero #hrole,#hero #hdesc{display:none}
+#weapons .wp b .g{display:none}
+#hstats .sb b{display:none}#hstats .sb{grid-template-columns:52px 1fr;cursor:help}
+#runsummary{display:none}
+#wdetail{cursor:help}
+.mapb small:empty{display:none}
+/* cards: key number as a quiet corner badge */
+#cards .card{position:relative}
+#cards .card .k{position:absolute;right:10px;bottom:8px;margin:0;width:20px;height:20px;display:grid;place-items:center;border-radius:6px;border:1px solid #ffffff2a;font-size:11px;opacity:.6}
+#cards .card .k:empty{display:none}
+#seals .seal .gm{display:none}
