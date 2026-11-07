@@ -109,7 +109,7 @@ function relicChoice(guaranteed=false){let left=Object.keys(RELICS).filter(k=>!h
   const cursedOut=G.fx.filter(f=>f.k==='relic'&&RELICS[f.id].cursed).length;if(cursedOut>=2)left=left.filter(k=>!RELICS[k].cursed).concat(left.length?[]:[]);if(!left.length)left=Object.keys(RELICS).filter(k=>!RELICS[k].cursed);
   return pick(left)}
 function dropRelic(x,y){const id=relicChoice();if(!id){G.goldRun+=40;return}
-  const clear=(px,py)=>px>=32&&py>=32&&px<=W-32&&py<=H-32&&!blocked(px,py)&&!rocksNear(px,py).some(b=>{if(b.tree)return false;const dx=px-clamp(px,b.x,b.x+b.w),dy=py-clamp(py,b.y,b.y+b.h);return dx*dx+dy*dy<24*24});
+  const clear=(px,py)=>px>=32&&py>=32&&px<=W-32&&py<=H-32&&!blocked(px,py)&&!rocksNear(px,py).some(b=>{if(b.tree||b.bamboo)return false;const dx=px-clamp(px,b.x,b.x+b.w),dy=py-clamp(py,b.y,b.y+b.h);return dx*dx+dy*dy<24*24});
   if(!clear(x,y)){outer:for(let r=32;r<=192;r+=16)for(let i=0;i<16;i++){const a=i*TAU/16,px=clamp(x+Math.cos(a)*r,32,W-32),py=clamp(y+Math.sin(a)*r,32,H-32);if(clear(px,py)){x=px;y=py;break outer}}}
   if(G.fx.length<CAP.fx)G.fx.push({k:'relic',id,x,y,t:60,T:60})}
 function takeRelic(id){const R=RELICS[id],P=G.P;if(hasR(id)){if((G.dupRelics||0)>=10){G.goldRun+=40;if(G.floats.length<CAP.fl)G.floats.push({x:P.x,y:P.y-30,t:.9,v:'+40',c:'#ffd27a'});return}P.dmgBonus+=.05;P.maxHp+=10;P.hp=Math.min(P.maxHp,P.hp+10);G.dupRelics=(G.dupRelics||0)+1;if(typeof showSide==='function')showSide(`重复法宝 → 伤害 +5%,生命 +10(${G.dupRelics}/10)`,`Duplicate relic: +5% damage, +10 HP (${G.dupRelics}/10)`,'#ffd27a','relic');spark(P.x,P.y,'#ffd27a',12,80);if(typeof SFX!=='undefined')SFX.chest();return}G.relics.push(id);if(typeof codexSee==='function')codexSee('relic',id);
@@ -274,7 +274,7 @@ function comboHit(){
 }
 function comboTick(dt){if(G.combo>0){G.comboT-=dt;if(G.comboT<=0){if(G.combo>=10)showBanner(`连斩终结 ×${G.combo}`,'Streak ended',.8);G.combo=0;G.over9=0}}}
 /* treasure chests: burst of mana gems, gold and a bonus card */
-function chestClear(x,y){return x>=60&&y>=60&&x<=W-60&&y<=H-60&&!blocked(x,y)&&!onPond(x,y,1.3)&&!rocksNear(x,y).some(b=>!b.tree&&Math.hypot(x-clamp(x,b.x,b.x+b.w),y-clamp(y,b.y,b.y+b.h))<20)}
+function chestClear(x,y){return x>=60&&y>=60&&x<=W-60&&y<=H-60&&!blocked(x,y)&&!onPond(x,y,1.3)&&!rocksNear(x,y).some(b=>!b.tree&&!b.bamboo&&Math.hypot(x-clamp(x,b.x,b.x+b.w),y-clamp(y,b.y,b.y+b.h))<20)}
 function placeChest(c){
   c.x=clamp(c.x,60,W-60);c.y=clamp(c.y,60,H-60);
   if(!chestClear(c.x,c.y)){let found=false;for(let r=24;r<=480&&!found;r+=24)for(let k=0;k<24;k++){const a=k/24*TAU,x=clamp(c.x+Math.cos(a)*r,60,W-60),y=clamp(c.y+Math.sin(a)*r,60,H-60);if(chestClear(x,y)){c.x=x;c.y=y;found=true;break}}

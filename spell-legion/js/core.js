@@ -45,6 +45,11 @@ const onPond=(x,y,pad=1.15)=>PONDS.some(p=>hyp((x-p[0])/p[2],(y-p[1])/p[3])<pad)
 /* colliders */
 let rocks=[],maples=[],lanterns=[];
 function buildArena(){
+  // Architecture/vegetation is built once in initGfx. Rebuilding a run must use
+  // the same layout, independently of the combat RNG and the client's room seed.
+  let state=2166136261;for(const ch of (typeof MAPID==='string'?MAPID:'valley'))state=Math.imul(state^ch.charCodeAt(0),16777619);
+  const next=()=>{state=(Math.imul(state,1664525)+1013904223)>>>0;return state/4294967296};
+  const rnd=(a=1,b)=>b===undefined?next()*a:a+next()*(b-a);
   rocks=[];maples=[];lanterns=[];rockGrid=null;
   const taken=[[W/2,H/2,250],...PONDS.map(p=>[p[0],p[1],p[2]+60]),...SHRINES.map(s=>[s[0],s[1],70]),...PAVS.map(p=>[p[0],p[1],110])];
   const free=(x,y,r)=>!taken.some(t=>hyp(t[0]-x,t[1]-y)<t[2]+r)&&!onTrail(x,y,r);
@@ -57,7 +62,7 @@ function buildArena(){
   SHRINES.forEach(s=>rocks.push({x:s[0]-7,y:s[1]-7,w:14,h:14,shrine:1}));
   for(let i=0;i<260&&rocks.filter(r=>r.ruin).length<18;i++){const w=rnd(34,96),h=rnd(30,76),x=rnd(90,W-90-w),y=rnd(90,H-90-h);if(!free(x+w/2,y+h/2,Math.max(w,h)/2+40))continue;rocks.push({x,y,w,h,ruin:1});taken.push([x+w/2,y+h/2,Math.max(w,h)/2+20])}
   for(let i=0;i<300&&rocks.filter(r=>r.bamboo).length<12;i++){const w=rnd(60,130),h=rnd(50,110),x=rnd(80,W-80-w),y=rnd(80,H-80-h);if(!free(x+w/2,y+h/2,Math.max(w,h)/2+30))continue;rocks.push({x,y,w,h,bamboo:1});taken.push([x+w/2,y+h/2,Math.max(w,h)/2+20])}
-  for(let i=0;i<500&&maples.length<58;i++){const x=rnd(70,W-70),y=rnd(70,H-70);if(!free(x,y,34))continue;const k=rnd(.8,1.5);maples.push([x,y,k,Math.random()<.5?0:1]);rocks.push({x:x-3,y:y-3,w:6,h:6,tree:1});taken.push([x,y,30])}
+  for(let i=0;i<500&&maples.length<58;i++){const x=rnd(70,W-70),y=rnd(70,H-70);if(!free(x,y,34))continue;const k=rnd(.8,1.5);maples.push([x,y,k,rnd()<.5?0:1]);rocks.push({x:x-3,y:y-3,w:6,h:6,tree:1});taken.push([x,y,30])}
   for(const t of TRAILS){const p=t.pts;let acc=0;for(let i=1;i<p.length;i++){const l=hyp(p[i][0]-p[i-1][0],p[i][1]-p[i-1][1]);acc+=l;if(acc>230){acc=0;const nx=-(p[i][1]-p[i-1][1])/l,ny=(p[i][0]-p[i-1][0])/l,side=lanterns.length%2?1:-1,x=p[i][0]+nx*side*(t.w*.5+10),y=p[i][1]+ny*side*(t.w*.5+10);if(x>40&&x<W-40&&y>40&&y<H-40&&!onPond(x,y,1.3)&&hyp(x-W/2,y-H/2)>170)lanterns.push([x,y,Math.atan2(nx*side,ny*side)])}}}
 }
 /* static spatial grid over the obstacles (64 px cells) so collisions check a handful of rocks instead of all ~130 */
@@ -67,6 +72,7 @@ function rocksNear(x,y){if(!rockGrid)buildRockGrid();const k=(y/RG|0)*RGW+(x/RG|
 function collide(o,r){
   o.x=clamp(o.x,20+r,W-20-r);o.y=clamp(o.y,20+r,H-20-r);
   for(const b of rocksNear(o.x,o.y)){
+    if(b.bamboo)continue; // scattered stalks are decorative, not a solid wall
     const nx=clamp(o.x,b.x,b.x+b.w),ny=clamp(o.y,b.y,b.y+b.h),dx=o.x-nx,dy=o.y-ny,d2=dx*dx+dy*dy;
     if(d2<r*r){
       if(d2>0.0001){const d=Math.sqrt(d2);o.x=nx+dx/d*r;o.y=ny+dy/d*r}
@@ -75,4 +81,4 @@ function collide(o,r){
     }
   }
 }
-const blocked=(x,y)=>{for(const r of rocksNear(x,y))if(!r.tree&&x>r.x&&x<r.x+r.w&&y>r.y&&y<r.y+r.h)return true;return false};
+const blocked=(x,y)=>{for(const r of rocksNear(x,y))if(!r.tree&&!r.bamboo&&x>r.x&&x<r.x+r.w&&y>r.y&&y<r.y+r.h)return true;return false};
