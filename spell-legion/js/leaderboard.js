@@ -79,6 +79,7 @@ async function submitRun(container){
   let posted=false;
   if(allPB||dayPB){try{const r=await LB.submit({name:LB.name()||L('无名侠客','Nameless'),av:SAVE.avatar,cls:G.cls,map:MAPID,diff:DIFFID,mode:SAVE.mode||'solo',score:G.score||0,day:dk,tier:ASURA_T||0,time:t,kills:G.kills,bosses:G.bossSlain,level:G.lv,combo:G.comboMax,relics:G.relics.length,allTime:allPB});posted=!!(r&&r.ok)}catch(_){}
     if(posted){if(allPB)S.best=t;S.dayBest=Math.max(S.dayBest||0,t);persist();lbMenuRank()}}
+  if((allPB||dayPB)&&!posted){line.innerHTML=`<span class="rk">!</span><span class="tx">${L('成绩没传上去,点击重试','Run not posted. Tap to retry')}</span><span class="arr">↻</span>`;line.onclick=()=>{SFX.pick(1);line.remove();submitRun(container)};return}
   if(!all||!all.ok){line.remove();return}
   /* rank with this run counted (only if it was posted) */
   const others=all.rows.filter(r=>!LB.isMe(r)),old=all.rows.find(r=>LB.isMe(r)),oldI=all.rows.indexOf(old);

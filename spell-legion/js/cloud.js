@@ -136,7 +136,7 @@ const CLB={
     const doc={name:String(run.name||'无名侠客').slice(0,16),cls:run.cls,map:run.map,diff:run.diff,mode:run.mode||'solo',time:Math.round(run.time),kills:Math.round(run.kills),bosses:Math.round(run.bosses),level:Math.round(run.level),combo:Math.round(run.combo),relics:Math.round(run.relics),score:Math.round(run.score||0),day:run.day||dayKey(),tier:Math.round(run.tier||0),uid:CLOUD.uid(),ts:firebase.firestore.FieldValue.serverTimestamp()};
     const post=async d=>{if(run.allTime!==false)await CLOUD.db.collection('runs').add(d);await CLOUD.db.collection('days').doc(String(d.day)).collection('runs').add(d)};
     try{
-      if(!this.noAv&&run.av){try{await post({...doc,av:{e:run.av.e|0,h:run.av.h|0}})}catch(e){if(e.code!=='permission-denied')throw e;this.noAv=true;try{localStorage.setItem('sl_lb_noav','1')}catch(_){}await post(doc)}}
+      if(!this.noAv&&run.av){try{await post({...doc,av:{e:run.av.e|0,h:run.av.h|0}})}catch(e){if(e.code!=='permission-denied')throw e;await post(doc);this.noAv=true;try{localStorage.setItem('sl_lb_noav','1')}catch(_){}}} // only give up on avatars when the same run goes through without one
       else await post(doc);
       for(const b of ['all','today'])delete this.cache[b];
       return {ok:true};
