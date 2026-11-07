@@ -98,5 +98,25 @@
 "Spell Legion feedback",
 "魔呪軍団 フィードバック",
 "주문군단 피드백"
+],
+[
+"Legendary unlocked · {0}",
+"レジェンド解放 · {0}",
+"전설 해금 · {0}"
+],
+[
+"Legendary · {0}",
+"レジェンド · {0}",
+"전설 · {0}"
+],
+[
+"Equip it on the hero screen next run",
+"次のプレイでヒーロー画面から装備しよう",
+"다음 판에 영웅 화면에서 장착하세요"
+],
+[
+"{0} bosses this run · best {1}/3 · slay 3 in one run to unlock",
+"このプレイでボス{0}体 · ベスト{1}/3 · 1回で3体倒すと解放",
+"이번 판 보스 {0} · 최고 {1}/3 · 한 판에 셋 처치하면 해금"
 ]
 ]
