@@ -30,6 +30,7 @@ function mkRival(playerCls,seat){
   const opts=Object.keys(RIVAL_NAMES).filter(k=>k!==playerCls),cls=seat&&CLASSES[seat.cls]?seat.cls:pick(opts),C=CLASSES[cls];
   const a=rnd(TAU);const R={x:clamp(W/2+Math.cos(a)*220,60,W-60),y:clamp(H/2+Math.sin(a)*180,60,H-60),cls,name:RIVAL_NAMES[cls],hp:C.hp,maxHp:C.hp,dmg:C.dmg,crit:.05,spd:C.spd,mana:C.mana,maxMana:C.mana,regen:C.regen,
     spells:[Object.assign(mkSpell(C.main),{owner:'rival'}),Object.assign(mkSpell(C.skills[0]),{owner:'rival'})],kills:0,score:0,lv:1,xp:0,need:6,down:0,inv:0,dx:0,dy:1,walk:0,cast:0,yaw:0,yaw0:0,goal:null,goalT:0,dmgDealt:0,downs:0,lx:0,ly:0,dash:0,ai:(DIFFID==='easy'?.9:DIFFID==='hard'?1.45:1.2)*(typeof SAVE!=='undefined'&&SAVE.mode==='qpk'?Math.min(2.2,.85+(SAVE.trophies||0)/900):1)};
+  R.av=(seat&&seat.av)||(typeof randomAvatar==='function'?randomAvatar():null);
   if(seat){R.name=[seat.name||RIVAL_NAMES[cls][0],seat.name||RIVAL_NAMES[cls][1]];R.ai=clamp(.85+(seat.skill||.8)*.45,.9,1.6);R.seat=seat.uid}
   R.dmg*=R.ai;R.spd*=1+(R.ai-1)*.3;
   G.rival=R;if(typeof buildHero==='function')buildHero(cls,'rival');

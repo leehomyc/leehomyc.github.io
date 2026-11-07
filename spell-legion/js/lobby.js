@@ -24,7 +24,7 @@ function renderMenu(){
       b.innerHTML=`${ICON.cls(SAVE.cls)}<div><b>${L(o.zh,o.en)}</b><small>${LL(C)}${tier?` · ${L(`修罗 ${tier} 层`,`Tier ${tier}`)}`:''}</small>${tt?`<span class="goal"><em>${L('今日','Today')}</em><span class="gt">${L(tt.zh,tt.en)}</span><b>+${TGOLD[nt.tier]||150}</b><i><u style="width:${Math.min(100,Math.round(100*(nt.p||0)/nt.goal))}%"></u></i></span>`:''}</div>`}
     else b.innerHTML=`${ICON.misc(o.ic[0],o.ic[1])}<div><b>${L(o.zh,o.en)}</b><small>${L(o.szh(),o.sen())}</small>${o.subs?`<span class="subs">${o.subs.map(s=>`<i data-m="${s.m}" role="button" tabindex="0">${L(s.zh,s.en)}</i>`).join('')}</span>`:''}</div>`;
     const go=m=>{if(m!=='room'&&typeof ROOM!=='undefined'&&ROOM.code)roomLeave(true);SAVE.mode=m;persist();renderTitle();showScreen('hero');SFX.pick(1)};
-    b.onclick=ev=>{const sub=ev.target.closest&&ev.target.closest('.subs i');go(sub?sub.dataset.m:(o.m==='qpk'?'room':o.m))};
+    b.onclick=ev=>{const sub=ev.target.closest&&ev.target.closest('.subs i');const m=sub?sub.dataset.m:(o.m==='qpk'?'room':o.m);if(b.dataset.busy)return;b.dataset.busy=1;setTimeout(()=>{delete b.dataset.busy;go(m)},reduceMotion()?0:170)};
     b.querySelectorAll('.subs i').forEach(i=>i.onkeydown=ev=>{if(ev.key==='Enter'||ev.key===' '){ev.preventDefault();ev.stopPropagation();go(i.dataset.m)}});if(o.big)box.appendChild(b);else row.appendChild(b)});box.appendChild(row);
 }
 function statBars(C){
@@ -54,3 +54,10 @@ $('#backbtn').onclick=()=>{showScreen('menu');SFX.pick(1)};
 if(/iPhone|iPad|iPod/.test(navigator.userAgent)&&!navigator.standalone)document.documentElement.classList.add('ios');
 /* emblems on tab and mode buttons (data-ic) */
 document.querySelectorAll('[data-ic]').forEach(b=>{if(b.querySelector('.ic'))return;const col={scroll:'#efe4cd',trophy:'#ffd27a',book:'#c7a4f0',crown:'#ffe9a0',gear:'#9fe3f0',sword:'#ffb79f',swords:'#ff9c5a',calendar:'#ffd27a',boss:'#ff5a45'}[b.dataset.ic]||'#ffd27a';b.insertAdjacentHTML('afterbegin',ICON.misc(b.dataset.ic,col,'sm'))});
+
+/* tap feedback on the menu: a ring of light and a spray of embers from where you pressed */
+function reduceMotion(){try{return matchMedia('(prefers-reduced-motion: reduce)').matches}catch(_){return false}}
+function menuBurst(el,ev){if(reduceMotion())return;const r=el.getBoundingClientRect(),x=(ev.clientX||r.left+r.width/2)-r.left,y=(ev.clientY||r.top+r.height/2)-r.top;
+  const rip=document.createElement('span');rip.className='rip';rip.style.left=x+'px';rip.style.top=y+'px';el.appendChild(rip);setTimeout(()=>rip.remove(),650);
+  for(let i=0;i<12;i++){const s=document.createElement('span');s.className='ember';const a=Math.random()*Math.PI*2,d=26+Math.random()*60;s.style.left=x+'px';s.style.top=y+'px';s.style.setProperty('--dx',(Math.cos(a)*d).toFixed(1)+'px');s.style.setProperty('--dy',(Math.sin(a)*d-24).toFixed(1)+'px');s.style.animationDelay=(Math.random()*.08).toFixed(2)+'s';el.appendChild(s);setTimeout(()=>s.remove(),800)}}
+document.addEventListener('pointerdown',e=>{const el=e.target.closest&&e.target.closest('#menu .mb,#menu .tabbar button,#prog .pr,#prog .avb');if(el)menuBurst(el.classList.contains('avb')?el.closest('.pr'):el,e)},true);

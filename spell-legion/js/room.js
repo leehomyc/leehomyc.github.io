@@ -33,12 +33,19 @@ function renderRoom(){
   if(ROOM.host){$('#rmstart').onclick=()=>{roomStart();SFX.complete()};
     const seg=(id,key,conv)=>box.querySelectorAll(`#${id} button`).forEach(b=>b.onclick=()=>roomHostSet({[key]:conv?conv(b.dataset.v):b.dataset.v}));seg('rmmode2','mode');seg('rmlen2','len',Number);seg('rmdiff2','diff')}
 }
+function drawBoard(){
+  const el=$('#roomboard');if(!el)return;if(!G||G.auto||$('#hud').hidden){el.hidden=true;return}
+  if(ROOM.code&&ROOM.playing&&G.room)return drawRoomBoard();
+  const rows=[{me:1,av:SAVE.avatar,name:LB.name()||L('我','Me'),score:G.score,hp:Math.max(0,G.P.hp/G.P.maxHp),col:'#8fe3ff'}];
+  if(G.rival){const R=G.rival;rows.push({av:R.av,name:L(R.name[0],R.name[1]),score:R.score,hp:Math.max(0,R.hp/R.maxHp),col:'#ff9c5a'})}
+  rows.sort((a,b)=>b.score-a.score);el.hidden=false;el.classList.toggle('solo',rows.length<2);
+  el.innerHTML=rows.map((p,i)=>`<div class="rb ${p.me?'me':''}">${rows.length>1?`<i>${i+1}</i>`:''}${avatarHTML(p.av)}<b>${esc(p.name)}</b><span class="sc">${p.score}</span>${rows.length>1?`<em><s style="width:${Math.round(p.hp*100)}%;background:${p.col}"></s></em>`:''}</div>`).join('')}
 function drawRoomBoard(){
-  const el=$('#roomboard');if(!el||!ROOM.code||!ROOM.playing){if(el)el.hidden=true;return}el.hidden=false;
+  const el=$('#roomboard');if(!el||!ROOM.code||!ROOM.playing){if(el)el.hidden=true;return}el.hidden=false;el.classList.remove('solo');
   const me=roomUid(),ps=roomRank(),d=ROOM.data||{};
   const left=d.mode==='time'?Math.max(0,d.len-Math.max(G.t,d.startedAt?(Date.now()-(d.startedAt+(d.delay||0)))/1000:0)):null;
   el.innerHTML=`<div class="rbh">${d.mode==='time'?`<b>${fmt(left)}</b> ${L('剩余','left')}`:`<b>${L('无尽','Endless')}</b> ${L('有人倒下即结束','ends on first death')}`}</div>`+ps.map((p,i)=>{const C=CLASSES[p.cls]||CLASSES.swordsman,score=p.uid===me?G.score:(p.score||0),hp=p.uid===me?Math.max(0,G.P.hp/G.P.maxHp):(p.hp??1),dead=p.uid===me?!!G.over&&G.over!=='pk':p.alive===false;
-    return `<div class="rb ${p.uid===me?'me':''} ${dead?'dead':''}"><i>${i+1}</i><span class="g" style="color:${C.col}">${C.g}</span><b>${p.name||'?'}</b><em><s style="width:${Math.round(hp*100)}%"></s></em><span class="sc">${score}</span></div>`}).join('');
+    const av=p.uid===me?SAVE.avatar:p.av;return `<div class="rb ${p.uid===me?'me':''} ${dead?'dead':''}"><i>${i+1}</i>${av?avatarHTML(av):`<span class="g" style="color:${C.col}">${C.g}</span>`}<b>${esc(p.name||'?')}</b><span class="sc">${score}</span><em><s style="width:${Math.round(hp*100)}%;background:${C.col}"></s></em></div>`}).join('');
 }
 function renderRoomResults(){
   const el=$('#roomres');if(!el)return;const me=roomUid(),ranked=roomRank(),done=!!ROOM.results,myRank=ranked.findIndex(p=>p.uid===me)+1,d=ROOM.data||{};

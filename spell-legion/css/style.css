@@ -891,3 +891,50 @@ body.touchhud #pause .pbox>p{display:none}
 #avpop .avg{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}#avpop .avg button{background:none;border:2px solid transparent;border-radius:50%;padding:2px;cursor:pointer;justify-self:center}#avpop .avg button.on{border-color:var(--brass)}
 #avpop .avr{display:flex;gap:6px;margin-top:8px}#avpop .avr .go{flex:1}
 #roompanel .ic-w .av{width:26px;height:26px;font-size:15px}
+
+/* scoreboard: bigger, avatar + name + score, readable at a glance */
+#roomboard{min-width:230px;max-width:290px;gap:5px;font-size:14px;top:96px}
+#roomboard .rbh{font-size:12px}#roomboard .rbh b{font-size:17px}
+#roomboard .rb{grid-template-columns:auto 30px minmax(0,1fr) auto;column-gap:8px;row-gap:3px;padding:6px 10px 6px 8px;border-radius:14px;border-left:3px solid #6b5230;background:#0b060ed0}
+#roomboard .rb i{font-size:12px;font-weight:800;color:var(--dim);min-width:10px}
+#roomboard .rb .av{width:30px;height:30px;font-size:17px}#roomboard .rb .g{font-size:20px;text-align:center}
+#roomboard .rb b{font-size:15px;font-weight:800}
+#roomboard .rb .sc{grid-row:auto;font-size:18px}
+#roomboard .rb em{grid-column:2/5;height:4px}
+#roomboard.solo .rb{grid-template-columns:30px minmax(0,1fr) auto}#roomboard.solo{min-width:190px}
+#roomboard .rb.me{border-left-color:#8fe3ff;background:#1f4a52d8}
+@media (max-width:640px){#roomboard{top:46px;min-width:170px;max-width:200px;font-size:12px}#roomboard .rb{padding:4px 8px 4px 6px;column-gap:6px}#roomboard .rb .av{width:24px;height:24px;font-size:14px}#roomboard .rb b{font-size:13px}#roomboard .rb .sc{font-size:15px}#roomboard.solo{min-width:140px}}
+
+/* ---- menu: room to breathe, torch-light borders, tap bursts ---- */
+@property --ang{syntax:'<angle>';inherits:false;initial-value:0deg}
+#menubtns{gap:18px;max-width:480px;margin:10px 0 6px}
+.mrow{gap:16px}
+#menu .mb,#menu .tabbar button,#prog .pr{position:relative;isolation:isolate;overflow:hidden}
+#menu .mb::before{content:'';position:absolute;inset:0;border-radius:inherit;padding:3px;pointer-events:none;z-index:2;
+  background:conic-gradient(from var(--ang),transparent 0 58%,color-mix(in srgb,var(--torch) 30%,transparent) 66%,var(--torch) 76%,#fffbe8 80%,var(--torch) 84%,transparent 94%);
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;animation:torch 3.4s linear infinite}
+@keyframes torch{to{--ang:360deg}}
+#menu .mb.big{--torch:#ffe08a;animation:flicker 2.6s ease-in-out infinite}
+#menu .mb[data-m=qpk]{--torch:#ff9c6a}#menu .mb[data-m=daily]{--torch:#7dffd0}
+#menu .mrow .mb::before{animation-duration:5s}#menu .mrow .mb[data-m=daily]::before{animation-direction:reverse}
+@keyframes flicker{0%,100%{box-shadow:0 7px 0 #7a2015,0 14px 30px #d9452f55}38%{box-shadow:0 7px 0 #7a2015,0 14px 44px #ff8a3c99}62%{box-shadow:0 7px 0 #7a2015,0 12px 34px #ffb34777}}
+#menu .mb:active{transform:translateY(3px) scale(.985)}
+.rip{position:absolute;width:14px;height:14px;margin:-7px 0 0 -7px;border-radius:50%;background:radial-gradient(circle,#fffbe8cc 0,#ffd27a88 35%,transparent 70%);pointer-events:none;z-index:3;animation:rip .6s ease-out forwards}
+@keyframes rip{to{transform:scale(30);opacity:0}}
+.ember{position:absolute;width:6px;height:6px;margin:-3px;border-radius:50%;background:#ffe08a;box-shadow:0 0 8px 2px #ff8a3c;pointer-events:none;z-index:3;animation:ember .7s cubic-bezier(.2,.7,.3,1) forwards}
+@keyframes ember{to{transform:translate(var(--dx),var(--dy)) scale(.15);opacity:0}}
+@media (prefers-reduced-motion:reduce){#menu .mb::before,#menu .mb.big{animation:none}}
+/* phone: the menu fills the screen — identity on top, the big card, two cards, the three buttons at the bottom */
+@media (max-width:760px){
+  #menu .ttb{display:flex;flex-direction:column;min-height:calc(100dvh - 150px);gap:0;padding-bottom:calc(16px + env(safe-area-inset-bottom))}
+  #menu #prog{margin:14px 0 22px}
+  #menubtns{gap:18px;max-width:none;margin:0}
+  #menu .mb.big{padding:24px 18px 20px;min-height:200px;grid-template-columns:62px 1fr;column-gap:14px;align-content:center}
+  #menu .mb.big .ic{width:62px;height:62px}#menu .mb.big b{font-size:30px}#menu .mb.big .goal{margin-top:12px;padding:9px 11px}
+  #menu .mrow{gap:14px}
+  #menu .mrow .mb{grid-template-columns:1fr;justify-items:start;row-gap:10px;padding:18px 14px 16px;min-height:136px;align-content:start}
+  #menu .mrow .mb .ic{width:46px;height:46px;grid-row:auto}#menu .mrow .mb b{font-size:19px}#menu .mrow .mb small{font-size:12.5px}
+  #menu .tabbar{margin-top:auto;padding-top:26px;gap:12px;flex-wrap:nowrap;overflow:visible}
+  #menu .tabbar button{flex:1 1 0;display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 6px;font-size:13px;border-radius:18px}
+  #menu .tabbar button .ic.sm{width:24px;height:24px;margin:0}#menu .tabbar button b{font-size:11px}
+}
