@@ -3,6 +3,19 @@
 const T3=THREE;
 /* quality tiers: auto-detected, overridable from the title screen */
 const QUAL={low:{shadow:1024,grass:7000,dpr:1,msaa:false,flies:90,trees:.55,tilt:0,ground:2048},med:{shadow:2048,grass:15000,dpr:1.25,msaa:false,flies:180,trees:.8,tilt:1,ground:3072},high:{shadow:4096,grass:30000,dpr:1.5,msaa:true,flies:320,trees:1,tilt:1,ground:4096}};
+function applyQuality(level){
+ if(!QUAL[level]||level===QLEVEL)return;
+ QLEVEL=level;try{localStorage.setItem('sl_quality',level)}catch(_){}
+ if(!rn)return;
+ DPR=Math.min(devicePixelRatio||1,Q().dpr);
+ sun.shadow.mapSize.set(Q().shadow,Q().shadow);sun.shadow.radius=level==='low'?2:3.5;
+ if(sun.shadow.map){sun.shadow.map.dispose();sun.shadow.map=null}sun.shadow.needsUpdate=true;
+ if(comp){
+  for(const pass of comp.passes){if(pass.dispose)pass.dispose();for(const key of ['material','materialHighPassFilter','compositeMaterial','materialCopy','basic'])if(pass[key]?.dispose)pass[key].dispose();for(const mat of pass.separableBlurMaterials||[])mat.dispose()}
+  comp.renderTarget1.dispose();comp.renderTarget2.dispose();comp.copyPass.material.dispose();
+ }
+ buildPost();resize();
+}
 function detectQuality(){if(PHONE)return 'low';const cores=navigator.hardwareConcurrency||4,mem=navigator.deviceMemory||8;if(cores<=4||mem<=4)return 'low';if(cores<=8)return 'med';return 'high'}
 let QLEVEL=(()=>{try{const q=localStorage.getItem('sl_quality');if(q&&QUAL[q])return q}catch(_){}return detectQuality()})();
 if(PHONE){QUAL.low={shadow:512,grass:2200,dpr:.9,msaa:false,flies:36,trees:.45,tilt:0,ground:1024};QUAL.med={shadow:1024,grass:5000,dpr:1,msaa:false,flies:80,trees:.6,tilt:0,ground:1536};QUAL.high={shadow:1024,grass:9000,dpr:1.2,msaa:false,flies:140,trees:.8,tilt:1,ground:2048}}
