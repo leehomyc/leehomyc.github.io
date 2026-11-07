@@ -71,7 +71,7 @@ function animHero(h,P,isP,tm,rdt){
   if(isP&&P.frenzy>0){for(let i=0;i<6;i++){const a=tm*9+i*1.047;glow(P.x+Math.cos(a)*10,6+((tm*30+i*9)%28),P.y+Math.sin(a)*10,'#ff4a4a',5,2)}glow(P.x,14,P.y,'#ff2a2a',40,.6)}
   const gl=spells.find(s=>s.id==='guangling'&&s.active>0);if(gl){const R=120;for(let i=0;i<20;i++){const a=i/20*TAU+tm*.8,rr=R*(.5+.5*((tm*.6+i*.05)%1));glow(P.x+Math.cos(a)*rr,10+Math.sin(tm*3+i)*4,P.y+Math.sin(a)*rr,i%2?'#ffd27a':'#8fe3ff',8,1.2)}for(let i=0;i<32;i++){const a=i/32*TAU-tm*.5;glow(P.x+Math.cos(a)*R,3,P.y+Math.sin(a)*R,'#ffd27a',7,1.1)}}
   if(whirl){for(let i=0;i<8;i++){const a=tm*22+i*.785,R=48;glow(P.x+Math.cos(a)*R,10,P.y+Math.sin(a)*R,SPELLS.whirl.col,16,1.4);glow(P.x+Math.cos(a)*R*.6,12,P.y+Math.sin(a)*R*.6,'#ffffff',6,1.2)}}
-  if(P.down>0){const k=P.down/(isP?1.6:4);for(let i=0;i<24;i++){const a=i/24*TAU+tm*2;glow(P.x+Math.cos(a)*k*44,4+(1-k)*i,P.y+Math.sin(a)*k*44,'#6fd3e8',5,3)}glow(P.x,16,P.y,'#6fd3e8',46*(1-k)+8,1.6)}
+  if(P.down>0&&!P.eliminated){const k=Math.min(1,P.down/(isP&&!endlessDuel()?1.6:DUEL_REVIVE_DELAY));for(let i=0;i<24;i++){const a=i/24*TAU+tm*2;glow(P.x+Math.cos(a)*k*44,4+(1-k)*i,P.y+Math.sin(a)*k*44,'#6fd3e8',5,3)}glow(P.x,16,P.y,'#6fd3e8',46*(1-k)+8,1.6)}
 }
 function render(rdt){
   U.uTime.value+=rdt;const tm=U.uTime.value,P=G.P;
@@ -280,7 +280,7 @@ function drawOverlay(){
   if(!G.auto){const bossOn=G.boss&&!G.boss.dead;if(!bossOn){const marks=[];for(const f of G.fx)if(f.k==='relic')marks.push({x:f.x,y:f.y,col:RELICS[f.id].cursed?'#ff3a3a':RELICS[f.id].col,txt:(RELICS[f.id].cursed?L('诅咒法宝 ','Cursed relic: '):L('法宝 ','Relic: '))+LL(RELICS[f.id])});
       for(const e of G.en)if(e.champion&&!e.dead)marks.push({x:e.x,y:e.y,col:'#ff9c5a',txt:L(`悬赏 ${e.name}`,`Bounty: ${e.en}`)});
       for(const ch of G.chests)marks.push({x:ch.x,y:ch.y,col:ch.kind==='gold'?'#ffe9a0':ch.kind==='trap'?'#ff6a6a':'#ffd27a',txt:ch.kind==='gold'?L('金宝箱','Gold chest'):ch.kind==='trap'?L('机关箱','Trapped chest'):L('宝箱','Chest'),chest:1});
-      marks.sort((a,b)=>hyp(a.x-G.P.x,a.y-G.P.y)-hyp(b.x-G.P.x,b.y-G.P.y));for(const m of marks.slice(0,3)){if(G.mission&&m.chest)c.globalAlpha=.45;arrow(m.x,m.y,m.col,m.txt);c.globalAlpha=1}}if(G.rival)arrow(G.rival.x,G.rival.y,'#ff9c5a',G.rival.down>0?L(G.rival.name[0],G.rival.name[1])+' '+L('(倒地)','(down)'):undefined);
+      marks.sort((a,b)=>hyp(a.x-G.P.x,a.y-G.P.y)-hyp(b.x-G.P.x,b.y-G.P.y));for(const m of marks.slice(0,3)){if(G.mission&&m.chest)c.globalAlpha=.45;arrow(m.x,m.y,m.col,m.txt);c.globalAlpha=1}}if(G.rival&&!G.rival.eliminated)arrow(G.rival.x,G.rival.y,'#ff9c5a',G.rival.down>0?L(G.rival.name[0],G.rival.name[1])+' '+L('(倒地)','(down)'):undefined);
     if(G.mission){const mt=missionTarget(),m=G.mission;if(mt)arrow(mt.x,mt.y,m.k==='mush'?'#ff8a52':'#ff5fe8',`${m.k==='mush'?L('采集灵芝','Gather lingzhi'):m.k==='statue'?L('摧毁邪碑','Destroy steles'):m.k==='seal'?L('封印邪阵','Seal the rift'):L('猎杀逃犯','Hunt the fugitive')} ${m.k==='seal'?Math.ceil(m.N-m.n)+'/'+m.N+'s':m.k==='hunt'?'':(m.N-m.n)+'/'+m.N} · ${Math.ceil(m.t)}s`)}if(G.boss&&!G.boss.dead)arrow(G.boss.x,G.boss.y,'#ff5a45',L(G.boss.name,G.boss.en));
     // minimap
     const mw=(PHONE?92:130)*S,mh=mw*H/W,mx=ow-mw-14*S,my=(PHONE?104:70)*S,k=mw/W;

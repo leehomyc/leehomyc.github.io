@@ -1,0 +1,22 @@
+[
+  [
+    "Out of lives = out · last survivor wins",
+    "残機が尽きたら脱落 · 最後の生存者が勝利",
+    "목숨 소진 시 탈락 · 마지막 생존자가 승리"
+  ],
+  [
+    "Eliminated",
+    "脱落",
+    "탈락"
+  ],
+  [
+    "Host eliminated — keep fighting",
+    "ホストが脱落 · 戦闘続行",
+    "방장 탈락 · 전투 계속"
+  ],
+  [
+    "Reviving in {0} s",
+    "復活まで{0}秒",
+    "{0}초 후 부활"
+  ]
+]

@@ -110,11 +110,11 @@ function arenaGuestTick(dt){
   const q=++ARENA.seq,h=[];for(const id in ARENA.acc){const a=ARENA.acc[id];a[1]=r2(a[1]);h.push(a);if(a[1]>0)ARENA.unacked.push({q,id:a[0],d:a[1]})}ARENA.acc={};
   const P=G.P;linkSend(ARENA.hostUid,{k:'m',q,x:r0(P.x),y:r0(P.y),vx:r0(P.vx||0),vy:r0(P.vy||0),hp:r2(Math.max(0,P.hp/P.maxHp)),dn:P.down>0?1:0,h})}
 /* the host is gone: the mirrors become real monsters and the guest plays on alone */
-function arenaDetach(){if(!G)return;for(const e of G.en){e.mirror=0;e.tx=undefined;e.spd=e.spd||40}G.mirror=false;G.shared=false;ARENA.on=false;
-  if(!G.over)showBanner('与房主断开 · 独自继续','Lost the host — playing on alone',2)}
+function arenaDetach(eliminated){if(!G)return;for(const e of G.en){e.mirror=0;e.tx=undefined;e.spd=e.spd||40}G.mirror=false;G.shared=false;ARENA.on=false;
+  if(!G.over)showBanner(eliminated?'房主已淘汰 · 继续战斗':'与房主断开 · 独自继续',eliminated?'Host eliminated — keep fighting':'Lost the host — playing on alone',2)}
 /* one router for everything that arrives on a link */
 LINK.onmsg=(uid,m)=>{if(m.k==='s')arenaOnSnap(m);else if(m.k==='m')arenaOnGuest(uid,m)};
 /* who else is in my field, for the renderer: position, HP, and the class/name from the room */
 function arenaHeroList(){const me=roomUid(),src=ARENA.host?Object.fromEntries(Object.entries(ARENA.remote).map(([u,r])=>[u,{x:r.x,y:r.y,hp:r.hp,down:r.down}])):ARENA.heroes,out=[];
-  for(const u in src){if(u===me||(ARENA.host&&u===G.rivalSeat))continue;const h=src[u],p=(ROOM.players&&ROOM.players[u])||{};if(h.down)continue;out.push({...p,uid:u,x:h.x,y:h.y,hp:h.hp})}
+  for(const u in src){if(u===me||(ARENA.host&&u===G.rivalSeat))continue;const h=src[u],p=(ROOM.players&&ROOM.players[u])||{};if(h.down||p.alive===false)continue;out.push({...p,uid:u,x:h.x,y:h.y,hp:h.hp})}
   return out}

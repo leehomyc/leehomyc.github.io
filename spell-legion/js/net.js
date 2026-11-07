@@ -1,7 +1,7 @@
 'use strict';
 /* net.js — multiplayer rooms (2–8 players). Everyone plays the same seeded arena in parallel;
    scores, HP and levels are shared live, and kills of bosses / warlords / streak milestones send ambush waves to the others.
-   Modes: 'time' (fixed length, highest score wins) and 'last' (the match ends the moment anyone dies: that player loses, survivors rank by score).
+   Modes: 'time' (fixed length, highest score wins) and 'last' (finite revive lives, last survivor wins).
    Transport: Firestore (rooms/{code}, players and events subcollections). A local BroadcastChannel transport covers testing and offline play
    between tabs of one browser (?local=1). */
 const ROOM_ALPHABET='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
@@ -99,7 +99,7 @@ async function roomRemoveAI(uid){if(!ROOM.code||!ROOM.host)return;if(ROOM.player
 /* the host advances every AI seat once a second: a score curve that accelerates like a real build, a level that climbs, an HP line that dips and recovers, and in endless mode a fall at some point */
 function roomAITick(){if(!ROOM.host||!ROOM.data||!ROOM.playing)return;const d=ROOM.data,len=d.mode==='time'?d.len:600;const wall=Math.max(0,(Date.now()-((d.startedAt||Date.now())+(d.delay||0)))/1000),hostT=(G&&!G.auto&&G.room)?G.t:0;let t=Math.max(wall,hostT);if(G&&!G.auto&&G.room&&G.over&&d.mode==='time')t=Math.max(t,len); // AI seats follow the host's clock; when the host's run is over the AIs finish too
   const dk={easy:.75,normal:1,hard:1.3}[d.diff||'normal']||1;for(const p of roomPlayerList()){if(!p.ai||p.done)continue;const k=(p.skill||.8)*dk;
-    if(G&&!G.auto&&G.room&&G.rival&&G.rivalSeat===p.uid){const R=G.rival;const over=(d.mode==='time'&&t>=len)||!!G.over;aiPut(p.uid,{score:R.score,lv:R.lv,hp:Math.max(0,R.hp/R.maxHp),kills:R.kills,alive:true,done:over,t:Math.round(Math.min(t,len)),bosses:R.bosses||0,x:Math.round(R.x),y:Math.round(R.y)});continue}const final=(520+280*k)*(len/180);const f=Math.min(1,t/len);let score=Math.round(final*Math.pow(f,1.55)*(1+Math.sin(t*.37+k*9)*.03));const lv=Math.max(1,Math.round(1+Math.sqrt(t)*(.9+k*.5)));const hp=clamp(.55+.45*Math.sin(t*.21+k*5)*Math.cos(t*.07),.12,1);const kills=Math.round(score/2.4);
+    if(G&&!G.auto&&G.room&&G.rival&&G.rivalSeat===p.uid&&(d.mode==='time'||!G.over||G.rival.eliminated)){const R=G.rival;const over=d.mode==='time'?t>=len||!!G.over:!!R.eliminated;aiPut(p.uid,{score:R.score,lv:R.lv,hp:Math.max(0,R.hp/R.maxHp),kills:R.kills,alive:!R.eliminated,done:over,t:Math.round(R.eliminatedAt??t),bosses:R.bosses||0,x:Math.round(R.x),y:Math.round(R.y)});continue}const final=(520+280*k)*(len/180);const f=Math.min(1,t/len);let score=Math.round(final*Math.pow(f,1.55)*(1+Math.sin(t*.37+k*9)*.03));const lv=Math.max(1,Math.round(1+Math.sqrt(t)*(.9+k*.5)));const hp=clamp(.55+.45*Math.sin(t*.21+k*5)*Math.cos(t*.07),.12,1);const kills=Math.round(score/2.4);
     let alive=true,done=false;if(d.mode==='last'){const fallAt=(150+k*260);if(t>=fallAt){alive=false;done=true;score=Math.round(final*Math.pow(fallAt/len,1.55))}}else if(t>=len){done=true;score=Math.round(final*(1+Math.sin(k*9)*.03))}
     const pos=roomAIPos(p.uid,k);aiPut(p.uid,{score,lv,hp:alive?hp:0,kills,alive,done,t:Math.round(Math.min(t,len)),bosses:Math.floor(t/240),x:pos.x,y:pos.y})}
   ROOM.aiN=(ROOM.aiN||0)+1;if(ROOM.aiN%2===0||roomPlayerList().some(p=>p.ai&&ROOM.aiPend&&ROOM.aiPend[p.uid]&&ROOM.aiPend[p.uid].done))aiFlush()}
@@ -137,7 +137,7 @@ function roomOnPlayers(map){
   if(!ROOM.code)return;const now=Date.now();ROOM.firstSeen=ROOM.firstSeen||{};for(const uid in map){if(!ROOM.firstSeen[uid])ROOM.firstSeen[uid]=now;const p=map[uid],old=ROOM.players[uid];if(!old||JSON.stringify(old)!==JSON.stringify(p))ROOM.lastSeen[uid]=now}
   ROOM.players=map;
   if(ROOM.playing&&G&&!G.auto){
-    if(ROOM.data&&ROOM.data.mode==='last'&&!G.over){const dead=roomPlayerList().find(p=>p.uid!==roomUid()&&p.alive===false);if(dead){roomEndRun('last',dead)}}
+    if(ROOM.data&&ROOM.data.mode==='last'&&G.mirror&&map[ROOM.data.host]?.alive===false&&typeof arenaDetach==='function')arenaDetach(true);
     roomCheckFinished();
     if(typeof drawRoomBoard==='function')drawRoomBoard();
   }
@@ -174,10 +174,20 @@ function roomOnDeath(){ // called by lose(): in a room, a death is final and tel
   roomSetMe({alive:false,done:true,score:G.score,hp:0,t:Math.round(G.t),lv:G.lv,kills:G.kills});
 }
 function roomAllDone(){const ps=roomPlayerList(),now=Date.now();return ps.length>0&&ps.every(p=>p.done||p.alive===false||(!p.ai&&now-(ROOM.lastSeen[p.uid]||now)>25000))}
-function roomCheckFinished(){if(ROOM.results||!ROOM.ended)return;if(roomAllDone()){ROOM.results=roomRank();if(typeof renderRoomResults==='function')renderRoomResults()}}
+function roomCheckFinished(){
+  if(!ROOM.playing||ROOM.results)return;
+  if(ROOM.data&&ROOM.data.mode==='last'){
+    const ps=roomPlayerList(),alive=ps.filter(p=>p.alive!==false);
+    if(ps.length>1&&alive.length===1){const winner=alive[0];
+      if(winner.uid===roomUid()&&G&&!G.over)roomEndRun('last');
+      else if(winner.ai&&ROOM.host&&!winner.done){aiPut(winner.uid,{done:true});aiFlush()}
+    }
+  }
+  if(!ROOM.ended)return;if(roomAllDone()){ROOM.results=roomRank();if(typeof renderRoomResults==='function')renderRoomResults()}
+}
 function roomRank(){
   const ps=roomPlayerList(),mode=ROOM.data?ROOM.data.mode:'time';
-  return ps.slice().sort((a,b)=>{const ad=a.alive===false?1:0,bd=b.alive===false?1:0;if(mode==='last'&&ad!==bd)return ad-bd;return (b.score||0)-(a.score||0)||(b.t||0)-(a.t||0)});
+  return ps.slice().sort((a,b)=>{const ad=a.alive===false?1:0,bd=b.alive===false?1:0;if(mode==='last'){if(ad!==bd)return ad-bd;if(ad)return (b.t||0)-(a.t||0)||(b.score||0)-(a.score||0)}return (b.score||0)-(a.score||0)||(b.t||0)-(a.t||0)});
 }
 function roomMyRank(){const r=roomRank();return r.findIndex(p=>p.uid===roomUid())+1}
 /* share link and auto-join */

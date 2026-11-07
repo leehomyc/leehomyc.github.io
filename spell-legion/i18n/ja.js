@@ -1,4 +1,9 @@
-/* 日本語: keyed by the English text of L(zh,en) / LL(); {0} {1} … are template slots. Edit freely; tools/i18n keeps your lines. */
+/* 日本語: keyed by the English text of L(zh,en) / LL(); {
+"Out of lives = out · last survivor wins": "残機が尽きたら脱落 · 最後の生存者が勝利",
+"Eliminated": "脱落",
+"Host eliminated — keep fighting": "ホストが脱落 · 戦闘続行",
+"Reviving in {0} s": "復活まで{0}秒",
+0} {1} … are template slots. Edit freely; tools/i18n keeps your lines. */
 I18N_LOAD('ja',
 {
 " (at {0}% heal efficiency)": "(回復効率{0}%込み)",

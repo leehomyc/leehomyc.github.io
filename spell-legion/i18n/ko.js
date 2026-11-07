@@ -1,4 +1,9 @@
-/* 한국어: keyed by the English text of L(zh,en) / LL(); {0} {1} … are template slots. Edit freely; tools/i18n keeps your lines. */
+/* 한국어: keyed by the English text of L(zh,en) / LL(); {
+"Out of lives = out · last survivor wins": "목숨 소진 시 탈락 · 마지막 생존자가 승리",
+"Eliminated": "탈락",
+"Host eliminated — keep fighting": "방장 탈락 · 전투 계속",
+"Reviving in {0} s": "{0}초 후 부활",
+0} {1} … are template slots. Edit freely; tools/i18n keeps your lines. */
 I18N_LOAD('ko',
 {
 " (at {0}% heal efficiency)": "(치유 효율 {0}% 포함)",
