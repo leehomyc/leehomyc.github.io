@@ -1,38 +1,43 @@
 'use strict';
 /* room.js — multiplayer room UI: create / join by code, lobby with ready states, live scoreboard in the HUD, ranked results. */
-function roomModeText(d){const m=d.mode==='last'?L('无尽 · 有人倒下即结束','Endless · ends when anyone falls'):L(`限时 ${d.len/60} 分钟 · 高分获胜`,`${d.len/60} min · highest score wins`);return m}
+function roomHasAI(){return roomPlayerList().some(p=>p.ai)}
+function roomModeText(d){return d.mode==='last'?L('无尽','Endless'):L('限时 3′','Timed 3′')}
+function roomJoinRow(){return `<div class="rmjoin"><input id="rmcode" maxlength="4" placeholder="${L('好友房间码','Friend code')}" autocapitalize="characters" spellcheck="false"><button type="button" class="go alt sm" id="rmjoin">${L('加入','Join')}</button></div>`}
 function renderRoom(){
   const box=$('#roompanel');if(!box)return;const on=SAVE.mode==='room';box.hidden=!on;const sr=$('#hero .startrow');if(sr)sr.style.display=on?'none':'';const ss=$('#stickystart');if(ss)ss.classList.toggle('room',on);const hf=$('#hero .hfoot');if(hf)hf.classList.toggle('room',on);
   {const hh=$('#hero .hhead');if(on&&hh&&box.previousElementSibling!==hh)hh.insertAdjacentElement('afterend',box);else if(!on&&hf&&box.parentElement!==hf)hf.appendChild(box)} // in a duel the room is the first thing on the screen, not the last
   if(!on)return;
-  const online=netIsLocal()?L('本机测试模式(同一浏览器的多个标签页可互相加入)','Local test mode: tabs of this browser can join each other'):'';
+  const bindJoin=()=>{const jb=$('#rmjoin');if(!jb)return;const join=async()=>{const code=$('#rmcode').value;ROOM.status='';try{await roomJoin(code)}catch(e){ROOM.status=roomErr(e);renderRoom()}SFX.pick(1)};jb.onclick=join;$('#rmcode').onkeydown=e=>{if(e.key==='Enter')join()};$('#rmcode').oninput=e=>{e.target.value=e.target.value.toUpperCase()}};
   if(!ROOM.code){
     if(!ROOM.creating){ROOM.creating=true;ROOM.status='';roomCreate({mode:'time',len:180,max:4}).catch(e=>{ROOM.status=roomErr(e)}).finally(()=>{ROOM.creating=false;renderRoom()})}
-    box.innerHTML=`<div class="rmhd"><b>${L('对决','Duel')}</b><small>${L('正在开房…','Opening a room…')}</small></div>
-      <div class="rmrow"><span class="lbl">${L('有朋友的房间码?','Got a code from a friend?')}</span><input id="rmcode" maxlength="4" placeholder="${L('房间码','CODE')}" autocapitalize="characters" spellcheck="false"><button type="button" class="go alt sm" id="rmjoin">${L('加入','Join')}</button></div>
-      <p class="note" id="rmstatus">${ROOM.status||''}</p>`;
-    const join=async()=>{ROOM.status='';try{await roomJoin($('#rmcode').value)}catch(e){ROOM.status=roomErr(e);renderRoom()}SFX.pick(1)};
-    $('#rmjoin').onclick=join;$('#rmcode').onkeydown=e=>{if(e.key==='Enter')join()};$('#rmcode').oninput=e=>{e.target.value=e.target.value.toUpperCase()};
-    return;
+    box.innerHTML=`<div class="rmhd"><b>${L('对决','Duel')}</b><span class="dim">${L('开房中…','Opening…')}</span>${roomJoinRow()}</div>${ROOM.status?`<p class="note err">${ROOM.status}</p>`:''}`;
+    bindJoin();return;
   }
-  const d=ROOM.data||{},ps=roomPlayerList(),me=roomUid(),mine=ROOM.players[me]||{};
-  const rows=ps.map(p=>{const C=CLASSES[p.cls]||CLASSES.swordsman,w=SPELLS[p.weapon]||SPELLS[C.main];return `<div class="rp ${p.uid===me?'me':''} ${p.ready?'ready':''}"><span class="ic-w">${p.av&&typeof avatarHTML==='function'?avatarHTML(p.av):ICON.cls(p.cls)}</span><b>${p.name||'?'}${p.ai?` <em class="aitag">AI</em>`:''}${p.uid===d.host?' <em>👑</em>':''}</b><small>${LL(C)} · ${LL(w)}${p.lvA?` · Lv ${p.lvA}`:''}</small>${p.ai&&ROOM.host?`<button type="button" class="rmx" data-rm="${p.uid}" title="${L('移除','Remove')}">×</button>`:`<span class="rd">${p.ready?L('已就绪','Ready'):L('未就绪','Not ready')}${(!p.ai&&p.uid!==me&&typeof linkOpenTo==='function'&&(ROOM.host?linkOpenTo(p.uid):p.uid===d.host&&linkOpenTo(p.uid)))?` <i class="lk" title="${L('已连上,同场对决','Linked: same arena')}">🔗</i>`:''}</span>`}</div>`}).join('');
+  const d=ROOM.data||{},ps=roomPlayerList(),me=roomUid(),mine=ROOM.players[me]||{},hasAI=ps.some(p=>p.ai),diff=d.diff||'normal';
+  const rows=ps.map(p=>{const C=CLASSES[p.cls]||CLASSES.swordsman,w=SPELLS[p.weapon]||SPELLS[C.main],isHost=p.uid===d.host;
+    const right=p.ai&&ROOM.host?`<button type="button" class="rmx" data-rm="${p.uid}" title="${L('移除','Remove')}">×</button>`:(isHost||p.ai)?'':`<span class="rd">${p.ready?L('已就绪','Ready'):L('未就绪','Not ready')}${(p.uid!==me&&typeof linkOpenTo==='function'&&(ROOM.host?linkOpenTo(p.uid):isHost&&linkOpenTo(p.uid)))?` <i class="lk" title="${L('已连上,同场对决','Linked: same arena')}">🔗</i>`:''}</span>`;
+    return `<div class="rp ${p.uid===me?'me':''} ${p.ready&&!isHost&&!p.ai?'ready':''}"><span class="ic-w">${p.av&&typeof avatarHTML==='function'?avatarHTML(p.av):ICON.cls(p.cls)}</span><b>${esc(p.name||'?')}${p.ai?` <em class="aitag">AI</em>`:''}${isHost?' <em>👑</em>':''}</b><small>${LL(C)} · ${LL(w)}${p.lvA?` · Lv ${p.lvA}`:''}</small>${right}</div>`}).join('');
   const empty=Math.max(0,(d.max||4)-ps.length),canAI=ROOM.host&&empty>0,offline=!netOnline();
-  box.innerHTML=`<div class="rmhd"><b>${L('对决','Duel')} <span class="code" title="${L('房间码','Room code')}">${ROOM.code}</span></b><small>${roomModeText(d)} · ${ps.length}/${d.max||4}</small></div>
-    <div class="rplist">${rows}${empty>0?`<div class="rp seat">${canAI?`<button type="button" class="go alt sm" id="rmai">${L('+ AI 对手','+ AI opponent')}</button>`:''}${offline?`<small class="note">${L('联机暂不可用,先和 AI 打','Online rooms unavailable right now — play the AI')}</small>`:`<button type="button" class="go alt sm" id="rmcopy">${L('邀请好友','Invite a friend')}</button><small class="note">${L(`房间码 ${ROOM.code}`,`code ${ROOM.code}`)}</small>`}</div>`:''}</div>
-    ${ROOM.host?`<div class="rmrow"><span class="lbl">${L('玩法','Mode')}</span><div class="seg" id="rmmode2"><button type="button" data-v="time" class="${d.mode==='time'?'on':''}">${L('限时','Timed')}</button><button type="button" data-v="last" class="${d.mode==='last'?'on':''}">${L('无尽','Endless')}</button></div><span class="lbl">${L('时长','Length')}</span><div class="seg" id="rmlen2">${ROOM_LENS.map(s=>`<button type="button" data-v="${s}" class="${d.len===s?'on':''}">${s/60}′</button>`).join('')}</div><span class="lbl">${L('难度','Difficulty')}</span><div class="seg" id="rmdiff2">${['easy','normal','hard'].map(k=>`<button type="button" data-v="${k}" class="${(d.diff||'normal')===k?'on':''}">${LL(DIFF[k])}</button>`).join('')}</div></div>`:''}
-    <div class="rmrow">${ROOM.host?'':`<button type="button" class="go${mine.ready?' alt':''}" id="rmready">${mine.ready?L('取消就绪','Unready'):L('就绪','Ready')}</button>`}${ROOM.host?`<button type="button" class="go" id="rmstart" ${roomCanStart()?'':'disabled'}>${typeof roomLinkWait==='function'&&roomLinkWait()>0&&roomPlayerList().every(p=>p.ready||p.ai)?L('连接中…','Linking…'):L('开始对决','Start match')}</button>`:`<span class="note">${L('等待房主开始…','Waiting for the host to start…')}</span>`}<button type="button" class="go alt" id="rmleave">${L('离开','Leave')}</button></div>
-    <p class="note">${L('同场抢怪,最后一刀算你的。','One arena. Last hit takes it.')}${ps.length<2?' '+L('加一个 AI 对手或邀请朋友就能开始。','Add an AI opponent or invite a friend to start.'):''}</p>
-    ${ps.some(p=>!p.ai&&p.uid!==me)?'':`<div class="rmrow join"><span class="lbl">${L('有朋友的房间码?','Got a code from a friend?')}</span><input id="rmcode" maxlength="4" placeholder="${L('房间码','CODE')}" autocapitalize="characters" spellcheck="false"><button type="button" class="go alt sm" id="rmjoin">${L('加入','Join')}</button></div>`}
+  const seat=empty>0&&(canAI||!offline)?`<div class="rp seat">${canAI?`<button type="button" class="seatb" id="rmai"><span>＋</span>${L('AI 对手','AI')}</button>`:''}${offline?'':`<button type="button" class="seatb" id="rmcopy"><span>✉</span>${L('邀请好友','Invite')}</button>`}</div>`:'';
+  const opts=ROOM.host
+    ?`<div class="seg" id="rmmode2"><button type="button" data-v="time" class="${d.mode!=='last'?'on':''}">${L('限时 3′','Timed 3′')}</button><button type="button" data-v="last" class="${d.mode==='last'?'on':''}">${L('无尽','Endless')}</button></div>${hasAI?`<span class="grp"><span class="lbl">${L('AI 难度','AI level')}</span><div class="seg" id="rmdiff2">${['easy','normal','hard'].map(k=>`<button type="button" data-v="${k}" class="${diff===k?'on':''}">${LL(DIFF[k])}</button>`).join('')}</div></span>`:''}`
+    :`<span class="chip">${roomModeText(d)}</span>${hasAI?`<span class="chip">AI · ${LL(DIFF[diff])}</span>`:''}`;
+  const lone=ps.length<2;
+  box.innerHTML=`<div class="rmhd"><b>${L('对决','Duel')}</b><button type="button" class="code" id="rmcodeb" title="${L('复制邀请链接','Copy invite link')}">${ROOM.code}</button><span class="cnt">${ps.length}/${d.max||4}</span><div class="opts">${opts}</div></div>
+    <div class="rplist">${rows}${seat}</div>
+    <div class="rmact">${ROOM.host?`<button type="button" class="go" id="rmstart" ${roomCanStart()?'':'disabled'} ${lone?`title="${L('先加一个 AI 对手或邀请好友','Add an AI or invite a friend first')}"`:''}>${typeof roomLinkWait==='function'&&roomLinkWait()>0&&ps.every(p=>p.ready||p.ai)?L('连接中…','Linking…'):L('开始对决','Start')}</button>`:`<button type="button" class="go${mine.ready?' alt':''}" id="rmready">${mine.ready?L('取消就绪','Unready'):L('就绪','Ready')}</button>`}<button type="button" class="go alt sm" id="rmleave">${L('离开','Leave')}</button>${ps.some(p=>!p.ai&&p.uid!==me)?(ROOM.host?'':`<span class="dim">${L('等房主开始…','Waiting for host…')}</span>`):roomJoinRow()}</div>
     ${ROOM.status?`<p class="note err" id="rmstatus">${ROOM.status}</p>`:''}`;
-  {const jb=$('#rmjoin');if(jb){const join=async()=>{const code=$('#rmcode').value;ROOM.status='';try{await roomJoin(code)}catch(e){ROOM.status=roomErr(e);renderRoom()}SFX.pick(1)};jb.onclick=join;$('#rmcode').onkeydown=e=>{if(e.key==='Enter')join()};$('#rmcode').oninput=e=>{e.target.value=e.target.value.toUpperCase()}}}
-  {const cp=$('#rmcopy');if(cp)cp.onclick=async()=>{const link=roomLink(ROOM.code);try{await navigator.clipboard.writeText(link);cp.textContent=L('已复制链接','Link copied')}catch(_){prompt(L('邀请链接','Invite link'),link)}}}
+  bindJoin();
+  const copy=async el=>{const link=roomLink(ROOM.code);try{await navigator.clipboard.writeText(link);toastCopied(el)}catch(_){prompt(L('邀请链接','Invite link'),link)}};
+  {const cp=$('#rmcopy');if(cp)cp.onclick=()=>copy(cp)}{const cb=$('#rmcodeb');if(cb)cb.onclick=()=>copy(cb)}
   {const ai=$('#rmai');if(ai)ai.onclick=()=>{roomAddAI();SFX.pick(1)}}box.querySelectorAll('.rmx').forEach(b=>b.onclick=()=>{roomRemoveAI(b.dataset.rm);SFX.pick(1)});
   {const rb=$('#rmready');if(rb)rb.onclick=()=>{roomSetReady(!mine.ready);SFX.pick(1)}}
   $('#rmleave').onclick=()=>{roomLeave();SFX.pick(1)};
   if(ROOM.host){$('#rmstart').onclick=()=>{roomStart();SFX.complete()};
-    const seg=(id,key,conv)=>box.querySelectorAll(`#${id} button`).forEach(b=>b.onclick=()=>roomHostSet({[key]:conv?conv(b.dataset.v):b.dataset.v}));seg('rmmode2','mode');seg('rmlen2','len',Number);seg('rmdiff2','diff')}
+    box.querySelectorAll('#rmmode2 button').forEach(b=>b.onclick=()=>{roomHostSet(b.dataset.v==='time'?{mode:'time',len:180}:{mode:'last'});SFX.pick(1)});
+    box.querySelectorAll('#rmdiff2 button').forEach(b=>b.onclick=()=>{roomHostSet({diff:b.dataset.v});SFX.pick(1)})}
 }
+function toastCopied(el){if(!el)return;el.classList.add('copied');el.dataset.tip=L('已复制邀请链接','Invite link copied');clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('copied'),1600)}
 function drawBoard(){
   const el=$('#roomboard');if(!el)return;if(!G||G.auto||$('#hud').hidden){el.hidden=true;return}
   if(ROOM.code&&ROOM.playing&&G.room)return drawRoomBoard();

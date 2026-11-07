@@ -1026,3 +1026,29 @@ html[lang=zh] #menu .ttb h1.entitle{display:none}
 @media (max-width:640px){#prog{grid-template-columns:minmax(0,1fr) auto auto auto;gap:5px}#prog .pr.lv>div{min-width:44px}#prog .pr.lad b{display:none}#prog .pr.lad{gap:4px}#prog .pr{padding:5px 8px}#prog .nm b{font-size:13px}#prog .pr.lv .ic,#prog .pr.lad .ic,#prog .pr.gold .ic{width:20px;height:20px}}
 @media (max-width:760px){#prog .pr.lad small{display:inline;font:800 13px var(--cute);color:#ffe9a0}}
 @media (max-width:640px){#prog .pr.lv{gap:5px}#prog .pr.lv .ic{display:none}#prog .pr.lv>div{min-width:40px}#prog .pr.lv b{font-size:13px}}
+
+/* ---- duel lobby v2: one header line, seats, one action line ---- */
+#roompanel{gap:10px}
+#roompanel .rmhd{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+#roompanel .rmhd b{font-size:17px}
+#roompanel .rmhd .code{position:relative;font:900 20px var(--ui);letter-spacing:.25em;color:#8fe3ff;text-shadow:0 0 14px #6fd3e8;background:#0d0810;border:1px dashed #6fd3e888;border-radius:8px;padding:2px 6px 2px 10px;cursor:pointer;margin:0}
+#roompanel .rmhd .code:hover{border-style:solid}
+#roompanel .copied::after{content:attr(data-tip);position:absolute;left:50%;top:calc(100% + 6px);transform:translateX(-50%);white-space:nowrap;font:700 11px var(--ui);letter-spacing:0;text-shadow:none;color:#1a0e16;background:#7dffb0;border-radius:6px;padding:3px 8px;z-index:5}
+#roompanel .rmhd .cnt{font-size:12px;color:var(--dim)}
+#roompanel .rmhd .opts{margin-left:auto;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+#roompanel .lbl,#roompanel .dim{font-size:12px;color:var(--dim)}
+#roompanel .chip{font-size:12px;font-weight:700;color:var(--bone);background:#2a1822;border:1px solid #6b5230;border-radius:999px;padding:4px 10px}
+#roompanel .rp.seat{display:flex;gap:6px;padding:6px;opacity:1;border-style:dashed;min-height:56px}
+#roompanel .seatb{position:relative;flex:1;display:flex;align-items:center;justify-content:center;gap:6px;background:none;border:1px solid transparent;border-radius:6px;color:var(--bone);font:800 13px var(--cute,var(--ui));cursor:pointer;padding:6px}
+#roompanel .seatb span{font-size:16px;color:#8fe3ff}
+#roompanel .seatb:hover{background:#2a1822;border-color:#6b5230}
+#roompanel .rmact{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+#roompanel .rmact .go{margin:0}
+#roompanel .rmact #rmstart,#roompanel .rmact #rmready{min-width:150px}
+#roompanel .rmact #rmstart[disabled]{opacity:.45;filter:grayscale(.6)}
+#roompanel .rmjoin{margin-left:auto;display:flex;gap:6px;align-items:center}
+#roompanel .rmjoin input{width:7.5em;text-align:center;letter-spacing:.12em;font:800 13px var(--ui);padding:7px 8px;background:#0d0810;border:1px solid #6b5230;color:var(--bone);border-radius:6px;text-transform:uppercase}
+#roompanel .rmjoin input::placeholder{letter-spacing:0;font-weight:600;color:var(--dim);text-transform:none}
+#roompanel .note.err{margin:0;color:#ff9c8a}
+@media (max-width:560px){#roompanel .rmhd .opts{margin-left:0;flex-basis:100%}#roompanel .rmjoin{margin-left:0;flex-basis:100%}#roompanel .rmjoin input{flex:1}}
+#roompanel .grp{display:flex;align-items:center;gap:6px}

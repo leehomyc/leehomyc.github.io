@@ -5,7 +5,7 @@
    Transport: Firestore (rooms/{code}, players and events subcollections). A local BroadcastChannel transport covers testing and offline play
    between tabs of one browser (?local=1). */
 const ROOM_ALPHABET='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-const ROOM_LENS=[180,300,600];
+const ROOM_LENS=[180]; // duels are always 3 minutes (or endless)
 const ROOM={code:null,data:null,players:{},me:null,host:false,playing:false,countdown:null,seed:0,ended:false,results:null,lastSeen:{},sendT:0,unsub:null,evSeen:new Set(),joinedAt:0,status:''};
 function roomCode(){let c='';const a=new Uint8Array(4);crypto.getRandomValues(a);for(const b of a)c+=ROOM_ALPHABET[b%ROOM_ALPHABET.length];return c}
 function roomUid(){if(typeof CLOUD!=='undefined'&&CLOUD.on()&&!netIsLocal())return CLOUD.uid();let t='';try{t=sessionStorage.getItem('sl_tab');if(!t){t='tab-'+Math.random().toString(36).slice(2,10);sessionStorage.setItem('sl_tab',t)}}catch(_){t='tab-'+LB.token().slice(0,8)}return t}
@@ -98,7 +98,7 @@ async function roomAddAI(){if(!ROOM.code||!ROOM.host)return;const ps=roomPlayerL
 async function roomRemoveAI(uid){if(!ROOM.code||!ROOM.host)return;if(ROOM.players[uid])await netT().removePlayer(ROOM.code,uid);aiPut(uid,null);await aiFlush()}
 /* the host advances every AI seat once a second: a score curve that accelerates like a real build, a level that climbs, an HP line that dips and recovers, and in endless mode a fall at some point */
 function roomAITick(){if(!ROOM.host||!ROOM.data||!ROOM.playing)return;const d=ROOM.data,len=d.mode==='time'?d.len:600;const wall=Math.max(0,(Date.now()-((d.startedAt||Date.now())+(d.delay||0)))/1000),hostT=(G&&!G.auto&&G.room)?G.t:0;let t=Math.max(wall,hostT);if(G&&!G.auto&&G.room&&G.over&&d.mode==='time')t=Math.max(t,len); // AI seats follow the host's clock; when the host's run is over the AIs finish too
-  for(const p of roomPlayerList()){if(!p.ai||p.done)continue;const k=p.skill||.8;
+  const dk={easy:.75,normal:1,hard:1.3}[d.diff||'normal']||1;for(const p of roomPlayerList()){if(!p.ai||p.done)continue;const k=(p.skill||.8)*dk;
     if(G&&!G.auto&&G.room&&G.rival&&G.rivalSeat===p.uid){const R=G.rival;const over=(d.mode==='time'&&t>=len)||!!G.over;aiPut(p.uid,{score:R.score,lv:R.lv,hp:Math.max(0,R.hp/R.maxHp),kills:R.kills,alive:true,done:over,t:Math.round(Math.min(t,len)),bosses:R.bosses||0,x:Math.round(R.x),y:Math.round(R.y)});continue}const final=(520+280*k)*(len/180);const f=Math.min(1,t/len);let score=Math.round(final*Math.pow(f,1.55)*(1+Math.sin(t*.37+k*9)*.03));const lv=Math.max(1,Math.round(1+Math.sqrt(t)*(.9+k*.5)));const hp=clamp(.55+.45*Math.sin(t*.21+k*5)*Math.cos(t*.07),.12,1);const kills=Math.round(score/2.4);
     let alive=true,done=false;if(d.mode==='last'){const fallAt=(150+k*260);if(t>=fallAt){alive=false;done=true;score=Math.round(final*Math.pow(fallAt/len,1.55))}}else if(t>=len){done=true;score=Math.round(final*(1+Math.sin(k*9)*.03))}
     const pos=roomAIPos(p.uid,k);aiPut(p.uid,{score,lv,hp:alive?hp:0,kills,alive,done,t:Math.round(Math.min(t,len)),bosses:Math.floor(t/240),x:pos.x,y:pos.y})}
