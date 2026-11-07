@@ -1387,3 +1387,7 @@ body.touchhud #healthwarning{bottom:calc(235px + env(safe-area-inset-bottom));fo
   .menu-tools{top:max(8px,env(safe-area-inset-top))}
   #menu .tt{padding-top:54px}
 }
+
+/* Center room result actions, including each row when they wrap on phones. */
+#end #roomres .btns{justify-content:center}
+#end #roomres .btns>.note{flex-basis:100%;text-align:center}
