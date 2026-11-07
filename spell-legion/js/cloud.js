@@ -8,7 +8,7 @@
 const FIREBASE_CONFIG={apiKey:"AIzaSyDeI9V8qBVB2B1lqZP5BaedYhaToHfs6Z8",authDomain:"spell-legion.firebaseapp.com",projectId:"spell-legion",storageBucket:"spell-legion.firebasestorage.app",messagingSenderId:"657647239907",appId:"1:657647239907:web:339874a2e3fca9cc833bd6"};
 const FB_VER='10.14.1';
 const FB_LOGIN=false; // flip to true once Facebook is enabled in Firebase Authentication (see I18N.md / ACCOUNTS.md)
-const CLOUD={ready:false,user:null,db:null,auth:null,status:'off',pushT:0,lastPushed:'',
+const CLOUD={ready:false,user:null,db:null,auth:null,status:'off',pushT:0,lastPushed:'',epoch:0,syncedUid:null,pullTask:null,writeTask:Promise.resolve(),authBusy:false,initializing:true,
   on(){return this.ready&&!!this.user},
   uid(){return this.user?this.user.uid:null},
   isGuest(){return !!(this.user&&this.user.isAnonymous)},
@@ -24,16 +24,14 @@ async function cloudInit(){
     CLOUD.auth=firebase.auth();CLOUD.db=firebase.firestore();
     try{await CLOUD.auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)}catch(_){}
     CLOUD.ready=true;CLOUD.status='ready';
-    /* a sign-in that fell back to a full-page redirect (popup blocked, in-app browsers) finishes here */
-    CLOUD.auth.getRedirectResult().catch(async e=>{if(e&&e.code==='auth/credential-already-in-use'&&e.credential){const local=JSON.parse(JSON.stringify(SAVE));await CLOUD.auth.signInWithCredential(e.credential);Object.assign(SAVE,local);SAVE.ts=Date.now()}else if(e&&e.code)showMsg(authMsg(e))});
-    /* came back from the verification email in another tab: refresh the badge */
-    addEventListener('focus',()=>{const u=CLOUD.auth&&CLOUD.auth.currentUser;if(u&&!u.isAnonymous&&!u.emailVerified&&hasPassword(u))u.reload().then(()=>{CLOUD.user=CLOUD.auth.currentUser;renderAccount()}).catch(()=>{})});
-    CLOUD.auth.onAuthStateChanged(async u=>{
-      CLOUD.user=u;renderAccount();
-      if(!u){try{await CLOUD.auth.signInAnonymously()}catch(e){console.warn('anon sign-in failed',e);CLOUD.status='noauth';renderAccount()}return}
-      await cloudPull();renderAccount();if(typeof lbMenuRank==='function')lbMenuRank();
+    CLOUD.auth.onAuthStateChanged(u=>{cloudAuthChanged(u).catch(e=>console.warn('auth state failed',e))});
+    // Complete redirects issued by an older version, without restoring a stale local snapshot.
+    CLOUD.auth.getRedirectResult().then(r=>r.user&&cloudAuthChanged(r.user)).catch(async e=>{
+      try{if(e?.code==='auth/credential-already-in-use'&&e.credential){const r=await CLOUD.auth.signInWithCredential(e.credential);await cloudAuthChanged(r.user)}else showMsg(authMsg(e))}
+      catch(err){showMsg(authMsg(err))}
     });
-  }catch(e){console.warn('cloud unavailable',e);CLOUD.ready=false;CLOUD.status='off';renderAccount()}
+    addEventListener('focus',()=>{const u=CLOUD.auth?.currentUser;if(u&&!u.isAnonymous&&!u.emailVerified&&hasPassword(u))u.reload().then(()=>{if(CLOUD.auth.currentUser?.uid===u.uid){CLOUD.user=CLOUD.auth.currentUser;renderAccount()}}).catch(()=>{})});
+  }catch(e){console.warn('cloud unavailable',e);CLOUD.ready=false;CLOUD.initializing=false;CLOUD.status='off';renderAccount()}
 }
 /* ---- save merge: never lose progress from either side ---- */
 function mergeSave(local,cloud){
@@ -74,68 +72,122 @@ function mergeSave(local,cloud){
   const lb=local.lb||{},cb=cloud.lb||{};out.lb={...(lb.day>cb.day?lb:cb),best:Math.max(lb.best||0,cb.best||0)};if(lb.day===cb.day)out.lb.dayBest=Math.max(lb.dayBest||0,cb.dayBest||0);
   out.ts=Math.max(+local.ts||0,+cloud.ts||0);if(typeof migrateProgression==='function')migrateProgression(out);delete out.autocast;return out;
 }
+async function cloudAuthChanged(user){
+  if(user&&CLOUD.auth.currentUser?.uid!==user.uid)return false;
+  if(!user&&CLOUD.auth.currentUser)return cloudAuthChanged(CLOUD.auth.currentUser);
+  if(user&&CLOUD.user?.uid===user.uid){CLOUD.user=user;CLOUD.initializing=false;renderAccount();return CLOUD.syncedUid===user.uid?cloudPush(true):cloudPull()}
+  clearTimeout(CLOUD.pushT);CLOUD.epoch++;CLOUD.user=user;CLOUD.syncedUid=null;CLOUD.pullTask=null;CLOUD.writeTask=Promise.resolve();CLOUD.lastPushed='';CLOUD.syncErr='';
+  CLOUD.initializing=!user;renderAccount();
+  if(!user){
+    try{const r=await CLOUD.auth.signInAnonymously();if(CLOUD.auth.currentUser?.uid===r.user.uid)return await cloudAuthChanged(r.user)}
+    catch(e){console.warn('anon sign-in failed',e);CLOUD.status='noauth';CLOUD.initializing=false;renderAccount()}
+    return false;
+  }
+  CLOUD.initializing=false;const ok=await cloudPull();
+  if(CLOUD.user?.uid===user.uid){renderAccount();if(typeof lbMenuRank==='function')lbMenuRank()}
+  return ok;
+}
+function cloudCompleteSignIn(user){cloudAuthChanged(user).catch(e=>console.warn('sign-in sync failed',e))}
+function cloudSession(uid,epoch){return CLOUD.on()&&CLOUD.user.uid===uid&&CLOUD.epoch===epoch&&CLOUD.auth.currentUser?.uid===uid}
 async function cloudPull(){
-  if(!CLOUD.on())return;
-  try{const snap=await CLOUD.db.collection('saves').doc(CLOUD.uid()).get();const data=snap.exists?snap.data():null;
-    if(data&&data.save){const merged=mergeSave(SAVE,data.save);Object.assign(SAVE,merged);if(typeof normalizeSave==='function')normalizeSave();persist(true)}
-    await cloudPush(true);
-    if(typeof renderTitle==='function'&&!document.querySelector('#title').hidden)renderTitle();
-  }catch(e){console.warn('pull failed',e)}
+  if(!CLOUD.on())return false;
+  if(CLOUD.pullTask)return CLOUD.pullTask;
+  const uid=CLOUD.uid(),epoch=CLOUD.epoch;CLOUD.syncedUid=null;
+  const task=Promise.resolve().then(async()=>{
+    try{
+      const snap=await CLOUD.db.collection('saves').doc(uid).get();
+      if(!cloudSession(uid,epoch))return false;
+      // Cached data cannot prove that the server save is absent or current.
+      if(snap.metadata?.fromCache)throw new Error('Cloud save is offline');
+      const data=snap.exists?snap.data():null;
+      if(data?.save){Object.assign(SAVE,mergeSave(SAVE,data.save));if(typeof normalizeSave==='function')normalizeSave();persist(true)}
+      CLOUD.syncedUid=uid;const ok=await cloudPush(true);
+      if(cloudSession(uid,epoch)&&typeof renderTitle==='function'&&!document.querySelector('#title').hidden)renderTitle();
+      return ok;
+    }catch(e){if(cloudSession(uid,epoch)){CLOUD.syncErr=String(e?.message||e).slice(0,80);renderAccount()}console.warn('pull failed',e);return false}
+  });
+  CLOUD.pullTask=task;
+  try{return await task}finally{if(CLOUD.pullTask===task)CLOUD.pullTask=null}
 }
 async function cloudPush(now){
-  if(!CLOUD.on())return;
-  const body=JSON.stringify(SAVE);if(body===CLOUD.lastPushed&&!now)return;const clean=JSON.parse(body); // Firestore rejects undefined fields; JSON round-trip drops them
-  try{await CLOUD.db.collection('saves').doc(CLOUD.uid()).set({save:clean,ts:firebase.firestore.FieldValue.serverTimestamp()});CLOUD.lastPushed=body;CLOUD.syncErr='';
-    const a=typeof accountLv==='function'?accountLv():{lv:1};const t=typeof titleFor==='function'?titleFor(a.lv):['','',''];
-    await CLOUD.db.collection('profiles').doc(CLOUD.uid()).set({name:LB.name()||'无名侠客',lv:a.lv,title:t[1],guest:CLOUD.isGuest(),ts:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});
-  }catch(e){console.warn('push failed',e);CLOUD.syncErr=String(e&&e.message||e).slice(0,80);renderAccount()}
+  if(!CLOUD.on()||CLOUD.syncedUid!==CLOUD.uid())return false;
+  const uid=CLOUD.uid(),epoch=CLOUD.epoch;
+  const task=CLOUD.writeTask.catch(()=>{}).then(async()=>{
+    if(!cloudSession(uid,epoch)||CLOUD.syncedUid!==uid)return false;
+    const body=JSON.stringify(SAVE);if(body===CLOUD.lastPushed&&!now)return true;
+    const clean=JSON.parse(body),a=typeof accountLv==='function'?accountLv():{lv:1},t=typeof titleFor==='function'?titleFor(a.lv):['','',''];
+    const profile={name:LB.name()||'无名侠客',lv:a.lv,title:t[1],guest:CLOUD.isGuest(),ts:firebase.firestore.FieldValue.serverTimestamp()};
+    try{
+      await CLOUD.db.collection('saves').doc(uid).set({save:clean,ts:firebase.firestore.FieldValue.serverTimestamp()});
+      if(!cloudSession(uid,epoch))return false;
+      await CLOUD.db.collection('profiles').doc(uid).set(profile,{merge:true});
+      if(!cloudSession(uid,epoch))return false;
+      CLOUD.lastPushed=body;CLOUD.syncErr='';return true;
+    }catch(e){if(cloudSession(uid,epoch)){CLOUD.syncErr=String(e?.message||e).slice(0,80);renderAccount()}console.warn('push failed',e);return false}
+  });
+  CLOUD.writeTask=task;return task;
 }
-function cloudSchedulePush(){if(!CLOUD.on())return;clearTimeout(CLOUD.pushT);CLOUD.pushT=setTimeout(()=>cloudPush(false),2500)}
+function cloudSchedulePush(){if(!CLOUD.on())return;clearTimeout(CLOUD.pushT);const uid=CLOUD.uid(),epoch=CLOUD.epoch;CLOUD.pushT=setTimeout(()=>{if(cloudSession(uid,epoch)){if(CLOUD.syncedUid===uid)cloudPush(false);else cloudPull()}},2500)}
+function syncAuthButtons(){document.querySelectorAll('#account button').forEach(b=>b.disabled=CLOUD.authBusy||CLOUD.initializing)}
+async function cloudAuthAction(action){
+  if(CLOUD.authBusy||CLOUD.initializing)return;
+  CLOUD.authBusy=true;syncAuthButtons();
+  try{return await action()}finally{CLOUD.authBusy=false;syncAuthButtons()}
+}
 /* ---- Google / Facebook sign-in: link the guest account so nothing is lost; if that login already has a save, merge into it.
-   Popups are blocked in some in-app browsers (WeChat, Instagram, Facebook itself): fall back to a full-page redirect. ---- */
+   Redirect fallback is only used on the Firebase auth origin; other hosts keep the popup flow. ---- */
 function authLang(){if(CLOUD.auth)CLOUD.auth.languageCode={zh:'zh-CN',zt:'zh-TW',en:'en',ja:'ja',ko:'ko'}[typeof LOC!=='undefined'?LOC:'en']||'en'}
 function providerOf(kind){if(kind==='facebook'){const p=new firebase.auth.FacebookAuthProvider();p.addScope('email');return p}return new firebase.auth.GoogleAuthProvider()}
 async function cloudProvider(kind){
   if(!CLOUD.ready)return showMsg(L('无法连接账号服务','Account service unreachable'));
-  const prov=providerOf(kind),name=kind==='facebook'?'Facebook':'Google';authLang();
-  try{
-    if(CLOUD.user&&CLOUD.user.isAnonymous){
-      try{await CLOUD.user.linkWithPopup(prov)}
-      catch(e){if(e.code==='auth/credential-already-in-use'){const local=JSON.parse(JSON.stringify(SAVE));await CLOUD.auth.signInWithCredential(e.credential);Object.assign(SAVE,local);SAVE.ts=Date.now()}
-        else if(e.code==='auth/popup-blocked'||e.code==='auth/operation-not-supported-in-environment'){return CLOUD.user.linkWithRedirect(prov)}else throw e}
-    }else{try{await CLOUD.auth.signInWithPopup(prov)}catch(e){if(e.code==='auth/popup-blocked'||e.code==='auth/operation-not-supported-in-environment')return CLOUD.auth.signInWithRedirect(prov);throw e}}
-    showMsg(L(`已登录 ${name}`,`Signed in with ${name}`));
-  }catch(e){console.warn(e);showMsg(e&&AUTH_MSG[e.code]?authMsg(e):L('登录未完成','Sign-in not completed'))}
+  return cloudAuthAction(async()=>{
+    const prov=providerOf(kind),name=kind==='facebook'?'Facebook':'Google';authLang();
+    try{
+      let result;
+      try{result=CLOUD.user?.isAnonymous?await CLOUD.user.linkWithPopup(prov):await CLOUD.auth.signInWithPopup(prov)}
+      catch(e){
+        if(e.code==='auth/credential-already-in-use'&&e.credential)result=await CLOUD.auth.signInWithCredential(e.credential);
+        else if((e.code==='auth/popup-blocked'||e.code==='auth/operation-not-supported-in-environment')&&location.hostname===FIREBASE_CONFIG.authDomain){
+          persist(true);return await (CLOUD.user?.isAnonymous?CLOUD.user.linkWithRedirect(prov):CLOUD.auth.signInWithRedirect(prov));
+        }else throw e;
+      }
+      cloudCompleteSignIn(result.user);renderAccount();showMsg(L(`已登录 ${name}`,`Signed in with ${name}`));
+    }catch(e){console.warn(e);showMsg(authMsg(e))}
+  });
 }
 const cloudGoogle=()=>cloudProvider('google');
 /* ---- email + password: register links the guest account (progress kept); sign-in merges the local save into the account's cloud save on pull ---- */
-const AUTH_MSG={'auth/invalid-email':['邮箱格式不对','That email does not look right'],'auth/weak-password':['密码至少 6 位','Password needs 6+ characters'],'auth/email-already-in-use':['这个邮箱已注册,请直接登录','Already registered — sign in instead'],'auth/wrong-password':['密码不对','Wrong password'],'auth/invalid-credential':['邮箱或密码不对','Wrong email or password'],'auth/invalid-login-credentials':['邮箱或密码不对','Wrong email or password'],'auth/user-not-found':['没有这个账号,先注册','No account with this email — register first'],'auth/too-many-requests':['试得太多了,稍后再试','Too many attempts; try again later'],'auth/operation-not-allowed':['邮箱登录暂未开通','Email sign-in is not enabled yet'],'auth/network-request-failed':['网络不通','Network error'],'auth/missing-password':['请输入密码','Enter a password'],'auth/account-exists-with-different-credential':['这个邮箱已用别的方式注册,请用原来的方式登录','This email already has an account — sign in the way you did before'],'auth/popup-closed-by-user':['登录窗口被关闭了','The sign-in window was closed'],'auth/cancelled-popup-request':['登录窗口被关闭了','The sign-in window was closed'],'auth/requires-recent-login':['为了安全,请先退出再重新登录一次','For safety, sign out and sign in again first'],'auth/credential-already-in-use':['这个账号已绑定到别的存档','That login is already linked to another save'],'auth/missing-email':['请输入邮箱','Enter your email']};
+const AUTH_MSG={'auth/popup-blocked':['请允许弹窗后重试','Allow popups and try again'],'auth/operation-not-supported-in-environment':['请在浏览器中打开登录','Open in a browser to sign in'],'auth/unauthorized-domain':['此网站尚未启用登录','Sign-in is not enabled for this website'],'auth/invalid-email':['邮箱格式不对','That email does not look right'],'auth/weak-password':['密码至少 6 位','Password needs 6+ characters'],'auth/email-already-in-use':['这个邮箱已注册,请直接登录','Already registered — sign in instead'],'auth/wrong-password':['密码不对','Wrong password'],'auth/invalid-credential':['邮箱或密码不对','Wrong email or password'],'auth/invalid-login-credentials':['邮箱或密码不对','Wrong email or password'],'auth/user-not-found':['没有这个账号,先注册','No account with this email — register first'],'auth/too-many-requests':['试得太多了,稍后再试','Too many attempts; try again later'],'auth/operation-not-allowed':['邮箱登录暂未开通','Email sign-in is not enabled yet'],'auth/network-request-failed':['网络不通','Network error'],'auth/missing-password':['请输入密码','Enter a password'],'auth/account-exists-with-different-credential':['这个邮箱已用别的方式注册,请用原来的方式登录','This email already has an account — sign in the way you did before'],'auth/popup-closed-by-user':['登录窗口被关闭了','The sign-in window was closed'],'auth/cancelled-popup-request':['登录窗口被关闭了','The sign-in window was closed'],'auth/requires-recent-login':['为了安全,请先退出再重新登录一次','For safety, sign out and sign in again first'],'auth/credential-already-in-use':['这个账号已绑定到别的存档','That login is already linked to another save'],'auth/missing-email':['请输入邮箱','Enter your email']};
 function authMsg(e){const m=AUTH_MSG[e&&e.code];return m?L(m[0],m[1]):L('没成功,再试一次','Did not work; try again')}
 function emailForm(){const f=$('#emailform');if(!f)return null;const em=(f.querySelector('.em').value||'').trim(),pw=f.querySelector('.pw').value||'';return {em,pw}}
 async function cloudEmail(kind){
   if(!CLOUD.ready)return showMsg(L('无法连接账号服务','Account service unreachable'));
   const v=emailForm();if(!v)return;if(!v.em)return showMsg(L('请输入邮箱','Enter your email'));
-  try{
-    authLang();
-    if(kind==='reset'){await CLOUD.auth.sendPasswordResetEmail(v.em);return showMsg(L(`如果 ${v.em} 已注册,重置密码的链接已发过去了(也看看垃圾邮件)`,`If ${v.em} has an account, a reset link is on its way (check spam too)`))}
-    if(!v.pw)return showMsg(L('请输入密码','Enter a password'));
-    if(kind==='signup'){
-      if(CLOUD.user&&CLOUD.user.isAnonymous){const cred=firebase.auth.EmailAuthProvider.credential(v.em,v.pw);await CLOUD.user.linkWithCredential(cred);CLOUD.user=CLOUD.auth.currentUser;await cloudPush(true);renderAccount()}
-      else await CLOUD.auth.createUserWithEmailAndPassword(v.em,v.pw);
-      let sent=true;try{await CLOUD.auth.currentUser.sendEmailVerification()}catch(_){sent=false}
-      CLOUD.emailOpen=false;renderAccount();
-      showMsg(sent?L(`注册成功!验证链接已发到 ${v.em},点开即可完成验证`,`Registered! A verification link was sent to ${v.em}`):L('注册成功,进度已绑定到邮箱','Registered — your progress is now tied to this email'));return;
-    }else{
-      const local=JSON.parse(JSON.stringify(SAVE));await CLOUD.auth.signInWithEmailAndPassword(v.em,v.pw);Object.assign(SAVE,local);SAVE.ts=Date.now(); // onAuthStateChanged pulls and merges with the account's cloud save
-      showMsg(L('已登录','Signed in'));
-    }
-    CLOUD.emailOpen=false;
-  }catch(e){console.warn(e);showMsg(authMsg(e))}
+  if($('#emailform .em')?.validity?.typeMismatch)return showMsg(authMsg({code:'auth/invalid-email'}));
+  if(kind!=='reset'&&!v.pw)return showMsg(L('请输入密码','Enter a password'));
+  if(kind==='signup'&&v.pw.length<6)return showMsg(authMsg({code:'auth/weak-password'}));
+  return cloudAuthAction(async()=>{
+    try{
+      authLang();
+      if(kind==='reset'){await CLOUD.auth.sendPasswordResetEmail(v.em);return showMsg(L(`如果 ${v.em} 已注册,重置密码的链接已发过去了(也看看垃圾邮件)`,`If ${v.em} has an account, a reset link is on its way (check spam too)`))}
+      let result;
+      if(kind==='signup'){
+        result=CLOUD.user?.isAnonymous?await CLOUD.user.linkWithCredential(firebase.auth.EmailAuthProvider.credential(v.em,v.pw)):await CLOUD.auth.createUserWithEmailAndPassword(v.em,v.pw);
+        cloudCompleteSignIn(result.user);
+        let sent=true;try{await result.user.sendEmailVerification()}catch(_){sent=false}
+        CLOUD.emailOpen=false;renderAccount();
+        showMsg(sent?L(`注册成功!验证链接已发到 ${v.em},点开即可完成验证`,`Registered! A verification link was sent to ${v.em}`):L('注册成功,进度已绑定到邮箱','Registered — your progress is now tied to this email'));
+      }else{
+        result=await CLOUD.auth.signInWithEmailAndPassword(v.em,v.pw);cloudCompleteSignIn(result.user);
+        CLOUD.emailOpen=false;renderAccount();showMsg(L('已登录','Signed in'));
+      }
+    }catch(e){console.warn(e);showMsg(authMsg(e))}
+  });
 }
 /* ---- account actions in Settings ---- */
 function hasPassword(u){return !!(u&&u.providerData&&u.providerData.some(p=>p.providerId==='password'))}
-async function cloudResendVerify(){const u=CLOUD.auth&&CLOUD.auth.currentUser;if(!u)return;authLang();try{await u.sendEmailVerification();showMsg(L(`验证链接已重新发到 ${u.email}`,`Verification link sent again to ${u.email}`))}catch(e){showMsg(authMsg(e))}}
-async function cloudCheckVerify(){const u=CLOUD.auth&&CLOUD.auth.currentUser;if(!u)return;try{await u.reload();CLOUD.user=CLOUD.auth.currentUser;renderAccount();showMsg(CLOUD.user.emailVerified?L('邮箱已验证 ✓','Email verified ✓'):L('还没验证,请点邮件里的链接','Not verified yet — open the link in the email'))}catch(e){showMsg(authMsg(e))}}
+async function cloudResendVerify(){const u=CLOUD.auth?.currentUser;if(!u)return;return cloudAuthAction(async()=>{authLang();try{await u.sendEmailVerification();showMsg(L(`验证链接已重新发到 ${u.email}`,`Verification link sent again to ${u.email}`))}catch(e){showMsg(authMsg(e))}})}
+async function cloudCheckVerify(){const u=CLOUD.auth?.currentUser;if(!u)return;return cloudAuthAction(async()=>{try{await u.reload();if(CLOUD.auth.currentUser?.uid!==u.uid)return;CLOUD.user=CLOUD.auth.currentUser;if(CLOUD.user.emailVerified)await CLOUD.user.getIdToken(true);if(CLOUD.auth.currentUser?.uid!==u.uid)return;renderAccount();showMsg(CLOUD.user.emailVerified?L('邮箱已验证 ✓','Email verified ✓'):L('还没验证,请点邮件里的链接','Not verified yet — open the link in the email'))}catch(e){showMsg(authMsg(e))}})}
 async function cloudChangePassword(){const u=CLOUD.auth&&CLOUD.auth.currentUser;if(!u||!u.email)return;authLang();try{await CLOUD.auth.sendPasswordResetEmail(u.email);showMsg(L(`改密码的链接已发到 ${u.email}`,`A link to set a new password was sent to ${u.email}`))}catch(e){showMsg(authMsg(e))}}
 async function cloudDeleteAccount(){
   const u=CLOUD.auth&&CLOUD.auth.currentUser;if(!u||u.isAnonymous)return;
@@ -145,18 +197,21 @@ async function cloudDeleteAccount(){
     await u.delete();showMsg(L('账号已删除,继续以游客身份游玩','Account deleted; playing as guest'))}
   catch(e){console.warn(e);showMsg(authMsg(e))}
 }
-async function cloudSignOut(){if(!CLOUD.ready)return;try{await CLOUD.auth.signOut()}catch(_){}showMsg(L('已退出,继续以游客身份游玩','Signed out; playing as guest'))}
-function showMsg(t){const el=$('#accmsg');if(el){el.textContent=t;setTimeout(()=>{if(el.textContent===t)el.textContent=''},5000)}}
+async function cloudSignOut(){if(!CLOUD.ready)return;return cloudAuthAction(async()=>{try{await CLOUD.auth.signOut();showMsg(L('已退出,继续以游客身份游玩','Signed out; playing as guest'));return true}catch(e){showMsg(authMsg(e));return false}})}
+function showMsg(t){const message={text:t,until:Date.now()+5000};CLOUD.message=message;const el=$('#accmsg');if(el)el.textContent=t;setTimeout(()=>{if(CLOUD.message===message){CLOUD.message=null;const current=$('#accmsg');if(current)current.textContent=''}},5000)}
+function accountEscape(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function renderAccount(){
+  const oldPassword=$('#emailform .pw')?.value||'',oldType=$('#emailform .pw')?.type||'password';
   if(typeof renderStatus==='function')renderStatus();
   const el=$('#account');if(!el)return;
   const guest=!CLOUD.on()||CLOUD.isGuest();
   const unverified=!guest&&CLOUD.user&&hasPassword(CLOUD.user)&&!CLOUD.user.emailVerified;
-  const who=(()=>{const u=CLOUD.user;if(!CLOUD.ready)return CLOUD.label();if(!u)return L('未登录','Not signed in');if(CLOUD.isGuest())return L('游客','Guest');const n=u.displayName||(u.email||'').split('@')[0]||L('已登录','Signed in');return n.length>18?n.slice(0,17)+'…':n})();el.innerHTML=`<span class="who" title="${CLOUD.user&&CLOUD.user.email||''}"><i class="dot ${CLOUD.on()?'on':''}"></i>${who}</span>${CLOUD.ready?(guest?`<button type="button" class="go sm" id="googlebtn">${L('Google 登录','Google')}</button>${FB_LOGIN?`<button type="button" class="go sm fb" id="fbbtn">Facebook</button>`:''}<button type="button" class="go sm alt${CLOUD.emailOpen?' on':''}" id="emailbtn">${L('邮箱','Email')}</button>${CLOUD.emailOpen?`<form id="emailform" autocomplete="on" onsubmit="return false"><input class="em" type="email" placeholder="${L('邮箱','email')}" autocomplete="email" value="${CLOUD.emailDraft||''}"><span class="pwrap"><input class="pw" type="password" placeholder="${L('密码(至少 6 位)','password (6+)')}" autocomplete="current-password" minlength="6"><button type="button" class="eye" aria-label="${L('显示密码','Show password')}">👁</button></span><div class="eb"><button type="button" class="go sm" data-k="signin">${L('登录','Sign in')}</button><button type="button" class="go sm alt" data-k="signup">${L('注册','Register')}</button><button type="button" class="lnk" data-k="reset">${L('忘记密码','Forgot?')}</button></div></form>`:''}`:`${unverified?`<span class="unv">${L('邮箱未验证','Email not verified')}</span><button type="button" class="lnk" id="resendbtn">${L('重发验证邮件','Resend link')}</button><button type="button" class="lnk" id="checkbtn">${L('我已验证','I have verified')}</button>`:''}<button type="button" class="go sm alt" id="signoutbtn">${L('退出','Sign out')}</button><span class="acct">${hasPassword(CLOUD.user)?`<button type="button" class="lnk" id="pwbtn">${L('修改密码','Change password')}</button>`:''}<button type="button" class="lnk danger" id="delbtn">${L('删除账号','Delete account')}</button></span>`):''}${CLOUD.syncErr?`<small>${L('同步失败','Sync failed')}</small>`:''}<span id="accmsg" class="note"></span>`;
+  const who=(()=>{const u=CLOUD.user;if(!CLOUD.ready)return CLOUD.label();if(!u)return L('未登录','Not signed in');if(CLOUD.isGuest())return L('游客','Guest');const n=u.displayName||(u.email||'').split('@')[0]||L('已登录','Signed in');return n.length>18?n.slice(0,17)+'…':n})();el.innerHTML=`<span class="who" title="${accountEscape(CLOUD.user?.email)}"><i class="dot ${CLOUD.on()?'on':''}"></i>${accountEscape(who)}</span>${CLOUD.ready?(guest?`<button type="button" class="go sm" id="googlebtn">${L('Google 登录','Google')}</button>${FB_LOGIN?`<button type="button" class="go sm fb" id="fbbtn">Facebook</button>`:''}<button type="button" class="go sm alt${CLOUD.emailOpen?' on':''}" id="emailbtn">${L('邮箱','Email')}</button>${CLOUD.emailOpen?`<form id="emailform" autocomplete="on" onsubmit="return false"><input class="em" type="email" placeholder="${L('邮箱','email')}" autocomplete="email" value="${accountEscape(CLOUD.emailDraft)}"><span class="pwrap"><input class="pw" type="password" placeholder="${L('密码(至少 6 位)','password (6+)')}" autocomplete="current-password" minlength="6"><button type="button" class="eye" aria-label="${L('显示密码','Show password')}">👁</button></span><div class="eb"><button type="button" class="go sm" data-k="signin">${L('登录','Sign in')}</button><button type="button" class="go sm alt" data-k="signup">${L('注册','Register')}</button><button type="button" class="lnk" data-k="reset">${L('忘记密码','Forgot?')}</button></div></form>`:''}`:`${unverified?`<span class="unv">${L('邮箱未验证','Email not verified')}</span><button type="button" class="lnk" id="resendbtn">${L('重发验证邮件','Resend link')}</button><button type="button" class="lnk" id="checkbtn">${L('我已验证','I have verified')}</button>`:''}<button type="button" class="go sm alt" id="signoutbtn">${L('退出','Sign out')}</button><span class="acct">${hasPassword(CLOUD.user)?`<button type="button" class="lnk" id="pwbtn">${L('修改密码','Change password')}</button>`:''}<button type="button" class="lnk danger" id="delbtn">${L('删除账号','Delete account')}</button></span>`):''}${CLOUD.syncErr?`<small>${L('同步失败','Sync failed')}</small>`:''}<span id="accmsg" class="note">${CLOUD.message?.until>Date.now()?accountEscape(CLOUD.message.text):''}</span>`;
   const g=$('#googlebtn');if(g)g.onclick=cloudGoogle;const fb=$('#fbbtn');if(fb)fb.onclick=()=>cloudProvider('facebook');const so=$('#signoutbtn');if(so)so.onclick=cloudSignOut;
   [['#resendbtn',cloudResendVerify],['#checkbtn',cloudCheckVerify],['#pwbtn',cloudChangePassword],['#delbtn',cloudDeleteAccount]].forEach(([s,f])=>{const b=$(s);if(b)b.onclick=f});
   const eb=$('#emailbtn');if(eb)eb.onclick=()=>{CLOUD.emailOpen=!CLOUD.emailOpen;renderAccount();if(CLOUD.emailOpen){const i=$('#emailform .em');if(i)i.focus()}};
-  const f=$('#emailform');if(f){f.querySelector('.em').oninput=e=>{CLOUD.emailDraft=e.target.value};f.querySelectorAll('[data-k]').forEach(b=>b.onclick=()=>cloudEmail(b.dataset.k));f.querySelector('.pw').onkeydown=e=>{if(e.key==='Enter')cloudEmail('signin')};const eye=f.querySelector('.eye');if(eye)eye.onclick=()=>{const pw=f.querySelector('.pw');pw.type=pw.type==='password'?'text':'password'}}
+  const f=$('#emailform');if(f){f.querySelector('.pw').value=oldPassword;f.querySelector('.pw').type=oldType;f.querySelector('.em').oninput=e=>{CLOUD.emailDraft=e.target.value};f.querySelectorAll('[data-k]').forEach(b=>b.onclick=()=>cloudEmail(b.dataset.k));f.querySelector('.pw').onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();cloudEmail('signin')}};const eye=f.querySelector('.eye');if(eye)eye.onclick=()=>{const pw=f.querySelector('.pw');pw.type=pw.type==='password'?'text':'password'}}
+  syncAuthButtons();
 }
 /* ---- leaderboard on Firestore ----
    runs/{auto}            every posted personal best (all-time board)

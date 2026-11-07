@@ -2144,6 +2144,9 @@ I18N_LOAD('ja',
 "🏆 First place!": "🏆 1位!",
 "🔒 2 bosses": "🔒 ボス ×2",
 "🔒 slay two bosses in a run · +15% gold per tier": "🔒 1回でボスを2体倒す · 層ごとにゴールド+15%",
-"🔒 {0} bosses in a run · total {1}/{2}": "🔒 1回のプレイでボス{0}体 · 累計 {1}/{2}"
+"🔒 {0} bosses in a run · total {1}/{2}": "🔒 1回のプレイでボス{0}体 · 累計 {1}/{2}",
+"Allow popups and try again": "ポップアップを許可して再試行",
+"Open in a browser to sign in": "ブラウザで開いてログイン",
+"Sign-in is not enabled for this website": "このサイトではログインできません"
 }
 );
