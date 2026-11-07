@@ -100,10 +100,10 @@ test('slow results submission and retries always use the finished run snapshot',
   container.children[0].onclick();await new Promise(r=>setImmediate(r));
   assert.equal(posts.length,2);assert.deepEqual(posts[1],posts[0]);
 });
-test('result rank uses kills as the same tie-breaker as the board',async()=>{
+test('results show only the personal best while automatic score submission remains active',async()=>{
   const {ev,lb,cloud,c}=setup();cloud.ready=true;cloud.user={uid:'u'};c.G.t=100;c.G.bossSlain=1;c.G.kills=10;
   lb.fetch=async()=>({ok:true,rows:[{uid:'other',score:50,time:100,bosses:1,kills:20}]});lb.submit=async()=>({ok:true});
-  const container=node();await ev('submitRun')(container);assert.match(container.children[0].innerHTML,/#2/);
+  const container=node();await ev('submitRun')(container);assert.equal(container.children.length,1);assert.match(container.children[0].textContent,/Personal best.*50/);assert.doesNotMatch(container.children[0].innerHTML,/#2|Endless/);
 });
 
 test('score outranks survival time on both boards',async()=>{
@@ -142,7 +142,7 @@ test('an endless best is saved before the board responds, including a voluntary 
   const container=node(),work=ev('submitRun')(container);
   assert.equal(c.SAVE.lb.bestRun.score,1200);
   assert.equal(c.SAVE.lb.pendingRun.score,1200);
-  assert.match(container.children[1].textContent,/1,200/);
+  assert.match(container.children[0].textContent,/1,200/);
   pending.resolve({ok:true,rows:[]});await work;
 });
 
@@ -178,7 +178,7 @@ test('guest accounts cannot submit through either leaderboard layer',async()=>{
 });
 test('guest runs keep a local best but never enter the pending upload queue',async()=>{
  const {c,ev,cloud,lb}=setup();cloud.ready=true;cloud.user={uid:'guest',isAnonymous:true};let reads=0,posts=0;lb.fetch=async()=>{reads++;return {ok:true,rows:[]}};lb.submit=async()=>{posts++;return {ok:true}};
- const container=node();await ev('submitRun')(container);assert.equal(c.SAVE.lb.bestRun.score,50);assert.equal(c.SAVE.lb.pendingRun,undefined);assert.equal(posts,0);assert.equal(reads,0);assert.match(container.children[0].innerHTML,/Sign in/);
+ const container=node();await ev('submitRun')(container);assert.equal(c.SAVE.lb.bestRun.score,50);assert.equal(c.SAVE.lb.pendingRun,undefined);assert.equal(posts,0);assert.equal(reads,0);assert.equal(container.children.length,1);assert.match(container.children[0].textContent,/Personal best/);
  cloud.user={uid:'registered',isAnonymous:false};await ev('lbFlushPending()');assert.equal(posts,0);
 });
 test('unrelated registered accounts with the same display name retain their own rank',async()=>{
@@ -188,4 +188,7 @@ test('unrelated registered accounts with the same display name retain their own 
 test('an account podium row never shows an unranked footer, while guests get a sign-in prompt',async()=>{
  const {ev,lb,cloud,nodes}=setup({AVATARS:[{}],CLASSES:{},esc:s=>s,avatarHTML:()=>'<span>avatar</span>'});cloud.ready=true;cloud.user={uid:'me',isAnonymous:false};lb.fetch=async()=>({ok:true,rows:[{uid:'me',name:'Hero',score:500}]});lb.profiles=async()=>({});await ev('openLeaderboard("endless")');assert.equal(nodes['#lbmine'].hidden,true);assert.doesNotMatch(nodes['#lbmine'].innerHTML,/Unranked/);
  cloud.user={uid:'guest',isAnonymous:true};await ev('openLeaderboard("level")');assert.equal(nodes['#lbmine'].hidden,false);assert.match(nodes['#lbmine'].innerHTML,/Sign in \/ register/);
+});
+test('registered endless runs are not rejected for being short or having large game numbers',async()=>{
+ const {c,ev,lb,cloud}=setup(),posts=[];cloud.ready=true;cloud.user={uid:'u'};c.G.t=1;c.G.score=999999;c.G.kills=20000;c.G.comboMax=20000;c.G.lv=500;lb.fetch=async()=>({ok:true,rows:[]});lb.submit=async r=>{posts.push(r);return {ok:true}};await ev('submitRun')(node());assert.equal(posts.length,1);assert.equal(posts[0].score,999999);assert.equal(posts[0].combo,20000);assert.equal(posts[0].level,500);
 });

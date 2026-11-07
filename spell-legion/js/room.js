@@ -7,12 +7,31 @@ function roomEquipmentText(p){
   const names=items.filter(it=>it&&typeof it==='object').slice(0,4).map(it=>L(String(it.zh||it.en||'').slice(0,80),String(it.en||it.zh||'').slice(0,80))).filter(Boolean);
   return L('装备：','Gear: ')+(names.length?names.join(L('、',', ')):L('无','None'));
 }
-function roomJoinRow(){return `<div class="rmjoin"><input id="rmcode" maxlength="4" placeholder="${L('好友房间码','Friend code')}" autocapitalize="characters" spellcheck="false"><button type="button" class="go alt sm" id="rmjoin">${L('加入','Join')}</button></div>`}
-function renderRoom(){
+// Keep the lobby stable while the mobile keyboard is open: room snapshots must not replace its focused input.
+function roomKeepJoinVisible(){
+  const input=$('#rmcode');if(!input||document.activeElement!==input)return;
+  const row=input.closest('.rmjoin'),title=$('#title'),v=window.visualViewport;if(!row||!title)return;
+  const r=row.getBoundingClientRect(),top=(v?.offsetTop||0)+12,bottom=(v?.offsetTop||0)+(v?.height||innerHeight)-12;
+  const delta=r.bottom>bottom?r.bottom-bottom:r.top<top?r.top-top:0;if(delta)title.scrollTop+=delta;
+}
+if(typeof window!=='undefined'&&window.visualViewport){visualViewport.addEventListener('resize',()=>requestAnimationFrame(roomKeepJoinVisible));visualViewport.addEventListener('scroll',()=>requestAnimationFrame(roomKeepJoinVisible))}
+function roomJoinRow(){return `<div class="rmjoin"><input id="rmcode" type="text" inputmode="text" maxlength="4" value="${esc(ROOM.joinDraft||'')}" aria-label="${L('好友房间码','Friend room code')}" placeholder="${L('好友房间码','Friend code')}" autocomplete="off" autocorrect="off" enterkeyhint="go" autocapitalize="characters" spellcheck="false"><button type="button" class="go alt sm" id="rmjoin">${L('加入','Join')}</button></div>`}
+function renderRoom(force=false){
   const box=$('#roompanel');if(!box)return;const on=SAVE.mode==='room';box.hidden=!on;const sr=$('#hero .startrow');if(sr)sr.style.display=on?'none':'';const ss=$('#stickystart');if(ss)ss.classList.toggle('room',on);const hf=$('#hero .hfoot');if(hf)hf.classList.toggle('room',on);{const hp=$('#hero');if(hp)hp.classList.toggle('inroom',on)}
   {const hh=$('#hero .hhead');if(on&&hh&&box.previousElementSibling!==hh)hh.insertAdjacentElement('afterend',box);else if(!on&&hf&&box.parentElement!==hf)hf.appendChild(box)} // in a duel the room is the first thing on the screen, not the last
   if(!on)return;
-  const bindJoin=()=>{const jb=$('#rmjoin');if(!jb)return;const join=async()=>{const code=$('#rmcode').value;ROOM.status='';try{await roomJoin(code)}catch(e){ROOM.joinError=true;ROOM.status=roomErr(e);renderRoom()}SFX.pick(1)};jb.onclick=join;$('#rmcode').onkeydown=e=>{if(e.key==='Enter')join()};$('#rmcode').oninput=e=>{e.target.value=e.target.value.toUpperCase()}};
+  if(!force&&!ROOM.playing&&!ROOM.joining&&box.querySelector('.rmjoin')?.contains(document.activeElement)){ROOM.joinRenderPending=true;return}
+  ROOM.joinRenderPending=false;
+  const bindJoin=()=>{
+    const jb=$('#rmjoin'),input=$('#rmcode');if(!jb||!input)return;
+    const join=async()=>{if(ROOM.joining)return;const code=input.value;ROOM.joinDraft=code;ROOM.joining=true;ROOM.status='';jb.disabled=true;
+      try{const joined=await roomJoin(code);if(joined){ROOM.joinDraft='';input.blur()}}catch(e){ROOM.joinError=true;ROOM.status=roomErr(e)}finally{ROOM.joining=false;renderRoom(true)}SFX.pick(1)};
+    jb.onclick=join;input.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();join()}};
+    input.oninput=()=>{input.value=input.value.toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,4);ROOM.joinDraft=input.value};
+    input.onfocus=()=>{requestAnimationFrame(roomKeepJoinVisible);setTimeout(roomKeepJoinVisible,300)};
+    const refresh=()=>setTimeout(()=>{if(ROOM.joinRenderPending&&!box.querySelector('.rmjoin')?.contains(document.activeElement))renderRoom()},150);
+    input.onblur=refresh;jb.onblur=refresh;
+  };
   if(!ROOM.code&&ROOM.joinError){box.innerHTML=`<div class="rmhd"><b>${L('加入对决','Join duel')}</b>${roomJoinRow()}</div><p class="note err">${esc(ROOM.status)}</p><button type="button" class="go alt sm" id="rmnew">${L('创建新房间','Create new room')}</button>`;bindJoin();$('#rmnew').onclick=()=>{ROOM.joinError=false;ROOM.status='';renderRoom()};return}
   if(!ROOM.code){
     if(!ROOM.creating){ROOM.creating=true;ROOM.status='';roomCreate({mode:'time',len:180,max:4}).catch(e=>{ROOM.status=roomErr(e)}).finally(()=>{ROOM.creating=false;renderRoom()})}
@@ -30,9 +49,10 @@ function renderRoom(){
     :`<span class="chip">${roomModeText(d)}</span>${hasAI?`<span class="chip">AI · ${LL(DIFF[diff])}</span>`:''}`;
   const lone=ps.length<2;
   box.innerHTML=`<div class="rmhd"><b>${L('对决','Duel')}</b><button type="button" class="code" id="rmcodeb" title="${L('复制房间码','Copy room code')}">${ROOM.code}</button><span class="cnt">${ps.length}/${d.max||4}</span>${d.map&&MAPS[d.map]?`<span class="chip map">${LL(MAPS[d.map])}</span>`:''}<div class="opts">${opts}</div></div>
+    <div class="rmjoin-top"><label for="rmcode">${L('加入好友房间','Join a friend’s room')}</label>${roomJoinRow()}</div>
     <p class="room-rule">${d.mode==='last'?L('每人 3 条生命 · 任一玩家耗尽生命，整局结束','3 lives each · the round ends when anyone runs out'):L('限时 3 分钟 · 无限复活 · 每次死亡分数减半','3 minutes · unlimited revives · each death halves your score')}</p>
     <div class="rplist">${rows}${seat}</div>
-    <div class="rmact">${ROOM.host?`<button type="button" class="go" id="rmstart" ${roomCanStart()?'':'disabled'}>${typeof roomLinkWait==='function'&&roomLinkWait()>0&&ps.every(p=>p.ready||p.ai)?L('连接中…','Linking…'):L('开始对决','Start')}</button>`:`<button type="button" class="go${mine.ready?' alt':''}" id="rmready">${mine.ready?L('取消就绪','Unready'):L('就绪','Ready')}</button>`}<button type="button" class="go alt sm" id="rmleave">${L('离开','Leave')}</button>${ps.some(p=>!p.ai&&p.uid!==me)?(ROOM.host?'':`<span class="dim">${L('等房主开始…','Waiting for host…')}</span>`):roomJoinRow()}</div>
+    <div class="rmact">${ROOM.host?`<button type="button" class="go" id="rmstart" ${roomCanStart()?'':'disabled'}>${typeof roomLinkWait==='function'&&roomLinkWait()>0&&ps.every(p=>p.ready||p.ai)?L('连接中…','Linking…'):L('开始对决','Start')}</button>`:`<button type="button" class="go${mine.ready?' alt':''}" id="rmready">${mine.ready?L('取消就绪','Unready'):L('就绪','Ready')}</button>`}<button type="button" class="go alt sm" id="rmleave">${L('离开','Leave')}</button>${ps.some(p=>!p.ai&&p.uid!==me)?(ROOM.host?'':`<span class="dim">${L('等房主开始…','Waiting for host…')}</span>`):''}</div>
     ${ROOM.status?`<p class="note err" id="rmstatus">${ROOM.status}</p>`:''}`;
   bindJoin();
   const copy=async el=>{const code=ROOM.code;if(!code)return;try{await navigator.clipboard.writeText(code);toastCopied(el)}catch(_){prompt(L('房间码','Room code'),code)}};

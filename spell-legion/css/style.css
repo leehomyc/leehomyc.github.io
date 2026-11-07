@@ -1457,3 +1457,14 @@ body.touchhud #healthwarning{bottom:calc(235px + env(safe-area-inset-bottom));fo
 
 #hud .rgt{padding-right:0}
 body:not(.touchhud) #roomboard{top:270px}
+
+#end .run-score{display:grid;gap:2px;justify-items:center;margin:0 0 8px;color:#ffd27a}#end .run-score>span{font-size:15px;font-weight:700}#end .run-score strong{font:900 clamp(40px,6vw,68px)/1.05 var(--cute)}
+#end .dmg-heading{margin:12px 0 4px;font-size:15px;text-align:center}#end .dmg-legend{display:flex;justify-content:center;flex-wrap:wrap;gap:4px 12px;margin:0 0 10px;font-size:11px;color:var(--dim)}#end .dmg-legend span:first-child{color:#e9bc61}#end .dmg-legend span:nth-child(2){color:#9ff06a}
+#end .lbpb.pending{cursor:pointer;text-decoration:underline dotted;text-underline-offset:4px}
+
+/* Room-code entry stays above the roster and remains usable with a phone keyboard. */
+#roompanel .rmjoin-top{display:flex;align-items:center;flex-wrap:wrap;gap:8px;padding:10px 0;border-bottom:1px solid #6b523055}
+#roompanel .rmjoin-top label{color:var(--dim);font-size:14px}
+#roompanel .rmjoin input{font-size:16px;min-height:44px;box-sizing:border-box;min-width:0;scroll-margin:16px}
+#roompanel .rmjoin .go{min-height:44px;flex-shrink:0;margin:0}
+@media(max-width:560px){#roompanel .rmjoin-top .rmjoin{width:100%}#roompanel .rmjoin input{width:0}#roompanel .rmjoin .go{min-width:72px}}

@@ -3,16 +3,16 @@ service cloud.firestore {
   match /databases/{database}/documents {
     function signedIn() { return request.auth != null; }
     function registered() { return signedIn() && request.auth.token.firebase.sign_in_provider != 'anonymous'; }
-    function isNum(v, lo, hi) { return v is number && v >= lo && v <= hi; }
-    function plausibleRun(r) {
+    function nonnegative(v) { return v is number && v >= 0; }
+    function validRun(r) {
       return r.keys().hasAll(['name','cls','map','diff','mode','time','kills','bosses','level','combo','relics','score','day','ts','uid'])
         && r.uid == request.auth.uid
         && r.name is string && r.name.size() <= 16
         && r.cls is string && r.cls.size() <= 20 && r.map is string && r.map.size() <= 20
         && r.diff is string && r.diff.size() <= 10 && r.mode is string && r.mode.size() <= 10
-        && isNum(r.time, 10, 14400) && isNum(r.kills, 0, r.time * 12) && isNum(r.level, 1, 200)
-        && isNum(r.bosses, 0, (r.mode == 'rush' ? r.time / 60 + 1 : r.time / 200 + 1)) && isNum(r.combo, 0, 5000) && isNum(r.relics, 0, 20)
-        && isNum(r.score, 0, 200000) && r.day is int && r.ts == request.time;
+        && nonnegative(r.time) && nonnegative(r.kills) && nonnegative(r.level)
+        && nonnegative(r.bosses) && nonnegative(r.combo) && nonnegative(r.relics)
+        && nonnegative(r.score) && r.day is int && r.ts == request.time;
     }
     match /saves/{uid} {
       allow read, write: if signedIn() && request.auth.uid == uid;
@@ -24,12 +24,12 @@ service cloud.firestore {
     }
     match /runs/{runId} {
       allow read: if true;
-      allow create: if registered() && plausibleRun(request.resource.data);
+      allow create: if registered() && validRun(request.resource.data);
       allow update, delete: if false;
     }
     match /days/{day}/runs/{runId} {
       allow read: if true;
-      allow create: if registered() && plausibleRun(request.resource.data);
+      allow create: if registered() && validRun(request.resource.data);
       allow update, delete: if false;
     }
     match /rooms/{code} {

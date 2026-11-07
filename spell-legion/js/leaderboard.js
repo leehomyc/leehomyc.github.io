@@ -92,7 +92,7 @@ async function lbFlushPending(){
 async function submitRun(container,snapshot){
   const isRetry=!!snapshot;
   if(!snapshot){
-    if((typeof RIVAL_ON!=='undefined'&&RIVAL_ON)||G.room||G.t<20||SAVE.mode!=='solo')return;
+    if((typeof RIVAL_ON!=='undefined'&&RIVAL_ON)||G.room||SAVE.mode!=='solo')return;
     // Capture the finished run before any read awaits; Retry uses this same snapshot.
     snapshot={uid:LB.me(),name:LB.name()||L('无名侠客','Nameless'),av:SAVE.avatar?{...SAVE.avatar}:null,cls:G.cls,map:MAPID,diff:DIFFID,mode:SAVE.mode||'solo',score:G.score||0,day:G.day||dayKey(),tier:ASURA_T||0,time:Math.round(G.t),kills:G.kills,bosses:G.bossSlain,level:G.lv,combo:G.comboMax,relics:G.relics.length};
   }
@@ -105,11 +105,9 @@ async function submitRun(container,snapshot){
   if(localPB){S.bestRun=result;if(run.uid&&(!S.pendingRun||S.pendingRun.uid!==run.uid||lbCompare(run,S.pendingRun)<0))S.pendingRun={...run,allTime:true}}
   if(!priorDay||lbCompare(run,priorDay)<0){if(S.day!==dk)S.dayBestRun=null;S.day=dk;S.dayBestRun=result}
   if(localPB||!priorDay||lbCompare(run,priorDay)<0)persist();
-  const pb=document.createElement('p');pb.className='lbpb';pb.textContent=`${L('个人最高分','Personal best')} · ${Math.round(S.bestRun.score).toLocaleString('en-US')}`;
-  const line=document.createElement('button');line.type='button';line.className='lbline';line.innerHTML=`<span class="rk">…</span><span class="tx">${L('排名结算中','Ranking…')}</span>`;
-  line.onclick=()=>{SFX.pick(1);openLeaderboard('endless')};
-  const anchor=container.querySelector('.endmore');if(anchor){anchor.before(line);anchor.before(pb)}else{container.appendChild(line);container.appendChild(pb)}
-  if(!LB.registered()||!run.uid){line.innerHTML=`<span class="tx">${L('登录 / 注册后，后续对局可上榜','Sign in / register to rank future runs')}</span>`;line.onclick=lbSignIn;return}
+  let pb=container.querySelector('.lbpb');if(!pb){pb=document.createElement('p');pb.className='lbpb';const anchor=container.querySelector('#endactions')||container.querySelector('.endmore');if(anchor)anchor.before(pb);else container.appendChild(pb)}
+  pb.textContent=`${L('个人最高分','Personal best')} · ${Math.round(S.bestRun.score).toLocaleString('en-US')}`;pb.onclick=null;pb.title='';pb.classList.remove?.('pending');
+  if(!LB.registered()||!run.uid)return;
   let all=null,today=null;try{[all,today]=await Promise.all([LB.fetch('endless').catch(()=>null),dk===dayKey()?LB.fetch('today').catch(()=>null):Promise.resolve(null)])}catch(_){}
   const mine=r=>run.uid?r.uid===run.uid:r.name===run.name;
   const old=all&&all.ok?all.rows.find(mine):null,oldDay=today&&today.ok?today.rows.find(mine):null;
@@ -122,13 +120,6 @@ async function submitRun(container,snapshot){
   let posted=false;
   if(allPB||dayPB||retry){try{const r=await LB.submit({...run,allTime:allPB||retry});posted=!!(r&&r.ok)}catch(_){}
     if(posted&&(!run.uid||LB.me()===run.uid)){if((allPB||retry)&&S.pendingRun?.score<=run.score)delete S.pendingRun;persist();lbMenuRank()}}
-  if((allPB||dayPB||retry)&&!posted){line.innerHTML=`<span class="rk">!</span><span class="tx">${L('上传失败','Upload failed')}</span><span class="arr">↻</span>`;line.onclick=()=>{SFX.pick(1);line.remove();submitRun(container,run)};return}
-  if(!all||!all.ok){line.remove();return}
-  const others=all.rows.filter(r=>!mine(r)),oldI=all.rows.indexOf(old);
-  const best=posted&&allPB?run:old;
-  if(!best){line.innerHTML=`<span class="rk">—</span><span class="tx">${posted?L('已上今日榜','On today’s board'):L('未上榜','Unranked')}</span><span class="arr">›</span>`;return}
-  const list=[...others,best].sort(lbCompare),i=list.indexOf(best);
-  const up=posted&&allPB?(oldI<0?'NEW':oldI-i>0?'▲'+(oldI-i):''):'';
-  line.innerHTML=`<span class="rk${i<3?' gold':''}">#${i+1}</span>${up?`<span class="up">${up}</span>`:''}<span class="tx">${L('无尽分数','Endless')}</span><span class="arr">›</span>`;
-  if(up)line.classList.add('pop');
+  if((allPB||dayPB||retry)&&!posted){pb.title=L('成绩已保存在本机，点击重试上传','Saved locally. Click to retry upload');pb.classList.add('pending');pb.onclick=()=>{SFX.pick(1);submitRun(container,run)};return}
+
 }
