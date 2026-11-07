@@ -2172,8 +2172,6 @@ I18N_LOAD('ko',
 "🔒 slay two bosses in a run · +15% gold per tier": "🔒 한 판에 보스 둘 처치 · 층마다 골드 +15%",
 "🔒 {0} bosses in a run · total {1}/{2}": "🔒 한 판에 보스 {0} · 누적 {1}/{2}",
 "Password needs 7+ characters": "비밀번호는 7자 이상",
-"Now playing": "재생 중",
-"Next track": "다음 곡",
 "password (7+)": "비밀번호(7자 이상)"
 }
 );

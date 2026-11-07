@@ -149,7 +149,6 @@ const SFX=(()=>{
     previousTrack=bag.shift();track=TRACKS[previousTrack];beat=bar=0;
     if(musicBus){musicBus.gain.cancelScheduledValues(t);musicBus.gain.setValueAtTime(1,t);musicBus.gain.linearRampToValueAtTime(0,t+.45);retiredBuses.push({node:musicBus,until:t+4})}
     musicBus=ac.createGain();musicBus.gain.setValueAtTime(0,t);musicBus.gain.linearRampToValueAtTime(1,t+.45);musicBus.connect(musicG);
-    if(typeof window.dispatchEvent==='function'&&typeof Event==='function')window.dispatchEvent(new Event('spell:music-track'));
   }
   function musicStep(t){
     const step=60/track.bpm/4,pos=beat%16,chord=track.chords[bar%track.chords.length];
@@ -193,11 +192,10 @@ const SFX=(()=>{
     }
     if(started)return;started=true;nextBeat=now()+.05;beginTrack(nextBeat);setInterval(schedule,50);
   }
-  function nextTrack(){start();if(!ac)return;const t=now()+.05;beginTrack(t);nextBeat=t}
   const trackInfo=t=>({id:t.id,locale:t.locale,title:t.title,style:t.style,bpm:t.bpm,duration:SONG_BARS*4*60/t.bpm});
   const rl=(ms)=>{const t=performance.now();if(t-lastHit<ms)return false;lastHit=t;return true};
   const fx={
-    start,setState,nextTrack,
+    start,setState,
     get musicTrack(){return track?{...trackInfo(track),bar}:null},get musicTracks(){return TRACKS.map(trackInfo)},
     toggleMute(){return setMute(!(musicMuted&&sfxMuted))},setMute,
     toggleMusicMute(){return setMusicMute(!musicMuted)},toggleSfxMute(){return setSfxMute(!sfxMuted)},setMusicMute,setSfxMute,

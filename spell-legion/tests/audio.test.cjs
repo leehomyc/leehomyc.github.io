@@ -20,7 +20,8 @@ function setup(saved={},auto=false,options={}){
   }
   const listeners=(name,f)=>(stats.events[name]||=[]).push(f);
   const doc={hidden:false,addEventListener:listeners};const nav={audioSession:{type:'auto'}};
-  const c=vm.createContext({window:{AudioContext,addEventListener:listeners},document:doc,navigator:nav,G:{auto},clamp:(n,a,b)=>Math.max(a,Math.min(n,b)),vrnd:n=>n*.5,localStorage:{getItem:()=>store,setItem:(k,v)=>store=v},performance:{now:()=>clock+=200},setInterval:f=>stats.timers.push(f),Math,Float32Array});
+  const randomMath=Object.create(Math);if(options.random)randomMath.random=options.random;
+  const c=vm.createContext({window:{AudioContext,addEventListener:listeners},document:doc,navigator:nav,G:{auto},clamp:(n,a,b)=>Math.max(a,Math.min(n,b)),vrnd:n=>n*.5,localStorage:{getItem:()=>store,setItem:(k,v)=>store=v},performance:{now:()=>clock+=200},setInterval:f=>stats.timers.push(f),Math:randomMath,Float32Array});
   vm.runInContext(source+'\nglobalThis.audio=SFX;',c);
   return {audio:c.audio,document:doc,navigator:nav,stats,game:c.G,read:()=>JSON.parse(store),advance(seconds){const end=stats.context.currentTime+seconds;while(stats.context.currentTime<end){stats.context.currentTime+=.05;for(const f of stats.timers)f()}}};
 }
@@ -69,11 +70,10 @@ test('four instrumental styles shuffle without repeats until all four have playe
   assert.equal(new Set(Array.from(h.audio.musicTracks,t=>t.bpm)).size,4);
   assert.ok(h.audio.musicTracks.every(t=>t.duration>=50&&t.duration<=70));
 });
-test('next track skips immediately and never repeats the current track',()=>{
-  const h=setup({},true);h.audio.start();const seen=[h.audio.musicTrack.id];
-  for(let i=0;i<7;i++){h.audio.nextTrack();seen.push(h.audio.musicTrack.id)}
-  for(let i=0;i<seen.length;i+=4)assert.equal(new Set(seen.slice(i,i+4)).size,4);
-  for(let i=1;i<seen.length;i++)assert.notEqual(seen[i],seen[i-1]);
+test('the opening track is shuffled on a new session',()=>{
+  const first=setup({},true,{random:()=>0});first.audio.start();
+  const second=setup({},true,{random:()=>.999});second.audio.start();
+  assert.notEqual(first.audio.musicTrack.id,second.audio.musicTrack.id);
 });
 test('gameplay, pause and boss changes preserve the current song and musical phrase',()=>{
   const h=setup();h.audio.start();h.advance(12);const before=h.audio.musicTrack;assert.ok(before.bar>0);
