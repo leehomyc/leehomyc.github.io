@@ -58,14 +58,26 @@ test('closing cards clears the timer and timer label before the next run',()=>{
   const {run,cleared}=setup();run("pickTimer=42;G.pick=[{}];G.picks=[{}];$('#picktimer').textContent='3s';closeCards()");
   assert.deepEqual(cleared,[42]);assert.equal(run('pickTimer'),null);assert.equal(run('G.pick'),null);assert.equal(run('G.picks.length'),0);assert.equal(run("$('#picktimer').textContent"),'');
 });
-test('abandoning from pause requires a second tap and the prompt expires',()=>{
-  const {c,run,calls,clock}=setup(),pending=[];c.L=(zh,en)=>en;c.setTimeout=f=>pending.push(f);c.lose=()=>calls.push('lose');c.win=()=>calls.push('win');
-  vm.runInContext(ui.slice(ui.indexOf('let quitArmedUntil='),ui.indexOf('function syncSound()')),c);
+test('abandon and cash out act on the first press',()=>{
+  const {c,run,calls}=setup();c.L=(zh,en)=>en;c.lose=()=>calls.push('lose');c.win=()=>calls.push('win');
+  vm.runInContext(ui.slice(ui.indexOf("$('#quitbtn').onclick="),ui.indexOf('function syncSound()')),c);
   run("G.paused=true;G.bossSlain=0;quitLabel();$('#quitbtn').onclick()");
-  assert.equal(run('G.abandoned'),undefined);assert.match(run("$('#quitbtn').textContent"),/Tap again/);
-  clock(3100);pending.shift()();assert.match(run("$('#quitbtn').textContent"),/Abandon/);
-  run("$('#quitbtn').onclick()");assert.deepEqual(calls,[]);
-  clock(4000);run("$('#quitbtn').onclick()");assert.deepEqual(calls,['lose']);assert.equal(run('G.abandoned'),true);
+  assert.deepEqual(calls,['lose']);assert.equal(run('G.abandoned'),true);assert.equal(run('G.paused'),false);
+  run("RIVAL_ON=false;G.bossSlain=1;quitLabel();$('#quitbtn').onclick()");
+  assert.deepEqual(calls,['lose','win']);assert.equal(run('G.retired'),1);
+});
+test('pausing a timed upgrade preserves its cards and remaining selection time',()=>{
+  const {c,run,timers,calls,clock}=setup();c.cards=[{skill:'sword'}];
+  c.renderPauseBuild=()=>{};c.quitLabel=()=>{};c.SFX.setState=()=>{};
+  vm.runInContext(ui.slice(ui.indexOf('function togglePause(){'),ui.indexOf('/* cards */')),c);
+  run('G.pick=cards;pickOpenedAt=0');
+  const begin=ui.indexOf('  clearGameInput();stopPickTimer();',ui.indexOf('function openPick()'));
+  vm.runInContext(ui.slice(begin,ui.indexOf('  const sk=q.s?',begin)),c);
+  clock(2000);run('togglePause()');clock(20000);timers.get(1)();
+  assert.deepEqual(calls,[]);assert.equal(run('G.pick===cards'),true);assert.equal(run("$('#cards').hidden"),true);
+  run('togglePause()');assert.equal(run("$('#cards').hidden"),false);assert.equal(run('G.pick===cards'),true);
+  timers.get(1)();assert.deepEqual(calls,[]);
+  clock(26100);timers.get(1)();assert.deepEqual(calls,['choose0']);
 });
 test('a stale timer cannot select cards in a new run or clear its new timer',()=>{
   const {c,run,timers,cleared,calls,clock}=setup();

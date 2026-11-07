@@ -11,7 +11,7 @@
 <link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png?v=mage-1">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png?v=mage-1">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Cinzel:wght@700;900&family=ZCOOL+XiaoWei&family=ZCOOL+KuaiLe&family=Baloo+2:wght@600;800&family=Alegreya+Sans:wght@400;700;800&display=swap">
-<link rel="stylesheet" href="css/style.css?v=20261107-menu-width-1">
+<link rel="stylesheet" href="css/style.css?v=20261107-pick-pause-1">
 <script src="vendor/three.min.js"></script>
 <script src="vendor/CopyShader.js"></script>
 <script src="vendor/LuminosityHighPassShader.js"></script>
@@ -99,7 +99,7 @@
       <div id="stickystart"><button type="button" class="go" id="stickybtn"><span class="zh">出山</span><span class="en">Start</span></button><small></small></div>
     </div>
   </div>
-  <div id="cards" class="overlay" hidden><h2 id="cardtitle"></h2><small id="picktimer" class="picktimer"></small><div id="build"></div><div id="cardrow"></div><button type="button" class="go alt" id="reroll" hidden><span class="zh">重抽</span><span class="en">Reroll</span></button></div>
+  <div id="cards" class="overlay" hidden><button type="button" id="pickpause" class="go alt"><span class="zh">暂停</span><span class="en">Pause</span> <small>Esc</small></button><h2 id="cardtitle"></h2><small id="picktimer" class="picktimer"></small><div id="build"></div><div id="cardrow"></div><button type="button" class="go alt" id="reroll" hidden><span class="zh">重抽</span><span class="en">Reroll</span></button></div>
   <div id="pause" class="overlay" hidden><div class="pbox"><h2><span class="zh">暂停</span><span class="en">Paused</span></h2><div id="pausebuild" class="pbuild"></div><button class="go" id="resumebtn"><span class="zh">继续</span><span class="en">Resume</span></button><details id="pausesettings"><summary><span class="zh">设置</span><span class="en">Settings</span></summary><div class="pauseoptions"><div class="srow audiorow"><span class="sl"><span class="zh">音乐</span><span class="en">Music</span></span><input type="range" data-l10n="音乐|Music" data-l10n-attr="aria-label" aria-label="Music" data-audio="music" min="0" max="100" step="1" value="60"><output data-audio-value="music">60%</output><button type="button" class="audio-mute" data-audio-mute="music" aria-pressed="false" aria-label="Music">🔊</button></div><div class="srow audiorow"><span class="sl"><span class="zh">音效</span><span class="en">Effects</span></span><input type="range" data-l10n="音效|Effects" data-l10n-attr="aria-label" aria-label="Effects" data-audio="sfx" min="0" max="100" step="1" value="80"><output data-audio-value="sfx">80%</output><button type="button" class="audio-mute" data-audio-mute="sfx" aria-pressed="false" aria-label="Effects">🔊</button></div><div class="srow"><span class="sl"><span class="zh">语言</span><span class="en">Language</span></span><div class="langrow"><button type="button" class="langbtn" data-l="en">EN</button><button type="button" class="langbtn" data-l="zh">简体</button><button type="button" class="langbtn" data-l="zt">繁體</button><button type="button" class="langbtn" data-l="ja">日本語</button><button type="button" class="langbtn" data-l="ko">한국어</button></div></div><div class="srow"><span class="sl"><span class="zh">画质</span><span class="en">Quality</span></span><div class="qualityrow"><button type="button" data-q="low"><span class="zh">低</span><span class="en">Low</span></button><button type="button" data-q="med"><span class="zh">中</span><span class="en">Medium</span></button><button type="button" data-q="high"><span class="zh">高</span><span class="en">High</span></button></div></div></div></details><button class="go alt" id="quitbtn"><span class="zh">放弃本局</span><span class="en">Abandon run</span></button></div></div>
   <div id="char" class="overlay" hidden><div class="cbox">
     <div class="ch"><h2><span class="zh">角色</span><span class="en">Hero</span></h2><div class="pts"><span><span class="zh">已学武学树节点</span><span class="en">Tree upgrades taken</span> <b id="sp">0</b></span></div><button type="button" id="charclose"><span class="zh">关闭 C</span><span class="en">Close C</span></button></div>
@@ -128,8 +128,8 @@
 <script src="js/link.js?v=202611071706"></script>
 <script src="js/arena.js?v=202611071706"></script>
 <script src="js/meta.js?v=20261107-boss-3min-1"></script>
-<script src="js/ui.js?v=20261107-hover-vitals-1"></script>
-<script src="js/input.js?v=202611071343"></script>
+<script src="js/ui.js?v=20261107-pick-pause-1"></script>
+<script src="js/input.js?v=20261107-pick-pause-1"></script>
 <script src="js/lobby.js?v=20261107-menu-loading-1"></script>
 <script src="js/ext.js?v=202611071706"></script>
 <script src="js/gear.js?v=202611071706"></script>

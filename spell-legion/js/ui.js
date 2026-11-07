@@ -181,10 +181,22 @@ $('#charclose').onclick=()=>togglePanel();
 $('#tab-attr').onclick=()=>{panelTab='attr';renderPanel()};$('#tab-tree').onclick=()=>{panelTab='tree';renderPanel()};
 /* the pause screen shows the build at a glance: every skill with its level, element and path, plus the relics */
 function renderPauseBuild(){const el=$('#pausebuild');if(!el)return;el.innerHTML=G.spells.map((s,i)=>{const m=SPELLS[s.id];const tags=[s.els.length===2?L(FUS[fusion(s)][0],FUS[fusion(s)][1]):s.els[0]?LL(ELS[s.els[0]]):'',s.path&&typeof PATHS!=='undefined'&&PATHS[s.path]?LL(PATHS[s.path]):'',s.awake?L('觉醒','awakened'):''].filter(Boolean).join(' · ');return `<div class="pb" style="--c:${m.col}">${ICON.spell(s.id,'sm')}<div><b>${LL(m)} <small>Lv ${s.lv}${s.tr?L(` · 真传 ${s.tr}`,` · Transcend ${s.tr}`):''}</small></b><small>${tags||(i===0?L('普攻','normal attack'):L(CATS[SKILL_CAT[s.id]||'passive'][0],CATS[SKILL_CAT[s.id]||'passive'][1]))}</small></div></div>`}).join('')+`<div class="pbr">${G.relics.map(id=>`<span title="${L(RELICS[id].d,RELICS[id].de)}" style="--c:${RELICS[id].col||'#c7a4f0'}">${RELICS[id].g}</span>`).join('')}${G.relics.length?'':`<small>${L('尚无法宝','no relics yet')}</small>`}</div><small class="pbt">${L(`${fmt(G.t)} · Lv ${G.lv} · ${G.kills} 击杀 · 最高连斩 ×${G.comboMax}`,`${fmt(G.t)} · Lv ${G.lv} · ${G.kills} kills · best streak ×${G.comboMax}`)}</small>`}
-function togglePause(){if(G.over||G.pick)return;clearGameInput();G.paused=!G.paused;$('#pausebtn').textContent=G.paused?'▶':'II';$('#pause').hidden=!G.paused;if(G.paused){$('#pausesettings').open=false;renderPauseBuild();quitLabel();SFX.setState('title')}else SFX.setState(G.boss?'boss':'battle')}
+function togglePause(){
+  if(G.auto||G.over||G.ended)return;
+  clearGameInput();G.paused=!G.paused;
+  $('#pausebtn').textContent=G.paused?'▶':'II';$('#pause').hidden=!G.paused;
+  if(G.pick){
+    $('#cards').hidden=G.paused;
+    if(G.paused)pickPausedAt=performance.now();
+    else if(pickPausedAt!==null){pickOpenedAt+=performance.now()-pickPausedAt;pickPausedAt=null}
+  }
+  if(G.paused){$('#pausesettings').open=false;renderPauseBuild();quitLabel();SFX.setState('title')}
+  else SFX.setState(G.boss?'boss':'battle');
+}
+
 
 /* cards */
-let pickOpenedAt=0,pickTimer=null;const PICK_LIMIT=8;
+let pickOpenedAt=0,pickTimer=null,pickPausedAt=null;const PICK_LIMIT=8;
 function stopPickTimer(timer=pickTimer){
   if(timer!==null)clearInterval(timer);
   if(timer===pickTimer){pickTimer=null;const el=$('#picktimer');if(el)el.textContent=''}
@@ -194,13 +206,14 @@ function openPick(){
   const queued=G.picks.shift(),q=(typeof kindOpen==='function'&&!kindOpen(queued.kind)&&['aug','contract'].includes(queued.kind))?{...queued,kind:'level'}:queued,cards=buildCards(q);
   if(!cards.length){return openPick()}
   if(G.auto){pick(cards).a();return openPick()}
-  G.pick=cards;pickOpenedAt=performance.now();$('#banner').classList.remove('on');bannerT=0;
+  G.pick=cards;pickPausedAt=null;pickOpenedAt=performance.now();$('#banner').classList.remove('on');bannerT=0;
   clearGameInput();stopPickTimer();
   if(RIVAL_ON||(G.room&&ROOM.code)){
-    const game=G,selection=cards,openedAt=pickOpenedAt;
+    const game=G,selection=cards;
     const timer=setInterval(()=>{
       if(G!==game||G.pick!==selection){stopPickTimer(timer);return}
-      const left=Math.max(0,PICK_LIMIT-(performance.now()-openedAt)/1000);
+      if(G.paused)return;
+      const left=Math.max(0,PICK_LIMIT-(performance.now()-pickOpenedAt)/1000);
       const el=$('#picktimer');if(el)el.textContent=`${Math.ceil(left)}s`;
       if(left<=0){const sug=document.querySelector('#cardrow .card.sugged');choose(sug?+sug.id.replace('card',''):0)}
     },200);pickTimer=timer;
@@ -239,13 +252,13 @@ function renderBuildStrip(){
   return adv;
 }
 function choose(i){
-  if(!G.pick||!G.pick[i])return;
+  if(G.paused||!G.pick||!G.pick[i])return;
   const cd=G.pick[i];const spent=Math.min(PICK_LIMIT+1,(performance.now()-pickOpenedAt)/1000);stopPickTimer();
   if(RIVAL_ON&&G.rival&&!G.room&&spent>.3){G.pickWall=(G.pickWall||0)+spent;const R=G.rival,rate=R.score/Math.max(20,G.t);const gain=Math.round(rate*spent);if(gain>0){R.score+=gain;if(G.floats.length<CAP.fl)G.floats.push({x:G.P.x,y:G.P.y-40,t:1.2,v:L(`对手 +${gain}`,`Rival +${gain}`),c:'#ff9c5a'})}}
   cd.a();G.pick=null;$('#cards').hidden=true;drawSeals();SFX.pick(1);if(cd.skill){const si=G.spells.findIndex(s=>s.id===cd.skill),se=$('#seal'+si);if(se){se.classList.remove('ready');void se.offsetWidth;se.classList.add('ready')}}if(!G.picks.length)showBanner(cd.n,cd.n,1.1);
   if(G.picks.length&&G.picks[0].kind==='level'&&G.t>60){G.pickHold=8;showBanner(L(`还有 ${G.picks.length} 次`,`${G.picks.length} more`),'',1)}else openPick();
 }
-function closeCards(){stopPickTimer();clearGameInput();G.picks=[];G.pick=null;$('#cards').hidden=true;G.panel=false;$('#char').hidden=true}
+function closeCards(){pickPausedAt=null;stopPickTimer();clearGameInput();G.picks=[];G.pick=null;$('#cards').hidden=true;G.panel=false;$('#char').hidden=true}
 
 /* title: class select and lobby */
 function renderWeapons(){
@@ -374,7 +387,7 @@ function showEnd(ok){if(G.ended)return;if(typeof metricsEnd==='function')metrics
   ${tierUp?`<div class="nextgoal tier">${L(`修罗 ${ASURA_T+1} 层已开`,`Ascension ${ASURA_T+1} unlocked`)}</div>`:''}
   
   ${SAVE.mode==='solo'&&!tierUp&&SAVE.asura.max===ASURA_T&&!G.abandoned?`<p class="asura-result-hint">${L(`修罗解锁：击败 2:00 铁甲统领或 ${fmt(BOSS_AT)} 首领`,`Ascension: defeat the 2:00 Warlord or ${fmt(BOSS_AT)} boss`)}</p>`:''}
-  ${meta?`<div class="metarow">${meta.ranks.map(([n,zh,en])=>`<span class="td">🏆 ${L(zh,en)}</span>`).join('')}${meta.levelUp?`<span>Lv ${meta.after.lv}</span>`:''}</div>`:''}<div class="stat more"><div>${ICON.misc('awake','#ffd27a','sm')}<b>${G.lv}</b><span>${L('等级','Level')}</span></div><div>${ICON.misc('relic','#c7a4f0','sm')}<b>${G.relics.length}</b><span>${L('法宝','Relics')}</span></div><div>${ICON.misc('knock','#ff6a6a','sm')}<b>${Math.round(G.dmgTaken)}</b><span>${L('承受伤害','Damage taken')}</span></div><div>${ICON.misc('heartplus','#7fc98a','sm')}<b>${Math.round(G.healed||0)}</b><span>${L('治疗量','Healing')}</span></div></div><div class="dmg">${rows}</div>${cmp}</div>${room?'':`<div class="btns"><button class="go big" id="againbtn">${L('再来一局','Play again')}</button><button class="go alt sm" id="buildbtn">${L('换侠客','Change hero')}</button><button class="go alt" id="lobbybtn">${L('返回','Back')}</button></div>`}`;
+  ${meta?`<div class="metarow">${meta.ranks.map(([n,zh,en])=>`<span class="td">🏆 ${L(zh,en)}</span>`).join('')}${meta.levelUp?`<span>Lv ${meta.after.lv}</span>`:''}</div>`:''}<div class="stat more"><div>${ICON.misc('awake','#ffd27a','sm')}<b>${G.lv}</b><span>${L('等级','Level')}</span></div><div>${ICON.misc('relic','#c7a4f0','sm')}<b>${G.relics.length}</b><span>${L('法宝','Relics')}</span></div><div>${ICON.misc('knock','#ff6a6a','sm')}<b>${Math.round(G.dmgTaken)}</b><span>${L('承受伤害','Damage taken')}</span></div><div>${ICON.misc('heartplus','#7fc98a','sm')}<b>${Math.round(G.healed||0)}</b><span>${L('治疗量','Healing')}</span></div></div><div class="dmg">${rows}</div>${cmp}</div>${room?'':`<div class="btns"><button class="go big" id="againbtn">${L('再来一局','Play again')}</button><button class="go alt" id="buildbtn">${L('换侠客','Change hero')}</button><button class="go alt" id="lobbybtn">${L('返回','Back')}</button></div>`}`;
   $('#end').hidden=false;$('#end').scrollTop=0;if(room){roomCheckFinished();renderRoomResults()}else{$('#againbtn').onclick=startRun;$('#lobbybtn').onclick=toLobby;$('#buildbtn').onclick=()=>{toLobby();if(typeof showScreen==='function')showScreen('hero')};if(!IS_TOUCH)$('#againbtn').focus({preventScroll:true})}
   if(typeof submitRun==='function'&&!room)submitRun(box);
 }
@@ -382,11 +395,14 @@ function toLobby(){closeCards();$('#end').hidden=true;$('#hud').hidden=true;$('#
 $('#startbtn').onclick=startRun;
 $('#pausebtn').onclick=()=>{togglePause();$('#pausebtn').blur()};
 $('#resumebtn').onclick=()=>togglePause();
-let quitArmedUntil=0;
-$('#quitbtn').onclick=()=>{const cash=!RIVAL_ON&&!G.room&&G.bossSlain>=1,now=performance.now();
- if(now>=quitArmedUntil){quitArmedUntil=now+3000;$('#quitbtn').textContent=cash?L('再点一次收官','Tap again to cash out'):L('再点一次放弃本局','Tap again to abandon');const until=quitArmedUntil;setTimeout(()=>{if(quitArmedUntil===until)quitLabel()},3000);return}
- quitArmedUntil=0;G.paused=false;$('#pause').hidden=true;if(cash){G.retired=1;G.retireBonus=1;win()}else{G.abandoned=true;lose()}};
-function quitLabel(){quitArmedUntil=0;const q=$('#quitbtn');if(!q||!G)return;const cash=!RIVAL_ON&&!G.room&&G.bossSlain>=1;q.textContent=cash?L('收官','Cash out'):L('放弃 · 金币 ×0.5','Abandon · gold ×0.5')}
+$('#pickpause').onclick=()=>togglePause();
+$('#quitbtn').onclick=()=>{
+ if(G.over||G.ended)return;
+ const cash=!RIVAL_ON&&!G.room&&G.bossSlain>=1;
+ G.paused=false;$('#pause').hidden=true;
+ if(cash){G.retired=1;G.retireBonus=1;win()}else{G.abandoned=true;lose()}
+};
+function quitLabel(){const q=$('#quitbtn');if(!q||!G)return;const cash=!RIVAL_ON&&!G.room&&G.bossSlain>=1;q.textContent=cash?L('收官','Cash out'):L('放弃 · 金币 ×0.5','Abandon · gold ×0.5')}
 function syncSound(){
  const m=SFX.muted;
  document.querySelectorAll('#sndbtn').forEach(b=>{b.textContent=m?'🔇':'🔊';b.classList.toggle('off',m)});

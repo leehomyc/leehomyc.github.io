@@ -72,3 +72,11 @@ test('skill and dash cooldown durations use the same effective values displayed 
  const s=source('sim');vm.runInContext(s.match(/^const CD_FLOOR=.*$/m)[0],c);vm.runInContext(s.match(/^function skillCooldown.*$/m)[0],c);vm.runInContext(s.match(/^function dashCooldown.*$/m)[0],c);
  assert.equal(c.skillCooldown({id:'ward'}),10);assert.equal(c.skillCooldown({id:'palm'}),1);assert.equal(c.dashCooldown(),1.1);c.hasR=()=>true;assert.equal(c.dashCooldown(),.82);
 });
+
+test('Escape pauses and resumes an upgrade choice without selecting a hidden card',()=>{
+ const {c,key,calls}=setup();const cards=[{}];c.G.pick=cards;
+ key('Escape');assert.equal(c.G.paused,true);assert.equal(c.G.pick,cards);
+ key('1');assert.deepEqual(calls.pick,[]);
+ key('Escape');assert.equal(c.G.paused,false);assert.equal(c.G.pick,cards);
+ key('1');assert.deepEqual(calls.pick,[0]);
+});

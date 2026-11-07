@@ -18,14 +18,14 @@ function handleGameKeydown(e){
   if(['arrowup','arrowdown','arrowleft','arrowright',' '].includes(k))e.preventDefault();
   keys.add(k);
   if(pickKeyHeld.has(k))return;
+  if(G.over||G.ended)return;
+  if(k==='p'||k==='escape'){e.preventDefault();if(G.panel)togglePanel();else togglePause();return}
+  if(G.paused)return;
   if(G.pick){
     const i=/^[1-9]$/.test(k)?+k-1:({j:0,k:1,l:2})[k];
     if(i!==undefined&&!e.repeat&&performance.now()-pickOpenedAt>=420&&G.pick[i]){pickKeyHeld.add(k);choose(i)}
     return;
   }
-  if(G.over||G.ended)return;
-  if(k==='p'||k==='escape'){if(G.panel)togglePanel();else togglePause();return}
-  if(G.paused)return;
   if(k==='c'||k==='t'){togglePanel();return}
   if(!combatInputsReady())return;
   if(k==='1'||k==='j')castSkill(1);if(k==='2'||k==='k')castSkill(2);if(k==='3'||k==='l')castSkill(3);
@@ -76,6 +76,9 @@ function padTick(){
   const overlay=inputOverlay();if(overlay){if(edge(1))overlay.querySelector('#gearclose,#lbclose')?.click();return}
   if(!$('#title').hidden){if(edge(1)){if(lobbyTab)showTab('');else if(!$('#hero').hidden)showScreen('menu');return}if(edge(0)||edge(9))activateMenuControl(lobbyTab?'#lobbyback':$('#hero').hidden?'#menubtns .mb.big':'#startbtn');return}
   if(!$('#end').hidden){if(edge(0))activateMenuControl('#againbtn');if(edge(1))toLobby();return}
+  if(G.panel){if(edge(1)||edge(9))togglePanel();return}
+  if(edge(9)){togglePause();return}
+  if(G.paused){if(edge(0)||edge(1))togglePause();return}
   if(G.pick){
     const n=G.pick.length;if(!n)return;
     if(PAD.pick!==G.pick){PAD.pick=G.pick;PAD.sel=0}
@@ -84,9 +87,6 @@ function padTick(){
     if(edge(0)&&performance.now()-pickOpenedAt>=420)choose(PAD.sel);
     if(edge(3)&&G.rerolls>0)$('#reroll').click();return;
   }
-  if(G.panel){if(edge(1)||edge(9))togglePanel();return}
-  if(edge(9)){togglePause();return}
-  if(G.paused){if(edge(0)||edge(1))togglePause();return}
   if(!combatInputsReady())return;
   if(edge(0))dash();if(edge(2))castSkill(1);if(edge(3))castSkill(2);if(edge(1))castSkill(3);
 }

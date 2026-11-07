@@ -1363,3 +1363,10 @@ body.touchhud #healthwarning{bottom:calc(235px + env(safe-area-inset-bottom));fo
   #menu .ttb{width:480px;flex:0 1 480px}
   #menu #menubtns{width:100%;max-width:none}
 }
+
+/* Keep pause reachable while choosing an upgrade, including on touch screens. */
+#pickpause{position:fixed;top:max(12px,env(safe-area-inset-top));right:max(12px,env(safe-area-inset-right));z-index:2;min-height:44px;padding:8px 14px;font-size:16px}
+#pickpause small{font-size:11px;color:var(--dim)}
+#cards{padding-top:max(66px,env(safe-area-inset-top))}
+#end .btns{align-items:stretch}
+#end #buildbtn{flex:1 1 auto}
