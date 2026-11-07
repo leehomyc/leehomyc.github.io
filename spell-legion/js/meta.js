@@ -15,14 +15,14 @@ function runAxp(){return Math.round(G.t*.6+G.kills*.08+G.bossSlain*60+(RIVAL_ON?
 const TASKS=[
   {id:'kills',zh:'击杀 {n} 名敌人',en:'Kill {n} enemies',goals:[600,1000,1500],cum:1,get:()=>G.kills},
   {id:'boss',zh:'斩杀 {n} 位首领',en:'Slay {n} bosses',goals:[1,2,3],cum:1,get:()=>G.bossSlain},
-  {id:'time',zh:'单局存活 {n} 分钟',en:'Survive {n} minutes in one run',goals:[6,8,12],best:1,get:()=>Math.floor(G.t/60)},
-  {id:'combo',zh:'单局连斩 ×{n}',en:'Reach a ×{n} streak',goals:[50,100,150],best:1,get:()=>G.comboMax},
+  {id:'time',zh:'单局存活 {n} 分钟',en:'Survive {n} min',goals:[6,8,12],best:1,get:()=>Math.floor(G.t/60)},
+  {id:'combo',zh:'单局连斩 ×{n}',en:'×{n} streak',goals:[50,100,150],best:1,get:()=>G.comboMax},
   {id:'chest',zh:'打开 {n} 个宝箱',en:'Open {n} chests',goals:[4,8,12],cum:1,get:()=>G.chestsOpened||0},
-  {id:'relic',zh:'单局集齐 {n} 件法宝',en:'Hold {n} relics in one run',goals:[4,6,8],best:1,get:()=>G.relics.length},
-  {id:'level',zh:'单局达到 {n} 级',en:'Reach level {n} in one run',goals:[15,20,25],best:1,get:()=>G.lv},
-  {id:'pk',zh:'赢下 {n} 场对决',en:'Win {n} PK matches',goals:[1,1,2],cum:1,get:()=>(G.over==='pk'&&G.rival&&G.score>G.rival.score)?1:0},
-  {id:'daily',zh:'每日挑战存活 {n} 分钟',en:'Survive {n} minutes in the daily challenge',goals:[5,8,10],best:1,get:()=>(typeof DAILY!=='undefined'&&DAILY)?Math.floor(G.t/60):0},
-  {id:'tier',zh:'在修罗层斩杀 {n} 位首领',en:'Slay {n} bosses on an Ascension tier',goals:[1,2,3],cum:1,get:()=>ASURA_T>=1?G.bossSlain:0},
+  {id:'relic',zh:'单局集齐 {n} 件法宝',en:'{n} relics in a run',goals:[4,6,8],best:1,get:()=>G.relics.length},
+  {id:'level',zh:'单局达到 {n} 级',en:'Reach Lv {n}',goals:[15,20,25],best:1,get:()=>G.lv},
+  {id:'pk',zh:'赢下 {n} 场对决',en:'Win {n} duels',goals:[1,1,2],cum:1,get:()=>(G.over==='pk'&&G.rival&&G.score>G.rival.score)?1:0},
+  {id:'daily',zh:'每日挑战存活 {n} 分钟',en:'Daily: survive {n} min',goals:[5,8,10],best:1,get:()=>(typeof DAILY!=='undefined'&&DAILY)?Math.floor(G.t/60):0},
+  {id:'tier',zh:'在修罗层斩杀 {n} 位首领',en:'{n} bosses on Ascension',goals:[1,2,3],cum:1,get:()=>ASURA_T>=1?G.bossSlain:0},
   {id:'cls',zh:'用 {c} 斩杀一位首领',en:'Slay a boss as the {ce}',goals:[1,1,1],cum:1,cls:1,get:(t)=>G.cls===t.c&&G.bossSlain>0?1:0},
 ];
 const TASK_GOLD=[150,220,320];
