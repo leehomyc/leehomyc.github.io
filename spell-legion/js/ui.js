@@ -206,7 +206,7 @@ function openPick(){
   if(G.auto){pick(cards).a();return openPick()}
   G.pick=cards;pickOpenedAt=performance.now();pickArmed=false;$('#banner').classList.remove('on');bannerT=0;
   if(pickTimer){clearInterval(pickTimer);pickTimer=null}{const pe=$('#picktimer');if(pe)pe.textContent=''}if(RIVAL_ON||(G.room&&ROOM.code)){pickTimer=setInterval(()=>{if(!G.pick){clearInterval(pickTimer);pickTimer=null;return}const left=Math.max(0,PICK_LIMIT-(performance.now()-pickOpenedAt)/1000);const el=$('#picktimer');if(el)el.textContent=L(`${Math.ceil(left)}s`,`${Math.ceil(left)}s`);if(left<=0){const sug=document.querySelector('#cardrow .card.sugged');const idx=sug?+sug.id.replace('card',''):0;choose(idx)}},200)}
-  const sk=q.s?LL(SPELLS[q.s.id]):'';const T={level:q.jackpot?[L('天降横财!','Jackpot!'),L('三张全拿:点任意一张,三张都是你的','take all three — tap any card and all three are yours')]:[L('升级','Level up'),L('三选一','pick one')],infuse:[L('灌注真气','Infuse an element'),sk],fuse:[L('真气融合','Fuse elements'),sk],aug:[L('密令完成','Mission complete'),L('选择一项强化','choose an augment')],awake:[L('武器觉醒','Weapon awakening'),sk],contract:[L('契约','A pact is offered'),L('付出代价,换取当下的力量;也可以拒绝','Pay a price for power now, or decline')],ascend:[L(`第 ${q.cyc} 轮七位首领皆灭`,`Cycle ${q.cyc}: all seven bosses slain`),L('改写规则继续,或照旧打下去','Rewrite the rules and push on, or carry on as is')]}[q.kind];
+  const sk=q.s?LL(SPELLS[q.s.id]):'';const T={level:q.jackpot?[L('天降横财!','Jackpot!'),L('三张全拿:点任意一张,三张都是你的','take all three — tap any card and all three are yours')]:[L('升级','Level up'),L('三选一','pick one')],infuse:[L('灌注真气','Infuse an element'),sk],fuse:[L('真气融合','Fuse elements'),sk],aug:[L('密令完成','Mission complete'),L('选择一项强化','choose an augment')],awake:[L('武器觉醒','Weapon awakening'),sk],contract:[L('契约','A pact is offered'),L('付出代价,换取当下的力量;也可以拒绝','Pay a price for power now, or decline')],ascend:[L(`第 ${q.cyc} 轮七位首领皆灭`,`Cycle ${q.cyc}: all seven bosses slain`),L('改写规则继续,或照旧打下去','Rewrite the rules and push on, or carry on as is')]}[q.kind]||(typeof KIND_TITLE!=='undefined'&&KIND_TITLE[q.kind]?KIND_TITLE[q.kind](q):[L('抉择','A choice'),'']);
   $('#cardtitle').innerHTML=`${T[0]}<small>${T[1]}${G.picks.length?L(` · 之后还有 ${G.picks.length} 次`,` · ${G.picks.length} more after this`):''}</small>`;
   const row=$('#cardrow');row.textContent='';
   const adv=renderBuildStrip();
@@ -224,7 +224,7 @@ function openPick(){
     parts.forEach(([k,v])=>{if(!v)return;const s=document.createElement('div');s.className=k;s.textContent=v;b.appendChild(s)});
     if(sug)b.classList.add('sugged');
     if(cd.skill){b.onmouseenter=()=>document.querySelectorAll('#build .bs').forEach(x=>x.classList.toggle('hl',x.dataset.skill===cd.skill));b.onmouseleave=()=>document.querySelectorAll('#build .bs.hl').forEach(x=>x.classList.remove('hl'))}
-    b.onclick=()=>choose(i);row.appendChild(b)});
+    b.onclick=()=>choose(i);row.appendChild(b);if(typeof cardDecor==='function')cardDecor(b,cd,i,q)});
   const rr=$('#reroll');rr.hidden=q.kind!=='level';rr.disabled=G.rerolls<=0;rr.textContent=L('重抽','Reroll')+` (${G.rerolls})`;rr.onclick=()=>{if(G.rerolls<=0)return;G.rerolls--;const prev=G.pick.map(c=>c.n);G.pick=null;G.picks.unshift({...q,exclude:prev});SFX.throw();openPick()};
   if(cards.some(c=>c.q&&c.q.k==='legendary'))SFX.chest();else if(cards.some(c=>c.q&&c.q.k==='epic'))SFX.levelup();
   $('#cards').hidden=false;
@@ -331,7 +331,7 @@ function showEnd(ok){tipT=0;G._zeroSaid=0;{const sd=$('#side');if(sd){sd.textCon
   checkAch();
   const meta=typeof metaAfterRun==='function'?metaAfterRun():null;
   const gold=Math.round((G.kills*.45+G.lv*3+G.bossSlain*220+Math.floor(G.t/10)*2+G.goldRun*.7+G.comboMax)*(meta&&meta.firstBonus?2:1)*(G.event?1.5:1)*(1+.15*(SAVE.up.gold||0))*(G.relics.includes('bowl')?1.3:1)*(G.relics.includes('wolf')?1.6:1)*(G.curse.gold||1)*(1+ASURA_GOLD*ASURA_T)*D().gold*(G.retireBonus||1)*(G.abandoned?.5:1));
-  let tierUp=false;if(ASURA_T>=0&&(SAVE.mode==='solo')&&G.bossSlain>=2&&!G.abandoned&&SAVE.asura.max<=ASURA_T&&ASURA_T<ASURA.length){SAVE.asura.max=ASURA_T+1;tierUp=true}if(G.bossSlain>=2&&ASURA_T>(SAVE.asura.best||0))SAVE.asura.best=ASURA_T;
+  let tierUp=false;if(ASURA_T>=0&&(SAVE.mode==='solo')&&G.bossSlain>=2&&!G.abandoned&&SAVE.asura.max<=ASURA_T&&ASURA_T<(typeof ASURA_CAP!=='undefined'?ASURA_CAP:ASURA.length)){SAVE.asura.max=ASURA_T+1;tierUp=true}if(G.bossSlain>=2&&ASURA_T>(SAVE.asura.best||0))SAVE.asura.best=ASURA_T;
   const pk=RIVAL_ON&&G.rival,pkRes=pk?(G.score>G.rival.score?'win':G.score<G.rival.score?'lose':'tie'):null;const pkBonus=pkRes==='win'?200:pkRes==='tie'?80:0;
   if(pk){SAVE.pk=SAVE.pk||{w:0,l:0};if(pkRes==='win')SAVE.pk.w++;else if(pkRes==='lose')SAVE.pk.l++;SAVE.pkBest=Math.max(SAVE.pkBest||0,G.score)}
   let dailyNew=false;if(DAILY){const dk=G.day||dayKey();if(!SAVE.daily||SAVE.daily.day!==dk)SAVE.daily={day:dk,best:0,bosses:0};if(G.t>SAVE.daily.best){SAVE.daily.best=G.t;SAVE.daily.bosses=G.bossSlain;dailyNew=true}}
