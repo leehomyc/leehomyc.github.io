@@ -4,7 +4,7 @@ const fs=require('node:fs');
 const vm=require('node:vm');
 const source=fs.readFileSync(require('node:path').join(__dirname,'../js/audio.js'),'utf8');
 function setup(saved={},auto=false,options={}){
-  const stats={oscillators:0,samples:0,gains:[],timers:[],resumes:0,events:{}};let store=JSON.stringify(saved),clock=10000;
+  const stats={oscillators:0,samples:0,tones:[],gains:[],timers:[],resumes:0,events:{}};let store=JSON.stringify(saved),clock=10000;
   const param=()=>({value:0,cancelScheduledValues(){},setValueAtTime(v){this.value=v},setTargetAtTime(v){this.value=v},linearRampToValueAtTime(v){this.value=v},exponentialRampToValueAtTime(v){this.value=v}});
   const node=()=>({connect(){},disconnect(){},start(){},stop(){},gain:param(),frequency:param(),Q:param()});
   class AudioContext{
@@ -13,7 +13,7 @@ function setup(saved={},auto=false,options={}){
     createDynamicsCompressor(){return {...node(),threshold:param(),ratio:param()}}
     createBuffer(ch,n){const channels=Array.from({length:ch},()=>new Float32Array(n));return {getChannelData:i=>channels[i]}}
     createConvolver(){return node()}
-    createOscillator(){stats.oscillators++;return node()}
+    createOscillator(){stats.oscillators++;const o=node();o.start=()=>stats.tones.push(o.type);return o}
     createBiquadFilter(){return node()}
     createBufferSource(){stats.samples++;return node()}
     resume(){stats.resumes++;if(options.resume) return options.resume(this,stats);this.state='running';return Promise.resolve()}
@@ -74,6 +74,19 @@ test('the opening track is shuffled on a new session',()=>{
   const first=setup({},true,{random:()=>0});first.audio.start();
   const second=setup({},true,{random:()=>.999});second.audio.start();
   assert.notEqual(first.audio.musicTrack.id,second.audio.musicTrack.id);
+});
+test('each opening arrangement has a distinct instrument and percussion footprint without overloading mobile audio',()=>{
+  const signatures=new Map();
+  for(let i=0;i<=20;i++){
+    const h=setup({},true,{random:()=>i/20});h.audio.start();const id=h.audio.musicTrack.id;
+    if(signatures.has(id))continue;
+    h.advance(8);
+    const types=['sine','triangle','sawtooth','square'].map(k=>h.stats.tones.filter(x=>x===k).length);
+    signatures.set(id,[...types,h.stats.samples].join('/'));
+    assert.ok(h.stats.oscillators+h.stats.samples<380,id+' schedules too many sources in 8 s');
+  }
+  assert.equal(signatures.size,4);
+  assert.equal(new Set(signatures.values()).size,4);
 });
 test('gameplay, pause and boss changes preserve the current song and musical phrase',()=>{
   const h=setup();h.audio.start();h.advance(12);const before=h.audio.musicTrack;assert.ok(before.bar>0);

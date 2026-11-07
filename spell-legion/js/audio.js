@@ -1,5 +1,5 @@
 'use strict';
-/* audio.js — four original pop instrumentals and shuffled playback and sound effects (Web Audio, no files) */
+/* audio.js — four original regional instrumentals, shuffled playback and sound effects (Web Audio, no files) */
 const SFX=(()=>{
   let ac=null,master,musicG,sfxG,musicBus=null,musicMuted=false,sfxMuted=false,state='title',nextBeat=0,beat=0,bar=0,lastHit=0,started=false,musicVol=.6,sfxVol=.8,lastMusicVol=.6,lastSfxVol=.8,musicGainValue=null,sfxGainValue=null;
   const save=()=>{try{localStorage.setItem('sl_audio',JSON.stringify({muted:musicMuted&&sfxMuted,musicMuted,sfxMuted,musicVol,sfxVol,lastMusicVol,lastSfxVol}))}catch(_){}};
@@ -58,84 +58,72 @@ const SFX=(()=>{
   }
   /* instruments */
   const hz=n=>440*Math.pow(2,(n-69)/12);
-  function lead(n,t,dur,g,voice){
-    const f=hz(n);
-    if(voice==='piano'){
-      osc('triangle',f,t,dur,g*.8,musicBus,{lp:4200,rv:1});
-      osc('sine',f*2,t,dur*.45,g*.17,musicBus);osc('sine',f*3,t,dur*.2,g*.055,musicBus);
-    }else if(voice==='guitar'){
-      osc('sawtooth',f,t,dur,g*.32,musicBus,{lp:2200,rv:1});
-      osc('triangle',f*1.002,t,dur*.8,g*.54,musicBus,{lp:3200});
-    }else if(voice==='glass'){
-      osc('square',f,t,dur,g*.3,musicBus,{lp:Math.min(4000,f*4),rv:1});
-      osc('sine',f*2,t,dur*.55,g*.23,musicBus);osc('triangle',f,t,dur,g*.35,musicBus);
-    }else{
-      osc('sawtooth',f*.998,t,dur,g*.25,musicBus,{lp:3000,rv:1});
-      osc('sawtooth',f*1.002,t,dur,g*.25,musicBus,{lp:3000});osc('sine',f,t,dur,g*.4,musicBus);
-    }
-  }
+  function zheng(n,t,g){const f=hz(n);osc('triangle',f,t,.95,g*.7,musicBus,{lp:3400,rv:1});osc('sine',f*2,t,.42,g*.24,musicBus);osc('sine',f*3,t,.2,g*.08,musicBus)}
+  function dizi(n,t,dur,g){const f=hz(n);osc('sine',f,t,dur,g*.68,musicBus,{a:.055,rv:1});osc('triangle',f*2,t,dur*.75,g*.14,musicBus,{a:.08,lp:3600})}
+  function shamisen(n,t,g){const f=hz(n);osc('sawtooth',f,t,.28,g*.43,musicBus,{lp:2800,rv:1});osc('triangle',f,t,.38,g*.65,musicBus,{lp:4400});osc('sine',f*2,t,.14,g*.13,musicBus)}
+  function fue(n,t,dur,g){osc('sine',hz(n),t,dur,g,musicBus,{a:.04,rv:1});osc('triangle',hz(n)*2,t,dur*.5,g*.12,musicBus)}
+  function danceLead(n,t,dur,g){const f=hz(n);osc('square',f,t,dur,g*.34,musicBus,{lp:Math.min(3800,f*5)});osc('sine',f*2,t,dur*.55,g*.23,musicBus);osc('triangle',f,t,dur,g*.5,musicBus,{rv:1})}
+  function strings(n,t,dur,g){const f=hz(n);osc('sawtooth',f*.997,t,dur,g*.32,musicBus,{a:.12,lp:1300,rv:1});osc('sawtooth',f*1.003,t,dur,g*.32,musicBus,{a:.14,lp:1300})}
+  function horn(n,t,dur,g){const f=hz(n);osc('sawtooth',f,t,dur,g*.3,musicBus,{a:.04,lp:1800,rv:1});osc('sine',f,t,dur,g*.6,musicBus,{a:.035})}
   function bass(n,t,dur,g){osc('triangle',hz(n),t,dur,g*.7,musicBus,{lp:650});osc('sine',hz(n-12),t,dur,g*.38,musicBus)}
   function kick(t,g=.42){osc('sine',145,t,.26,g,musicBus,{slide:45,slideT:.45});noise(t,.025,g*.12,musicBus,{f:3600,type:'highpass'})}
   function clap(t,g=.14){noise(t,.12,g,musicBus,{f:1700,q:.6});noise(t+.018,.075,g*.5,musicBus,{f:3200,q:.5})}
   function hat(t,open=false,g=.035){noise(t,open?.12:.035,g,musicBus,{f:7200,type:'highpass',q:.5})}
+  function drum(t,g=.25){osc('sine',125,t,.36,g,musicBus,{slide:56,slideT:.5});noise(t,.06,g*.16,musicBus,{f:680,type:'lowpass'})}
+  function rim(t,g=.07){noise(t,.04,g,musicBus,{f:1550,q:1.2})}
   function taiko(t0,g=.8,low=70){osc('sine',low*2.2,t0,.42,g,sfxG,{slide:low,slideT:.3});noise(t0,.12,g*.35,sfxG,{f:900,type:'lowpass'})}
   function bell(f,t0,g=.3,dest=sfxG){osc('sine',f,t0,2.2,g,dest,{rv:1});osc('sine',f*2.76,t0,1.1,g*.35,dest,{rv:1});osc('sine',f*5.4,t0,.5,g*.12,dest)}
   const SC=[146.83,164.81,185,220,246.94,293.66,329.63,369.99,440,493.88,587.33]; // effect pitches
-  /* Original compositions: each has its own harmony, melody, tempo and rhythm.
-     32 bars: intro 4 / verse 8 / chorus 8 / bridge 4 / final chorus 8.
-     Locale describes the pop style, not vocals or the player's interface language. */
+  /* Original instrumental themes. Each has its own meter, scale, rhythm and instruments.
+     32 bars: intro 4 / theme 8 / lift 8 / quiet 4 / finale 8. */
   const TRACKS=[
-    {id:'neon-river',locale:'zh',title:'霓虹星河',style:'C-pop / piano pop',bpm:112,voice:'piano',
-      chords:[[50,57,62,66],[45,57,61,64],[47,59,62,66],[43,55,59,62]],
-      kicks:[0,8,10],bass:[0,6,8,14],stabs:[0,6,10],arp:[0,4,6,8,12,14],
+    {id:'bamboo-rain',locale:'zh',title:'竹影听雨',style:'古风 · 筝与笛',bpm:112,steps:16,
+      chords:[[50,57,62,69],[47,54,59,66],[43,50,55,62],[45,52,57,64]],
       hook:[
-        [78,-1,81,-1,83,-1,81,78,76,-1,78,-1,74,-1,-1,-1],
-        [76,-1,78,-1,81,-1,85,83,81,-1,76,-1,73,-1,-1,-1],
-        [78,-1,83,-1,85,-1,83,81,78,-1,76,78,83,-1,-1,-1],
-        [79,-1,83,-1,81,79,78,-1,76,-1,74,-1,71,-1,-1,-1],
-        [78,-1,81,83,-1,81,78,-1,86,-1,85,83,81,-1,78,-1],
-        [76,-1,81,-1,85,-1,83,81,80,-1,76,73,76,-1,-1,-1],
-        [78,-1,83,-1,86,-1,85,83,81,-1,78,-1,76,-1,78,-1],
-        [79,-1,81,79,78,-1,76,-1,74,-1,71,-1,74,-1,-1,-1]
+        [74,-1,-1,76,-1,-1,78,-1,81,-1,-1,78,76,-1,-1,-1],
+        [74,-1,71,-1,-1,74,-1,76,78,-1,-1,76,74,-1,-1,-1],
+        [71,-1,-1,74,-1,-1,76,-1,78,-1,81,-1,78,-1,-1,-1],
+        [76,-1,-1,74,-1,71,-1,69,71,-1,-1,74,69,-1,-1,-1],
+        [78,-1,81,-1,-1,83,-1,81,78,-1,76,-1,74,-1,-1,-1],
+        [76,-1,-1,78,-1,-1,81,-1,83,-1,81,-1,78,-1,-1,-1],
+        [81,-1,-1,83,-1,86,-1,83,81,-1,78,-1,76,-1,-1,-1],
+        [78,-1,76,-1,-1,74,-1,71,74,-1,-1,69,74,-1,-1,-1]
       ]},
-    {id:'stardust-dash',locale:'ja',title:'星屑ダッシュ',style:'J-pop / bright pop rock',bpm:144,voice:'guitar',
-      chords:[[46,58,62,65],[48,55,60,64],[45,57,60,64],[50,57,62,65],[46,58,62,65],[48,55,60,64],[41,57,60,65],[50,57,62,65]],
-      kicks:[0,6,8,14],bass:[0,2,4,6,8,10,12,14],stabs:[0,4,8,12],arp:[2,6,10,14],
+    {id:'matsuri-lanterns',locale:'ja',title:'祭の灯',style:'和风 · 三味线与太鼓',bpm:144,steps:16,
+      chords:[[50,57,62,69],[51,58,63,67],[48,55,60,67],[45,52,57,64]],
       hook:[
-        [77,81,82,-1,81,77,74,-1,77,81,84,-1,82,81,77,-1],
-        [79,84,83,84,79,-1,76,-1,79,81,84,-1,86,84,79,-1],
-        [81,-1,79,76,72,76,79,-1,81,84,83,81,79,76,72,-1],
-        [77,81,86,-1,84,81,77,-1,76,77,81,84,81,-1,77,-1],
-        [82,-1,81,77,74,77,81,-1,82,84,86,-1,84,82,81,-1],
-        [84,83,84,79,76,-1,79,-1,81,84,88,-1,86,84,79,-1],
-        [81,-1,84,-1,86,84,81,77,76,77,81,-1,84,-1,81,-1],
-        [86,-1,84,81,77,76,77,-1,81,77,74,-1,74,-1,-1,-1]
+        [74,-1,75,79,-1,81,-1,79,75,-1,74,-1,69,-1,-1,-1],
+        [72,-1,75,-1,79,81,-1,79,75,-1,72,69,72,-1,-1,-1],
+        [74,75,79,-1,81,-1,84,81,79,-1,75,-1,74,-1,-1,-1],
+        [72,-1,69,72,75,-1,79,-1,75,72,69,-1,67,-1,-1,-1],
+        [79,-1,81,84,-1,81,79,-1,75,-1,79,81,84,-1,-1,-1],
+        [81,-1,84,-1,86,84,81,-1,79,75,79,-1,81,-1,-1,-1],
+        [84,81,79,-1,75,79,81,-1,84,-1,86,84,81,-1,-1,-1],
+        [79,-1,75,72,75,-1,79,-1,74,72,69,-1,74,-1,-1,-1]
       ]},
-    {id:'neon-pulse',locale:'ko',title:'네온 펄스',style:'K-pop / dance pop',bpm:120,voice:'glass',
-      chords:[[42,54,57,61],[50,57,62,66],[45,57,61,64],[52,56,59,64]],
-      kicks:[0,6,8,11],bass:[0,3,6,8,10,14],stabs:[2,7,10,15],arp:[3,7,11,15],
+    {id:'seoul-after-dark',locale:'ko',title:'서울 애프터다크',style:'K-pop · dance instrumental',bpm:120,steps:16,
+      chords:[[45,52,57,60],[41,53,57,60],[48,55,60,64],[43,55,59,62]],
       hook:[
-        [73,-1,73,76,-1,78,-1,76,73,-1,-1,69,-1,73,76,-1],
-        [74,-1,78,-1,-1,81,78,-1,74,73,-1,69,-1,74,-1,-1],
-        [73,-1,76,76,-1,81,-1,80,76,-1,-1,73,69,-1,73,-1],
-        [71,-1,76,-1,80,-1,78,76,71,-1,68,-1,-1,71,73,-1],
-        [78,-1,78,81,-1,85,-1,81,78,76,-1,73,-1,76,78,-1],
-        [81,-1,78,-1,74,-1,78,81,86,-1,85,81,78,-1,-1,-1],
-        [81,-1,80,76,-1,73,76,-1,81,80,-1,76,-1,73,-1,-1],
-        [80,-1,78,76,-1,71,-1,68,71,-1,73,-1,78,-1,-1,-1]
+        [-1,69,-1,72,76,-1,-1,72,-1,69,-1,67,69,-1,-1,-1],
+        [-1,69,-1,72,77,-1,-1,72,-1,69,72,-1,77,-1,-1,-1],
+        [-1,72,-1,76,79,-1,-1,76,-1,72,-1,69,72,-1,-1,-1],
+        [-1,71,-1,74,79,-1,-1,74,-1,71,74,-1,79,-1,-1,-1],
+        [-1,76,76,-1,81,-1,79,76,-1,72,-1,76,81,-1,-1,-1],
+        [-1,77,77,-1,81,-1,84,81,-1,77,-1,72,77,-1,-1,-1],
+        [-1,79,79,-1,84,-1,81,79,-1,76,-1,72,79,-1,-1,-1],
+        [-1,79,76,-1,74,-1,71,74,-1,69,-1,67,69,-1,-1,-1]
       ]},
-    {id:'afterglow',locale:'en',title:'Afterglow',style:'English pop / electropop',bpm:124,voice:'synth',
-      chords:[[39,55,58,62],[46,53,58,62],[41,57,60,65],[43,55,58,62]],
-      kicks:[0,4,8,12],bass:[0,3,6,8,11,14],stabs:[2,6,10,14],arp:[1,5,9,13],
+    {id:'lantern-road',locale:'en',title:'The Lantern Road',style:'Western orchestral waltz',bpm:104,steps:12,
+      chords:[[43,55,58,62],[39,51,55,58],[41,53,57,60],[38,50,54,57]],
       hook:[
-        [79,-1,82,-1,86,-1,82,79,77,-1,79,-1,74,-1,-1,-1],
-        [77,-1,82,-1,86,84,82,-1,77,-1,74,77,82,-1,-1,-1],
-        [81,-1,84,-1,89,-1,88,84,81,-1,79,77,81,-1,-1,-1],
-        [79,-1,82,-1,86,84,82,-1,79,-1,77,74,79,-1,-1,-1],
-        [86,-1,84,82,79,-1,82,-1,86,89,86,-1,84,-1,82,-1],
-        [82,-1,86,-1,89,86,84,-1,82,77,74,-1,77,-1,-1,-1],
-        [84,-1,89,-1,88,84,81,-1,79,-1,77,79,81,-1,84,-1],
-        [86,-1,84,82,79,-1,77,-1,74,-1,79,-1,79,-1,-1,-1]
+        [74,-1,-1,-1,77,-1,-1,-1,79,-1,-1,-1],
+        [75,-1,-1,-1,74,-1,-1,-1,70,-1,-1,-1],
+        [72,-1,-1,-1,76,-1,-1,-1,77,-1,-1,-1],
+        [74,-1,-1,-1,69,-1,-1,-1,66,-1,-1,-1],
+        [79,-1,-1,77,74,-1,-1,-1,82,-1,-1,-1],
+        [80,-1,-1,79,75,-1,-1,-1,77,-1,-1,-1],
+        [77,-1,-1,76,72,-1,-1,-1,81,-1,-1,-1],
+        [78,-1,-1,74,69,-1,-1,-1,74,-1,-1,-1]
       ]}
   ];
   const SONG_BARS=32,retiredBuses=[];
@@ -151,30 +139,41 @@ const SFX=(()=>{
     musicBus=ac.createGain();musicBus.gain.setValueAtTime(0,t);musicBus.gain.linearRampToValueAtTime(1,t+.45);musicBus.connect(musicG);
   }
   function musicStep(t){
-    const step=60/track.bpm/4,pos=beat%16,chord=track.chords[bar%track.chords.length];
-    const chorus=(bar>=12&&bar<20)||bar>=24,bridge=bar>=20&&bar<24,intro=bar<4,soft=state==='title',busy=state==='boss';
-    const energy=(soft?.67:1)*(bridge?.7:1),melody=track.hook[bar%track.hook.length][pos];
-    // The final bar thins out before the next track's short crossfade.
-    const tail=bar===SONG_BARS-1&&pos>=8?Math.max(.25,1-(pos-8)/10):1,g=energy*tail;
-    if(pos===0)for(const n of chord.slice(1))osc('triangle',hz(n),t,step*(bridge?15:11),g*.023,musicBus,{a:.06,lp:1800,rv:1});
-    if(track.bass.includes(pos)&&(!bridge||pos%8===0))bass(chord[0]+(chorus&&pos===14?12:0),t,step*(track.locale==='ja'?1.35:1.8),g*.16);
-    if(track.kicks.includes(pos)&&(!soft||pos%8===0)&&(!bridge||pos===0))kick(t,g*(track.locale==='ko'?.43:.34));
-    if((pos===4||pos===12)&&!bridge)clap(t,g*(track.locale==='ja'?.12:.1));
-    if(pos%2===0&&!bridge)hat(t,pos===14&&chorus&&!soft,g*.027);
-    if((busy||track.locale==='ja'&&chorus)&&pos%2===1&&!soft)hat(t,false,g*.017);
-    if((chorus||!intro&&!bridge)&&!soft&&track.stabs.includes(pos)){
-      for(let i=1;i<chord.length;i++)osc(track.locale==='ja'?'sawtooth':'triangle',hz(chord[i]),t+(track.locale==='ja'?i*.009:0),step*1.6,g*(track.locale==='ja'?.018:.025),musicBus,{lp:track.locale==='ja'?1600:2400});
+    const step=60/track.bpm/4,pos=beat%track.steps,chord=track.chords[bar%track.chords.length];
+    const lift=(bar>=12&&bar<20)||bar>=24,quiet=bar>=20&&bar<24,soft=state==='title';
+    const tail=bar===SONG_BARS-1&&pos>=track.steps/2?Math.max(.25,1-(pos-track.steps/2)/track.steps):1;
+    const g=(soft?.76:1)*(quiet?.68:1)*tail,n=track.hook[bar%track.hook.length][pos];
+    if(track.locale==='zh'){
+      // Pentatonic dizi phrases float above a plucked zheng; the percussion only marks the phrase.
+      if(pos===0){bass(chord[0],t,step*11,g*.075);if(bar%4===0)drum(t,g*.13)}
+      if([0,3,6,10,12].includes(pos))zheng(chord[1+(pos===10?2:pos===6?1:0)]+12,t,g*(lift?.075:.055));
+      if(pos===8&&lift)rim(t,g*.035);
+      if(n>=0&&(!quiet||pos%4===0))dizi(n,t,step*(pos===0||pos===8?3.4:2.2),g*(lift?.16:.13));
+    }else if(track.locale==='ja'){
+      // Matsuri call-and-response: short shamisen attacks, taiko downbeats and a fue answer.
+      if(pos===0||pos===8)drum(t,g*(pos===0?.29:.21));
+      if(pos===6||pos===14)rim(t,g*.08);
+      if(pos===4||pos===12)bass(chord[0]+12,t,step*1.3,g*.08);
+      if([0,4,8,12].includes(pos))shamisen(chord[1+(pos/4)%3]+12,t,g*.055);
+      if(n>=0&&(!quiet||pos%4===0))shamisen(n,t,g*(lift?.16:.12));
+      if((pos===12||pos===14)&&bar%2===1)fue(n>=0?n+12:chord[3]+12,t,step*2,g*.055);
+    }else if(track.locale==='ko'){
+      // Four-on-the-floor, offbeat hats, syncopated sub-bass and bright chord stabs.
+      if([0,4,8,12].includes(pos)&&(!quiet||pos===0))kick(t,g*.38);
+      if((pos===4||pos===12)&&!quiet)clap(t,g*.13);
+      if(pos%2===0&&!quiet)hat(t,pos===14&&lift,g*.028);
+      if([0,3,7,8,11,14].includes(pos))bass(chord[0]+(pos===14?12:0),t,step*1.4,g*.18);
+      if(lift&&[2,6,10,14].includes(pos))for(const m of chord.slice(1))danceLead(m+12,t,step*1.1,g*.036);
+      if(n>=0&&(!quiet||pos%4===0))danceLead(n,t,step*1.5,g*(lift?.15:.12));
+    }else{
+      // Western 3/4 waltz: cello on beat one, string chords on two and three, horn over the top.
+      if(pos===0){bass(chord[0],t,step*5,g*.14);if(lift)drum(t,g*.16)}
+      if(pos===4||pos===8)for(const m of chord.slice(1))strings(m,t,step*4,g*.048);
+      if(pos===0&&bar%2===0)strings(chord[1],t,step*10,g*.055);
+      if(n>=0&&(!quiet||pos===0))horn(n,t,step*(pos===0?4.5:3.5),g*(lift?.14:.11));
     }
-    if(track.arp.includes(pos)&&!bridge)lead(chord[1+(pos>>1)%3]+12,t,step*.9,g*.04,track.locale==='ja'?'piano':track.voice);
-    if(melody>=0&&(!bridge||pos%4===0)){
-      // Verse and bridge use a lower register; chorus lifts into the full hook.
-      const n=melody-(!chorus&&!intro?12:0);
-      lead(n,t,step*(track.locale==='zh'?2.7:1.85),g*(chorus?.16:.13),track.voice);
-      if(chorus&&(busy||track.locale==='ja'))lead(n-12,t,step*1.5,g*.045,track.voice);
-    }
-    if(pos>=14&&(bar%8===7)&&!bridge&&!soft)clap(t,g*.075);
     if(state==='win'&&pos===0)bell(hz(chord[3]+12),t,.08,musicBus);
-    beat++;if(beat%16===0)bar++;return step;
+    beat++;if(beat%track.steps===0)bar++;return step;
   }
   function schedule(){
     if(!ac||ac.state!=='running'||state==='off')return;
@@ -192,7 +191,7 @@ const SFX=(()=>{
     }
     if(started)return;started=true;nextBeat=now()+.05;beginTrack(nextBeat);setInterval(schedule,50);
   }
-  const trackInfo=t=>({id:t.id,locale:t.locale,title:t.title,style:t.style,bpm:t.bpm,duration:SONG_BARS*4*60/t.bpm});
+  const trackInfo=t=>({id:t.id,locale:t.locale,title:t.title,style:t.style,bpm:t.bpm,duration:SONG_BARS*t.steps*60/t.bpm/4});
   const rl=(ms)=>{const t=performance.now();if(t-lastHit<ms)return false;lastHit=t;return true};
   const fx={
     start,setState,
