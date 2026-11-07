@@ -18,6 +18,9 @@ try{
   r=await proxyFirebase(new Request(base+'firestore/v1/projects/spell-legion/databases/(default)/documents:runQuery',{method:'OPTIONS',headers:{Origin:'https://hyang.org','Access-Control-Request-Method':'POST','Access-Control-Request-Headers':'content-type'}}));
   assert.equal(r.status,204);
   assert.equal(r.headers.get('Access-Control-Allow-Origin'),'https://hyang.org');
+  r=await proxyFirebase(new Request(base+'auth/v1/accounts:signUp?key=AIzaSyDeI9V8qBVB2B1lqZP5BaedYhaToHfs6Z8',{method:'OPTIONS',headers:{Origin:'https://hyang.org','Access-Control-Request-Method':'POST','Access-Control-Request-Headers':'content-type,x-goog-api-client'}}));
+  assert.equal(r.status,204);
+  assert.equal(r.headers.get('Access-Control-Allow-Headers'),'content-type,x-goog-api-client');
   assert.equal((await proxyFirebase(new Request(base+'firestore/google.firestore.v1.Firestore/Listen/channel?database=projects%2Fanother%2Fdatabases%2F(default)'))).status,403);
   assert.equal((await proxyFirebase(new Request(base+'firestore/google.firestore.v1.Firestore/Listen/channel?database=projects%2Fspell-legion%2Fdatabases%2F(default)'))).status,200);
   r=await proxyFirebase(new Request(base+'auth/v1/accounts:signInWithPassword?key=AIzaSyDeI9V8qBVB2B1lqZP5BaedYhaToHfs6Z8',{method:'POST',body:'{"email":"test@example.com"}',headers:{Origin:'https://spelllegion.com',Cookie:'x=1','Content-Type':'application/json'}}));

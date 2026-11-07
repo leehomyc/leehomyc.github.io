@@ -12,7 +12,7 @@ function setup(){
  const db={collection:collection=>({doc:uid=>({get:async()=>({exists:false}),set:async data=>{writes.push({collection,uid,data:JSON.parse(JSON.stringify(data))})}})})};
  const fbAuth=()=>auth;fbAuth.GoogleAuthProvider=function(){};fbAuth.FacebookAuthProvider=function(){};fbAuth.EmailAuthProvider={credential:(email,password)=>({email,password})};
  const firestore=()=>db;firestore.FieldValue={serverTimestamp:()=>123};
- const c=vm.createContext({console:{warn(){}},Promise,Set,Map,Date,JSON,localStorage:{getItem(){return null}},location:{hostname:'hyang.org'},document:{querySelectorAll:()=>[],querySelector:()=>({hidden:true})},$:(s)=>s==='#emailform'?form:s==='#emailform .em'?email:null,L:(zh,en)=>en,LOC:'en',SAVE:{gold:0,ts:1,runs:0},LB:{name:()=> 'Player'},firebase:{auth:fbAuth,firestore},setTimeout,clearTimeout,persist(){},addEventListener(){}});
+ const c=vm.createContext({console:{warn(){}},window:{},Promise,Set,Map,Date,JSON,localStorage:{getItem(){return null}},location:{hostname:'hyang.org'},document:{querySelectorAll:()=>[],querySelector:()=>({hidden:true})},$:(s)=>s==='#emailform'?form:s==='#emailform .em'?email:null,L:(zh,en)=>en,LOC:'en',SAVE:{gold:0,ts:1,runs:0},LB:{name:()=> 'Player'},firebase:{auth:fbAuth,firestore},setTimeout,clearTimeout,persist(){},addEventListener(){}});
  vm.runInContext(source,c);const cloud=vm.runInContext('CLOUD',c);Object.assign(cloud,{ready:true,initializing:false,user,auth,db,syncedUid:user.uid});
  c.renderAccount=()=>{};c.showMsg=m=>messages.push(m);
  return {c,cloud,auth,user,db,writes,messages,email,password};

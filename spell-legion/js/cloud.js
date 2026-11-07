@@ -18,10 +18,12 @@ function loadScript(src){return new Promise((res,rej)=>{const s=document.createE
 async function cloudInit(){
   CLOUD.status='loading';renderAccount();
   try{
-    const base=`https://www.gstatic.com/firebasejs/${FB_VER}/`;
+    if(window.SPELL_CONNECTION_READY)await window.SPELL_CONNECTION_READY;
+    const base=window.SPELL_CN_PROXY?`${window.SPELL_CN_PROXY_BASE}/sdk/firebasejs/${FB_VER}/`:`https://www.gstatic.com/firebasejs/${FB_VER}/`;
     await Promise.race([Promise.all([loadScript(base+'firebase-app-compat.js')]).then(()=>Promise.all([loadScript(base+'firebase-auth-compat.js'),loadScript(base+'firebase-firestore-compat.js')])),new Promise((_,rej)=>setTimeout(()=>rej(new Error('timeout')),12000))]);
     firebase.initializeApp(FIREBASE_CONFIG);
     CLOUD.auth=firebase.auth();CLOUD.db=firebase.firestore();
+    if(window.SPELL_CN_PROXY)CLOUD.db.settings({experimentalForceLongPolling:true});
     try{await CLOUD.auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)}catch(_){}
     CLOUD.ready=true;CLOUD.status='ready';
     CLOUD.auth.onAuthStateChanged(u=>{cloudAuthChanged(u).catch(e=>console.warn('auth state failed',e))});
@@ -85,7 +87,7 @@ async function cloudAuthChanged(user){
   clearTimeout(CLOUD.pushT);CLOUD.epoch++;CLOUD.user=user;CLOUD.syncedUid=null;CLOUD.pullTask=null;CLOUD.writeTask=Promise.resolve();CLOUD.lastPushed='';CLOUD.syncErr='';
   CLOUD.initializing=!user;renderAccount();
   if(!user){
-    try{const r=await CLOUD.auth.signInAnonymously();if(CLOUD.auth.currentUser?.uid===r.user.uid)return await cloudAuthChanged(r.user)}
+    try{const r=await (window.SPELL_CN_PROXY?Promise.race([CLOUD.auth.signInAnonymously(),new Promise((_,reject)=>setTimeout(()=>reject(new Error('auth/network-request-failed')),12000))]):CLOUD.auth.signInAnonymously());if(CLOUD.auth.currentUser?.uid===r.user.uid)return await cloudAuthChanged(r.user)}
     catch(e){console.warn('anon sign-in failed',e);CLOUD.status='noauth';CLOUD.initializing=false;renderAccount()}
     return false;
   }
@@ -219,6 +221,7 @@ function renderAccount(){
   const eb=$('#emailbtn');if(eb)eb.onclick=()=>{CLOUD.emailOpen=!CLOUD.emailOpen;renderAccount();if(CLOUD.emailOpen){const i=$('#emailform .em');if(i)i.focus()}};
   const f=$('#emailform');if(f){f.querySelector('.pw').value=oldPassword;f.querySelector('.pw').type=oldType;f.querySelector('.em').oninput=e=>{CLOUD.emailDraft=e.target.value};f.querySelectorAll('[data-k]').forEach(b=>b.onclick=()=>cloudEmail(b.dataset.k));f.querySelector('.pw').onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();cloudEmail('signin')}};const eye=f.querySelector('.eye');if(eye)eye.onclick=()=>{const pw=f.querySelector('.pw');pw.type=pw.type==='password'?'text':'password'}}
   syncAuthButtons();
+  if(!CLOUD.ready&&!CLOUD.initializing){const retry=document.createElement('button');retry.type='button';retry.className='go sm alt';retry.textContent=L('重试连接','Retry connection');retry.onclick=()=>location.reload();el.appendChild(retry)}
 }
 /* ---- leaderboard on Firestore ----
    runs/{auto}            every posted personal best (all-time board)
@@ -230,6 +233,7 @@ const CLB={
   noAv:(()=>{try{return localStorage.getItem('sl_lb_noav')==='1'}catch(_){return false}})(),
   // These collections are public. Reading must not wait for Auth or the Firebase SDK.
   async query(parent,structuredQuery){
+    if(window.SPELL_CONNECTION_READY)await window.SPELL_CONNECTION_READY;
     const path=`/v1/projects/${FIREBASE_CONFIG.projectId}/databases/(default)/documents${parent?'/'+parent:''}:runQuery`;
     const direct=`https://firestore.googleapis.com${path}`;
     const proxyOrigin=['spelllegion.com','spell-legion.pages.dev','127.0.0.1'].includes(location.hostname)?location.origin:'https://spelllegion.com';

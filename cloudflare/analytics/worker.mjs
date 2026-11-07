@@ -85,7 +85,11 @@ async function dashboard(request,env,claims){
 }
 async function handle(request,env){
  const url=new URL(request.url);
- if(url.pathname==='/api/connection-region')return new Response(JSON.stringify({cn:request.cf?.country==='CN'||(url.hostname==='127.0.0.1'&&url.searchParams.get('country')==='CN')}),{headers:{'Content-Type':'application/json','Cache-Control':'no-store'}});
+ if(url.pathname==='/api/connection-region'){
+  const origin=request.headers.get('Origin'),headers=new Headers({'Content-Type':'application/json','Cache-Control':'no-store'});
+  if(ORIGINS.has(origin)||(url.hostname==='127.0.0.1'&&origin==='http://127.0.0.1:18090')){headers.set('Access-Control-Allow-Origin',origin);headers.set('Vary','Origin')}
+  return new Response(JSON.stringify({cn:request.cf?.country==='CN'||(url.hostname==='127.0.0.1'&&url.searchParams.get('country')==='CN')}),{headers});
+ }
  if(url.pathname.startsWith('/api/cn-proxy/'))return proxyFirebase(request);
  if(!url.pathname.startsWith('/api/analytics/'))return env.ASSETS.fetch(request);
  try{

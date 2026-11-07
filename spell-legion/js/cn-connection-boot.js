@@ -3,12 +3,16 @@
 // Firebase network destinations; no service worker activation is required.
 window.SPELL_CN_PROXY=false;
 window.SPELL_CONNECTION_READY=(async()=>{
+  const legacy=['hyang.org','leehomyc.github.io'].includes(location.hostname);
+  const crossLocal=location.hostname==='127.0.0.1'&&location.port==='18090';
+  const proxyOrigin=legacy?'https://spelllegion.com':crossLocal?'http://127.0.0.1:18089':location.origin;
   const localTest=location.hostname==='127.0.0.1'&&new URLSearchParams(location.search).get('testCountry')==='CN';
+  window.SPELL_CN_PROXY_BASE=`${proxyOrigin}/api/cn-proxy`;
   let cn=false;
   try{
     const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),5000);
     try{
-      const response=await fetch('/api/connection-region'+(localTest?'?country=CN':''),{cache:'no-store',signal:controller.signal});
+      const response=await fetch(`${proxyOrigin}/api/connection-region`+(localTest?'?country=CN':''),{cache:'no-store',signal:controller.signal});
       cn=response.ok&&(await response.json()).cn===true;
     }finally{clearTimeout(timer)}
   }catch(_){/* Keep the existing direct path if the region lookup is unavailable. */}
@@ -27,7 +31,7 @@ window.SPELL_CONNECTION_READY=(async()=>{
   };
   const rewrite=input=>{
     const url=new URL(input,location.href),route=hosts[url.hostname];
-    return route?`/api/cn-proxy/${route}${url.pathname}${url.search}`:input;
+    return route?`${window.SPELL_CN_PROXY_BASE}/${route}${url.pathname}${url.search}`:input;
   };
   const nativeFetch=window.fetch;
   window.fetch=function(input,init){
