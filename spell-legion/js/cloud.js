@@ -41,7 +41,7 @@ function mergeSave(local,cloud){
   if(typeof migrateProgression==='function'){migrateProgression(local);if(cloud)migrateProgression(cloud)}
   if(!cloud)return local;
   const clone=o=>JSON.parse(JSON.stringify(o));
-  const progressed=o=>!!(o.runs||o.axp||o.gold||o.trophies||o.gear?.inv?.length||Object.values(o.up||{}).some(Boolean)||Object.values(o.mer||{}).some(Boolean)||o.asura?.max);
+  const progressed=o=>!!(o.runs||o.axp||o.gold||o.trophies||o.gear?.inv?.length||Object.values(o.up||{}).some(Boolean)||Object.values(o.training||{}).some(Boolean)||Object.values(o.mer||{}).some(Boolean)||o.asura?.max);
   const newer=progressed(cloud)&&!progressed(local)?cloud:progressed(local)&&!progressed(cloud)?local:(+cloud.ts||0)>(+local.ts||0)?cloud:local;
   const older=newer===local?cloud:local,out=clone({...older,...newer});
   const maxMap=(a={},b={})=>Object.fromEntries([...new Set([...Object.keys(a),...Object.keys(b)])].map(k=>[k,Math.max(+a[k]||0,+b[k]||0)]));
