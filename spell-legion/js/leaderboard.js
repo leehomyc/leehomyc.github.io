@@ -4,7 +4,7 @@ const LEADERBOARD_URL='';   // paste the deployed web-app URL here; the board st
 const LB={
   token(){let t=null;try{t=localStorage.getItem('sl_token');if(!t){t=Array.from(crypto.getRandomValues(new Uint8Array(12)),b=>b.toString(16).padStart(2,'0')).join('');localStorage.setItem('sl_token',t)}}catch(_){t=t||'anon'}return t},
   name(){let n=(typeof SAVE!=='undefined'&&SAVE.name)||'';if(!n)try{n=localStorage.getItem('sl_name')||''}catch(_){}if(!n&&typeof CLOUD!=='undefined'&&CLOUD.user&&!CLOUD.user.isAnonymous&&CLOUD.user.displayName)n=CLOUD.user.displayName.slice(0,16);return n},
-  setName(n){n=String(n||'').trim().slice(0,12);if(!n)return;if(typeof SAVE!=='undefined'){SAVE.name=n;persist()}try{localStorage.setItem('sl_name',n)}catch(_){}},
+  setName(n){n=String(n||'').trim().slice(0,12);if(!n)return;if(typeof SAVE!=='undefined'){SAVE.name=n;SAVE.nameSet=true;persist()}try{localStorage.setItem('sl_name',n)}catch(_){}},
   cloud(){return typeof CLOUD!=='undefined'&&CLOUD.on()},
   enabled(){return this.cloud()||!!LEADERBOARD_URL},
   async fetch(board,filters={}){

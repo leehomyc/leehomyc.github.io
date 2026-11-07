@@ -12,10 +12,17 @@ function roadBits(){const a=accountLv(),t=titleFor(a.lv),tr=SAVE.trophies||0,lad
 function tierPips(max,sel,total){let s='';for(let i=1;i<=total;i++)s+=`<i class="${i<=max?'on':''}${i===sel?' sel':''}" title="${L(`修罗 ${i} 层`,`Tier ${i}`)}${i<=max?'':L(' · 未解锁',' · locked')}"></i>`;return s}
 /* compact strip on the menu */
 function renderProg(){const el=$('#prog');if(!el)return;const b=roadBits();const xpPct=Math.round(100*(b.a.x||0)/Math.max(1,b.a.need||1));const name=(typeof LB!=='undefined'&&LB.name())||SAVE.name||'';
-  el.innerHTML=`<div class="pr id">${ICON.cls(SAVE.cls)}<button type="button" class="nm" id="namebtn" title="${L('点击改名','Tap to rename')}"><b>${esc(name)}</b><i class="pen">✎</i></button></div>
+  el.innerHTML=`<div class="pr id"><button type="button" class="avb" id="avbtn" title="${L('换头像','Change avatar')}">${avatarHTML(SAVE.avatar)}</button><button type="button" class="nm" id="namebtn" title="${L('点击改名','Tap to rename')}"><b>${esc(name)}</b><i class="pen">✎</i></button></div>
     <button type="button" class="pr lv" data-t="road" title="${L('江湖等级:每局都涨,升级得金币','Renown: every run adds XP, each level pays gold')}">${ICON.misc('crown','#ffe9a0')}<div><b>Lv ${b.a.lv}</b><span class="bar"><i style="width:${xpPct}%"></i></span></div></button>
     <button type="button" class="pr gold" data-t="road" title="${L('金币:在江湖页修炼属性','Gold: train permanent stats on the Journey tab')}">${ICON.misc('gold','#ffd27a')}<b>${SAVE.gold}</b></button>`;
   el.querySelectorAll('.pr[data-t]').forEach(x=>x.onclick=()=>{showTab('road');SFX.pick(1);const p=$('#road');if(p&&p.scrollIntoView)try{p.scrollIntoView({block:'start',behavior:'smooth'})}catch(_){}});
+  const ab=$('#avbtn');if(ab)ab.onclick=e=>{e.stopPropagation();let pop=$('#avpop');if(pop){pop.remove();return}pop=document.createElement('div');pop.id='avpop';
+    pop.innerHTML=`<div class="avg">${AVATARS.map((x,i)=>`<button type="button" data-i="${i}" class="${(SAVE.avatar||{}).e===i?'on':''}">${avatarHTML({e:i,h:(SAVE.avatar||{}).h||30})}</button>`).join('')}</div><div class="avr"><button type="button" class="go alt sm" id="avhue">🎨 ${L('换颜色','Colour')}</button><button type="button" class="go alt sm" id="avname">🎲 ${L('随机名字','Random name')}</button></div>`;
+    el.appendChild(pop);const save=()=>{persist();if(typeof cloudSchedulePush==='function')cloudSchedulePush();renderProg()};
+    pop.querySelectorAll('[data-i]').forEach(b=>b.onclick=()=>{SAVE.avatar={...(SAVE.avatar||{}),e:+b.dataset.i};SFX.pick(1);save()});
+    $('#avhue').onclick=()=>{SAVE.avatar={...(SAVE.avatar||{e:0}),h:Math.floor(Math.random()*360)};SFX.pick(1);save();$('#avbtn').click()};
+    $('#avname').onclick=()=>{SAVE.name=randomName();SAVE.nameSet=false;try{localStorage.setItem('sl_name',SAVE.name)}catch(_){}SFX.pick(1);save();$('#avbtn').click()};
+    setTimeout(()=>document.addEventListener('click',function off(ev){const p=$('#avpop');if(p&&!p.contains(ev.target)){p.remove()}document.removeEventListener('click',off)}),0)};
   const nb=$('#namebtn');if(nb)nb.onclick=()=>{const cur=LB.name();const inp=document.createElement('input');inp.className='nmedit';inp.maxLength=12;inp.value=cur;inp.setAttribute('aria-label',L('侠名','Hero name'));nb.replaceWith(inp);inp.focus();inp.select();
     let done=false;const fin=ok=>{if(done)return;done=true;const v=inp.value.trim().slice(0,12);if(ok&&v&&v!==cur){LB.setName(v);SFX.complete();if(typeof cloudSchedulePush==='function')cloudSchedulePush()}renderProg()};
     inp.onkeydown=e=>{if(e.key==='Enter')fin(true);else if(e.key==='Escape')fin(false)};inp.onblur=()=>fin(true)}}

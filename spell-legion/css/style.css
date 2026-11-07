@@ -871,3 +871,23 @@ body.touchhud #pause .pbox>p{display:none}
 
 #trees .tgrp{display:block;margin:8px 0 3px;font-size:11px;color:var(--dim);font-weight:700}#trees .node.num{opacity:.85}#trees .node.num .nr{color:var(--dim)}
 .tree.compact .tn small{display:block;font-size:10.5px;color:var(--dim);font-weight:400}
+
+/* 江湖 / 成就 / 设置 open as their own screen; the menu keeps only the three buttons */
+#menu .lobby{display:none;position:fixed;inset:0;z-index:60;overflow-y:auto;-webkit-overflow-scrolling:touch;background:radial-gradient(120% 80% at 50% 0%,#2a1822 0%,#171019 70%);padding:0 max(16px,env(safe-area-inset-left)) calc(24px + env(safe-area-inset-bottom));border:0}
+#menu .lobby.open{display:block;animation:lobbyin .18s ease-out}
+@keyframes lobbyin{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+#menu .lobby>.panel,#menu .lobby>.lhead{max-width:760px;margin-left:auto;margin-right:auto}
+#menu .lobby .lhead{position:sticky;top:0;z-index:2;display:flex;align-items:center;gap:12px;padding:calc(12px + env(safe-area-inset-top)) 0 10px;background:linear-gradient(#211520 75%,#21152000)}
+#menu .lobby .lhead h2{margin:0;font:800 20px var(--cute);color:var(--cream);letter-spacing:.04em;text-transform:none}
+#menu .lobby .lhead .back{flex:none}
+#menu .tabbar{justify-content:center;border-bottom:none}
+#menu .tabbar button.on{background:#ffffff0a;border-color:#ffffff14;color:var(--dim)}
+#menu .lobby .lhead .back{background:#ffffff0a;border:2px solid #ffffff1f;color:var(--bone);font:800 14px var(--cute);padding:8px 14px;border-radius:999px;cursor:pointer}
+
+/* avatars: a cute critter on a coloured coin */
+.av{display:inline-grid;place-items:center;width:34px;height:34px;border-radius:50%;font-size:20px;line-height:1;background:radial-gradient(circle at 35% 30%,hsl(var(--h) 85% 72%),hsl(var(--h) 60% 42%));box-shadow:inset 0 -3px 0 #0003,0 0 0 2px #fff3;flex:none}
+#prog .avb{background:none;border:0;padding:0;cursor:pointer;flex:none;border-radius:50%}#prog .avb:hover .av{transform:scale(1.08)}#prog .av{transition:transform .12s}
+#prog{position:relative}#avpop{position:absolute;left:0;top:calc(100% + 6px);z-index:30;width:min(340px,calc(100vw - 32px));padding:10px;border-radius:18px;background:#211520;border:2px solid #ffffff1f;box-shadow:0 10px 30px #000a}
+#avpop .avg{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}#avpop .avg button{background:none;border:2px solid transparent;border-radius:50%;padding:2px;cursor:pointer;justify-self:center}#avpop .avg button.on{border-color:var(--brass)}
+#avpop .avr{display:flex;gap:6px;margin-top:8px}#avpop .avr .go{flex:1}
+#roompanel .ic-w .av{width:26px;height:26px;font-size:15px}

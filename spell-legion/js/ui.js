@@ -7,11 +7,14 @@ SAVE.ach=SAVE.ach||{};SAVE.clsWins=SAVE.clsWins||{};SAVE.weapon=SAVE.weapon||{};
 /* a save written by an older build (or synced from another device) may name a retired mode, class or difficulty; fold it back onto what the menu offers */
 function normalizeSave(){const MODES=['solo','room','daily'];if(!MODES.includes(SAVE.mode))SAVE.mode='solo';if(typeof CLASSES!=='undefined'&&!CLASSES[SAVE.cls])SAVE.cls='swordsman';if(typeof DIFF!=='undefined'&&!DIFF[SAVE.diff])SAVE.diff='normal';if(SAVE.asura&&typeof ASURA!=='undefined'){SAVE.asura.max=Math.min(SAVE.asura.max||0,ASURA.length);SAVE.asura.sel=Math.min(SAVE.asura.sel||0,SAVE.asura.max)}}
 normalizeSave();
-/* a random wuxia name so nobody plays as "Nameless"; the player can change it any time, and it travels with the save (so with the account) */
-const NAME_A=['醉','孤','寒','清','白','青','墨','风','云','雪','紫','赤','玄','疏','轻','静','苍','素','夜','明'],NAME_B=['剑','鹤','狐','月','山','舟','笛','竹','刀','影','鸦','狼','松','泉','烟','叶','霜','星','琴','莲'],NAME_C=['客','生','子','翁','君','郎','娘','仙','叟','人'];
-const NAME_EA=['Silent','Drunken','Lone','Pale','Jade','Iron','Misty','Swift','Night','Frost','Ember','Quiet','Wild','Moon','Storm','Ash','Golden','Crane','Plum','Pine'],NAME_EB=['Crane','Fox','Blade','Lantern','River','Willow','Tiger','Sparrow','Moth','Wolf','Lotus','Heron','Shadow','Fern','Comet','Petal','Hawk','Reed','Ox','Koi'];
-function randomName(){const r=a=>a[Math.floor(Math.random()*a.length)];return LANG==='zh'?r(NAME_A)+r(NAME_B)+(Math.random()<.5?r(NAME_C):''):r(NAME_EA)+' '+r(NAME_EB)}
-(()=>{let n=SAVE.name||'';if(!n)try{n=localStorage.getItem('sl_name')||''}catch(_){}if(!n)n=randomName();SAVE.name=n.slice(0,12);try{localStorage.setItem('sl_name',SAVE.name)}catch(_){}})();
+/* a random anime-style name and avatar so nobody starts as "Nameless"; tap either to change; both travel with the save (so with the account) */
+const NAME_ZA=['星','月','夜','雪','樱','风','雷','炎','霜','影','绯','苍','白','黑','紫','空','雾','焰','光','桃'],NAME_ZM=['野','宫','原','见','乃','川','森','濑','花','咲'],NAME_ZB=['凛','葵','斗','羽','音','叶','真','琉','翔','奈','空','零','七','瞳','岚','由','希','遥','千','夏'],NAME_ZS=['酱','君','丸','姬','之刃','猫','狐','兔','喵','大人'];
+const NAME_E1=['Kira','Ren','Yuki','Sora','Hikari','Aoi','Rin','Kaito','Mika','Haru','Nova','Zero','Luna','Kuro','Shiro','Akane','Raiden','Momo','Kaze','Nyx','Hana','Tora','Suzu','Riku'],NAME_E2=['-chan','-kun','','',' Blade',' Fox',' Star',' Spark',' Moon',' Storm'];
+function randomName(){const r=a=>a[Math.floor(Math.random()*a.length)];if(LANG==='zh'){const k=Math.random();return k<.45?r(NAME_ZA)+r(NAME_ZM)+r(NAME_ZB):k<.8?r(NAME_ZA)+r(NAME_ZB)+r(NAME_ZS):r(NAME_ZB)+r(NAME_ZB)+r(NAME_ZS)}return (r(NAME_E1)+r(NAME_E2)).slice(0,12)}
+const AVATARS=['🐱','🦊','🐼','🐰','🐯','🐸','🐲','🦉','🐺','🐧','🐨','🐵','🦁','🐻','🐹','🦄','🐙','🐤','🦝','🐮'];
+function randomAvatar(){return {e:Math.floor(Math.random()*AVATARS.length),h:Math.floor(Math.random()*360)}}
+function avatarHTML(a,cls){a=a||{e:0,h:30};return `<span class="av${cls?' '+cls:''}" style="--h:${a.h|0}">${AVATARS[a.e%AVATARS.length]||AVATARS[0]}</span>`}
+(()=>{if(SAVE.nameV!==2){if(!SAVE.nameSet)SAVE.name=randomName();SAVE.nameV=2}let n=SAVE.name||'';if(!n)n=randomName();SAVE.name=n.slice(0,12);if(!SAVE.avatar)SAVE.avatar=randomAvatar();try{localStorage.setItem('sl_name',SAVE.name)}catch(_){}})();
 function persist(quiet){if(!quiet)SAVE.ts=Date.now();try{localStorage.setItem(SAVE_KEY,JSON.stringify(SAVE))}catch(_){}if(!quiet&&typeof cloudSchedulePush==='function')cloudSchedulePush()}
 const UPGRADES=[
   {id:'hp',zh:'体魄',en:'Vigor',d:'生命上限 +10% / 级',de:'+10% max HP per rank',max:5,cost:r=>80+r*r*60+r*60},
@@ -376,9 +379,11 @@ document.querySelectorAll('.langbtn').forEach(b=>{b.classList.toggle('on',b.data
 
 /* lobby tabs: one panel at a time, remembered */
 let lobbyTab=(()=>{try{return localStorage.getItem('sl_tab')||''}catch(_){return ''}})();
-function showTab(t){lobbyTab=t;try{localStorage.setItem('sl_tab',t)}catch(_){}document.querySelectorAll('.tabbar button[data-t]').forEach(b=>b.classList.toggle('on',b.dataset.t===t));document.querySelectorAll('.lobby .panel').forEach(p=>p.classList.toggle('on',p.dataset.p===t||(t==='ach'&&(p.dataset.p==='tasks'||p.dataset.p==='codex'))));if(t==='road'&&typeof renderRoad==='function')renderRoad()}
+function showTab(t){lobbyTab=t;const lb=document.querySelector('#menu .lobby');if(lb){lb.classList.toggle('open',!!t);if(t){lb.scrollTop=0;const ti=$('#lobbytitle');if(ti)ti.textContent=t==='road'?L('江湖','Journey'):t==='ach'?L('成就','Achievements'):L('设置','Settings')}}document.querySelectorAll('.tabbar button[data-t]').forEach(b=>b.classList.toggle('on',b.dataset.t===t));document.querySelectorAll('.lobby .panel').forEach(p=>p.classList.toggle('on',p.dataset.p===t||(t==='ach'&&(p.dataset.p==='tasks'||p.dataset.p==='codex'))));if(t==='road'&&typeof renderRoad==='function')renderRoad()}
 document.querySelectorAll('.tabbar button[data-t]').forEach(b=>b.onclick=()=>{showTab(lobbyTab===b.dataset.t?'':b.dataset.t);SFX.pick(1)});
-if(lobbyTab==='shop'||lobbyTab==='tasks'||lobbyTab==='codex')lobbyTab='';showTab(lobbyTab);
+lobbyTab='';showTab('');
+{const lbk=$('#lobbyback');if(lbk)lbk.onclick=()=>{showTab('');SFX.pick(1)}}
+addEventListener('keydown',e=>{if(e.key==='Escape'&&lobbyTab&&!$('#menu').hidden){showTab('');e.stopPropagation()}},true);
 function runSummaryX(){}
 function runSummary(){const C=CLASSES[SAVE.cls]||CLASSES.swordsman;const tsel=(SAVE.mode==='solo'||SAVE.mode==='rush')?Math.min(SAVE.asura.sel||0,SAVE.asura.max||0):0;return `${LL(C)} · ${LL(SPELLS[weaponOf(SAVE.cls)])} · ${SAVE.mode==='pk'?L('对决','PK'):SAVE.mode==='qpk'?L('打 AI 对手 3′','vs AI 3′'):SAVE.mode==='daily'?L('每日','Daily'):SAVE.mode==='rush'?L('首领连战','Boss rush'):SAVE.mode==='room'?L('多人房间','Room'):L('单人','Solo')} · ${LL(DIFF[SAVE.mode==='daily'?'normal':(SAVE.diff||'normal')])}${tsel?` · ${L('修罗','Asc.')} ${tsel}`:''} · ${LL(MAPS[MAPID])}`}
 function renderStatus(){const sb=$('#stickystart');if(sb)sb.querySelector('small').textContent=runSummary();const rs=$('#runsummary');if(rs)rs.textContent=runSummary();

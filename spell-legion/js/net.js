@@ -69,7 +69,7 @@ async function roomJoinNow(code,isNew){
   if(data.map&&MAPS[data.map]&&data.map!==MAPID){roomLeave(true);try{localStorage.setItem('sl_map',data.map);sessionStorage.setItem('sl_rejoin',code)}catch(_){}location.reload();return}
   roomLeave(true);ROOM.T=T;
   ROOM.code=code;ROOM.data=data;ROOM.host=data.host===uid;ROOM.joinedAt=Date.now();ROOM.playing=false;ROOM.ended=false;ROOM.results=null;ROOM.evSeen=new Set();ROOM.lastSeen={};
-  await T.setPlayer(code,uid,{name:roomName(),cls:SAVE.cls,weapon:weaponOf(SAVE.cls),ready:ROOM.host,score:0,hp:1,lv:1,kills:0,alive:true,done:false,t:0,joined:Date.now(),lvA:(typeof accountLv==='function'?accountLv().lv:1)});
+  await T.setPlayer(code,uid,{name:roomName(),av:SAVE.avatar||null,cls:SAVE.cls,weapon:weaponOf(SAVE.cls),ready:ROOM.host,score:0,hp:1,lv:1,kills:0,alive:true,done:false,t:0,joined:Date.now(),lvA:(typeof accountLv==='function'?accountLv().lv:1)});
   ROOM.unsub=T.subscribe(code,{room:roomOnRoom,players:roomOnPlayers,event:roomOnEvent});
   try{sessionStorage.setItem('sl_rejoin',code)}catch(_){}
   SAVE.mode='room';persist();if(typeof renderTitle==='function')renderTitle();
@@ -83,7 +83,7 @@ function roomLeave(silent){
   if(!silent&&typeof renderRoom==='function')renderRoom();
 }
 function roomSetMe(patch){if(!ROOM.code)return;return netT().setPlayer(ROOM.code,roomUid(),patch)}
-function roomSetReady(v){roomSetMe({ready:!!v,cls:SAVE.cls,weapon:weaponOf(SAVE.cls),name:roomName()})}
+function roomSetReady(v){roomSetMe({ready:!!v,cls:SAVE.cls,weapon:weaponOf(SAVE.cls),name:roomName(),av:SAVE.avatar||null})}
 async function roomHostSet(patch){if(!ROOM.code||!ROOM.host)return;await netT().setRoom(ROOM.code,patch)}
 /* AI seats live in the room document (the host owns it), not in players/: the server only lets a player write their own player doc */
 function roomAIMap(){return (ROOM.data&&ROOM.data.ai)||{}}
