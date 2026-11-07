@@ -166,7 +166,6 @@ kbd{font:700 13px var(--ui);border:1px solid var(--dim);padding:0 5px;border-rad
 #score.lead{border-color:#6fd3e8aa}
 #s-bar{width:120px;height:6px;border-radius:3px;background:#ff9c5a;overflow:hidden}
 #s-bar i{display:block;height:100%;background:#6fd3e8}
-.duel{margin:0;color:#ff9c5a;font-weight:800}
 .cmp{display:grid;gap:4px;font-size:13px;font-variant-numeric:tabular-nums;border-top:1px solid #6b523066;padding-top:8px}
 .cmp .hd,.cmp .r{display:grid;grid-template-columns:minmax(0,1fr) 90px 150px;gap:8px;align-items:baseline}
 .cmp .hd b{color:var(--brass)}.cmp .hd small{color:var(--dim);font-weight:400}

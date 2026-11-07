@@ -2,10 +2,11 @@
 /* ext.js — hook registry for the systems layered on top of the core sim (gear, build, world, social).
    sim.js / render.js / ui.js call onHitX / onKillX / onHurtX / extTick / extRender / cardDecor once each;
    every extension registers handlers here instead of editing the core files. */
-const XH={hit:[],kill:[],hurt:[],tick:[],render:[],start:[],end:[],card:[],fire:[],cast:[]};
+const XH={hit:[],damage:[],kill:[],hurt:[],tick:[],render:[],start:[],end:[],card:[],fire:[],cast:[]};
 const xOn=(k,f)=>XH[k].push(f);
 /* player-side damage multiplier and side effects on every hit the player deals */
 function onHitX(e,m,s,crit,noEl){for(const f of XH.hit){const r=f(e,m,s,crit,noEl);if(typeof r==='number')m=r}return m}
+function onDamageX(e,n,s){for(const f of XH.damage)f(e,n,s)}
 function onKillX(e,s){if(s&&s.owner==='rival')return;for(const f of XH.kill)f(e,s)}
 function onHurtX(n,src,fx,fy){for(const f of XH.hurt){const r=f(n,src,fx,fy);if(typeof r==='number')n=r;if(n<=0)return 0}return n}
 function extTick(dt){if(!G||G.auto)return;if(!G.xStarted){G.xStarted=1;for(const f of XH.start)try{f()}catch(err){console.error(err)}}for(const f of XH.tick)f(dt)}
@@ -23,4 +24,4 @@ function freeFire(s,mult){if(!s||!G||G.over)return;const i=G.spells.indexOf(s);i
 function xCss(css){const st=document.createElement('style');st.textContent=css;document.head.appendChild(st)}
 const xEsc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 /* results screen: extensions append to it after the core has drawn it */
-(()=>{const se=showEnd;showEnd=function(ok){se(ok);const box=$('#endb');if(box&&G&&!G.auto)for(const f of XH.end)try{f(box,ok)}catch(err){console.error(err)}}})();
+(()=>{const se=showEnd;showEnd=function(ok){if(!G||G.ended)return;se(ok);const box=$('#endb');if(box&&G&&!G.auto)for(const f of XH.end)try{f(box,ok)}catch(err){console.error(err)}}})();

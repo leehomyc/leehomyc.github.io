@@ -13,7 +13,7 @@ function skillCost(s){return Math.round(SPELLS[s.id].cost*(1-NODE_FX.cost*nd(s,'
 function newGame(auto,cls){
   cls=cls||CLASS;const C=CLASSES[cls];
   buildArena();if(typeof buildRuins==='function')buildRuins();
-  const P={x:W/2,y:H/2,hp:C.hp,maxHp:C.hp,mana:C.mana,maxMana:C.mana,regen:C.regen,dmg:C.dmg,def:1,spd:C.spd,mag:1,haste:1,crit:.05,inv:0,face:1,walk:0,down:0,dash:0,dashCd:0,dx:0,dy:1,buff:null,cast:0,yaw:0,yaw0:0,shield:0,leap:null,cls,ap:0,sp:0,attr:{str:0,vit:0,spr:0,agi:0},dmgBonus:0};
+  const P={x:W/2,y:H/2,hp:C.hp,maxHp:C.hp,mana:C.mana,maxMana:C.mana,regen:C.regen,dmg:C.dmg,def:1,spd:C.spd,mag:1,haste:1,crit:.05,inv:0,face:1,walk:0,down:0,dash:0,dashCd:0,dx:0,dy:1,buff:null,cast:0,yaw:0,yaw0:0,shield:0,guard:0,leap:null,cls,ap:0,sp:0,attr:{str:0,vit:0,spr:0,agi:0},dmgBonus:0};
   G={auto,t:0,P,cls,en:[],shots:[],bombs:[],bullets:[],gems:[],pools:[],fx:[],floats:[],arcs:[],later:[],ghosts:[],shocks:[],
      mush:[],grid:new Map(),spells:[mkSpell(weaponOf(cls)),mkSpell(C.skills[0])],pwaves:[],sariras:[],xp:0,lv:1,need:xpNeed(1),picks:[],kills:0,cores:2,coreT:0,
      spawnA:8,swarmT:55,mission:null,missionT:26,boss:null,bossT:0,paused:false,over:null,shake:0,trauma:0,shX:0,shY:0,hitStop:0,slow:0,flash:0,dmgTaken:0,
@@ -144,7 +144,7 @@ function hit(e,d,s,noEl,col,kx=0,ky=0){
   if(s&&!rv){const lf=nd(s,'life');if(lf)heal(m*NODE_FX.life*lf,s);const ch=nd(s,'chain');if(ch&&SIMR()<NODE_FX.chain*ch&&!noEl)arc(e,m*.35,s,1)}
   if(!rv&&P.frenzy>0){e.hp-=m*.4;if(s)s.dmg+=m*.4;heal(m*.03)}
   if(!rv){if(hasR('jade'))heal(m*.03);if(hasR('pearl')&&!noEl&&SIMR()<.12)arc(e,m*.4,s||G.spells[0],1);if(hasR('iron'))e.slow=Math.max(e.slow||0,.6);if(hasR('blood')&&P.hp<P.maxHp*.5){e.hp-=m*.25;if(s)s.dmg+=m*.25}}
-  if(!rv&&typeof onHitX==='function')m=onHitX(e,m,s,crit,noEl);if(e.tired)m*=e.tired;if(!rv)G.dealt=(G.dealt||0)+m;e.hp-=m;e.flash=crit?.14:.08;e.sq=crit?.5:.3;if(kx||ky){const l=hyp(kx,ky)||1;e.sqx=kx/l;e.sqy=ky/l}if(s)s.dmg+=m;if(rv)G.rival.dmgDealt+=m;
+  if(!rv&&typeof onHitX==='function')m=onHitX(e,m,s,crit,noEl);if(e.tired)m*=e.tired;if(!rv)G.dealt=(G.dealt||0)+m;const dealt=Math.min(Math.max(0,e.hp),Math.max(0,m));e.hp-=m;if(!rv&&typeof onDamageX==='function')onDamageX(e,dealt,s);e.flash=crit?.14:.08;e.sq=crit?.5:.3;if(kx||ky){const l=hyp(kx,ky)||1;e.sqx=kx/l;e.sqy=ky/l}if(s)s.dmg+=m;if(rv)G.rival.dmgDealt+=m;
   const kk=e.type==='boss'?.12:e.type==='giant'?.4:e.type==='statue'?0:1;
   e.kx=(e.kx||0)+kx*kk;e.ky=(e.ky||0)+ky*kk;
   if(!rv&&!G.auto&&G.floats.length<CAP.fl&&(m>=Math.max(18,e.maxHp*.25)||(crit&&(G.P.crit<.5||e.type==='boss'||e.elite||SIMR()<.2)))&&(G.en.length<120||e.type==='boss'||e.elite||m>=e.maxHp*.5))G.floats.push({x:e.x+rnd(-4,4),y:e.y-e.r-3,t:.6,v:Math.round(m),c:crit?'#ffd75a':(col||'#efe4cd'),crit});
@@ -174,10 +174,24 @@ function arc(from,d,s,n){
     if(fk==='dark+lightning'&&was>0&&e.dead)heal(1.5);
   }
 }
-const healCap=t=>t<180?.12:Math.max(.045,.12-(t-180)/600*.075); // max healing per second as a share of max HP: 10% early, 3.5% from ~16 min
-function heal(n,s){const P=G.P;if(endlessDuel()&&(P.down>0||G.over))return;const b=P.hp;let want=n*healMul(G.t)*(G.curse.heal||1);
-  {const sec=Math.floor(G.t);if(G.healSec!==sec){G.healSec=sec;G.healIn=0}const room=P.maxHp*healCap(G.t)-G.healIn;if(want>room){const lost=Math.min(want-Math.max(0,room),Math.max(0,P.maxHp-P.hp-Math.max(0,room)));G.healCapped=(G.healCapped||0)+lost;want=Math.max(0,room)}G.healIn+=want}
-  P.hp=Math.min(P.maxHp,P.hp+want);const got=P.hp-b;if(P.hp>P.maxHp*.35)G._nd=0;G.healed=(G.healed||0)+got;G.overheal=(G.overheal||0)+(want-got);if(s){s.healed=(s.healed||0)+got;s.overheal=(s.overheal||0)+(want-got)}}
+const healCap=t=>t<180?.12:Math.max(.045,.12-(t-180)/600*.075);
+function heal(n,s){
+  const P=G.P;if(endlessDuel()&&(P.down>0||G.over))return;
+  const want=Math.max(0,n*healMul(G.t)*(G.curse.heal||1)),missing=Math.max(0,P.maxHp-P.hp);
+  const sec=Math.floor(G.t);if(G.healSec!==sec){G.healSec=sec;G.healIn=0}
+  const room=Math.max(0,P.maxHp*healCap(G.t)-G.healIn),got=Math.min(want,missing,room),over=Math.max(0,want-missing);
+  G.healCapped=(G.healCapped||0)+Math.min(want,missing)-got;G.healIn+=got;P.hp+=got;
+  if(P.hp>P.maxHp*.35)G._nd=0;
+  G.healed=(G.healed||0)+got;G.overheal=(G.overheal||0)+over;
+  if(s){s.healed=(s.healed||0)+got;s.overheal=(s.overheal||0)+over}
+}
+function grantShield(duration,budget){
+  const P=G.P;
+  if(budget===undefined)P.guard=Math.max(P.guard||0,duration);
+  else{P.shield=duration;P.shieldHp=budget}
+}
+function tickShields(dt){const P=G.P;P.guard=Math.max(0,(P.guard||0)-dt);P.shield=Math.max(0,(P.shield||0)-dt);if(!P.shield)P.shieldHp=undefined}
+
 function pool(x,y,r,t,dps,s,o={}){
   if(G.pools.length>45)G.pools.shift();
   const fk=fusion(s);
@@ -250,7 +264,9 @@ function chestTick(dt){if(G.curse.nochest)return;
 function srcName(e){if(!e)return ['未知','unknown'];if(e.type==='boss')return [e.name,e.en];if(e.champion)return [e.name,e.en];if(e.warlord)return ['铁甲统领','Iron Warlord'];const t=ETYPES[e.type]||{};const pre=e.illusion?['幻影','illusion ']:e.elite?['精英','elite ']:e.affix==='explode'?['爆裂','exploding ']:e.affix==='swift'?['疾风','swift ']:e.affix==='armor'?['重甲','armoured ']:e.role==='charger'?['冲锋','charging ']:e.role==='shaman'?['巫','shaman ']:['',''];return [pre[0]+(t.zh||e.type),pre[1]+(t.en||e.type)]}
 function dmgP(n,fx,fy,src){
   if(typeof src==='string')src=[src,src];const P=G.P;if(P.down>0||P.inv>0||P.dash>0||G.over)return;
+  if(P.guard>0){P.inv=.15;G.absorbed=(G.absorbed||0)+n;ring(P.x,P.y,30,'#7dffb0');if(typeof SFX!=='undefined')SFX.block();return}
   if(P.shield>0){const cap=P.shieldHp===undefined?n:P.shieldHp;const abs=Math.min(n,cap);P.inv=.15;G.absorbed=(G.absorbed||0)+abs;if(P.shieldHp!==undefined)P.shieldHp-=abs;ring(P.x,P.y,30,'#7dffb0');if(typeof SFX!=='undefined')SFX.block();n-=abs;if(P.shieldHp!==undefined&&P.shieldHp<=0){P.shield=0;showBanner('护罩破碎','Ward shattered',.9)}if(n<=.5)return}
+  if(typeof heroMitigate==='function'){n=heroMitigate(n);if(n<=.3){P.inv=.15;return}}
   if(P.vajra>0){const vs=G.spells.find(x=>x.id==='vajra');const st=vs?stat(vs):{m:1,size:1};G.skillBlocked=(G.skillBlocked||0)+n*.7;if(vs)vs.blocked=(vs.blocked||0)+n*.7;n*=.3;near(P.x,P.y,50*st.size,e=>{if(e.type==='statue')return;const dx=e.x-P.x,dy=e.y-P.y,d=hyp(dx,dy)||1;if(d<50*st.size+e.r){hit(e,14*st.m,vs,false,'#ffe9a0',dx/d*220,dy/d*220);e.goldT=.35;if(vs)vs.refl=(vs.refl||0)+1}});if(vs&&nd(vs,'life'))heal(2*nd(vs,'life'),vs);ring(P.x,P.y,40,'#ffe9a0')}
   if(typeof onHurtX==='function'){n=onHurtX(n,src,fx,fy);if(n<=0)return}
   {const dm=Math.max(.4,P.def);if(dm<1)G.mitigated=(G.mitigated||0)+n*(1-dm);else G.vulnerable=(G.vulnerable||0)+n*(dm-1);n*=dm}P.hp-=n;P.inv=.4;G.dmgTaken+=n; // mitigation caps at 60%
@@ -393,7 +409,7 @@ function castSkill(i){
   }else if(s.id==='array'||s.id==='bagua'){
     s.active=sp.dur+s.lv*.25+st.dur;s.a=0;ring(P.x,P.y,60,sp.col);trauma(.2);if(typeof SFX!=='undefined')SFX.array();
   }else if(s.id==='ward'){
-    heal(P.maxHp*.25*st.m,s);P.shield=Math.min(7,3.5+s.lv*.06)+st.dur*.5;P.shieldHp=P.maxHp*(.35+.012*s.lv)*st.m;
+    heal(P.maxHp*.25*st.m,s);grantShield(Math.min(7,3.5+s.lv*.06)+st.dur*.5,P.maxHp*(.35+.012*s.lv)*st.m);
     aoe(P.x,P.y,80*st.size,8*st.m,s,sp.col,false,{quiet:1});trauma(.25);shock(P.x,P.y,170,.03);if(typeof SFX!=='undefined')SFX.ward();
   }else if(s.id==='whirl'){
     s.active=sp.dur+s.lv*.06+st.dur;s.tk=0;trauma(.15);if(typeof SFX!=='undefined')SFX.whirl();
@@ -435,7 +451,7 @@ function castSkill(i){
     const n=8+st.n*2;const cands=G.en.filter(e=>!e.dead&&e.type!=='statue'&&hyp(e.x-P.x,e.y-P.y)<240).sort((a,b)=>hyp(a.x-P.x,a.y-P.y)-hyp(b.x-P.x,b.y-P.y)).slice(0,n);
     for(const e of cands){poison(e,5*st.m,s,3);e.poisT=5+st.dur;e.plague=s;spark(e.x,e.y,sp.col,4,50)}G.fx.push({k:'wave',x:P.x,y:P.y,a:0,t:.35,T:.35,c:sp.col,full:1});if(typeof SFX!=='undefined')SFX.ward();
   }else if(s.id==='rejuv'){
-    s.active=sp.dur;s.tk=0;s.healLeft=P.maxHp*(.2+.05*nd(s,'life'))*st.m;let fed=0;near(P.x,P.y,90*st.size,e=>{if(fed<10&&e.pois>0&&hyp(e.x-P.x,e.y-P.y)<90*st.size+e.r){e.pois--;fed++;spark(e.x,e.y,'#7fc98a',3,60)}});if(fed){s.healLeft+=P.maxHp*.02*fed;showBanner(`以毒养生:+${fed*2}% 治疗`,`Fed on poison: +${fed*2}% healing`,1)}P.shield=Math.max(P.shield,1.5+st.dur);P.confuse=0;if(nd(s,'dmg'))aoe(P.x,P.y,70*st.size,12*st.m*nd(s,'dmg'),s,sp.col,false,{quiet:1});ring(P.x,P.y,50,sp.col);if(typeof SFX!=='undefined')SFX.ward();
+    s.active=sp.dur;s.tk=0;s.healLeft=P.maxHp*(.2+.05*nd(s,'life'))*st.m;let fed=0;near(P.x,P.y,90*st.size,e=>{if(fed<10&&e.pois>0&&hyp(e.x-P.x,e.y-P.y)<90*st.size+e.r){e.pois--;fed++;spark(e.x,e.y,'#7fc98a',3,60)}});if(fed){s.healLeft+=P.maxHp*.02*fed;showBanner(`以毒养生:+${fed*2}% 治疗`,`Fed on poison: +${fed*2}% healing`,1)}grantShield(1.5+st.dur);P.confuse=0;if(nd(s,'dmg'))aoe(P.x,P.y,70*st.size,12*st.m*nd(s,'dmg'),s,sp.col,false,{quiet:1});ring(P.x,P.y,50,sp.col);if(typeof SFX!=='undefined')SFX.ward();
   }else if(s.id==='numb'){
     const R=140*st.size;let det=0;near(P.x,P.y,R+15,e=>{if(e.type!=='boss'&&e.type!=='statue'&&hyp(e.x-P.x,e.y-P.y)<R+e.r){e.sleep=Math.min(4.2,2.5+st.dur*.6)*(e.elite||e.warlord?.5:1);e.sleepS=s;e.shred=Math.max(e.shred||0,e.sleep);e.frz=0;s.ctrl=(s.ctrl||0)+1}else if(e.type==='boss'){e.slow=Math.max(e.slow||0,3);s.ctrl=(s.ctrl||0)+1}
       if(e.pois>0&&e.poisS&&hyp(e.x-P.x,e.y-P.y)<R+e.r){const dmg=e.poisD*e.pois*.6*Math.max(1,e.poisT/.6)*.8;hit(e,dmg,s,true,'#c6ff5a');s.det=(s.det||0)+dmg;e.pois=0;det++;spark(e.x,e.y,'#c6ff5a',5,80)}});
@@ -794,7 +810,7 @@ function step(dt){
   G.grid.clear();
   for(const e of G.en){if(e.dead)continue;const k=gridOf(e);let a=G.grid.get(k);if(!a)G.grid.set(k,a=[]);a.push(e)}
   // player
-  P.inv=Math.max(0,P.inv-dt);P.dashCd=Math.max(0,P.dashCd-dt);if(P.parryCd>0)P.parryCd-=dt;
+  tickShields(dt);P.inv=Math.max(0,P.inv-dt);P.dashCd=Math.max(0,P.dashCd-dt);if(P.parryCd>0)P.parryCd-=dt;
   P.mana=Math.min(P.maxMana,P.mana+P.regen*dt);
   for(const s of G.spells)s.cd=Math.max(0,s.cd-dt*(P.buff&&P.buff.k==='haste'?2:1)*(G.over9?1.3:1));
   comboTick(dt);chestTick(dt);if(!G.auto&&(G.t|0)%2===0&&G.t-Math.floor(G.t)<dt)checkAch();
@@ -825,7 +841,6 @@ function step(dt){
     let v=G.auto?autopilot():input();if(P.confuse>0){P.confuse-=dt;v={x:-v.x,y:-v.y}}
     if(v.x||v.y){const l=hyp(v.x,v.y)||1,m=Math.min(1,l),s=92*P.spd*(P.buff&&P.buff.k==='spd'?1.35:1)*(G.over9?1.12:1)*(P.frenzy>0?1.25:1)*(P.dance>0?1.4:1)*(P.chillT>0?.6:1)*m;P.x+=v.x/l*s*dt;P.y+=v.y/l*s*dt;P.walk+=dt*8;P.dx=v.x/l;P.dy=v.y/l;collide(P,6)}
     const main=G.spells[0];if(main&&main.cd<=0&&!autoFire(main))main.cd=.08;
-    P.shield=Math.max(0,P.shield-dt);
     if(G.auto)autoCast();
     if(G.auto&&P.dashCd<=0&&SIMR()<.015)dash();
   }

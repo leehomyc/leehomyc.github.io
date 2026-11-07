@@ -16,7 +16,7 @@ const VARIANTS={
   nova:{zh:'爆体诀',en:'Bursting',d:'此武学击杀的敌人炸开,伤及周围(四成伤害)',de:'Enemies it kills explode, hurting those nearby (40%)',kill(e,s){if(e.type==='boss')return;const st=stat(s),x=e.x,y=e.y;later(.04,()=>aoe(x,y,30*Math.min(1.6,st.size),(SPELLS[s.id].auto?9:5)*st.m,s,SPELLS[s.id].col,true,{quiet:1}))}},
   focus:{zh:'归一诀',en:'Unity',d:'伤害 ×2.2,范围 +30%;出手慢 60%',de:'×2.2 damage and +30% area; 60% slower',ap(s){s.vm*=2.2;s.vsz*=1.3;s.vcd*=1.6}},
   torrent:{zh:'连绵诀',en:'Torrent',d:'出手快一倍;伤害 -40%,内力消耗 -40%',de:'Twice as fast; -40% damage, -40% qi cost',ap(s){s.vcd*=.5;s.vm*=.6;s.vcost=.6}},
-  guard:{zh:'护体诀',en:'Guarding',d:'出手时获得 0.8 秒护罩(普攻每 5 秒一次)',de:'Using it grants a 0.8 s shield (every 5 s for the normal attack)',fire(s){const P=G.P;if(SPELLS[s.id].auto&&G.t-(s.gT||-9)<5)return;s.gT=G.t;P.shield=Math.max(P.shield,.8);P.shieldHp=undefined;ring(P.x,P.y,26,'#7dffb0')}},
+  guard:{zh:'护体诀',en:'Guarding',d:'出手时获得 0.8 秒护罩(普攻每 5 秒一次)',de:'Using it grants a 0.8 s shield (every 5 s for the normal attack)',fire(s){const P=G.P;if(SPELLS[s.id].auto&&G.t-(s.gT||-9)<5)return;s.gT=G.t;grantShield(.8);ring(P.x,P.y,26,'#7dffb0')}},
   drain:{zh:'吸星诀',en:'Star Drain',d:'命中回复内力;此武学击杀回复 0.5% 生命',de:'Hits restore qi; kills with it heal 0.5% HP',hit(e,m,s){const P=G.P;P.mana=Math.min(P.maxMana,P.mana+(SPELLS[s.id].auto?.6:1.5))},kill(e,s){heal(G.P.maxHp*.005,s)}},
   pierce:{zh:'穿云诀',en:'Cloudpierce',d:'+1 数量,+2 穿透;伤害 -15%',de:'+1 projectile and +2 pierce; -15% damage',only:['ranged'],ap(s){s.vn+=1;s.vp+=2;s.vm*=.85}},
   giantk:{zh:'千钧诀',en:'Thousand-weight',d:'击退 ×2,命中的敌人减速 1 秒;伤害 +15%',de:'Double knockback, hits slow for 1 s; +15% damage',only:['melee','control','summon'],ap(s){s.vm*=1.15},hit(e,m,s){e.slow=Math.max(e.slow||0,1)}},

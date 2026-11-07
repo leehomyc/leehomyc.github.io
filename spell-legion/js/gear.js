@@ -92,11 +92,22 @@ function gearSalvage(it){return Math.round(12*(GEAR_RAR[it.r].n+(it.r===4?3:0))*
 function gearOn(){return soloRun()&&(typeof ASURA_T!=='undefined')&&((SAVE.ach&&SAVE.ach.boss1)||(SAVE.gear&&SAVE.gear.found)||G.bossSlain>0)}
 function dropGear(x,y,opts={}){if(!gearOn())return;const it=makeGear(opts);G.fx.push({k:'gear',it,x:clamp(x+rnd(-14,14),40,W-40),y:clamp(y+rnd(-14,14),40,H-40),t:120,T:120});
   const R=GEAR_RAR[it.r];if(it.r>=3&&typeof showSide==='function')showSide(`${R.zh}装备落地 · ${it.zh}`,`${R.en} item dropped · ${it.en}`,R.col,'relic');if(it.r>=3&&typeof SFX!=='undefined')SFX.chest()}
-function takeGear(it){const g=gearSave();g.found=(g.found||0)+1;G.gearFound=G.gearFound||[];G.gearFound.push(it);
-  if(g.inv.length>=GEAR_INV_MAX){const worst=g.inv.filter(x=>!x.lock&&!Object.values(g.eq).includes(x.id)).sort((a,b)=>(a.r-b.r)||(gearScore(a)-gearScore(b)))[0];if(worst&&(worst.r<it.r||gearScore(worst)<gearScore(it))){gearRemove(worst);SAVE.gold+=gearSalvage(worst)}else{SAVE.gold+=gearSalvage(it);G.gearSalvaged=(G.gearSalvaged||0)+1;gearChanged();return}}
-  g.inv.push(it);gearChanged(it);const R=GEAR_RAR[it.r],cur=g.eq[it.slot]&&gearById(g.eq[it.slot]),up=gearScore(it)>gearScore(cur);
-  if(typeof showSide==='function')showSide(`拾取 ${R.zh} · ${it.zh}${up?' ▲':''}`,`Picked up ${R.en} · ${it.en}${up?' ▲':''}`,R.col,'relic');spark(G.P.x,G.P.y,R.col,14,90);if(typeof SFX!=='undefined')(it.r>=3?SFX.chest():SFX.pick(1))}
-xOn('tick',dt=>{const P=G.P;for(const f of G.fx){if(f.k==='gear'&&P.down<=0&&hyp(f.x-P.x,f.y-P.y)<24*Math.min(3,P.mag)){f.t=0;takeGear(f.it)}}});
+function takeGear(it){
+  const g=gearSave();G.gearPicked=G.gearPicked||new Set();
+  if(G.gearPicked.has(it.id)||g.inv.some(x=>x.id===it.id)||g.removed[it.id])return false;
+  G.gearPicked.add(it.id);g.found=(g.found||0)+1;
+  const salvage=item=>{const gold=gearSalvage(item);gearRemove(item);SAVE.gold+=gold;G.gearGold=(G.gearGold||0)+gold};
+  if(g.inv.length>=GEAR_INV_MAX){
+    const worst=g.inv.filter(x=>!x.lock&&!Object.values(g.eq).includes(x.id)).sort((a,b)=>(a.r-b.r)||(gearScore(a)-gearScore(b)))[0];
+    if(worst&&(worst.r<it.r||gearScore(worst)<gearScore(it)))salvage(worst);
+    else{salvage(it);gearChanged();return false}
+  }
+  G.gearFound=G.gearFound||[];G.gearFound.push(it);g.inv.push(it);gearChanged(it);
+  const R=GEAR_RAR[it.r],cur=g.eq[it.slot]&&gearById(g.eq[it.slot]),up=gearScore(it)>gearScore(cur);
+  if(typeof showSide==='function')showSide(`拾取 ${R.zh} · ${it.zh}${up?' ▲':''}`,`Picked up ${R.en} · ${it.en}${up?' ▲':''}`,R.col,'relic');
+  spark(G.P.x,G.P.y,R.col,14,90);if(typeof SFX!=='undefined')(it.r>=3?SFX.chest():SFX.pick(1));return true;
+}
+xOn('tick',dt=>{const P=G.P;for(const f of G.fx){if(f.k==='gear'&&f.t>0&&P.down<=0&&hyp(f.x-P.x,f.y-P.y)<24*Math.min(3,P.mag)){f.t=0;takeGear(f.it)}}});
 xOn('kill',(e,s)=>{if(!gearOn()||G.creditOff)return;
   if(e.type==='boss'){dropGear(e.x,e.y,{min:1});if((G.bossSlain||0)>=3)dropGear(e.x+20,e.y,{min:0})}
   else if(e.warlord||e.champion)dropGear(e.x,e.y,{min:1});
@@ -105,7 +116,7 @@ xOn('kill',(e,s)=>{if(!gearOn()||G.creditOff)return;
 /* the chest list is filtered in chestTick right after an opening, so catch the open itself */
 (()=>{const ct=chestTick;chestTick=function(dt){const before=G.chests.slice();ct(dt);if(!gearOn())return;for(const c of before)if(c.dead&&!c.gearDone){c.gearDone=1;if(c.kind==='gold')dropGear(c.x,c.y,{min:2});else if(c.kind!=='trap'&&rnd()<.25)dropGear(c.x,c.y)}}})();
 /* light beams: height and brightness by rarity */
-xOn('render',(tm,useRing)=>{for(const f of G.fx){if(f.k!=='gear')continue;const R=GEAR_RAR[f.it.r],h=[40,70,110,170,260][f.it.r],b=.6+f.it.r*.25;
+xOn('render',(tm,useRing)=>{for(const f of G.fx){if(f.k!=='gear'||f.t<=0)continue;const R=GEAR_RAR[f.it.r],h=[40,70,110,170,260][f.it.r],b=.6+f.it.r*.25;
   for(let i=0;i<10;i++){const y=i*h/10+((tm*50)%(h/10));glow(f.x,y+4,f.y,i%2?R.col:'#ffffff',(f.it.r>=3?18:12)-y*.03,(1-y/h)*b)}
   glow(f.x,6,f.y,R.col,f.it.r>=3?60:34,.7+Math.sin(tm*6)*.2);useRing(f.x,1,f.y,12+Math.sin(tm*5)*2,R.col,.8)}});
 /* ---------- applying gear to a run ---------- */
@@ -122,13 +133,13 @@ xOn('hit',(e,m,s,crit)=>{const gx=G.gx;if(!gx)return m;const P=G.P;let k=1;
   if(gxL('chixiao')&&e.burn>0)k+=.25;if(gxL('yuchang')&&e.hp>e.maxHp*.9)k+=1;if(gxL('juhun'))k+=Math.min(.4,Math.floor(G.kills/100)*.01);
   if(gxL('jiuyin')&&s&&!SPELLS[s.id].auto&&P.mana>=P.maxMana*.9)k+=.3;
   m*=k;
-  if(gx.life&&G.t-(G._lsT||0)>.1){G._lsT=G.t;heal(m*gx.life/100*3)} // throttled: applied at most ten times a second, scaled to match
   if(crit&&gxL('zhanlu')&&rnd()<.35&&!e.dead){const x=e.x,y=e.y;later(.05,()=>{if(!e.dead)hit(e,m*.6,null,true,'#ffe066');ring(x,y,22,'#ffe066');spark(x,y,'#ffe066',8,120)})}
   if(s&&gxL('beiming')&&!SPELLS[s.id].auto&&s.cd>1&&rnd()<.04&&G.t-(G._bmT||0)>1){G._bmT=G.t;s.cd=0;if(G.floats.length<CAP.fl)G.floats.push({x:P.x,y:P.y-34,t:.9,v:L('北冥 · '+SPELLS[s.id].zh+' 刷新','Reset: '+SPELLS[s.id].en),c:'#9fe3f0'})}
   return m});
+xOn('damage',(e,n)=>{if(G.gx?.life&&n>0)heal(n*G.gx.life/100)});
 xOn('kill',(e,s)=>{if(!G.gx)return;const P=G.P;if(gxL('puti')&&(e.elite||e.warlord||e.champion))heal(P.maxHp*.12);if(gxL('jiuyin')&&s&&!SPELLS[s.id].auto)P.mana=Math.min(P.maxMana,P.mana+2)});
 xOn('hurt',(n)=>{if(!G.gx)return n;const P=G.P;
-  if(gxL('jinlv')&&P.hp-n*Math.max(.4,P.def)<P.maxHp*.3&&G.t-(G._jlT||-99)>45){G._jlT=G.t;P.shield=2.5;P.shieldHp=undefined;ring(P.x,P.y,46,'#ffd27a');showBanner('金缕衣 · 金身','Gold-thread Robe',1);return 0}
+  if(gxL('jinlv')&&P.hp-n*Math.max(.4,P.def)<P.maxHp*.3&&G.t-(G._jlT||-99)>45){G._jlT=G.t;grantShield(2.5);ring(P.x,P.y,46,'#ffd27a');showBanner('金缕衣 · 金身','Gold-thread Robe',1);return 0}
   if(gxL('xuanwu')&&G.t-(G._xwT||-9)>1.5){G._xwT=G.t;const d=18*P.dmg*(1+P.dmgBonus)*(1+G.t/300);near(P.x,P.y,70,e=>{if(e.type==='statue')return;const dx=e.x-P.x,dy=e.y-P.y,l=hyp(dx,dy)||1;if(l<70+e.r)hit(e,d,null,true,'#7fc98a',dx/l*260,dy/l*260)});ring(P.x,P.y,66,'#7fc98a')}
   return n});
 xOn('fire',s=>{if(!G.gx)return;const w=G.spells[0];if(s!==w)return;
@@ -188,12 +199,6 @@ html[lang=ko] .gcell.eq::after{content:'착'}
 .gdet .cmp{font-size:12px}.gdet .cmp b.up{color:#7dffb0}.gdet .cmp b.dn{color:#ff8e7a}
 .gbtns{display:flex;gap:8px;flex-wrap:wrap}
 .gfilt{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}.gfilt button{font:700 12px var(--ui);padding:4px 10px;border-radius:999px;border:1px solid #ffffff2a;background:#0c070b;color:#cfc6b2;cursor:pointer}.gfilt button.on{border-color:var(--brass);color:var(--brass)}
-.gmer{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:6px}
-.gmer button{display:flex;justify-content:space-between;gap:6px;align-items:center;padding:7px 9px;border-radius:8px;border:1px solid #ffffff22;background:#0c070bcc;color:inherit;font:inherit;cursor:pointer;text-align:left}
-.gmer button b{font-family:var(--brush);font-weight:400;font-size:20px;color:#ffd27a}.gmer button small{color:#a99f8d;font-size:11px;display:block}.gmer button em{font-style:normal;font-weight:800;color:#7dffb0}
-.gmer button:disabled{opacity:.55;cursor:default}
-.gsec{font:700 13px var(--ui);letter-spacing:.12em;color:var(--brass);margin:4px 0 6px;display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
-.pr.bag{cursor:pointer}.pr.bag .dot{display:inline-block;min-width:16px;height:16px;border-radius:8px;background:#ff6a4a;color:#fff;font:800 10px/16px var(--ui);text-align:center;margin-left:4px;padding:0 4px}
 .endgear{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:6px 0}.endgear span{padding:3px 9px;border-radius:999px;border:1px solid var(--rc);color:var(--rc);font-size:13px;background:#0c070bcc}
 `);
 let gearSel=null,gearFilt='all';
@@ -224,11 +229,9 @@ function renderGear(){const box=$('#gearbody');if(!box)return;const g=gearSave()
 function openGear(){let ov=$('#gearov');if(!ov){ov=document.createElement('div');ov.id='gearov';ov.className='overlay';ov.hidden=true;ov.innerHTML=`<div class="cbox"><div class="ch"><h2><span data-l10n="行囊|Gear">${L('行囊','Gear')}</span></h2><button type="button" class="go alt sm" id="gearclose" data-l10n="关闭|Close">${L('关闭','Close')}</button></div><div id="gearbody"></div></div>`;document.body.appendChild(ov);$('#gearclose').onclick=()=>{ov.hidden=true;if(typeof renderProg==='function')renderProg()};ov.addEventListener('click',e=>{if(e.target===ov)$('#gearclose').click()})}
   if(!gearSel){const eq=gearSave().eq;gearSel=eq.weapon||null}renderGear();ov.hidden=false}
 function gearNewCount(){return gearSave().inv.filter(x=>x.new).length}
-/* a 行囊 chip on the menu strip */
-/* menu entry: a 行囊 button in the bottom tab bar (next to 江湖), shown once there is anything in it; the number is new, unseen items */
+/* Bottom navigation and new-item count. */
 (()=>{if(typeof renderProg!=='function')return;const rp=renderProg;renderProg=function(){rp();const bar=document.querySelector('#menu .tabbar');if(!bar)return;let b=$('#gearbtn');if(b&&!b.onclick)b.onclick=()=>{openGear();if(typeof SFX!=='undefined')SFX.pick(1)};
-  const show=true;
-  if(!b){if(!show)return;b=document.createElement('button');b.type='button';b.id='gearbtn';b.title=L('行囊:装备','Gear');b.onclick=()=>{openGear();if(typeof SFX!=='undefined')SFX.pick(1)};const road=bar.querySelector('[data-t=road]');if(road)road.after(b);else bar.prepend(b)}
-  const n=gearNewCount();b.innerHTML=`${typeof ICON!=='undefined'?ICON.misc('relic','#ff9c3a','sm'):''}<span>${L('行囊','Gear')}</span>${n?` <b class="gn">${n}</b>`:''}`;b.hidden=!show}})();
+  if(!b){b=document.createElement('button');b.type='button';b.id='gearbtn';b.title=L('行囊:装备','Gear');b.onclick=()=>{openGear();if(typeof SFX!=='undefined')SFX.pick(1)};const road=bar.querySelector('[data-t=road]');if(road)road.after(b);else bar.prepend(b)}
+  const n=gearNewCount();b.innerHTML=`${typeof ICON!=='undefined'?ICON.misc('relic','#ff9c3a','sm'):''}<span>${L('行囊','Gear')}</span>${n?` <b class="gn">${n}</b>`:''}`;b.hidden=false}})();
 /* results: what dropped this run */
-xOn('end',box=>{if(!G.gearFound||!G.gearFound.length)return;const d=document.createElement('div');d.className='endgear';d.innerHTML=G.gearFound.slice(0,12).map(it=>{const R=GEAR_RAR[it.r];return `<span style="--rc:${R.col}">${it.leg?'✦ ':''}${xEsc(L(it.zh,it.en))}</span>`}).join('')+(G.gearFound.length>12?`<span style="--rc:#cfc6b2">+${G.gearFound.length-12}</span>`:'')+`<button type="button" class="go alt sm" id="endgearbtn">${L('去行囊','Open gear')}</button>`;const anchor=box.querySelector('details')||box.querySelector('.btns');if(anchor)anchor.before(d);else box.appendChild(d);const b=$('#endgearbtn');if(b)b.onclick=()=>openGear()});
+xOn('end',box=>{const found=(G.gearFound||[]).filter(it=>gearById(it.id));if(!found.length)return;const d=document.createElement('div');d.className='endgear';d.innerHTML=found.slice(0,12).map(it=>{const R=GEAR_RAR[it.r];return `<span style="--rc:${R.col}">${it.leg?'✦ ':''}${xEsc(L(it.zh,it.en))}</span>`}).join('')+(found.length>12?`<span style="--rc:#cfc6b2">+${found.length-12}</span>`:'')+`<button type="button" class="go alt sm" id="endgearbtn">${L('去行囊','Open gear')}</button>`;const anchor=box.querySelector('details')||box.querySelector('.btns');if(anchor)anchor.before(d);else box.appendChild(d);const b=$('#endgearbtn');if(b)b.onclick=()=>openGear()});

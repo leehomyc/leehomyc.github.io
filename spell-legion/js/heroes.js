@@ -271,9 +271,9 @@ function heroTick(dt){const P=G.P,H=hx();miniTick(dt);
     else if(s.id==='manashield'){s.active-=dt;P.mshield=s.active}}
 }
 {const _ob=orbits;orbits=function(dt){_ob(dt);heroTick(dt)}}
-{const _dp=dmgP;dmgP=function(n,fx,fy,src){const P=G.P;if(!(P.down>0||P.inv>0||P.dash>0||G.over)){if(P.dance>0)n*=.7;
-  if(P.mshield>0&&P.mana>1){const part=Math.min(P.mana,n*.6);P.mana-=part;n-=part;G.absorbed=(G.absorbed||0)+part;const ms=G.spells.find(x=>x.id==='manashield');if(ms){ms.blocked=(ms.blocked||0)+part;if(nd(ms,'dmg')){const st=stat(ms);near(P.x,P.y,60*st.size,e=>{if(e.type!=='statue'&&hyp(e.x-P.x,e.y-P.y)<60*st.size+e.r)hit(e,8*st.m,ms,false,'#6fb8ff')})}}ring(P.x,P.y,26,'#6fb8ff');if(n<=.3){P.inv=.15;return}}}
-  return _dp(n,fx,fy,src)}}
+function heroMitigate(n){const P=G.P;if(P.dance>0)n*=.7;
+  if(P.mshield>0&&P.mana>1){const part=Math.min(P.mana,n*.6);P.mana-=part;n-=part;G.absorbed=(G.absorbed||0)+part;const ms=G.spells.find(x=>x.id==='manashield');if(ms){ms.blocked=(ms.blocked||0)+part;if(nd(ms,'dmg')){const st=stat(ms);near(P.x,P.y,60*st.size,e=>{if(e.type!=='statue'&&hyp(e.x-P.x,e.y-P.y)<60*st.size+e.r)hit(e,8*st.m,ms,false,'#6fb8ff')})}}ring(P.x,P.y,26,'#6fb8ff');}
+  return n}
 {const _hit=hit;hit=function(e,d,s,noEl,col,kx,ky){if(G.P.fan>0&&!(s&&s.owner==='rival'))d*=1.3;return _hit(e,d,s,noEl,col,kx,ky)}}
 {const _kill=kill;kill=function(e,s,kx,ky){const was=e.dead;const ch=e.charm>0?e.charmS:null;_kill(e,s,kx,ky);if(was||!e.dead||(s&&s.owner==='rival'))return;const P=G.P;
   if(s&&s.id==='goldgu'&&G.minis&&G.minis.filter(m=>m.s===s&&!m.perm).length<5)G.minis.push({k:'gu',s,x:e.x,y:e.y,a:rnd(TAU),st:'o',cool:0,t:0,T:6,hits:new Map()});

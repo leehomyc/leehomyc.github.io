@@ -1,0 +1,92 @@
+const {test}=require('node:test');
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const vm=require('node:vm');
+const path=require('node:path');
+const source=n=>fs.readFileSync(path.join(__dirname,'../js',n+'.js'),'utf8');
+function setup(){
+  const elements=new Map(),element=()=>({hidden:true,innerHTML:'',querySelector(){return null},appendChild(){},classList:{add(){},remove(){}}});
+  const c=vm.createContext({console,Math,Date,Set,Map,JSON,LANG:'en',L:(zh,en)=>en,LL:o=>o.en,tr:s=>s,
+    W:2600,H:2000,TAU:Math.PI*2,clamp:(n,a,b)=>Math.max(a,Math.min(n,b)),hyp:Math.hypot,
+    SIMR:()=>.99,rnd:(a=1,b)=>b===undefined?a*.5:(a+b)/2,pick:a=>a[0],CAP:{fx:300,fl:100},
+    document:{createElement:element,head:{appendChild(){}}},$:id=>{if(!elements.has(id))elements.set(id,element());return elements.get(id)},
+    ROOM:{},DAILY:false,SAVE:{gold:100,up:{},mode:'solo',asura:{max:0,best:0},runs:0,wins:0,bosses:0},
+    showEnd(){vm.runInContext('G.ended=true',c)},applyUpgrades(){},persist(){},hitStop(){},showBanner(){},
+    SFX:{hit(){},block(){},hurt(){},ward(){},pick(){},chest(){}}
+  });
+  const run=s=>vm.runInContext(s,c);
+  for(const n of ['content','sim','ext','gear'])run(source(n));
+  run(`ring=()=>{};spark=()=>{};trauma=()=>{};shock=()=>{};
+    G={t:100,auto:false,spells:[],picks:[],relics:[],curse:{},fx:[],floats:[],en:[],grid:new Map(),kills:0,lv:1,bossSlain:0,goldRun:0,comboMax:0,score:0,dmgTaken:0,
+       P:{x:0,y:0,hp:50,maxHp:100,mana:100,maxMana:100,inv:0,down:0,dash:0,shield:0,guard:0,def:1,dmg:1,dmgBonus:0,crit:0,haste:1,mag:1}};`);
+  return {c,run,elements};
+}
+const near=(a,b)=>assert.ok(Math.abs(a-b)<1e-8,`${a} != ${b}`);
+test('full-health healing does not consume the shared cap; effective healing still obeys it',()=>{
+  const {run}=setup();run('G.P.hp=100;heal(40);G.P.hp=50;heal(10)');
+  near(run('G.P.hp'),60);near(run('G.healIn'),10);near(run('G.overheal'),40);
+  run('heal(10)');near(run('G.P.hp'),62);near(run('G.healCapped'),8);
+  run('G.t=101;heal(5)');near(run('G.P.hp'),67);
+});
+test('ward and timed protection retain separate budgets and expire independently',()=>{
+  const {run}=setup();run('grantShield(4,20);grantShield(.8);dmgP(100,1,1);G.P.inv=0');
+  near(run('G.P.hp'),50);near(run('G.P.shieldHp'),20);
+  run('tickShields(1);dmgP(25,1,1)');near(run('G.P.hp'),45);near(run('G.P.shield'),0);
+  run('grantShield(.8);grantShield(4,20);G.P.inv=0;dmgP(100,1,1)');near(run('G.P.hp'),45);near(run('G.P.guard'),.8);
+});
+test('rejuvenation grants timed protection even after a ward budget is exhausted',()=>{
+  const {run}=setup();run("G.spells=[mkSpell('rejuv')];G.P.shieldHp=0;castSkill(0);G.P.inv=0;dmgP(20,1,1)");
+  near(run('G.P.hp'),50);near(run('G.P.guard'),1.5);assert.equal(run('G.spells[0].casts'),1);
+});
+test('mana shield consumes only damage left after the ward and no mana during timed protection',()=>{
+  const {run}=setup(),s=source('heroes');run(s.slice(s.indexOf('function heroMitigate('),s.indexOf('\n{const _hit=hit;')));
+  run('G.P.mshield=3;grantShield(4,20);dmgP(10,1,1)');near(run('G.P.mana'),100);
+  run('G.P.inv=0;dmgP(20,1,1)');near(run('G.P.mana'),94);near(run('G.P.hp'),46);
+  run('G.P.inv=0;grantShield(1);dmgP(100,1,1)');near(run('G.P.mana'),94);near(run('G.P.hp'),46);
+});
+function equipLife(run){run("SAVE.gear={inv:[{id:'life',slot:'weapon',a:[{k:'life',v:2}]}],eq:{weapon:'life'}};gearApply(G.P);G.spells=[mkSpell('sword')];target={type:'rat',x:1,y:1,r:5,hp:1000,maxHp:1000};");}
+test('equipment lifesteal follows the same damage at high and low hit rates',()=>{
+  for(const spaced of [false,true]){
+    const {run}=setup();equipLife(run);
+    for(let i=0;i<10;i++)run(`G.t=${100+(spaced?i*.2:0)};hit(target,10,G.spells[0],true)`);
+    near(run('G.healed'),2);near(run('G.P.hp'),52);
+  }
+});
+test('lifesteal uses damage after enemy reduction and excludes overkill',()=>{
+  const {run}=setup();equipLife(run);run('target.tired=.5;hit(target,100,G.spells[0],true)');near(run('G.healed'),1);
+  // Isolate the kill side effects while exercising the complete hit calculation.
+  run('target.hp=5;target.tired=0;kill=e=>{e.dead=true};hit(target,100,G.spells[0],true)');near(run('G.healed'),1.1);
+});
+const item=(id,r=0,v=3)=>({id,slot:'weapon',r,t:1,a:[{k:'dmg',v}],zh:id,en:id,new:1});
+test('the same drop is processed once, including two tick hooks before effect removal',()=>{
+  const {c,run}=setup();c.drop=item('one');run("G.fx=[{k:'gear',it:drop,x:0,y:0,t:120}];XH.tick[0](.01);XH.tick[0](.01);takeGear(drop)");
+  assert.equal(run('SAVE.gear.inv.length'),1);assert.equal(run('SAVE.gear.found'),1);assert.equal(run('G.gearFound.length'),1);
+});
+test('a full protected bag salvages new loot once and does not list it as a retained drop',()=>{
+  const {c,run}=setup();c.bag=Array.from({length:40},(_,i)=>({...item('old'+i),lock:true}));c.drop=item('salvaged');
+  run('SAVE.gear={inv:bag,eq:{}};takeGear(drop);takeGear(drop)');
+  const value=run('gearSalvage(drop)');assert.equal(run('SAVE.gold'),100+value);assert.equal(run('G.gearGold'),value);
+  assert.equal(run('G.gearFound?.length||0'),0);assert.ok(run('SAVE.gear.removed.salvaged'));assert.equal(run('SAVE.gear.inv.length'),40);
+});
+test('automatic replacement preserves equipped and locked gear and credits its salvage',()=>{
+  const {c,run}=setup();c.bag=Array.from({length:40},(_,i)=>({...item('old'+i),lock:i>1}));c.drop=item('upgrade',2,10);
+  run("SAVE.gear={inv:bag,eq:{weapon:'old0'}};takeGear(drop)");
+  assert.equal(run("!!gearById('old0')"),true);assert.equal(run("!!gearById('old1')"),false);assert.equal(run("!!gearById('old2')"),true);assert.equal(run("!!gearById('upgrade')"),true);
+  assert.equal(run('SAVE.gear.inv.length'),40);assert.ok(run('G.gearGold>0'));
+});
+function settlement(run){const s=source('ui');run(s.slice(s.indexOf('function settleRunRewards('),s.indexOf('function showEnd(')));run('checkAch=()=>{};dayKey=()=>20261107');}
+test('settlement includes automatic salvage plus achievement and level rewards, with no second payout',()=>{
+  const {run}=setup();settlement(run);
+  run('SAVE.gold=140;G.gearGold=40;checkAch=()=>{SAVE.gold+=20};metaAfterRun=()=>{SAVE.gold+=30;return {xp:10}};settleRunRewards()');
+  const total=run('G.runRewardGold');assert.equal(total,40+20+30+run('G.settlement.gold'));
+  const gold=run('SAVE.gold');run('settleRunRewards()');assert.equal(run('SAVE.gold'),gold);assert.equal(run('SAVE.runs'),1);
+});
+test('daily and abandoned runs never overwrite the adventure survival record',()=>{
+  for(const daily of [true,false]){
+    const {run}=setup();settlement(run);run(`SAVE.best=50;G.t=100;DAILY=${daily};G.abandoned=${!daily};settleRunRewards()`);
+    assert.equal(run('SAVE.best'),50);assert.equal(run('G.settlement.record'),false);
+  }
+});
+test('repeated end rendering invokes extension rewards only once',()=>{
+  const {run}=setup();run("endCalls=0;xOn('end',()=>endCalls++);showEnd(false);showEnd(false)");assert.equal(run('endCalls'),1);
+});

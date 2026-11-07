@@ -51,7 +51,7 @@ function animHero(h,P,isP,tm,rdt){
   let dy=((P.yaw0||0)-(P.yaw||0));dy=Math.atan2(Math.sin(dy),Math.cos(dy));P.yaw=(P.yaw||0)+dy*(P.dash>0?.6:.18);
   P.anim=(P.anim||0)+rdt*(4+P.vK*7);P.cast=Math.max(0,(P.cast||0)-rdt*5);
   const spells=isP?G.spells:P.spells,whirl=spells.find(s=>s.id==='whirl'&&s.active>0);
-  const blink=P.inv>0&&(P.shield||0)<=0&&(tm*22|0)%2===0&&P.down<=0&&!(P.dash>0);
+  const blink=P.inv>0&&Math.max(P.shield||0,P.guard||0)<=0&&(tm*22|0)%2===0&&P.down<=0&&!(P.dash>0);
   h.g.visible=P.down<=0&&!blink;
   const lean=P.dash>0?.55:P.vK*.2;
   h.g.position.set(P.x,Math.abs(Math.sin(P.anim))*1.3*P.vK+(P.dash>0?3:0),P.y);
@@ -65,9 +65,9 @@ function animHero(h,P,isP,tm,rdt){
   v3.copy(h.crystal.position);h.g.updateMatrixWorld(true);h.arm.localToWorld(v3);
   if(isP){orbL.position.copy(v3);orbL.position.y+=4;orbL.color.setRGB(oc[0]*1.2,oc[1]*1.2,oc[2]*1.2);orbL.intensity=(P.down>0?0:1.4)+P.cast*2.6+Math.sin(tm*5)*.08}
   if(P.down<=0&&!blink){glow(v3.x,v3.y,v3.z,orbHex,17+P.cast*26,1.8+P.cast*2);glow(v3.x,v3.y,v3.z,'#ffffff',5,1.6)}
-  const sig=(P.shield||0)>0?rgb('#7dffb0'):isP?oc:rgb('#ff9c5a');
+  const sig=Math.max(P.shield||0,P.guard||0)>0?rgb('#7dffb0'):isP?oc:rgb('#ff9c5a');
   h.sigil.position.set(P.x,.55,P.y);h.sigil.rotation.z=tm*.35;h.sigil.visible=P.down<=0;h.sigil.material.opacity=((isP?.42:.3)+P.cast*.5+Math.sin(tm*2.6)*.06)*(MAP().bright?.4:1);h.sigil.material.color.setRGB(sig[0]*1.4+.05,sig[1]*1.4+.05,sig[2]*1.4+.05);
-  if((P.shield||0)>0){for(let i=0;i<10;i++){const a=tm*1.8+i*.628;glow(P.x+Math.cos(a)*16,14+Math.sin(tm*3+i)*5,P.y+Math.sin(a)*16,'#7dffb0',6,1.6)}glow(P.x,14,P.y,'#7dffb0',46,.5)}
+  if(Math.max(P.shield||0,P.guard||0)>0){for(let i=0;i<10;i++){const a=tm*1.8+i*.628;glow(P.x+Math.cos(a)*16,14+Math.sin(tm*3+i)*5,P.y+Math.sin(a)*16,'#7dffb0',6,1.6)}glow(P.x,14,P.y,'#7dffb0',46,.5)}
   if(isP&&P.frenzy>0){for(let i=0;i<6;i++){const a=tm*9+i*1.047;glow(P.x+Math.cos(a)*10,6+((tm*30+i*9)%28),P.y+Math.sin(a)*10,'#ff4a4a',5,2)}glow(P.x,14,P.y,'#ff2a2a',40,.6)}
   const gl=spells.find(s=>s.id==='guangling'&&s.active>0);if(gl){const R=120;for(let i=0;i<20;i++){const a=i/20*TAU+tm*.8,rr=R*(.5+.5*((tm*.6+i*.05)%1));glow(P.x+Math.cos(a)*rr,10+Math.sin(tm*3+i)*4,P.y+Math.sin(a)*rr,i%2?'#ffd27a':'#8fe3ff',8,1.2)}for(let i=0;i<32;i++){const a=i/32*TAU-tm*.5;glow(P.x+Math.cos(a)*R,3,P.y+Math.sin(a)*R,'#ffd27a',7,1.1)}}
   if(whirl){for(let i=0;i<8;i++){const a=tm*22+i*.785,R=48;glow(P.x+Math.cos(a)*R,10,P.y+Math.sin(a)*R,SPELLS.whirl.col,16,1.4);glow(P.x+Math.cos(a)*R*.6,12,P.y+Math.sin(a)*R*.6,'#ffffff',6,1.2)}}
