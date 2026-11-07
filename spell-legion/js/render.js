@@ -77,7 +77,7 @@ function render(rdt){
   U.uTime.value+=rdt;const tm=U.uTime.value,P=G.P;
   const nightDark=typeof dayNight==='function'?dayNight(((G.auto?240:G.t)/600+.12)%1):0;
   if(typeof occludeTick==='function'&&!G.auto)occludeTick(P.x,P.y,rdt);
-  if(!window.__noAdapt){fS+=rdt;fN++;if(fN>=70){const av=fS/fN;fS=0;fN=0;const lo=PHONE?.55:.65,hiT=PHONE?.021:.0265,loT=PHONE?.0135:.0125;if(av>hiT&&DPR>lo){DPR=Math.max(lo,DPR-.2);resize()}else if(av<loT&&DPR<Math.min(devicePixelRatio||1,PHONE?1.2:1.6)&&tm>6){DPR=Math.min(Math.min(devicePixelRatio||1,PHONE?1.2:1.6),DPR+.1);resize()}}}
+  if(!window.__noAdapt){fS+=rdt;fN++;if(fN>=70){const av=fS/fN;fS=0;fN=0;const lo=PHONE?.55:.65,hiT=PHONE?.021:.0265,loT=PHONE?.0135:.0125;if(av>hiT&&DPR>lo){DPR=Math.max(lo,DPR-.2);resize()}else if(av<loT&&DPR<Math.min(devicePixelRatio||1,Q().dpr)&&tm>6){DPR=Math.min(Math.min(devicePixelRatio||1,Q().dpr),DPR+.1);resize()}}}
   glowN=0;
   /* camera with trauma shake */
   G.trauma=Math.max(0,G.trauma-rdt*2.2);G.shX*=Math.pow(.001,rdt);G.shY*=Math.pow(.001,rdt);

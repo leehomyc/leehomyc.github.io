@@ -184,7 +184,8 @@ function renderPanel(){
 }
 document.querySelectorAll('#mode button').forEach(b=>b.onclick=()=>{SAVE.mode=b.dataset.m;persist();renderTitle();SFX.pick(1)});
 document.querySelectorAll('#diff button').forEach(b=>b.onclick=()=>{SAVE.diff=b.dataset.d;DIFFID=SAVE.diff;persist();renderTitle();SFX.pick(1)});
-document.querySelectorAll('#qual button').forEach(b=>b.onclick=()=>{try{localStorage.setItem('sl_quality',b.dataset.q)}catch(_){}b.textContent=L('重新载入…','Reloading…');setTimeout(()=>location.reload(),60)});
+document.querySelectorAll('[data-q]').forEach(b=>b.onclick=()=>{applyQuality(b.dataset.q);syncQuality()});
+function syncQuality(){document.querySelectorAll('[data-q]').forEach(b=>{const on=b.dataset.q===QLEVEL;b.classList.toggle('on',on);b.setAttribute('aria-pressed',String(on))})}
 if(typeof wireLeaderboard==='function')wireLeaderboard();
 $('#charbtn').onclick=()=>{togglePanel();$('#charbtn').blur()};
 $('#charclose').onclick=()=>togglePanel();
@@ -295,7 +296,7 @@ function renderTitle(){
   {const mc=$('#modechip');if(mc){const m=SAVE.mode||'solo';const txt={solo:['出山 · 单人无尽','Solo endless'],qpk:['对决 · 3 分钟','Duel · 3 min'],pk:['对决 · 10 分钟','Duel · 10 min'],daily:['每日挑战 · 全服同一局','Daily · same run for everyone'],rush:['首领连战','Boss rush'],room:['对决','Duel']}[m]||['',''];const ic={solo:'sword',qpk:'swords',pk:'trophy',daily:'calendar',rush:'boss',room:'crown'}[m]||'sword';mc.innerHTML=`${ICON.misc(ic,'#ffd27a','sm')}<b>${L(txt[0],txt[1])}</b>`}}
   {const op=$('#opp');if(op){const duel=SAVE.mode==='qpk'||SAVE.mode==='room';op.hidden=!duel;op.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.o===SAVE.mode))}}
   renderAsura();if(typeof renderRoom==='function')renderRoom();
-  document.querySelectorAll('#qual button').forEach(b=>b.classList.toggle('on',b.dataset.q===QLEVEL));
+  syncQuality();
   DIFFID='normal';document.querySelectorAll('#diff button').forEach(b=>{b.classList.toggle('on',b.dataset.d===DIFFID);b.disabled=SAVE.mode==='daily'});$('#diff').classList.toggle('locked',SAVE.mode==='daily');
   const mp=$('#maps');mp.textContent='';for(const k in MAPS){const M=MAPS[k],locked=M.need&&!SAVE.ach[M.need]&&!((SAVE.wins||0)>=(M.need==='boss2'?3:8)),b=document.createElement('button');b.type='button';b.className='mapb'+(k===MAPID?' on':'')+(locked?' locked':'');b.disabled=locked;const needN=M.need==='boss2'?2:4,totN=M.need==='boss2'?3:8;b.innerHTML=`<b>${LL(M)}</b><small>${locked?`🔒 ${SAVE.wins||0}/${totN}`:''}</small>`;if(locked)b.title=L(`一局斩 ${needN} 位首领解锁 · 累计 ${SAVE.wins||0}/${totN}`,`Slay ${needN} bosses in a run to unlock · ${SAVE.wins||0}/${totN}`);b.onclick=()=>{try{localStorage.setItem('sl_map',k)}catch(_){}b.innerHTML=`<b>${L('载入中…','Loading…')}</b>`;setTimeout(()=>location.reload(),60)};mp.appendChild(b)}
   const al=$('#ach');al.textContent='';const done=ACH.filter(a=>SAVE.ach[a.id]).length;$('#achcount').textContent=`${done}/${ACH.length}`;
@@ -369,12 +370,22 @@ $('#pausebtn').onclick=()=>{togglePause();$('#pausebtn').blur()};
 $('#resumebtn').onclick=()=>togglePause();
 $('#quitbtn').onclick=()=>{G.paused=false;$('#pause').hidden=true;if(!RIVAL_ON&&!G.room&&G.bossSlain>=1){G.retired=1;G.retireBonus=1;win()}else{G.abandoned=true;lose()}};
 function quitLabel(){const q=$('#quitbtn');if(!q||!G)return;const cash=!RIVAL_ON&&!G.room&&G.bossSlain>=1;q.innerHTML=cash?L('收官结算<small>奖励不打折</small>','Cash out<small>full rewards</small>'):L('放弃本局<small>奖励减半</small>','Abandon run<small>half rewards</small>')}
-function syncSound(){const m=SFX.muted;$('#mutebtn').textContent=m?L('声音:关','Sound: off'):L('声音:开','Sound: on');$('#sndbtn').textContent=m?'🔇':'🔊';$('#sndbtn').classList.toggle('off',m);const s2=$('#sndbtn2');if(s2){s2.textContent=m?'🔇':'🔊';s2.classList.toggle('off',m)}$('#musicvol').value=Math.round(SFX.musicVol*100);$('#sfxvol').value=Math.round(SFX.sfxVol*100);$('#snd-mute').checked=m}
-$('#mutebtn').onclick=()=>{SFX.toggleMute();syncSound()};
-$('#sndbtn').onclick=$('#sndbtn2').onclick=()=>{SFX.start();const m=SFX.toggleMute();syncSound();$('#sndpanel').hidden=true;$('#sndbtn').blur();showBanner(m?'静音':'声音开启',m?'Muted':'Sound on',.7)};
+function syncSound(){
+ const m=SFX.muted;
+ document.querySelectorAll('#sndbtn,#sndbtn2').forEach(b=>{b.textContent=m?'🔇':'🔊';b.classList.toggle('off',m)});
+ for(const [kind,value] of [['music',SFX.musicVol],['sfx',SFX.sfxVol]]){
+  const percent=Math.round(value*100);
+  document.querySelectorAll('[data-audio="'+kind+'"]').forEach(el=>el.value=percent);
+  document.querySelectorAll('[data-audio-value="'+kind+'"]').forEach(el=>el.textContent=percent+'%');
+ }
+ $('#snd-mute').checked=m;
+}
+document.querySelectorAll('#sndbtn,#sndbtn2').forEach(b=>b.onclick=()=>{SFX.start();SFX.toggleMute();syncSound();$('#sndpanel').hidden=true;b.blur()});
 $('#snd-mute').onchange=e=>{SFX.setMute(e.target.checked);syncSound()};
-$('#musicvol').oninput=e=>{SFX.start();SFX.setMusic(e.target.value/100);if(SFX.muted){SFX.setMute(false);syncSound()}};
-$('#sfxvol').oninput=e=>{SFX.start();SFX.setSfx(e.target.value/100);SFX.pick(1);if(SFX.muted){SFX.setMute(false);syncSound()}};
+document.querySelectorAll('[data-audio]').forEach(el=>el.oninput=()=>{
+ SFX.start();if(el.dataset.audio==='music')SFX.setMusic(el.value/100);else SFX.setSfx(el.value/100);
+ if(SFX.muted)SFX.setMute(false);syncSound();if(el.dataset.audio==='sfx')SFX.pick(1);
+});
 $('#sndclose').onclick=()=>{$('#sndpanel').hidden=true};
 syncSound();
 if(window.desktop){$('#exitbtn').hidden=false;$('#exitbtn').onclick=()=>window.desktop.quit()}
@@ -391,7 +402,7 @@ if(window.desktop){$('#exitbtn').hidden=false;$('#exitbtn').onclick=()=>window.d
 
 /* switchLang(l, manual): manual picks are remembered and beat the IP guess from then on */
 function langRefresh(){document.querySelectorAll('.langbtn').forEach(x=>x.classList.toggle('on',x.dataset.l===LOC));if(typeof renderLangPick==='function')renderLangPick();
-  renderTitle();syncSound();const bn=$('#buildnote');if(bn)bn.textContent=L('版本 ','Build ')+((document.querySelector('meta[name=build]')||{}).content||'dev');if(G&&!G.auto){drawSeals();drawRelics();if(G.paused){$('#pausesettings').open=false;renderPauseBuild();quitLabel()}if(G.panel)renderPanel()}if(typeof showTab==='function'&&typeof lobbyTab!=='undefined')showTab(lobbyTab)}
+  renderTitle();syncSound();const bn=$('#buildnote');if(bn)bn.textContent=L('版本 ','Build ')+((document.querySelector('meta[name=build]')||{}).content||'dev');if(G&&!G.auto){drawSeals();drawRelics();if(G.paused){renderPauseBuild();quitLabel()}if(G.panel)renderPanel()}if(typeof showTab==='function'&&typeof lobbyTab!=='undefined')showTab(lobbyTab)}
 function switchLang(l,manual){if(!LANGS.includes(l))return;if(manual&&!SAVE.nameSet&&typeof randomName==='function'){const o=LANG;LANG=(l==='zh'||l==='zt')?'zh':'en';SAVE.name=randomName();LANG=o;try{localStorage.setItem('sl_name',SAVE.name)}catch(_){}persist()}setLang(l,langRefresh,!!manual)}
 document.querySelectorAll('.langbtn').forEach(b=>{b.classList.toggle('on',b.dataset.l===LOC);b.onclick=()=>{switchLang(b.dataset.l,true);SFX.pick(1)}});
 /* language picker on the main menu: globe + the current language in its own script; the list names every language in its own script */
@@ -425,7 +436,7 @@ addEventListener('keydown',e=>{if(e.key==='Escape'&&lobbyTab&&!$('#menu').hidden
 function runSummaryX(){}
 function runSummary(){const C=CLASSES[SAVE.cls]||CLASSES.swordsman;const tsel=(SAVE.mode==='solo'||SAVE.mode==='rush')?Math.min(SAVE.asura.sel||0,SAVE.asura.max||0):0;return `${LL(C)} · ${LL(SPELLS[weaponOf(SAVE.cls)])} · ${SAVE.mode==='pk'?L('对决','PK'):SAVE.mode==='qpk'?L('打 AI 对手 3′','vs AI 3′'):SAVE.mode==='daily'?L('每日','Daily'):SAVE.mode==='rush'?L('首领连战','Boss rush'):SAVE.mode==='room'?L('多人房间','Room'):L('单人','Solo')}${tsel?` · ${L(`修罗 ${tsel} 层`,`Ascension ${tsel}`)}`:''} · ${LL(MAPS[MAPID])}`}
 function renderStatus(){const sb=$('#stickystart');if(sb)sb.querySelector('small').textContent=runSummary();const rs=$('#runsummary');if(rs)rs.textContent=runSummary();
-  document.querySelectorAll('#mode button,#diff button,#qual button,.langbtn,.tabbar button[data-t],.cls,.wp,.mapb').forEach(b=>b.setAttribute('aria-pressed',b.classList.contains('on')||b.classList.contains('sel')?'true':'false'));
+  document.querySelectorAll('#mode button,#diff button,[data-q],.langbtn,.tabbar button[data-t],.cls,.wp,.mapb').forEach(b=>b.setAttribute('aria-pressed',b.classList.contains('on')||b.classList.contains('sel')?'true':'false'));
   /* status: three glyph chips (account · trophies · gold) with the words in tooltips, not on the screen */
   const el=$('#status');if(!el)return;const a=typeof accountLv==='function'?accountLv():{lv:1,x:0,need:1};const t=typeof titleFor==='function'?titleFor(a.lv):['','',''];const lad=typeof ladderOf==='function'?ladderOf(SAVE.trophies||0):[0,'','',''];
   const signed=typeof CLOUD!=='undefined'&&CLOUD.ready&&CLOUD.user&&!CLOUD.isGuest();const acctTip=typeof CLOUD!=='undefined'?CLOUD.label():'';const pct=Math.round(100*(a.x||0)/Math.max(1,a.need||1));

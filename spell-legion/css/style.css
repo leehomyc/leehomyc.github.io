@@ -1225,5 +1225,19 @@ html[lang=ko]{--brush:"Song Myung","AppleMyungjo","Batang","Noto Serif KR",serif
 #pausesettings{border:1px solid var(--brass);border-radius:18px;background:#241723ed;text-align:left;overflow:hidden}
 #pausesettings summary{cursor:pointer;padding:16px 20px;font-family:var(--cute);font-size:20px;min-height:48px;box-sizing:border-box}
 .pauseoptions{display:grid;gap:12px;padding:0 16px 16px}
-#pause .controlnote{display:block;color:var(--bone);line-height:1.7;font-size:14px;text-align:left}
 #pause .pbox{max-height:calc(100dvh - 40px);overflow-y:auto;padding:4px}
+
+/* Shared menu and pause settings. */
+.qualityrow{display:flex;gap:6px;align-items:center}
+.qualityrow button{border-radius:8px;background:#2a1822;border:1px solid #6b5230;color:var(--bone);font:700 12px var(--ui);padding:8px 13px;cursor:pointer}
+.qualityrow button.on{background:var(--brass);color:#1a0e16;border-color:var(--brass)}
+.audiorow input[type=range]{flex:1;min-width:0;width:100%;accent-color:var(--brass);cursor:pointer;height:28px}
+.audiorow output{font:700 12px var(--ui);color:var(--bone);min-width:36px;text-align:right;font-variant-numeric:tabular-nums}
+.pauseoptions{gap:0}
+.pauseoptions .srow{border-radius:0;padding:12px 0;margin:0}
+.pauseoptions .sl{font-size:14px}
+.pauseoptions .langrow{flex:1;flex-wrap:wrap;gap:6px}
+.pauseoptions .langbtn{min-height:36px;padding:7px 9px}
+.pauseoptions .qualityrow{flex:1}
+.pauseoptions .qualityrow button{flex:1;min-height:36px}
+@media(max-width:420px){.pauseoptions{padding:0 14px 14px}.pauseoptions .sl{width:42px}.pauseoptions .srow{gap:8px}}
