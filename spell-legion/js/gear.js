@@ -44,7 +44,7 @@ const GEAR_LEG={
   tiancan:{slot:'armor',zh:'天蚕衣',en:'Silkworm Robe',d:'轻功冷却 -30%;冲刺落点震伤周围敌人',de:'Dash cooldown -30%; each dash ends in a damaging burst'},
   juhun:{slot:'trinket',zh:'聚魂幡',en:'Soul Banner',d:'每击杀 100 名敌人,伤害 +1%(本局,最多 +40%)',de:'+1% damage per 100 kills this run (up to +40%)'},
   qiankun:{slot:'trinket',zh:'乾坤袋',en:'Bag of Heaven and Earth',d:'拾取范围 ×2,经验 +15%',de:'Pickup range ×2, +15% XP'},
-  puti:{slot:'trinket',zh:'血菩提',en:'Blood Bodhi',d:'击杀精英回复 12% 生命',de:'Killing an elite heals 12% of max HP'},
+  puti:{slot:'trinket',zh:'血菩提',en:'Blood Bodhi',d:'击杀精英回复 4% 生命',de:'Killing an elite heals 4% of max HP'},
   yijin:{slot:'manual',zh:'易筋经',en:'Sinew Classic',d:'施放武学后 3 秒内,普攻出手快 50%',de:'For 3 s after you cast a skill, the normal attack fires 50% faster'},
   jiuyin:{slot:'manual',zh:'九阴真经',en:'Nine Yin Manual',d:'内力九成以上时,武学伤害 +30%;武学击杀回复 2 内力',de:'Skills deal +30% while qi is above 90%; skill kills restore 2 qi'},
   beiming:{slot:'manual',zh:'北冥神功',en:'Northern Abyss Art',d:'武学命中有 4% 几率立刻刷新它的冷却',de:'Skill hits have a 4% chance to reset that skill\'s cooldown'},
@@ -154,8 +154,8 @@ xOn('hit',(e,m,s,crit)=>{const gx=G.gx;if(!gx)return m;const P=G.P;let k=1;
   if(crit&&gxL('zhanlu')&&rnd()<.35&&!e.dead){const x=e.x,y=e.y;later(.05,()=>{if(!e.dead)hit(e,m*.6,null,true,'#ffe066');ring(x,y,22,'#ffe066');spark(x,y,'#ffe066',8,120)})}
   if(s&&gxL('beiming')&&!SPELLS[s.id].auto&&s.cd>1&&rnd()<.04&&G.t-(G._bmT||0)>1){G._bmT=G.t;s.cd=0;if(G.floats.length<CAP.fl)G.floats.push({x:P.x,y:P.y-34,t:.9,v:L('北冥 · '+SPELLS[s.id].zh+' 刷新','Reset: '+SPELLS[s.id].en),c:'#9fe3f0'})}
   return m});
-xOn('damage',(e,n)=>{if(G.gx?.life&&n>0)heal(n*G.gx.life/100)});
-xOn('kill',(e,s)=>{if(!G.gx)return;const P=G.P;if(gxL('puti')&&(e.elite||e.warlord||e.champion))heal(P.maxHp*.12);if(gxL('jiuyin')&&s&&!SPELLS[s.id].auto)P.mana=Math.min(P.maxMana,P.mana+2)});
+xOn('damage',(e,n)=>{if(G.gx?.life&&n>0)lifeSteal(n*G.gx.life/100)});
+xOn('kill',(e,s)=>{if(!G.gx)return;const P=G.P;if(gxL('puti')&&(e.elite||e.warlord||e.champion))heal(P.maxHp*.04);if(gxL('jiuyin')&&s&&!SPELLS[s.id].auto)P.mana=Math.min(P.maxMana,P.mana+2)});
 xOn('hurt',(n)=>{if(!G.gx)return n;const P=G.P;
   if(gxL('jinlv')&&P.hp-n*Math.max(.4,P.def)<P.maxHp*.3&&G.t-(G._jlT||-99)>45){G._jlT=G.t;grantShield(2.5);ring(P.x,P.y,46,'#ffd27a');showBanner('金缕衣 · 金身','Gold-thread Robe',1);return 0}
   if(gxL('xuanwu')&&G.t-(G._xwT||-9)>1.5){G._xwT=G.t;const d=18*P.dmg*(1+P.dmgBonus)*(1+G.t/300);near(P.x,P.y,70,e=>{if(e.type==='statue')return;const dx=e.x-P.x,dy=e.y-P.y,l=hyp(dx,dy)||1;if(l<70+e.r)hit(e,d,null,true,'#7fc98a',dx/l*260,dy/l*260)});ring(P.x,P.y,66,'#7fc98a')}

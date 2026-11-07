@@ -32,6 +32,51 @@ service cloud.firestore {
       allow create: if registered() && validRun(request.resource.data);
       allow update, delete: if false;
     }
+    function friends(a, b) {
+      let one = /databases/$(database)/documents/friendRequests/$(a + '_' + b);
+      let two = /databases/$(database)/documents/friendRequests/$(b + '_' + a);
+      return (exists(one) && get(one).data.status == 'accepted') || (exists(two) && get(two).data.status == 'accepted');
+    }
+    match /emailDirectory/{email} {
+      allow get: if registered();
+      allow list: if false;
+      allow create, update: if registered() && request.auth.token.email_verified == true
+        && request.auth.token.email.lower() == email && request.resource.data.uid == request.auth.uid
+        && request.resource.data.keys().hasOnly(['uid','updatedAt']) && request.resource.data.updatedAt == request.time;
+      allow delete: if registered() && resource.data.uid == request.auth.uid;
+    }
+    match /friendRequests/{id} {
+      allow read, delete: if registered() && (resource.data.from == request.auth.uid || resource.data.to == request.auth.uid);
+      allow create: if registered() && request.auth.token.email_verified == true
+        && request.resource.data.keys().hasOnly(['from','to','status','createdAt'])
+        && request.resource.data.from == request.auth.uid && request.resource.data.to is string
+        && request.resource.data.to != request.auth.uid && id == request.auth.uid + '_' + request.resource.data.to
+        && request.resource.data.status == 'pending' && request.resource.data.createdAt == request.time
+        && exists(/databases/$(database)/documents/profiles/$(request.resource.data.to))
+        && get(/databases/$(database)/documents/profiles/$(request.resource.data.to)).data.guest == false;
+      allow update: if registered() && resource.data.to == request.auth.uid && resource.data.status == 'pending'
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status']) && request.resource.data.status == 'accepted';
+    }
+    match /duelInvites/{id} {
+      allow read, delete: if registered() && (resource.data.to == request.auth.uid || resource.data.from == request.auth.uid);
+      allow create: if registered() && request.resource.data.keys().hasOnly(['from','to','code','createdAt','expiresAt'])
+        && request.resource.data.from == request.auth.uid && request.resource.data.to is string
+        && friends(request.auth.uid, request.resource.data.to)
+        && request.resource.data.code is string && request.resource.data.code.matches('[A-Z0-9]{4}')
+        && request.resource.data.createdAt == request.time && request.resource.data.expiresAt > request.time
+        && request.resource.data.expiresAt <= request.time + duration.value(10, 'm');
+      allow update: if false;
+    }
+    match /battleHistory/{uid}/matches/{id} {
+      allow read: if registered() && (request.auth.uid == uid || friends(request.auth.uid, uid));
+      allow create, update: if registered() && request.auth.uid == uid && request.resource.data.uid == uid
+        && request.resource.data.id == id && request.resource.data.at is number
+        && request.resource.data.score is number && request.resource.data.score >= 0
+        && request.resource.data.time is number && request.resource.data.time >= 0
+        && request.resource.data.mode in ['endless','duel'] && request.resource.data.outcome is string
+        && request.resource.data.createdAt == request.time;
+      allow delete: if registered() && request.auth.uid == uid;
+    }
     match /rooms/{code} {
       allow read: if signedIn();
       allow create: if signedIn() && request.resource.data.host == request.auth.uid && code.size() == 4;

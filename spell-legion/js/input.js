@@ -3,7 +3,7 @@
 const keys=new Set(),pickKeyHeld=new Set();
 const touch={on:false,id:null,sx:0,sy:0,x:0,y:0};
 function editingControl(target=document.activeElement){return !!(target&&(target.isContentEditable||target.closest?.('input,textarea,select,[contenteditable]:not([contenteditable="false"]),[role="textbox"]')))}
-function inputOverlay(){return document.querySelector('#gearov:not([hidden]),#lb:not([hidden])')}
+function inputOverlay(){return document.querySelector('#gearov:not([hidden]),#lb:not([hidden]),#socialov:not([hidden])')}
 function combatInputsReady(){return !document.hidden&&document.hasFocus?.()!==false&&canAct()&&!editingControl()&&!inputOverlay()}
 function clearGameInput(){keys.clear();pickKeyHeld.clear();touch.on=false;touch.id=null}
 function handleGameKeydown(e){

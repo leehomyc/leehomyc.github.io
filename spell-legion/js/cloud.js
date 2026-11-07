@@ -79,14 +79,14 @@ function mergeSave(local,cloud){
     out.lb.pendingRun=clone(better(lb.pendingRun,cb.pendingRun)||null);
     out.lb.day=Math.max(lb.day||0,cb.day||0);out.lb.dayBestRun=clone(lb.day===cb.day?better(lb.dayBestRun,cb.dayBestRun)||null:(lb.day>cb.day?lb.dayBestRun:cb.dayBestRun)||null);
   }
-  out.ts=Math.max(+local.ts||0,+cloud.ts||0);if(typeof migrateProgression==='function')migrateProgression(out);delete out.autocast;return out;
+  if(typeof socialMergeHistory==='function')out.history=socialMergeHistory(local.history,cloud.history);out.ts=Math.max(+local.ts||0,+cloud.ts||0);if(typeof migrateProgression==='function')migrateProgression(out);delete out.autocast;return out;
 }
 async function cloudAuthChanged(user){
   if(user&&CLOUD.auth.currentUser?.uid!==user.uid)return false;
   if(!user&&CLOUD.auth.currentUser)return cloudAuthChanged(CLOUD.auth.currentUser);
-  if(user&&CLOUD.user?.uid===user.uid){const changed=CLOUD.isGuest()!==!!user.isAnonymous;CLOUD.user=user;if(changed&&typeof lbAccountChanged==='function')lbAccountChanged();CLOUD.initializing=false;renderAccount();return CLOUD.syncedUid===user.uid?cloudPush(true):cloudPull()}
+  if(user&&CLOUD.user?.uid===user.uid){const changed=CLOUD.isGuest()!==!!user.isAnonymous;CLOUD.user=user;if(changed&&typeof lbAccountChanged==='function')lbAccountChanged();if(typeof socialAuthChanged==='function')socialAuthChanged();CLOUD.initializing=false;renderAccount();return CLOUD.syncedUid===user.uid?cloudPush(true):cloudPull()}
   clearTimeout(CLOUD.pushT);CLOUD.epoch++;CLOUD.user=user;CLOUD.syncedUid=null;CLOUD.pullTask=null;CLOUD.writeTask=Promise.resolve();CLOUD.lastPushed='';CLOUD.syncErr='';
-  CLOUD.initializing=!user;if(typeof lbAccountChanged==='function')lbAccountChanged();renderAccount();
+  CLOUD.initializing=!user;if(typeof socialAuthChanged==='function')socialAuthChanged();if(typeof lbAccountChanged==='function')lbAccountChanged();renderAccount();
   if(!user){
     try{const r=await (window.SPELL_CN_PROXY?Promise.race([CLOUD.auth.signInAnonymously(),new Promise((_,reject)=>setTimeout(()=>reject(new Error('auth/network-request-failed')),12000))]):CLOUD.auth.signInAnonymously());if(CLOUD.auth.currentUser?.uid===r.user.uid)return await cloudAuthChanged(r.user)}
     catch(e){console.warn('anon sign-in failed',e);CLOUD.status='noauth';CLOUD.initializing=false;renderAccount()}
@@ -125,11 +125,11 @@ async function cloudPush(now){
     if(!cloudSession(uid,epoch)||CLOUD.syncedUid!==uid)return false;
     const body=JSON.stringify(SAVE);if(body===CLOUD.lastPushed&&!now)return true;
     const clean=JSON.parse(body),a=typeof accountLv==='function'?accountLv():{lv:1},t=typeof titleFor==='function'?titleFor(a.lv):['','',''];
-    const profile={name:LB.name()||'无名侠客',lv:a.lv,axp:Math.max(0,SAVE.axp||0),trophies:Math.max(0,SAVE.trophies||0),cls:SAVE.cls,guest:CLOUD.isGuest(),title:t[1],ts:firebase.firestore.FieldValue.serverTimestamp(),...(SAVE.avatar?{av:{e:SAVE.avatar.e|0,h:SAVE.avatar.h|0}}:{})};
+    const profile={name:LB.name()||'无名侠客',lv:a.lv,axp:Math.max(0,SAVE.axp||0),trophies:Math.max(0,SAVE.trophies||0),cls:SAVE.cls,guest:CLOUD.isGuest(),bestScore:Math.max(0,SAVE.lb?.bestRun?.score||0),title:t[1],ts:firebase.firestore.FieldValue.serverTimestamp(),...(SAVE.avatar?{av:{e:SAVE.avatar.e|0,h:SAVE.avatar.h|0}}:{})};
     try{
       await CLOUD.db.collection('saves').doc(uid).set({save:clean,ts:firebase.firestore.FieldValue.serverTimestamp()});
       if(!cloudSession(uid,epoch))return false;
-      if(CLOUD.registered())await CLOUD.db.collection('profiles').doc(uid).set(profile,{merge:true});
+      if(CLOUD.registered())await CLOUD.db.collection('profiles').doc(uid).set(profile,{merge:true});if(typeof socialPublishDirectory==='function')await socialPublishDirectory().catch(()=>{});
       if(!cloudSession(uid,epoch))return false;
       if(typeof CLB!=='undefined'){delete CLB.cache.profiles;delete CLB.cache.profileByUid}if(typeof lbAccountChanged==='function')lbAccountChanged();
       CLOUD.lastPushed=body;CLOUD.syncErr='';return true;
@@ -197,13 +197,13 @@ async function cloudEmail(kind){
 /* ---- account actions in Settings ---- */
 function hasPassword(u){return !!(u&&u.providerData&&u.providerData.some(p=>p.providerId==='password'))}
 async function cloudResendVerify(){const u=CLOUD.auth?.currentUser;if(!u)return;return cloudAuthAction(async()=>{authLang();try{await u.sendEmailVerification();showMsg(L(`验证链接已重新发到 ${u.email}`,`Verification link sent again to ${u.email}`))}catch(e){showMsg(authMsg(e))}})}
-async function cloudCheckVerify(){const u=CLOUD.auth?.currentUser;if(!u)return;return cloudAuthAction(async()=>{try{await u.reload();if(CLOUD.auth.currentUser?.uid!==u.uid)return;CLOUD.user=CLOUD.auth.currentUser;if(CLOUD.user.emailVerified)await CLOUD.user.getIdToken(true);if(CLOUD.auth.currentUser?.uid!==u.uid)return;renderAccount();showMsg(CLOUD.user.emailVerified?L('邮箱已验证 ✓','Email verified ✓'):L('还没验证,请点邮件里的链接','Not verified yet — open the link in the email'))}catch(e){showMsg(authMsg(e))}})}
+async function cloudCheckVerify(){const u=CLOUD.auth?.currentUser;if(!u)return;return cloudAuthAction(async()=>{try{await u.reload();if(CLOUD.auth.currentUser?.uid!==u.uid)return;CLOUD.user=CLOUD.auth.currentUser;if(CLOUD.user.emailVerified){await CLOUD.user.getIdToken(true);if(typeof socialPublishDirectory==='function')await socialPublishDirectory();}if(CLOUD.auth.currentUser?.uid!==u.uid)return;renderAccount();showMsg(CLOUD.user.emailVerified?L('邮箱已验证 ✓','Email verified ✓'):L('还没验证,请点邮件里的链接','Not verified yet — open the link in the email'))}catch(e){showMsg(authMsg(e))}})}
 async function cloudChangePassword(){const u=CLOUD.auth&&CLOUD.auth.currentUser;if(!u||!u.email)return;authLang();try{await CLOUD.auth.sendPasswordResetEmail(u.email);showMsg(L(`改密码的链接已发到 ${u.email}`,`A link to set a new password was sent to ${u.email}`))}catch(e){showMsg(authMsg(e))}}
 async function cloudDeleteAccount(){
   const u=CLOUD.auth&&CLOUD.auth.currentUser;if(!u||u.isAnonymous)return;
   if(!confirm(L('永久删除账号和云存档？','Permanently delete account and cloud save?')))return;
   const uid=u.uid;
-  try{for(const c of ['saves','profiles'])try{await CLOUD.db.collection(c).doc(uid).delete()}catch(e){console.warn('delete '+c,e)}
+  try{if(typeof socialDeleteAccountData==='function')await socialDeleteAccountData();for(const c of ['saves','profiles'])try{await CLOUD.db.collection(c).doc(uid).delete()}catch(e){console.warn('delete '+c,e)}
     await u.delete();showMsg(L('账号已删除,继续以游客身份游玩','Account deleted; playing as guest'))}
   catch(e){console.warn(e);showMsg(authMsg(e))}
 }

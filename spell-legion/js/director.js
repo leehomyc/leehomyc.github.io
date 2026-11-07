@@ -22,9 +22,9 @@ const BOUNTIES=[
 function dirOn(){if(typeof window!=='undefined'&&window.__nodir)return false;return !!G&&!G.auto&&!G.over&&!RIVAL_ON&&!G.room&&!(typeof DAILY!=='undefined'&&DAILY)}
 function dirInit(){const skill=(typeof SAVE!=='undefined'&&SAVE.skill)||0,solo=SAVE.mode==='solo',base=(solo?1.15:.9)+skill*.45;G.dir={spawn:1,hp:1,dmg:1,elite:1,heal:1,counter:null,counterP:0,mood:'build',moodT:35,I:base,base,base0:base,lowHp:1,lastLow:0,peaks:0,champs:0,bounties:0,bountiesTried:0,hist:[]};G.dirStat={dmgRate:0,kpm:0,actShare:0,parries:0,elitesAlive:0,comboNow:0};G.dirT=0}
 function dirMeasure(){const P=G.P,D=G.dir,S=G.dirStat,t=G.t;
-  const r=P.hp/P.maxHp;D.hist.push({t,r,taken:G.dmgTaken,effective:G.effectiveDealt||0,kills:G.kills,dodges:G.dodges||0});while(D.hist.length&&D.hist[0].t<t-60)D.hist.shift();
+  const r=P.hp/P.maxHp;D.hist.push({t,r,taken:G.dmgTaken,healed:G.healed||0,effective:G.effectiveDealt||0,kills:G.kills,dodges:G.dodges||0});while(D.hist.length&&D.hist[0].t<t-60)D.hist.shift();
   const h0=D.hist[0],h30=D.hist.find(h=>h.t>=t-30)||h0;D.lowHp=Math.min(...D.hist.map(h=>h.r));
-  S.dmgRate=(G.dmgTaken-h30.taken)/Math.max(1,t-h30.t)/P.maxHp;S.kpm=(G.kills-h0.kills)/Math.max(1,t-h0.t)*60;S.parries=(G.dodges||0)-h0.dodges;
+  S.dmgRate=(G.dmgTaken-h30.taken)/Math.max(1,t-h30.t)/P.maxHp;S.kpm=(G.kills-h0.kills)/Math.max(1,t-h0.t)*60;S.parries=(G.dodges||0)-h0.dodges;S.healRate=((G.healed||0)-(h30.healed||0))/Math.max(1,t-h30.t)/P.maxHp;
   const tot=G.spells.reduce((a,s)=>a+s.dmg,0)||1;S.actShare=G.spells.filter(s=>!SPELLS[s.id].auto).reduce((a,s)=>a+s.dmg,0)/tot;S.elitesAlive=G.en.filter(e=>!e.dead&&e.elite).length;S.comboNow=G.combo;
   if(r<.55)D.lastLow=t;
   D.posHist=(D.posHist||[]).concat([{t,x:P.x,y:P.y}]).filter(h=>h.t>=t-8);const p0=D.posHist[0];S.still=p0?hyp(P.x-p0.x,P.y-p0.y)<40&&(t-p0.t)>=6:false;
@@ -47,7 +47,7 @@ function dirBountyTick(dt){const B=G.bounty;if(!B)return;B.t-=dt;const d=B.def;c
     showBanner(`挑战达成 · ${d.rzh}`,`Challenge done · ${d.ren}`,1.6);G.flash=Math.max(G.flash,.4);if(typeof SFX!=='undefined')SFX.complete()}}
 function bountyText(){const B=G.bounty;if(!B)return '';const p=B.def.prog();return L(`挑战 · ${B.def.zh} · ${Math.ceil(B.t)}s${p>=0&&p<1&&!['noHit','streak'].includes(B.id)?` · ${Math.round(p*100)}%`:''}`,`Challenge · ${B.def.en} · ${Math.ceil(B.t)}s${p>=0&&p<1&&!['noHit','streak'].includes(B.id)?` · ${Math.round(p*100)}%`:''}`)}
 function directorTick(dt){if(!dirOn())return;if(!G.dir)dirInit();const D=G.dir,t=G.t;dirBountyTick(dt);
-  G.dirT=(G.dirT||0)+dt;if(G.dirT<2)return;G.dirT-=2;dirMeasure();dirAdaptiveStep();const S=G.dirStat,P=G.P;
+  G.dirT=(G.dirT||0)+dt;if(G.dirT<2)return;G.dirT-=2;dirMeasure();dirAdaptiveStep();dirStationaryStrike();const S=G.dirStat,P=G.P;
   D.moodT-=2;const inBoss=!!G.boss;
   if(D.mood==='build'){ // calm: ease toward the baseline, let the build breathe
     D.I+=(D.base-D.I)*.25;D.counterP=0;if(D.moodT<=0&&t>(SAVE.mode==='solo'?100:150)&&!inBoss){D.mood='pressure';D.moodT=40;D.counter=dirCounter();D.counterP=.35;D.pushed=0}}
@@ -62,7 +62,7 @@ function directorTick(dt){if(!dirOn())return;if(!G.dir)dirInit();const D=G.dir,t
   const early=clamp((t-120)/360,0,1);D.I=clamp(D.I,D.base*.75,D.base*(1+1.6*early)); // the first minutes belong to the build: the director only starts leaning in after 2 min and reaches full reach at 8
   if(t<120)D.I=Math.min(D.I,SAVE.mode==='solo'?1.2:1);
   if(S.still&&t>150){D.counter=t>210&&rnd()<.4?'bomber':'archer';D.counterP=Math.max(D.counterP,.5)} // a player who stands still gets shot at: archers and bombers do full damage at range
-  D.spawn=D.mood==='pressure'?Math.min(1.6,D.I):D.mood==='relief'?.7:Math.min(1.15,D.I);D.hp=clamp(Math.pow(D.I,.4),.8,1.35);D.dmg=clamp(Math.pow(D.I,.45),.8+(SAVE.mode==='solo'?.12:0),1+.5*early+(SAVE.mode==='solo'?.12:0));D.elite=clamp(D.I,.8,1+1.2*early+(SAVE.mode==='solo'?.15:0));D.heal=D.mood==='pressure'?1.6:1;
+  D.spawn=D.mood==='pressure'?Math.min(1.6,D.I):D.mood==='relief'?.7:Math.min(1.15,D.I);D.hp=clamp(Math.pow(D.I,.4),.8,1.35);D.dmg=clamp(Math.pow(D.I,.45),.8+(SAVE.mode==='solo'?.12:0),1+.5*early+(SAVE.mode==='solo'?.12:0));D.elite=clamp(D.I,.8,1+1.2*early+(SAVE.mode==='solo'?.15:0));D.heal=D.mood==='pressure'?.8:1;
 }
 /* across runs: a veteran's director starts hotter; a player who keeps dying gets a gentler start */
 function dirRunEnd(){if(!G||!G.dir||typeof SAVE==='undefined'||RIVAL_ON||G.room)return;const mins=G.t/60,died=!!G.killer;let s=SAVE.skill||0;const target=clamp((mins-6)/24+(G.bossSlain*.04)-(died&&mins<8?.15:0),0,1);s+=(target-s)*.35;SAVE.skill=clamp(s,0,1);SAVE.dirPeaks=(SAVE.dirPeaks||0)+(G.dir.peaks||0)}
@@ -77,7 +77,7 @@ function dirAdaptiveStep(){
   const h=D.hist[0],span=h?G.t-h.t:0,r=P.hp/P.maxHp;
   if(G.t<120||span<20||G.boss)return;
   let level=D.adaptLevel||0;
-  const cruising=r>.8&&S.kpm>=180&&(S.dmgRate<.005||(S.still&&r>.95));
+  const cruising=r>.8&&S.kpm>=180&&(S.dmgRate<.005||((S.healRate||0)>=S.dmgRate*.8)||(S.still&&r>.95));
   if(P.down>0||r<.45)level=Math.max(0,level-2);else if(cruising)level=Math.min(8,level+1);else if(r<.65)level=Math.max(0,level-1);
   if(level>(D.adaptLevel||0))showBanner(`敌军进化 · ${level} 阶`,`Enemy evolution · tier ${level}: tougher foes and telegraphed attacks`,2);
   D.adaptLevel=level;
@@ -108,4 +108,13 @@ function dirEnemyAttack(e,T,dt){
   if(e.adaptAbility==='line'){const dx=T.x-e.x,dy=T.y-e.y,d=hyp(dx,dy)||1;for(let i=0;i<5;i++){const a=-80+i*40;add(T.x+dx/d*a,T.y+dy/d*a,22)}}
   else add(T.x,T.y,e.adaptAbility==='blast'?46:36);
   ring(e.x,e.y,e.r+10,col);
+}
+
+// A stationary build must answer a clear, dodgeable threat even when it kills elites immediately.
+function dirStationaryStrike(){
+  if(!dirOn()||SAVE.mode!=='solo'||G.t<120||!G.dirStat.still||G.P.down>0||G.boss)return;
+  const D=G.dir;if(G.t<(D.nextStrike||0)||G.hazards.some(h=>h.stationary&&h.tele>0))return;
+  D.nextStrike=G.t+12;
+  hazard(G.P.x,G.P.y,54,1.6,.25,0,0,'#ff8975');const h=G.hazards[G.hazards.length-1];h.percent=.22;h.stationary=true;h.source=['久驻落雷','Stationary lightning'];
+  showBanner('落雷将至 · 移动躲避','Lightning incoming · move out of the marked circle',1.6);
 }

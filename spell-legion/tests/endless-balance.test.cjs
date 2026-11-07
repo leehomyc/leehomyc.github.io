@@ -9,7 +9,7 @@ test('final pickup radius stays local even with stacked gear and relic multiplie
  const {run}=setup();for(const t of [0,180,600])assert.ok(run(`pickupRadius({mag:400},${t})`)<=180);assert.equal(run('pickupRadius({mag:1},600)'),52);
 });
 test('rejuvenation cannot exceed its total healing budget at extreme skill power',()=>{
- const {run}=setup();assert.equal(run('rejuvHealing({maxHp:100},{m:1},0,0)'),20);assert.ok(Math.abs(run('rejuvHealing({maxHp:100},{m:9999},10,999)')-45)<1e-8);
+ const {run}=setup();assert.equal(run('rejuvHealing({maxHp:100},{m:1},0,0)'),12);assert.ok(run('rejuvHealing({maxHp:100},{m:9999},2,999)')<35);
 });
 test('qi spending outruns regen during repeated casts and cost reduction cannot make skills free',()=>{
  const {run}=setup();run('const P={mana:0,maxMana:100,regen:100,manaRest:1};manaRegen(P,1)');assert.equal(run('P.mana'),1.125);run('manaRegen(P,1)');assert.equal(run('P.mana'),5.625);assert.equal(run('skillCost(mkSpell("ward"))'),50);
@@ -51,3 +51,27 @@ test('boss skyfall locks a dodgeable location, lands there and deals a health pe
 test('moving out of skyfall avoids all of its percentage damage',()=>{
  const {c,run}=setup();c.collide=()=>{};run(`G.P.x=G.P.y=100;G.P.dash=0;G.boss={type:'boss',x:300,y:300,hp:1000,maxHp:1000,n:2,r:20,skyCd:0};bossSkyfall(G.boss,.1);G.P.x=400;dmgP=()=>{throw Error('attack followed the player')};hazardTick(1.6)`);assert.equal(run('G.hazards[0].x'),100);
 });
+test('melody healing grows gently with skill power instead of multiplying with offensive damage',()=>{
+ const {run}=setup();assert.equal(run('melodyHealing({maxHp:100},{m:1},0)'),9);
+ assert.ok(run('melodyHealing({maxHp:100},{m:100},2)')<17);
+ assert.ok(run('melodyHealing({maxHp:100},{m:101},2)')>run('melodyHealing({maxHp:100},{m:100},2)'));
+});
+test('injury reduces healing for 2.5 seconds without consuming budget on overheal',()=>{
+ const {run}=setup();run('G.curse={};G.over=false;G.P.hp=20;G.t=100;G.woundedUntil=102.5;heal(10)');assert.equal(run('G.P.hp'),23.5);
+ run('G.t=103;heal(5)');assert.equal(run('G.P.hp'),28.5);
+});
+test('standing still attracts a fixed, dodgeable lightning strike with a cooldown; duels exclude it',()=>{
+ const {c,run}=setup();c.hazard=(x,y,r,tele,dur,burst,dps,col)=>run('G.hazards').push({x,y,r,tele,dur,burst,dps,col});
+ run('G.P.x=G.P.y=100;dirStationaryStrike();dirStationaryStrike()');assert.equal(run('G.hazards.length'),1);assert.equal(run('G.hazards[0].percent'),.22);assert.equal(run('G.hazards[0].tele'),1.6);
+ run('G.P.x=400;G.P.dash=0;dmgP=()=>{throw Error("strike followed player")};hazardTick(1.6)');
+ run('G.room=true;G.hazards=[];G.t=1000;dirStationaryStrike()');assert.equal(run('G.hazards.length'),0);
+});
+test('boss phases create telegraphed combinations and delayed followups without retargeting marked ground',()=>{
+ const {c,run}=setup();c.hazard=(x,y,r,tele,dur,burst,dps,col)=>run('G.hazards').push({x,y,r,tele,dur,burst,dps,col});
+ run('G.P.x=G.P.y=100;G.later=[];const B={type:"boss",hp:350,maxHp:1000,x:300,y:300,patternCd:0};G.boss=B;bossPressurePatterns(B,1.1)');
+ assert.equal(run('B.pressurePhase'),3);assert.equal(run('G.hazards.length'),5);assert.ok(run('G.hazards.every(h=>h.tele===1.5&&Math.abs(h.percent-.21)<1e-8)'));assert.equal(run('G.later.length'),1);
+ run('G.P.x=600;G.later[0].f()');assert.equal(run('G.hazards[5].x'),100);
+ run('G.room=true;G.hazards=[];B.patternCd=0;bossPressurePatterns(B,1)');assert.equal(run('G.hazards.length'),0);
+});
+test('boss sizing uses effective damage instead of scaling health with overkill',()=>{const {run}=setup();run('G.dpsAvg=1000000;G.effectiveDpsAvg=1000');assert.equal(run('powerHp(30)'),9000);run('G.room=true');assert.equal(run('powerHp(30)'),9000000)});
+test('defeated bosses clear their pending combination telegraphs',()=>{const {run}=setup();run('G.P.x=G.P.y=100;G.hazards=[{tele:1,dur:1,patternBoss:{dead:true}}];dmgP=()=>{throw Error("dead boss attack")};hazardTick(2)');assert.equal(run('G.hazards.length'),0)});

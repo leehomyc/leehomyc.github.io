@@ -239,7 +239,7 @@ const MINI={sword:{v:380,d:24,hc:.35,R:24},crane:{v:280,d:22,hc:.4,R:30},wisp:{v
 function miniHit(m,e){const s=m.s,st=stat(s),M=MINI[m.k],col=hcol(s);let d=M.d*st.m;if(m.k==='sword'&&s.awake)d*=1.15;if(m.k==='crane'&&s.awake)d*=1.25;
   hit(e,d,s,false,col,(e.x-m.x)*2,(e.y-m.y)*2);if(G.fx.length<CAP.fx)spark(e.x,e.y,col,2,50);
   if(m.k==='wisp'){e.burn=2;e.burnD=Math.max(e.burnD||0,4*st.m);e.burnS=s}
-  if(m.k==='gu'){poison(e,5*st.m,s,s.awake?2:1);heal(.35)}}
+  if(m.k==='gu'){poison(e,5*st.m,s,s.awake?2:1);lifeSteal(.35,s)}}
 function miniTick(dt){const P=G.P,main=G.spells[0];
   for(const m of G.minis){m.t+=dt;if(m.T&&m.t>m.T){m.dead=1;spark(m.x,m.y,hcol(m.s),4,50);continue}if(m.perm&&m.s!==main){m.dead=1;continue}
     const M=MINI[m.k],st=stat(m.s),range=200*st.size;m.a+=dt*2.4;const ox=P.x+Math.cos(m.a)*M.R,oy=P.y-4+Math.sin(m.a)*M.R;m.cool-=dt;
@@ -276,7 +276,7 @@ function heroMitigate(n){const P=G.P;if(P.dance>0)n*=.7;
 {const _hit=hit;hit=function(e,d,s,noEl,col,kx,ky){if(G.P.fan>0&&!(s&&s.owner==='rival'))d*=1.3;return _hit(e,d,s,noEl,col,kx,ky)}}
 {const _kill=kill;kill=function(e,s,kx,ky){const was=e.dead;const ch=e.charm>0?e.charmS:null;_kill(e,s,kx,ky);if(was||!e.dead||(s&&s.owner==='rival'))return;const P=G.P;
   if(s&&s.id==='goldgu'&&G.minis&&G.minis.filter(m=>m.s===s&&!m.perm).length<5)G.minis.push({k:'gu',s,x:e.x,y:e.y,a:rnd(TAU),st:'o',cool:0,t:0,T:6,hits:new Map()});
-  if(P.fan>0){heal(1);P.mana=Math.min(P.maxMana,P.mana+2)}
+  if(P.fan>0){lifeSteal(1,s);P.mana=Math.min(P.maxMana,P.mana+2)}
   if(ch&&ch.id==='wink'&&nd(ch,'chain')&&SIMR()<NODE_FX.chain*nd(ch,'chain')*3){const x=e.x,y=e.y;later(.03,()=>aoe(x,y,30,14*stat(ch).m,ch,'#ff6fb8',false,{quiet:1}))}}}
 {const _ng=newGame;newGame=function(a,b){_ng(a,b);G.minis=[];G.hx={seals:[],holes:[],drops:[]}}}
 

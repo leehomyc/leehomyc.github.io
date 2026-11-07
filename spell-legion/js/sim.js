@@ -13,7 +13,15 @@ const nd=(s,fx)=>{if(!s||!s.nodes)return 0;let r=0;const T=TREES[s.id]||[];for(c
 function skillCost(s){const rival=s.owner==='rival';return Math.max(1,Math.round(SPELLS[s.id].cost*1.25*Math.max(.35,1-NODE_FX.cost*nd(s,'cost'))*(!rival&&G&&G.relics&&G.relics.includes('taiji')?.75:1)*(!rival&&G&&G.relics&&G.relics.includes('bind')?.6:1)))}
 function manaRegen(P,dt){const rate=Math.min(P.regen,P.maxMana*.045);P.mana=Math.min(P.maxMana,P.mana+rate*((P.manaRest||0)>0?.25:1)*dt);P.manaRest=Math.max(0,(P.manaRest||0)-dt)}
 function pickupRadius(P,t=G.t){return Math.min(180,52*Math.min(3.4,P.mag)*(t<120?1.8:t<240?1.3:1))}
-function rejuvHealing(P,st,life,fed){return P.maxHp*Math.min(.45,Math.min(.35,(.2+.05*life)*Math.sqrt(Math.min(3,st.m)))+.01*Math.min(10,fed))}
+function healingPower(st){return 1+Math.log1p(Math.max(0,st.m-1))*.08}
+function rejuvHealing(P,st,life,fed){return P.maxHp*(.12+.018*life+.003*Math.min(10,fed))*healingPower(st)}
+function melodyHealing(P,st,life){return P.maxHp*(.09+.015*life)*healingPower(st)}
+// All on-hit healing shares a budget. Overkill and hitting a crowd cannot refill the globe.
+function lifeSteal(n,s){
+  const P=G.P,sec=Math.floor(G.t);if(G.leechSec!==sec){G.leechSec=sec;G.leechUsed=0}
+  const amount=Math.min(Math.max(0,n),Math.max(0,P.maxHp*.006-(G.leechUsed||0)));
+  const got=heal(amount,s);G.leechUsed=(G.leechUsed||0)+got;return got;
+}
 
 function newGame(auto,cls){
   cls=cls||CLASS;const C=CLASSES[cls];
@@ -161,10 +169,10 @@ function hit(e,d,s,noEl,col,kx=0,ky=0){
   const P=G.P,rv=s&&s.owner==='rival',O=rv?G.rival:P;let m=d*O.dmg*(1+(O.dmgBonus||0))*(e.shred>0?1.25:1)*(!rv&&P.buff&&P.buff.k==='dmg'?1.3:1)*(s&&!SPELLS[s.id].auto?ACTIVE_MULT*(P.parryBoost||1):1)*(e.type==='boss'&&e.exposed>0?1.6:1); // active skills hit much harder per cast than the normal attack: they cost qi and have cooldowns
   m*=(1-(e.adaptArmor||0))*(e.sealEmpowered?1/1.2:1);
   const cc=O.crit+(s?NODE_FX.crit*nd(s,'crit'):0),crit=SIMR()<Math.min(1,cc);if(crit)m*=2+Math.max(0,cc-1)*2; // crit chance caps at 100%; the overflow becomes crit damage
-  if(s&&!rv){const lf=nd(s,'life');if(lf)heal(m*NODE_FX.life*lf,s);const ch=nd(s,'chain');if(ch&&SIMR()<NODE_FX.chain*ch&&!noEl)arc(e,m*.35,s,1)}
-  if(!rv&&P.frenzy>0){e.hp-=m*.4;if(s)s.dmg+=m*.4;heal(m*.03)}
-  if(!rv){if(hasR('jade'))heal(m*.03);if(hasR('pearl')&&!noEl&&SIMR()<.12)arc(e,m*.4,s||G.spells[0],1);if(hasR('iron'))e.slow=Math.max(e.slow||0,.6);if(hasR('blood')&&P.hp<P.maxHp*.5){e.hp-=m*.25;if(s)s.dmg+=m*.25}}
-  if(!rv&&typeof onHitX==='function')m=onHitX(e,m,s,crit,noEl);if(e.tired)m*=e.tired;if(!rv)G.dealt=(G.dealt||0)+m;const dealt=Math.min(Math.max(0,e.hp),Math.max(0,m));e.hp-=m;if(!rv)G.effectiveDealt=(G.effectiveDealt||0)+dealt;if(!rv&&typeof onDamageX==='function')onDamageX(e,dealt,s);e.flash=crit?.14:.08;e.sq=crit?.5:.3;if(kx||ky){const l=hyp(kx,ky)||1;e.sqx=kx/l;e.sqy=ky/l}if(s)s.dmg+=m;if(rv)G.rival.dmgDealt+=m;
+  if(s&&!rv){const ch=nd(s,'chain');if(ch&&SIMR()<NODE_FX.chain*ch&&!noEl)arc(e,m*.35,s,1)}
+  if(!rv&&P.frenzy>0){e.hp-=m*.4;if(s)s.dmg+=m*.4}
+  if(!rv){if(hasR('pearl')&&!noEl&&SIMR()<.12)arc(e,m*.4,s||G.spells[0],1);if(hasR('iron'))e.slow=Math.max(e.slow||0,.6);if(hasR('blood')&&P.hp<P.maxHp*.5){e.hp-=m*.25;if(s)s.dmg+=m*.25}}
+  if(!rv&&typeof onHitX==='function')m=onHitX(e,m,s,crit,noEl);if(e.tired)m*=e.tired;if(!rv)G.dealt=(G.dealt||0)+m;const dealt=Math.min(Math.max(0,e.hp),Math.max(0,m));e.hp-=m;if(!rv){const lf=s?nd(s,'life'):0;if(lf)lifeSteal(dealt*NODE_FX.life*lf,s);if(P.frenzy>0)lifeSteal(dealt*.015);if(hasR('jade'))lifeSteal(dealt*.015)}if(!rv)G.effectiveDealt=(G.effectiveDealt||0)+dealt;if(!rv&&typeof onDamageX==='function')onDamageX(e,dealt,s);e.flash=crit?.14:.08;e.sq=crit?.5:.3;if(kx||ky){const l=hyp(kx,ky)||1;e.sqx=kx/l;e.sqy=ky/l}if(s)s.dmg+=m;if(rv)G.rival.dmgDealt+=m;
   const kk=e.type==='boss'?.12:e.type==='giant'?.4:e.type==='statue'?0:1;
   e.kx=(e.kx||0)+kx*kk;e.ky=(e.ky||0)+ky*kk;
   if(!rv&&!G.auto&&G.floats.length<CAP.fl&&(m>=Math.max(18,e.maxHp*.25)||(crit&&(G.P.crit<.5||e.type==='boss'||e.elite||SIMR()<.2)))&&(G.en.length<120||e.type==='boss'||e.elite||m>=e.maxHp*.5))G.floats.push({x:e.x+rnd(-4,4),y:e.y-e.r-3,t:.6,v:Math.round(m),c:crit?'#ffd75a':(col||'#efe4cd'),crit});
@@ -191,19 +199,20 @@ function arc(from,d,s,n){
     const dd=(fk==='ice+lightning'&&e.slow>0)?d*2:d;
     const was=e.hp;hit(e,dd,s,true,'#ffe066');
     if(fk==='fire+lightning'){e.burn=3;e.burnD=Math.max(e.burnD||0,dd*.3);e.burnS=s}
-    if(fk==='dark+lightning'&&was>0&&e.dead)heal(1.5);
+    if(fk==='dark+lightning'&&was>0&&e.dead)lifeSteal(1.5,s);
   }
 }
-const healCap=t=>t<180?.12:Math.max(.045,.12-(t-180)/600*.075);
+const healCap=t=>t<120?.07:Math.max(.025,.07-(t-120)/480*.045);
 function heal(n,s){
-  const P=G.P;if(endlessDuel()&&(P.down>0||G.over))return;
-  const want=Math.max(0,n*healMul(G.t)*(G.curse.heal||1)),missing=Math.max(0,P.maxHp-P.hp);
+  const P=G.P;if(P.down>0||G.over)return 0;
+  const want=Math.max(0,n*healMul(G.t)*(G.curse.heal||1)*((G.woundedUntil||0)>G.t?.35:1)),missing=Math.max(0,P.maxHp-P.hp);
   const sec=Math.floor(G.t);if(G.healSec!==sec){G.healSec=sec;G.healIn=0}
   const room=Math.max(0,P.maxHp*healCap(G.t)-G.healIn),got=Math.min(want,missing,room),over=Math.max(0,want-missing);
   G.healCapped=(G.healCapped||0)+Math.min(want,missing)-got;G.healIn+=got;P.hp+=got;
   if(P.hp>P.maxHp*.35)G._nd=0;
   G.healed=(G.healed||0)+got;G.overheal=(G.overheal||0)+over;
   if(s){s.healed=(s.healed||0)+got;s.overheal=(s.overheal||0)+over}
+  return got;
 }
 function grantShield(duration,budget){
   const P=G.P;
@@ -251,7 +260,7 @@ function kill(e,s,kx=0,ky=0){
   if(e.affix==='explode'){const x=e.x,y=e.y,d=e.dmg*1.3;later(.08,()=>{ring(x,y,34,'#ff4a2a');spark(x,y,'#ff6a3a',14,120);const P=G.P;if(hyp(P.x-x,P.y-y)<34+6)dmgP(d,x,y,['爆裂敌人','exploding enemy']);if(G.rival&&hyp(G.rival.x-x,G.rival.y-y)<40)rivalHurt(d,x,y)})}
   if(e.warlord&&!G.creditOff){if(!(s&&s.owner==='rival'))G.warlordSlain=(G.warlordSlain||0)+1;spawnChest(e.x,e.y);showBanner('统领已斩','Warlord slain: treasure drops',1.4);if(G.room)roomSendWave(8);trauma(.6);G.slow=Math.max(G.slow,.5);G.flash=.5;if(typeof SFX!=='undefined')SFX.win()}
   const fk=fusion(s);
-  if(s&&has(s,'dark')&&SIMR()<.05)heal(1);
+  if(s&&has(s,'dark')&&SIMR()<.05)lifeSteal(1,s);
   if(fk==='dark+fire'&&e.burn>0){const d=e.maxHp*.5+s.lv*2,x=e.x,y=e.y;later(.05,()=>aoe(x,y,26,d,s,'#ff5a2c',true))}
   if(fk==='dark+ice'&&e.slow>0){near(e.x,e.y,38,o=>{if(o.type!=='boss')o.frz=.7});ring(e.x,e.y,36,'#8fdcf0')}
   if(fk==='acid+dark'&&e.shred>0)pool(e.x,e.y,26,3,6+s.lv*.6,s);
@@ -303,7 +312,7 @@ function dmgP(n,fx,fy,src){
   if(P.vajra>0){const vs=G.spells.find(x=>x.id==='vajra');const st=vs?stat(vs):{m:1,size:1};G.skillBlocked=(G.skillBlocked||0)+n*.7;if(vs)vs.blocked=(vs.blocked||0)+n*.7;n*=.3;near(P.x,P.y,50*st.size,e=>{if(e.type==='statue')return;const dx=e.x-P.x,dy=e.y-P.y,d=hyp(dx,dy)||1;if(d<50*st.size+e.r){hit(e,14*st.m,vs,false,'#ffe9a0',dx/d*220,dy/d*220);e.goldT=.35;if(vs)vs.refl=(vs.refl||0)+1}});if(vs&&nd(vs,'life'))heal(2*nd(vs,'life'),vs);ring(P.x,P.y,40,'#ffe9a0')}
   if(typeof onHurtX==='function'){n=onHurtX(n,src,fx,fy);if(n<=0)return}
   if(tier(15))n*=1.1;
-  {const dm=Math.max(.4,P.def);if(dm<1)G.mitigated=(G.mitigated||0)+n*(1-dm);else G.vulnerable=(G.vulnerable||0)+n*(dm-1);n*=dm}P.hp-=n;P.inv=.4;G.dmgTaken+=n; // mitigation caps at 60%
+  {const dm=Math.max(.4,P.def);if(dm<1)G.mitigated=(G.mitigated||0)+n*(1-dm);else G.vulnerable=(G.vulnerable||0)+n*(dm-1);n*=dm}P.hp-=n;if(n>0)G.woundedUntil=G.t+2.5;P.inv=.4;G.dmgTaken+=n; // mitigation caps at 60%
   G.dmgBy=G.dmgBy||{};{const k=(src||['敌人','enemy']).join('|');G.dmgBy[k]=(G.dmgBy[k]||0)+n}
   {const r=P.hp/P.maxHp;G.minHp=Math.min(G.minHp===undefined?1:G.minHp,Math.max(0,r));if(r<.2&&!G._nd){G._nd=1;G.nearDeath=(G.nearDeath||0)+1}}
   G.dmgLog=G.dmgLog||[];G.dmgLog.push({t:G.t,n,src:src||['敌人','enemy']});if(G.dmgLog.length>60)G.dmgLog.shift();if(P.hp<=0)G.killer=src||['敌人','enemy'];
@@ -399,7 +408,7 @@ function autoFire(s){ // the normal attack of each class
     const col=s.els[0]?ELS[s.els[0]].col:SPELLS.fist.col,every=s.awake?3:5;
     if(s.swing%every===0){const R=60*st.size;near(P.x,P.y,R+14,e=>{const dx=e.x-P.x,dy=e.y-P.y,d=hyp(dx,dy)||1;if(d<R+e.r)hit(e,30*st.m*(s.awake?1.25:1),s,false,undefined,dx/d*260*st.knock,dy/d*260*st.knock)});G.fx.push({k:'wave',x:P.x,y:P.y,a,t:.26,T:.26,c:col,w:1.1});shock(P.x,P.y,120,.03);hitStop(.04);trauma(.14,-Math.cos(a),-Math.sin(a));if(typeof SFX!=='undefined')SFX.palm()}
     else{const targets=[t];for(let i=0;i<st.n;i++){let b=null,bd=60;near(P.x,P.y,60,e=>{if(targets.includes(e)||e.type==='statue')return;const dd=hyp(e.x-P.x,e.y-P.y);if(dd<bd){bd=dd;b=e}});if(b)targets.push(b)}
-      for(const tt of targets){hit(tt,13.5*st.m*(s.awake?1.25:1),s,false,undefined,Math.cos(a)*40,Math.sin(a)*40);spark(tt.x,tt.y,col,3,70);if(nd(s,'life'))heal(.3*nd(s,'life'))}if(typeof SFX!=='undefined'&&SIMR()<.5)SFX.slash()}
+      for(const tt of targets){hit(tt,13.5*st.m*(s.awake?1.25:1),s,false,undefined,Math.cos(a)*40,Math.sin(a)*40);spark(tt.x,tt.y,col,3,70);if(nd(s,'life'))lifeSteal(.3*nd(s,'life'),s)}if(typeof SFX!=='undefined'&&SIMR()<.5)SFX.slash()}
     s.cd=.22*st.cdM;
   }else if(s.id==='needle'){ // poison needles: thin fast volley, stacks poison
     const t=nearest(P.x,P.y,220,true);if(!t)return false;
@@ -451,7 +460,7 @@ function castSkill(i){
   }else if(s.id==='array'||s.id==='bagua'){
     s.active=sp.dur+s.lv*.25+st.dur;s.a=0;ring(P.x,P.y,60,sp.col);trauma(.2);if(typeof SFX!=='undefined')SFX.array();
   }else if(s.id==='ward'){
-    heal(P.maxHp*.25*st.m,s);grantShield(Math.min(7,3.5+s.lv*.06)+st.dur*.5,P.maxHp*(.35+.012*s.lv)*st.m);
+    heal(P.maxHp*.12*healingPower(st),s);grantShield(Math.min(7,3.5+s.lv*.06)+st.dur*.5,P.maxHp*(.35+.012*s.lv)*st.m);
     aoe(P.x,P.y,80*st.size,8*st.m,s,sp.col,false,{quiet:1});trauma(.25);shock(P.x,P.y,170,.03);if(typeof SFX!=='undefined')SFX.ward();
   }else if(s.id==='whirl'){
     s.active=sp.dur+s.lv*.06+st.dur;s.tk=0;trauma(.15);if(typeof SFX!=='undefined')SFX.whirl();
@@ -475,7 +484,7 @@ function castSkill(i){
     const fn=()=>{const n=10+st.n*2,o=rnd(TAU);for(let i=0;i<n;i++)shoot(P.x,P.y-6,o+i/n*TAU,s,11*st.m,{v:230,life:.9,pierce:2+st.pierce,r:5*st.size,knock:90*st.knock,slow:.6});G.fx.push({k:'wave',x:P.x,y:P.y,a:0,t:.3,T:.3,c:sp.col,full:1});trauma(.2);if(typeof SFX!=='undefined')SFX.array()};
     fn();if(st.burst)later(.25,fn);
   }else if(s.id==='guangling'){
-    s.active=sp.dur+st.dur;s.tk=0;trauma(.15);if(typeof SFX!=='undefined')SFX.shrine();
+    s.active=sp.dur+st.dur;s.tk=0;s.healBudget=melodyHealing(P,st,nd(s,'life'));s.healTick=s.healBudget/Math.ceil(s.active/.25);trauma(.15);if(typeof SFX!=='undefined')SFX.shrine();
   }else if(s.id==='tiger'){ // pounce onto the thickest crowd, slam and stun
     const cands=G.en.filter(e=>!e.dead&&e.type!=='statue'&&hyp(e.x-P.x,e.y-P.y)<190);let best=null,bs=-1;for(const e of cands){let n=0;for(const o of cands)if(hyp(o.x-e.x,o.y-e.y)<55)n++;if(n>bs){bs=n;best=e}}
     const tx=best?best.x:P.x+P.dx*90,ty=best?best.y:P.y+P.dy*90,a=Math.atan2(ty-P.y,tx-P.x),dist=Math.min(180,hyp(tx-P.x,ty-P.y));
@@ -518,9 +527,9 @@ function orbits(dt){
   for(const s of G.spells){
     if(s.id==='frenzy'&&s.active>0){s.active-=dt;P.frenzy=s.active;if(s.active<=0)P.frenzy=0;continue}
     if(s.id==='vajra'&&s.active>0){s.active-=dt;P.vajra=s.active;if(s.active<=0)P.vajra=0;continue}
-    if(s.id==='zen'&&s.active>0){s.active-=dt;s.tk-=dt;P.zen=s.active;const st=stat(s),tot=sp_dur(s);if(s.tk<=0){s.tk=1;const R=90*st.size;heal(P.maxHp*.15*(1+.3*nd(s,'life'))*st.m*(2/Math.max(2,tot)),s);P.mana=Math.min(P.maxMana,P.mana+P.maxMana*.03);near(P.x,P.y,R+14,e=>{const dx=e.x-P.x,dy=e.y-P.y,d=hyp(dx,dy)||1;if(d<R+e.r)hit(e,10*st.m,s,false,undefined,dx/d*240*st.knock,dy/d*240*st.knock)});G.fx.push({k:'wave',x:P.x,y:P.y,a:0,t:.3,T:.3,c:SPELLS.zen.col,full:1});if(typeof SFX!=='undefined')SFX.ward()}if(s.active<=0)P.zen=0;continue}
+    if(s.id==='zen'&&s.active>0){s.active-=dt;s.tk-=dt;P.zen=s.active;const st=stat(s),tot=sp_dur(s);if(s.tk<=0){s.tk=1;const R=90*st.size;heal(P.maxHp*.06*(1+.15*nd(s,'life'))*healingPower(st)*(2/Math.max(2,tot)),s);P.mana=Math.min(P.maxMana,P.mana+P.maxMana*.03);near(P.x,P.y,R+14,e=>{const dx=e.x-P.x,dy=e.y-P.y,d=hyp(dx,dy)||1;if(d<R+e.r)hit(e,10*st.m,s,false,undefined,dx/d*240*st.knock,dy/d*240*st.knock)});G.fx.push({k:'wave',x:P.x,y:P.y,a:0,t:.3,T:.3,c:SPELLS.zen.col,full:1});if(typeof SFX!=='undefined')SFX.ward()}if(s.active<=0)P.zen=0;continue}
     if(s.id==='rejuv'&&s.active>0){s.active-=dt;s.tk-=dt;if(s.tk<=0){s.tk=.25;const n=Math.min(s.healLeft/12,s.healBudget||0);s.healBudget=Math.max(0,(s.healBudget||0)-n);heal(n,s)}continue}
-    if(s.id==='guangling'&&s.active>0){s.active-=dt;s.tk-=dt;const st=stat(s);if(s.tk<=0){s.tk=.25;const R=120*st.size;near(P.x,P.y,R+12,e=>{if(hyp(e.x-P.x,e.y-P.y)<R+e.r){hit(e,4*st.m,s,false,undefined,0,0);if(!(e.slow>0))s.ctrl=(s.ctrl||0)+1;e.slow=Math.max(e.slow||0,.6)}});heal((1+nd(s,'life'))*st.m*1.5,s)}continue}
+    if(s.id==='guangling'&&s.active>0){s.active-=dt;s.tk-=dt;const st=stat(s);if(s.tk<=0){s.tk=.25;const R=120*st.size;near(P.x,P.y,R+12,e=>{if(hyp(e.x-P.x,e.y-P.y)<R+e.r){hit(e,4*st.m,s,false,undefined,0,0);if(!(e.slow>0))s.ctrl=(s.ctrl||0)+1;e.slow=Math.max(e.slow||0,.6)}});const n=Math.min(s.healTick||0,s.healBudget||0);s.healBudget=Math.max(0,(s.healBudget||0)-n);heal(n,s)}continue}
     if(s.id==='whirl'&&s.active>0){s.active-=dt;s.tk-=dt;const st=stat(s);if(s.tk<=0){s.tk=.11;const R=52*(st.gi?1.25:1)*st.size;near(P.x,P.y,R+12,e=>{const dx=e.x-P.x,dy=e.y-P.y,d=hyp(dx,dy)||1;if(d<R+e.r){const tx=-dy/d,ty=dx/d;hit(e,5*st.m,s,false,undefined,tx*90+dx/d*60,ty*90+dy/d*60)}});if(typeof SFX!=='undefined')SFX.whirlTick()}continue}
     if((s.id!=='array'&&s.id!=='bagua')||s.active<=0)continue;
     s.active-=dt;
@@ -667,7 +676,7 @@ function previewLevels(s,lv){const c={...s,nodes:{...s.nodes},pts:s.pts,lv:s.lv}
 function spellCard(s,q){const m=SPELLS[s.id],next=s.lv+1,lv=q.k==='common'?1:q.k==='rare'?2:q.k==='epic'?3:5;
   const pv=previewLevels(s,lv);const gotN=pv.got.filter(n=>n.fx!=='dmg'&&n.fx!=='cd');const gotTxt=gotN.length?gotN.map(n=>L(n.d.replace(' / 级',''),n.de.replace(' / rank',''))).join(' · '):'';
   const now=stat(s),after=stat(pv.c),cdNow=m.auto?null:skillCooldown(s,now),cdAfter=m.auto?null:skillCooldown(pv.c,after);
-  const rejuv=s.id==='rejuv',hp0=rejuv?rejuvHealing(G.P,now,nd(s,'life'),0)/G.P.maxHp:0,hp1=rejuv?rejuvHealing(G.P,after,nd(pv.c,'life'),0)/G.P.maxHp:0;const pct=Math.round(((rejuv?hp1/hp0:after.m/now.m)-1)*100),cdp=cdNow?Math.round((1-cdAfter/cdNow)*100):0;
+  const rejuv=['rejuv','guangling','zen'].includes(s.id),budget=(sp,st)=>sp.id==='rejuv'?rejuvHealing(G.P,st,nd(sp,'life'),0):sp.id==='guangling'?melodyHealing(G.P,st,nd(sp,'life')):G.P.maxHp*.12*(1+.15*nd(sp,'life'))*healingPower(st),hp0=rejuv?budget(s,now)/G.P.maxHp:0,hp1=rejuv?budget(pv.c,after)/G.P.maxHp:0;const pct=Math.round(((rejuv?hp1/hp0:after.m/now.m)-1)*100),cdp=cdNow?Math.round((1-cdAfter/cdNow)*100):0;
   const plain=`${m.zh}升 ${lv} 级:伤害 +${pct}%`+(cdNow&&cdp?`,冷却 -${cdp}%`:'')+((next<=7&&s.lv+lv>=7&&!s.els.length)?' · 并可灌注真气':'')+((s.lv+lv>=14&&s.els.length===1)?' · 并可融合真气':'');
   const hm=SKILL_CAT[s.id]==='heal'?healMul(G.t)*(G.curse.heal||1):1,wd0=SKILL_CAT[s.id]==='heal'?L('治疗','heal'):SKILL_CAT[s.id]==='defense'?L('效果','effect'):L('伤害','damage');const nums=[rejuv?L(`治疗 ${Math.round(hp0*hm*100)}% → ${Math.round(hp1*hm*100)}% 生命`,`Heal ${Math.round(hp0*hm*100)}% → ${Math.round(hp1*hm*100)}% HP`):`${wd0} ×${(now.m*hm).toFixed(2)} → ×${(after.m*hm).toFixed(2)}`+(hm<1?L(`(含治疗效率 ${Math.round(hm*100)}%)`,` (at ${Math.round(hm*100)}% heal efficiency)`):''),cdNow?`${L('冷却','cooldown')} ${cdNow.toFixed(1)}s → ${cdAfter.toFixed(1)}s`:''].filter(Boolean).join(' · ');
   const extra=(next<=7&&s.lv+lv>=7&&!s.els.length)?' · 解锁真气':(s.lv+lv>=14&&s.els.length===1)?' · 解锁融合':'';
@@ -800,7 +809,7 @@ function spawnTick(dt){
   if(G.ambush>0){G.ambush-=dt;if(G.ambush<=0){const P=G.P;spawnChest(P.x+rnd(-60,60),P.y+rnd(-60,60));showBanner('伏击已破','Ambush survived: a chest drops'+(RIVAL_ON?' · +'+PK_EVENTS.ambush:''),1.2);G.score+=PK_EVENTS.ambush;(G.sc=G.sc||{kill:0,big:0,ev:0}).ev+=PK_EVENTS.ambush;if(typeof SFX!=='undefined')SFX.complete()}}
   if(G.warlordNow){G.warlordNow=0;G.warlordN++;const o=edgePoint();spawnEnemy('giant',o.x,o.y,9+G.warlordN*3,true);const e=G.en[G.en.length-1];e.warlord=1;e.sc=2;e.r=16;e.name='铁甲统领';showBanner('铁甲统领','The Iron Warlord arrives',1.6)}
   if(!BOSSRUSH&&t>=G.warlordN*BOSS_AT+120&&!G.boss){if(tier(7)){const o2=edgePoint();spawnEnemy('giant',o2.x,o.y,9+G.warlordN*3,true);const e2=G.en[G.en.length-1];e2.warlord=1;e2.sc=2;e2.r=16;e2.name='铁甲统领'}G.warlordN++;const o=edgePoint();spawnEnemy('giant',o.x,o.y,9+G.warlordN*3,true);const e=G.en[G.en.length-1];e.warlord=1;e.sc=2;e.r=16;e.spd*=1.15+G.warlordN*.05;e.hp=e.maxHp=Math.max(e.hp,powerHp(9));e.name='铁甲统领';showBanner('铁甲统领','The Iron Warlord arrives',1.6);trauma(.4);if(typeof SFX!=='undefined')SFX.bossIn()}
-  if(t>=bossDue()&&!G.boss){const n=G.bossN,V=BOSSES[n%BOSSES.length],o=edgePoint(),k=1+n*1.25,solo=SAVE.mode==='solo'&&!G.auto&&!G.room&&!RIVAL_ON,hp=Math.round(Math.max((BOSSRUSH?5000:9000)*k*(1+t/600)*D().hp*(tier(10)?1.3:1)*(duelLen()&&t<BOSS_AT?.5:1),powerHp(BOSSRUSH?20:duelLen()&&t<BOSS_AT?18:26)))*(solo?1.12:1)*(tier(20)?1.25:1);
+  if(t>=bossDue()&&!G.boss){const n=G.bossN,V=BOSSES[n%BOSSES.length],o=edgePoint(),k=1+n*1.25,solo=SAVE.mode==='solo'&&!G.auto&&!G.room&&!RIVAL_ON,hp=Math.round(Math.max((BOSSRUSH?5000:9000)*k*(1+t/600)*D().hp*(tier(10)?1.3:1)*(duelLen()&&t<BOSS_AT?.5:1),powerHp(BOSSRUSH?20:duelLen()&&t<BOSS_AT?18:solo?32:26)))*(solo?1.35:1)*(tier(20)?1.25:1);
     G.boss={x:o.x,y:o.y,t0:G.t,type:'boss',hp,maxHp:hp,spd:46+n*3,dmg:22*(1+n*.35)*D().dmg*(tier(6)?1.25:1)*Math.pow(G.bossK||1,.22)*(G.curse.bossDmg||1)*(solo?1.1:1),r:20,xp:0,fr:0,vx:0,vy:0,kx:0,ky:0,n,name:V[0],en:V[1],tint:V[2],rate:Math.max(.55,1-n*.12)*(tier(17)?.87:1)};G.en.push(G.boss);sealEmpower(G.boss);G.bossT=2.2;G.bossSpawned=1;
     const cyc=Math.floor(n/BOSSES.length)+1;if(cyc>=2){for(let i=0;i<Math.min(4,cyc);i++){const o2=edgePoint();spawnEnemy(pick(['giant','brute','archer']),o2.x,o2.y,3+cyc,true);const e2=G.en[G.en.length-1];e2.escort=1;e2.sc=1.4;e2.hp=e2.maxHp=Math.max(e2.hp,powerHp(3))}} // later cycles: the boss brings elite escorts
     showBanner(V[0]+'现身',V[1]+' emerges',2.6);trauma(.6);G.slow=Math.max(G.slow,.5);if(!G.auto&&typeof bossIntro==='function')bossIntro(V[0],V[1],n);if(!G.auto){$('#bossbar').hidden=false;$('#bossname').textContent=(cyc>=2?L(`第${['','一','二','三','四','五','六','七','八','九'][cyc]||cyc}轮 ${n%BOSSES.length+1}/${BOSSES.length} · `,`Cycle ${cyc} · ${n%BOSSES.length+1}/${BOSSES.length} · `):'')+L(V[0],V[1])}if(typeof SFX!=='undefined')SFX.bossIn();
@@ -809,15 +818,26 @@ function spawnTick(dt){
 function bossSkyfall(B,dt){
   if(B.skyfall){const f=B.skyfall;f.t-=dt;if(f.t<=0){B.x=f.x;B.y=f.y;B.skyfall=null;B.exposed=Math.max(1.5,B.exposed||0);ring(B.x,B.y,68,'#ffc474');spark(B.x,B.y,'#ff9b52',40,170);trauma(.45);shock(B.x,B.y,180,.035)}return true}
   if(!soloPressure()||G.P.down>0||B.charge>0||B.tele>0)return false;
-  B.skyCd=(B.skyCd??6)-dt;if(B.skyCd>0)return false;B.skyCd=12;
+  B.skyCd=(B.skyCd??6)-dt;if(B.skyCd>0)return false;B.skyCd=B.hp<B.maxHp*.4?8:11;
   const P=G.P,pos={x:P.x,y:P.y};collide(pos,B.r||20);
   const percent=Math.min(.3,.2+.02*(B.n||0));B.skyfall={...pos,t:1.6,T:1.6};
   hazard(pos.x,pos.y,58,1.6,.35,0,0,'#ffad63');const h=G.hazards[G.hazards.length-1];h.skyBoss=B;h.percent=percent;h.source=['首领天降重击','boss skyfall'];
   showBanner(`首领天降 · 离开光圈！命中扣 ${Math.round(percent*100)}% 生命`,`SKYFALL · Move out! Hit loses ${Math.round(percent*100)}% max HP`,1.6);return true;
 }
+function bossPressurePatterns(B,dt){
+  if(!soloPressure()||G.P.down>0||G.over)return;
+  const phase=B.hp<B.maxHp*.4?3:B.hp<B.maxHp*.7?2:1;
+  if(phase>(B.pressurePhase||1)){showBanner(`首领 · 第 ${phase} 阶段！注意连招`,`Boss phase ${phase} · watch for combos`,1.6);B.patternCd=Math.min(B.patternCd||3,1)}B.pressurePhase=phase;
+  B.patternCd=(B.patternCd??3)-dt;if(B.patternCd>0||B.skyfall||B.charge>0)return;B.patternCd=phase===1?8:phase===2?6:5;
+  const P=G.P,origin={x:P.x,y:P.y},angle=Math.atan2(P.y-B.y,P.x-B.x),pattern=(B.patternN||0)%2;B.patternN=(B.patternN||0)+1;
+  const mark=(x,y,r,delay)=>{hazard(clamp(x,35,W-35),clamp(y,35,H-35),r,delay,.3,0,0,'#ff6f87');const h=G.hazards[G.hazards.length-1];h.percent=.12+phase*.03;h.source=['首领连阵','Boss combination'];h.patternBoss=B};
+  if(pattern===0){for(let i=-2;i<=2;i++)mark(origin.x+Math.cos(angle)*i*44,origin.y+Math.sin(angle)*i*44,26,1.5)}
+  else{mark(origin.x,origin.y,48,1.5);for(let i=0;i<phase;i++){const a=angle+(i-(phase-1)/2)*.8;mark(origin.x+Math.cos(a)*85,origin.y+Math.sin(a)*85,32,1.5)}}
+  if(phase>=2){const next={x:origin.x+(P.dx||0)*90,y:origin.y+(P.dy||0)*90};later(.75,()=>{if(!B.dead&&G.boss===B&&!G.over)mark(next.x,next.y,40,1.5)})}
+}
 function bossAI(dt){
   const B=G.boss;if(!B||B.dead)return;const P=G.shared?arenaBossTarget(B):G.P;
-  if(bossSkyfall(B,dt))return;
+  bossPressurePatterns(B,dt);if(bossSkyfall(B,dt))return;
   if(B.charge>0){B.charge-=dt;B.x+=B.cvx*dt;B.y+=B.cvy*dt;collide(B,B.r);if(B.charge<=0){ring(B.x,B.y,34,'#e0503f');trauma(.3);if(hyp(B.x-P.x,B.y-P.y)>60){B.exposed=2;showBanner('破绽!','OPENING!',1)}}return}
   if(B.tele>0){B.tele-=dt;if(B.tele<=0){const a=Math.atan2(B.ty-B.y,B.tx-B.x);B.cvx=Math.cos(a)*300;B.cvy=Math.sin(a)*300;B.charge=.62;if(typeof SFX!=='undefined')SFX.bossCharge()}return}
   G.bossT-=dt;if(G.bossT>0)return;
@@ -866,7 +886,7 @@ function hazard(x,y,r,tele,dur,burst,dps,col){if(G.hazards.length>70)G.hazards.s
 function hazardTick(dt){
   const P=G.P;
   for(const h of G.hazards){
-    if(h.skyBoss?.dead){h.tele=0;h.dur=0;continue}
+    if(h.skyBoss?.dead||h.patternBoss?.dead){h.tele=0;h.dur=0;continue}
     if(h.tele>0){h.tele-=dt;if(h.tele<=0){ring(h.x,h.y,h.r,h.col);if(P.down<=0&&hyp(P.x-h.x,P.y-h.y)<h.r+6){if(P.dash>0)parry();const before=P.hp;dmgP(h.percent?P.maxHp*h.percent/Math.max(.4,P.def):h.burst,h.x,h.y,h.source||['首领地面攻击','boss ground attack']);if(h.leech&&!h.leech.dead&&P.hp<before){const e=h.leech;e.hp=Math.min(e.maxHp,e.hp+Math.min(e.maxHp*.03,(before-P.hp)*.5))}}if(typeof SFX!=='undefined')SFX.bossAttack('radial')}continue}
     h.dur-=dt;if(h.dps>0){h.tk-=dt;if(h.tk<=0&&P.down<=0&&hyp(P.x-h.x,P.y-h.y)<h.r+4){h.tk=.5;dmgP(h.dps*.5,h.x,h.y,['首领毒雾/烈焰','boss hazard'])}}
   }
@@ -879,14 +899,14 @@ function hazardTick(dt){
   }
 }
 function parry(){const P=G.P;G.dodges=(G.dodges||0)+1;if(P.parryCd>0)return;P.parryCd=6;P.parry=4;const B=G.boss;if(B&&!B.dead&&hyp(B.x-P.x,B.y-P.y)<260){B.exposed=Math.max(B.exposed||0,2.2);ring(B.x,B.y,60,'#ffd27a');showBanner('破招!首领露出破绽','PARRY - the boss is open',1)}else showBanner('破招!下一式威力大增','PARRY - next skill empowered',1);ring(P.x,P.y,40,'#ffd27a');trauma(.25);G.slow=Math.max(G.slow,.25);if(typeof SFX!=='undefined')SFX.block()}
-function bullet(x,y,a,v,d,arrow){if(G.bullets.length<CAP.bu)G.bullets.push({x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v,life:5,d,boss:arrow?0:1})}
+function bullet(x,y,a,v,d,arrow){if(G.bullets.length<CAP.bu)G.bullets.push({x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v,life:5,d:!arrow&&soloPressure()&&G.boss?Math.max(d,G.P.maxHp*.12/Math.max(.4,G.P.def)):d,boss:arrow?0:1})}
 function collectRelics(dt){const P=G.P;for(const f of G.fx){if(f.k!=='relic'||f.t<=0)continue;
     if(P.down<=0&&hyp(f.x-P.x,f.y-P.y)<(RELICS[f.id].cursed?30:18)){if(RELICS[f.id].cursed){f.hold=(f.hold||0)+dt;if(f.hold<.6)continue}f.t=0;takeRelic(f.id)}
     else if(f.hold)f.hold=Math.max(0,f.hold-dt)}}
 
 /* ---------- step ---------- */
 function step(dt){
-  const P=G.P;P.spd=moveSpeed(P);G.t+=dt;sealRageTick();{const vx=(P.x-(P.px===undefined?P.x:P.px))/dt,vy=(P.y-(P.py===undefined?P.y:P.py))/dt;P.vx=(P.vx||0)*.7+vx*.3;P.vy=(P.vy||0)*.7+vy*.3;P.px=P.x;P.py=P.y}if(typeof directorTick==='function')directorTick(dt);if(typeof extTick==='function')extTick(dt);{G.dpsT=(G.dpsT||0)+dt;if(G.dpsT>=1){G.dpsT-=1;const d=(G.dealt||0)-(G.dealtLast||0);G.dealtLast=G.dealt||0;G.dpsHist=(G.dpsHist||[]).concat([d]).slice(-20);G.dpsAvg=G.dpsHist.reduce((a,b)=>a+b,0)/G.dpsHist.length}} // rolling 20 s damage output: the first boss and the warlords are sized from it
+  const P=G.P;P.spd=moveSpeed(P);G.t+=dt;sealRageTick();{const vx=(P.x-(P.px===undefined?P.x:P.px))/dt,vy=(P.y-(P.py===undefined?P.y:P.py))/dt;P.vx=(P.vx||0)*.7+vx*.3;P.vy=(P.vy||0)*.7+vy*.3;P.px=P.x;P.py=P.y}if(typeof directorTick==='function')directorTick(dt);if(typeof extTick==='function')extTick(dt);{G.dpsT=(G.dpsT||0)+dt;if(G.dpsT>=1){G.dpsT-=1;const d=(G.dealt||0)-(G.dealtLast||0);G.dealtLast=G.dealt||0;G.dpsHist=(G.dpsHist||[]).concat([d]).slice(-20);G.dpsAvg=G.dpsHist.reduce((a,b)=>a+b,0)/G.dpsHist.length;const ed=(G.effectiveDealt||0)-(G.effectiveLast||0);G.effectiveLast=G.effectiveDealt||0;G.effectiveDpsHist=(G.effectiveDpsHist||[]).concat([ed]).slice(-20);G.effectiveDpsAvg=G.effectiveDpsHist.reduce((a,b)=>a+b,0)/G.effectiveDpsHist.length}} // rolling 20 s damage output: the first boss and the warlords are sized from it
   if(RIVAL_ON&&G.rival&&G.t+(G.pickWall||0)>=(G.quick?180:PK_LEN)&&!G.over)pkEnd();
   if(G.room&&typeof roomNetTick==='function')roomNetTick(dt);
   for(let i=G.later.length-1;i>=0;i--){const l=G.later[i];l.t-=dt;if(l.t<=0){G.later.splice(i,1);l.f()}}
@@ -1049,7 +1069,7 @@ function win(){if(G.auto)return;closeCards();G.over='win';G.slow=1.6;G.flash=1;t
 function lose(){if(G.auto){newGame(true);demoBoost();return}closeCards();G.over='lose';if(G.room&&typeof roomOnDeath==='function')roomOnDeath();G.slow=1;later(1.2,()=>showEnd(false));if(typeof SFX!=='undefined')SFX.lose()}
 /* how hard you hit right now, as one number; the last boss fight calibrates what that number means in HP per second */
 function powerIdx(){const P=G.P;let m=0;G.spells.forEach((s,i)=>{const c=SKILL_CAT[s.id];if(c==='heal'||c==='defense')return;m+=stat(s).m*(i===0?1:.3)});return P.dmg*(1+P.dmgBonus)*(1+Math.min(1,P.crit)*.8)*Math.max(.5,m)}
-function powerHp(sec){const r=G.bossRef,field=(G.dpsAvg||0)*sec*.3;/* crowd damage overstates single-target output, so only 30% of it counts */if(!r||!r.dps)return field;const ratio=Math.pow(clamp(powerIdx()/r.pow,1,2.2),.6)*(r.corr||1);return Math.max(field*.8,r.dps*ratio*sec)}
+function powerHp(sec){const r=G.bossRef,field=(soloPressure()&&Number.isFinite(G.effectiveDpsAvg)?G.effectiveDpsAvg:(G.dpsAvg||0))*sec*.3;/* crowd damage overstates single-target output, so only 30% of it counts */if(!r||!r.dps)return field;const ratio=Math.pow(clamp(powerIdx()/r.pow,1,2.2),.6)*(r.corr||1);return Math.max(field*.8,r.dps*ratio*sec)}
 function duelLen(){if(G.room&&typeof ROOM!=='undefined'&&ROOM.data&&ROOM.data.mode==='time')return ROOM.data.len||180;if(RIVAL_ON&&G.rival&&!G.room)return G.quick?180:PK_LEN;return 0}
 function bossDue(){if(G.curse.bossEvery&&G.cycAt!==undefined)return G.cycAt+(G.bossN-G.cycN)*G.curse.bossEvery+G.curse.bossEvery;const dl=duelLen();return BOSSRUSH?25+G.bossN*75:(G.bossN+1)*((G.ev&&G.ev.bossEvery)||(dl?Math.min(BOSS_AT,Math.round(dl*.6)):BOSS_AT))}
 function nextBossIn(){return Math.max(0,bossDue()-G.t)}

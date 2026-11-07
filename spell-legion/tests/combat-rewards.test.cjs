@@ -24,9 +24,9 @@ function setup(){
 const near=(a,b)=>assert.ok(Math.abs(a-b)<1e-8,`${a} != ${b}`);
 test('full-health healing does not consume the shared cap; effective healing still obeys it',()=>{
   const {run}=setup();run('G.P.hp=100;heal(40);G.P.hp=50;heal(10)');
-  near(run('G.P.hp'),60);near(run('G.healIn'),10);near(run('G.overheal'),40);
-  run('heal(10)');near(run('G.P.hp'),62);near(run('G.healCapped'),8);
-  run('G.t=101;heal(5)');near(run('G.P.hp'),67);
+  near(run('G.P.hp'),57);near(run('G.healIn'),7);near(run('G.overheal'),40);
+  run('heal(10)');near(run('G.P.hp'),57);near(run('G.healCapped'),13);
+  run('G.t=101;heal(5)');near(run('G.P.hp'),62);
 });
 test('ward and timed protection retain separate budgets and expire independently',()=>{
   const {run}=setup();run('grantShield(4,20);grantShield(.8);dmgP(100,1,1);G.P.inv=0');
@@ -45,17 +45,17 @@ test('mana shield consumes only damage left after the ward and no mana during ti
   run('G.P.inv=0;grantShield(1);dmgP(100,1,1)');near(run('G.P.mana'),94);near(run('G.P.hp'),46);
 });
 function equipLife(run){run("SAVE.gear={inv:[{id:'life',slot:'weapon',a:[{k:'life',v:2}]}],eq:{weapon:'life'}};gearApply(G.P);G.spells=[mkSpell('sword')];target={type:'rat',x:1,y:1,r:5,hp:1000,maxHp:1000};");}
-test('equipment lifesteal follows the same damage at high and low hit rates',()=>{
+test('equipment lifesteal shares a time budget across simultaneous hits',()=>{
   for(const spaced of [false,true]){
     const {run}=setup();equipLife(run);
     for(let i=0;i<10;i++)run(`G.t=${100+(spaced?i*.2:0)};hit(target,10,G.spells[0],true)`);
-    near(run('G.healed'),2);near(run('G.P.hp'),52);
+    near(run('G.healed'),spaced?1.2:.6);near(run('G.P.hp'),spaced?51.2:50.6);
   }
 });
 test('lifesteal uses damage after enemy reduction and excludes overkill',()=>{
-  const {run}=setup();equipLife(run);run('target.tired=.5;hit(target,100,G.spells[0],true)');near(run('G.healed'),1);
+  const {run}=setup();equipLife(run);run('target.tired=.5;hit(target,25,G.spells[0],true)');near(run('G.healed'),.25);
   // Isolate the kill side effects while exercising the complete hit calculation.
-  run('target.hp=5;target.tired=0;kill=e=>{e.dead=true};hit(target,100,G.spells[0],true)');near(run('G.healed'),1.1);
+  run('target.hp=5;target.tired=0;kill=e=>{e.dead=true};hit(target,100,G.spells[0],true)');near(run('G.healed'),.35);
 });
 const item=(id,r=0,v=3)=>({id,slot:'weapon',r,t:1,a:[{k:'dmg',v}],zh:id,en:id,new:1});
 test('the same drop is processed once, including two tick hooks before effect removal',()=>{
