@@ -7,7 +7,8 @@ const SFX=(()=>{
   function ensure(){
     if(ac)return true;
     const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return false;
-    try{if(typeof navigator!=='undefined'&&navigator.audioSession)navigator.audioSession.type='playback'}catch(_){}
+    // Game audio should mix with music or podcasts already playing on the phone.
+    try{if(typeof navigator!=='undefined'&&navigator.audioSession)navigator.audioSession.type='ambient'}catch(_){}
     ac=new AC();master=ac.createGain();master.gain.value=.8;
     const comp=ac.createDynamicsCompressor();comp.threshold.value=-14;comp.ratio.value=4;
     master.connect(comp);comp.connect(ac.destination);
