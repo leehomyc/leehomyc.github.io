@@ -63,7 +63,7 @@ test('double clicking login sends just one request, and a rejected password unlo
 });
 test('password reset does not require a password; short signup passwords are rejected locally',async()=>{
  const h=setup();let resets=0;h.password.value='';h.auth.sendPasswordResetEmail=async em=>{assert.equal(em,h.email.value);resets++};await h.c.cloudEmail('reset');assert.equal(resets,1);
- h.password.value='123';await h.c.cloudEmail('signup');assert.equal(h.messages.at(-1),'Password needs 6+ characters');
+ h.password.value='123';await h.c.cloudEmail('signup');assert.equal(h.messages.at(-1),'Password needs 7+ characters');
 });
 test('blocked Google popups on hyang.org do not enter an unreliable cross-origin redirect',async()=>{
  const h=setup();let redirects=0;h.user.linkWithPopup=async()=>{throw {code:'auth/popup-blocked'}};h.user.linkWithRedirect=async()=>redirects++;
@@ -88,4 +88,16 @@ test('first anonymous sign-in completes initialization and synchronizes the gues
  const h=setup();h.auth.currentUser=null;h.cloud.user=null;h.cloud.syncedUid=null;h.cloud.initializing=true;
  h.auth.signInAnonymously=async()=>{h.auth.currentUser=h.user;return {user:h.user}};
  await h.c.cloudAuthChanged(null);assert.equal(h.cloud.user.uid,'guest');assert.equal(h.cloud.initializing,false);assert.equal(h.cloud.syncedUid,'guest');
+});
+
+test('registration only requires seven characters and accepts digits, letters, symbols or Unicode alone',async()=>{
+ for(const password of ['1234567','abcdefg','!!!!!!!','中文字密码测试啊']){
+  const h=setup();h.password.value=password;let linked;h.user.linkWithCredential=async credential=>{linked=credential.password;return {user:h.user}};h.user.sendEmailVerification=async()=>{};await h.c.cloudEmail('signup');await tick();assert.equal(linked,password);
+ }
+ for(const password of ['123456','abcdef','!!!!!!','😀😀😀😀😀😀']){
+  const h=setup();h.password.value=password;let called=false;h.user.linkWithCredential=async()=>{called=true};await h.c.cloudEmail('signup');assert.equal(called,false);assert.equal(h.messages.at(-1),'Password needs 7+ characters');
+ }
+});
+test('existing six-character passwords remain valid for signing in',async()=>{
+ const h=setup();h.password.value='123456';let passed;h.auth.signInWithEmailAndPassword=async(email,password)=>{passed=password;return {user:h.user}};await h.c.cloudEmail('signin');await tick();assert.equal(passed,'123456');
 });
