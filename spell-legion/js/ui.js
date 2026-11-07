@@ -198,7 +198,7 @@ function renderAsura(){
   if(bestEl)bestEl.hidden=!on;
   if(!on)return;
   const A=SAVE.asura,max=Math.min(A.max||0,ASURA.length),sel=Math.min(A.sel||0,max);
-  if(bestEl){const score=SAVE.lb?.bestRun?.score;bestEl.innerHTML=`<span>${L('修罗','Ascension')} ${sel}/${ASURA.length}</span><span>${L('最高分','Personal best')} ${Number.isFinite(score)?Math.round(score).toLocaleString('en-US'):'—'}</span>`}
+  if(bestEl){const score=SAVE.lb?.bestRun?.score;bestEl.innerHTML=`<span>${L('修罗','Ascension')} ${sel}/${ASURA.length}</span><span>${L('最高分','Best')} ${Number.isFinite(score)?Math.round(score).toLocaleString('en-US'):'—'}</span>`}
   A.sel=sel;const oldScroll=el.querySelector('.asura-rail')?.scrollLeft;
   el.replaceChildren();
   const head=document.createElement('div');head.className='asura-head';

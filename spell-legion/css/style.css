@@ -1286,3 +1286,22 @@ html[lang=ja] #menu .vname.vzh{font-size:clamp(30px,min(6vw,8vh),64px);white-spa
   #menu .tabbar button{padding:7px 4px}
   #menu .mfoot{margin-top:4px}
 }
+
+/* Hero title, selected Ascension tier and personal best share one header row. */
+@media (max-width:760px){
+  #hero .hhead{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:7px 8px;align-items:center}
+  #hero .hhead .back{grid-column:1/-1;justify-self:start}
+  #hero .hhead h2{grid-column:1;grid-row:2;min-width:0;flex:none;order:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:13px;letter-spacing:0}
+  #hero #endlessbest{grid-column:2;grid-row:2;min-width:0;flex-wrap:nowrap;gap:4px;font-size:11px}
+  #hero #endlessbest span{min-height:25px;padding:3px 6px}
+}
+@media (max-width:420px){
+  #hero .hhead h2{font-size:14px}
+  #hero #endlessbest{font-size:12px}
+  #hero #endlessbest span{padding-inline:7px}
+}
+@media (max-width:350px){
+  #hero .hhead h2{font-size:12px}
+  #hero #endlessbest{font-size:10px}
+  #hero #endlessbest span{padding-inline:5px}
+}
