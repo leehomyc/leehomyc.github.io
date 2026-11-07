@@ -1357,3 +1357,9 @@ body.touchhud #healthwarning{bottom:calc(235px + env(safe-area-inset-bottom));fo
 
 /* Pausing hides combat countdowns; resuming restores their current values. */
 #stage:has(#pause:not([hidden])) .seal .need{visibility:hidden}
+
+/* Keep the desktop menu width independent of the number of profile chips. */
+@media(min-width:761px) and (min-height:521px){
+  #menu .ttb{width:480px;flex:0 1 480px}
+  #menu #menubtns{width:100%;max-width:none}
+}
