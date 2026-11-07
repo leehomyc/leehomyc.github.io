@@ -53,7 +53,8 @@ async function openLeaderboard(board){
     const prof=lbBoard==='endless'?await LB.profiles(myI>=50?[...top,d.rows[myI]]:top):{};if(seq!==lbSeq)return;
     const rows=lbDecorate(top,prof);
     body.innerHTML=lbPodium(rows.slice(0,3))+(rows.length>3?`<ol class="lbl">${rows.slice(3).map((r,i)=>lbRow(r,i+3)).join('')}</ol>`:'')+(rows.length?'':`<p class="lbnote big">${L('还没人上榜','No one yet')}</p>`);
-    mine.innerHTML=myI>=0?`<ol class="lbl">${lbRow(lbDecorate([d.rows[myI]],prof)[0],myI)}</ol>`:`<p class="lbnote cta">${L('未上榜','Unranked')}</p>`;
+    mine.innerHTML=myI>=50?`<ol class="lbl">${lbRow(lbDecorate([d.rows[myI]],prof)[0],myI)}</ol>`:myI<0?`<p class="lbnote cta">${L('未上榜','Unranked')}</p>`:'';
+    mine.hidden=myI>=0&&myI<50;
   }catch(e){console.warn(e);if(seq===lbSeq)lbRetry(body)}
 }
 function closeLeaderboard(){$('#lb').hidden=true;lbSeq++;lbMenuRank()}

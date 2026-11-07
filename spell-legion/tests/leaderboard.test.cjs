@@ -47,9 +47,27 @@ test('leaderboard falls back to the shared proxy when direct Firestore is unreac
 test('an unauthenticated viewer is never mistaken for another player with the same name',()=>{
   const {lb}=setup();assert.equal(lb.isMe({uid:'someone-else',name:'Hero'}),false);
 });
+test('ladder and level boards hide empty profiles and collapse guest and account copies of one name',async()=>{
+  const {clb,cloud}=setup();cloud.ready=true;cloud.user={uid:'account'};
+  clb.query=async()=>[
+    {_id:'guest',name:'Hero',guest:true,trophies:20,lv:4,axp:100},
+    {_id:'account',name:'Hero',guest:false,trophies:20,lv:4,axp:100},
+    {_id:'empty',name:'New player',guest:true,trophies:0,lv:1,axp:0}
+  ];
+  for(const board of ['ladder','level']){
+    const data=await clb.fetch(board);assert.equal(data.rows.length,1);assert.equal(data.rows[0].uid,'account');
+  }
+});
 test('same-user tied times keep the better boss/kill result and sort consistently',async()=>{
   const {clb}=setup();clb.raw=async()=>[{uid:'a',score:500,time:100,bosses:1,kills:50},{uid:'a',score:500,time:100,bosses:2,kills:20},{uid:'b',score:500,time:100,bosses:2,kills:30},{uid:'c',score:9000,time:1000,mode:'room'}];
   const data=await clb.fetch('all');assert.deepEqual(Array.from(data.rows,r=>r.uid),['b','a']);assert.equal(data.rows[1].bosses,2);
+});
+test('endless board keeps one best score when a guest and account share a name',async()=>{
+  const {clb}=setup();clb.raw=async()=>[
+    {uid:'guest',name:'Hero',mode:'solo',score:500,time:100,bosses:0,kills:50},
+    {uid:'account',name:'Hero',mode:'solo',score:600,time:90,bosses:0,kills:40}
+  ];
+  const data=await clb.fetch('endless');assert.equal(data.rows.length,1);assert.equal(data.rows[0].uid,'account');
 });
 test('today cache follows the day and concurrent reads share one request',async()=>{
   let day=20261107,calls=0;const {clb}=setup({dayKey:()=>day});clb.query=async()=>{calls++;return [{time:calls}]};

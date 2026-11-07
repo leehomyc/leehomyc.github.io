@@ -9,6 +9,7 @@ const MENU_MODES=[
 /* retired entries (kept playable through SAVE.mode for old links, not offered): 'pk' ten-minute AI race, 'rush' boss rush */
 let SCREEN='menu',HSKILL=null;
 function showScreen(s){
+  if(s==='hero'&&typeof syncAscensionMap==='function'&&syncAscensionMap())return;
   SCREEN=s;const m=$('#menu'),h=$('#hero');if(!m||!h)return;m.hidden=s!=='menu';h.hidden=s!=='hero';$('#title').classList.toggle('heroview',s==='hero');
   try{sessionStorage.setItem('sl_screen',s)}catch(_){}
   if(s==='hero'){renderHero();const cv=$('#pv');if(cv&&typeof previewInit==='function'&&typeof THREE!=='undefined'){try{previewInit(cv);previewSet(SAVE.cls,weaponOf(SAVE.cls))}catch(e){console.warn('preview',e)}}}

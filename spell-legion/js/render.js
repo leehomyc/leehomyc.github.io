@@ -263,7 +263,7 @@ function drawOverlay(){
     if(txt){const t2=txt+' · '+dist+'m';c.font=`800 ${13*S}px ${locFont('ui')}`;const hw=c.measureText(t2).width/2+12*S,off=28*S,lx=clamp(ax-Math.cos(a)*off,hw+4*S,ow-hw-4*S),ly=clamp(ay-Math.sin(a)*off,24*S,oh-24*S);label(lx,ly,t2,col,false)}};
   for(const e of G.en){if(e.dead||!e.healLine||e.healLine.t<=0)continue;const hl=e.healLine;hl.t-=1/60;const [ax,ay]=toScreen(hl.x,8,hl.y),[bx,by]=toScreen(e.x,e.r*1.2,e.y);c.save();c.globalAlpha=Math.min(1,hl.t*2)*.85;c.strokeStyle='#7fc98a';c.lineWidth=2.5*S;c.setLineDash([6*S,5*S]);c.beginPath();c.moveTo(ax,ay);c.lineTo(bx,by);c.stroke();c.setLineDash([]);c.restore()} // heal line: who is topping the boss up
   let nearest=null,nd=1e9;for(const f of G.fx){if(f.k!=='relic'||!RELICS[f.id].cursed)continue;const d=hyp(f.x-G.P.x,f.y-G.P.y);if(d<nd){nd=d;nearest=f}}
-  for(const f of G.fx){if(f.k!=='relic'||!RELICS[f.id].cursed)continue;const [x,y]=toScreen(f.x,6,f.y),d=hyp(f.x-G.P.x,f.y-G.P.y);if(d>120)continue;const k=Math.min(1,(f.hold||0)/1.1);
+  for(const f of G.fx){if(f.k!=='relic'||!RELICS[f.id].cursed)continue;const [x,y]=toScreen(f.x,6,f.y),d=hyp(f.x-G.P.x,f.y-G.P.y);if(d>120)continue;const k=Math.min(1,(f.hold||0)/.6);
     c.save();c.lineWidth=3*S;c.strokeStyle='#ff3a3a';c.globalAlpha=.9;c.beginPath();c.arc(x,y,16*S,-Math.PI/2,-Math.PI/2+TAU*k);c.stroke();c.globalAlpha=.35;c.beginPath();c.arc(x,y,16*S,0,TAU);c.stroke();c.restore();
     const R=RELICS[f.id];if(f===nearest)label(x,y-30*S,L(`诅咒法宝 · 停留拾取 · 代价:${R.d}`,`Cursed relic · stand to take · price: ${R.de}`),'#ff6a6a',false)}
   if(!G.auto&&G.P.down<=0){const [hx,hy]=toScreen(G.P.x,0,G.P.y);let crowd=0;for(const e of G.en){if(!e.dead&&Math.abs(e.x-G.P.x)<34&&Math.abs(e.y-G.P.y)<34&&++crowd>=6)break}

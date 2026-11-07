@@ -1984,8 +1984,8 @@
 "i": 247
 },
 {
-"en": "Slay two bosses in one run · unlocks Snow Pass",
-"zh": "一局击败两位首领 · 解锁雪岭关",
+"en": "Slay two bosses in one run",
+"zh": "一局击败两位首领",
 "kind": "obj",
 "f": "content.js",
 "exprs": [],
@@ -2000,8 +2000,8 @@
 "i": 249
 },
 {
-"en": "Slay four bosses in one run · unlocks Burning Monastery",
-"zh": "一局击败四位首领 · 解锁焚天寺",
+"en": "Slay four bosses in one run",
+"zh": "一局击败四位首领",
 "kind": "obj",
 "f": "content.js",
 "exprs": [],

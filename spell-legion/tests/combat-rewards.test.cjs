@@ -7,7 +7,7 @@ const source=n=>fs.readFileSync(path.join(__dirname,'../js',n+'.js'),'utf8');
 function setup(){
   const elements=new Map(),element=()=>({hidden:true,innerHTML:'',querySelector(){return null},appendChild(){},classList:{add(){},remove(){}}});
   const c=vm.createContext({console,Math,Date,Set,Map,JSON,LANG:'en',L:(zh,en)=>en,LL:o=>o.en,tr:s=>s,
-    W:2600,H:2000,TAU:Math.PI*2,clamp:(n,a,b)=>Math.max(a,Math.min(n,b)),hyp:Math.hypot,
+    W:2600,H:2000,TAU:Math.PI*2,clamp:(n,a,b)=>Math.max(a,Math.min(n,b)),hyp:Math.hypot,blocked:()=>false,rocksNear:()=>[],
     SIMR:()=>.99,rnd:(a=1,b)=>b===undefined?a*.5:(a+b)/2,pick:a=>a[0],CAP:{fx:300,fl:100},
     document:{createElement:element,head:{appendChild(){}}},$:id=>{if(!elements.has(id))elements.set(id,element());return elements.get(id)},
     ROOM:{},DAILY:false,SAVE:{gold:100,up:{},mode:'solo',asura:{max:0,best:0},runs:0,wins:0,bosses:0},
@@ -87,12 +87,12 @@ test('daily and abandoned runs never overwrite the adventure survival record',()
     assert.equal(run('SAVE.best'),50);assert.equal(run('G.settlement.record'),false);
   }
 });
-test('one boss on the highest available Ascension tier unlocks and selects the next tier',()=>{
-  const first=setup();settlement(first.run);first.run('G.bossSlain=1;ASURA_T=0;settleRunRewards()');
+test('a 2-minute Warlord or 4-minute boss on the highest Ascension tier unlocks the next tier',()=>{
+  const first=setup();settlement(first.run);first.run('G.warlordSlain=1;ASURA_T=0;settleRunRewards()');
   assert.equal(first.run('SAVE.asura.max'),1);assert.equal(first.run('SAVE.asura.sel'),1);
   const lower=setup();settlement(lower.run);lower.run('SAVE.asura.max=3;SAVE.asura.sel=1;ASURA_T=1;G.bossSlain=1;settleRunRewards()');
   assert.equal(lower.run('SAVE.asura.max'),3);
-  const abandoned=setup();settlement(abandoned.run);abandoned.run('G.bossSlain=1;G.abandoned=true;settleRunRewards()');
+  const abandoned=setup();settlement(abandoned.run);abandoned.run('G.warlordSlain=1;G.abandoned=true;settleRunRewards()');
   assert.equal(abandoned.run('SAVE.asura.max'),0);
 });
 test('twenty Ascension tiers and map milestones stay connected to real gameplay rules',()=>{
@@ -102,6 +102,23 @@ test('twenty Ascension tiers and map milestones stay connected to real gameplay 
   const normal=run('healMul(0)');run('ASURA_T=13');near(run('healMul(0)'),normal*.8);
   run('ASURA_T=0;spawnEnemy("assassin",100,100)');const base=run('G.en.at(-1).hp');
   run('ASURA_T=19;spawnEnemy("assassin",100,100)');assert.ok(run('G.en.at(-1).hp')>base*1.3);
+});
+test('solo enemies gain health and damage, and ranged enemies arrive earlier',()=>{
+  const {run}=setup();run('G.t=50;ASURA_T=0;spawnEnemy("bandit",100,100)');
+  const soloHp=run('G.en.at(-1).hp'),soloDamage=run('G.en.at(-1).dmg');
+  run('SAVE.mode="daily";spawnEnemy("bandit",100,100)');
+  assert.ok(soloHp>run('G.en.at(-1).hp')*1.14);
+  assert.ok(soloDamage>run('G.en.at(-1).dmg')*1.11);
+  assert.equal(run('spawnType(30,.1,true)'),'archer');
+  assert.equal(run('spawnType(30,.1,false)'),'bandit');
+});
+test('relics dropped in obstacles move to reachable ground; cursed relics can be collected after a short hold',()=>{
+  const {c,run}=setup();const rock={x:90,y:90,w:40,h:40};c.rocksNear=()=>[rock];c.blocked=(x,y)=>x>90&&x<130&&y>90&&y<130;
+  run('dropRelic(110,110)');const f=run('G.fx.at(-1)');assert.ok(Math.hypot(f.x-110,f.y-110)>=24);
+  run('G.fx=[{k:"relic",id:"bind",x:25,y:0,t:60,hold:0}];collectRelics(.3)');
+  assert.equal(run('G.relics.includes("bind")'),false);
+  run('collectRelics(.3)');assert.equal(run('G.relics.includes("bind")'),true);
+  assert.equal(run('G.fx[0].t'),0);
 });
 test('repeated end rendering invokes extension rewards only once',()=>{
   const {run}=setup();run("endCalls=0;xOn('end',()=>endCalls++);showEnd(false);showEnd(false)");assert.equal(run('endCalls'),1);

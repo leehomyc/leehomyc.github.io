@@ -122,8 +122,8 @@ kbd{font:700 13px var(--ui);border:1px solid var(--dim);padding:0 5px;border-rad
 .pbox h2{margin:0;font-family:var(--brush);font-weight:400;font-size:52px;line-height:1}
 .pbox .go{justify-self:stretch}
 .pbox p{margin:0;color:var(--dim);font-size:13px;line-height:1.5}
-#end{align-items:center;justify-content:center}
-.endb{display:grid;gap:12px;width:min(100%,clamp(480px,46vw,720px));min-width:0;margin-inline:auto}
+#end{align-items:flex-start;justify-content:center;padding-top:max(20px,calc(env(safe-area-inset-top) + 16px));padding-bottom:max(20px,calc(env(safe-area-inset-bottom) + 16px));-webkit-overflow-scrolling:touch}
+.endb{display:grid;gap:12px;width:min(100%,clamp(480px,46vw,720px));min-width:0;margin:auto}
 @media (min-width:1400px){.endb{font-size:15px}.stat b{font-size:26px}.endb .dmg{font-size:14px}.killed{font-size:14px}}
 .endb h2{margin:0;font-family:var(--brush);font-weight:400;font-size:clamp(42px,8vw,68px);line-height:1;text-align:center}
 .endb .sub{margin:0;color:var(--brass);font-weight:700}
@@ -787,8 +787,10 @@ body.touchhud #pause .pbox>p{display:none}
 #end .endmore{margin-top:8px;border:1px solid #6b523044;border-radius:14px;padding:0 10px 10px;min-width:0}
 #end .endmore h3{margin:0;padding:10px 2px;font-size:14px;color:var(--bone);text-align:center}
 #end .endmore .stat.more{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin:4px 0 10px}#end .endmore .stat.more>div{padding:8px;display:grid;gap:1px}#end .endmore .stat.more>div b{font-size:16px}#end .endmore .stat.more>div span{font-size:10.5px}
+#end .asura-result-hint{margin:2px 0 4px;text-align:center;color:var(--brass);font-size:12px;font-weight:700}
+#end .endmore .dmg small{display:none}
 #end .btns{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:12px}#end .btns .go.big{flex:1 1 100%;text-align:center;justify-self:stretch}#end .btns .go.sm{font-size:14px;padding:8px 16px;flex:1 1 auto}
-@media (max-width:640px){#end .stat.main{gap:6px}#end .stat.main>div b{font-size:22px}#end .endmore .stat.more{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:640px){#end .endb{gap:8px}#end .stat.main{gap:6px}#end .stat.main>div{padding:8px 2px}#end .stat.main>div b{font-size:22px}#end .endmore .stat.more{grid-template-columns:repeat(4,minmax(0,1fr))}#end .endmore .stat.more>div{padding:5px 2px;text-align:center;justify-items:center}#end .endmore .stat.more>div .ic{grid-row:auto;grid-column:auto;width:18px;height:18px}#end .endmore .stat.more>div b,#end .endmore .stat.more>div span{grid-column:auto;font-size:13px}#end .endmore .stat.more>div span{font-size:10px}#end .dmg{font-size:12px;gap:4px 5px}}
 #charbtn{display:none}
 
 /* ---- home: one identity line instead of three cards ---- */
@@ -1255,8 +1257,4 @@ html[lang=ja] #menu .vname.vzh{font-size:clamp(30px,min(6vw,8vh),64px);white-spa
 
 #hero #endlessbest{justify-self:end;color:#ffd27a;font-size:13px;font-weight:800;font-variant-numeric:tabular-nums}
 #hero #endlessbest[hidden]{display:none}
-#asura .asura-maps-label{color:var(--brass);font-size:12px;letter-spacing:.08em}
-#hero #asura #maps{display:flex;gap:7px;flex-wrap:wrap;width:100%;margin:0}
-#hero #asura #maps .mapb{flex:1 1 145px;min-width:120px;padding:8px 10px}
-#hero #asura #maps .mapb small{display:block!important;max-width:none;white-space:normal}
-@media(max-width:760px){#hero #asura #maps{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}#hero #asura #maps .mapb{min-width:0}}
+#asura .asura-current-map{font-size:12px;font-weight:800;color:var(--brass);white-space:nowrap}

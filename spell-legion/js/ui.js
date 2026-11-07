@@ -194,14 +194,15 @@ function renderWeapons(){
   });
 }
 function renderAsura(){
-  const el=$('#asura'),bestEl=$('#endlessbest'),maps=$('#maps');if(!el)return;const on=SAVE.mode==='solo';el.hidden=!on;
+  const el=$('#asura'),bestEl=$('#endlessbest');if(!el)return;const on=SAVE.mode==='solo';el.hidden=!on;
   if(bestEl){bestEl.hidden=!on;if(on){const score=SAVE.lb?.bestRun?.score;bestEl.textContent=`${L('最高分','Personal best')} ${Number.isFinite(score)?Math.round(score).toLocaleString('en-US'):'—'}`}}
-  if(!on){if(maps&&maps.parentElement===el)$('#hero .hopts').appendChild(maps);return}
+  if(!on)return;
   const A=SAVE.asura,max=Math.min(A.max||0,ASURA.length),sel=Math.min(A.sel||0,max);
   A.sel=sel;const oldScroll=el.querySelector('.asura-rail')?.scrollLeft;
   el.replaceChildren();
   const head=document.createElement('div');head.className='asura-head';
   const title=document.createElement('strong');title.innerHTML=`${ICON.misc('boss','#ff5a45','sm')}${L('修罗','Ascension')} <span>${max}/${ASURA.length}</span>`;head.appendChild(title);
+  const map=document.createElement('span');map.className='asura-current-map';map.textContent='🗺 '+LL(MAPS[ascensionMapFor(max)]);head.appendChild(map);
   el.appendChild(head);
   const rail=document.createElement('div');rail.className='asura-rail';rail.setAttribute('role','group');rail.setAttribute('aria-label',L('修罗难度','Ascension tiers'));
   for(let i=0;i<=ASURA.length;i++){
@@ -213,12 +214,16 @@ function renderAsura(){
     card.onclick=()=>{A.sel=i;persist();renderTitle();SFX.pick(1)};rail.appendChild(card);
   }
   el.appendChild(rail);rail.scrollLeft=oldScroll===undefined?Math.max(0,sel*168-120):oldScroll;
-  const mapsLabel=document.createElement('strong');mapsLabel.className='asura-maps-label';mapsLabel.textContent=L('地图','Maps');el.appendChild(mapsLabel);
-  if(maps)el.appendChild(maps);
   const hint=document.createElement('small');hint.className='asura-hint';
-  hint.textContent=max<ASURA.length?L('在已解锁的最高层击败一位首领，即可解锁下一层','Slay one boss on your highest unlocked tier to open the next'):
+  hint.textContent=max<ASURA.length?L('在最高已解锁层击败 2:00 的铁甲统领或 4:00 的首领，解锁下一层','On your highest tier, defeat the 2:00 Warlord or 4:00 boss to unlock the next'):
     L('所有修罗层已解锁','All Ascension tiers unlocked');
   el.appendChild(hint);
+}
+function ascensionMapFor(max){let chosen='valley',threshold=0;for(const [id,map] of Object.entries(MAPS)){const need=map.tierNeed||0;if(need<=max&&need>=threshold){chosen=id;threshold=need}}return chosen}
+function syncAscensionMap(){if(SAVE.mode!=='solo')return false;const chosen=ascensionMapFor(SAVE.asura?.max||0);if(chosen===MAPID)return false;
+  try{localStorage.setItem('sl_map',chosen)}catch{return false}
+  try{sessionStorage.setItem('sl_screen','hero')}catch(_){}
+  location.reload();return true;
 }
 
 function renderTitle(){
@@ -237,7 +242,6 @@ function renderTitle(){
   renderAsura();if(typeof renderRoom==='function')renderRoom();
   syncQuality();
   DIFFID='normal';document.querySelectorAll('#diff button').forEach(b=>{b.classList.toggle('on',b.dataset.d===DIFFID);b.disabled=SAVE.mode==='daily'});$('#diff').classList.toggle('locked',SAVE.mode==='daily');
-  const mp=$('#maps');mp.textContent='';for(const k in MAPS){const M=MAPS[k],legacy=M.need&&(SAVE.ach[M.need]||(SAVE.wins||0)>=(M.need==='boss2'?3:8)),locked=!!M.tierNeed&&(SAVE.asura.max||0)<M.tierNeed&&!legacy,b=document.createElement('button');b.type='button';b.className='mapb'+(k===MAPID?' on':'')+(locked?' locked':'');b.disabled=locked;b.innerHTML=`<b>${LL(M)}</b><small>${locked?`🔒 ${L(`修罗 ${M.tierNeed} 层`,`Tier ${M.tierNeed}`)}`:''}</small>`;if(locked)b.title=L(`修罗 ${M.tierNeed} 层解锁`,`Unlock at Ascension ${M.tierNeed}`);b.onclick=()=>{try{localStorage.setItem('sl_map',k)}catch(_){}b.innerHTML=`<b>${L('载入中…','Loading…')}</b>`;setTimeout(()=>location.reload(),60)};mp.appendChild(b)}
   const al=$('#ach');al.textContent='';const done=ACH.filter(a=>SAVE.ach[a.id]).length;$('#achcount').textContent=`${done}/${ACH.length}`;
   ACH.forEach(a=>{const d=document.createElement('div');d.className='achi'+(SAVE.ach[a.id]?' done':'');d.innerHTML=`<span class="tick">${SAVE.ach[a.id]?'✓':'○'}</span><b>${LL(a)}</b><span>${L(a.d,a.de)}</span><em>+${a.gold} ${L('金','gold')}</em>`;al.appendChild(d)});
 }
@@ -251,6 +255,7 @@ function resetIn(){const d=tzDate();const s=86400-(d.getUTCHours()*3600+d.getUTC
 let DAILY=false;
 function startRun(){
   if($('#startbtn').disabled)return;
+  if(syncAscensionMap())return;
   CLASS=SAVE.cls;DIFFID='normal';
   const inRoom=SAVE.mode==='room'&&ROOM.code&&ROOM.playing;if(SAVE.mode==='room'&&!inRoom)return; // rooms start from the room panel, never from the Start button
   closeCards();{const sd=$('#side');if(sd)sd.hidden=false}
@@ -271,7 +276,8 @@ function settleRunRewards(){
   checkAch();
   const meta=typeof metaAfterRun==='function'?metaAfterRun():null;
   const gold=Math.round((G.kills*.45+G.lv*3+G.bossSlain*220+Math.floor(G.t/10)*2+G.goldRun*.7+G.comboMax)*(1+.15*(SAVE.up.gold||0))*(G.relics.includes('bowl')?1.3:1)*(G.relics.includes('wolf')?1.6:1)*(G.curse.gold||1)*(1+ASURA_GOLD*ASURA_T)*D().gold*(G.retireBonus||1)*(G.abandoned?.5:1));
-  let tierUp=false;if(ASURA_T>=0&&SAVE.mode==='solo'&&G.bossSlain>=1&&!G.abandoned&&SAVE.asura.max<=ASURA_T&&ASURA_T<(typeof ASURA_CAP!=='undefined'?ASURA_CAP:ASURA.length)){SAVE.asura.max=ASURA_T+1;SAVE.asura.sel=SAVE.asura.max;tierUp=true}if(G.bossSlain>=1&&ASURA_T>(SAVE.asura.best||0))SAVE.asura.best=ASURA_T;
+  const ascensionKill=(G.warlordSlain||0)>=1||G.bossSlain>=1;
+  let tierUp=false;if(ASURA_T>=0&&SAVE.mode==='solo'&&ascensionKill&&!G.abandoned&&SAVE.asura.max<=ASURA_T&&ASURA_T<(typeof ASURA_CAP!=='undefined'?ASURA_CAP:ASURA.length)){SAVE.asura.max=ASURA_T+1;SAVE.asura.sel=SAVE.asura.max;tierUp=true}if(ascensionKill&&ASURA_T>(SAVE.asura.best||0))SAVE.asura.best=ASURA_T;
   const pk=RIVAL_ON&&G.rival,pkRes=pk?(G.score>G.rival.score?'win':G.score<G.rival.score?'lose':'tie'):null;const pkBonus=pkRes==='win'?200:pkRes==='tie'?80:0;
   if(pk){SAVE.pk=SAVE.pk||{w:0,l:0};if(pkRes==='win')SAVE.pk.w++;else if(pkRes==='lose')SAVE.pk.l++;SAVE.pkBest=Math.max(SAVE.pkBest||0,G.score)}
   let dailyNew=false;if(DAILY){const dk=G.day||dayKey();if(!SAVE.daily||SAVE.daily.day!==dk)SAVE.daily={day:dk,best:0,bosses:0};if(G.t>SAVE.daily.best){SAVE.daily.best=G.t;SAVE.daily.bosses=G.bossSlain;dailyNew=true}}
@@ -298,12 +304,13 @@ function showEnd(ok){if(G.ended)return;if(typeof metricsEnd==='function')metrics
   ${room?'<div id="roomres" class="roomres"></div>':''}
   ${pk?`<p class="result-rank">${L(ladderOf(SAVE.trophies||0)[1],ladderOf(SAVE.trophies||0)[2])} · ${SAVE.trophies||0} 🏆 (${meta?.dT>0?'+':''}${meta?.dT||0}) · ${G.score} : ${R.score}</p>`:''}
   ${room?'':`<div class="rewards"><span class="rw gold">${ICON.misc('gold','#ffd27a','sm')}+${G.runRewardGold}<small>${L('金币','gold')}</small></span>${meta&&meta.xp?`<span class="rw xp">${ICON.misc('crown','#ffe9a0','sm')}+${meta.xp}<small>${L('冒险经验','renown')}</small></span>`:''}${meta&&meta.levelUp?`<span class="rw lv">Lv ${meta.after.lv}<small>${L('升级!','level up!')}</small></span>`:''}</div>`}
-  <div class="endmore"><h3>${L('详细数据','Details')}</h3><div class="stat main"><div>${ICON.misc('hourglass','#9fe3f0','sm')}<b>${fmt(G.t)}</b><span>${L('存活','Survived')}</span></div><div>${ICON.misc('crit','#ff6a6a','sm')}<b>${G.kills}</b><span>${L('击杀','Kills')}</span></div><div>${ICON.misc('boss','#ff5a45','sm')}<b>${G.bossSlain}</b><span>${L('首领','Bosses')}</span></div><div>${ICON.misc('burst','#ff9c5a','sm')}<b>×${G.comboMax}</b><span>${L('最高连斩','Best streak')}</span></div></div>
+  <div class="endmore"><h3>${L('详细数据','Details')}</h3><div class="stat main"><div>${ICON.misc('hourglass','#9fe3f0','sm')}<b>${fmt(G.t)}</b><span>${L('存活','Survived')}</span></div><div>${ICON.misc('crit','#ff6a6a','sm')}<b>${G.kills}</b><span>${L('击杀','Kills')}</span></div><div>${ICON.misc('boss','#ff5a45','sm')}<b>${G.warlordSlain||0}/${G.bossSlain}</b><span>${L('统领/首领','Warlord/Boss')}</span></div><div>${ICON.misc('burst','#ff9c5a','sm')}<b>×${G.comboMax}</b><span>${L('最高连斩','Best streak')}</span></div></div>
   ${!ok&&G.killer?`<div class="killed"><b>${G.abandoned?L('放弃','Abandoned'):L(`死于 ${G.killer[0]}`,`Killed by ${G.killer[1]}`)}</b></div>`:''}
   ${tierUp?`<div class="nextgoal tier">${L(`修罗 ${ASURA_T+1} 层已开`,`Ascension ${ASURA_T+1} unlocked`)}</div>`:''}
   
-  <p class="sub">${L(`存活 ${fmt(G.t)} · 斩杀首领 ${G.bossSlain}`,`Survived ${fmt(G.t)} · ${G.bossSlain} boss${G.bossSlain===1?'':'es'} slain`)}${ASURA_T?` · ${L('修罗','Ascension')} ${ASURA_T}`:''}${BOSSRUSH?` · ${L('首领连战','Boss rush')}`:''}${G.bossN>=7&&!BOSSRUSH?` · ${L(`第 ${Math.floor(G.bossN/7)+(G.bossN%7?1:0)} 轮`,`cycle ${Math.floor(G.bossN/7)+(G.bossN%7?1:0)}`)}`:''}${(G.ascends||[]).length?` · ${L('进化','Evolved')}: ${G.ascends.map(a=>{const x={storm:['天雷劫','Thunder'],blood:['血战','Blood War'],army:['万军','Ten Thousand'],hollow:['空明','Hollow Mind']}[a]||[a,a];return L(x[0],x[1])}).join('、')}`:''}${G.tribWon?` · ${L(`渡劫 ${G.tribWon} 次`,`${G.tribWon} tribulation${G.tribWon>1?'s':''}`)}`:''}${G.champSlain?` · ${L(`悬赏 ${G.champSlain}`,`${G.champSlain} bount${G.champSlain>1?'ies':'y'}`)}`:''}${G.bountyDone?` · ${L(`挑战 ${G.bountyDone}`,`${G.bountyDone} challenge${G.bountyDone>1?'s':''}`)}`:''}</p>${meta?`<div class="metarow">${meta.ranks.map(([n,zh,en])=>`<span class="td">🏆 ${L(zh,en)}</span>`).join('')}<span>${meta.levelUp?`<b>${L('冒险等级','Renown')} ${meta.after.lv}!</b> ${L(titleFor(meta.after.lv)[1],titleFor(meta.after.lv)[2])}${meta.lvGold?` · +${meta.lvGold} ${L('金','gold')}`:''}`:`Lv ${meta.after.lv} (${meta.after.x}/${meta.after.need})`}</span>${meta.done.map(([t,g])=>`<span class="td">✓ ${L(taskText(t).zh,taskText(t).en)} +${g} ${L('金','gold')}</span>`).join('')}</div>`:''}<div class="stat more"><div>${ICON.misc('awake','#ffd27a','sm')}<b>${G.lv}</b><span>${L('等级','Level')}</span></div><div>${ICON.misc('gold','#ffd27a','sm')}<b class="gold">+${gold}</b><span>${L('金币','Gold')}</span></div><div>${ICON.misc('relic','#c7a4f0','sm')}<b>${G.relics.length}</b><span>${L('法宝','Relics')}</span></div><div>${ICON.misc('knock','#ff6a6a','sm')}<b>${Math.round(G.dmgTaken)}</b><span>${L('承受伤害','Damage taken')}</span></div><div>${ICON.misc('heartplus','#7fc98a','sm')}<b>${Math.round(G.healed||0)}</b><span>${L('治疗量','Healing')}${G.overheal||G.healCapped?`<small> · ${L('溢出','overheal')} ${Math.round((G.overheal||0)+(G.healCapped||0))}</small>`:''}</span></div><div>${ICON.misc('heartplus','#ff6a6a','sm')}<b>${G.minHp===undefined?'—':Math.round(G.minHp*100)+'%'}</b><span>${L('最低生命','Lowest HP')}${G.nearDeath?`<small> · ${L(`濒死 ${G.nearDeath} 次`,`${G.nearDeath}× near death`)}</small>`:''}</span></div><div>${ICON.misc('ward','#9fe3f0','sm')}<b>${Math.round((G.mitigated||0)+(G.skillBlocked||0)+(G.absorbed||0))}</b><span>${L('免去伤害','Prevented')}<small>${L(` 减伤 ${Math.round(G.mitigated||0)} · 技能 ${Math.round(G.skillBlocked||0)} · 护罩 ${Math.round(G.absorbed||0)}`+(G.vulnerable?` · 易伤多受 ${Math.round(G.vulnerable)}`:''),` armour ${Math.round(G.mitigated||0)} · skills ${Math.round(G.skillBlocked||0)} · shield ${Math.round(G.absorbed||0)}`+(G.vulnerable?` · vulnerability +${Math.round(G.vulnerable)}`:''))}</small></span></div><div>${ICON.misc('dash','#9fe3f0','sm')}<b>${G.dodges||0}</b><span>${L('破招/穿招','Parries')}</span></div></div><div class="dmg">${rows}</div>${cmp}</div>${room?'':`<div class="btns"><button class="go big" id="againbtn">${L('再来一局','Play again')}</button><button class="go alt sm" id="buildbtn">${L('换侠客','Change hero')}</button><button class="go alt" id="lobbybtn">${L('返回','Back')}</button></div>`}`;
-  $('#end').hidden=false;if(room){roomCheckFinished();renderRoomResults()}else{$('#againbtn').onclick=startRun;$('#lobbybtn').onclick=toLobby;$('#buildbtn').onclick=()=>{toLobby();if(typeof showScreen==='function')showScreen('hero')};$('#againbtn').focus()}
+  ${SAVE.mode==='solo'&&!tierUp&&SAVE.asura.max===ASURA_T&&!G.abandoned?`<p class="asura-result-hint">${L('修罗解锁：击败 2:00 铁甲统领或 4:00 首领','Ascension: defeat the 2:00 Warlord or 4:00 boss')}</p>`:''}
+  ${meta?`<div class="metarow">${meta.ranks.map(([n,zh,en])=>`<span class="td">🏆 ${L(zh,en)}</span>`).join('')}${meta.levelUp?`<span>Lv ${meta.after.lv}</span>`:''}</div>`:''}<div class="stat more"><div>${ICON.misc('awake','#ffd27a','sm')}<b>${G.lv}</b><span>${L('等级','Level')}</span></div><div>${ICON.misc('relic','#c7a4f0','sm')}<b>${G.relics.length}</b><span>${L('法宝','Relics')}</span></div><div>${ICON.misc('knock','#ff6a6a','sm')}<b>${Math.round(G.dmgTaken)}</b><span>${L('承受伤害','Damage taken')}</span></div><div>${ICON.misc('heartplus','#7fc98a','sm')}<b>${Math.round(G.healed||0)}</b><span>${L('治疗量','Healing')}</span></div></div><div class="dmg">${rows}</div>${cmp}</div>${room?'':`<div class="btns"><button class="go big" id="againbtn">${L('再来一局','Play again')}</button><button class="go alt sm" id="buildbtn">${L('换侠客','Change hero')}</button><button class="go alt" id="lobbybtn">${L('返回','Back')}</button></div>`}`;
+  $('#end').hidden=false;$('#end').scrollTop=0;if(room){roomCheckFinished();renderRoomResults()}else{$('#againbtn').onclick=startRun;$('#lobbybtn').onclick=toLobby;$('#buildbtn').onclick=()=>{toLobby();if(typeof showScreen==='function')showScreen('hero')};if(!IS_TOUCH)$('#againbtn').focus({preventScroll:true})}
   if(typeof submitRun==='function'&&!room)submitRun(box);
 }
 function toLobby(){closeCards();$('#end').hidden=true;$('#hud').hidden=true;$('#title').hidden=false;newGame(true,SAVE.cls);demoBoost();renderTitle();if(typeof showScreen==='function')showScreen('menu');SFX.setState('title')}

@@ -275,7 +275,15 @@ const CLB={
       const profiles=cached&&Date.now()-cached.t<45000?cached.rows:await this.query('',{from:[{collectionId:'profiles'}],limit:500});
       if(!cached||Date.now()-cached.t>=45000)this.cache[key]={t:Date.now(),rows:profiles};
       const field=board==='ladder'?'trophies':'lv';
-      const rows=profiles.filter(p=>p._id&&p.name).map(p=>({uid:p._id,name:p.name,av:p.av,cls:p.cls,score:Math.max(0,Number(p[field])||0),axp:p.axp||0}));
+      const byName=new Map(),me=CLOUD.uid();
+      for(const p of profiles.filter(p=>p._id&&p.name)){
+        const row={uid:p._id,name:p.name,av:p.av,cls:p.cls,score:Math.max(0,Number(p[field])||0),axp:p.axp||0,guest:!!p.guest};
+        if(board==='ladder'&&row.score<=0||board==='level'&&row.score<=1&&row.axp<=0)continue;
+        const key=p.name.normalize('NFKC').trim().toLocaleLowerCase(),old=byName.get(key);
+        if(!key)continue;
+        if(!old||row.score>old.score||(row.score===old.score&&((board==='level'&&row.axp>old.axp)||((board!=='level'||row.axp===old.axp)&&(row.uid===me||old.uid!==me&&old.guest&&!row.guest)))))byName.set(key,row);
+      }
+      const rows=[...byName.values()];
       rows.sort((a,b)=>b.score-a.score||(board==='level'?b.axp-a.axp:0)||String(a.uid).localeCompare(String(b.uid)));
       return {ok:true,count:rows.length,rows,me:CLOUD.uid()};
     }
@@ -285,7 +293,12 @@ const CLB={
       const k=r.uid||r.name;if(!k)continue;
       if(!best.has(k)||lbCompare(r,best.get(k))<0)best.set(k,r);
     }
-    const rows=[...best.values()].sort(lbCompare);
+    const named=new Map(),me=CLOUD.uid();
+    for(const r of best.values()){
+      const key=String(r.name||r.uid||'').normalize('NFKC').trim().toLocaleLowerCase(),old=named.get(key);
+      if(!old||lbCompare(r,old)<0||lbCompare(r,old)===0&&r.uid===me)named.set(key,r);
+    }
+    const rows=[...named.values()].sort(lbCompare);
     return {ok:true,count:rows.length,rows,me:CLOUD.uid()};
   },
   async profiles(uids){

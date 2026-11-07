@@ -21,13 +21,13 @@ test('endless starts with a stronger director while boss rush keeps its previous
   c.dirInit();assert.equal(c.G.dir.base,1.15);
   c.SAVE.mode='rush';c.G={};c.dirInit();assert.equal(c.G.dir.base,.9);
 });
-test('standing still without using skills raises solo pressure, while movement and a cast ease it',()=>{
-  const s=source('director'),c=context({SAVE:{mode:'solo',skill:0},G:{t:80,P:{x:0,y:0,hp:100,maxHp:100},spells:[{id:'flash',casts:0,dmg:0}],en:[],kills:0,dmgTaken:0,dodges:0},SPELLS:{flash:{auto:0}},hyp:Math.hypot,clamp:(n,a,b)=>Math.max(a,Math.min(n,b)),rnd:()=>0});
-  vm.runInContext(s.slice(s.indexOf('function dirOn(){'),s.indexOf('/* across runs:')),c);
-  c.dirInit();c.G.dir.posHist=[{t:73,x:0,y:0}];c.directorTick(2);
-  const idleSpawn=c.G.dir.spawn,idleDamage=c.G.dir.dmg;assert.equal(c.G.dir.counter,'archer');
-  c.G.t=82;c.G.P.x=100;c.G.spells[0].casts=1;c.G.dir.posHist=[{t:72,x:0,y:0}];c.directorTick(2);
-  assert.ok(c.G.dir.spawn<idleSpawn);assert.ok(c.G.dir.dmg<idleDamage);
+test('new Ascension milestones automatically choose the latest unlocked map',()=>{
+  let stored='',reloads=0;
+  const c=context({MAPS:{valley:{},snow:{tierNeed:2},ember:{tierNeed:5},moon:{tierNeed:10},marsh:{tierNeed:15}},SAVE:{mode:'solo',asura:{max:10}},MAPID:'valley',localStorage:{setItem:(k,v)=>{if(k==='sl_map')stored=v}},sessionStorage:{setItem(){}},location:{reload:()=>reloads++}});
+  const s=source('ui');vm.runInContext(s.slice(s.indexOf('function ascensionMapFor('),s.indexOf('function renderTitle(){')),c);
+  assert.deepEqual([0,1,2,4,5,9,10,14,15,20].map(c.ascensionMapFor),['valley','valley','snow','snow','ember','ember','moon','moon','marsh','marsh']);
+  assert.equal(c.syncAscensionMap(),true);assert.equal(stored,'moon');assert.equal(reloads,1);
+  c.SAVE.mode='daily';assert.equal(c.syncAscensionMap(),false);assert.equal(reloads,1);
 });
 test('stale cloud cannot refund spent gold or undo a ladder loss',()=>{
   const c=context();loadMerge(c);

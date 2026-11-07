@@ -204,8 +204,8 @@ MAPS.moon={...MAPS.valley,zh:'幽月林',en:'Moonlit Grove',tierNeed:10,base:'#1
 MAPS.marsh={...MAPS.ember,zh:'血月沼',en:'Crimson Marsh',need:null,tierNeed:15,base:'#321d31',blobs:['#49243c','#3c263f','#241a2f','#5b2c48','#39273d','#201623','#663047','#34233d'],grain:['#6b344b','#a74d6a','#3d253c','#613b55','#25192a','#8b3d5a'],trail:['#302331','#5b4553','#79636b'],plaza:'#281b2e',fog:'#74435e',sun:'#ff9db1',hemi:['#d89bbd','#2b1931'],water:[[.23,.04,.1],[.54,.14,.24]],pine:['#22182b','#6b2f4b'],bamboo:['#34203a','#a34565'],grassTips:['#8c4262','#b34e6b','#713554'],grassRoot:'#291a30',maple:[['#351c33','#b84562'],['#4b2343','#db6977']],lantern:'#ff5f79',edge:'42,18,34'};
 const ACH=[
   {id:'boss1',zh:'初战告捷',en:'First Blood',d:'击败一位首领',de:'Slay a boss',gold:100},
-  {id:'boss2',zh:'连斩二魔',en:'Two Down',d:'一局击败两位首领 · 解锁雪岭关',de:'Slay two bosses in one run · unlocks Snow Pass',gold:200},
-  {id:'boss4',zh:'四魔皆灭',en:'Demon Hunter',d:'一局击败四位首领 · 解锁焚天寺',de:'Slay four bosses in one run · unlocks Burning Monastery',gold:400},
+  {id:'boss2',zh:'连斩二魔',en:'Two Down',d:'一局击败两位首领',de:'Slay two bosses in one run',gold:200},
+  {id:'boss4',zh:'四魔皆灭',en:'Demon Hunter',d:'一局击败四位首领',de:'Slay four bosses in one run',gold:400},
   {id:'combo100',zh:'百人斩',en:'Hundred Cuts',d:'连斩 ×100',de:'Reach a ×100 kill streak',gold:120},
   {id:'combo200',zh:'武林神话',en:'Legend',d:'连斩 ×200',de:'Reach a ×200 kill streak',gold:300},
   {id:'min10',zh:'十分钟',en:'Ten Minutes',d:'存活 10 分钟',de:'Survive 10 minutes',gold:150},
