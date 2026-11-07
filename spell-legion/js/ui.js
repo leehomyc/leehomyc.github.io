@@ -343,6 +343,8 @@ function syncSound(){
   const percent=Math.round(value*100);
   document.querySelectorAll('[data-audio="'+kind+'"]').forEach(el=>el.value=percent);
   document.querySelectorAll('[data-audio-value="'+kind+'"]').forEach(el=>el.textContent=percent+'%');
+  const off=kind==='music'?SFX.musicMuted:SFX.sfxMuted;
+  document.querySelectorAll('[data-audio-mute="'+kind+'"]').forEach(b=>{b.textContent=off?'🔇':'🔊';b.classList.toggle('off',off);b.setAttribute('aria-pressed',String(off));const name=kind==='music'?L('音乐','Music'):L('音效','Effects');b.setAttribute('aria-label',name+' · '+(off?L('开启','Unmute'):L('静音','Mute'))) });
  }
  $('#snd-mute').checked=m;
 }
@@ -350,8 +352,9 @@ document.querySelectorAll('#sndbtn,#sndbtn2').forEach(b=>b.onclick=()=>{SFX.star
 $('#snd-mute').onchange=e=>{SFX.setMute(e.target.checked);syncSound()};
 document.querySelectorAll('[data-audio]').forEach(el=>el.oninput=()=>{
  SFX.start();if(el.dataset.audio==='music')SFX.setMusic(el.value/100);else SFX.setSfx(el.value/100);
- if(SFX.muted)SFX.setMute(false);syncSound();if(el.dataset.audio==='sfx')SFX.pick(1);
+ syncSound();
 });
+document.querySelectorAll('[data-audio-mute]').forEach(b=>b.onclick=()=>{SFX.start();if(b.dataset.audioMute==='music')SFX.toggleMusicMute();else SFX.toggleSfxMute();syncSound()});
 $('#sndclose').onclick=()=>{$('#sndpanel').hidden=true};
 syncSound();
 if(window.desktop){$('#exitbtn').hidden=false;$('#exitbtn').onclick=()=>window.desktop.quit()}

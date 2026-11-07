@@ -1,17 +1,18 @@
 'use strict';
 /* audio.js — procedural electropop soundtrack and sound effects (Web Audio, no files) */
 const SFX=(()=>{
-  let ac=null,master,musicG,sfxG,muted=false,state='title',nextBeat=0,beat=0,bar=0,lastHit=0,started=false,musicVol=.6,sfxVol=.8;
-  const save=()=>{try{localStorage.setItem('sl_audio',JSON.stringify({muted,musicVol,sfxVol}))}catch(_){}};
-  try{const o=JSON.parse(localStorage.getItem('sl_audio')||'null');if(o){muted=!!o.muted;if(o.musicVol!==undefined)musicVol=o.musicVol;if(o.sfxVol!==undefined)sfxVol=o.sfxVol}}catch(_){}
+  let ac=null,master,musicG,sfxG,musicMuted=false,sfxMuted=false,state='title',nextBeat=0,beat=0,bar=0,lastHit=0,started=false,musicVol=.6,sfxVol=.8,lastMusicVol=.6,lastSfxVol=.8,musicGainValue=null,sfxGainValue=null;
+  const save=()=>{try{localStorage.setItem('sl_audio',JSON.stringify({muted:musicMuted&&sfxMuted,musicMuted,sfxMuted,musicVol,sfxVol,lastMusicVol,lastSfxVol}))}catch(_){}};
+  try{const o=JSON.parse(localStorage.getItem('sl_audio')||'null');if(o){if(o.musicVol!==undefined)musicVol=clamp(o.musicVol,0,1);if(o.sfxVol!==undefined)sfxVol=clamp(o.sfxVol,0,1);lastMusicVol=o.lastMusicVol>0?clamp(o.lastMusicVol,0,1):(musicVol||.6);lastSfxVol=o.lastSfxVol>0?clamp(o.lastSfxVol,0,1):(sfxVol||.8);musicMuted=!!(o.musicMuted===undefined?o.muted:o.musicMuted)||musicVol===0;sfxMuted=!!(o.sfxMuted===undefined?o.muted:o.sfxMuted)||sfxVol===0}}catch(_){}
   function ensure(){
     if(ac)return true;
     const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return false;
-    ac=new AC();master=ac.createGain();master.gain.value=muted?0:.8;
+    ac=new AC();master=ac.createGain();master.gain.value=.8;
     const comp=ac.createDynamicsCompressor();comp.threshold.value=-14;comp.ratio.value=4;
     master.connect(comp);comp.connect(ac.destination);
-    musicG=ac.createGain();musicG.gain.value=musicVol;musicG.connect(master);
-    sfxG=ac.createGain();sfxG.gain.value=sfxVol;sfxG.connect(master);
+    musicG=ac.createGain();musicG.gain.value=0;musicG.connect(master);
+    sfxG=ac.createGain();sfxG.gain.value=0;sfxG.connect(master);
+    syncMix();
     // reverb from a synthetic impulse
     const len=ac.sampleRate*2.2,buf=ac.createBuffer(2,len,ac.sampleRate);
     for(let c=0;c<2;c++){const d=buf.getChannelData(c);for(let i=0;i<len;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/len,2.6)*.5}
@@ -22,7 +23,19 @@ const SFX=(()=>{
     return true;
   }
   const now=()=>ac.currentTime;
+  function effectsActive(){return typeof G!=='undefined'&&G&&!G.auto}
+  function syncMix(){
+    if(!ac)return;
+    const music=musicMuted?0:musicVol,effects=sfxMuted||!effectsActive()?0:sfxVol;
+    if(music!==musicGainValue){musicG.gain.setTargetAtTime(music,now(),.01);musicGainValue=music}
+    if(effects!==sfxGainValue){sfxG.gain.setTargetAtTime(effects,now(),.01);sfxGainValue=effects}
+  }
+  function setMusicMute(value){musicMuted=!!value;if(!musicMuted&&musicVol===0)musicVol=lastMusicVol;syncMix();save();return musicMuted}
+  function setSfxMute(value){sfxMuted=!!value;if(!sfxMuted&&sfxVol===0)sfxVol=lastSfxVol;syncMix();save();return sfxMuted}
+  function setMute(value){musicMuted=sfxMuted=!!value;if(!value){if(musicVol===0)musicVol=lastMusicVol;if(sfxVol===0)sfxVol=lastSfxVol}syncMix();save();return musicMuted&&sfxMuted}
+
   function osc(type,f,t0,dur,g,dest,o={}){
+    if(dest===musicG?musicMuted:(sfxMuted||!effectsActive()))return;
     const v=ac.createOscillator(),e=ac.createGain();v.type=type;v.frequency.setValueAtTime(f,t0);
     if(o.slide)v.frequency.exponentialRampToValueAtTime(Math.max(20,o.slide),t0+dur*(o.slideT||1));
     e.gain.setValueAtTime(0,t0);e.gain.linearRampToValueAtTime(g,t0+(o.a||.005));e.gain.exponentialRampToValueAtTime(.0001,t0+dur);
@@ -32,6 +45,7 @@ const SFX=(()=>{
     v.start(t0);v.stop(t0+dur+.05);return v;
   }
   function noise(t0,dur,g,dest,o={}){
+    if(dest===musicG?musicMuted:(sfxMuted||!effectsActive()))return;
     const n=ac.sampleRate*dur|0,b=ac.createBuffer(1,Math.max(1,n),ac.sampleRate),d=b.getChannelData(0);
     for(let i=0;i<n;i++)d[i]=Math.random()*2-1;
     const s=ac.createBufferSource();s.buffer=b;const e=ac.createGain();e.gain.setValueAtTime(g,t0);e.gain.exponentialRampToValueAtTime(.0001,t0+dur);
@@ -87,7 +101,7 @@ const SFX=(()=>{
       beat++;if(beat%16===0)bar++;nextBeat+=step;
     }
   }
-  function setState(s){if(s===state)return;state=s;beat=0;bar=0;if(ac)nextBeat=now()+.04}
+  function setState(s){syncMix();if(s===state)return;state=s;beat=0;bar=0;if(ac)nextBeat=now()+.04}
   function start(){
     if(!ensure())return;
     if(ac.state==='suspended')ac.resume().catch(()=>{});
@@ -96,11 +110,11 @@ const SFX=(()=>{
   const rl=(ms)=>{const t=performance.now();if(t-lastHit<ms)return false;lastHit=t;return true};
   const fx={
     start,setState,
-    toggleMute(){muted=!muted;if(master)master.gain.setTargetAtTime(muted?0:.8,now(),.05);save();return muted},
-    setMute(m){muted=!!m;if(master)master.gain.setTargetAtTime(muted?0:.8,now(),.05);save()},
-    setMusic(v){musicVol=clamp(v,0,1);if(musicG)musicG.gain.setTargetAtTime(musicVol,now(),.05);save()},
-    setSfx(v){sfxVol=clamp(v,0,1);if(sfxG)sfxG.gain.setTargetAtTime(sfxVol,now(),.05);save()},
-    get muted(){return muted},get musicVol(){return musicVol},get sfxVol(){return sfxVol},
+    toggleMute(){return setMute(!(musicMuted&&sfxMuted))},setMute,
+    toggleMusicMute(){return setMusicMute(!musicMuted)},toggleSfxMute(){return setSfxMute(!sfxMuted)},setMusicMute,setSfxMute,
+    setMusic(v){musicVol=clamp(v,0,1);if(musicVol>0)lastMusicVol=musicVol;musicMuted=musicVol===0;syncMix();save()},
+    setSfx(v){sfxVol=clamp(v,0,1);if(sfxVol>0)lastSfxVol=sfxVol;sfxMuted=sfxVol===0;syncMix();save()},
+    get muted(){return musicMuted&&sfxMuted},get musicMuted(){return musicMuted},get sfxMuted(){return sfxMuted},get musicVol(){return musicVol},get sfxVol(){return sfxVol},
     hit(big,crit){if(!ac||!rl(big?60:crit?20:38))return;const t=now();if(big){osc('sine',160,t,.25,.5,sfxG,{slide:50});noise(t,.14,.45,sfxG,{f:900,type:'lowpass'})}else{noise(t,crit?.11:.06,crit?.6:.38,sfxG,{f:crit?3600:2300,q:1.4,slide:crit?300:600});osc('triangle',crit?980:560,t,.07,.22,sfxG,{slide:180})}if(crit){osc('sine',1500,t,.16,.26,sfxG,{slide:2800});osc('sine',70,t,.18,.6,sfxG,{slide:40})}},
     boom(sz,thunder){if(!ac)return;const t=now();osc('sine',90+sz*50,t,.55+sz*.4,.9,sfxG,{slide:28});noise(t,.35+sz*.4,.9,sfxG,{f:thunder?2600:700,type:'lowpass',slide:120,rv:1});if(thunder){noise(t,.06,1,sfxG,{f:5000,q:.5});osc('sawtooth',2200,t,.12,.3,sfxG,{slide:300,lp:4000})}},
     wave(){if(!ac)return;const t=now();taiko(t,.7,60);bell(SC[5],t+.05,.25)},
