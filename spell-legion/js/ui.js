@@ -375,7 +375,7 @@ function startRun(){
   $('#title').hidden=true;$('#intro').hidden=true;$('#end').hidden=true;$('#cards').hidden=true;$('#hud').hidden=false;$('#bossbar').hidden=true;$('#pause').hidden=true;$('#char').hidden=true;
   $('#banner').classList.remove('on');$('#pausebtn').textContent='II';
   SAVE.played=true;persist();
-  newGame(false,CLASS);G.room=!!inRoom;if(!DAILY&&!inRoom&&!RIVAL_ON)applyUpgrades(G.P);G.day=dayKey();if(inRoom){const seat=ROOM.host?roomPlayerList().find(p=>p.ai):null;if(seat){mkRival(CLASS,seat);G.rivalSeat=seat.uid}else G.rivalSeat=null;if(typeof arenaStart==='function')arenaStart();ROOM.ended=false;ROOM.rewarded=false;roomSetMe({score:0,hp:1,lv:1,kills:0,alive:true,done:false,t:0,cls:CLASS});drawRoomBoard()}else{const rb=$('#roomboard');if(rb)rb.hidden=true}if(typeof codexSee==='function')codexSee('weapon',weaponOf(CLASS));G.quick=SAVE.mode==='qpk';
+  newGame(false,CLASS);G.room=!!inRoom;if(!DAILY&&!inRoom&&!RIVAL_ON)applyUpgrades(G.P);if(!DAILY&&typeof gearApply==='function')gearApply(G.P);G.day=dayKey();if(inRoom){const seat=ROOM.host?roomPlayerList().find(p=>p.ai):null;if(seat){mkRival(CLASS,seat);G.rivalSeat=seat.uid}else G.rivalSeat=null;if(typeof arenaStart==='function')arenaStart();ROOM.ended=false;ROOM.rewarded=false;roomSetMe({score:0,hp:1,lv:1,kills:0,alive:true,done:false,t:0,cls:CLASS});drawRoomBoard()}else{const rb=$('#roomboard');if(rb)rb.hidden=true}if(typeof codexSee==='function')codexSee('weapon',weaponOf(CLASS));G.quick=SAVE.mode==='qpk';
   updateCores();drawSeals();drawRelics();
   if(typeof metricsStart==='function')metricsStart();
   SFX.start();SFX.setState('battle');if(IS_TOUCH)goFullscreen(true);

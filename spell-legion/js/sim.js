@@ -7,7 +7,7 @@ let ASURA_T=0,BOSSRUSH=false; // set from the title screen
 const tier=n=>ASURA_T>=n; // is modifier n (1-based) active
 function weaponOf(cls){const w=(typeof SAVE!=='undefined'&&SAVE.weapon?.[cls])||CLASSES[cls].main;return (WEAPONS[cls]||[]).includes(w)&&weaponUnlocked(cls,w)?w:CLASSES[cls].main}
 function weaponUnlocked(cls,w){const i=WEAPON_INFO[w];if(i?.need!=='legend')return true;
-  return typeof SAVE!=='undefined'&&(SAVE.mode==='solo'||SAVE.mode==='rush')&&typeof gearWeaponFor==='function'&&gearWeaponFor(cls)===w}
+  return typeof SAVE!=='undefined'&&['solo','rush','room','qpk','pk'].includes(SAVE.mode)&&typeof gearWeaponFor==='function'&&gearWeaponFor(cls)===w}
 function mkSpell(id){return {id,lv:1,cd:0,els:[],augs:[],dmg:0,active:0,casts:0,nodes:{},pts:0}}
 const nd=(s,fx)=>{if(!s||!s.nodes)return 0;let r=0;const T=TREES[s.id]||[];for(const k in s.nodes)if(T[k]&&T[k].fx===fx)r+=s.nodes[k];return r}
 function skillCost(s){return Math.round(SPELLS[s.id].cost*(1-NODE_FX.cost*nd(s,'cost'))*(G&&G.relics&&G.relics.includes('taiji')?.75:1)*(G&&G.relics&&G.relics.includes('bind')?.6:1))}

@@ -93,9 +93,9 @@ test('only unified training consumes gold and cap checks prevent wasted purchase
 test('legacy legendary ownership migrates to one stable, locked equipment item',()=>{
   const c=gearContext({SAVE:{gold:0,weapon:{swordsman:'swordcase'},weaponOwned:{swordcase:true},clsBest:{swordsman:3}}});c.gearMigrateLegends();c.gearMigrateLegends();assert.equal(c.SAVE.gear.inv.length,1);assert.equal(c.SAVE.gear.inv[0].id,'legacy-legend-swordcase');assert.equal(c.SAVE.gear.inv[0].lock,true);assert.equal(c.gearWeaponFor('swordsman'),'swordcase');c.gearRemove(c.SAVE.gear.inv[0]);c.gearMigrateLegends();assert.equal(c.SAVE.gear.inv.length,0);
 });
-test('equipped legendary attacks only activate in adventure; regular weapons are free',()=>{
+test('equipped legendary attacks activate in adventure and duels; regular weapons are free',()=>{
   const c=gearContext({SAVE:{gold:0,mode:'solo',weapon:{swordsman:'swordcase'},weaponOwned:{swordcase:true}}});c.gearMigrateLegends();const s=source('sim');vm.runInContext(s.slice(s.indexOf('function weaponOf('),s.indexOf('function mkSpell(')),c);assert.equal(c.weaponOf('swordsman'),'swordcase');
-  for(const mode of ['daily','room','qpk','pk']){c.SAVE.mode=mode;assert.equal(c.weaponOf('swordsman'),'sword',mode)}assert.equal(c.weaponUnlocked('swordsman','sword'),true);
+  for(const mode of ['room','qpk','pk']){c.SAVE.mode=mode;assert.equal(c.weaponOf('swordsman'),'swordcase',mode)}c.SAVE.mode='daily';assert.equal(c.weaponOf('swordsman'),'sword');assert.equal(c.weaponUnlocked('swordsman','sword'),true);
 });
 test('run experience and daily task rewards settle once; no streak or first-win multiplication remains',()=>{
   const c=context({SAVE:{gold:0,up:{},axp:0},G:{t:120,kills:5,bossSlain:0,lv:2,comboMax:0,relics:[]},dayKey:()=>20261107,CLASSES:{swordsman:{}},persist:()=>{}});vm.runInContext(source('meta'),c);const reward=c.metaAfterRun(),gold=c.SAVE.gold,xp=c.SAVE.axp;assert.ok(reward.xp>0);assert.equal(c.metaAfterRun(),reward);assert.equal(c.SAVE.gold,gold);assert.equal(c.SAVE.axp,xp);assert.equal(reward.firstBonus,undefined);assert.equal(c.SAVE.streak,undefined);

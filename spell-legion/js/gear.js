@@ -1,8 +1,8 @@
 'use strict';
-/* gear.js — 装备 (solo loot) and the unified 修炼 gold sink.
+/* gear.js — solo loot, equipment upgrades and legacy training.
    - Four slots. Items drop from bosses, the Warlord, bounty champions, chests, elites and (rarely) anything.
    - Rarity colours a light beam on the ground; legendaries carry a unique power that changes how the build plays.
-   - Gear and training apply only in solo (applyUpgrades is never called in duels, rooms or the daily), so ranked stays fair.
+   - Equipped gear applies once at run start in solo and duels. Legacy training remains solo-only.
    - Survival time and bosses slain determine item tier and rarity; Ascension remains a separate challenge. */
 const GEAR_SLOTS={weapon:{zh:'兵器',en:'Weapon',g:'兵'},armor:{zh:'护甲',en:'Armour',g:'甲'},trinket:{zh:'饰物',en:'Trinket',g:'饰'},manual:{zh:'秘籍',en:'Manual',g:'籍'}};
 const GEAR_RAR=[{k:'common',zh:'凡品',en:'Common',col:'#cfc6b2',n:1,m:.85,w:46},{k:'fine',zh:'良品',en:'Fine',col:'#6fb8ff',n:2,m:1,w:32},{k:'rare',zh:'精品',en:'Rare',col:'#ffd75a',n:3,m:1.12,w:15},{k:'epic',zh:'绝品',en:'Epic',col:'#c7a4f0',n:4,m:1.25,w:5.5},{k:'legend',zh:'传说',en:'Legendary',col:'#ff9c3a',n:3,m:1.3,w:1.5}];
@@ -84,8 +84,26 @@ function makeGear(opts={}){const g=gearSave();let ri=opts.rar!==undefined?opts.r
   const base=pick(GEAR_BASE[slot]),top=GEAR_AFX[afx[0].k];
   const it={id:'g'+Date.now().toString(36)+(g.seq=(g.seq||0)+1),slot,r:ri,t:tier,a:afx,leg,zh:leg?GEAR_LEG[leg].zh:`${top.pre[0]}·${base[0]}`,en:leg?GEAR_LEG[leg].en:`${top.pre[1]} ${base[1]}`,new:1};
   return it}
+const GEAR_UPGRADE_MAX=20;
+function gearUpgradeLevel(it){const n=Number(it?.enhance||0);return Number.isFinite(n)?Math.max(0,Math.min(GEAR_UPGRADE_MAX,Math.floor(n))):0}
+function gearAffixes(it,level=gearUpgradeLevel(it)){
+  return (it?.a||[]).filter(a=>GEAR_AFX[a.k]&&Number.isFinite(a.v)).map(a=>{
+    const A=GEAR_AFX[a.k],step=a.k==='hp'?Math.max(1,Math.round(a.v*.02)):a.v*.02;
+    let v=Math.round((a.v+step*level)*100)/100;
+    if(A.cap)v=Math.min(A.cap,v);
+    return {k:a.k,v};
+  });
+}
+function gearUpgradeCost(it){return Math.ceil(10000*Math.pow(1.5,gearUpgradeLevel(it))/100)*100}
+function gearCanUpgrade(it){if(!it||gearUpgradeLevel(it)>=GEAR_UPGRADE_MAX)return false;const now=gearAffixes(it),next=gearAffixes(it,gearUpgradeLevel(it)+1);return next.some((a,i)=>a.v>now[i].v)}
+function buyGearUpgrade(id){
+  const it=gearById(id);if(!gearCanUpgrade(it))return false;
+  const cost=gearUpgradeCost(it);if(!Number.isFinite(SAVE.gold)||SAVE.gold<cost)return false;
+  SAVE.gold-=cost;it.enhance=gearUpgradeLevel(it)+1;gearChanged(it);return true;
+}
+function gearUpgradeLabel(it){const n=gearUpgradeLevel(it);return n?` +${n}`:''}
 /* a single number for comparing two items of the same slot */
-function gearScore(it){if(!it)return 0;let s=0;for(const a of it.a)s+=a.v/GEAR_AFX[a.k].b;return s*(1+(it.leg?.6:0))}
+function gearScore(it){if(!it)return 0;let s=0;for(const a of gearAffixes(it))s+=a.v/GEAR_AFX[a.k].b;return s*(1+(it.leg?.6:0))}
 function afxText(a){const A=GEAR_AFX[a.k];return L(A.zh,A.en).replace('{v}',a.v)}
 function gearSalvage(it){return Math.round(12*(GEAR_RAR[it.r].n+(it.r===4?3:0))*(1+it.t*.35))}
 /* ---------- dropping and picking up ---------- */
@@ -120,8 +138,8 @@ xOn('render',(tm,useRing)=>{for(const f of G.fx){if(f.k!=='gear'||f.t<=0)continu
   for(let i=0;i<10;i++){const y=i*h/10+((tm*50)%(h/10));glow(f.x,y+4,f.y,i%2?R.col:'#ffffff',(f.it.r>=3?18:12)-y*.03,(1-y/h)*b)}
   glow(f.x,6,f.y,R.col,f.it.r>=3?60:34,.7+Math.sin(tm*6)*.2);useRing(f.x,1,f.y,12+Math.sin(tm*5)*2,R.col,.8)}});
 /* ---------- applying gear to a run ---------- */
-function gearApply(P){const gx={skill:0,auto:0,boss:0,elite:0,life:0,el:{},legs:new Set(),gold:0,xp:0};
-  for(const it of gearEquipped()){for(const a of it.a){const A=GEAR_AFX[a.k];if(A.ap)A.ap(P,a.v);else if(A.el)gx.el[a.k]=(gx.el[a.k]||0)+a.v;else gx[a.k]=(gx[a.k]||0)+a.v}if(it.leg)gx.legs.add(it.leg)}
+function gearApply(P){if(G.gearApplied===P)return;G.gearApplied=P;const gx={skill:0,auto:0,boss:0,elite:0,life:0,el:{},legs:new Set(),gold:0,xp:0};
+  for(const it of gearEquipped()){for(const a of gearAffixes(it)){const A=GEAR_AFX[a.k];if(A.ap)A.ap(P,a.v);else if(A.el)gx.el[a.k]=(gx.el[a.k]||0)+a.v;else gx[a.k]=(gx[a.k]||0)+a.v}if(it.leg)gx.legs.add(it.leg)}
   if(gx.gold)G.curse.gold=(G.curse.gold||1)*(1+gx.gold/100);if(gx.xp)G.curse.xp=(G.curse.xp||1)*(1+gx.xp/100);
   if(gx.legs.has('qiankun')){P.mag*=2;G.curse.xp=(G.curse.xp||1)*1.15}
   if(gx.legs.has('chixiao')){const w=G.spells[0];if(w&&!w.els.includes('fire')&&w.els.length<2)w.els.push('fire')}
@@ -148,7 +166,7 @@ xOn('fire',s=>{if(!G.gx)return;const w=G.spells[0];if(s!==w)return;
 xOn('cast',()=>{if(gxL('yijin'))G._yjT=G.t+3});
 (()=>{const dz=dash;dash=function(){const r=dz();if(r&&G&&G.gx&&gxL('tiancan')&&!G.auto){const P=G.P;P.dashCd*=.7;later(.2,()=>{const d=22*P.dmg*(1+P.dmgBonus)*(1+G.t/300);near(P.x,P.y,60,e=>{if(e.type==='statue')return;const dx=e.x-P.x,dy=e.y-P.y,l=hyp(dx,dy)||1;if(l<60+e.r)hit(e,d,null,true,'#efe4cd',dx/l*200,dy/l*200)});ring(P.x,P.y,58,'#efe4cd')})}return r}})();
 
-/* ---------- 修炼: the only place to spend gold ---------- */
+/* ---------- legacy training (kept for existing saves) ---------- */
 const TRAINING=[
   {id:'ren',zh:'体魄',en:'Vigor',d:'生命 +1% / 级',de:'+1% max HP / rank',ap:(P,n)=>{P.maxHp=Math.round(P.maxHp*(1+.01*n));P.hp=P.maxHp}},
   {id:'du',zh:'锋芒',en:'Edge',d:'伤害 +1% / 级',de:'+1% damage / rank',ap:(P,n)=>{P.dmg*=1+.01*n}},
@@ -168,7 +186,7 @@ function renderTraining(){const el=$('#shop');if(!el)return;const m=trainingSave
   el.innerHTML=TRAINING.map(x=>{const n=m[x.id]||0,max=x.max&&n>=x.max;return `<button type="button" class="up" data-train="${x.id}" ${max||SAVE.gold<cost?'disabled':''}><b>${L(x.zh,x.en)}</b><span class="rk">Lv ${n}</span><span class="dd">${L(x.d,x.de)}</span><span class="pr">${max?L('已满','Max'):cost+' '+L('金','gold')}</span></button>`}).join('');
   el.querySelectorAll('[data-train]').forEach(b=>b.onclick=()=>{if(!buyTraining(b.dataset.train))return;if(typeof SFX!=='undefined')SFX.complete();renderTitle();renderRoad()});
 }
-(()=>{const au=applyUpgrades;applyUpgrades=function(P){au(P);trainingApply(P);gearApply(P)}})();
+(()=>{const au=applyUpgrades;applyUpgrades=function(P){au(P);trainingApply(P)}})();
 
 /* ---------- the 行囊 panel ---------- */
 xCss(`
@@ -204,25 +222,27 @@ html[lang=ko] .gcell.eq::after{content:'착'}
 let gearSel=null,gearFilt='all';
 function gearIcon(it){if(!it)return '·';const key={weapon:'sword',armor:'ward',trinket:'relic',manual:'book'}[it.slot]||'relic';return typeof ICON!=='undefined'?ICON.misc(key,GEAR_RAR[it.r]?.col||'#cfc6b2'):'◆'}
 function gearDetail(it){if(!it)return '';const R=GEAR_RAR[it.r],g=gearSave(),cur=g.eq[it.slot]&&gearById(g.eq[it.slot]),isEq=cur&&cur.id===it.id;
-  const diff=cur&&!isEq?gearScore(it)-gearScore(cur):0;
-  return `<div class="gdet" style="--rc:${R.col}"><h3>${xEsc(L(it.zh,it.en))}</h3><div class="meta">${L(R.zh,R.en)} · ${LL(GEAR_SLOTS[it.slot])} · ${L('品阶','Tier')} ${it.t}${isEq?L(' · 已装备',' · equipped'):''}</div>
-  <ul>${it.a.map(a=>`<li>${afxText(a)}</li>`).join('')}</ul>${it.leg?`<div class="leg">✦ ${L(GEAR_LEG[it.leg].d,GEAR_LEG[it.leg].de)}</div>`:''}
+  const diff=cur&&!isEq?gearScore(it)-gearScore(cur):0,level=gearUpgradeLevel(it),canUpgrade=gearCanUpgrade(it),cost=gearUpgradeCost(it),current=gearAffixes(it),next=gearAffixes(it,level+1);
+  return `<div class="gdet" style="--rc:${R.col}"><h3>${xEsc(L(it.zh,it.en))}${gearUpgradeLabel(it)}</h3><div class="meta">${L(R.zh,R.en)} · ${LL(GEAR_SLOTS[it.slot])} · ${L('品阶','Tier')} ${it.t} · ${L('强化等级','Upgrade level')} ${level}/${GEAR_UPGRADE_MAX}${isEq?L(' · 已装备',' · equipped'):''}</div>
+  <ul>${current.map(a=>`<li>${afxText(a)}</li>`).join('')}</ul>${it.leg?`<div class="leg">✦ ${L(GEAR_LEG[it.leg].d,GEAR_LEG[it.leg].de)}</div>`:''}
   ${cur&&!isEq?`<div class="cmp">${L('对比当前','vs equipped')} ${xEsc(L(cur.zh,cur.en))}: <b class="${diff>=0?'up':'dn'}">${diff>=0?'▲':'▼'} ${Math.abs(diff).toFixed(1)}</b></div>`:''}
+  <div class="gupgradebox"><b>${L('金币强化','Upgrade with gold')}</b>${canUpgrade?`<ul class="gpreview">${next.map((a,i)=>`<li><span>${afxText(current[i])}</span><b>→ ${afxText(a)}</b></li>`).join('')}</ul><button type="button" class="go sm" data-ga="upgrade" ${SAVE.gold<cost?'disabled':''}>${L(`升至 +${level+1}`,`Upgrade to +${level+1}`)} · ${cost.toLocaleString('en-US')} ${L('金币','gold')}</button>${SAVE.gold<cost?`<small>${L(`还差 ${(cost-SAVE.gold).toLocaleString('en-US')} 金币`,`Need ${(cost-SAVE.gold).toLocaleString('en-US')} more gold`)}</small>`:''}`:`<small>${level>=GEAR_UPGRADE_MAX?L('已达强化上限','Maximum upgrade level'):L('全部词条已达上限','All affixes are at their caps')}</small>`}</div>
   <div class="gbtns">${isEq?`<button type="button" class="go alt sm" data-ga="off">${L('卸下','Unequip')}</button>`:`<button type="button" class="go sm" data-ga="eq">${L('装备','Equip')}</button>`}<button type="button" class="go alt sm" data-ga="lock">${it.lock?L('解锁','Unlock'):L('锁定','Lock')}</button>${isEq||it.lock?'':`<button type="button" class="go alt sm" data-ga="sal">${L('分解','Salvage')} +${gearSalvage(it)} ${L('金','gold')}</button>`}</div></div>`}
 function renderGear(){const box=$('#gearbody');if(!box)return;const g=gearSave(),eq=g.eq;
-  const slots=Object.keys(GEAR_SLOTS).map(k=>{const it=eq[k]&&gearById(eq[k]),R=it?GEAR_RAR[it.r]:null;return `<button type="button" class="gslot${gearSel&&it&&gearSel===it.id?' on':''}" data-sl="${k}" style="--rc:${R?R.col:'#6a6256'}"><span class="gico">${gearIcon(it||{slot:k})}</span><span><b>${it?xEsc(L(it.zh,it.en)):LL(GEAR_SLOTS[k])}</b><small>${it?it.a.slice(0,2).map(afxText).join(' · ')+(it.leg?' · ✦':''):L('空','empty')}</small></span></button>`}).join('');
+  const slots=Object.keys(GEAR_SLOTS).map(k=>{const it=eq[k]&&gearById(eq[k]),R=it?GEAR_RAR[it.r]:null;return `<button type="button" class="gslot${gearSel&&it&&gearSel===it.id?' on':''}" data-sl="${k}" style="--rc:${R?R.col:'#6a6256'}"><span class="gico">${gearIcon(it||{slot:k})}</span><span><b>${it?xEsc(L(it.zh,it.en))+gearUpgradeLabel(it):LL(GEAR_SLOTS[k])}</b><small>${it?gearAffixes(it).slice(0,2).map(afxText).join(' · ')+(it.leg?' · ✦':''):L('空','empty')}</small></span></button>`}).join('');
   const list=g.inv.filter(it=>gearFilt==='all'||it.slot===gearFilt).sort((a,b)=>(b.r-a.r)||(b.t-a.t)||(gearScore(b)-gearScore(a)));
-  const cells=list.map(it=>{const R=GEAR_RAR[it.r],isEq=Object.values(eq).includes(it.id),cur=eq[it.slot]&&gearById(eq[it.slot]),up=!isEq&&gearScore(it)>gearScore(cur);return `<button type="button" class="gcell${gearSel===it.id?' sel':''}${isEq?' eq':''}${up?' up':''}${it.new?' nw':''}" data-id="${it.id}" style="--rc:${R.col}" title="${xEsc(L(it.zh,it.en))}">${gearIcon(it)}${it.lock?'<span class="lk">🔒</span>':''}</button>`}).join('');
+  const cells=list.map(it=>{const R=GEAR_RAR[it.r],isEq=Object.values(eq).includes(it.id),cur=eq[it.slot]&&gearById(eq[it.slot]),up=!isEq&&gearScore(it)>gearScore(cur);return `<button type="button" class="gcell${gearSel===it.id?' sel':''}${isEq?' eq':''}${up?' up':''}${it.new?' nw':''}" data-id="${it.id}" style="--rc:${R.col}" title="${xEsc(L(it.zh,it.en))+gearUpgradeLabel(it)}">${gearIcon(it)}${gearUpgradeLevel(it)?`<span class="gplus">+${gearUpgradeLevel(it)}</span>`:''}${it.lock?'<span class="lk">🔒</span>':''}</button>`}).join('');
   const filt=['all',...Object.keys(GEAR_SLOTS)].map(k=>`<button type="button" data-f="${k}" class="${gearFilt===k?'on':''}">${k==='all'?L('全部','All'):LL(GEAR_SLOTS[k])}</button>`).join('');
 
   const sel=gearSel&&gearById(gearSel);
-  box.innerHTML=`<div class="gwrap"><div><div class="gsec"><span>${L('已装备','Equipped')}</span></div><div class="geq">${slots}</div>${gearDetail(sel)}</div>
+  box.innerHTML=`<div class="gear-wallet"><b>${ICON.misc('gold','#ffd27a','sm')} ${Math.floor(SAVE.gold||0).toLocaleString('en-US')} ${L('金币','gold')}</b><small>${L('装备与强化在下一局生效，单人和对决均有效','Equipment and upgrades apply next run, in solo and duels')}</small></div><div class="gwrap"><div><div class="gsec"><span>${L('已装备','Equipped')}</span></div><div class="geq">${slots}</div>${gearDetail(sel)}</div>
     <div><div class="gsec"><span>${L('行囊','Bag')} ${g.inv.length}/${GEAR_INV_MAX}</span></div><div class="gfilt">${filt}</div><div class="ginv">${cells||`<span class="meta" style="grid-column:1/-1;color:#a99f8d;font-size:13px">${L('暂无装备','No equipment')}</span>`}</div>
     </div></div>`;
   box.querySelectorAll('[data-sl]').forEach(b=>b.onclick=()=>{const id=eq[b.dataset.sl];if(id){gearSel=id;renderGear()}else{gearFilt=b.dataset.sl;renderGear()}});
   box.querySelectorAll('[data-id]').forEach(b=>b.onclick=()=>{gearSel=b.dataset.id;const it=gearById(gearSel);if(it&&it.new){it.new=0;gearChanged(it)}renderGear();if(typeof SFX!=='undefined')SFX.pick(1)});
   box.querySelectorAll('[data-f]').forEach(b=>b.onclick=()=>{gearFilt=b.dataset.f;renderGear()});
   box.querySelectorAll('[data-ga]').forEach(b=>b.onclick=()=>{const it=gearById(gearSel);if(!it)return;const a=b.dataset.ga;
+    if(a==='upgrade'){if(!buyGearUpgrade(it.id))return;if(typeof SFX!=='undefined')SFX.complete();renderGear();if(typeof renderProg==='function')renderProg();return}
     if(a==='eq'){eq[it.slot]=it.id;it.new=0;const lg=GEAR_LEG[it.leg];if(lg?.weapon){SAVE.weapon=SAVE.weapon||{};SAVE.weapon[lg.cls]=lg.weapon}if(typeof SFX!=='undefined')SFX.chest()}else if(a==='off'){delete eq[it.slot]}else if(a==='lock'){it.lock=!it.lock}else if(a==='sal'){SAVE.gold+=gearSalvage(it);gearRemove(it);gearSel=null;if(typeof SFX!=='undefined')SFX.pick(1)}
     gearChanged(it);renderGear();if(typeof renderProg==='function')renderProg()});
 }

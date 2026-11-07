@@ -1397,7 +1397,7 @@ body.touchhud #healthwarning{bottom:calc(235px + env(safe-area-inset-bottom));fo
 .run-life{display:inline-flex;color:#ff6b76;filter:drop-shadow(0 1px 3px #000a)}
 .run-life svg{width:20px;height:20px;fill:currentColor;stroke:#ffe0c0;stroke-width:1.2}
 .run-life.off{color:#382831;opacity:.65}.run-life.off svg{stroke:#82717a}
-#timer.duel-clock{font:900 clamp(30px,4vw,48px)/1 var(--cute);color:#fff0c0;min-width:3.2em;padding:7px 12px;border:2px solid #d6a54a;border-radius:14px;background:#160c1be8;box-shadow:0 3px 12px #0008;font-variant-numeric:tabular-nums}
+#timer.duel-clock{display:inline-flex;align-items:center;justify-content:center;text-align:center;letter-spacing:0;font:900 clamp(30px,4vw,48px)/1 var(--cute);color:#fff0c0;min-width:3.2em;padding:7px 12px;border:2px solid #d6a54a;border-radius:14px;background:#160c1be8;box-shadow:0 3px 12px #0008;font-variant-numeric:tabular-nums}
 #timer.duel-clock.urgent{color:#ff9c88;border-color:#ff6c63;box-shadow:0 0 18px #f44a}
 #duelfinal{position:fixed;inset:0;z-index:90;display:grid;place-items:center;pointer-events:none;background:radial-gradient(ellipse,#1a08182e,transparent 70%);color:#fff0ba;font:900 clamp(160px,62vmin,460px)/1 "Cinzel",var(--brush),serif;text-shadow:0 5px 0 #7d2a26,0 0 30px #ffab53,0 8px 50px #000c;-webkit-text-stroke:2px #5c281d}
 #duelfinal[hidden]{display:none}#duelfinal.beat{animation:duelfinalbeat .9s ease-out}
@@ -1415,3 +1415,16 @@ body.touchhud #healthwarning{bottom:calc(235px + env(safe-area-inset-bottom));fo
 
 .duel-ending #banner,.duel-dead #banner,.duel-ending #intro,.duel-dead #intro{visibility:hidden}
 .room-rule{margin:8px 0 10px;color:var(--dim);font-size:13px;line-height:1.4}
+
+/* Equipment upgrades: wallet, exact price and next small increase. */
+.gear-wallet{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px 16px;margin:0 0 16px;padding:10px 12px;border:1px solid #6b523088;border-radius:12px;background:#170d17}
+.gear-wallet>b{display:flex;align-items:center;gap:6px;color:#ffd27a;font-size:18px}.gear-wallet small{color:var(--dim);font-size:13px}
+.gupgradebox{display:grid;gap:8px;padding:10px;margin:6px 0;border:1px solid #9b753f;border-radius:12px;background:#35221455}
+.gupgradebox>b{color:#ffd27a}.gupgradebox small{color:var(--dim);font-size:12px}.gupgradebox .go{width:100%;font-size:14px;white-space:normal}
+.gpreview{display:grid;gap:4px;padding:0!important;list-style:none;font-size:12px!important}.gpreview li{display:flex;flex-wrap:wrap;justify-content:space-between;gap:2px 8px}.gpreview li>b{color:#9de5b1}
+.gcell .gplus{position:absolute;bottom:2px;left:4px;font:800 11px var(--cute);color:#ffe09a;text-shadow:0 1px 3px #000}
+@media(max-width:720px){.gear-wallet{align-items:flex-start;flex-direction:column}.gear-wallet small{font-size:12px}}
+
+#gearov{z-index:70}
+
+#end #roomres .room-wait{color:var(--bone);font-weight:700;padding:8px 0;line-height:1.4}
