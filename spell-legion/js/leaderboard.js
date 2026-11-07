@@ -1,6 +1,6 @@
 'use strict';
 /* leaderboard.js — kept deliberately simple:
-   · no typing: a new personal best is posted automatically under the hero name/avatar from the top of the menu
+   · no typing: a new personal best score is posted automatically under the hero name/avatar from the top of the menu
    · results screen: one line, your rank and who is next above you
    · board: 今日 / 总榜, top three on a podium, your own row pinned at the bottom
    Backend: Firestore through CLB in cloud.js. */
@@ -10,17 +10,17 @@ const LB={
   name(){let n=(typeof SAVE!=='undefined'&&SAVE.name)||'';if(!n)try{n=localStorage.getItem('sl_name')||''}catch(_){}if(!n&&typeof CLOUD!=='undefined'&&CLOUD.user&&!CLOUD.user.isAnonymous&&CLOUD.user.displayName)n=CLOUD.user.displayName.slice(0,16);return n},
   setName(n){n=String(n||'').trim().slice(0,12);if(!n)return;if(typeof SAVE!=='undefined'){SAVE.name=n;SAVE.nameSet=true;persist()}try{localStorage.setItem('sl_name',n)}catch(_){}},
   cloud(){return typeof CLOUD!=='undefined'&&CLOUD.on()},
-  enabled(){return this.cloud()||!!LEADERBOARD_URL},
+  enabled(){return typeof CLB!=='undefined'||!!LEADERBOARD_URL},
   me(){return this.cloud()?CLOUD.uid():null},
-  isMe(r){const u=this.me();return u?r.uid===u:r.name===this.name()},
+  isMe(r){const u=this.me();return u?r.uid===u:!r.uid&&!!this.name()&&r.name===this.name()},
   async fetch(board,filters={}){
-    if(this.cloud())return CLB.fetch(board,filters);
+    if(typeof CLB!=='undefined')return CLB.fetch(board,filters);
     if(!LEADERBOARD_URL||board==='ladder')return null;
     const q=new URLSearchParams({board:board==='daily'?'today':board,token:this.token(),...filters});
     const r=await fetch(LEADERBOARD_URL+'?'+q.toString(),{method:'GET'});
     return r.json();
   },
-  async profiles(rows){if(!this.cloud())return {};return CLB.profiles(rows.map(r=>r.uid))},
+  async profiles(rows){if(typeof CLB==='undefined')return {};return CLB.profiles(rows.map(r=>r.uid))},
   async submit(run){
     if(this.cloud())return CLB.submit(run);
     if(!LEADERBOARD_URL)return {ok:false,error:'disabled'};
@@ -29,29 +29,31 @@ const LB={
     return r.json();
   },
 };
+const lbCompare=(a,b)=>(b.score||0)-(a.score||0)||(b.bosses||0)-(a.bosses||0)||(b.kills||0)-(a.kills||0)||(b.time||0)-(a.time||0)||String(a.uid||a.name||'').localeCompare(String(b.uid||b.name||''));
 const MEDAL=['🥇','🥈','🥉'];
 function lbAvOf(r){if(r.av&&r.av.e!==undefined)return r.av;const s=String(r.uid||r.name||'?');let h=0;for(let i=0;i<s.length;i++)h=(h*31+s.charCodeAt(i))>>>0;return {e:h%AVATARS.length,h:(h>>>8)%360}}
 function lbDecorate(rows,prof){return rows.map(r=>{const p=(prof&&r.uid&&prof[r.uid])||{};const mine=LB.isMe(r);return {...r,name:mine?(LB.name()||r.name):(p.name||r.name||'?'),av:mine?SAVE.avatar:(p.av||lbAvOf(r)),mine}})}
 function lbCls(k){const C=CLASSES[k];return C?`<span class="lbcls" style="--c:${C.col}">${C.g}</span>${esc(LL(C))}`:''}
-function lbRow(r,i){return `<li class="lbr${r.mine?' me':''}"><span class="rk">${i<3?MEDAL[i]:i+1}</span>${avatarHTML(r.av)}<span class="who"><b>${esc(r.name)}</b><small>${lbCls(r.cls)}</small></span><b class="mv">${fmt(r.time)}</b></li>`}
-function lbPodium(rows){const slot=(r,i)=>r?`<div class="pod p${i+1}${r.mine?' me':''}"><span class="md">${MEDAL[i]}</span>${avatarHTML(r.av,'big')}<b>${esc(r.name)}</b><span class="pv">${fmt(r.time)}</span><i class="step"></i></div>`:`<div class="pod p${i+1} empty"><span class="md">${MEDAL[i]}</span><span class="av big ghost">?</span><b>—</b><i class="step"></i></div>`;
+function lbRow(r,i){return `<li class="lbr${r.mine?' me':''}"><span class="rk">${i<3?MEDAL[i]:i+1}</span>${avatarHTML(r.av)}<span class="who"><b>${esc(r.name)}</b><small>${lbCls(r.cls)}</small></span><b class="mv">${Math.round(r.score||0).toLocaleString('en-US')}</b></li>`}
+function lbPodium(rows){const slot=(r,i)=>r?`<div class="pod p${i+1}${r.mine?' me':''}"><span class="md">${MEDAL[i]}</span>${avatarHTML(r.av,'big')}<b>${esc(r.name)}</b><span class="pv">${Math.round(r.score||0).toLocaleString('en-US')}</span><i class="step"></i></div>`:`<div class="pod p${i+1} empty"><span class="md">${MEDAL[i]}</span><span class="av big ghost">?</span><b>—</b><i class="step"></i></div>`;
   return `<div class="podium3">${slot(rows[1],1)}${slot(rows[0],0)}${slot(rows[2],2)}</div>`}
 /* ---- the board ---- */
 let lbBoard='all',lbSeq=0;
+function lbRetry(body){body.innerHTML=`<p class="lbnote">${L('暂时无法加载','Unavailable right now')}</p>`;const b=document.createElement('button');b.type='button';b.className='go alt sm';b.textContent='↻';b.setAttribute('aria-label',L('重试','Retry'));b.onclick=()=>openLeaderboard(lbBoard);body.appendChild(b)}
 async function openLeaderboard(board){
   if(board==='all'||board==='today')lbBoard=board;const seq=++lbSeq;$('#lb').hidden=false;
-  $('#lbbox').innerHTML=`<div class="lbhead"><div class="lbtabs">${[['today','今日','Today'],['all','总榜','All time']].map(t=>`<button type="button" data-b="${t[0]}" class="${lbBoard===t[0]?'on':''}">${L(t[1],t[2])}</button>`).join('')}</div><button type="button" class="lbx" id="lbclose" aria-label="${L('关闭','Close')}">✕</button></div><div class="lbscroll" id="lbbody"><p class="lbnote">${L('载入中…','Loading…')}</p></div><div class="lbmine" id="lbmine"></div>`;
+  $('#lbbox').innerHTML=`<div class="lbhead"><div class="lbtabs">${[['today','今日','Today'],['all','总榜','All time']].map(t=>`<button type="button" data-b="${t[0]}" class="${lbBoard===t[0]?'on':''}">${L(t[1],t[2])}</button>`).join('')}</div><small class="lbmetric">${L('分数','Score')}</small><button type="button" class="lbx" id="lbclose" aria-label="${L('关闭','Close')}">✕</button></div><div class="lbscroll" id="lbbody"><p class="lbnote">${L('载入中…','Loading…')}</p></div><div class="lbmine" id="lbmine"></div>`;
   $('#lbclose').onclick=closeLeaderboard;document.querySelectorAll('#lbbox [data-b]').forEach(b=>b.onclick=()=>{SFX.pick(1);openLeaderboard(b.dataset.b)});
   const body=$('#lbbody'),mine=$('#lbmine');
   try{
     const d=await LB.fetch(lbBoard);if(seq!==lbSeq)return;
-    if(!d||!d.ok){body.innerHTML=`<p class="lbnote">${L('暂时无法加载','Unavailable right now')}</p>`;return}
+    if(!d||!d.ok){lbRetry(body);return}
     const myI=d.rows.findIndex(r=>LB.isMe(r)),top=d.rows.slice(0,50);
     const prof=await LB.profiles(myI>=50?[...top,d.rows[myI]]:top);if(seq!==lbSeq)return;
     const rows=lbDecorate(top,prof);
     body.innerHTML=lbPodium(rows.slice(0,3))+(rows.length>3?`<ol class="lbl">${rows.slice(3).map((r,i)=>lbRow(r,i+3)).join('')}</ol>`:'')+(rows.length?'':`<p class="lbnote big">${L('还没人上榜','No one yet')}</p>`);
     mine.innerHTML=myI>=0?`<ol class="lbl">${lbRow(lbDecorate([d.rows[myI]],prof)[0],myI)}</ol>`:`<p class="lbnote cta">${L('未上榜','Unranked')}</p>`;
-  }catch(e){console.warn(e);if(seq===lbSeq)body.innerHTML=`<p class="lbnote">${L('暂时无法加载','Unavailable right now')}</p>`}
+  }catch(e){console.warn(e);if(seq===lbSeq)lbRetry(body)}
 }
 function closeLeaderboard(){$('#lb').hidden=true;lbSeq++;lbMenuRank()}
 function wireLeaderboard(){
@@ -65,28 +67,36 @@ async function lbMenuRank(){
   try{const d=await LB.fetch('all');if(!d||!d.ok)return;const i=d.rows.findIndex(r=>LB.isMe(r));rk.textContent=i>=0?'#'+(i+1):''}catch(_){}
 }
 /* ---- after a run: post a new best automatically, show one line ---- */
-async function submitRun(container){
-  if(!LB.enabled())return;
-  if((typeof RIVAL_ON!=='undefined'&&RIVAL_ON)||G.room||G.abandoned||G.t<20||SAVE.mode==='qpk'||SAVE.mode==='room')return;
-  const dk=G.day||dayKey(),t=Math.round(G.t);
+async function submitRun(container,snapshot){
+  if(!snapshot){
+    if(!LB.cloud()&&!LEADERBOARD_URL)return;
+    if((typeof RIVAL_ON!=='undefined'&&RIVAL_ON)||G.room||G.abandoned||G.t<20||SAVE.mode==='qpk'||SAVE.mode==='room')return;
+    // Capture the finished run before any read awaits; Retry uses this same snapshot.
+    snapshot={uid:LB.me(),name:LB.name()||L('无名侠客','Nameless'),av:SAVE.avatar?{...SAVE.avatar}:null,cls:G.cls,map:MAPID,diff:DIFFID,mode:SAVE.mode||'solo',score:G.score||0,day:G.day||dayKey(),tier:ASURA_T||0,time:Math.round(G.t),kills:G.kills,bosses:G.bossSlain,level:G.lv,combo:G.comboMax,relics:G.relics.length};
+  }
+  const run=snapshot,dk=run.day;
   const line=document.createElement('button');line.type='button';line.className='lbline';line.innerHTML=`<span class="rk">…</span><span class="tx">${L('排名结算中','Ranking…')}</span>`;
   line.onclick=()=>{SFX.pick(1);openLeaderboard('all')};
   const anchor=container.querySelector('.endmore');if(anchor)anchor.before(line);else container.appendChild(line);
-  let all=null,today=null;try{[all,today]=await Promise.all([LB.fetch('all').catch(()=>null),LB.fetch('today').catch(()=>null)])}catch(_){}
-  const S=SAVE.lb&&typeof SAVE.lb==='object'?SAVE.lb:(SAVE.lb={best:0,day:0,dayBest:0});if(S.day!==dk){S.day=dk;S.dayBest=0}
-  const mineT=d=>{if(!d||!d.ok)return null;const m=d.rows.find(r=>LB.isMe(r));return m?m.time:0};
-  const ba=mineT(all),bd=mineT(today),allPB=t>(ba===null?S.best||0:ba),dayPB=t>(bd===null?S.dayBest||0:bd);
+  let all=null,today=null;try{[all,today]=await Promise.all([LB.fetch('all').catch(()=>null),dk===dayKey()?LB.fetch('today').catch(()=>null):Promise.resolve(null)])}catch(_){}
+  const mine=r=>run.uid?r.uid===run.uid:r.name===run.name;
+  const S=SAVE.lb&&typeof SAVE.lb==='object'?SAVE.lb:(SAVE.lb={});
+  if(S.rankBy!=='score'){S.rankBy='score';S.bestRun=null;S.dayBestRun=null}
+  const old=all&&all.ok?all.rows.find(mine):null,oldDay=today&&today.ok?today.rows.find(mine):null;
+  const previous=all&&all.ok?old:S.bestRun;
+  const previousDay=today&&today.ok?oldDay:S.day===dk?S.dayBestRun:null;
+  const allPB=!previous||lbCompare(run,previous)<0;
+  const dayPB=!previousDay||lbCompare(run,previousDay)<0;
   let posted=false;
-  if(allPB||dayPB){try{const r=await LB.submit({name:LB.name()||L('无名侠客','Nameless'),av:SAVE.avatar,cls:G.cls,map:MAPID,diff:DIFFID,mode:SAVE.mode||'solo',score:G.score||0,day:dk,tier:ASURA_T||0,time:t,kills:G.kills,bosses:G.bossSlain,level:G.lv,combo:G.comboMax,relics:G.relics.length,allTime:allPB});posted=!!(r&&r.ok)}catch(_){}
-    if(posted){if(allPB)S.best=t;S.dayBest=Math.max(S.dayBest||0,t);persist();lbMenuRank()}}
-  if((allPB||dayPB)&&!posted){line.innerHTML=`<span class="rk">!</span><span class="tx">${L('上传失败','Upload failed')}</span><span class="arr">↻</span>`;line.onclick=()=>{SFX.pick(1);line.remove();submitRun(container)};return}
+  if(allPB||dayPB){try{const r=await LB.submit({...run,allTime:allPB});posted=!!(r&&r.ok)}catch(_){}
+    if(posted&&LB.me()===run.uid){const result={uid:run.uid,score:run.score,time:run.time,bosses:run.bosses,kills:run.kills};if(allPB&&(!S.bestRun||lbCompare(result,S.bestRun)<0))S.bestRun=result;if(!S.day||dk>=S.day){if(S.day!==dk)S.dayBestRun=null;S.day=dk;if(!S.dayBestRun||lbCompare(result,S.dayBestRun)<0)S.dayBestRun=result}persist();lbMenuRank()}}
+  if((allPB||dayPB)&&!posted){line.innerHTML=`<span class="rk">!</span><span class="tx">${L('上传失败','Upload failed')}</span><span class="arr">↻</span>`;line.onclick=()=>{SFX.pick(1);line.remove();submitRun(container,run)};return}
   if(!all||!all.ok){line.remove();return}
-  /* rank with this run counted (only if it was posted) */
-  const others=all.rows.filter(r=>!LB.isMe(r)),old=all.rows.find(r=>LB.isMe(r)),oldI=all.rows.indexOf(old);
-  const best=posted&&allPB?{time:t,bosses:G.bossSlain,kills:G.kills}:old;
+  const others=all.rows.filter(r=>!mine(r)),oldI=all.rows.indexOf(old);
+  const best=posted&&allPB?run:old;
   if(!best){line.innerHTML=`<span class="rk">—</span><span class="tx">${posted?L('已上今日榜','On today’s board'):L('未上榜','Unranked')}</span><span class="arr">›</span>`;return}
-  const list=[...others,best].sort((a,b)=>b.time-a.time||(b.bosses||0)-(a.bosses||0)),i=list.indexOf(best),above=list[i-1];
+  const list=[...others,best].sort(lbCompare),i=list.indexOf(best);
   const up=posted&&allPB?(oldI<0?'NEW':oldI-i>0?'▲'+(oldI-i):''):'';
   line.innerHTML=`<span class="rk${i<3?' gold':''}">#${i+1}</span>${up?`<span class="up">${up}</span>`:''}<span class="tx">${L('总榜','All time')}</span><span class="arr">›</span>`;
-  if(up){line.classList.add('pop')}
+  if(up)line.classList.add('pop');
 }

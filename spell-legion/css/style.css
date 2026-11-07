@@ -1248,3 +1248,4 @@ html[lang=ko]{--brush:"Song Myung","AppleMyungjo","Batang","Noto Serif KR",serif
 
 .audio-mute{flex:none;display:grid;place-items:center;width:38px;height:36px;padding:0;border:1px solid #6b5230;border-radius:10px;background:#2a1822;color:var(--bone);font-size:19px;cursor:pointer}
 .audio-mute.off{opacity:.65;background:#140c17}.audio-mute:focus-visible{outline:2px solid var(--brass);outline-offset:2px}
+.lbmetric{color:var(--dim);white-space:nowrap;font-size:12px}

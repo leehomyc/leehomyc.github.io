@@ -70,6 +70,11 @@ function mergeSave(local,cloud){
   const dd=o=>o.daily?.day||0;out.daily=clone(dd(cloud)>dd(local)?cloud.daily:dd(local)>dd(cloud)?local.daily:(local.daily&&cloud.daily?(local.daily.best>=cloud.daily.best?local.daily:cloud.daily):(local.daily||cloud.daily||null)));
   const ls=local.season||{},cs=cloud.season||{};out.season=clone((ls.id||0)>(cs.id||0)?ls:(cs.id||0)>(ls.id||0)?cs:{...ls,...cs,peak:Math.max(ls.peak||0,cs.peak||0)});
   const lb=local.lb||{},cb=cloud.lb||{};out.lb={...(lb.day>cb.day?lb:cb),best:Math.max(lb.best||0,cb.best||0)};if(lb.day===cb.day)out.lb.dayBest=Math.max(lb.dayBest||0,cb.dayBest||0);
+  if(lb.rankBy==='score'||cb.rankBy==='score'){
+    const better=(a,b)=>{if(!a)return b;if(!b)return a;for(const k of ['score','bosses','kills','time']){if((a[k]||0)!==(b[k]||0))return (a[k]||0)>(b[k]||0)?a:b}return a};
+    out.lb.rankBy='score';out.lb.bestRun=clone(better(lb.bestRun,cb.bestRun)||null);
+    out.lb.day=Math.max(lb.day||0,cb.day||0);out.lb.dayBestRun=clone(lb.day===cb.day?better(lb.dayBestRun,cb.dayBestRun)||null:(lb.day>cb.day?lb.dayBestRun:cb.dayBestRun)||null);
+  }
   out.ts=Math.max(+local.ts||0,+cloud.ts||0);if(typeof migrateProgression==='function')migrateProgression(out);delete out.autocast;return out;
 }
 async function cloudAuthChanged(user){
@@ -219,35 +224,63 @@ function renderAccount(){
    profiles/{uid}         current names are read from here, so a rename shows up on old posts
    run.av (avatar) is optional: if the security rules refuse it the run is posted without it. */
 const CLB={
-  cache:{},
+  cache:{},pending:{},epoch:0,
   noAv:(()=>{try{return localStorage.getItem('sl_lb_noav')==='1'}catch(_){return false}})(),
-  col(board){return board==='all'?CLOUD.db.collection('runs'):CLOUD.db.collection('days').doc(String(dayKey())).collection('runs')},
-  async raw(board){ // newest copy within 45 s is reused: opening the board, the menu pill and the results card share one read
-    const c=this.cache[board];if(c&&Date.now()-c.t<45000)return c.rows;
-    let rows;
-    const snap=await this.col(board).orderBy('time','desc').limit(150).get();rows=snap.docs.map(d=>d.data());
-    this.cache[board]={t:Date.now(),rows};return rows;
+  // These collections are public. Reading must not wait for Auth or the Firebase SDK.
+  async query(parent,structuredQuery){
+    const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),10000);
+    try{
+      const url=`https://firestore.googleapis.com/v1/projects/${FIREBASE_CONFIG.projectId}/databases/(default)/documents${parent?'/'+parent:''}:runQuery`;
+      const response=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({structuredQuery}),signal:controller.signal});
+      if(!response.ok)throw new Error('Leaderboard read failed: '+response.status);
+      const decode=v=>v.integerValue!==undefined?Number(v.integerValue):v.doubleValue!==undefined?v.doubleValue:v.stringValue!==undefined?v.stringValue:v.booleanValue!==undefined?v.booleanValue:v.mapValue?Object.fromEntries(Object.entries(v.mapValue.fields||{}).map(([k,x])=>[k,decode(x)])):v.arrayValue?(v.arrayValue.values||[]).map(decode):v.timestampValue||null;
+      return (await response.json()).filter(x=>x.document).map(x=>({...Object.fromEntries(Object.entries(x.document.fields||{}).map(([k,v])=>[k,decode(v)])),_id:x.document.name.split('/').pop()}));
+    }finally{clearTimeout(timer)}
   },
-  async fetch(board,filters={}){
-    let rows=(await this.raw(board)).slice();
-    rows=rows.filter(r=>r.mode!=='pk'&&r.mode!=='qpk'&&r.mode!=='room'); // duels are a fixed 3 minutes, not survival
-    const best={};for(const r of rows){const k=r.uid||r.name;if(!best[k]||r.time>best[k].time)best[k]=r}
-    rows=Object.values(best).sort((a,b)=>b.time-a.time||b.bosses-a.bosses||b.kills-a.kills);
+  async raw(board){
+    const day=board==='all'?0:dayKey(),key=board==='all'?'all':'today:'+day;
+    const c=this.cache[key];if(c&&Date.now()-c.t<45000)return c.rows;
+    if(this.pending[key])return this.pending[key];
+    const epoch=this.epoch;
+    const pending=this.query(day?'days/'+day:'',{from:[{collectionId:'runs'}],orderBy:[{field:{fieldPath:'score'},direction:'DESCENDING'}],limit:150}).then(rows=>{
+      if(epoch===this.epoch)this.cache[key]={t:Date.now(),rows};return rows;
+    });
+    this.pending[key]=pending;
+    try{return await pending}finally{if(this.pending[key]===pending)delete this.pending[key]}
+  },
+  async fetch(board){
+    const raw=await this.raw(board),best=new Map();
+    for(const r of raw){
+      if(['pk','qpk','room'].includes(r.mode)||!Number.isFinite(r.score)||r.score<0)continue;
+      const k=r.uid||r.name;if(!k)continue;
+      if(!best.has(k)||lbCompare(r,best.get(k))<0)best.set(k,r);
+    }
+    const rows=[...best.values()].sort(lbCompare);
     return {ok:true,count:rows.length,rows,me:CLOUD.uid()};
   },
-  async profiles(uids){ // current name / level / avatar for the rows on screen; best effort
+  async profiles(uids){
     const out={},need=[...new Set(uids.filter(Boolean))].slice(0,90);
-    try{for(let i=0;i<need.length;i+=30){const snap=await CLOUD.db.collection('profiles').where(firebase.firestore.FieldPath.documentId(),'in',need.slice(i,i+30)).get();snap.docs.forEach(d=>{out[d.id]=d.data()})}}catch(e){console.warn('profiles lookup',e)}
+    try{for(let i=0;i<need.length;i+=30){
+      const ids=need.slice(i,i+30),base=`projects/${FIREBASE_CONFIG.projectId}/databases/(default)/documents/profiles/`;
+      const rows=await this.query('',{from:[{collectionId:'profiles'}],where:{fieldFilter:{field:{fieldPath:'__name__'},op:'IN',value:{arrayValue:{values:ids.map(uid=>({referenceValue:base+uid}))}}}}});
+      for(const row of rows)if(row._id)out[row._id]=row;
+    }}catch(e){console.warn('profiles lookup',e)}
     return out;
   },
   async submit(run){
     if(!CLOUD.on())return {ok:false,error:'disabled'};
-    const doc={name:String(run.name||'无名侠客').slice(0,16),cls:run.cls,map:run.map,diff:run.diff,mode:run.mode||'solo',time:Math.round(run.time),kills:Math.round(run.kills),bosses:Math.round(run.bosses),level:Math.round(run.level),combo:Math.round(run.combo),relics:Math.round(run.relics),score:Math.round(run.score||0),day:run.day||dayKey(),tier:Math.round(run.tier||0),uid:CLOUD.uid(),ts:firebase.firestore.FieldValue.serverTimestamp()};
-    const post=async d=>{if(run.allTime!==false)await CLOUD.db.collection('runs').add(d);await CLOUD.db.collection('days').doc(String(d.day)).collection('runs').add(d)};
+    if(run.uid&&run.uid!==CLOUD.uid())return {ok:false,error:'account-changed'};
+    const doc={name:String(run.name||'Nameless').slice(0,16),cls:run.cls,map:run.map,diff:run.diff,mode:run.mode||'solo',time:Math.round(run.time),kills:Math.round(run.kills),bosses:Math.round(run.bosses),level:Math.round(run.level),combo:Math.round(run.combo),relics:Math.round(run.relics),score:Math.round(run.score||0),day:run.day||dayKey(),tier:Math.round(run.tier||0),uid:CLOUD.uid(),ts:firebase.firestore.FieldValue.serverTimestamp()};
+    const post=async d=>{
+      const batch=CLOUD.db.batch();
+      if(run.allTime!==false)batch.set(CLOUD.db.collection('runs').doc(),d);
+      batch.set(CLOUD.db.collection('days').doc(String(d.day)).collection('runs').doc(),d);
+      await batch.commit();
+    };
     try{
-      if(!this.noAv&&run.av){try{await post({...doc,av:{e:run.av.e|0,h:run.av.h|0}})}catch(e){if(e.code!=='permission-denied')throw e;await post(doc);this.noAv=true;try{localStorage.setItem('sl_lb_noav','1')}catch(_){}}} // only give up on avatars when the same run goes through without one
+      if(!this.noAv&&run.av){try{await post({...doc,av:{e:run.av.e|0,h:run.av.h|0}})}catch(e){if(e.code!=='permission-denied')throw e;await post(doc);this.noAv=true;try{localStorage.setItem('sl_lb_noav','1')}catch(_){}}}
       else await post(doc);
-      for(const b of ['all','today'])delete this.cache[b];
+      this.epoch++;this.cache={};this.pending={};
       return {ok:true};
     }catch(e){console.warn('submit failed',e);return {ok:false,error:e.code==='permission-denied'?'implausible':'network'}}
   }
