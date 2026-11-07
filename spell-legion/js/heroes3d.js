@@ -7,16 +7,19 @@
 const K3={ready:false,models:{},clipsUp:{},clipsLow:{},clipsFull:{},loading:null};
 const K3_PROPS=['1H_Sword_Offhand','Badge_Shield','Rectangle_Shield','Round_Shield','Spike_Shield','1H_Sword','2H_Sword','Spellbook','Spellbook_open','1H_Wand','2H_Staff','1H_Axe_Offhand','Barbarian_Round_Shield','1H_Axe','2H_Axe','Mug','Knife_Offhand','1H_Crossbow','2H_Crossbow','Knife','Throwable'];
 const K3_CLASS={
-  swordsman:{m:'Knight',w:{sword:['1H_Sword','Round_Shield'],great:['2H_Sword']}},
-  taoist:{m:'Mage',w:{charm:['Spellbook_open','1H_Wand'],whisk:['2H_Staff']}},
+  swordsman:{m:'Knight',w:{sword:['1H_Sword','Round_Shield'],great:['2H_Sword'],swordcase:['1H_Sword','1H_Sword_Offhand']}},
+  taoist:{m:'Mage',w:{charm:['Spellbook_open','1H_Wand'],whisk:['2H_Staff'],thunder:['2H_Staff']},hide:['Mage_Hat']},
+  wizard:{m:'Mage',w:{arcane:['2H_Staff'],fireball:['Spellbook_open','1H_Wand'],meteor:['2H_Staff']}},
+  oni:{m:'Knight',w:{katana:['2H_Sword'],kusari:['1H_Sword','1H_Sword_Offhand'],shiki:['Mage:Spellbook_open']},hide:['Knight_Helmet']},
   blademaster:{m:'Barbarian',w:{slash:['1H_Axe','1H_Axe_Offhand'],nodachi:['2H_Axe']}},
-  qin:{m:'Rogue_Hooded',w:{wave:['1H_Crossbow'],drum:['2H_Crossbow']}},
-  monk:{m:'Barbarian',w:{staff:[],fist:[]},hide:['Barbarian_Hat']},
-  physician:{m:'Rogue',w:{needle:['Knife','Throwable'],pouch:['Throwable']}},
+  qin:{m:'Rogue_Hooded',w:{wave:['1H_Crossbow'],drum:['2H_Crossbow'],flute:['Mage:1H_Wand']}},
+  monk:{m:'Barbarian',w:{staff:[],fist:[],bell:[]},hide:['Barbarian_Hat']},
+  physician:{m:'Rogue',w:{needle:['Knife','Throwable'],pouch:['Throwable'],goldgu:['Throwable']}},
+  idol:{m:'Rogue',w:{lightstick:['Mage:1H_Wand'],mic:['Mage:1H_Wand'],pyro:['Throwable']},hide:['Rogue_Cape']},
 };
 /* how each normal attack looks */
-const K3_ATK={sword:'1H_Melee_Attack_Slice_Horizontal',great:'2H_Melee_Attack_Slice',charm:'Spellcast_Shoot',whisk:'1H_Melee_Attack_Slice_Diagonal',slash:'Dualwield_Melee_Attack_Slice',nodachi:'2H_Melee_Attack_Chop',wave:'1H_Ranged_Shoot',drum:'2H_Ranged_Shoot',staff:'Unarmed_Melee_Attack_Punch_B',fist:'Unarmed_Melee_Attack_Punch_A',needle:'Throw',pouch:'Throw'};
-const K3_CASTER={taoist:1,qin:1,physician:1};
+const K3_ATK={sword:'1H_Melee_Attack_Slice_Horizontal',great:'2H_Melee_Attack_Slice',charm:'Spellcast_Shoot',whisk:'1H_Melee_Attack_Slice_Diagonal',slash:'Dualwield_Melee_Attack_Slice',nodachi:'2H_Melee_Attack_Chop',wave:'1H_Ranged_Shoot',drum:'2H_Ranged_Shoot',staff:'Unarmed_Melee_Attack_Punch_B',fist:'Unarmed_Melee_Attack_Punch_A',needle:'Throw',pouch:'Throw',swordcase:'1H_Melee_Attack_Slice_Horizontal',thunder:'Spellcast_Shoot',flute:'Spellcast_Shoot',bell:'Unarmed_Melee_Attack_Punch_A',goldgu:'Throw',katana:'2H_Melee_Attack_Slice',kusari:'Dualwield_Melee_Attack_Slice',shiki:'Spellcast_Shoot',lightstick:'Spellcast_Shoot',mic:'Spellcast_Shoot',pyro:'Throw',arcane:'Spellcast_Shoot',fireball:'Spellcast_Shoot',meteor:'Spellcast_Raise'};
+const K3_CASTER={taoist:1,qin:1,physician:1,wizard:1,idol:1};
 const K3_UPPER=new Set(['spine','chest','head','upperarm.l','lowerarm.l','wrist.l','hand.l','handslot.l','upperarm.r','lowerarm.r','wrist.r','hand.r','handslot.r','elbowIK.l','handIK.l','elbowIK.r','handIK.r']);
 function k3Split(clip){const up=[],low=[];for(const t of clip.tracks){const bone=t.name.slice(0,t.name.lastIndexOf('.'));(K3_UPPER.has(bone)?up:low).push(t)}
   return [new THREE.AnimationClip(clip.name+'_up',clip.duration,up),new THREE.AnimationClip(clip.name+'_low',clip.duration,low)]}
@@ -42,7 +45,8 @@ function k3Attach(h){if(!K3.ready||!h||h.k3||!K3_CLASS[h.cls])return;const C=K3_
   for(const c of g.children)c.visible=false;
   const obj=THREE.SkeletonUtils.clone(src.scene);const S=(h.slot==='preview'?34:44)/2.35;obj.scale.set(S,S,S);
   const show=new Set([...(C.w[h.weapon]||Object.values(C.w)[0]),...(C.show||[])]),hide=new Set([...K3_PROPS,...(C.hide||[])]);
-  const lines=[];obj.traverse(o=>{if(hide.has(o.name)&&!show.has(o.name))o.visible=false;
+  for(const nm of show){if(!nm.includes(':'))continue;const [mn,pn]=nm.split(':'),from=K3.models[mn]&&K3.models[mn].scene.getObjectByName(pn);if(!from||!from.parent)continue;const slot=obj.getObjectByName(from.parent.name);if(!slot)continue;const c=from.clone(true);c.name=pn+'_borrowed';slot.add(c)}
+  const lines=[];obj.traverse(o=>{if(o.name.endsWith('_borrowed')){o.visible=true}if(hide.has(o.name)&&!show.has(o.name))o.visible=false;
     if(o.isMesh){o.material=k3Mat(o.material,C.tint);o.castShadow=true;o.receiveShadow=false;o.frustumCulled=false;if(o.parent&&o.visible)lines.push(o)}});
   for(const o of lines){let v=true;for(let p=o;p;p=p.parent)if(!p.visible){v=false;break}if(v)o.parent.add(k3Outline(o))}
   g.add(obj);const mixer=new THREE.AnimationMixer(obj);
