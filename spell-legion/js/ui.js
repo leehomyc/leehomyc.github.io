@@ -10,9 +10,10 @@ normalizeSave();
 /* a random anime-style name and avatar so nobody starts as "Nameless"; tap either to change; both travel with the save (so with the account) */
 const NAME_ZA=['星','月','夜','雪','樱','风','雷','炎','霜','影','绯','苍','白','黑','紫','空','雾','焰','光','桃'],NAME_ZM=['野','宫','原','见','乃','川','森','濑','花','咲'],NAME_ZB=['凛','葵','斗','羽','音','叶','真','琉','翔','奈','空','零','七','瞳','岚','由','希','遥','千','夏'],NAME_ZS=['酱','君','丸','姬','之刃','猫','狐','兔','喵','大人'];
 const NAME_E1=['Kira','Ren','Yuki','Sora','Hikari','Aoi','Rin','Kaito','Mika','Haru','Nova','Zero','Luna','Kuro','Shiro','Akane','Raiden','Momo','Kaze','Nyx','Hana','Tora','Suzu','Riku'],NAME_E2=['-chan','-kun','','',' Blade',' Fox',' Star',' Spark',' Moon',' Storm'];
+const NAME_J1=['星野','月野','白川','黒川','桜井','風間','雪村','森川'],NAME_J2=['リン','アオイ','カイト','ソラ','ハル','ミカ','レン','ユキ'];
 const tr2=s=>{const Z=I18N.D.zt;return Z?toTrad(s):s};
 const NAME_K1=['하늘','별','달','바람','서리','눈꽃','번개','불꽃','이슬','노을','그림자','새벽','청','백','흑','홍'],NAME_K2=['검','령','비','연','후','결','율','린','온','솔','휘','담','현','설'],NAME_K3=['','','','','님','이','공자','소저'];
-function randomName(){const r=a=>a[Math.floor(Math.random()*a.length)];if(LOC==='ko')return (r(NAME_K1)+r(NAME_K2)+r(NAME_K3)).slice(0,8);if(LANG==='zh'||LOC==='ja'){if(LOC!=='zh'){const k=Math.random();return tr2(k<.5?r(NAME_ZA)+r(NAME_ZM)+r(NAME_ZB):r(NAME_ZA)+r(NAME_ZB))}const k=Math.random();return k<.45?r(NAME_ZA)+r(NAME_ZM)+r(NAME_ZB):k<.8?r(NAME_ZA)+r(NAME_ZB)+r(NAME_ZS):r(NAME_ZB)+r(NAME_ZB)+r(NAME_ZS)}return (r(NAME_E1)+r(NAME_E2)).slice(0,12)}
+function randomName(){const r=a=>a[Math.floor(Math.random()*a.length)];if(LOC==='ja')return r(NAME_J1)+r(NAME_J2);if(LOC==='ko')return (r(NAME_K1)+r(NAME_K2)+r(NAME_K3)).slice(0,8);if(LANG==='zh'){if(LOC!=='zh'){const k=Math.random();return tr2(k<.5?r(NAME_ZA)+r(NAME_ZM)+r(NAME_ZB):r(NAME_ZA)+r(NAME_ZB))}const k=Math.random();return k<.45?r(NAME_ZA)+r(NAME_ZM)+r(NAME_ZB):k<.8?r(NAME_ZA)+r(NAME_ZB)+r(NAME_ZS):r(NAME_ZB)+r(NAME_ZB)+r(NAME_ZS)}return (r(NAME_E1)+r(NAME_E2)).slice(0,12)}
 const AVATARS=['🐱','🦊','🐼','🐰','🐯','🐸','🐲','🦉','🐺','🐧','🐨','🐵','🦁','🐻','🐹','🦄','🐙','🐤','🦝','🐮'];
 function randomAvatar(){return {e:Math.floor(Math.random()*AVATARS.length),h:Math.floor(Math.random()*360)}}
 function avatarHTML(a,cls){a=a||{e:0,h:30};return `<span class="av${cls?' '+cls:''}" style="--h:${a.h|0}">${AVATARS[a.e%AVATARS.length]||AVATARS[0]}</span>`}
@@ -22,9 +23,14 @@ function persist(quiet){if(!quiet){SAVE.ts=Date.now();if(SAVE.gold!==savedGold)S
 function applyUpgrades(P){const u=SAVE.up;P.maxHp=Math.round(P.maxHp*(1+.1*(u.hp||0)));P.hp=P.maxHp;P.dmg*=1+.06*(u.dmg||0);P.regen*=1+.12*(u.qi||0);G.cores+=u.core||0;P.dmgBonus+=accountBonus();G.rerolls+=SAVE.perks?.rerolls||0;G.cores+=SAVE.perks?.cores||0}
 
 const keys=new Set();const touch={on:false,sx:0,sy:0,x:0,y:0};
-addEventListener('keydown',e=>{
-  const k=e.key.toLowerCase();keys.add(k);
-  if(['arrowup','arrowdown','arrowleft','arrowright',' '].includes(k)&&document.activeElement?.tagName!=='BUTTON')e.preventDefault();
+function handleGameKeydown(e){
+  if(e.defaultPrevented||e.isComposing||e.ctrlKey||e.metaKey||e.altKey)return;
+  const target=e.target;
+  if(target?.closest?.('input,textarea,select,[contenteditable]:not([contenteditable="false"]),[role="textbox"]'))return;
+  const k=e.key.toLowerCase();
+  if(target?.closest?.('button,a[href],[role="button"]')&&['enter',' ','arrowup','arrowdown','arrowleft','arrowright'].includes(k))return;
+  if(e.repeat&&!['w','a','s','d','arrowup','arrowdown','arrowleft','arrowright'].includes(k))return;
+  if(['#lb','#gearov'].some(id=>{const el=$(id);return el&&!el.hidden}))return;
   SFX.start();
   if(k==='m'){const m=SFX.toggleMute();syncSound();showBanner(m?'静音':'声音开启',m?'Muted':'Sound on',.8);return}
   if(!G||G.auto){if(k==='enter'&&!$('#title').hidden)startRun();return}
@@ -34,19 +40,23 @@ addEventListener('keydown',e=>{
   if(k==='c'||k==='t'){togglePanel();return}
   if(k==='p'||k==='escape'){if(G.panel){togglePanel();return}togglePause();return}
   if(G.paused||G.panel)return;
+  keys.add(k);
+  if(['arrowup','arrowdown','arrowleft','arrowright',' '].includes(k))e.preventDefault();
   if(k==='1'||k==='j')castSkill(1);if(k==='2'||k==='k')castSkill(2);if(k==='3'||k==='l')castSkill(3);
   if(k===' '||k==='shift')dash();
-});
+}
+addEventListener('keydown',handleGameKeydown);
 const pickKeyHeld=new Set();
 addEventListener('keyup',e=>{const k=e.key.toLowerCase();keys.delete(k);pickKeyHeld.delete(k)});
-addEventListener('blur',()=>{keys.clear();pickKeyHeld.clear();touch.on=false});
+function clearGameInput(){keys.clear();pickKeyHeld.clear();touch.on=false}
+addEventListener('blur',clearGameInput);
+addEventListener('focusin',clearGameInput);
 addEventListener('pointerdown',()=>SFX.start(),{once:false});
-cv.addEventListener('pointerdown',e=>{touch.on=true;touch.sx=touch.x=e.clientX;touch.sy=touch.y=e.clientY;try{cv.setPointerCapture(e.pointerId)}catch(_){}});
+cv.addEventListener('pointerdown',e=>{if(e.button!==0)return;touch.on=true;touch.sx=touch.x=e.clientX;touch.sy=touch.y=e.clientY;try{cv.setPointerCapture(e.pointerId)}catch(_){}});
 cv.addEventListener('pointermove',e=>{if(touch.on){touch.x=e.clientX;touch.y=e.clientY}});
 ['pointerup','pointercancel'].forEach(n=>cv.addEventListener(n,()=>touch.on=false));
 // Secondary clicks never change the casting mode or start movement.
 cv.addEventListener('contextmenu',e=>e.preventDefault());
-cv.addEventListener('pointerdown',e=>{if(e.button!==0)touch.on=false});
 function input(){
   let x=0,y=0;
   if(keys.has('a')||keys.has('arrowleft'))x--;if(keys.has('d')||keys.has('arrowright'))x++;
@@ -73,7 +83,6 @@ addEventListener('gamepadconnected',()=>{showBanner(L('手柄已连接','Control
 const fmt=t=>`${Math.floor(t/60)}:${String(Math.floor(t%60)).padStart(2,'0')}`;
 let hudT=0;
 const IS_TOUCH=matchMedia('(pointer:coarse)').matches;
-let tipT=0;
 function hud(dt){
   hudT-=dt;if(hudT>0)return;hudT=.05;
   const P=G.P;
@@ -93,7 +102,7 @@ function hud(dt){
   const o=$('#obj');o.hidden=!(G.mission||G.trib||G.bounty);if(G.trib)o.textContent=L(`天劫 · 撑住 ${Math.ceil(G.trib.t)}s · 精英 ×${G.trib.k}`,`Tribulation · hold ${Math.ceil(G.trib.t)}s · elites ×${G.trib.k}`);else if(G.mission)o.textContent=missionText();else if(G.bounty&&typeof bountyText==='function')o.textContent=bountyText();
   const bf=$('#buff');bf.hidden=!P.buff;if(P.buff)bf.textContent={dmg:L('伤害 +30%','Damage +30%'),spd:L('疾行','Swift'),haste:L('冷却减半','Cooldowns halved')}[P.buff.k]+' · '+Math.ceil(P.buff.t)+'s';
   if(G.boss){$('#bosshp i').style.width=(G.boss.hp/G.boss.maxHp*100)+'%';$('#bossbar').classList.toggle('tired',!!G.boss.tired);const op=G.boss.exposed>0;$('#bossbar').classList.toggle('open',op);const ob=$('#openbar');if(ob){ob.hidden=!op;if(op){ob.style.width=Math.min(100,G.boss.exposed/3*100)+'%';ob.textContent=L('破绽 · 伤害 +60% · ','OPENING · +60% · ')+G.boss.exposed.toFixed(1)+'s'}}$('#seals').classList.toggle('opening',op);
-    {const B=G.boss,bh=$('#bossheal');if(bh){const w=Math.round(B.healWiz||0),dr=Math.round(B.healDrain||0);bh.hidden=!(w||dr);if(!(w||dr))bh.textContent='';else bh.innerHTML=(w?`<i class="wiz">${L('巫师治疗','Shaman heals')} +${w}</i>`:'')+(dr?`<i class="dr">${L('吸血回复','Drain heals')} +${dr}</i>`:'')+(w?` · ${L('先杀绿圈巫师','kill the green-ring shaman first')}`:'')}}
+    {const B=G.boss,bh=$('#bossheal');if(bh){const w=Math.round(B.healWiz||0),dr=Math.round(B.healDrain||0);bh.hidden=!(w||dr);if(!(w||dr))bh.textContent='';else bh.innerHTML=(w?`<i class="wiz">${L('巫师治疗','Shaman heals')} +${w}</i>`:'')+(dr?`<i class="dr">${L('吸血回复','Drain heals')} +${dr}</i>`:'')}}
     const B=G.boss,pb=$('#bosspois');if(pb){if(B.pois>0&&B.poisS){const dps=B.poisD*B.pois*.6/.6,left=B.poisT,pred=Math.min(B.hp,dps*left);pb.hidden=false;pb.textContent=L(`毒 ×${B.pois} · ${left.toFixed(1)}s · 约 ${Math.round(pred)}`,`Poison ×${B.pois} · ${left.toFixed(1)}s · ~${Math.round(pred)}`);const pf=$('#bosspoisfill');if(pf){pf.style.left=(Math.max(0,B.hp-pred)/B.maxHp*100)+'%';pf.style.width=(pred/B.maxHp*100)+'%';pf.hidden=false}}else{pb.hidden=true;const pf=$('#bosspoisfill');if(pf)pf.hidden=true}}}
   const P2=G.P,sl=$('#seals');if(sl){sl.classList.toggle('parry',P2.parry>0);const pl=$('#parrylbl');if(pl){pl.hidden=!(P2.parry>0||P2.parryBoost>1);pl.textContent=P2.parryBoost>1?L('破招加成 ×1.6 生效中','Parry bonus ×1.6 active'):L(`破招!下一式 ×1.6 · ${Math.ceil(P2.parry)}s`,`PARRY: next skill ×1.6 · ${Math.ceil(P2.parry)}s`)}}
   // skill cooldown sweeps
@@ -136,7 +145,7 @@ function showSide(zh,en,col,ic){if(!G||G.auto)return;const box=$('#side');if(!bo
 function showBanner(zh,en,t){if(!G||G.auto)return;if(introOn&&t<2.5)return;const b=$('#banner');b.innerHTML=`${L(zh,en)}`;b.classList.remove('on');void b.offsetWidth;b.classList.add('on');bannerT=t}
 /* character panel: attributes and skill trees */
 let panelTab='tree';
-function togglePanel(){if(!G||G.auto||G.over||G.pick)return;G.panel=!G.panel;$('#char').hidden=!G.panel;if(G.panel){renderPanel();SFX.setState('title')}else SFX.setState(G.boss?'boss':'battle')}
+function togglePanel(){if(!G||G.auto||G.over||G.pick)return;clearGameInput();G.panel=!G.panel;$('#char').hidden=!G.panel;if(G.panel){renderPanel();SFX.setState('title')}else SFX.setState(G.boss?'boss':'battle')}
 function renderPanel(){
   const P=G.P;$('#sp').textContent=G.spells.reduce((a,s)=>a+s.pts,0);
   $('#tab-attr').classList.toggle('on',panelTab==='attr');$('#tab-tree').classList.toggle('on',panelTab==='tree');
@@ -167,18 +176,31 @@ $('#charclose').onclick=()=>togglePanel();
 $('#tab-attr').onclick=()=>{panelTab='attr';renderPanel()};$('#tab-tree').onclick=()=>{panelTab='tree';renderPanel()};
 /* the pause screen shows the build at a glance: every skill with its level, element and path, plus the relics */
 function renderPauseBuild(){const el=$('#pausebuild');if(!el)return;el.innerHTML=G.spells.map((s,i)=>{const m=SPELLS[s.id];const tags=[s.els.length===2?L(FUS[fusion(s)][0],FUS[fusion(s)][1]):s.els[0]?LL(ELS[s.els[0]]):'',s.path&&typeof PATHS!=='undefined'&&PATHS[s.path]?LL(PATHS[s.path]):'',s.awake?L('觉醒','awakened'):'',s.manual?L('手动','manual'):''].filter(Boolean).join(' · ');return `<div class="pb" style="--c:${m.col}">${ICON.spell(s.id,'sm')}<div><b>${LL(m)} <small>Lv ${s.lv}${s.tr?L(` · 真传 ${s.tr}`,` · Transcend ${s.tr}`):''}</small></b><small>${tags||(i===0?L('普攻','normal attack'):L(CATS[SKILL_CAT[s.id]||'passive'][0],CATS[SKILL_CAT[s.id]||'passive'][1]))}</small></div></div>`}).join('')+`<div class="pbr">${G.relics.map(id=>`<span title="${L(RELICS[id].d,RELICS[id].de)}" style="--c:${RELICS[id].col||'#c7a4f0'}">${RELICS[id].g}</span>`).join('')}${G.relics.length?'':`<small>${L('尚无法宝','no relics yet')}</small>`}</div><small class="pbt">${L(`${fmt(G.t)} · Lv ${G.lv} · ${G.kills} 击杀 · 最高连斩 ×${G.comboMax}`,`${fmt(G.t)} · Lv ${G.lv} · ${G.kills} kills · best streak ×${G.comboMax}`)}</small>`}
-function togglePause(){if(G.over||G.pick)return;G.paused=!G.paused;$('#pausebtn').textContent=G.paused?'▶':'II';$('#pause').hidden=!G.paused;if(G.paused){$('#pausesettings').open=false;renderPauseBuild();quitLabel();SFX.setState('title')}else SFX.setState(G.boss?'boss':'battle')}
+function togglePause(){if(G.over||G.pick)return;clearGameInput();G.paused=!G.paused;$('#pausebtn').textContent=G.paused?'▶':'II';$('#pause').hidden=!G.paused;if(G.paused){$('#pausesettings').open=false;renderPauseBuild();quitLabel();SFX.setState('title')}else SFX.setState(G.boss?'boss':'battle')}
 
 /* cards */
 let pickOpenedAt=0,pickArmed=false,pickTimer=null;const PICK_LIMIT=8;addEventListener('keyup',()=>{if(G&&G.pick)pickArmed=true});
+function stopPickTimer(timer=pickTimer){
+  if(timer!==null)clearInterval(timer);
+  if(timer===pickTimer){pickTimer=null;const el=$('#picktimer');if(el)el.textContent=''}
+}
 function openPick(){
   if(G.pick||!G.picks.length)return;
   const q=G.picks.shift(),cards=buildCards(q);
   if(!cards.length){return openPick()}
   if(G.auto){pick(cards).a();return openPick()}
   G.pick=cards;pickOpenedAt=performance.now();pickArmed=false;$('#banner').classList.remove('on');bannerT=0;
-  if(pickTimer){clearInterval(pickTimer);pickTimer=null}{const pe=$('#picktimer');if(pe)pe.textContent=''}if(RIVAL_ON||(G.room&&ROOM.code)){pickTimer=setInterval(()=>{if(!G.pick){clearInterval(pickTimer);pickTimer=null;return}const left=Math.max(0,PICK_LIMIT-(performance.now()-pickOpenedAt)/1000);const el=$('#picktimer');if(el)el.textContent=L(`${Math.ceil(left)}s`,`${Math.ceil(left)}s`);if(left<=0){const sug=document.querySelector('#cardrow .card.sugged');const idx=sug?+sug.id.replace('card',''):0;choose(idx)}},200)}
-  const sk=q.s?LL(SPELLS[q.s.id]):'';const T={level:q.jackpot?[L('天降横财!','Jackpot!'),L('全部获得','Take all')]:[L('升级','Level up'),L('三选一','pick one')],infuse:[L('灌注真气','Infuse an element'),sk],fuse:[L('真气融合','Fuse elements'),sk],aug:[L('密令完成','Mission complete'),''],awake:[L('武器觉醒','Weapon awakening'),sk],contract:[L('契约','A pact is offered'),''],ascend:[L(`第 ${q.cyc} 轮七位首领皆灭`,`Cycle ${q.cyc}: all seven bosses slain`),'']}[q.kind]||(typeof KIND_TITLE!=='undefined'&&KIND_TITLE[q.kind]?KIND_TITLE[q.kind](q):[L('抉择','A choice'),'']);
+  clearGameInput();stopPickTimer();
+  if(RIVAL_ON||(G.room&&ROOM.code)){
+    const game=G,selection=cards,openedAt=pickOpenedAt;
+    const timer=setInterval(()=>{
+      if(G!==game||G.pick!==selection){stopPickTimer(timer);return}
+      const left=Math.max(0,PICK_LIMIT-(performance.now()-openedAt)/1000);
+      const el=$('#picktimer');if(el)el.textContent=`${Math.ceil(left)}s`;
+      if(left<=0){const sug=document.querySelector('#cardrow .card.sugged');choose(sug?+sug.id.replace('card',''):0)}
+    },200);pickTimer=timer;
+  }
+  const sk=q.s?LL(SPELLS[q.s.id]):'';const T={level:q.jackpot?[L('天降横财!','Jackpot!'),L('全部获得','Take all')]:[L('升级','Level up'),L('三选一','pick one')],infuse:[L('灌注真气','Infuse an element'),sk],fuse:[L('真气融合','Fuse elements'),sk],aug:[L('密令完成','Mission complete'),''],awake:[L('武器觉醒','Weapon awakening'),sk],contract:[L('契约','Pact'),''],ascend:[L(`第 ${q.cyc} 轮七位首领皆灭`,`Cycle ${q.cyc}: all seven bosses slain`),'']}[q.kind]||(typeof KIND_TITLE!=='undefined'&&KIND_TITLE[q.kind]?KIND_TITLE[q.kind](q):[L('抉择','Choose'),'']);
   $('#cardtitle').innerHTML=`${T[0]}<small>${T[1]}${G.picks.length?` · +${G.picks.length}`:''}</small>`;
   const row=$('#cardrow');row.textContent='';
   const adv=renderBuildStrip();
@@ -202,26 +224,23 @@ function openPick(){
   $('#cards').hidden=false;
 }
 function renderBuildStrip(){
-  const el=$('#build');if(!el)return;el.textContent='';const P=G.P;
+  const el=$('#build');if(!el)return;el.textContent='';
   const touched=new Set((G.pick||[]).map(c=>c.skill).filter(Boolean));
   G.spells.forEach((s,i)=>{if(el.children.length>=4)return;const m=SPELLS[s.id],d=document.createElement('div');d.className='bs';d.dataset.skill=s.id;d.style.setProperty('--c',m.col);
     const nodes=Object.values(s.nodes||{}).reduce((a,b)=>a+b,0),cat=CATS[SKILL_CAT[s.id]]||CATS.passive;
     const tags=[i===0?'':L(cat[0],cat[1]),s.path&&typeof PATHS!=='undefined'&&PATHS[s.path]?LL(PATHS[s.path]):'',s.els.length?s.els.map(k=>LL(ELS[k])).join('+'):'',s.awake?L('觉醒','awakened'):''].filter(Boolean).join(' · ');
     d.classList.toggle('hl0',touched.has(s.id));d.dataset.lv='Lv '+s.lv;d.innerHTML=`<span class="slot">${i===0?L('普攻','main'):SPELL_KEYS[i]}</span>${typeof ICON!=='undefined'?ICON.spell(s.id,'sm'):`<span class="g">${m.g}</span>`}<div><b>${LL(m)} <small>Lv ${s.lv}${s.tr?L(` · 真传 ${s.tr}`,` · Transcend ${s.tr}`):''}</small></b><small>${tags}</small></div>`;el.appendChild(d)});
-  for(let i=G.spells.length;i<4&&!touched.size&&i<0;i++){const d=document.createElement('div');d.className='bs empty';const nx=[3,6,10].find(l=>l>G.lv);d.innerHTML=`<span class="g">·</span><div><b>${L('空位','Empty')} <small>${L('键','key')} ${SPELL_KEYS[i]}</small></b><small>${nx?L(`Lv ${nx} 时可选新武学`,`new skill offered at Lv ${nx}`):L('本局不再提供新武学','no more new skills this run')}</small></div>`;el.appendChild(d)}
-  const st=document.createElement('div');st.className='bstats';st.hidden=true;st.innerHTML=`<span class="lbl">${L('你的属性','Your stats')}</span><span>${L('生命','HP')} <b>${Math.ceil(P.hp)}/${P.maxHp}</b></span><span>${L('伤害','Damage')} <b>×${(P.dmg*(1+P.dmgBonus)).toFixed(2)}</b></span><span>${L('暴击','Crit')} <b>${Math.round(P.crit*100)}%</b></span><span>${L('减伤','Mitigation')} <b>${Math.round((1-P.def)*100)}%</b></span><span>${L('移速','Speed')} <b>×${P.spd.toFixed(2)}</b></span><span>${L('内力','Qi')} <b>${P.maxMana}</b> +${P.regen.toFixed(1)}/s</span><span>${L('法宝','Relics')} <b>${G.relics.length}</b></span>`;
   const adv=typeof buildAdvice==='function'?buildAdvice():null;
-  const tipEl=$('#cardtip');if(tipEl){tipEl.hidden=true;tipEl.textContent=''}
   return adv;
 }
 function choose(i){
   if(!G.pick||!G.pick[i])return;
-  const cd=G.pick[i];const spent=Math.min(PICK_LIMIT+1,(performance.now()-pickOpenedAt)/1000);if(pickTimer){clearInterval(pickTimer);pickTimer=null}
+  const cd=G.pick[i];const spent=Math.min(PICK_LIMIT+1,(performance.now()-pickOpenedAt)/1000);stopPickTimer();
   if(RIVAL_ON&&G.rival&&!G.room&&spent>.3){G.pickWall=(G.pickWall||0)+spent;const R=G.rival,rate=R.score/Math.max(20,G.t);const gain=Math.round(rate*spent);if(gain>0){R.score+=gain;if(G.floats.length<CAP.fl)G.floats.push({x:G.P.x,y:G.P.y-40,t:1.2,v:L(`对手 +${gain}`,`Rival +${gain}`),c:'#ff9c5a'})}}
   cd.a();G.pick=null;$('#cards').hidden=true;drawSeals();SFX.pick(1);if(cd.skill){const si=G.spells.findIndex(s=>s.id===cd.skill),se=$('#seal'+si);if(se){se.classList.remove('ready');void se.offsetWidth;se.classList.add('ready')}}if(!G.picks.length)showBanner(cd.n,cd.n,1.1);
   if(G.picks.length&&G.picks[0].kind==='level'&&G.t>60){G.pickHold=8;showBanner(L(`还有 ${G.picks.length} 次`,`${G.picks.length} more`),'',1)}else openPick();
 }
-function closeCards(){G.picks=[];G.pick=null;$('#cards').hidden=true;G.panel=false;$('#char').hidden=true}
+function closeCards(){stopPickTimer();clearGameInput();G.picks=[];G.pick=null;$('#cards').hidden=true;G.panel=false;$('#char').hidden=true}
 
 /* title: class select and lobby */
 function renderWeapons(){
@@ -279,23 +298,23 @@ function dayKey(){return dayKeyOf(tzDate())}
 function yesterdayKey(){return dayKeyOf(tzDate(Date.now()-86400000))}
 function resetIn(){const d=tzDate();const s=86400-(d.getUTCHours()*3600+d.getUTCMinutes()*60+d.getUTCSeconds());return `${Math.floor(s/3600)}h ${Math.floor(s%3600/60)}m`}
 let DAILY=false;
-function startRun(){tipT=0;{const sd=$('#side');if(sd)sd.hidden=false}const _tp=$('#tip');if(_tp)_tp.classList.remove('on');
+function startRun(){
   if($('#startbtn').disabled)return;
   CLASS=SAVE.cls;DIFFID='normal';
   const inRoom=SAVE.mode==='room'&&ROOM.code&&ROOM.playing;if(SAVE.mode==='room'&&!inRoom)return; // rooms start from the room panel, never from the Start button
+  closeCards();{const sd=$('#side');if(sd)sd.hidden=false}
   if(typeof metricsEnd==='function')metricsEnd('abandoned');
   DAILY=SAVE.mode==='daily';if(DAILY)DIFFID='normal';BOSSRUSH=SAVE.mode==='rush';ASURA_T=(SAVE.mode==='solo'||SAVE.mode==='rush')?Math.min(SAVE.asura.sel||0,SAVE.asura.max||0):0;
   if(inRoom){RIVAL_ON=false;DIFFID=(typeof roomHasAI==='function'&&roomHasAI())?(ROOM.data.diff||'normal'):'normal';seedSim(ROOM.seed)}else seedSim(DAILY?dayKey()*7919+1:null);
   $('#title').hidden=true;$('#intro').hidden=true;$('#end').hidden=true;$('#cards').hidden=true;$('#hud').hidden=false;$('#bossbar').hidden=true;$('#pause').hidden=true;$('#char').hidden=true;
   $('#banner').classList.remove('on');$('#pausebtn').textContent='II';
-  SAVE_FIRST=!SAVE.played;SAVE.played=true;persist();
-  newGame(false,CLASS);G.room=!!inRoom;if(!DAILY&&!inRoom&&!RIVAL_ON)applyUpgrades(G.P);G.day=dayKey();if(inRoom){const seat=ROOM.host?roomPlayerList().find(p=>p.ai):null;if(seat){mkRival(CLASS,seat);G.rivalSeat=seat.uid}else G.rivalSeat=null;if(typeof arenaStart==='function'&&arenaStart())showBanner('同场对决:抢怪、抢首领','One arena: race them for every kill',2.2);ROOM.ended=false;ROOM.rewarded=false;roomSetMe({score:0,hp:1,lv:1,kills:0,alive:true,done:false,t:0,cls:CLASS});drawRoomBoard()}else{const rb=$('#roomboard');if(rb)rb.hidden=true}if(typeof codexSee==='function')codexSee('weapon',weaponOf(CLASS));G.quick=SAVE.mode==='qpk';
+  SAVE.played=true;persist();
+  newGame(false,CLASS);G.room=!!inRoom;if(!DAILY&&!inRoom&&!RIVAL_ON)applyUpgrades(G.P);G.day=dayKey();if(inRoom){const seat=ROOM.host?roomPlayerList().find(p=>p.ai):null;if(seat){mkRival(CLASS,seat);G.rivalSeat=seat.uid}else G.rivalSeat=null;if(typeof arenaStart==='function')arenaStart();ROOM.ended=false;ROOM.rewarded=false;roomSetMe({score:0,hp:1,lv:1,kills:0,alive:true,done:false,t:0,cls:CLASS});drawRoomBoard()}else{const rb=$('#roomboard');if(rb)rb.hidden=true}if(typeof codexSee==='function')codexSee('weapon',weaponOf(CLASS));G.quick=SAVE.mode==='qpk';
   updateCores();drawSeals();drawRelics();
-  showBanner(CLASSES[CLASS].zh+' 出山',CLASSES[CLASS].en+' sets out',2.2);
   if(typeof metricsStart==='function')metricsStart();
   SFX.start();SFX.setState('battle');if(IS_TOUCH)goFullscreen(true);
 }
-function showEnd(ok){if(G.ended)return;if(typeof metricsEnd==='function')metricsEnd(G.abandoned?'abandoned':G.over==='lose'?'lose':G.rival?(G.score>G.rival.score?'win':G.score<G.rival.score?'lose':'tie'):'finished');tipT=0;G._zeroSaid=0;{const sd=$('#side');if(sd){sd.textContent='';sd.hidden=true}}{const nb=$('#nextboss');if(nb&&G.rival)nb.textContent=L('对决结束','Match over')}if(typeof dirRunEnd==='function')try{dirRunEnd()}catch(_){}{const _tp=$('#tip');if(_tp)_tp.classList.remove('on')}
+function showEnd(ok){if(G.ended)return;if(typeof metricsEnd==='function')metricsEnd(G.abandoned?'abandoned':G.over==='lose'?'lose':G.rival?(G.score>G.rival.score?'win':G.score<G.rival.score?'lose':'tie'):'finished');stopPickTimer();clearGameInput();G._zeroSaid=0;{const sd=$('#side');if(sd){sd.textContent='';sd.hidden=true}}{const nb=$('#nextboss');if(nb&&G.rival)nb.textContent=L('对决结束','Match over')}if(typeof dirRunEnd==='function')try{dirRunEnd()}catch(_){}
   G.ended=true;const goldBeforeSettlement=SAVE.gold;const box=$('#endb'),tot=G.spells.reduce((a,s)=>a+s.dmg,0)||1,max=Math.max(...G.spells.map(s=>s.dmg),1);
   checkAch();
   const meta=typeof metaAfterRun==='function'?metaAfterRun():null;
@@ -330,7 +349,7 @@ function showEnd(ok){if(G.ended)return;if(typeof metricsEnd==='function')metrics
   $('#end').hidden=false;if(room){roomCheckFinished();renderRoomResults()}else{$('#againbtn').onclick=startRun;$('#lobbybtn').onclick=toLobby;$('#buildbtn').onclick=()=>{toLobby();if(typeof showScreen==='function')showScreen('hero')};$('#againbtn').focus()}
   if(typeof submitRun==='function'&&!room)submitRun(box);
 }
-function toLobby(){$('#end').hidden=true;$('#hud').hidden=true;$('#title').hidden=false;newGame(true,SAVE.cls);demoBoost();renderTitle();if(typeof showScreen==='function')showScreen('menu');SFX.setState('title')}
+function toLobby(){closeCards();$('#end').hidden=true;$('#hud').hidden=true;$('#title').hidden=false;newGame(true,SAVE.cls);demoBoost();renderTitle();if(typeof showScreen==='function')showScreen('menu');SFX.setState('title')}
 $('#startbtn').onclick=startRun;
 $('#pausebtn').onclick=()=>{togglePause();$('#pausebtn').blur()};
 $('#resumebtn').onclick=()=>togglePause();
@@ -402,7 +421,6 @@ document.querySelectorAll('.tabbar button[data-t]').forEach(b=>b.onclick=()=>{sh
 lobbyTab='';showTab('');
 {const lbk=$('#lobbyback');if(lbk)lbk.onclick=()=>{showTab('');SFX.pick(1)}}
 addEventListener('keydown',e=>{if(e.key==='Escape'&&lobbyTab&&!$('#menu').hidden){showTab('');e.stopPropagation()}},true);
-function runSummaryX(){}
 function runSummary(){const C=CLASSES[SAVE.cls]||CLASSES.swordsman;const tsel=(SAVE.mode==='solo'||SAVE.mode==='rush')?Math.min(SAVE.asura.sel||0,SAVE.asura.max||0):0;return `${LL(C)} · ${LL(SPELLS[weaponOf(SAVE.cls)])} · ${SAVE.mode==='pk'?L('对决','PK'):SAVE.mode==='qpk'?L('打 AI 对手 3′','vs AI 3′'):SAVE.mode==='daily'?L('每日','Daily'):SAVE.mode==='rush'?L('首领连战','Boss rush'):SAVE.mode==='room'?L('多人房间','Room'):L('单人','Solo')}${tsel?` · ${L(`修罗 ${tsel} 层`,`Ascension ${tsel}`)}`:''} · ${LL(MAPS[MAPID])}`}
 function renderStatus(){const sb=$('#stickystart');if(sb)sb.querySelector('small').textContent=runSummary();const rs=$('#runsummary');if(rs)rs.textContent=runSummary();
   document.querySelectorAll('#mode button,#diff button,[data-q],.langbtn,.tabbar button[data-t],.cls,.wp,.mapb').forEach(b=>b.setAttribute('aria-pressed',b.classList.contains('on')||b.classList.contains('sel')?'true':'false'));

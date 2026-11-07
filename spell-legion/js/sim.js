@@ -1,6 +1,6 @@
 'use strict';
 /* sim.js — game state, combat, skills, missions, shrines, cards, step */
-let G=null,CLASS='swordsman',RIVAL_ON=false,SAVE_FIRST=false,DIFFID='normal';
+let G=null,CLASS='swordsman',RIVAL_ON=false,DIFFID='normal';
 const D=()=>DIFF[DIFFID]||DIFF.normal;
 let ASURA_T=0,BOSSRUSH=false; // set from the title screen
 const tier=n=>ASURA_T>=n; // is modifier n (1-based) active
@@ -17,7 +17,7 @@ function newGame(auto,cls){
   G={auto,t:0,P,cls,en:[],shots:[],bombs:[],bullets:[],gems:[],pools:[],fx:[],floats:[],arcs:[],later:[],ghosts:[],shocks:[],
      mush:[],grid:new Map(),spells:[mkSpell(weaponOf(cls)),mkSpell(C.skills[0])],pwaves:[],sariras:[],xp:0,lv:1,need:xpNeed(1),picks:[],kills:0,cores:2,coreT:0,
      spawnA:8,swarmT:55,mission:null,missionT:26,boss:null,bossT:0,paused:false,over:null,shake:0,trauma:0,shX:0,shY:0,hitStop:0,slow:0,flash:0,dmgTaken:0,
-     shrines:SHRINES.map(s=>({x:s[0],y:s[1],cd:0})),elites:0,combo:0,comboT:0,comboMax:0,over9:0,chests:[],chestT:30,goldRun:0,rerolls:1,wave:0,ambush:0,warlord:0,bossN:0,bossSlain:0,warlordN:0,relics:[],novas:[],hazards:[],score:0,curse:{},contractN:0,hintT:0,hintN:0};
+     shrines:SHRINES.map(s=>({x:s[0],y:s[1],cd:0})),elites:0,combo:0,comboT:0,comboMax:0,over9:0,chests:[],chestT:30,goldRun:0,rerolls:1,wave:0,ambush:0,warlord:0,bossN:0,bossSlain:0,warlordN:0,relics:[],novas:[],hazards:[],score:0,curse:{},contractN:0};
   if(typeof buildHero==='function')buildHero(cls,'player',weaponOf(cls));
   if(tier(5)){P.maxHp=Math.round(P.maxHp*.85);P.hp=P.maxHp}
   if(BOSSRUSH){G.lv=10;G.need=xpNeed(10);for(let i=0;i<9;i++)autoGrow();G.rerolls=3;G.spells[1].lv=4;G.spells.push(mkSpell(C.skills[1]));G.spells[2].lv=3;if(!auto){for(let i=0;i<3;i++)G.picks.push({kind:'level'});G.pickHold=3}} // boss rush: three opening cards so the build is yours, not auto-rolled
@@ -393,7 +393,8 @@ function castSkill(i){
   }else if(s.id==='array'||s.id==='bagua'){
     s.active=sp.dur+s.lv*.25+st.dur;s.a=0;ring(P.x,P.y,60,sp.col);trauma(.2);if(typeof SFX!=='undefined')SFX.array();
   }else if(s.id==='ward'){
-    heal(P.maxHp*.25*st.m,s);P.shield=Math.min(7,3.5+s.lv*.06)+st.dur*.5;P.shieldHp=P.maxHp*(.35+.012*s.lv)*st.m; // the ward is a budget, not a wall: it breaks after absorbing a share of your max HPaoe(P.x,P.y,80*st.size,8*st.m,s,sp.col,false,{quiet:1});trauma(.25);shock(P.x,P.y,170,.03);if(typeof SFX!=='undefined')SFX.ward();
+    heal(P.maxHp*.25*st.m,s);P.shield=Math.min(7,3.5+s.lv*.06)+st.dur*.5;P.shieldHp=P.maxHp*(.35+.012*s.lv)*st.m;
+    aoe(P.x,P.y,80*st.size,8*st.m,s,sp.col,false,{quiet:1});trauma(.25);shock(P.x,P.y,170,.03);if(typeof SFX!=='undefined')SFX.ward();
   }else if(s.id==='whirl'){
     s.active=sp.dur+s.lv*.06+st.dur;s.tk=0;trauma(.15);if(typeof SFX!=='undefined')SFX.whirl();
   }else if(s.id==='leap'){
@@ -812,7 +813,6 @@ function step(dt){
   for(const sp of G.spells)if(sp.beam){sp.beam.t-=dt;if(sp.beam.t<=0)sp.beam=null}
   for(const nv of G.novas){const was=nv.r;nv.r+=nv.v*dt;const d=hyp(P.x-nv.x,P.y-nv.y);if(P.down<=0&&d>=was-8&&d<=nv.r+8&&!nv.hitP){nv.hitP=1;if(P.dash>0)parry();if(P.dash<=0&&P.inv<=0){dmgP(nv.d,nv.x+(nv.x-P.x),nv.y+(nv.y-P.y),['首领波纹','boss nova']);if(nv.confuse){P.confuse=nv.confuse;showBanner('神志颠倒','Bewitched: controls reversed',1.2)}}}}
   G.novas=G.novas.filter(nv=>nv.r<nv.R);
-  if(false&&!G.auto&&SAVE_FIRST){G.hintT-=dt;if(G.hintT<=0&&G.hintN<4){const T=typeof IS_TOUCH!=='undefined'&&IS_TOUCH,H=T?[['拖动移动','Drag to move'],['点图标释放武学','Tap a skill to cast it'],['点「轻」闪避','Tap the big button to dash'],['升级时三选一','Pick one of three cards on each level']]:[['WASD 移动','Move with WASD or arrows'],['按 1 释放武学','Press 1 to cast your skill (costs qi)'],['Space 轻功闪避','Space dashes through enemies'],['升级时三选一','Pick one of three cards on each level']];showBanner(H[G.hintN][0],H[G.hintN][1],2.2);G.hintN++;G.hintT=G.hintN===1?6:9}}
   if(P.down>0){P.down-=dt;if(P.down<=0)revive()}
   else if(P.dash>0){
     P.dash-=dt;const sp=P.leap?600:560;P.x+=P.dx*sp*dt;P.y+=P.dy*sp*dt;collide(P,6);P.walk+=dt*20;

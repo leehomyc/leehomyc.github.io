@@ -263,11 +263,9 @@ kbd{font:700 13px var(--ui);border:1px solid var(--dim);padding:0 5px;border-rad
 .bs .g{font-family:var(--brush);font-size:26px;line-height:1;color:var(--c);text-shadow:0 0 10px var(--c)}
 .bs b{font-size:13px;display:block}.bs b small{color:var(--brass);font-weight:700}.bs small{display:block;font-size:11px;color:var(--dim);line-height:1.3}
 .bs.empty{opacity:.5;border-left-color:#6b5230}
-.bstats{flex:1 1 100%;display:flex;gap:6px 14px;flex-wrap:wrap;justify-content:center;font-size:12px;color:var(--dim);font-variant-numeric:tabular-nums}.bstats b{color:var(--bone)}
 .card .chip{justify-self:start;font-size:10.5px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--cc);border:1px solid var(--cc);border-radius:10px;padding:1px 8px;margin-bottom:2px}
 .card.newskill{box-shadow:0 18px 40px #000a,0 0 30px #ffffff44}
 @media (max-width:640px){.card .chip{grid-column:2}.bs{min-width:120px}}
-.badv{flex:1 1 100%;text-align:center;font-size:12px;color:var(--bone);background:#1a1016cc;border:1px solid #6b523066;border-radius:8px;padding:5px 10px}.badv b{color:var(--cc);margin-right:6px}.badv small{color:var(--dim);display:block;font-size:11px}
 .card{position:relative}.card .sug{position:absolute;top:10px;right:10px;font-size:10px;font-weight:800;letter-spacing:.08em;color:#1a1016;background:var(--c);border-radius:8px;padding:2px 7px}
 .card.sugged{outline:1px solid var(--c)}
 #intro .bn em{display:block;font-style:normal;font-size:13px;color:var(--bone);opacity:.85;margin-top:8px;line-height:1.4}
@@ -283,12 +281,6 @@ kbd{font:700 13px var(--ui);border:1px solid var(--dim);padding:0 5px;border-rad
 .wp.locked{opacity:.75}.wp .lk{color:#c8a86c}.wp .buy{color:#7dffb0;font-weight:800}
 .card .chips{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:2px}.card .chip{margin-bottom:0}.card .chip.kind{background:color-mix(in srgb,var(--cc) 18%,transparent)}
 .seal .cost i{font-style:normal;font-size:8px;color:#8fd8ffcc;margin-right:1px;letter-spacing:0}
-.bstats .lbl{flex:1 1 100%;text-align:center;color:var(--brass);font-size:11px;letter-spacing:.1em}
-/* first-run tips */
-#tip{position:absolute;left:50%;bottom:132px;transform:translate(-50%,10px);max-width:min(92vw,560px);background:#140b12e6;border:1px solid var(--brass);border-radius:10px;padding:8px 14px;text-align:center;color:var(--bone);opacity:0;transition:opacity .3s,transform .3s;pointer-events:none;z-index:5}
-#tip.on{opacity:1;transform:translate(-50%,0)}
-#tip b{display:block;font-size:15px}#tip small{display:block;color:var(--dim);font-size:12px}
-@media (max-width:640px){#tip{bottom:118px}#tip b{font-size:13px}}
 #savebox{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:8px}#savebox .note{flex:1 1 100%;font-size:11px;color:var(--dim)}
 #savepanel{flex:1 1 100%;display:flex;flex-direction:column;gap:6px}#savecode{width:100%;font:12px ui-monospace,monospace;background:#0a0710;color:var(--bone);border:1px solid var(--brass);border-radius:6px;padding:6px;word-break:break-all}
 /* meta: account level, daily tasks */
@@ -344,7 +336,6 @@ html:not([lang=zh]):not([lang=zh-Hant]) .zh{display:none!important}html[lang=zh]
   #title .ttb{padding-bottom:84px}
   .bottom{gap:6px;align-items:flex-end;padding:0 4px}.globe{width:52px}.globe .num{font-size:10px}.globe .lab{display:none}
   #seals{gap:4px;flex-wrap:nowrap}.seal{width:44px;height:52px}.seal .g{font-size:23px}.seal .lv{font-size:9px}.seal .key{font-size:8px}.seal .cost{font-size:9px}.seal.autosw{display:none}
-  #tip{bottom:auto;top:150px;max-width:94vw}
   .startrow .go.big{display:none}
 }
 /* larger screens: HUD and cards scale with the viewport */
@@ -473,7 +464,6 @@ html:not([lang=zh]):not([lang=zh-Hant]) .zh{display:none!important}html[lang=zh]
   #cards{gap:8px;padding:6px 8px;justify-content:flex-start;padding-top:max(8px,env(safe-area-inset-top))}
   #cards h2{font-size:24px;line-height:1.05}#cards h2 small{font-size:11px}
   #build{gap:4px;width:100%}.bs{min-width:0;flex:0 1 auto;max-width:none;padding:3px 8px;gap:5px;border-left-width:2px}.bs .ic.sm{width:22px;height:22px}.bs b{font-size:11px}.bs small{display:none}.bs div b small{display:inline;font-size:10px}.bs.empty{display:none}
-  .bstats{display:none}.badv{font-size:11px;padding:4px 8px}
   #cardrow{grid-template-columns:minmax(0,1fr);max-width:480px;gap:8px}
   .card{display:grid;grid-template-columns:56px minmax(0,1fr);grid-template-areas:"hd hd" "gw n" "gw sub" "gw fx" "gw fxe";column-gap:10px;row-gap:1px;padding:7px 10px 8px;animation:none}
   .card .hd{grid-area:hd;margin-bottom:2px;min-height:16px;font-size:10px}
@@ -485,8 +475,7 @@ html:not([lang=zh]):not([lang=zh-Hant]) .zh{display:none!important}html[lang=zh]
 @media (max-width:760px) and (max-height:700px){#cards h2{font-size:20px}#cards h2 small{display:inline;margin-left:6px}.card .fxe{display:none}#build{display:none}}
 
 #build{flex-wrap:nowrap;overflow:hidden;justify-content:center}#build:empty{display:none}
-#cardtip{flex:0 1 auto;max-width:min(100%,760px)}#cardtip[hidden]{display:none}
-@media (max-width:760px){#build{gap:4px}.bs{flex:0 1 auto}#cardtip{font-size:11px}}
+@media (max-width:760px){#build{gap:4px}.bs{flex:0 1 auto}}
 
 body.picking #sndbtn{display:none}
 #updbtn{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:50;box-shadow:0 10px 30px #000c}
@@ -589,7 +578,6 @@ body.touchhud #seal2{right:94px;bottom:104px}
 body.touchhud #seal3{right:26px;bottom:124px}
 body.touchhud #autosw{display:grid;right:176px;bottom:110px;width:44px;height:44px;opacity:.9}body.touchhud #autosw .g,body.touchhud #autosw .g .ic{width:26px;height:26px}body.touchhud #autosw .lv{display:none}
 body.touchhud .seal.empty{opacity:.22;border-style:dashed;background:transparent}
-body.touchhud #tip{bottom:auto;top:84px}
 @media (max-width:640px) and (orientation:portrait){body.touchhud .bottom{width:200px;height:210px}body.touchhud .seal{width:58px;height:58px}body.touchhud .seal .g,body.touchhud .seal .g .ic{width:34px;height:34px}body.touchhud #sealdash{width:78px;height:78px;right:10px;bottom:12px}body.touchhud #sealdash .g,body.touchhud #sealdash .g .ic{width:46px;height:46px}body.touchhud #seal1{right:100px;bottom:16px}body.touchhud #seal2{right:82px;bottom:88px}body.touchhud #seal3{right:22px;bottom:108px}body.touchhud #autosw{right:150px;bottom:92px;width:40px;height:40px}}
 @media (max-height:480px){body.touchhud .bottom{width:220px;height:200px}body.touchhud .seal{width:58px;height:58px}body.touchhud #sealdash{width:78px;height:78px;right:10px;bottom:10px}body.touchhud #seal1{right:102px;bottom:14px}body.touchhud #seal2{right:84px;bottom:86px}body.touchhud #seal3{right:22px;bottom:104px}body.touchhud #autosw{right:152px;bottom:92px}}
 #nextboss.theme{color:#ffe066;text-shadow:0 0 8px #ffb04a,0 1px 0 #000}
@@ -645,7 +633,7 @@ body.touchhud .globe .eff{display:none}
 
 #bossbar.tired #bosshp i{filter:saturate(.6) brightness(1.15)}#bossbar.tired #bossname::after{content:' · 力竭';color:#ffd27a}html[lang=en] #bossbar.tired #bossname::after{content:' · tiring'}html[lang=zh-Hant] #bossbar.tired #bossname::after{content:' · 力竭'}html[lang=ja] #bossbar.tired #bossname::after{content:' · ヘトヘト'}html[lang=ko] #bossbar.tired #bossname::after{content:' · 지침'}
 
-body.picking #tip,body.picking #side{display:none}
+body.picking #side{display:none}
 
 /* hero screen: a tighter footer so the class list and stats are not buried under it on laptop heights */
 #hero .hfoot{gap:6px;background:linear-gradient(180deg,#0b060e00,#0b060ef6 10%);padding-top:6px}
@@ -794,7 +782,7 @@ body.touchhud #pause .pbox>p{display:none}
 /* results and pause */
 #end .endb,#pause .pbox,.cbox{border-radius:22px}.stat>div{border-radius:14px}.nextgoal{border-radius:14px}
 /* side toasts and tips */
-#side .st,#tip,#picktimer{border-radius:999px}
+#side .st,#picktimer{border-radius:999px}
 /* phone: keep the lip but thinner */
 @media (max-width:760px){.mb{border-bottom-width:4px;box-shadow:0 4px 0 #0000004d}.mb.big b{font-size:24px}.go,.go.big{border-bottom-width:4px}}
 

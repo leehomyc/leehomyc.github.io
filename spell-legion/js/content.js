@@ -9,7 +9,7 @@ const SPELLS={
   // taoist
   charm:{g:'箓',zh:'追魂箓',en:'Homing Charm',col:'#ffd27a',auto:1,d:'普攻:追踪敌人的符箓,命中时小范围爆裂。',de:'Normal attack. Paper charms that home in and burst on impact.'},
   bagua:{g:'卦',zh:'八卦阵',en:'Bagua Array',col:'#c7a4f0',cost:40,cd:13,dur:7,d:'八卦符箓环绕护体,范围更大。',de:'Trigram charms orbit you at a wide radius for seven seconds.'},
-  ward:{g:'护',zh:'护身咒',en:'Warding Charm',col:'#7dffb0',cost:40,cd:14,d:'回复生命并获得四秒护罩,震开周围敌人。',de:'Heals, shields you for four seconds and pushes enemies back.'},
+  ward:{g:'护',zh:'护身咒',en:'Warding Charm',col:'#7dffb0',cost:40,cd:14,d:'治疗并获得护盾,击退附近敌人。',de:'Heals, shields and knocks back nearby enemies.'},
   // blademaster
   slash:{g:'刀',zh:'横扫',en:'Sweeping Blade',col:'#ff9c5a',auto:1,d:'普攻:近身横扫,贯穿一切。',de:'Normal attack. A close sweep that cuts through everything in front of you.'},
   great:{g:'重',zh:'重剑',en:'Greatsword',col:'#c9d6e8',auto:1,d:'普攻:缓慢的巨剑横劈,击退极强;每第三击化为重斩震地。',de:'Normal attack. Slow, huge arcs with massive knockback; every third swing is a ground-shaking slam.'},

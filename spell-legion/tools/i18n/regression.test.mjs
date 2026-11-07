@@ -111,3 +111,14 @@ test('visible collection count follows discoveries rather than staying at zero o
   assert.equal(evaluate("elements['#codexcount2'].textContent"),'2/4');
   assert.equal(evaluate("elements['#codexcount'].textContent"),'2/4');
 });
+
+test('training labels describe their actual attributes in Japanese and Korean',()=>{
+  const {evaluate}=setup();
+  for(const [loc,hp,attack,haste] of [['ja','体力','攻撃力','速攻'],['ko','활력','공격력','가속']]){
+    evaluate(`setLang('${loc}')`);
+    assert.equal(evaluate("tr('Vigor')"),hp);
+    assert.equal(evaluate("tr('Edge')"),attack);
+    assert.equal(evaluate("tr('Haste')"),haste);
+    assert.doesNotMatch(evaluate("tr('Heals, shields and knocks back nearby enemies.')"),/Heals|shields|four seconds/);
+  }
+});
