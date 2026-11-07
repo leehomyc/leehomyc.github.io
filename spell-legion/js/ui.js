@@ -323,9 +323,11 @@ syncSound();
 if(window.desktop){$('#exitbtn').hidden=false;$('#exitbtn').onclick=()=>window.desktop.quit()}
 
 /* mobile: no double-tap or pinch zoom (iOS Safari ignores the viewport flag) */
-(()=>{let lastTap=0,lastEl=null;document.addEventListener('touchend',e=>{const n=Date.now(),el=e.target.closest?e.target.closest('button,a,label,input,select'):null;
-    if(n-lastTap<320){e.preventDefault();if(el&&el!==lastEl&&el.tagName!=='INPUT'&&el.tagName!=='SELECT')el.click()} // second quick tap on a different control still counts as a tap
-    lastTap=n;lastEl=el},{passive:false});
+(()=>{let lastTap=0;document.addEventListener('touchend',e=>{
+    // Controls already use touch-action: manipulation. Preserve their native clicks, including rapid repeats.
+    if(e.target.closest?.('button,a,label,input,select'))return;
+    const n=Date.now();if(n-lastTap<320)e.preventDefault();lastTap=n;
+  },{passive:false});
   document.addEventListener('touchstart',e=>{if(e.touches.length>1)e.preventDefault()},{passive:false});
   ['gesturestart','gesturechange','gestureend'].forEach(t=>document.addEventListener(t,e=>e.preventDefault(),{passive:false}));
   document.addEventListener('dblclick',e=>e.preventDefault(),{passive:false});})();
