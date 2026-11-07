@@ -3,22 +3,8 @@
 const $=s=>document.querySelector(s);
 const W=2600,H=2000,TAU=Math.PI*2;
 /* simulation RNG: seedable so a daily challenge is the same for everyone; rendering/audio keep Math.random */
-/* language: 'zh' or 'en'; L(zh,en) picks one string */
-/* language, first match wins:
-   1. the link itself — /spell-legion/en/ or ?lang=en (the folder pages forward here with ?lang=)
-   2. the player's own pick in Settings (sl_lang)
-   3. the country of their IP, looked up once and cached (sl_lang_ip; see langAuto in ui.js)
-   4. the browser's language */
-const LANGS=['zh','en'];
-const LANG_BY_COUNTRY={CN:'zh',HK:'zh',MO:'zh',TW:'zh'}; // everyone else gets English until more languages ship
-let LANG_FROM_URL=false;
-let LANG=(()=>{try{const q=new URLSearchParams(location.search).get('lang');if(LANGS.includes(q)){localStorage.setItem('sl_lang',q);LANG_FROM_URL=true;return q}
-  const l=localStorage.getItem('sl_lang');if(LANGS.includes(l))return l;const ip=localStorage.getItem('sl_lang_ip');if(LANGS.includes(ip))return ip}catch(_){}
-  return (navigator.language||'').toLowerCase().startsWith('zh')?'zh':'en'})();
-document.documentElement.lang=LANG;
-const L=(zh,en)=>LANG==='zh'?zh:(en!==undefined?en:zh);
-const LL=o=>o?(LANG==='zh'?(o.zh!==undefined?o.zh:o.d):(o.en!==undefined?o.en:o.de)):'';
-function setLang(l){LANG=l;try{localStorage.setItem('sl_lang',l)}catch(_){}document.documentElement.lang=l;document.title=L('魔咒军团','Spell Legion')}
+/* language: see i18n.js (LOC, LANG, LANGS, L, LL, setLang) */
+i18nStatic();
 let SIMR=Math.random;
 function seedSim(seed){if(seed===null||seed===undefined){SIMR=Math.random;return}let a=seed|0;SIMR=function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296}}
 const rnd=(a=1,b)=>b===undefined?SIMR()*a:a+SIMR()*(b-a);

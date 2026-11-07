@@ -3,7 +3,7 @@
    Everything reads/writes SAVE; a cloud account (Firebase) can sync SAVE underneath without touching this file. */
 
 /* ---------- account level ---------- */
-const TITLES=[[1,'初入江湖','Newcomer'],[3,'小有名气','Known Name'],[6,'一方豪侠','Local Hero'],[10,'名震江湖','Renowned'],[15,'绝世高手','Grandmaster'],[20,'武林盟主','Alliance Chief'],[30,'天下无双','Peerless'],[40,'传说','Legend']];
+const TITLES=[[1,'新手上路','Newcomer'],[3,'小有名气','Known Name'],[6,'一方豪侠','Local Hero'],[10,'名声大噪','Renowned'],[15,'绝世高手','Grandmaster'],[20,'武林盟主','Alliance Chief'],[30,'天下无双','Peerless'],[40,'传说','Legend']];
 function axpNeed(lv){return Math.round(120+lv*60+lv*lv*14)}
 function accountLv(){let lv=1,x=SAVE.axp||0;while(x>=axpNeed(lv)&&lv<99){x-=axpNeed(lv);lv++}return {lv,x,need:axpNeed(lv)}}
 function titleFor(lv){let t=TITLES[0];for(const r of TITLES)if(lv>=r[0])t=r;return t}
@@ -77,7 +77,7 @@ function renderMeta(){
 /* ---------- trophies (奖杯) and the trophy road ---------- */
 const TROPHY_ROAD=[
   [50,{gold:150},'金 150','150 gold'],[120,{title:'初露锋芒'},'称号:初露锋芒','Title: First Edge'],[200,{gold:300},'金 300','300 gold'],[300,{rerolls:1},'每局 +1 重抽','+1 reroll every run'],
-  [420,{gold:500},'金 500','500 gold'],[550,{weaponToken:1},'任意一把武器免费解锁','Unlock any weapon for free'],[700,{gold:800},'金 800','800 gold'],[850,{title:'江湖名宿'},'称号:江湖名宿','Title: Veteran'],
+  [420,{gold:500},'金 500','500 gold'],[550,{weaponToken:1},'任意一把武器免费解锁','Unlock any weapon for free'],[700,{gold:800},'金 800','800 gold'],[850,{title:'老玩家'},'称号:老玩家','Title: Veteran'],
   [1000,{core:1},'每局 +1 复生核心','+1 Revive Core every run'],[1200,{gold:1200},'金 1200','1200 gold'],[1500,{title:'一代宗师'},'称号:一代宗师','Title: Grandmaster of an Age'],[2000,{gold:2500},'金 2500','2500 gold'],
 ];
 function seasonKey(){const d=tzDate();return d.getUTCFullYear()*100+(d.getUTCMonth()+1)}

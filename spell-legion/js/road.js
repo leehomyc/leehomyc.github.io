@@ -1,6 +1,6 @@
 'use strict';
 /* road.js — the 江湖 progression: three ladders a player climbs across runs, shown as pictures first and words second.
-   1. 江湖等级 (account level)  — fed by every run; each level pays gold, milestones unlock titles
+   1. 冒险等级 (account level)  — fed by every run; each level pays gold, milestones unlock titles
    2. 修罗层 (Ascension tiers)   — the solo difficulty ladder: clear two bosses on a tier to open the next; gold +15% per tier
    3. 天梯 (duel ladder)         — trophies from 3-minute duels; ranks from Bronze to Legend with a reward road
    The strip on the menu shows all three in one glance; the 江湖 tab shows the full ladders, the 修炼 shop (gold sink) and the titles. */
@@ -13,9 +13,9 @@ function tierPips(max,sel,total){let s='';for(let i=1;i<=total;i++)s+=`<i class=
 /* compact strip on the menu */
 function renderProg(){const el=$('#prog');if(!el)return;const b=roadBits();const xpPct=Math.round(100*(b.a.x||0)/Math.max(1,b.a.need||1));const name=(typeof LB!=='undefined'&&LB.name())||SAVE.name||'';
   el.innerHTML=`<div class="pr id"><button type="button" class="avb" id="avbtn" title="${L('换头像','Change avatar')}">${avatarHTML(SAVE.avatar)}</button><button type="button" class="nm" id="namebtn" title="${L('点击改名','Tap to rename')}"><b>${esc(name)}</b><i class="pen">✎</i></button></div>
-    <button type="button" class="pr lv" data-t="road" title="${L('江湖等级:每局都涨,升级得金币','Renown: every run adds XP, each level pays gold')}">${ICON.misc('crown','#ffe9a0')}<div><b>Lv ${b.a.lv}</b><span class="bar"><i style="width:${xpPct}%"></i></span></div></button>
+    <button type="button" class="pr lv" data-t="road" title="${L('冒险等级:每局都涨,升级得金币','Renown: every run adds XP, each level pays gold')}">${ICON.misc('crown','#ffe9a0')}<div><b>Lv ${b.a.lv}</b><span class="bar"><i style="width:${xpPct}%"></i></span></div></button>
     <button type="button" class="pr lad" data-t="road" title="${L('天梯','Ladder')}: ${L(b.lad[1],b.lad[2])} · ${b.tr} 🏆">${ICON.misc('trophy',b.lcol)}<b style="color:${b.lcol}">${L(b.lad[1],b.lad[2])}</b><small>${b.tr}</small></button>
-    <button type="button" class="pr gold" data-t="road" title="${L('金币:在江湖页修炼属性','Gold: train permanent stats on the Journey tab')}">${ICON.misc('gold','#ffd27a')}<b>${SAVE.gold}</b></button>`;
+    <button type="button" class="pr gold" data-t="road" title="${L('金币:在「冒险」页修炼属性','Gold: train permanent stats on the Journey tab')}">${ICON.misc('gold','#ffd27a')}<b>${SAVE.gold}</b></button>`;
   el.querySelectorAll('.pr[data-t]').forEach(x=>x.onclick=()=>{showTab('road');SFX.pick(1);const p=$('#road');if(p&&p.scrollIntoView)try{p.scrollIntoView({block:'start',behavior:'smooth'})}catch(_){}});
   const ab=$('#avbtn');if(ab)ab.onclick=e=>{e.stopPropagation();let pop=$('#avpop');if(pop){pop.remove();return}pop=document.createElement('div');pop.id='avpop';
     pop.innerHTML=`<div class="avg">${AVATARS.map((x,i)=>`<button type="button" data-i="${i}" class="${(SAVE.avatar||{}).e===i?'on':''}">${avatarHTML({e:i,h:(SAVE.avatar||{}).h||30})}</button>`).join('')}</div><div class="avr"><button type="button" class="go alt sm" id="avhue">🎨 ${L('换颜色','Colour')}</button><button type="button" class="go alt sm" id="avname">🎲 ${L('随机名字','Random name')}</button></div>`;
@@ -33,7 +33,7 @@ function renderRoad(){const el=$('#road');if(!el)return;const shopEl=$('#shop'),
   const road=TROPHY_ROAD.map(r=>`<span class="rr ${(SAVE.road||{})[r[0]]?'on':b.tr>=r[0]?'due':''}"><b>${r[0]}</b><small>${L(r[2],r[3])}</small></span>`).join('');
   const A=SAVE.asura||{max:0,sel:0};
   el.innerHTML=`
-  <section class="rsec lv"><div class="rh">${ICON.misc('crown','#ffe9a0')}<div><b>${L('江湖等级','Renown')} <em>Lv ${b.a.lv}</em> · ${L(b.t[1],b.t[2])}</b><small>${L(`${b.a.x} / ${b.a.need} · 每局都涨 · 升级 +${100+b.a.lv*20} 金`,`${b.a.x} / ${b.a.need} · every run adds XP · next level pays ${100+b.a.lv*20} gold`)}${A.max?L(` · 修罗 ${A.max} 层`,` · Ascension ${A.max}`):''}</small><span class="bar"><i style="width:${xpPct}%"></i></span></div></div></section>
+  <section class="rsec lv"><div class="rh">${ICON.misc('crown','#ffe9a0')}<div><b>${L('冒险等级','Renown')} <em>Lv ${b.a.lv}</em> · ${L(b.t[1],b.t[2])}</b><small>${L(`${b.a.x} / ${b.a.need} · 每局都涨 · 升级 +${100+b.a.lv*20} 金`,`${b.a.x} / ${b.a.need} · every run adds XP · next level pays ${100+b.a.lv*20} gold`)}${A.max?L(` · 修罗 ${A.max} 层`,` · Ascension ${A.max}`):''}</small><span class="bar"><i style="width:${xpPct}%"></i></span></div></div></section>
   <section class="rsec lad"><div class="rh">${ICON.misc('trophy',b.lcol)}<div><b>${L('天梯','Ladder')} <em>${L(b.lad[1],b.lad[2])} · ${b.tr} 🏆</em></b><small>${b.nxt?L(`再 ${b.nxt[0]-b.tr} 🏆 升段`,`${b.nxt[0]-b.tr} 🏆 to rank up`):L('已是最高段位','Top rank reached')}</small><span class="bar lad"><i style="width:${b.lpct}%;background:${b.lcol}"></i></span></div></div><div class="roadrow">${road}</div></section>
   <section class="rsec shop"><div class="rh">${ICON.misc('gold','#ffd27a')}<div><b>${L('修炼','Training')} <em>${SAVE.gold} ${L('金','gold')}</em></b><small>${L('永久变强 · 仅限出山','Permanent stats · solo only')}</small></div></div></section>`;
   if(shopEl){shopEl.hidden=false;el.querySelector('.rsec.shop').appendChild(shopEl)}if(recEl){recEl.hidden=false;el.querySelector('.rsec.shop').appendChild(recEl)}

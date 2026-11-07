@@ -316,7 +316,7 @@ kbd{font:700 13px var(--ui);border:1px solid var(--dim);padding:0 5px;border-rad
 /* auto-cast: skill seals shimmer while skills cast themselves */
 @keyframes acshimmer{0%{box-shadow:0 6px 18px #0009,0 0 0 0 #8fd8ff00,inset 0 1px 0 #ffffff26}50%{box-shadow:0 6px 18px #0009,0 0 14px 3px #8fd8ffaa,inset 0 1px 0 #ffffff26}100%{box-shadow:0 6px 18px #0009,0 0 0 0 #8fd8ff00,inset 0 1px 0 #ffffff26}}
 #seals.auto .seal:not(.main):not(.empty):not(.dash){animation:acshimmer 1.6s ease-in-out infinite;border-color:#8fd8ff}
-#seals.auto .seal:not(.main):not(.empty):not(.dash) .key::after{content:' 自动';color:#8fd8ff}html[lang=en] #seals.auto .seal:not(.main):not(.empty):not(.dash) .key::after{content:' auto'}
+#seals.auto .seal:not(.main):not(.empty):not(.dash) .key::after{content:' 自动';color:#8fd8ff}html[lang=en] #seals.auto .seal:not(.main):not(.empty):not(.dash) .key::after{content:' auto'}html[lang=zh-Hant] #seals.auto .seal:not(.main):not(.empty):not(.dash) .key::after{content:' 自動'}html[lang=ja] #seals.auto .seal:not(.main):not(.empty):not(.dash) .key::after{content:' 自動'}html[lang=ko] #seals.auto .seal:not(.main):not(.empty):not(.dash) .key::after{content:' 자동'}
 .bs.hl{outline:2px solid var(--c);box-shadow:0 0 16px var(--c);transform:translateY(-2px)}.bs{transition:transform .15s,box-shadow .15s}
 .killed{background:#2a0f14cc;border:1px solid #ff6a6a66;border-radius:8px;padding:8px 12px;margin:6px 0;text-align:center}.killed b{color:#ff8a8a;font-size:14px}.killed .srcs{display:flex;gap:6px 14px;flex-wrap:wrap;justify-content:center;font-size:12px;color:var(--bone);margin-top:4px}.killed .srcs small{color:var(--dim)}
 /* account row */
@@ -325,7 +325,7 @@ kbd{font:700 13px var(--ui);border:1px solid var(--dim);padding:0 5px;border-rad
 #account small{flex:1 1 100%;font-size:11px;color:var(--dim)}#account .note{font-size:11px;color:#7dffb0}
 .seal.autosw{border-color:#6b5230;opacity:.85}.seal.autosw .g{color:var(--dim);font-size:26px}.seal.autosw.on{border-color:#8fd8ff;opacity:1}.seal.autosw.on .g{color:#8fd8ff}
 /* language: one language visible at a time */
-html[lang=en] .zh{display:none!important}html[lang=zh] .en{display:none!important}
+html:not([lang=zh]):not([lang=zh-Hant]) .zh{display:none!important}html[lang=zh] .en,html[lang=zh-Hant] .en{display:none!important}
 .langrow{display:flex;gap:6px;margin:0 0 8px}.langbtn{border-radius:6px;background:#2a1822;border:1px solid #6b5230;color:var(--bone);font:700 12px var(--ui);padding:5px 12px;cursor:pointer}.langbtn.on{background:var(--cinnabar);border-color:#ffb79f;color:#fff}
 /* simplified lobby: hero area + tabbed panels */
 .langrow{align-items:center}.langrow .status{margin-left:auto;font-size:12px;color:var(--dim)}
@@ -636,14 +636,14 @@ body.touchhud #side{top:auto;bottom:30%;left:max(8px,env(safe-area-inset-left,0p
 
 /* a skill set to manual while auto-cast is on */
 #seals.auto .seal.manual:not(.main):not(.empty):not(.dash){animation:none;border-color:#ffd27a}
-#seals.auto .seal.manual:not(.main):not(.empty):not(.dash) .key::after{content:' 手动';color:#ffd27a}html[lang=en] #seals.auto .seal.manual:not(.main):not(.empty):not(.dash) .key::after{content:' manual'}
+#seals.auto .seal.manual:not(.main):not(.empty):not(.dash) .key::after{content:' 手动';color:#ffd27a}html[lang=en] #seals.auto .seal.manual:not(.main):not(.empty):not(.dash) .key::after{content:' manual'}html[lang=zh-Hant] #seals.auto .seal.manual:not(.main):not(.empty):not(.dash) .key::after{content:' 手動'}html[lang=ja] #seals.auto .seal.manual:not(.main):not(.empty):not(.dash) .key::after{content:' 手動'}html[lang=ko] #seals.auto .seal.manual:not(.main):not(.empty):not(.dash) .key::after{content:' 수동'}
 
 .globe .eff{position:absolute;left:50%;bottom:-18px;transform:translateX(-50%);white-space:nowrap;font-size:11px;font-weight:800;color:#9fe3a8;background:#0a0710d9;border:1px solid #7fc98a66;border-radius:10px;padding:1px 8px}.globe .eff[hidden]{display:none}
 body.touchhud .globe .eff{display:none}
 
 .nextgoal.carry{border-left-color:#ffd27a;background:#1f1a10d9;display:flex;align-items:center;gap:10px}.nextgoal.carry .ic{flex:none;width:34px;height:34px}.nextgoal.carry b{color:#ffd27a;display:block}
 
-#bossbar.tired #bosshp i{filter:saturate(.6) brightness(1.15)}#bossbar.tired #bossname::after{content:' · 力竭';color:#ffd27a}html[lang=en] #bossbar.tired #bossname::after{content:' · tiring'}
+#bossbar.tired #bosshp i{filter:saturate(.6) brightness(1.15)}#bossbar.tired #bossname::after{content:' · 力竭';color:#ffd27a}html[lang=en] #bossbar.tired #bossname::after{content:' · tiring'}html[lang=zh-Hant] #bossbar.tired #bossname::after{content:' · 力竭'}html[lang=ja] #bossbar.tired #bossname::after{content:' · ヘトヘト'}html[lang=ko] #bossbar.tired #bossname::after{content:' · 지침'}
 
 body.picking #tip,body.picking #side{display:none}
 
@@ -1193,3 +1193,10 @@ html[lang=en] #menu .vname.ven{display:block}
 .mfoot a:hover,.mfoot a:focus-visible{color:var(--bone);background:#2a182288;outline:none}
 .mfoot svg{width:16px;height:16px;flex:none}.mfoot .sep{color:#6b5230}
 @media (max-width:640px){.mfoot{margin-top:10px;padding-bottom:4px}}
+
+/* ---- languages: 繁體 / 日本語 / 한국어 use the brush logo (in their own characters) and fonts with traditional / kana / hangul glyphs ---- */
+html[lang=zh-Hant] #menu .vname.ven,html[lang=ja] #menu .vname.ven,html[lang=ko] #menu .vname.ven{display:none}
+html[lang=zh-Hant]{--brush:"LXGW WenKai TC","Kaiti TC","DFKai-SB","BiauKai","Ma Shan Zheng",serif;--ui:"Alegreya Sans","PingFang TC","Microsoft JhengHei","Noto Sans TC","Noto Sans CJK TC",system-ui,sans-serif;--cute:"Baloo 2","PingFang TC","Microsoft JhengHei",system-ui,sans-serif}
+html[lang=ja]{--brush:"Yuji Syuku","Hiragino Mincho ProN","Yu Mincho","Noto Serif JP",serif;--ui:"Alegreya Sans","Zen Kaku Gothic New","Hiragino Sans","Yu Gothic","Meiryo","Noto Sans JP",system-ui,sans-serif;--cute:"Baloo 2","Zen Kaku Gothic New","Hiragino Sans","Yu Gothic",system-ui,sans-serif}
+html[lang=ko]{--brush:"Song Myung","AppleMyungjo","Batang","Noto Serif KR",serif;--ui:"Alegreya Sans","Gowun Dodum","Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR",system-ui,sans-serif;--cute:"Baloo 2","Gowun Dodum","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;word-break:keep-all}
+.langrow{flex-wrap:wrap;gap:6px}.langrow .langbtn{min-width:0;padding-left:10px;padding-right:10px}

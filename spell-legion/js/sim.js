@@ -692,7 +692,7 @@ function spawnTick(dt){
     if(G.themeT<=0&&!G.theme){G.themeT=75+rnd(0,20);const opts=THEMES.filter(th=>t>=th.from&&!(G.ev&&G.ev.noTheme));const th=pick(opts);const A=AFFINITY[th.type];G.theme={type:th.type,until:t+22,zh:th.zh,en:th.en};
       showBanner(`${th.zh}! ${A.tip[0]}`,`${th.en}! ${A.tip[1]}`,2.6);if(typeof SFX!=='undefined')SFX.wave();
       const n=Math.round(10+t/60);for(let i=0;i<n;i++){const o=edgePoint();spawnEnemy(th.type,o.x,o.y)}}}
-  const wave=Math.floor(t/30);if(wave>G.wave&&!G.boss){G.wave=wave;const mix=t>150?'刀客 · 弓手 · 铁甲力士':t>85?'刀客 · 弓手':t>25?'刺客 · 刀客':'刺客';showBanner(`第 ${wave} 波`,`Wave ${wave} · ${mix}`,1);if(G.curse.waveChest&&!G.curse.nochest){const P=G.P;G.chests.push({x:clamp(P.x+rnd(-90,90),60,W-60),y:clamp(P.y+rnd(-90,90),60,H-60),t:0})}if(typeof SFX!=='undefined')SFX.wave()}
+  const wave=Math.floor(t/30);if(wave>G.wave&&!G.boss){G.wave=wave;const mix=t>150?['刀客 · 弓手 · 铁甲力士','Bandit · Archer · Iron Giant']:t>85?['刀客 · 弓手','Bandit · Archer']:t>25?['刺客 · 刀客','Assassin · Bandit']:['刺客','Assassin'];showBanner(`第 ${wave} 波`,`Wave ${wave} · ${mix[1]}`,1);if(G.curse.waveChest&&!G.curse.nochest){const P=G.P;G.chests.push({x:clamp(P.x+rnd(-90,90),60,W-60),y:clamp(P.y+rnd(-90,90),60,H-60),t:0})}if(typeof SFX!=='undefined')SFX.wave()}
   G.swarmT-=dt;
   if(G.swarmT<=0&&!G.boss){G.swarmT=50;const P=G.P,n=18+Math.floor(t/8);
     for(let i=0;i<n;i++){const a=i/n*TAU,o={x:clamp(P.x+Math.cos(a)*180,30,W-30),y:clamp(P.y+Math.sin(a)*180,30,H-30)};spawnEnemy('assassin',o.x,o.y,.8)}
