@@ -1,3 +1,8 @@
 name = "spell-legion"
 pages_build_output_dir = "./dist"
 compatibility_date = "2026-11-07"
+
+[[d1_databases]]
+binding = "ANALYTICS_DB"
+database_name = "spell-legion-analytics"
+database_id = "19c456de-de9e-4e35-a1d8-b18280173daa"
