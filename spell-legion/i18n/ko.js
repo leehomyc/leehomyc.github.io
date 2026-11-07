@@ -2168,6 +2168,8 @@ I18N_LOAD('ko',
 "🏆 First place!": "🏆 1위!",
 "🔒 2 bosses": "🔒 보스 ×2",
 "🔒 slay two bosses in a run · +15% gold per tier": "🔒 한 판에 보스 둘 처치 · 층마다 골드 +15%",
-"🔒 {0} bosses in a run · total {1}/{2}": "🔒 한 판에 보스 {0} · 누적 {1}/{2}"
+"🔒 {0} bosses in a run · total {1}/{2}": "🔒 한 판에 보스 {0} · 누적 {1}/{2}",
+"Password needs 7+ characters": "비밀번호는 7자 이상",
+"password (7+)": "비밀번호(7자 이상)"
 }
 );
