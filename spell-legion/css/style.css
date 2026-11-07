@@ -945,3 +945,25 @@ body.touchhud #pause .pbox>p{display:none}
 /* phone: the scoreboard sits under the HP/qi bars on the left, clear of the pause/sound buttons and the minimap */
 body.touchhud #roomboard{left:8px;right:auto;top:96px;min-width:150px;max-width:180px}
 body.touchhud #roomboard{min-width:120px;max-width:150px}
+/* phone held sideways (short and wide): one centred block — small title on top, the big card beside the two small ones, buttons underneath */
+@media (orientation:landscape) and (max-height:520px){
+  #menu .tt{flex-direction:column;align-items:center;gap:6px;margin:0 auto;padding:10px max(16px,env(safe-area-inset-left)) 10px max(16px,env(safe-area-inset-right));width:100%}
+  #menu .vname{writing-mode:horizontal-tb;font-size:30px;line-height:1;margin:0;text-align:center}
+  #menu .ttb{width:min(760px,100%);max-width:none;flex:none;display:flex;flex-direction:column;gap:10px;min-height:0;padding-bottom:0}
+  #menu .ttb h1{display:none}
+  #menu #prog{margin:0;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr) auto}
+  #menubtns{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:12px;max-width:none;margin:0}
+  #menu .mb.big{min-height:0;padding:14px 16px;grid-template-columns:52px 1fr}#menu .mb.big .ic{width:52px;height:52px}#menu .mb.big b{font-size:24px}#menu .mb.big .goal{margin-top:8px}
+  #menu .mrow{display:grid;grid-template-columns:1fr;grid-template-rows:1fr 1fr;gap:12px}
+  #menu .mrow .mb{grid-template-columns:38px 1fr;justify-items:stretch;row-gap:2px;min-height:0;padding:10px 12px;align-content:center}#menu .mrow .mb .ic{width:38px;height:38px;grid-row:1/3}
+  #menu .tabbar{margin:0;padding:0;justify-content:center;gap:10px;flex-wrap:nowrap}
+  #menu .tabbar button{flex:0 1 160px;flex-direction:row;padding:8px 12px;border-radius:999px}
+}
+@media (orientation:landscape) and (max-height:520px){
+  #title{align-items:center;justify-content:center}
+  #menu.screen{width:100%;max-width:none;margin:0}
+  #menu .tt{box-sizing:border-box}
+  #menu .ttb{margin:0 auto;align-items:stretch;width:min(720px,100%)}
+  #menu .ttb>#prog,#menu .ttb>#menubtns,#menu .ttb>.tabbar{width:100%;max-width:none;box-sizing:border-box}
+}
+@media (orientation:landscape) and (max-height:520px){#title{background:radial-gradient(90% 120% at 50% 50%,#0b060ee0,#0b060eb0)}}
