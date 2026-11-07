@@ -37,17 +37,39 @@ async function cloudInit(){
 }
 /* ---- save merge: never lose progress from either side ---- */
 function mergeSave(local,cloud){
-  if(!cloud)return local;const out=JSON.parse(JSON.stringify(local));
-  const max=k=>{out[k]=Math.max(+local[k]||0,+cloud[k]||0)};['gold','axp','best','wins','runs','bosses','pkBest'].forEach(max);
-  out.up=Object.assign({},cloud.up||{});for(const k in (local.up||{}))out.up[k]=Math.max(out.up[k]||0,local.up[k]||0);
-  ['weaponOwned','ach','clsWins','tips'].forEach(k=>{out[k]=Object.assign({},cloud[k]||{},local[k]||{})});{const a=cloud.clsBest||{},b=local.clsBest||{};out.clsBest={};for(const k of new Set([...Object.keys(a),...Object.keys(b)]))out.clsBest[k]=Math.max(a[k]||0,b[k]||0)}
-  if(cloud.pk||local.pk)out.pk={w:(cloud.pk?.w||0)>(local.pk?.w||0)?cloud.pk.w:(local.pk?.w||0),l:Math.max(cloud.pk?.l||0,local.pk?.l||0)};
-  const newer=(+cloud.ts||0)>(+local.ts||0)?cloud:local;
-  ['cls','weapon','mode','diff','autocast','name'].forEach(k=>{if(newer[k]!==undefined)out[k]=newer[k]});if(typeof CLASSES!=='undefined'&&!CLASSES[out.cls])out.cls='swordsman';
-  const dayOf=o=>o&&o.tasks&&o.tasks.day||0;out.tasks=dayOf(cloud)>dayOf(local)?cloud.tasks:dayOf(local)>dayOf(cloud)?local.tasks:(local.tasks||cloud.tasks);
-  if(out.tasks&&cloud.tasks&&local.tasks&&cloud.tasks.day===local.tasks.day){out.tasks.list=local.tasks.list.map((t,i)=>{const c=cloud.tasks.list[i];return c&&c.id===t.id?{...t,p:Math.max(t.p||0,c.p||0),done:t.done||c.done}:t})}
-  const sd=o=>o&&o.streak&&o.streak.last||0;out.streak=sd(cloud)>sd(local)?cloud.streak:local.streak||cloud.streak;
-  const dd=o=>o&&o.daily&&o.daily.day||0;out.daily=dd(cloud)>dd(local)?cloud.daily:dd(local)>dd(cloud)?local.daily:(local.daily&&cloud.daily?(local.daily.best>=cloud.daily.best?local.daily:cloud.daily):(local.daily||cloud.daily));
+  if(!cloud)return JSON.parse(JSON.stringify(local));
+  const clone=o=>JSON.parse(JSON.stringify(o));
+  const progressed=o=>!!(o.runs||o.axp||o.gold||o.trophies||o.gear?.inv?.length||Object.values(o.up||{}).some(Boolean)||Object.values(o.mer||{}).some(Boolean)||o.asura?.max);
+  const newer=progressed(cloud)&&!progressed(local)?cloud:progressed(local)&&!progressed(cloud)?local:(+cloud.ts||0)>(+local.ts||0)?cloud:local;
+  const older=newer===local?cloud:local,out=clone({...older,...newer});
+  const maxMap=(a={},b={})=>Object.fromEntries([...new Set([...Object.keys(a),...Object.keys(b)])].map(k=>[k,Math.max(+a[k]||0,+b[k]||0)]));
+  const unionMap=(a={},b={})=>Object.fromEntries([...new Set([...Object.keys(a),...Object.keys(b)])].map(k=>[k,a[k]||b[k]]));
+  for(const k of ['axp','best','wins','runs','bosses','pkBest','dirPeaks'])out[k]=Math.max(+local[k]||0,+cloud[k]||0);
+  for(const k of ['up','mer','mastery','clsBest','rooms','pk'])out[k]=maxMap(local[k],cloud[k]);
+  for(const k of ['weaponOwned','ach','clsWins','tips','road','seenCls','legendMigrated'])out[k]=unionMap(local[k],cloud[k]);
+  out.titles=[...new Set([...(local.titles||[]),...(cloud.titles||[])])];
+  out.bountyNames=[...new Set([...(local.bountyNames||[]),...(cloud.bountyNames||[])])];
+  out.codex={};for(const k of new Set([...Object.keys(local.codex||{}),...Object.keys(cloud.codex||{})]))out.codex[k]=unionMap(local.codex?.[k],cloud.codex?.[k]);
+  // Currency and trophies can go down. Pick their latest explicit mutation, not the maximum.
+  for(const [key,stamp] of [['gold','goldTs'],['trophies','ladderTs']]){
+    const a=Object.hasOwn(local,key),b=Object.hasOwn(cloud,key);
+    const src=!a?cloud:!b?local:(+local[stamp]||0)!==(+cloud[stamp]||0)?((+local[stamp]||0)>(+cloud[stamp]||0)?local:cloud):newer;
+    out[key]=Math.max(0,+src[key]||0);if(src[stamp])out[stamp]=src[stamp];
+  }
+  const la=local.asura||{},ca=cloud.asura||{};out.asura={...ca,...la,max:Math.max(la.max||0,ca.max||0),best:Math.max(la.best||0,ca.best||0)};
+  out.asura.sel=Math.min((newer.asura||older.asura||{}).sel||0,out.asura.max);
+  if(local.gear||cloud.gear){
+    const a=local.gear||{},b=cloud.gear||{},gn=!(a.inv||[]).length&&!Object.keys(a.removed||{}).length?b:!(b.inv||[]).length&&!Object.keys(b.removed||{}).length?a:(a.ts||local.ts||0)>(b.ts||cloud.ts||0)?a:b;
+    const removed=maxMap(a.removed,b.removed),items=new Map();
+    for(const it of [...(a.inv||[]),...(b.inv||[])]){if(removed[it.id])continue;const prev=items.get(it.id);if(!prev||(it.ts||0)>=(prev.ts||0))items.set(it.id,clone(it))}
+    const eq={...(gn.eq||{})};for(const k in eq)if(!items.has(eq[k]))delete eq[k];
+    out.gear={...a,...b,...gn,inv:[...items.values()],eq,removed,seq:Math.max(a.seq||0,b.seq||0),found:Math.max(a.found||0,b.found||0)};
+  }
+  const dayOf=o=>o.tasks?.day||0;out.tasks=clone(dayOf(cloud)>dayOf(local)?cloud.tasks:dayOf(local)>dayOf(cloud)?local.tasks:(local.tasks||cloud.tasks||null));
+  if(out.tasks&&local.tasks?.day===cloud.tasks?.day){out.tasks.list=out.tasks.list.map(t=>{const matches=[...(local.tasks?.list||[]),...(cloud.tasks?.list||[])].filter(c=>c.id===t.id&&c.goal===t.goal&&c.c===t.c);return {...t,p:Math.max(t.p||0,...matches.map(c=>c.p||0)),done:matches.some(c=>c.done)?1:0}})}
+  const dd=o=>o.daily?.day||0;out.daily=clone(dd(cloud)>dd(local)?cloud.daily:dd(local)>dd(cloud)?local.daily:(local.daily&&cloud.daily?(local.daily.best>=cloud.daily.best?local.daily:cloud.daily):(local.daily||cloud.daily||null)));
+  const ls=local.season||{},cs=cloud.season||{};out.season=clone((ls.id||0)>(cs.id||0)?ls:(cs.id||0)>(ls.id||0)?cs:{...ls,...cs,peak:Math.max(ls.peak||0,cs.peak||0)});
+  const lb=local.lb||{},cb=cloud.lb||{};out.lb={...(lb.day>cb.day?lb:cb),best:Math.max(lb.best||0,cb.best||0)};if(lb.day===cb.day)out.lb.dayBest=Math.max(lb.dayBest||0,cb.dayBest||0);
   out.ts=Math.max(+local.ts||0,+cloud.ts||0);return out;
 }
 async function cloudPull(){

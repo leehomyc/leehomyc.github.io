@@ -85,7 +85,7 @@ function seasonDaysLeft(){const d=tzDate();const end=Date.UTC(d.getUTCFullYear()
 /* a new month: trophies above 600 are halved back toward 600 (soft reset), the peak pays season gold */
 function seasonTick(){const sk=seasonKey();SAVE.season=SAVE.season||{id:sk,peak:0};if(SAVE.season.id!==sk){const tr=SAVE.trophies||0,peak=Math.max(SAVE.season.peak||0,tr),reward=Math.round(peak*.8);SAVE.gold+=reward;SAVE.trophies=tr>600?600+Math.round((tr-600)/2):tr;SAVE.season={id:sk,peak:0,last:{peak,reward}};persist();return {peak,reward}}return null}
 function runTrophies(){
-  if(G.abandoned)return 0;const mins=G.t/60;
+  if(G.abandoned||G.room)return 0;const mins=G.t/60;
   if(RIVAL_ON&&G.rival){const win=G.score>G.rival.score,tie=G.score===G.rival.score;const base=G.quick?25:35;return win?base+Math.min(15,Math.floor((G.score-G.rival.score)/400)):tie?5:-Math.min(12,Math.max(4,Math.round(base*.35)))}
   if(BOSSRUSH)return Math.round(G.bossSlain*18+mins*2);
   return Math.round(mins*3+G.bossSlain*20+ASURA_T*8+(typeof DAILY!=='undefined'&&DAILY?10:0));

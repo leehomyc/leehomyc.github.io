@@ -50,7 +50,9 @@ const GEAR_LEG={
   beiming:{slot:'manual',zh:'北冥神功',en:'Northern Abyss Art',d:'武学命中有 4% 几率立刻刷新它的冷却',de:'Skill hits have a 4% chance to reset that skill\'s cooldown'},
 };
 const GEAR_INV_MAX=40;
-function gearSave(){SAVE.gear=SAVE.gear||{inv:[],eq:{},pity:0,seq:0,found:0};const g=SAVE.gear;g.inv=g.inv||[];g.eq=g.eq||{};return g}
+function gearSave(){SAVE.gear=SAVE.gear||{inv:[],eq:{},pity:0,seq:0,found:0};const g=SAVE.gear;g.inv=g.inv||[];g.eq=g.eq||{};g.removed=g.removed||{};return g}
+function gearChanged(it){const g=gearSave();g.ts=Date.now();if(it)it.ts=g.ts;persist()}
+function gearRemove(it){const g=gearSave();g.removed[it.id]=Date.now();g.inv=g.inv.filter(x=>x.id!==it.id);g.ts=Date.now()}
 function gearById(id){return gearSave().inv.find(x=>x.id===id)}
 function gearEquipped(){const g=gearSave(),out=[];for(const k in GEAR_SLOTS){const it=g.eq[k]&&gearById(g.eq[k]);if(it)out.push(it)}return out}
 /* item tier: Ascension tier and how deep into the run the drop came */
@@ -76,8 +78,8 @@ function gearOn(){return soloRun()&&(typeof ASURA_T!=='undefined')&&((SAVE.ach&&
 function dropGear(x,y,opts={}){if(!gearOn())return;const it=makeGear(opts);G.fx.push({k:'gear',it,x:clamp(x+rnd(-14,14),40,W-40),y:clamp(y+rnd(-14,14),40,H-40),t:120,T:120});
   const R=GEAR_RAR[it.r];if(it.r>=3&&typeof showSide==='function')showSide(`${R.zh}装备落地 · ${it.zh}`,`${R.en} item dropped · ${it.en}`,R.col,'relic');if(it.r>=3&&typeof SFX!=='undefined')SFX.chest()}
 function takeGear(it){const g=gearSave();g.found=(g.found||0)+1;G.gearFound=G.gearFound||[];G.gearFound.push(it);
-  if(g.inv.length>=GEAR_INV_MAX){const worst=g.inv.filter(x=>!x.lock&&!Object.values(g.eq).includes(x.id)).sort((a,b)=>(a.r-b.r)||(gearScore(a)-gearScore(b)))[0];if(worst&&(worst.r<it.r||gearScore(worst)<gearScore(it))){g.inv.splice(g.inv.indexOf(worst),1);SAVE.gold+=gearSalvage(worst)}else{SAVE.gold+=gearSalvage(it);G.gearSalvaged=(G.gearSalvaged||0)+1;persist(true);return}}
-  g.inv.push(it);persist(true);const R=GEAR_RAR[it.r],cur=g.eq[it.slot]&&gearById(g.eq[it.slot]),up=gearScore(it)>gearScore(cur);
+  if(g.inv.length>=GEAR_INV_MAX){const worst=g.inv.filter(x=>!x.lock&&!Object.values(g.eq).includes(x.id)).sort((a,b)=>(a.r-b.r)||(gearScore(a)-gearScore(b)))[0];if(worst&&(worst.r<it.r||gearScore(worst)<gearScore(it))){gearRemove(worst);SAVE.gold+=gearSalvage(worst)}else{SAVE.gold+=gearSalvage(it);G.gearSalvaged=(G.gearSalvaged||0)+1;gearChanged();return}}
+  g.inv.push(it);gearChanged(it);const R=GEAR_RAR[it.r],cur=g.eq[it.slot]&&gearById(g.eq[it.slot]),up=gearScore(it)>gearScore(cur);
   if(typeof showSide==='function')showSide(`拾取 ${R.zh} · ${it.zh}${up?' ▲':''}`,`Picked up ${R.en} · ${it.en}${up?' ▲':''}`,R.col,'relic');spark(G.P.x,G.P.y,R.col,14,90);if(typeof SFX!=='undefined')(it.r>=3?SFX.chest():SFX.pick(1))}
 xOn('tick',dt=>{const P=G.P;for(const f of G.fx){if(f.k==='gear'&&P.down<=0&&hyp(f.x-P.x,f.y-P.y)<24*Math.min(3,P.mag)){f.t=0;takeGear(f.it)}}});
 xOn('kill',(e,s)=>{if(!gearOn()||G.creditOff)return;
@@ -190,12 +192,12 @@ function renderGear(){const box=$('#gearbody');if(!box)return;const g=gearSave()
     <div><div class="gsec"><span>${L('行囊','Bag')} ${g.inv.length}/${GEAR_INV_MAX}</span><span>${L('仅出山生效 · 对决与每日不计','Solo only · not used in duels or the daily')}</span></div><div class="gfilt">${filt}</div><div class="ginv">${cells||`<span class="meta" style="grid-column:1/-1;color:#a99f8d;font-size:13px">${L('还没有装备。斩杀首领、统领、悬赏和打开金宝箱会掉落装备,修罗层越高品阶越高。','No gear yet. Bosses, the Warlord, bounties and golden chests drop it; higher Ascension tiers drop higher tiers.')}</span>`}</div>
     <div class="gsec" style="margin-top:14px"><span>${L('经脉','Meridians')} · ${merTotal()} ${L('重','pts')}</span><span>${L('下一重','next point')} ${cost} ${L('金','gold')} · ${L('持有','have')} ${SAVE.gold}</span></div><div class="gmer">${mers}</div></div></div>`;
   box.querySelectorAll('[data-sl]').forEach(b=>b.onclick=()=>{const id=eq[b.dataset.sl];if(id){gearSel=id;renderGear()}else{gearFilt=b.dataset.sl;renderGear()}});
-  box.querySelectorAll('[data-id]').forEach(b=>b.onclick=()=>{gearSel=b.dataset.id;const it=gearById(gearSel);if(it&&it.new){it.new=0;persist(true)}renderGear();if(typeof SFX!=='undefined')SFX.pick(1)});
+  box.querySelectorAll('[data-id]').forEach(b=>b.onclick=()=>{gearSel=b.dataset.id;const it=gearById(gearSel);if(it&&it.new){it.new=0;gearChanged(it)}renderGear();if(typeof SFX!=='undefined')SFX.pick(1)});
   box.querySelectorAll('[data-f]').forEach(b=>b.onclick=()=>{gearFilt=b.dataset.f;renderGear()});
   box.querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>{const c=merCost();if(SAVE.gold<c)return;SAVE.gold-=c;mer[b.dataset.m]=(mer[b.dataset.m]||0)+1;persist();if(typeof SFX!=='undefined')SFX.levelup();renderGear();if(typeof renderProg==='function')renderProg()});
   box.querySelectorAll('[data-ga]').forEach(b=>b.onclick=()=>{const it=gearById(gearSel);if(!it)return;const a=b.dataset.ga;
-    if(a==='eq'){eq[it.slot]=it.id;it.new=0;if(typeof SFX!=='undefined')SFX.chest()}else if(a==='off'){delete eq[it.slot]}else if(a==='lock'){it.lock=!it.lock}else if(a==='sal'){SAVE.gold+=gearSalvage(it);g.inv.splice(g.inv.indexOf(it),1);gearSel=null;if(typeof SFX!=='undefined')SFX.pick(1)}
-    persist();renderGear();if(typeof renderProg==='function')renderProg()});
+    if(a==='eq'){eq[it.slot]=it.id;it.new=0;if(typeof SFX!=='undefined')SFX.chest()}else if(a==='off'){delete eq[it.slot]}else if(a==='lock'){it.lock=!it.lock}else if(a==='sal'){SAVE.gold+=gearSalvage(it);gearRemove(it);gearSel=null;if(typeof SFX!=='undefined')SFX.pick(1)}
+    gearChanged(it);renderGear();if(typeof renderProg==='function')renderProg()});
 }
 function openGear(){let ov=$('#gearov');if(!ov){ov=document.createElement('div');ov.id='gearov';ov.className='overlay';ov.hidden=true;ov.innerHTML=`<div class="cbox"><div class="ch"><h2><span>${L('行囊','Gear')}</span> <small>${L('装备 · 经脉','Equipment · Meridians')}</small></h2><button type="button" class="go alt sm" id="gearclose">${L('关闭','Close')}</button></div><div id="gearbody"></div></div>`;document.body.appendChild(ov);$('#gearclose').onclick=()=>{ov.hidden=true;if(typeof renderProg==='function')renderProg()};ov.addEventListener('click',e=>{if(e.target===ov)$('#gearclose').click()})}
   if(!gearSel){const eq=gearSave().eq;gearSel=eq.weapon||null}renderGear();ov.hidden=false}

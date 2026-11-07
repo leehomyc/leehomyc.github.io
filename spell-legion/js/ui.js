@@ -17,7 +17,8 @@ const AVATARS=['🐱','🦊','🐼','🐰','🐯','🐸','🐲','🦉','🐺','�
 function randomAvatar(){return {e:Math.floor(Math.random()*AVATARS.length),h:Math.floor(Math.random()*360)}}
 function avatarHTML(a,cls){a=a||{e:0,h:30};return `<span class="av${cls?' '+cls:''}" style="--h:${a.h|0}">${AVATARS[a.e%AVATARS.length]||AVATARS[0]}</span>`}
 (()=>{if(SAVE.nameV!==2){if(!SAVE.nameSet)SAVE.name=randomName();SAVE.nameV=2}let n=SAVE.name||'';if(!n)n=randomName();SAVE.name=n.slice(0,12);if(!SAVE.avatar)SAVE.avatar=randomAvatar();try{localStorage.setItem('sl_name',SAVE.name)}catch(_){}})();
-function persist(quiet){if(!quiet)SAVE.ts=Date.now();try{localStorage.setItem(SAVE_KEY,JSON.stringify(SAVE))}catch(_){}if(!quiet&&typeof cloudSchedulePush==='function')cloudSchedulePush()}
+let savedGold=SAVE.gold,savedTrophies=SAVE.trophies;
+function persist(quiet){if(!quiet){SAVE.ts=Date.now();if(SAVE.gold!==savedGold)SAVE.goldTs=SAVE.ts;if(SAVE.trophies!==savedTrophies)SAVE.ladderTs=SAVE.ts}savedGold=SAVE.gold;savedTrophies=SAVE.trophies;try{localStorage.setItem(SAVE_KEY,JSON.stringify(SAVE))}catch(_){}if(!quiet&&typeof cloudSchedulePush==='function')cloudSchedulePush()}
 const UPGRADES=[
   {id:'hp',zh:'体魄',en:'Vigor',d:'生命上限 +10% / 级',de:'+10% max HP per rank',max:5,cost:r=>80+r*r*60+r*60},
   {id:'dmg',zh:'锋芒',en:'Edge',d:'伤害 +6% / 级',de:'+6% damage per rank',max:5,cost:r=>100+r*r*70+r*80},
@@ -325,7 +326,7 @@ function startRun(){tipT=0;{const sd=$('#side');if(sd)sd.hidden=false}const _tp=
   $('#banner').classList.remove('on');$('#pausebtn').textContent='II';
   SAVE_FIRST=!SAVE.played;SAVE.played=true;persist();
   newGame(false,CLASS);G.room=!!inRoom;if(!DAILY&&!inRoom&&!RIVAL_ON)applyUpgrades(G.P);G.day=dayKey();if(inRoom){const seat=ROOM.host?roomPlayerList().find(p=>p.ai):null;if(seat){mkRival(CLASS,seat);G.rivalSeat=seat.uid}else G.rivalSeat=null;if(typeof arenaStart==='function'&&arenaStart())showBanner('同场对决:抢怪、抢首领','One arena: race them for every kill',2.2);ROOM.ended=false;ROOM.rewarded=false;roomSetMe({score:0,hp:1,lv:1,kills:0,alive:true,done:false,t:0,cls:CLASS});drawRoomBoard()}else{const rb=$('#roomboard');if(rb)rb.hidden=true}if(typeof codexSee==='function')codexSee('weapon',weaponOf(CLASS));G.quick=SAVE.mode==='qpk';
-  if(!DAILY){G.P.dmgBonus+=masteryBonus(CLASS);if((SAVE.road||{})[300])G.rerolls++;if((SAVE.road||{})[1000]){G.cores++}}
+  if(!DAILY&&!inRoom&&!RIVAL_ON){G.P.dmgBonus+=masteryBonus(CLASS);if((SAVE.road||{})[300])G.rerolls++;if((SAVE.road||{})[1000]){G.cores++}}
   if(SAVE.mode==='solo'&&!inRoom){const ev=todayEvent();ev.apply();G.event=ev;showBanner(L('今日活动:','Event: ')+L(ev.zh,ev.en),'',2.4)}updateCores();drawSeals();drawRelics();
   showBanner(CLASSES[CLASS].zh+' 出山',CLASSES[CLASS].en+' sets out',2.2);
   SFX.start();SFX.setState('battle');if(IS_TOUCH)goFullscreen(true);
