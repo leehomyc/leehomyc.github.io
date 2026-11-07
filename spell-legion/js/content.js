@@ -197,9 +197,11 @@ const RELICS={
 /* ---------- maps (themes) and achievements ---------- */
 const MAPS={
   valley:{zh:'青竹谷',en:'Bamboo Valley',base:'#355c42',blobs:['#467a3e','#274d3b','#5a8a44','#2e6047','#73904a','#214a3e','#6b6a40','#3f6b5a'],grain:['#1d3c2e','#527a3e','#6f8a48','#25503c','#3f6b40','#6a5d3a'],trail:['#5f5a3a','#8f7a52','#ab9468'],plaza:'#2a2c27',fog:'#7d9a98',sun:'#ffc58a',hemi:['#a9c8ff','#3d5436'],water:[[.012,.08,.10],[.42,.6,.72]],pine:['#17382c','#2f6a48'],bamboo:['#6f9a3f','#aacb5e'],grassTips:['#7ea04c','#5d9150','#a5a556'],grassRoot:'#173a2c',maple:[['#8e2a22','#e8713a'],['#a84a22','#f0a040']],lantern:'#ff5a2a',edge:'18,30,34'},
-  snow:{zh:'雪岭关',en:'Snow Pass',need:'boss2',bright:1,sunI:.72,base:'#c9d6dc',blobs:['#dfe8ec','#b8c8d0','#e8eef1','#a9bcc6','#d2dde2','#98aab4','#c3b9a8','#b0c4cc'],grain:['#e9f0f3','#a9bcc6','#d7e0e4','#8fa3ad','#f4f7f8','#b9b0a0'],trail:['#6a6058','#8d8278','#a69a8c'],plaza:'#4a4e52',fog:'#b9c9d2',sun:'#ffe4c8',hemi:['#cfe0ff','#6a7a84'],water:[[.05,.14,.2],[.72,.84,.92]],pine:['#2b4a3e','#e9f1f3'],bamboo:['#8a9a7a','#dfe8e2'],grassTips:['#dfe8ec','#b9c8cc','#e8e2cf'],grassRoot:'#7a8a8a',maple:[['#5a3a2e','#e9f1f3'],['#6a4a36','#f3f6f7']],lantern:'#ffb04a',edge:'60,74,86'},
-  ember:{zh:'焚天寺',en:'Burning Monastery',need:'boss4',base:'#2a1c1a',blobs:['#3a2420','#4a2a1e','#221614','#5a2e22','#3b1f1b','#1c1210','#6a3a24','#2e1a16'],grain:['#5a2e22','#ff6a2a','#3a2420','#8a4a2a','#1c1210','#ffa040'],trail:['#1a1210','#4a3a30','#6a5a48'],plaza:'#1c1614',fog:'#3a2420',sun:'#ff8a4a',hemi:['#ff9a6a','#2a1410'],water:[[.6,.18,.02],[1.2,.55,.12]],pine:['#1a1210','#ff6a2a'],bamboo:['#2a1c18','#ff8a3a'],grassTips:['#8a3a22','#ff6a2a','#5a2a1a'],grassRoot:'#1c1210',maple:[['#1a1210','#ff5a2a'],['#2a1a14','#ffa040']],lantern:'#ff3a1a',edge:'20,10,8'},
+  snow:{zh:'雪岭关',en:'Snow Pass',need:'boss2',tierNeed:2,bright:1,sunI:.72,base:'#c9d6dc',blobs:['#dfe8ec','#b8c8d0','#e8eef1','#a9bcc6','#d2dde2','#98aab4','#c3b9a8','#b0c4cc'],grain:['#e9f0f3','#a9bcc6','#d7e0e4','#8fa3ad','#f4f7f8','#b9b0a0'],trail:['#6a6058','#8d8278','#a69a8c'],plaza:'#4a4e52',fog:'#b9c9d2',sun:'#ffe4c8',hemi:['#cfe0ff','#6a7a84'],water:[[.05,.14,.2],[.72,.84,.92]],pine:['#2b4a3e','#e9f1f3'],bamboo:['#8a9a7a','#dfe8e2'],grassTips:['#dfe8ec','#b9c8cc','#e8e2cf'],grassRoot:'#7a8a8a',maple:[['#5a3a2e','#e9f1f3'],['#6a4a36','#f3f6f7']],lantern:'#ffb04a',edge:'60,74,86'},
+  ember:{zh:'焚天寺',en:'Burning Monastery',need:'boss4',tierNeed:5,base:'#2a1c1a',blobs:['#3a2420','#4a2a1e','#221614','#5a2e22','#3b1f1b','#1c1210','#6a3a24','#2e1a16'],grain:['#5a2e22','#ff6a2a','#3a2420','#8a4a2a','#1c1210','#ffa040'],trail:['#1a1210','#4a3a30','#6a5a48'],plaza:'#1c1614',fog:'#3a2420',sun:'#ff8a4a',hemi:['#ff9a6a','#2a1410'],water:[[.6,.18,.02],[1.2,.55,.12]],pine:['#1a1210','#ff8a3a'],bamboo:['#2a1c18','#ff8a3a'],grassTips:['#8a3a22','#ff6a2a','#5a2a1a'],grassRoot:'#1c1210',maple:[['#1a1210','#ff5a2a'],['#2a1a14','#ffa040']],lantern:'#ff3a1a',edge:'20,10,8'},
 };
+MAPS.moon={...MAPS.valley,zh:'幽月林',en:'Moonlit Grove',tierNeed:10,base:'#1d2947',blobs:['#22365c','#304c68','#192841','#3b355e','#253b56','#3d5270','#151f39','#42406a'],grain:['#172542','#3b5b72','#273d62','#4b547b','#1e3152','#51647c'],trail:['#343657','#5e5877','#77718d'],plaza:'#20263e',fog:'#7889b7',sun:'#c5c8ff',hemi:['#a0b7ff','#182340'],water:[[.04,.1,.22],[.36,.44,.8]],pine:['#121e38','#354c72'],bamboo:['#253c60','#6681a1'],grassTips:['#536f98','#6175a5','#7775a5'],grassRoot:'#172641',maple:[['#372955','#8c72b5'],['#293963','#7d9fc2']],lantern:'#a894ff',edge:'27,35,62'};
+MAPS.marsh={...MAPS.ember,zh:'血月沼',en:'Crimson Marsh',need:null,tierNeed:15,base:'#321d31',blobs:['#49243c','#3c263f','#241a2f','#5b2c48','#39273d','#201623','#663047','#34233d'],grain:['#6b344b','#a74d6a','#3d253c','#613b55','#25192a','#8b3d5a'],trail:['#302331','#5b4553','#79636b'],plaza:'#281b2e',fog:'#74435e',sun:'#ff9db1',hemi:['#d89bbd','#2b1931'],water:[[.23,.04,.1],[.54,.14,.24]],pine:['#22182b','#6b2f4b'],bamboo:['#34203a','#a34565'],grassTips:['#8c4262','#b34e6b','#713554'],grassRoot:'#291a30',maple:[['#351c33','#b84562'],['#4b2343','#db6977']],lantern:'#ff5f79',edge:'42,18,34'};
 const ACH=[
   {id:'boss1',zh:'初战告捷',en:'First Blood',d:'击败一位首领',de:'Slay a boss',gold:100},
   {id:'boss2',zh:'连斩二魔',en:'Two Down',d:'一局击败两位首领 · 解锁雪岭关',de:'Slay two bosses in one run · unlocks Snow Pass',gold:200},
@@ -267,6 +269,16 @@ const ASURA=[
   {zh:'重抽次数减半',en:'Half as many rerolls'},
   {zh:'怪潮 +25%',en:'Spawns +25%'},
   {zh:'首领生命 +30%',en:'Bosses +30% HP'},
+  {zh:'敌人移速 +12%',en:'Enemies +12% speed'},
+  {zh:'精英生命 +20%',en:'Elites +20% HP'},
+  {zh:'治疗效率 -20%',en:'Healing -20%'},
+  {zh:'怪潮再 +15%',en:'Spawns another +15%'},
+  {zh:'承受伤害 +10%',en:'Damage taken +10%'},
+  {zh:'宝箱出现更慢',en:'Chests appear less often'},
+  {zh:'首领攻击速度 +15%',en:'Bosses attack 15% faster'},
+  {zh:'词缀敌人从 1:00 起出现',en:'Affixed enemies from 1:00'},
+  {zh:'敌人生命再 +20%',en:'Enemies another +20% HP'},
+  {zh:'首领生命再 +25%',en:'Bosses another +25% HP'},
 ];
 const ASURA_GOLD=.15; // gold multiplier per tier
 /* cursed relics: strong, with a price */

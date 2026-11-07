@@ -251,7 +251,7 @@ function comboTick(dt){if(G.combo>0){G.comboT-=dt;if(G.comboT<=0){if(G.combo>=10
 /* treasure chests: burst of mana gems, gold and a bonus card */
 function chestTick(dt){if(G.curse.nochest)return;
   const P=G.P;G.chestT-=dt;
-  if(G.chestT<=0&&G.chests.length<(G.t>600?1:2)){G.chestT=38+Math.min(120,G.t/10);/* chests thin out late */let x,y,n=0;do{const a=rnd(TAU),d=rnd(220,380);x=clamp(P.x+Math.cos(a)*d,60,W-60);y=clamp(P.y+Math.sin(a)*d,60,H-60)}while(n++<20&&(blocked(x,y)||onPond(x,y,1.3)));const kr=SIMR(),kind=G.t>150&&kr<.14?'gold':G.t>200&&kr<.3?'trap':'normal';G.chests.push({x,y,t:0,kind});const CB={gold:['金宝箱现世!必出法宝','A golden chest appeared: a relic is guaranteed'],trap:['有机关的宝箱现世','A trapped chest appeared'],normal:['宝箱现世','A treasure chest appeared']};showBanner(CB[kind][0],CB[kind][1],1)}
+  if(G.chestT<=0&&G.chests.length<(G.t>600?1:2)){G.chestT=(38+Math.min(120,G.t/10))*(tier(16)?1.25:1);/* chests thin out late */let x,y,n=0;do{const a=rnd(TAU),d=rnd(220,380);x=clamp(P.x+Math.cos(a)*d,60,W-60);y=clamp(P.y+Math.sin(a)*d,60,H-60)}while(n++<20&&(blocked(x,y)||onPond(x,y,1.3)));const kr=SIMR(),kind=G.t>150&&kr<.14?'gold':G.t>200&&kr<.3?'trap':'normal';G.chests.push({x,y,t:0,kind});const CB={gold:['金宝箱现世!必出法宝','A golden chest appeared: a relic is guaranteed'],trap:['有机关的宝箱现世','A trapped chest appeared'],normal:['宝箱现世','A treasure chest appeared']};showBanner(CB[kind][0],CB[kind][1],1)}
   for(const c of G.chests){if(!c.ok){c.ok=1;c.x=clamp(c.x,60,W-60);c.y=clamp(c.y,60,H-60);if(blocked(c.x,c.y)||onPond(c.x,c.y,1.3)){outer:for(let r=24;r<=240;r+=24)for(let k=0;k<12;k++){const a=k/12*TAU,x=clamp(c.x+Math.cos(a)*r,60,W-60),y=clamp(c.y+Math.sin(a)*r,60,H-60);if(!blocked(x,y)&&!onPond(x,y,1.3)){c.x=x;c.y=y;break outer}}}}
     c.t+=dt;if(P.down<=0&&hyp(c.x-P.x,c.y-P.y)<34){c.dead=1;const gold=c.kind==='gold',trap=c.kind==='trap';
     for(let i=0;i<10;i++){const a=i/10*TAU;G.gems.push({x:c.x+Math.cos(a)*18,y:c.y+Math.sin(a)*18,v:3,big:1})}
@@ -269,6 +269,7 @@ function dmgP(n,fx,fy,src){
   if(typeof heroMitigate==='function'){n=heroMitigate(n);if(n<=.3){P.inv=.15;return}}
   if(P.vajra>0){const vs=G.spells.find(x=>x.id==='vajra');const st=vs?stat(vs):{m:1,size:1};G.skillBlocked=(G.skillBlocked||0)+n*.7;if(vs)vs.blocked=(vs.blocked||0)+n*.7;n*=.3;near(P.x,P.y,50*st.size,e=>{if(e.type==='statue')return;const dx=e.x-P.x,dy=e.y-P.y,d=hyp(dx,dy)||1;if(d<50*st.size+e.r){hit(e,14*st.m,vs,false,'#ffe9a0',dx/d*220,dy/d*220);e.goldT=.35;if(vs)vs.refl=(vs.refl||0)+1}});if(vs&&nd(vs,'life'))heal(2*nd(vs,'life'),vs);ring(P.x,P.y,40,'#ffe9a0')}
   if(typeof onHurtX==='function'){n=onHurtX(n,src,fx,fy);if(n<=0)return}
+  if(tier(15))n*=1.1;
   {const dm=Math.max(.4,P.def);if(dm<1)G.mitigated=(G.mitigated||0)+n*(1-dm);else G.vulnerable=(G.vulnerable||0)+n*(dm-1);n*=dm}P.hp-=n;P.inv=.4;G.dmgTaken+=n; // mitigation caps at 60%
   G.dmgBy=G.dmgBy||{};{const k=(src||['敌人','enemy']).join('|');G.dmgBy[k]=(G.dmgBy[k]||0)+n}
   {const r=P.hp/P.maxHp;G.minHp=Math.min(G.minHp===undefined?1:G.minHp,Math.max(0,r));if(r<.2&&!G._nd){G._nd=1;G.nearDeath=(G.nearDeath||0)+1}}
@@ -684,14 +685,14 @@ const diff=t=>Math.min(24,(1+t/120)*(t>240?1+(t-240)/220:1)); // enemy HP: steep
 const DOOM_T=600;const doomDmg=t=>(t>DOOM_T?1+(t-DOOM_T)/500:1)*(t>1800?1+(t-1800)/300:1); // +12%/min after 10 min, steeper after 30: a good player goes much longer, nobody goes forever
 const dodgeDmg=t=>(1+t/170)*doomDmg(t); // arrows, bombs, charges and ground attacks keep scaling — they can all be dodged or parried
 /* healing tapers with run time: full for the first 5 minutes, 65% at 10, 40% at 15, floor 30% — so late runs cannot be out-healed */
-const healMul=t=>t<240?1:Math.max(.25,1-(t-240)/1000);
+const healMul=t=>(t<240?1:Math.max(.25,1-(t-240)/1000))*(tier(13)?.8:1);
 function spawnEnemy(type,x,y,mul=1,elite){
   const b=ETYPES[type],t=G.t,sc=diff(t)*(tier(1)?1.15:1);
   const el=elite||(t>50&&type!=='assassin'&&SIMR()<Math.min(.22,.06+t/3600)*(tier(2)?1.8:1)*((G.ev&&G.ev.elite)||1)*(G.curse.elite||1)*(G.dir?G.dir.elite:1));
-  let affix=null;const afT=tier(4)?120:300;if(t>afT&&SIMR()<Math.min(.35,(t-afT)/1500))affix=pick(['swift','explode','armor']);
+  let affix=null;const afT=tier(18)?60:tier(4)?120:300;if(t>afT&&SIMR()<Math.min(.35,(t-afT)/1500))affix=pick(['swift','explode','armor']);
   let role=null;if(type==='bandit'&&t>90&&SIMR()<.22)role='charger';if(type==='archer'&&t>200&&SIMR()<.3*(G.dir?G.dir.heal:1))role='shaman';
-  const hp=b.hp*sc*mul*(el?5:1)*(affix==='armor'?1.8:1)*D().hp*(G.dir?G.dir.hp:1);
-  G.en.push({x,y,type,hp,maxHp:hp,t0:t,spd:b.spd*rnd(.92,1.08)*(el?.9:1)*(affix==='swift'?1.5:1)*Math.min(1.35,1+Math.max(0,t-240)/900)*(G.curse.spd||1),dmg:b.dmg*Math.min(8,(1+t/300)*(t>240?1+(t-240)/420:1))*doomDmg(t)*(el?1.4:1)*D().dmg*(G.curse.edmg||1)*(G.dir?G.dir.dmg:1),r:b.r*(el?1.4:1),xp:b.xp*(1+t/260)|0||1,fr:rnd(1),vx:0,vy:0,shoot:b.shoot&&role!=='shaman',st:rnd(1,3),elite:el,sc:(el?1.5:1)*(affix==='armor'?1.15:1)*(role==='charger'?1.12:1),kx:0,ky:0,affix,role,ct:rnd(2,4)});
+  const hp=b.hp*sc*mul*(el?5:1)*(tier(12)&&el?1.2:1)*(tier(19)?1.2:1)*(affix==='armor'?1.8:1)*D().hp*(G.dir?G.dir.hp:1);
+  G.en.push({x,y,type,hp,maxHp:hp,t0:t,spd:b.spd*rnd(.92,1.08)*(el?.9:1)*(affix==='swift'?1.5:1)*(tier(11)?1.12:1)*Math.min(1.35,1+Math.max(0,t-240)/900)*(G.curse.spd||1),dmg:b.dmg*Math.min(8,(1+t/300)*(t>240?1+(t-240)/420:1))*doomDmg(t)*(el?1.4:1)*D().dmg*(G.curse.edmg||1)*(G.dir?G.dir.dmg:1),r:b.r*(el?1.4:1),xp:b.xp*(1+t/260)|0||1,fr:rnd(1),vx:0,vy:0,shoot:b.shoot&&role!=='shaman',st:rnd(1,3),elite:el,sc:(el?1.5:1)*(affix==='armor'?1.15:1)*(role==='charger'?1.12:1),kx:0,ky:0,affix,role,ct:rnd(2,4)});
   const ne=G.en[G.en.length-1];if(b.mesh){ne.mesh=b.mesh;ne.sc=(ne.sc||1)*(b.sc||1);ne.tintv=b.tint;ne.ghost=b.ghost;ne.bomb=b.bomb;ne.shield=type==='brute'}
   if(el)G.elites++;
 }
@@ -705,7 +706,7 @@ function edgePoint(){
 function spawnTick(dt){
   const t=G.t;
   if(G.en.length>CAP.en)return;
-  const rate=Math.min(20,1.0+t/34+Math.max(0,t-240)/36+Math.max(0,1.6*(1-t/60)))*(G.boss?.4:1)*(G.en.length>CAP.en*.75?.45:1)*(tier(9)?1.25:1)*(G.curse.spawn||1)*(BOSSRUSH?.55:1)*(G.dir?G.dir.spawn:1)*(G.shared?1+.7*arenaRemoteN():1);G.spawnA+=rate*dt;
+  const rate=Math.min(20,1.0+t/34+Math.max(0,t-240)/36+Math.max(0,1.6*(1-t/60)))*(G.boss?.4:1)*(G.en.length>CAP.en*.75?.45:1)*(tier(9)?1.25:1)*(tier(14)?1.15:1)*(G.curse.spawn||1)*(BOSSRUSH?.55:1)*(G.dir?G.dir.spawn:1)*(G.shared?1+.7*arenaRemoteN():1);G.spawnA+=rate*dt;
   while(G.spawnA>=1){G.spawnA--;
     const r=rnd(),o=edgePoint();
     let ty='assassin';
@@ -734,8 +735,8 @@ function spawnTick(dt){
   if(G.ambush>0){G.ambush-=dt;if(G.ambush<=0){const P=G.P;G.chests.push({x:clamp(P.x+rnd(-60,60),60,W-60),y:clamp(P.y+rnd(-60,60),60,H-60),t:0});showBanner('伏击已破','Ambush survived: a chest drops'+(RIVAL_ON?' · +'+PK_EVENTS.ambush:''),1.2);G.score+=PK_EVENTS.ambush;(G.sc=G.sc||{kill:0,big:0,ev:0}).ev+=PK_EVENTS.ambush;if(typeof SFX!=='undefined')SFX.complete()}}
   if(G.warlordNow){G.warlordNow=0;G.warlordN++;const o=edgePoint();spawnEnemy('giant',o.x,o.y,9+G.warlordN*3,true);const e=G.en[G.en.length-1];e.warlord=1;e.sc=2;e.r=16;e.name='铁甲统领';showBanner('铁甲统领','The Iron Warlord arrives',1.6)}
   if(!BOSSRUSH&&t>=G.warlordN*240+120&&!G.boss){if(tier(7)){const o2=edgePoint();spawnEnemy('giant',o2.x,o2.y,9+G.warlordN*3,true);const e2=G.en[G.en.length-1];e2.warlord=1;e2.sc=2;e2.r=16;e2.name='铁甲统领'}G.warlordN++;const o=edgePoint();spawnEnemy('giant',o.x,o.y,9+G.warlordN*3,true);const e=G.en[G.en.length-1];e.warlord=1;e.sc=2;e.r=16;e.spd*=1.15+G.warlordN*.05;e.hp=e.maxHp=Math.max(e.hp,powerHp(9));e.name='铁甲统领';showBanner('铁甲统领','The Iron Warlord arrives',1.6);trauma(.4);if(typeof SFX!=='undefined')SFX.bossIn()}
-  if(t>=bossDue()&&!G.boss){const n=G.bossN,V=BOSSES[n%BOSSES.length],o=edgePoint(),k=1+n*1.25,hp=Math.round(Math.max((BOSSRUSH?5000:9000)*k*(1+t/600)*D().hp*(tier(10)?1.3:1)*(duelLen()&&t<BOSS_AT?.5:1),powerHp(BOSSRUSH?20:duelLen()&&t<BOSS_AT?18:26)));
-    G.boss={x:o.x,y:o.y,t0:G.t,type:'boss',hp,maxHp:hp,spd:24+n*3,dmg:22*(1+n*.35)*D().dmg*(tier(6)?1.25:1)*Math.pow(G.bossK||1,.22)*(G.curse.bossDmg||1),r:20,xp:0,fr:0,vx:0,vy:0,kx:0,ky:0,n,name:V[0],en:V[1],tint:V[2],rate:Math.max(.55,1-n*.12)};G.en.push(G.boss);G.bossT=3;G.bossSpawned=1;
+  if(t>=bossDue()&&!G.boss){const n=G.bossN,V=BOSSES[n%BOSSES.length],o=edgePoint(),k=1+n*1.25,hp=Math.round(Math.max((BOSSRUSH?5000:9000)*k*(1+t/600)*D().hp*(tier(10)?1.3:1)*(duelLen()&&t<BOSS_AT?.5:1),powerHp(BOSSRUSH?20:duelLen()&&t<BOSS_AT?18:26)))*(tier(20)?1.25:1);
+    G.boss={x:o.x,y:o.y,t0:G.t,type:'boss',hp,maxHp:hp,spd:24+n*3,dmg:22*(1+n*.35)*D().dmg*(tier(6)?1.25:1)*Math.pow(G.bossK||1,.22)*(G.curse.bossDmg||1),r:20,xp:0,fr:0,vx:0,vy:0,kx:0,ky:0,n,name:V[0],en:V[1],tint:V[2],rate:Math.max(.55,1-n*.12)*(tier(17)?.87:1)};G.en.push(G.boss);G.bossT=3;G.bossSpawned=1;
     const cyc=Math.floor(n/BOSSES.length)+1;if(cyc>=2){for(let i=0;i<Math.min(4,cyc);i++){const o2=edgePoint();spawnEnemy(pick(['giant','brute','archer']),o2.x,o2.y,3+cyc,true);const e2=G.en[G.en.length-1];e2.escort=1;e2.sc=1.4;e2.hp=e2.maxHp=Math.max(e2.hp,powerHp(3))}} // later cycles: the boss brings elite escorts
     showBanner(V[0]+'现身',V[1]+' emerges',2.6);trauma(.6);G.slow=Math.max(G.slow,.5);if(!G.auto&&typeof bossIntro==='function')bossIntro(V[0],V[1],n);if(!G.auto){$('#bossbar').hidden=false;$('#bossname').textContent=(cyc>=2?L(`第${['','一','二','三','四','五','六','七','八','九'][cyc]||cyc}轮 ${n%BOSSES.length+1}/${BOSSES.length} · `,`Cycle ${cyc} · ${n%BOSSES.length+1}/${BOSSES.length} · `):'')+L(V[0],V[1])}if(typeof SFX!=='undefined')SFX.bossIn();
   }

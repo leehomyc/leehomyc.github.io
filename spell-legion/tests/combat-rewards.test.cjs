@@ -95,6 +95,14 @@ test('one boss on the highest available Ascension tier unlocks and selects the n
   const abandoned=setup();settlement(abandoned.run);abandoned.run('G.bossSlain=1;G.abandoned=true;settleRunRewards()');
   assert.equal(abandoned.run('SAVE.asura.max'),0);
 });
+test('twenty Ascension tiers and map milestones stay connected to real gameplay rules',()=>{
+  const {run}=setup();
+  assert.equal(run('ASURA.length'),20);
+  assert.deepEqual(Array.from(run('Object.values(MAPS).filter(m=>m.tierNeed).map(m=>m.tierNeed)')),[2,5,10,15]);
+  const normal=run('healMul(0)');run('ASURA_T=13');near(run('healMul(0)'),normal*.8);
+  run('ASURA_T=0;spawnEnemy("assassin",100,100)');const base=run('G.en.at(-1).hp');
+  run('ASURA_T=19;spawnEnemy("assassin",100,100)');assert.ok(run('G.en.at(-1).hp')>base*1.3);
+});
 test('repeated end rendering invokes extension rewards only once',()=>{
   const {run}=setup();run("endCalls=0;xOn('end',()=>endCalls++);showEnd(false);showEnd(false)");assert.equal(run('endCalls'),1);
 });

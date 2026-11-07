@@ -22,9 +22,9 @@ const BOUNTIES=[
 function dirOn(){if(typeof window!=='undefined'&&window.__nodir)return false;return !!G&&!G.auto&&!G.over&&!RIVAL_ON&&!G.room&&!(typeof DAILY!=='undefined'&&DAILY)}
 function dirInit(){const skill=(typeof SAVE!=='undefined'&&SAVE.skill)||0,solo=SAVE.mode==='solo',base=(solo?1.15:.9)+skill*.45;G.dir={spawn:1,hp:1,dmg:1,elite:1,heal:1,counter:null,counterP:0,mood:'build',moodT:35,I:base,base,base0:base,lowHp:1,lastLow:0,peaks:0,champs:0,bounties:0,bountiesTried:0,hist:[]};G.dirStat={dmgRate:0,kpm:0,actShare:0,parries:0,elitesAlive:0,comboNow:0};G.dirT=0}
 function dirMeasure(){const P=G.P,D=G.dir,S=G.dirStat,t=G.t;
-  const r=P.hp/P.maxHp;D.hist.push({t,r,taken:G.dmgTaken,kills:G.kills,dodges:G.dodges||0});while(D.hist.length&&D.hist[0].t<t-60)D.hist.shift();
+  const r=P.hp/P.maxHp,casts=G.spells.filter(s=>!SPELLS[s.id]?.auto).reduce((n,s)=>n+(s.casts||0),0);D.hist.push({t,r,taken:G.dmgTaken,kills:G.kills,dodges:G.dodges||0,casts});while(D.hist.length&&D.hist[0].t<t-60)D.hist.shift();
   const h0=D.hist[0],h30=D.hist.find(h=>h.t>=t-30)||h0;D.lowHp=Math.min(...D.hist.map(h=>h.r));
-  S.dmgRate=(G.dmgTaken-h30.taken)/Math.max(1,t-h30.t)/P.maxHp;S.kpm=(G.kills-h0.kills)/Math.max(1,t-h0.t)*60;S.parries=(G.dodges||0)-h0.dodges;
+  S.dmgRate=(G.dmgTaken-h30.taken)/Math.max(1,t-h30.t)/P.maxHp;S.kpm=(G.kills-h0.kills)/Math.max(1,t-h0.t)*60;S.parries=(G.dodges||0)-h0.dodges;S.casts30=casts-(h30.casts||0);
   const tot=G.spells.reduce((a,s)=>a+s.dmg,0)||1;S.actShare=G.spells.filter(s=>!SPELLS[s.id].auto).reduce((a,s)=>a+s.dmg,0)/tot;S.elitesAlive=G.en.filter(e=>!e.dead&&e.elite).length;S.comboNow=G.combo;
   if(r<.55)D.lastLow=t;
   D.posHist=(D.posHist||[]).concat([{t,x:P.x,y:P.y}]).filter(h=>h.t>=t-8);const p0=D.posHist[0];S.still=p0?hyp(P.x-p0.x,P.y-p0.y)<40&&(t-p0.t)>=6:false;
@@ -58,11 +58,14 @@ function directorTick(dt){if(!dirOn())return;if(!G.dir)dirInit();const D=G.dir,t
     if(D.pushed===10&&!G.bounty&&rnd()<.7)dirBounty();}
   else { // relief: a breather with something to pick up, then rebuild
     D.I=Math.max(D.base*.8,D.I*.9);D.counterP=0;if(D.moodT<=0){D.mood='build';D.moodT=30+rnd(25)}}
-  if(D.lowHp<.2)D.I=Math.min(D.I,D.base*.85); // mercy, silent: a near-death buys a softer half minute
+  const solo=SAVE.mode==='solo',idle=solo&&S.still&&t>30,noSkills=solo&&t>60&&S.casts30===0;
+  if(D.lowHp<.2&&!(idle||noSkills))D.I=Math.min(D.I,D.base*.85); // active players still get a short near-death breather
   const early=clamp((t-120)/360,0,1);D.I=clamp(D.I,D.base*.75,D.base*(1+1.6*early)); // the first minutes belong to the build: the director only starts leaning in after 2 min and reaches full reach at 8
   if(t<120)D.I=Math.min(D.I,SAVE.mode==='solo'?1.2:1);
-  if(S.still&&t>150){D.counter=t>210&&rnd()<.4?'bomber':'archer';D.counterP=Math.max(D.counterP,.5)} // a player who stands still gets shot at: archers and bombers do full damage at range
+  if(idle||S.still&&t>150){D.counter=t>210&&rnd()<.4?'bomber':'archer';D.counterP=Math.max(D.counterP,idle?.65:.5)} // ranged pressure makes movement and dash matter
   D.spawn=D.mood==='pressure'?Math.min(1.6,D.I):D.mood==='relief'?.7:Math.min(1.15,D.I);D.hp=clamp(Math.pow(D.I,.4),.8,1.35);D.dmg=clamp(Math.pow(D.I,.45),.8+(SAVE.mode==='solo'?.12:0),1+.5*early+(SAVE.mode==='solo'?.12:0));D.elite=clamp(D.I,.8,1+1.2*early+(SAVE.mode==='solo'?.15:0));D.heal=D.mood==='pressure'?1.6:1;
+  if(idle)D.spawn*=1.2;
+  if(noSkills){D.spawn*=1.12;D.dmg*=1.08}
 }
 /* across runs: a veteran's director starts hotter; a player who keeps dying gets a gentler start */
 function dirRunEnd(){if(!G||!G.dir||typeof SAVE==='undefined'||RIVAL_ON||G.room)return;const mins=G.t/60,died=!!G.killer;let s=SAVE.skill||0;const target=clamp((mins-6)/24+(G.bossSlain*.04)-(died&&mins<8?.15:0),0,1);s+=(target-s)*.35;SAVE.skill=clamp(s,0,1);SAVE.dirPeaks=(SAVE.dirPeaks||0)+(G.dir.peaks||0)}

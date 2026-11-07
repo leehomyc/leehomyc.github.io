@@ -1255,3 +1255,8 @@ html[lang=ja] #menu .vname.vzh{font-size:clamp(30px,min(6vw,8vh),64px);white-spa
 
 #hero #endlessbest{justify-self:end;color:#ffd27a;font-size:13px;font-weight:800;font-variant-numeric:tabular-nums}
 #hero #endlessbest[hidden]{display:none}
+#asura .asura-maps-label{color:var(--brass);font-size:12px;letter-spacing:.08em}
+#hero #asura #maps{display:flex;gap:7px;flex-wrap:wrap;width:100%;margin:0}
+#hero #asura #maps .mapb{flex:1 1 145px;min-width:120px;padding:8px 10px}
+#hero #asura #maps .mapb small{display:block!important;max-width:none;white-space:normal}
+@media(max-width:760px){#hero #asura #maps{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}#hero #asura #maps .mapb{min-width:0}}

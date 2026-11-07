@@ -194,9 +194,9 @@ function renderWeapons(){
   });
 }
 function renderAsura(){
-  const el=$('#asura'),bestEl=$('#endlessbest');if(!el)return;const on=SAVE.mode==='solo';el.hidden=!on;
+  const el=$('#asura'),bestEl=$('#endlessbest'),maps=$('#maps');if(!el)return;const on=SAVE.mode==='solo';el.hidden=!on;
   if(bestEl){bestEl.hidden=!on;if(on){const score=SAVE.lb?.bestRun?.score;bestEl.textContent=`${L('最高分','Personal best')} ${Number.isFinite(score)?Math.round(score).toLocaleString('en-US'):'—'}`}}
-  if(!on)return;
+  if(!on){if(maps&&maps.parentElement===el)$('#hero .hopts').appendChild(maps);return}
   const A=SAVE.asura,max=Math.min(A.max||0,ASURA.length),sel=Math.min(A.sel||0,max);
   A.sel=sel;const oldScroll=el.querySelector('.asura-rail')?.scrollLeft;
   el.replaceChildren();
@@ -206,12 +206,15 @@ function renderAsura(){
   const rail=document.createElement('div');rail.className='asura-rail';rail.setAttribute('role','group');rail.setAttribute('aria-label',L('修罗难度','Ascension tiers'));
   for(let i=0;i<=ASURA.length;i++){
     const locked=i>max,selected=i===sel,rule=i?L(ASURA[i-1].zh,ASURA[i-1].en):L('普通规则','Base rules');
+    const mapReward=Object.values(MAPS).find(m=>m.tierNeed===i);
     const card=document.createElement('button');card.type='button';card.className='asura-card'+(selected?' on':'')+(locked?' locked':'');card.disabled=locked;
     card.setAttribute('aria-pressed',String(selected));card.title=rule;
-    card.innerHTML=`<span class="tier">${locked?'🔒 ':''}${i?L(`修罗 ${i} 层`,`Tier ${i}`):L('普通','Base')}</span><b>${rule}</b><small>${i?L(`金币 +${i*15}%`,`+${i*15}% gold`):L('金币 +0%','+0% gold')}</small>`;
+    card.innerHTML=`<span class="tier">${locked?'🔒 ':''}${i?L(`修罗 ${i} 层`,`Tier ${i}`):L('普通','Base')}</span><b>${rule}</b><small>${i?L(`金币 +${i*15}%`,`+${i*15}% gold`):L('金币 +0%','+0% gold')}</small>${mapReward?`<small class="mapreward">🗺 ${L('解锁','Unlock')} ${LL(mapReward)}</small>`:''}`;
     card.onclick=()=>{A.sel=i;persist();renderTitle();SFX.pick(1)};rail.appendChild(card);
   }
   el.appendChild(rail);rail.scrollLeft=oldScroll===undefined?Math.max(0,sel*168-120):oldScroll;
+  const mapsLabel=document.createElement('strong');mapsLabel.className='asura-maps-label';mapsLabel.textContent=L('地图','Maps');el.appendChild(mapsLabel);
+  if(maps)el.appendChild(maps);
   const hint=document.createElement('small');hint.className='asura-hint';
   hint.textContent=max<ASURA.length?L('在已解锁的最高层击败一位首领，即可解锁下一层','Slay one boss on your highest unlocked tier to open the next'):
     L('所有修罗层已解锁','All Ascension tiers unlocked');
@@ -234,7 +237,7 @@ function renderTitle(){
   renderAsura();if(typeof renderRoom==='function')renderRoom();
   syncQuality();
   DIFFID='normal';document.querySelectorAll('#diff button').forEach(b=>{b.classList.toggle('on',b.dataset.d===DIFFID);b.disabled=SAVE.mode==='daily'});$('#diff').classList.toggle('locked',SAVE.mode==='daily');
-  const mp=$('#maps');mp.textContent='';for(const k in MAPS){const M=MAPS[k],locked=M.need&&!SAVE.ach[M.need]&&!((SAVE.wins||0)>=(M.need==='boss2'?3:8)),b=document.createElement('button');b.type='button';b.className='mapb'+(k===MAPID?' on':'')+(locked?' locked':'');b.disabled=locked;const needN=M.need==='boss2'?2:4,totN=M.need==='boss2'?3:8;b.innerHTML=`<b>${LL(M)}</b><small>${locked?`🔒 ${SAVE.wins||0}/${totN}`:''}</small>`;if(locked)b.title=L(`一局斩 ${needN} 位首领解锁 · 累计 ${SAVE.wins||0}/${totN}`,`Slay ${needN} bosses in a run to unlock · ${SAVE.wins||0}/${totN}`);b.onclick=()=>{try{localStorage.setItem('sl_map',k)}catch(_){}b.innerHTML=`<b>${L('载入中…','Loading…')}</b>`;setTimeout(()=>location.reload(),60)};mp.appendChild(b)}
+  const mp=$('#maps');mp.textContent='';for(const k in MAPS){const M=MAPS[k],legacy=M.need&&(SAVE.ach[M.need]||(SAVE.wins||0)>=(M.need==='boss2'?3:8)),locked=!!M.tierNeed&&(SAVE.asura.max||0)<M.tierNeed&&!legacy,b=document.createElement('button');b.type='button';b.className='mapb'+(k===MAPID?' on':'')+(locked?' locked':'');b.disabled=locked;b.innerHTML=`<b>${LL(M)}</b><small>${locked?`🔒 ${L(`修罗 ${M.tierNeed} 层`,`Tier ${M.tierNeed}`)}`:''}</small>`;if(locked)b.title=L(`修罗 ${M.tierNeed} 层解锁`,`Unlock at Ascension ${M.tierNeed}`);b.onclick=()=>{try{localStorage.setItem('sl_map',k)}catch(_){}b.innerHTML=`<b>${L('载入中…','Loading…')}</b>`;setTimeout(()=>location.reload(),60)};mp.appendChild(b)}
   const al=$('#ach');al.textContent='';const done=ACH.filter(a=>SAVE.ach[a.id]).length;$('#achcount').textContent=`${done}/${ACH.length}`;
   ACH.forEach(a=>{const d=document.createElement('div');d.className='achi'+(SAVE.ach[a.id]?' done':'');d.innerHTML=`<span class="tick">${SAVE.ach[a.id]?'✓':'○'}</span><b>${LL(a)}</b><span>${L(a.d,a.de)}</span><em>+${a.gold} ${L('金','gold')}</em>`;al.appendChild(d)});
 }
