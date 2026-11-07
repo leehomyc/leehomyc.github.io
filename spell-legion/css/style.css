@@ -123,9 +123,9 @@ kbd{font:700 13px var(--ui);border:1px solid var(--dim);padding:0 5px;border-rad
 .pbox .go{justify-self:stretch}
 .pbox p{margin:0;color:var(--dim);font-size:13px;line-height:1.5}
 #end{align-items:center;justify-content:center}
-.endb{display:grid;gap:12px;width:min(100%,clamp(480px,46vw,720px))}
+.endb{display:grid;gap:12px;width:min(100%,clamp(480px,46vw,720px));min-width:0;margin-inline:auto}
 @media (min-width:1400px){.endb{font-size:15px}.stat b{font-size:26px}.endb .dmg{font-size:14px}.killed{font-size:14px}}
-.endb h2{margin:0;font-family:var(--brush);font-weight:400;font-size:clamp(42px,8vw,68px);line-height:1}
+.endb h2{margin:0;font-family:var(--brush);font-weight:400;font-size:clamp(42px,8vw,68px);line-height:1;text-align:center}
 .endb .sub{margin:0;color:var(--brass);font-weight:700}
 .stat{display:flex;gap:18px;font-variant-numeric:tabular-nums;flex-wrap:wrap}
 .stat b{display:block;font-size:22px}.stat b.gold{color:#ffd27a}
@@ -784,9 +784,8 @@ body.touchhud #pause .pbox>p{display:none}
 /* ---- results: four big numbers, rewards, one tip; everything else folds ---- */
 #end .stat.main{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
 #end .stat.main>div{padding:12px 8px;text-align:center;display:grid;justify-items:center;gap:2px}#end .stat.main>div b{font-size:26px;font-family:var(--cute)}#end .stat.main>div span{font-size:11px}#end .stat.main .ic{width:22px;height:22px}
-#end .endmore{margin-top:8px;border:1px solid #6b523044;border-radius:14px;padding:0 10px}
-#end .endmore summary{cursor:pointer;list-style:none;padding:9px 2px;font-size:13px;color:var(--dim);display:flex;align-items:center;gap:6px}#end .endmore summary::-webkit-details-marker{display:none}
-#end .endmore summary i{display:inline-block;width:8px;height:8px;border-right:2px solid var(--dim);border-bottom:2px solid var(--dim);transform:rotate(45deg);margin-left:auto;transition:transform .2s}#end .endmore[open] summary i{transform:rotate(-135deg)}
+#end .endmore{margin-top:8px;border:1px solid #6b523044;border-radius:14px;padding:0 10px 10px;min-width:0}
+#end .endmore h3{margin:0;padding:10px 2px;font-size:14px;color:var(--bone);text-align:center}
 #end .endmore .stat.more{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin:4px 0 10px}#end .endmore .stat.more>div{padding:8px;display:grid;gap:1px}#end .endmore .stat.more>div b{font-size:16px}#end .endmore .stat.more>div span{font-size:10.5px}
 #end .btns{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:12px}#end .btns .go.big{flex:1 1 100%;text-align:center;justify-self:stretch}#end .btns .go.sm{font-size:14px;padding:8px 16px;flex:1 1 auto}
 @media (max-width:640px){#end .stat.main{gap:6px}#end .stat.main>div b{font-size:22px}#end .endmore .stat.more{grid-template-columns:repeat(2,minmax(0,1fr))}}
@@ -907,7 +906,7 @@ body.touchhud #pause .pbox>p{display:none}
   #menu .tabbar button .ic.sm{width:24px;height:24px;margin:0}#menu .tabbar button b{font-size:11px}
 }
 /* phone: the menu column always spans the screen (a flex item otherwise shrinks to its content and hugs the left) */
-@media (max-width:760px){#menu .tt{margin-left:0;margin-right:0;width:100%}#menu .ttb{flex:1 1 auto;width:100%;max-width:none}}
+@media (max-width:760px){#menu{width:100%;min-width:0;box-sizing:border-box}#menu .tt{margin-inline:auto;width:100%;min-width:0;box-sizing:border-box}#menu .ttb{flex:1 1 auto;width:100%;max-width:none;min-width:0}}
 @media (min-width:641px) and (max-width:760px){#menu .tt{justify-content:center;padding-right:16px;padding-left:16px}#menu .ttb{flex:0 1 480px;width:auto;max-width:480px}}
 
 /* phone: the scoreboard sits under the HP/qi bars on the left, clear of the pause/sound buttons and the minimap */
@@ -1211,7 +1210,7 @@ html[lang=ko]{--brush:"Song Myung","AppleMyungjo","Batang","Noto Serif KR",serif
 /* Keep the rank itself visible in the four-part profile strip on phones. */
 @media(max-width:640px){#prog .pr.lad{display:grid;grid-template-columns:auto 1fr;gap:2px 4px}#prog .pr.lad b{display:block;font-size:11px}#prog .pr.lad small{grid-column:2;font-size:10px}#prog .pr.lad .ic{grid-row:1/3;width:17px;height:17px}}
 .result-rank{text-align:center;color:var(--brass);font-weight:800;margin:8px 0 12px}
-.roomstandings{margin:8px 0}.roomstandings summary{cursor:pointer;color:var(--dim)}
+.roomstandings{margin:8px 0}.roomstandings h4{margin:0 0 8px;color:var(--dim);font-size:14px;font-weight:700;text-align:center}
 /* Shared menu and pause settings. */
 .qualityrow{display:flex;gap:6px;align-items:center}
 .qualityrow button{border-radius:8px;background:#2a1822;border:1px solid #6b5230;color:var(--bone);font:700 12px var(--ui);padding:8px 13px;cursor:pointer}
