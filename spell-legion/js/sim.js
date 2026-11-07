@@ -367,7 +367,7 @@ function castSkill(i){
   const s=G.spells[i];if(!s)return false;const sp=SPELLS[s.id],P=G.P;
   if(sp.auto)return false;
   const cost=skillCost(s);
-  if(s.cd>0||P.mana<cost){if(!G.auto){G.fx.push({k:'deny',i,t:.3});if(typeof SFX!=='undefined')SFX.deny()}return false}
+  if(s.cd>0||P.mana<cost){if(!G.auto){G.fx.push({k:'deny',i,t:.3});if(typeof SFX!=='undefined')SFX.deny();if(!G.denyT||G.t-G.denyT>.6){G.denyT=G.t;G.floats.push({x:P.x,y:P.y-30,t:.8,v:s.cd>0?L(`冷却 ${Math.ceil(s.cd)}s`,`Cooldown ${Math.ceil(s.cd)}s`):L(`内力差 ${Math.ceil(cost-P.mana)}`,`${Math.ceil(cost-P.mana)} qi short`),c:s.cd>0?'#c9c2d6':'#6fd3e8'})}}return false}
   const st=stat(s);
   P.mana-=cost;s.cd=Math.max(CD_FLOOR[s.id]||0,sp.cd*st.cdM/P.haste);s.casts++;P.cast=1;if(P.parry>0){P.parry=0;P.parryBoost=1.6;later(1.2,()=>{P.parryBoost=1});ring(P.x,P.y,60,'#ffd27a')}
   if(s.id==='palm'){
@@ -614,7 +614,10 @@ function buildCards(q){
     const card={g:m.g,c:m.col,skill:k,n:LL(m),sub:L(`${m.cost} 内力 · ${m.cd}s`,`${m.cost} qi · ${m.cd}s`),fx:L(m.d,m.de),fxEn:'',cat:SKILL_CAT[k],isNew:1,kind:'new',a(){G.spells.push(mkSpell(k));taken(SKILL_CAT[k],2)}};pool.push(card,card)});
   G.spells.forEach(s=>(TREES[s.id]||[]).forEach((n,i)=>{if(isTrait(n)&&nodeOpen(s,i))pool.push(nodeCard(s,i,rollQ()))}));
   const P=G.P,perkNow={锋锐:()=>L('伤害','damage')+` ×${(P.dmg*(1+P.dmgBonus)).toFixed(2)}`,金钟罩:()=>L('减伤','damage taken')+` ${Math.round((1-P.def)*100)}%`,轻身:()=>L('移速','speed')+` ×${P.spd.toFixed(2)}`,内息:()=>L('内力','qi')+` ${P.maxMana} · +${P.regen.toFixed(1)}/s`,生息:()=>L('生命','HP')+` ${P.maxHp}`,摄物:()=>L('拾取','pickup')+` ×${P.mag.toFixed(2)}`,疾风:()=>L('冷却','cooldown')+` ×${(1/P.haste).toFixed(2)}`,致命:()=>L('暴击','crit')+` ${Math.min(100,Math.round(P.crit*100))}%`+(P.crit>1?L(` · 暴伤 ×${(2+(P.crit-1)*2).toFixed(1)}`,` · crit dmg ×${(2+(P.crit-1)*2).toFixed(1)}`):'')};
-  PERKS.forEach(p=>{if(p.zh==='金钟罩'&&G.P.def<=.42)return;const q=rollQ(),times=(q.k==='common'?1:q.k==='rare'?2:q.k==='epic'?3:4)*(p.zh==='致命'&&q.k==='legendary'?.75:1)|0||1;pool.push({g:p.g,c:'#efe4cd',n:LL(p)+(times>1?` ×${times}`:''),sub:'',fx:L(p.d,p.de)+(times>1?` ×${times}`:''),fxEn:L('现在:','Now: ')+perkNow[p.zh](),q,cat:PERK_CAT[p.zh]||'passive',kind:'passive',a(){for(let i=0;i<times;i++)p.a(G.P);taken(PERK_CAT[p.zh]||'passive',times)}})});
+  const pc=v=>Math.round(v*100)+'%',perkVal={锋锐:Q=>[L('伤害','Damage'),pc(Q.dmg*(1+(Q.dmgBonus||0)))],金钟罩:Q=>[L('减伤','Damage cut'),Math.round((1-Q.def)*100)+'%'],轻身:Q=>[L('移速','Speed'),pc(Q.spd)],内息:Q=>[L('内力上限','Max qi'),Q.maxMana],生息:Q=>[L('生命上限','Max HP'),Q.maxHp],摄物:Q=>[L('拾取范围','Pickup range'),pc(Q.mag)],疾风:Q=>[L('冷却','Cooldown'),pc(1/Q.haste)],致命:Q=>[L('暴击率','Crit'),Math.min(100,Math.round(Q.crit*100))+'%']};
+  PERKS.forEach(p=>{if(p.zh==='金钟罩'&&G.P.def<=.42)return;const q=rollQ(),times=(q.k==='common'?1:q.k==='rare'?2:q.k==='epic'?3:4)*(p.zh==='致命'&&q.k==='legendary'?.75:1)|0||1;
+    const Q1=Object.assign({},G.P);for(let i=0;i<times;i++)p.a(Q1);const v0=perkVal[p.zh](G.P),v1=perkVal[p.zh](Q1);
+    pool.push({g:p.g,c:'#efe4cd',n:LL(p),sub:times>1?L(`${times} 层`,`${times} stacks`):'',fx:`${v0[0]} ${v0[1]} → ${v1[1]}`,fxEn:L(p.d,p.de).replace(/\(.*\)/,''),q,cat:PERK_CAT[p.zh]||'passive',kind:'passive',a(){for(let i=0;i<times;i++)p.a(G.P);taken(PERK_CAT[p.zh]||'passive',times)}})});
   const out=[];const used=new Set(q.exclude||[]);
   const isNew=pool.filter(p=>p.isNew);
   if(isNew.length&&[3,6,10].includes(G.lv)){const opts=isNew.filter((c,i,a)=>a.findIndex(o=>o.n===c.n)===i).sort(()=>SIMR()-.5).slice(0,2);opts.forEach(nc=>{out.push(nc);used.add(nc.n)})}

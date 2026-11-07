@@ -1026,6 +1026,17 @@ html[lang=zh] #menu .ttb h1.entitle{display:none}
 @media (max-width:640px){#prog{grid-template-columns:minmax(0,1fr) auto auto auto;gap:5px}#prog .pr.lv>div{min-width:44px}#prog .pr.lad b{display:none}#prog .pr.lad{gap:4px}#prog .pr{padding:5px 8px}#prog .nm b{font-size:13px}#prog .pr.lv .ic,#prog .pr.lad .ic,#prog .pr.gold .ic{width:20px;height:20px}}
 @media (max-width:760px){#prog .pr.lad small{display:inline;font:800 13px var(--cute);color:#ffe9a0}}
 @media (max-width:640px){#prog .pr.lv{gap:5px}#prog .pr.lv .ic{display:none}#prog .pr.lv>div{min-width:40px}#prog .pr.lv b{font-size:13px}}
+/* cards: rarity is the border colour (common is plain); "this one" is a white ring and a lift — gold no longer means three things */
+#cards .card{border-color:#ffffff2a}
+#cards .card.rare{border-color:#6fd3e8}#cards .card.epic{border-color:#c7a4f0}#cards .card.legendary{border-color:#ffd27a}
+#cards .card:hover,#cards .card:focus-visible{outline:3px solid #fffbe8;outline-offset:4px;transform:translateY(-6px)}
+#cards .card .fx{font-variant-numeric:tabular-nums}
+
+/* skill seals: cooldown seconds / qi shortfall in the middle, one flash of light when ready */
+.seal .need{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font:800 18px var(--cute);color:#fff;text-shadow:0 2px 0 #000a,0 0 6px #000;pointer-events:none;z-index:3;font-variant-numeric:tabular-nums}
+.seal .need.qi{font-size:14px;color:#9fe3f0;background:#0b1a24d0;border-radius:999px;padding:1px 6px}
+.seal.ready{animation:sealready .45s ease-out}
+@keyframes sealready{0%{box-shadow:0 0 0 0 #fffbe8cc}100%{box-shadow:0 0 0 10px #fffbe800}}
 
 /* ---- duel lobby v2: one header line, seats, one action line ---- */
 #roompanel{gap:10px}

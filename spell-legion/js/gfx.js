@@ -26,6 +26,7 @@ const lin=h=>new T3.Color(h).convertSRGBToLinear();
 const U={uTime:{value:0}};
 let rn,scene,cam,sun,orbL,hemiL,splats=[],splatI=0,occluders=[],comp,finalPass,bloomPass,glowPts,glowN=0,DPR=1,viewK=1,camX=W/2,camZ=H/2,VW=580,VH=400;
 let ruins=null,grassMesh,gemMesh,bulletMesh,swordMesh,talisMesh,playerG,hatA,capeM,armG,crystal,feetSigil,bossG,tele,mRing,heartMesh;
+const dangerPool=[],dangerFill=[],locator={g:null,parts:[]};
 const blades=[],roofs=[],inst={},statues=[],mushes=[],ringPool=[],poolPool=[],scorch=[],flashL=[],rays=[],blueMush=[],flies=[],ghostM=[],shrineM=[];
 let scorchI=0;
 const dummy=new T3.Object3D();dummy.rotation.order='YXZ';
@@ -425,7 +426,7 @@ function sigilTex(dash){
 /* ---------- glow sprites and effect pools ---------- */
 const GMAX=PHONE?3000:7000,gPos=new Float32Array(GMAX*3),gCol=new Float32Array(GMAX*3),gSz=new Float32Array(GMAX),rgbC={};
 function rgb(h){return rgbC[h]||(rgbC[h]=(c=>[c.r,c.g,c.b])(lin(h)))}
-function glow(x,y,z,col,size,b=1){if(glowN>=GMAX)return;const c=rgb(col),i=glowN++;gPos[i*3]=x;gPos[i*3+1]=y;gPos[i*3+2]=z;gCol[i*3]=c[0]*b;gCol[i*3+1]=c[1]*b;gCol[i*3+2]=c[2]*b;gSz[i]=size}
+function glow(x,y,z,col,size,b=1){if(glowN>=GMAX)return;if(G&&G.P&&!G.auto){const dx=x-G.P.x,dz=z-G.P.y,d2=dx*dx+dz*dz;if(d2<2500)b*=.45+.55*d2/2500}const c=rgb(col),i=glowN++;gPos[i*3]=x;gPos[i*3+1]=y;gPos[i*3+2]=z;gCol[i*3]=c[0]*b;gCol[i*3+1]=c[1]*b;gCol[i*3+2]=c[2]*b;gSz[i]=size}
 function buildGlow(){
   const g=new T3.BufferGeometry();g.setAttribute('position',new T3.BufferAttribute(gPos,3).setUsage(T3.DynamicDrawUsage));g.setAttribute('aColor',new T3.BufferAttribute(gCol,3).setUsage(T3.DynamicDrawUsage));g.setAttribute('aSize',new T3.BufferAttribute(gSz,1).setUsage(T3.DynamicDrawUsage));
   const m=new T3.ShaderMaterial({transparent:true,depthWrite:false,blending:T3.AdditiveBlending,uniforms:{uScale:{value:800}},
@@ -435,6 +436,14 @@ function buildGlow(){
 }
 function buildFxPools(){
   const rg=new T3.RingGeometry(.9,1,64);rg.rotateX(-Math.PI/2);
+  /* enemy warnings: their own layer, normal blending, drawn over every effect and never hidden by scenery */
+  const dg=new T3.RingGeometry(.88,1,64);dg.rotateX(-Math.PI/2);const df=new T3.CircleGeometry(1,48);df.rotateX(-Math.PI/2);
+  for(let i=0;i<40;i++){const m=new T3.Mesh(dg,new T3.MeshBasicMaterial({transparent:true,depthWrite:false,depthTest:false,side:T3.DoubleSide}));m.visible=false;m.renderOrder=9;scene.add(m);dangerPool.push(m);
+    const f=new T3.Mesh(df,new T3.MeshBasicMaterial({transparent:true,depthWrite:false,depthTest:false,side:T3.DoubleSide}));f.visible=false;f.renderOrder=8;scene.add(f);dangerFill.push(f)}
+  /* "you are here": four short arcs at the hero's feet, a shape no skill uses, always on top */
+  const lg=new T3.Group();for(let k=0;k<4;k++){const a=new T3.RingGeometry(.8,1,16,1,k*Math.PI/2+.25,Math.PI/2-.5);a.rotateX(-Math.PI/2);const m=new T3.Mesh(a,new T3.MeshBasicMaterial({color:0xeafcff,transparent:true,opacity:.95,depthWrite:false,depthTest:false,side:T3.DoubleSide}));m.renderOrder=10;lg.add(m);locator.parts.push(m)}
+  const dot=new T3.Mesh(new T3.CircleGeometry(.16,20).rotateX(-Math.PI/2),new T3.MeshBasicMaterial({color:0x6fd3e8,transparent:true,opacity:.55,depthWrite:false,depthTest:false}));dot.renderOrder=10;lg.add(dot);
+  lg.visible=false;scene.add(lg);locator.g=lg;
   for(let i=0;i<70;i++){const m=new T3.Mesh(rg,new T3.MeshBasicMaterial({transparent:true,blending:T3.AdditiveBlending,depthWrite:false,side:T3.DoubleSide}));m.visible=false;m.renderOrder=3;scene.add(m);ringPool.push(m)}
   const pt=radial([[0,'rgba(255,255,255,.95)'],[.55,'rgba(255,255,255,.55)'],[.82,'rgba(255,255,255,.75)'],[.93,'rgba(255,255,255,.25)'],[1,'rgba(255,255,255,0)']]),cg=new T3.PlaneGeometry(1,1);cg.rotateX(-Math.PI/2);
   for(let i=0;i<48;i++){const m=new T3.Mesh(cg,new T3.MeshBasicMaterial({map:pt,transparent:true,blending:T3.AdditiveBlending,depthWrite:false}));m.visible=false;m.renderOrder=2;scene.add(m);poolPool.push(m)}

@@ -32,7 +32,8 @@ addEventListener('keydown',e=>{
   SFX.start();
   if(k==='m'){const m=SFX.toggleMute();syncSound();showBanner(m?'静音':'声音开启',m?'Muted':'Sound on',.8);return}
   if(!G||G.auto){if(k==='enter'&&!$('#title').hidden)startRun();return}
-  if(G.pick&&['1','2','3'].includes(k)){if(e.repeat||!pickArmed||performance.now()-pickOpenedAt<420)return;choose(+k-1);return}
+  if(G.pick&&['1','2','3','4','j','k','l'].includes(k)){if(e.repeat||!pickArmed||performance.now()-pickOpenedAt<420)return;const ci='1j'.includes(k)?0:'2k'.includes(k)?1:'3l'.includes(k)?2:3;if(G.pick[ci]){pickKeyHeld.add(k);choose(ci)}return}
+  if(pickKeyHeld.has(k))return;
   if(G.pick||G.ended)return;
   if(k==='c'||k==='t'){togglePanel();return}
   if(k==='p'||k==='escape'){if(G.panel){togglePanel();return}togglePause();return}
@@ -40,8 +41,9 @@ addEventListener('keydown',e=>{
   if(k==='1'||k==='j')castSkill(1);if(k==='2'||k==='k')castSkill(2);if(k==='3'||k==='l')castSkill(3);
   if(k===' '||k==='shift')dash();
 });
-addEventListener('keyup',e=>keys.delete(e.key.toLowerCase()));
-addEventListener('blur',()=>{keys.clear();touch.on=false});
+const pickKeyHeld=new Set();
+addEventListener('keyup',e=>{const k=e.key.toLowerCase();keys.delete(k);pickKeyHeld.delete(k)});
+addEventListener('blur',()=>{keys.clear();pickKeyHeld.clear();touch.on=false});
 addEventListener('pointerdown',()=>SFX.start(),{once:false});
 cv.addEventListener('pointerdown',e=>{touch.on=true;touch.sx=touch.x=e.clientX;touch.sy=touch.y=e.clientY;try{cv.setPointerCapture(e.pointerId)}catch(_){}});
 cv.addEventListener('pointermove',e=>{if(touch.on){touch.x=e.clientX;touch.y=e.clientY}});
@@ -122,7 +124,9 @@ function hud(dt){
   // skill cooldown sweeps
   for(let i=0;i<4;i++){const el=$('#seal'+i);if(!el)continue;const s=G.spells[i];if(!s)continue;const sp=SPELLS[s.id];
     const cdT=sp.auto?0:(sp.cd*stat(s).cdM/P.haste),k=sp.auto?0:clamp(s.cd/Math.max(.01,cdT),0,1);
-    el.style.setProperty('--cd',(k*360)+'deg');el.classList.toggle('cooling',k>0);el.classList.toggle('poor',!sp.auto&&P.mana<sp.cost);el.classList.toggle('active',s.active>0);
+    const cost=sp.auto?0:skillCost(s),short=Math.ceil(cost-P.mana);el.style.setProperty('--cd',(k*360)+'deg');el.classList.toggle('cooling',k>0);el.classList.toggle('poor',!sp.auto&&short>0);el.classList.toggle('active',s.active>0);
+    if(!sp.auto){let nd=el.querySelector('.need');if(!nd){nd=document.createElement('span');nd.className='need';el.appendChild(nd)}const txt=k>0?(s.cd<=5?String(Math.ceil(s.cd)):''):short>0?'-'+short:'';if(nd.textContent!==txt)nd.textContent=txt;nd.classList.toggle('qi',k<=0&&short>0);
+      const ready=k<=0&&short<=0;if(ready&&el.dataset.was==='0'){el.classList.remove('ready');void el.offsetWidth;el.classList.add('ready')}el.dataset.was=ready?'1':'0'}
     const deny=G.fx.find(f=>f.k==='deny'&&f.i===i);el.classList.toggle('deny',!!deny)}
   const d=$('#sealdash');d.style.setProperty('--cd',(clamp(P.dashCd/1.4,0,1)*360)+'deg');d.classList.toggle('cooling',P.dashCd>0);
 }
@@ -242,7 +246,7 @@ function choose(i){
   if(!G.pick||!G.pick[i])return;
   const cd=G.pick[i];const spent=Math.min(PICK_LIMIT+1,(performance.now()-pickOpenedAt)/1000);if(pickTimer){clearInterval(pickTimer);pickTimer=null}
   if(RIVAL_ON&&G.rival&&!G.room&&spent>.3){G.pickWall=(G.pickWall||0)+spent;const R=G.rival,rate=R.score/Math.max(20,G.t);const gain=Math.round(rate*spent);if(gain>0){R.score+=gain;if(G.floats.length<CAP.fl)G.floats.push({x:G.P.x,y:G.P.y-40,t:1.2,v:L(`对手 +${gain}(你在选卡)`,`Rival +${gain} (while you chose)`),c:'#ff9c5a'})}}
-  cd.a();G.pick=null;$('#cards').hidden=true;drawSeals();SFX.pick(1);if(!G.picks.length)showBanner(cd.n,cd.n,1.1);
+  cd.a();G.pick=null;$('#cards').hidden=true;drawSeals();SFX.pick(1);if(cd.skill){const si=G.spells.findIndex(s=>s.id===cd.skill),se=$('#seal'+si);if(se){se.classList.remove('ready');void se.offsetWidth;se.classList.add('ready')}}if(!G.picks.length)showBanner(cd.n,cd.n,1.1);
   if(G.picks.length&&G.picks[0].kind==='level'&&G.t>60){G.pickHold=8;showBanner(L(`还有 ${G.picks.length} 次`,`${G.picks.length} more`),'',1)}else openPick();
 }
 function closeCards(){G.picks=[];G.pick=null;$('#cards').hidden=true;G.panel=false;$('#char').hidden=true}
