@@ -185,7 +185,7 @@ const RELICS={
   pearl:{g:'珠',zh:'雷珠',en:'Thunder Pearl',d:'命中有 12% 几率引发电弧',de:'12% chance on hit to arc lightning',col:'#ffe066'},
   boots:{g:'靴',zh:'铁靴',en:'Iron Boots',d:'移速 +12%,轻功冷却 -25%',de:'+12% speed, dash cooldown -25%',col:'#9fe3f0'},
   shell:{g:'甲',zh:'龟甲',en:'Tortoise Shell',d:'受到伤害 -15%',de:'Damage taken -15%',col:'#7fc98a'},
-  feather:{g:'羽',zh:'凤羽',en:'Phoenix Feather',d:'复生核心 +1',de:'+1 Revive Core',col:'#ff8a3c'},
+  feather:{g:'羽',zh:'凤羽',en:'Phoenix Feather',d:'恢复 1 条生命（最多 3 条；限时对决不消耗生命）',de:'Restore 1 life, up to 3; timed duels have unlimited lives',col:'#ff8a3c'},
   blood:{g:'血',zh:'血玉',en:'Blood Jade',d:'生命低于一半时伤害 +25%',de:'+25% damage below half HP',col:'#e0503f'},
   bowl:{g:'盆',zh:'聚宝盆',en:'Treasure Bowl',d:'金币 +30%,拾取范围 +40%',de:'+30% gold, +40% pickup range',col:'#ffd27a'},
   iron:{g:'寒',zh:'寒铁',en:'Cold Iron',d:'命中减速敌人',de:'Hits slow enemies',col:'#8fdcf0'},

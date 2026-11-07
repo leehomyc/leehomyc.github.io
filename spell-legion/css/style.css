@@ -1391,3 +1391,27 @@ body.touchhud #healthwarning{bottom:calc(235px + env(safe-area-inset-bottom));fo
 /* Center room result actions, including each row when they wrap on phones. */
 #end #roomres .btns{justify-content:center}
 #end #roomres .btns>.note{flex-basis:100%;text-align:center}
+
+/* Three total lives, including the one currently in play. Timed duels hide this group. */
+#cores{display:inline-flex;align-items:center;gap:4px}#cores[hidden]{display:none}
+.run-life{display:inline-flex;color:#ff6b76;filter:drop-shadow(0 1px 3px #000a)}
+.run-life svg{width:20px;height:20px;fill:currentColor;stroke:#ffe0c0;stroke-width:1.2}
+.run-life.off{color:#382831;opacity:.65}.run-life.off svg{stroke:#82717a}
+#timer.duel-clock{font:900 clamp(30px,4vw,48px)/1 var(--cute);color:#fff0c0;min-width:3.2em;padding:7px 12px;border:2px solid #d6a54a;border-radius:14px;background:#160c1be8;box-shadow:0 3px 12px #0008;font-variant-numeric:tabular-nums}
+#timer.duel-clock.urgent{color:#ff9c88;border-color:#ff6c63;box-shadow:0 0 18px #f44a}
+#duelfinal{position:fixed;inset:0;z-index:90;display:grid;place-items:center;pointer-events:none;background:radial-gradient(ellipse,#1a08182e,transparent 70%);color:#fff0ba;font:900 clamp(160px,62vmin,460px)/1 "Cinzel",var(--brush),serif;text-shadow:0 5px 0 #7d2a26,0 0 30px #ffab53,0 8px 50px #000c;-webkit-text-stroke:2px #5c281d}
+#duelfinal[hidden]{display:none}#duelfinal.beat{animation:duelfinalbeat .9s ease-out}
+@keyframes duelfinalbeat{0%{transform:scale(1.15);opacity:.6}20%{opacity:1}100%{transform:scale(.94);opacity:.92}}
+@media(max-width:640px){#timer.duel-clock{font-size:29px;padding:5px 8px}.run-life svg{width:17px;height:17px}#cores{gap:3px}}
+@media(prefers-reduced-motion:reduce){#duelfinal.beat{animation:none}}
+
+/* Actual points lost remain prominent throughout the timed-duel respawn. */
+#dueldeath{position:fixed;inset:0;z-index:80;pointer-events:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;background:radial-gradient(ellipse,#380b1b55,transparent 75%);text-align:center}
+#dueldeath[hidden]{display:none}
+#dueldeath strong{color:#ff9483;font:900 clamp(48px,9vw,116px)/1.15 var(--cute);text-shadow:0 4px 0 #3b0810,0 0 30px #ff303066,0 8px 25px #000}
+#dueldeath span{color:#fff0d4;font:800 clamp(18px,3vw,28px)/1.3 var(--cute);text-shadow:0 2px 5px #000}
+#dueldeath.with-final{justify-content:flex-start;padding-top:14vh;background:none}
+#dueldeath.with-final strong{font-size:clamp(30px,5vw,64px)}
+
+.duel-ending #banner,.duel-dead #banner,.duel-ending #intro,.duel-dead #intro{visibility:hidden}
+.room-rule{margin:8px 0 10px;color:var(--dim);font-size:13px;line-height:1.4}

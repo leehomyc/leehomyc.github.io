@@ -15,9 +15,12 @@ function frame(now){
     else{G.hitStop=0;const ts=G.slow>0&&!G.shared?(SHAKE==='off'?.6:.28):1;G.slow=Math.max(0,G.slow-dt*(SHAKE==='off'?2:1));acc+=dt*ts;let n=0;while(acc>=1/60&&n++<8){acc-=1/60;if(G.over)endTick();else step(1/60)}}
     if(!G.auto)SFX.setState(G.over==='win'?'win':G.boss?'boss':'battle');
   }else{acc=0;if(G.hitStop>0)G.hitStop=0}
+  if(!G.auto&&G.room&&timedDuel()&&!G.over&&duelRemaining()<=0)roomEndRun('time');
   render(dt);
   updateVitalsFeedback();
   if(!G.auto)hud(dt);
+  updateDuelClock();
+  updateDuelDeath();
 }
 function boot(){
   DPR=Math.min(devicePixelRatio||1,Q().dpr);

@@ -166,7 +166,7 @@ function roomNetTick(dt){
   const d=ROOM.data;if(d&&d.mode==='time'&&!G.over){const wall=d.startedAt?(Date.now()-(d.startedAt+(d.delay||0)))/1000:G.t;if(G.t>=d.len||wall>=d.len)roomEndRun('time')}
 }
 function roomEndRun(why,who){
-  if(!G||G.over)return;closeCards();G.over='pk';G.slow=1.2;G.flash=.6;trauma(.3);ROOM.endWhy=why;ROOM.endWho=who;
+  if(!G||G.over)return;G.paused=false;$('#pause').hidden=true;closeCards();G.over='pk';G.slow=1.2;G.flash=.6;trauma(.3);ROOM.endWhy=why;ROOM.endWho=who;
   later(1.4,()=>showEnd(true));if(typeof SFX!=='undefined')SFX.win();
 }
 function roomOnDeath(){ // called by lose(): in a room, a death is final and tells the others
@@ -177,12 +177,16 @@ function roomAllDone(){const ps=roomPlayerList(),now=Date.now();return ps.length
 function roomCheckFinished(){
   if(!ROOM.playing||ROOM.results)return;
   if(ROOM.data&&ROOM.data.mode==='last'){
-    const ps=roomPlayerList(),alive=ps.filter(p=>p.alive!==false);
-    if(alive.length>1)return;
-    if(ps.length>0&&alive.length===1){const winner=alive[0];
-      if(winner.uid===roomUid()&&G&&!G.over)roomEndRun('last');
-      else if(winner.ai&&ROOM.host&&!winner.done){const R=G&&!G.auto&&G.room&&G.rivalSeat===winner.uid?G.rival:null;
-        aiPut(winner.uid,R?{done:true,alive:!R.eliminated,score:R.score,kills:R.kills,lv:R.lv,hp:Math.max(0,R.hp/R.maxHp),t:Math.round(R.eliminatedAt??G.t),bosses:R.bosses||0}:{done:true});aiFlush()}
+    const ps=roomPlayerList(),eliminated=ps.some(p=>p.alive===false);
+    if(!eliminated)return;
+    if(G&&!G.over)roomEndRun('last');
+    if(ROOM.host){
+      let changed=false;
+      for(const p of ps){if(!p.ai||p.done)continue;
+        const R=G&&!G.auto&&G.room&&G.rivalSeat===p.uid?G.rival:null;
+        aiPut(p.uid,R?{done:true,alive:!R.eliminated,score:R.score,kills:R.kills,lv:R.lv,hp:Math.max(0,R.hp/R.maxHp),t:Math.round(R.eliminatedAt??G.t),bosses:R.bosses||0}:{done:true});changed=true;
+      }
+      if(changed)aiFlush();
     }
   }
   if(!ROOM.ended)return;if(roomAllDone()){ROOM.results=roomRank();if(typeof renderRoomResults==='function')renderRoomResults()}

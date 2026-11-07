@@ -20,7 +20,7 @@ function avatarHTML(a,cls){a=a||{e:0,h:30};return `<span class="av${cls?' '+cls:
 (()=>{if(SAVE.nameV!==2){if(!SAVE.nameSet)SAVE.name=randomName();SAVE.nameV=2}let n=SAVE.name||'';if(!n)n=randomName();SAVE.name=n.slice(0,12);if(!SAVE.avatar)SAVE.avatar=randomAvatar();try{localStorage.setItem('sl_name',SAVE.name)}catch(_){}})();
 let savedGold=SAVE.gold,savedTrophies=SAVE.trophies;
 function persist(quiet){if(!quiet){SAVE.ts=Date.now();if(SAVE.gold!==savedGold)SAVE.goldTs=SAVE.ts;if(SAVE.trophies!==savedTrophies)SAVE.ladderTs=SAVE.ts}savedGold=SAVE.gold;savedTrophies=SAVE.trophies;try{localStorage.setItem(SAVE_KEY,JSON.stringify(SAVE))}catch(_){}if(!quiet&&typeof cloudSchedulePush==='function')cloudSchedulePush()}
-function applyUpgrades(P){const u=SAVE.up;P.maxHp=Math.round(P.maxHp*(1+.1*(u.hp||0)));P.hp=P.maxHp;P.dmg*=1+.06*(u.dmg||0);P.regen*=1+.12*(u.qi||0);G.cores+=u.core||0;P.dmgBonus+=accountBonus();G.rerolls+=SAVE.perks?.rerolls||0;G.cores+=SAVE.perks?.cores||0}
+function applyUpgrades(P){const u=SAVE.up;P.maxHp=Math.round(P.maxHp*(1+.1*(u.hp||0)));P.hp=P.maxHp;P.dmg*=1+.06*(u.dmg||0);P.regen*=1+.12*(u.qi||0);P.dmgBonus+=accountBonus();G.rerolls+=SAVE.perks?.rerolls||0;}
 
 /* HUD */
 const fmt=t=>`${Math.floor(t/60)}:${String(Math.floor(t%60)).padStart(2,'0')}`;
@@ -64,7 +64,7 @@ function hud(dt){
   if(G.rival&&!G.room){const R=G.rival,tot=Math.max(1,G.score+R.score);$('#s-you').textContent=G.score;$('#s-riv').textContent=R.score;$('#s-rname').textContent=L(R.name[0],R.name[1]);$('#s-bar i').style.width=(G.score/tot*100)+'%';$('#score').classList.toggle('lead',G.score>=R.score);const left=Math.max(0,(G.quick?180:PK_LEN)-G.t-(G.pickWall||0)),diff=G.score-R.score;$('#nextboss').textContent=(G.boss?L('首领战 · ','BOSS · '):'')+L('剩余 ','left ')+fmt(left);
     const ob=$('#pkfinal');if(left<=30&&left>0){ob.hidden=false;const tgt=G.boss&&!G.boss.dead?L(`首领 ${pts(G.boss)} 分`,`boss ${pts(G.boss)} pts`):G.chests.length?L('宝箱 +'+PK_EVENTS.chest,'chest +'+PK_EVENTS.chest):G.mission?L('密令 +'+PK_EVENTS.mission,'mission +'+PK_EVENTS.mission):(G.en.find(e=>e.elite&&!e.dead)?L('精英 ×3 分','elite ×3 pts'):L('连斩加成','streak bonus'));
       ob.innerHTML=`<b class="${diff>=0?'lead':'behind'}">${diff>=0?L(`领先 ${diff}`,`Ahead by ${diff}`):L(`落后 ${-diff}`,`Behind by ${-diff}`)}</b> · ${L('最后 30 秒 · 去抢:','Final 30 s · go for:')} ${tgt}`;ob.classList.add('final')}else if(ob.classList.contains('final')){ob.hidden=true;ob.classList.remove('final')}}
-  {const ct=$('#coretm');if(ct){const reviving=endlessDuel()&&P.down>0&&!G.over,show=reviving||(G.cores===0&&!RIVAL_ON&&!endlessDuel());ct.hidden=!show;if(show)ct.textContent=reviving?L(`复活倒计时 ${Math.ceil(P.down)} 秒`,`Reviving in ${Math.ceil(P.down)} s`):L(`核心恢复 ${Math.ceil(70-G.coreT)}s`,`core in ${Math.ceil(70-G.coreT)}s`)}}
+  {const ct=$('#coretm');if(ct){const reviving=P.down>0&&!G.over;ct.hidden=!reviving;if(reviving)ct.textContent=L(`复活倒计时 ${Math.ceil(P.down)} 秒`,`Reviving in ${Math.ceil(P.down)} s`)}}
   const o=$('#obj');o.hidden=!(G.mission||G.trib||G.bounty);if(G.trib)o.textContent=L(`天劫 · 撑住 ${Math.ceil(G.trib.t)}s · 精英 ×${G.trib.k}`,`Tribulation · hold ${Math.ceil(G.trib.t)}s · elites ×${G.trib.k}`);else if(G.mission)o.textContent=missionText();else if(G.bounty&&typeof bountyText==='function')o.textContent=bountyText();
   const bf=$('#buff');bf.hidden=!P.buff;if(P.buff)bf.textContent={dmg:L('伤害 +30%','Damage +30%'),spd:L('疾行','Swift'),haste:L('冷却减半','Cooldowns halved')}[P.buff.k]+' · '+Math.ceil(P.buff.t)+'s';
   if(G.boss){$('#bosshp i').style.width=(G.boss.hp/G.boss.maxHp*100)+'%';$('#bossbar').classList.toggle('tired',!!G.boss.tired);const op=G.boss.exposed>0;$('#bossbar').classList.toggle('open',op);const ob=$('#openbar');if(ob){ob.hidden=!op;if(op){ob.style.width=Math.min(100,G.boss.exposed/3*100)+'%';ob.textContent=L('破绽 · 伤害 +60% · ','OPENING · +60% · ')+G.boss.exposed.toFixed(1)+'s'}}$('#seals').classList.toggle('opening',op);
@@ -84,7 +84,36 @@ function drawRelics(){const box=$('#relics');if(!box)return;box.textContent='';c
   if(G.relics.length>MAXS){const d=document.createElement('div');d.className='relic more';d.textContent='+'+(G.relics.length-(MAXS-1));d.title=G.relics.slice(0,-(MAXS-1)).map(id=>LL(RELICS[id])).join(' · ');box.appendChild(d)}}
 let introT=null,introOn=false;
 function bossIntro(zh,en,n){const el=$('#intro');el.innerHTML=`<div class="bn"><small>${n>=BOSSES.length?L(`第 ${Math.floor(n/BOSSES.length)+1} 轮 · ${n%BOSSES.length+1}/${BOSSES.length} `,`Cycle ${Math.floor(n/BOSSES.length)+1} · ${n%BOSSES.length+1}/${BOSSES.length}`):L(`第 ${n+1} 位首领`,`Boss ${n+1}`)}</small><b>${L(zh,en)}</b>${BOSS_HINT[n%BOSS_HINT.length]?`<em>${L(BOSS_HINT[n%BOSS_HINT.length][0],BOSS_HINT[n%BOSS_HINT.length][1])}</em>`:''}</div>`;el.hidden=false;el.classList.remove('on');void el.offsetWidth;el.classList.add('on');introOn=true;$('#banner').classList.remove('on');clearTimeout(introT);introT=setTimeout(()=>{el.classList.remove('on');introOn=false;setTimeout(()=>el.hidden=true,500)},3400)}
-function updateCores(){const e=$('#cores');e.textContent='';for(let i=0;i<Math.max(2,G.cores);i++){const s=document.createElement('i');s.className='core'+(i<G.cores?'':' off');e.appendChild(s);e.append(' ')}}
+function updateCores(){
+  const e=$('#cores');e.hidden=timedDuel();e.textContent='';if(e.hidden)return;
+  const lives=G.over==='lose'?0:Math.min(RUN_LIVES,Math.max(0,G.cores)+1);
+  e.setAttribute('aria-label',L(`生命 ${lives}/${RUN_LIVES}`,`Lives ${lives}/${RUN_LIVES}`));
+  e.title=L(`生命 ${lives}/${RUN_LIVES}`,`Lives ${lives}/${RUN_LIVES}`);
+  for(let i=0;i<RUN_LIVES;i++){const heart=document.createElement('span');heart.className='run-life'+(i<lives?'':' off');heart.setAttribute('aria-hidden','true');heart.innerHTML='<svg viewBox="0 0 24 24"><path d="M12 21C8 17 2 13 2 7.5a5.5 5.5 0 0 1 10-3 5.5 5.5 0 0 1 10 3C22 13 16 17 12 21Z"/></svg>';e.appendChild(heart)}
+}
+function updateDuelClock(){
+  const timer=$('#timer'),count=$('#duelfinal');if(!timer||!count)return;
+  const left=duelRemaining(),timed=left!==null&&!G.auto&&!G.over&&!G.ended;
+  timer.classList.toggle('duel-clock',timed);timer.classList.toggle('urgent',timed&&left<=30);
+  if(left!==null&&!G.auto)timer.textContent=fmt(Math.ceil(left));
+  const digit=timed&&left>0&&left<=5&&(!G.paused||G.room)?Math.ceil(left):0;
+  count.hidden=!digit;document.body?.classList.toggle('duel-ending',!!digit);
+  if(digit&&count.dataset.digit!==String(digit)){
+    count.dataset.digit=String(digit);count.textContent=String(digit);
+    count.classList.remove('beat');void count.offsetWidth;count.classList.add('beat');
+  }
+  if(!digit)delete count.dataset.digit;
+}
+
+function updateDuelDeath(){
+  const death=$('#dueldeath');if(!death)return;
+  const active=!!(G&&!G.auto&&!G.over&&!G.ended&&!G.paused&&timedDuel()&&G.P.down>0);
+  death.hidden=!active;document.body?.classList.toggle('duel-dead',active);if(!active)return;
+  const loss=Math.max(0,G.lastDeathLoss||0),left=duelRemaining();
+  death.classList.toggle('with-final',left>0&&left<=5);
+  $('#dueldeathloss').textContent=L(`死亡 −${loss}`,`DEATH −${loss}`);
+  $('#dueldeathrevive').textContent=L(`${Math.ceil(G.P.down)} 秒后复活`, `Reviving in ${Math.ceil(G.P.down)} s`);
+}
 /* Live skill inspection: only upgrades actually taken in this run are listed. */
 function skillHoverDetails(s){
   const m=SPELLS[s.id],tree=TREES[s.id]||[];
@@ -272,7 +301,10 @@ function renderWeapons(){
 }
 function renderAsura(){
   const el=$('#asura'),bestEl=$('#endlessbest');if(!el)return;const on=SAVE.mode==='solo';el.hidden=!on;
-  if(bestEl)bestEl.hidden=!on;
+  if(bestEl){
+    const duel=['room','qpk','pk'].includes(SAVE.mode);bestEl.hidden=!on&&!duel;
+    if(duel){const score=Math.max(0,SAVE.trophies||0),rank=ladderOf(score);bestEl.innerHTML=`<span>${L('天梯：','Ladder: ')}${L(rank[1],rank[2])}</span><span>${score} ${L('分','pts')}</span>`}
+  }
   if(!on)return;
   const A=SAVE.asura,max=Math.min(A.max||0,ASURA.length),sel=Math.min(A.sel||0,max);
   if(bestEl){const score=SAVE.lb?.bestRun?.score;bestEl.innerHTML=`<span>${L('修罗','Ascension')} ${sel}/${ASURA.length}</span><span>${L('最高分','Best')} ${Number.isFinite(score)?Math.round(score).toLocaleString('en-US'):'—'}</span>`}
@@ -334,7 +366,7 @@ let DAILY=false;
 function startRun(){
   if($('#startbtn').disabled)return;
   if(syncAscensionMap())return;
-  CLASS=SAVE.cls;DIFFID='normal';
+  CLASS=SAVE.cls;DIFFID='normal';RIVAL_ON=SAVE.mode==='pk'||SAVE.mode==='qpk';
   const inRoom=SAVE.mode==='room'&&ROOM.code&&ROOM.playing;if(SAVE.mode==='room'&&!inRoom)return; // rooms start from the room panel, never from the Start button
   closeCards();{const sd=$('#side');if(sd)sd.hidden=false}
   if(typeof metricsEnd==='function')metricsEnd('abandoned');
@@ -375,12 +407,12 @@ function showEnd(ok){if(G.ended)return;if(typeof metricsEnd==='function')metrics
   const R=G.rival;
   const cmp=R?`<div class="cmp"><div class="hd"><span></span><b>${L('你','You')}</b><b>${L(R.name[0],R.name[1])}<small> ${LL(CLASSES[R.cls])}</small></b></div>
     ${[[L('分数','Score'),G.score,R.score],[L('击杀','Kills'),G.kills,R.kills],[L('等级','Level'),G.lv,R.lv],[L('总伤害','Damage'),Math.round(damageTotal),Math.round(R.dmgDealt)],[L('倒地','Downs'),G.downs||0,R.downs||0,true]].map(([n,a,b,lower])=>`<div class="r"><span>${n}</span><b class="${(lower?a<b:a>b)?'w':''}">${a}</b><b class="${(lower?b<a:b>a)?'w':''}">${b}</b></div>`).join('')}
-    <div class="scbreak"><b>${L('你的得分构成','Your score')}</b> ${(()=>{const sc=G.sc||{kill:0,big:0,ev:0},t=Math.max(1,sc.kill+sc.big+sc.ev);return `<span>${L('小怪','minions')} ${sc.kill} (${Math.round(sc.kill/t*100)}%)</span><span>${L('精英/首领','elites & bosses')} ${sc.big} (${Math.round(sc.big/t*100)}%)</span><span>${L('宝箱/密令/伏击','chests, missions & ambushes')} ${sc.ev} (${Math.round(sc.ev/t*100)}%)</span>`})()}</div>
-    ${(()=>{const rs=G.rival&&G.rival.sc;if(!rs)return '';const t=Math.max(1,rs.kill+rs.big);return `<div class="scbreak rival"><b>${L('对手得分构成','Rival score')}</b> <span>${L('小怪','minions')} ${rs.kill} (${Math.round(rs.kill/t*100)}%)</span><span>${L('精英/首领','elites & bosses')} ${rs.big} (${Math.round(rs.big/t*100)}%)</span><span>${L('其中连斩加成','of which streak bonus')} ${rs.streak}</span></div>`})()}
+    <div class="scbreak"><b>${L('你的得分构成','Your score')}</b> ${(()=>{const sc=G.sc||{kill:0,big:0,ev:0},t=Math.max(1,sc.kill+sc.big+sc.ev);return `<span>${L('小怪','minions')} ${sc.kill} (${Math.round(sc.kill/t*100)}%)</span><span>${L('精英/首领','elites & bosses')} ${sc.big} (${Math.round(sc.big/t*100)}%)</span><span>${L('宝箱/密令/伏击','chests, missions & ambushes')} ${sc.ev} (${Math.round(sc.ev/t*100)}%)</span>${sc.deathLoss?`<span>${L('死亡扣分','Death penalty')} −${sc.deathLoss}</span>`:''}`})()}</div>
+    ${(()=>{const rs=G.rival&&G.rival.sc;if(!rs)return '';const t=Math.max(1,rs.kill+rs.big);return `<div class="scbreak rival"><b>${L('对手得分构成','Rival score')}</b> <span>${L('小怪','minions')} ${rs.kill} (${Math.round(rs.kill/t*100)}%)</span><span>${L('精英/首领','elites & bosses')} ${rs.big} (${Math.round(rs.big/t*100)}%)</span><span>${L('其中连斩加成','of which streak bonus')} ${rs.streak}</span>${rs.deathLoss?`<span>${L('死亡扣分','Death penalty')} −${rs.deathLoss}</span>`:''}</div>`})()}
 </div>`:'';
   box.innerHTML=`<h2 class="${pkRes||''}">${room?L('对决结束','Match over'):pk?(pkRes==='win'?L('对决胜利','Duel won'):pkRes==='lose'?L('对决落败','Duel lost'):L('对决平手','Duel tied')):G.abandoned?L('已放弃','Abandoned'):DAILY?(dailyNew?L('今日新纪录','New daily best'):L('每日挑战','Daily challenge')):G.retired?L('收官','Cashed out'):record?L('新纪录','New record'):L('败亡','Fallen')}</h2>${ASURA_T?`<p class="sub">${L(`修罗 ${ASURA_T} 层`,`Ascension ${ASURA_T}`)}</p>`:''}
   ${room?'<div id="roomres" class="roomres"></div>':''}
-  ${pk?`<p class="result-rank">${L(ladderOf(SAVE.trophies||0)[1],ladderOf(SAVE.trophies||0)[2])} · ${SAVE.trophies||0} 🏆 (${meta?.dT>0?'+':''}${meta?.dT||0}) · ${G.score} : ${R.score}</p>`:''}
+  ${pk?`<p class="result-rank">${L('天梯：','Ladder: ')}${L(ladderOf(SAVE.trophies||0)[1],ladderOf(SAVE.trophies||0)[2])} · ${SAVE.trophies||0} 🏆 (${meta?.dT>0?'+':''}${meta?.dT||0}) · ${G.score} : ${R.score}</p>`:''}
   ${room?'':`<div class="rewards"><span class="rw gold">${ICON.misc('gold','#ffd27a','sm')}+${G.runRewardGold}<small>${L('金币','gold')}</small></span>${meta&&meta.xp?`<span class="rw xp">${ICON.misc('crown','#ffe9a0','sm')}+${meta.xp}<small>${L('冒险经验','renown')}</small></span>`:''}${meta&&meta.levelUp?`<span class="rw lv">Lv ${meta.after.lv}<small>${L('升级!','level up!')}</small></span>`:''}</div>`}
   <div class="endmore"><h3>${L('详细数据','Details')}</h3><div class="stat main"><div>${ICON.misc('hourglass','#9fe3f0','sm')}<b>${fmt(G.t)}</b><span>${L('存活','Survived')}</span></div><div>${ICON.misc('crit','#ff6a6a','sm')}<b>${G.kills}</b><span>${L('击杀','Kills')}</span></div><div>${ICON.misc('boss','#ff5a45','sm')}<b>${G.warlordSlain||0}/${G.bossSlain}</b><span>${L('统领/首领','Warlord/Boss')}</span></div><div>${ICON.misc('burst','#ff9c5a','sm')}<b>×${G.comboMax}</b><span>${L('最高连斩','Best streak')}</span></div></div>
   ${!ok&&G.killer?`<div class="killed"><b>${G.abandoned?L('放弃','Abandoned'):L(`死于 ${G.killer[0]}`,`Killed by ${G.killer[1]}`)}</b></div>`:''}

@@ -16,7 +16,7 @@ function newGame(auto,cls){
   buildArena();if(typeof buildRuins==='function')buildRuins();
   const P={x:W/2,y:H/2,hp:C.hp,maxHp:C.hp,mana:C.mana,maxMana:C.mana,regen:C.regen,dmg:C.dmg,def:1,spd:C.spd,mag:1,haste:1,crit:.05,inv:0,face:1,walk:0,down:0,dash:0,dashCd:0,dx:0,dy:1,buff:null,cast:0,yaw:0,yaw0:0,shield:0,guard:0,leap:null,cls,ap:0,sp:0,attr:{str:0,vit:0,spr:0,agi:0},dmgBonus:0};
   G={auto,t:0,P,cls,en:[],shots:[],bombs:[],bullets:[],gems:[],pools:[],fx:[],floats:[],arcs:[],later:[],ghosts:[],shocks:[],
-     mush:[],grid:new Map(),spells:[mkSpell(weaponOf(cls)),mkSpell(C.skills[0])],pwaves:[],sariras:[],xp:0,lv:1,need:xpNeed(1),picks:[],kills:0,cores:2,coreT:0,
+     mush:[],grid:new Map(),spells:[mkSpell(weaponOf(cls)),mkSpell(C.skills[0])],pwaves:[],sariras:[],xp:0,lv:1,need:xpNeed(1),picks:[],kills:0,cores:RUN_LIVES-1,coreT:0,
      spawnA:8,swarmT:55,mission:null,missionT:26,boss:null,bossT:0,paused:false,over:null,shake:0,trauma:0,shX:0,shY:0,hitStop:0,slow:0,flash:0,dmgTaken:0,
      shrines:SHRINES.map(s=>({x:s[0],y:s[1],cd:0})),elites:0,combo:0,comboT:0,comboMax:0,over9:0,chests:[],chestT:30,goldRun:0,rerolls:1,wave:0,ambush:0,warlord:0,warlordSlain:0,bossN:0,bossSlain:0,warlordN:0,relics:[],novas:[],hazards:[],score:0,curse:{},contractN:0};
   if(typeof buildHero==='function')buildHero(cls,'player',weaponOf(cls));
@@ -28,7 +28,17 @@ function newGame(auto,cls){
 const later=(t,f)=>G.later.push({t,f});
 function endlessDuel(){return !!(G&&G.room&&ROOM.data&&ROOM.data.mode==='last')}
 const DUEL_REVIVE_DELAY=4;
-function reviveCoreTick(dt){if(G.cores===0&&!endlessDuel()){G.coreT+=dt;if(G.coreT>=70){G.coreT=0;G.cores=1;updateCores()}}else G.coreT=0}
+const RUN_LIVES=3;
+function timedDuel(){return !!(G&&((G.room&&ROOM.data&&ROOM.data.mode==='time')||(!G.room&&RIVAL_ON&&G.rival)))}
+function duelRemaining(){
+  if(!timedDuel())return null;
+  if(G.room){const d=ROOM.data,wall=d.startedAt?(Date.now()-(d.startedAt+(d.delay||0)))/1000:G.t;return Math.max(0,(d.len||180)-Math.max(G.t,wall))}
+  return Math.max(0,(G.quick?180:PK_LEN)-G.t-(G.pickWall||0));
+}
+function deathScorePenalty(owner){
+  const before=Math.max(0,Math.floor(owner.score||0));owner.score=Math.floor(before/2);
+  const lost=before-owner.score;owner.sc=owner.sc||{kill:0,big:0,ev:0};owner.sc.deathLoss=(owner.sc.deathLoss||0)+lost;return lost;
+}
 const BOSSES=[['血魔教主','Blood Demon Patriarch',null],['鬼面刀圣','Ghost-Mask Blade Saint','#8fe3ff'],['蛊母','Mother of Gu','#9ff06a'],['白骨尊者','Bone Venerable','#f4efe0'],['九幽魔尊','Lord of the Nine Hells','#b57cf0'],['千面妖姬','Thousand-Face Enchantress','#ff5fe8'],['铁面将军','Iron-Mask General','#c0c8d0']];
 const RIVAL_SKIP=['qin'];const RIVAL_NEW=['oni','idol','wizard'];
 const RIVAL_NAMES={swordsman:['青衣剑客','Azure Swordsman'],taoist:['玄机道人','Mystic Taoist'],qin:['素琴仙子','Plain-Qin Maiden'],oni:['红莲浪人','Crimson Ronin'],idol:['星光偶像','Starlight Idol'],wizard:['星辰术士','Astral Sorcerer'],blademaster:['黑风刀客','Black Wind Blademaster'],monk:['铁头陀','Iron Monk'],physician:['毒手郎中','Venom Doctor']};
@@ -36,7 +46,7 @@ function mkRival(playerCls,seat){
   const opts=Object.keys(RIVAL_NAMES).filter(k=>k!==playerCls&&CLASSES[k]&&!RIVAL_SKIP.includes(k)),cls=seat&&CLASSES[seat.cls]?seat.cls:pick(opts),C=CLASSES[cls];
   const a=rnd(TAU);const R={x:clamp(W/2+Math.cos(a)*220,60,W-60),y:clamp(H/2+Math.sin(a)*180,60,H-60),cls,name:RIVAL_NAMES[cls],hp:C.hp,maxHp:C.hp,dmg:C.dmg,crit:.05,spd:C.spd,mana:C.mana,maxMana:C.mana,regen:C.regen,
     spells:[Object.assign(mkSpell(C.main),{owner:'rival'}),Object.assign(mkSpell(C.skills[0]),{owner:'rival'})],kills:0,score:0,lv:1,xp:0,need:6,down:0,inv:0,dx:0,dy:1,walk:0,cast:0,yaw:0,yaw0:0,goal:null,goalT:0,dmgDealt:0,downs:0,lx:0,ly:0,dash:0,ai:(DIFFID==='easy'?.9:DIFFID==='hard'?1.45:1.2)*(typeof SAVE!=='undefined'&&SAVE.mode==='qpk'?Math.min(2.2,.85+(SAVE.trophies||0)/900):1)};
-  R.cores=2;R.eliminated=false;
+  R.cores=RUN_LIVES-1;R.eliminated=false;
   R.av=(seat&&seat.av)||(typeof randomAvatar==='function'?randomAvatar():null);
   if(seat){R.name=[seat.name||RIVAL_NAMES[cls][0],seat.name||RIVAL_NAMES[cls][1]];R.ai=clamp(.85+(seat.skill||.8)*.45,.9,1.6);R.seat=seat.uid}
   R.dmg*=R.ai;R.spd*=1+(R.ai-1)*.3;
@@ -87,7 +97,7 @@ function rivalTick(dt){
 }
 function rivalHurt(n,fx,fy){const R=G.rival;if(!R||R.eliminated||R.down>0||R.inv>0)return;R.hp-=n;R.inv=.4;if(R.hp<=0){R.hp=0;R.downs++;spark(R.x,R.y,'#6fd3e8',20,120);
   if(endlessDuel()&&R.cores<=0){R.eliminated=true;R.down=Infinity;R.eliminatedAt=G.t;if(G.rivalSeat){aiPut(G.rivalSeat,{alive:false,done:true,hp:0,score:R.score,lv:R.lv,kills:R.kills,t:Math.round(G.t)});aiFlush()}if(typeof roomCheckFinished==='function')roomCheckFinished();return}
-  if(endlessDuel())R.cores--;R.down=DUEL_REVIVE_DELAY}}
+  if(endlessDuel())R.cores--;if(timedDuel())deathScorePenalty(R);R.combo=0;R.down=DUEL_REVIVE_DELAY}}
 
 /* ---------- relics ---------- */
 const hasR=k=>G.relics.includes(k);
@@ -99,7 +109,7 @@ function dropRelic(x,y){const id=relicChoice();if(!id){G.goldRun+=40;return}
   if(!clear(x,y)){outer:for(let r=32;r<=192;r+=16)for(let i=0;i<16;i++){const a=i*TAU/16,px=clamp(x+Math.cos(a)*r,32,W-32),py=clamp(y+Math.sin(a)*r,32,H-32);if(clear(px,py)){x=px;y=py;break outer}}}
   if(G.fx.length<CAP.fx)G.fx.push({k:'relic',id,x,y,t:60,T:60})}
 function takeRelic(id){const R=RELICS[id],P=G.P;if(hasR(id)){if((G.dupRelics||0)>=10){G.goldRun+=40;if(G.floats.length<CAP.fl)G.floats.push({x:P.x,y:P.y-30,t:.9,v:'+40',c:'#ffd27a'});return}P.dmgBonus+=.05;P.maxHp+=10;P.hp=Math.min(P.maxHp,P.hp+10);G.dupRelics=(G.dupRelics||0)+1;if(typeof showSide==='function')showSide(`重复法宝 → 伤害 +5%,生命 +10(${G.dupRelics}/10)`,`Duplicate relic: +5% damage, +10 HP (${G.dupRelics}/10)`,'#ffd27a','relic');spark(P.x,P.y,'#ffd27a',12,80);if(typeof SFX!=='undefined')SFX.chest();return}G.relics.push(id);if(typeof codexSee==='function')codexSee('relic',id);
-  if(id==='boots')P.spd*=1.12;if(id==='feather'){G.cores++;updateCores()}if(id==='bowl')P.mag*=1.4;if(id==='chime')P.haste/=.85;if(id==='pill'){P.maxHp+=40;P.hp+=40}if(id==='shell')P.def*=.85;if(id==='bloodcurse'){P.dmgBonus+=.35;P.maxHp=Math.round(P.maxHp*.75);P.hp=Math.min(P.hp,P.maxHp)}if(id==='glass'){P.crit+=.25;P.def*=1.2}if(id==='wolf'){P.mag*=.7}if(id==='bind'){P.spd*=.9}
+  if(id==='boots')P.spd*=1.12;if(id==='feather'&&!timedDuel()){G.cores=Math.min(RUN_LIVES-1,G.cores+1);updateCores()}if(id==='bowl')P.mag*=1.4;if(id==='chime')P.haste/=.85;if(id==='pill'){P.maxHp+=40;P.hp+=40}if(id==='shell')P.def*=.85;if(id==='bloodcurse'){P.dmgBonus+=.35;P.maxHp=Math.round(P.maxHp*.75);P.hp=Math.min(P.hp,P.maxHp)}if(id==='glass'){P.crit+=.25;P.def*=1.2}if(id==='wolf'){P.mag*=.7}if(id==='bind'){P.spd*=.9}
   if(typeof showSide==='function')showSide(`法宝 · ${R.zh}:${R.d}`,`Relic · ${R.en}: ${R.de}`,R.col||'#c7a4f0','relic');else showBanner(`法宝:${R.zh}`,`${R.en} · ${R.de}`,2);trauma(.2);G.flash=Math.max(G.flash,.25);if(typeof SFX!=='undefined')SFX.chest();if(typeof drawSeals==='function')drawSeals();if(typeof drawRelics==='function')drawRelics()}
 /* ---------- feel ---------- */
 function trauma(n,dx,dy){G.trauma=Math.min(1,G.trauma+n);if(dx!==undefined){G.shX+=dx*n*40;G.shY+=dy*n*40}}
@@ -288,9 +298,14 @@ function dmgP(n,fx,fy,src){
 function downed(){
   if(G.over||G.P.down>0)return;
   const P=G.P;P.hp=0;
-  if(G.shared&&!(ROOM.data&&ROOM.data.mode==='last')){G.downs=(G.downs||0)+1;P.down=4;G.combo=0;spark(P.x,P.y,'#6fd3e8',24,120);showBanner('倒下了 · 4 秒后复活','Down — back in 4 s',1.4);if(typeof SFX!=='undefined')SFX.revive();return}
+  if(timedDuel()){
+    G.downs=(G.downs||0)+1;G.revives=(G.revives||0)+1;
+    const lost=deathScorePenalty(G);G.lastDeathLoss=lost;P.down=DUEL_REVIVE_DELAY;G.combo=0;G.comboT=0;
+    spark(P.x,P.y,'#6fd3e8',24,120);
+    if(typeof SFX!=='undefined')SFX.revive();return;
+  }
   G.downs=(G.downs||0)+1;if(G.cores>0){G.cores--;G.revives=(G.revives||0)+1;P.down=endlessDuel()?DUEL_REVIVE_DELAY:1.6;G.slow=Math.max(G.slow,.6);updateCores();spark(P.x,P.y,'#6fd3e8',30,140);showBanner(endlessDuel()?'倒下了 · 4 秒后复活':'核心复生',endlessDuel()?'Down — back in 4 s':'Revive Core used',endlessDuel()?DUEL_REVIVE_DELAY:1.4);if(typeof SFX!=='undefined')SFX.revive()}
-  else lose();
+  else{lose();updateCores()}
 }
 function revive(){
   if(G.over)return;
@@ -825,7 +840,6 @@ function step(dt){
   if(RIVAL_ON&&G.rival&&G.t+(G.pickWall||0)>=(G.quick?180:PK_LEN)&&!G.over)pkEnd();
   if(G.room&&typeof roomNetTick==='function')roomNetTick(dt);
   for(let i=G.later.length-1;i>=0;i--){const l=G.later[i];l.t-=dt;if(l.t<=0){G.later.splice(i,1);l.f()}}
-  reviveCoreTick(dt);
   G.grid.clear();
   for(const e of G.en){if(e.dead)continue;const k=gridOf(e);let a=G.grid.get(k);if(!a)G.grid.set(k,a=[]);a.push(e)}
   // player
