@@ -305,7 +305,7 @@ function renderTitle(){
   DIFFID='normal';document.querySelectorAll('#diff button').forEach(b=>{b.classList.toggle('on',b.dataset.d===DIFFID);b.disabled=SAVE.mode==='daily'});$('#diff').classList.toggle('locked',SAVE.mode==='daily');
   const mp=$('#maps');mp.textContent='';for(const k in MAPS){const M=MAPS[k],locked=M.need&&!SAVE.ach[M.need]&&!((SAVE.wins||0)>=(M.need==='boss2'?3:8)),b=document.createElement('button');b.type='button';b.className='mapb'+(k===MAPID?' on':'')+(locked?' locked':'');b.disabled=locked;const needN=M.need==='boss2'?2:4,totN=M.need==='boss2'?3:8;b.innerHTML=`<b>${LL(M)}</b><small>${locked?`🔒 ${SAVE.wins||0}/${totN}`:''}</small>`;if(locked)b.title=L(`一局斩 ${needN} 位首领解锁 · 累计 ${SAVE.wins||0}/${totN}`,`Slay ${needN} bosses in a run to unlock · ${SAVE.wins||0}/${totN}`);b.onclick=()=>{try{localStorage.setItem('sl_map',k)}catch(_){}b.innerHTML=`<b>${L('载入中…','Loading…')}</b>`;setTimeout(()=>location.reload(),60)};mp.appendChild(b)}
   const al=$('#ach');al.textContent='';const done=ACH.filter(a=>SAVE.ach[a.id]).length;$('#achcount').textContent=`${done}/${ACH.length}`;
-  ACH.forEach(a=>{const d=document.createElement('div');d.className='achi'+(SAVE.ach[a.id]?' done':'');d.innerHTML=`<span class="tick">${SAVE.ach[a.id]?'✓':'○'}</span><b>${LL(a)}</b><span>${L(a.d,a.de)}</span><em>+${a.gold} 金</em>`;al.appendChild(d)});
+  ACH.forEach(a=>{const d=document.createElement('div');d.className='achi'+(SAVE.ach[a.id]?' done':'');d.innerHTML=`<span class="tick">${SAVE.ach[a.id]?'✓':'○'}</span><b>${LL(a)}</b><span>${L(a.d,a.de)}</span><em>+${a.gold} ${L('金','gold')}</em>`;al.appendChild(d)});
 }
 /* daily challenge: one seed per calendar day, so every player faces the same spawns, waves, chests and cards */
 const RESET_TZ_OFFSET=8; // daily reset at midnight UTC+8 (Beijing / Hong Kong) for everyone
@@ -399,7 +399,7 @@ if(window.desktop){$('#exitbtn').hidden=false;$('#exitbtn').onclick=()=>window.d
 /* switchLang(l, manual): manual picks are remembered and beat the IP guess from then on */
 function langRefresh(){document.querySelectorAll('.langbtn').forEach(x=>x.classList.toggle('on',x.dataset.l===LOC));if(typeof renderLangPick==='function')renderLangPick();
   renderTitle();autoLabel();syncSound();if(G&&!G.auto){drawSeals()}if(typeof showTab==='function'&&typeof lobbyTab!=='undefined')showTab(lobbyTab)}
-function switchLang(l,manual){if(!LANGS.includes(l))return;setLang(l,langRefresh,!!manual)}
+function switchLang(l,manual){if(!LANGS.includes(l))return;if(manual&&!SAVE.nameSet&&typeof randomName==='function'){const o=LANG;LANG=l.startsWith('zh')?'zh':'en';SAVE.name=randomName();LANG=o;try{localStorage.setItem('sl_name',SAVE.name)}catch(_){}persist()}setLang(l,langRefresh,!!manual)}
 document.querySelectorAll('.langbtn').forEach(b=>{b.classList.toggle('on',b.dataset.l===LOC);b.onclick=()=>{switchLang(b.dataset.l,true);SFX.pick(1)}});
 /* language picker on the main menu: globe + the current language in its own script; the list names every language in its own script */
 const LANG_NAMES=LOC_NAME;
