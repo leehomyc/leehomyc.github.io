@@ -59,39 +59,59 @@ async function openLeaderboard(board){
 function closeLeaderboard(){$('#lb').hidden=true;lbSeq++;lbMenuRank()}
 function wireLeaderboard(){
   const b=$('#lbbtn');if(b)b.onclick=()=>{SFX.pick(1);openLeaderboard()};
+  addEventListener('online',lbFlushPending);addEventListener('focus',lbFlushPending);
   $('#lb').addEventListener('click',e=>{if(e.target.id==='lb')closeLeaderboard()});
   document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('#lb').hidden)closeLeaderboard()});
   lbMenuRank();
 }
 async function lbMenuRank(){
+  lbFlushPending();
   const b=$('#lbbtn'),rk=$('#lbrank');if(!b)return;b.hidden=false;if(!LB.enabled())return;
   try{const d=await LB.fetch('endless');if(!d||!d.ok)return;const i=d.rows.findIndex(r=>LB.isMe(r));rk.textContent=i>=0?'#'+(i+1):''}catch(_){}
 }
+let lbFlushing=false;
+async function lbFlushPending(){
+  const run=SAVE.lb?.pendingRun;
+  if(lbFlushing||!run||!LB.cloud()||(run.uid&&run.uid!==CLOUD.uid()))return;
+  lbFlushing=true;
+  try{const result=await LB.submit(run);if(result?.ok&&SAVE.lb?.pendingRun?.uid===run.uid&&SAVE.lb.pendingRun.score<=run.score){delete SAVE.lb.pendingRun;persist()}}
+  catch(e){console.warn('pending score upload failed',e)}
+  finally{lbFlushing=false}
+}
 /* ---- after a run: post a new best automatically, show one line ---- */
 async function submitRun(container,snapshot){
+  const isRetry=!!snapshot;
   if(!snapshot){
-    if(!LB.cloud()&&!LEADERBOARD_URL)return;
-    if((typeof RIVAL_ON!=='undefined'&&RIVAL_ON)||G.room||G.abandoned||G.t<20||SAVE.mode!=='solo')return;
+    if((typeof RIVAL_ON!=='undefined'&&RIVAL_ON)||G.room||G.t<20||SAVE.mode!=='solo')return;
     // Capture the finished run before any read awaits; Retry uses this same snapshot.
     snapshot={uid:LB.me(),name:LB.name()||L('无名侠客','Nameless'),av:SAVE.avatar?{...SAVE.avatar}:null,cls:G.cls,map:MAPID,diff:DIFFID,mode:SAVE.mode||'solo',score:G.score||0,day:G.day||dayKey(),tier:ASURA_T||0,time:Math.round(G.t),kills:G.kills,bosses:G.bossSlain,level:G.lv,combo:G.comboMax,relics:G.relics.length};
   }
   const run=snapshot,dk=run.day;
+  const S=SAVE.lb&&typeof SAVE.lb==='object'?SAVE.lb:(SAVE.lb={});
+  if(!['score','endless-score'].includes(S.rankBy)){S.rankBy='endless-score';S.bestRun=null;S.dayBestRun=null}else S.rankBy='endless-score';
+  const priorLocal=S.bestRun,priorDay=S.day===dk?S.dayBestRun:null;
+  const result={uid:run.uid,score:run.score,time:run.time,bosses:run.bosses,kills:run.kills};
+  const localPB=!priorLocal||lbCompare(run,priorLocal)<0;
+  if(localPB){S.bestRun=result;if(!S.pendingRun||S.pendingRun.uid!==run.uid||lbCompare(run,S.pendingRun)<0)S.pendingRun={...run,allTime:true}}
+  if(!priorDay||lbCompare(run,priorDay)<0){if(S.day!==dk)S.dayBestRun=null;S.day=dk;S.dayBestRun=result}
+  if(localPB||!priorDay||lbCompare(run,priorDay)<0)persist();
+  const pb=document.createElement('p');pb.className='lbpb';pb.textContent=`${L('个人最高分','Personal best')} · ${Math.round(S.bestRun.score).toLocaleString('en-US')}`;
   const line=document.createElement('button');line.type='button';line.className='lbline';line.innerHTML=`<span class="rk">…</span><span class="tx">${L('排名结算中','Ranking…')}</span>`;
   line.onclick=()=>{SFX.pick(1);openLeaderboard('endless')};
-  const anchor=container.querySelector('.endmore');if(anchor)anchor.before(line);else container.appendChild(line);
+  const anchor=container.querySelector('.endmore');if(anchor){anchor.before(line);anchor.before(pb)}else{container.appendChild(line);container.appendChild(pb)}
   let all=null,today=null;try{[all,today]=await Promise.all([LB.fetch('endless').catch(()=>null),dk===dayKey()?LB.fetch('today').catch(()=>null):Promise.resolve(null)])}catch(_){}
   const mine=r=>run.uid?r.uid===run.uid:r.name===run.name;
-  const S=SAVE.lb&&typeof SAVE.lb==='object'?SAVE.lb:(SAVE.lb={});
-  if(S.rankBy!=='endless-score'){S.rankBy='endless-score';S.bestRun=null;S.dayBestRun=null}
   const old=all&&all.ok?all.rows.find(mine):null,oldDay=today&&today.ok?today.rows.find(mine):null;
-  const previous=all&&all.ok?old:S.bestRun;
-  const previousDay=today&&today.ok?oldDay:S.day===dk?S.dayBestRun:null;
+  const previous=old&&priorLocal?(lbCompare(old,priorLocal)<0?old:priorLocal):(old||priorLocal);
+  const previousDay=oldDay&&priorDay?(lbCompare(oldDay,priorDay)<0?oldDay:priorDay):(oldDay||priorDay);
   const allPB=!previous||lbCompare(run,previous)<0;
   const dayPB=!previousDay||lbCompare(run,previousDay)<0;
+  const retry=isRetry&&S.pendingRun?.score===run.score&&S.pendingRun?.uid===run.uid;
+  if(old&&lbCompare(old,S.bestRun)<0){S.bestRun={uid:old.uid,score:old.score,time:old.time,bosses:old.bosses,kills:old.kills};pb.textContent=`${L('个人最高分','Personal best')} · ${Math.round(old.score).toLocaleString('en-US')}`;if(S.pendingRun?.score<old.score)delete S.pendingRun;persist()}
   let posted=false;
-  if(allPB||dayPB){try{const r=await LB.submit({...run,allTime:allPB});posted=!!(r&&r.ok)}catch(_){}
-    if(posted&&LB.me()===run.uid){const result={uid:run.uid,score:run.score,time:run.time,bosses:run.bosses,kills:run.kills};if(allPB&&(!S.bestRun||lbCompare(result,S.bestRun)<0))S.bestRun=result;if(!S.day||dk>=S.day){if(S.day!==dk)S.dayBestRun=null;S.day=dk;if(!S.dayBestRun||lbCompare(result,S.dayBestRun)<0)S.dayBestRun=result}persist();lbMenuRank()}}
-  if((allPB||dayPB)&&!posted){line.innerHTML=`<span class="rk">!</span><span class="tx">${L('上传失败','Upload failed')}</span><span class="arr">↻</span>`;line.onclick=()=>{SFX.pick(1);line.remove();submitRun(container,run)};return}
+  if(allPB||dayPB||retry){try{const r=await LB.submit({...run,allTime:allPB||retry});posted=!!(r&&r.ok)}catch(_){}
+    if(posted&&(!run.uid||LB.me()===run.uid)){if((allPB||retry)&&S.pendingRun?.score<=run.score)delete S.pendingRun;persist();lbMenuRank()}}
+  if((allPB||dayPB||retry)&&!posted){line.innerHTML=`<span class="rk">!</span><span class="tx">${L('上传失败','Upload failed')}</span><span class="arr">↻</span>`;line.onclick=()=>{SFX.pick(1);line.remove();submitRun(container,run)};return}
   if(!all||!all.ok){line.remove();return}
   const others=all.rows.filter(r=>!mine(r)),oldI=all.rows.indexOf(old);
   const best=posted&&allPB?run:old;

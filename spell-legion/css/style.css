@@ -1115,6 +1115,7 @@ html[lang=zh] #menu .ttb h1.entitle{display:none}
 .lbline .up{font:800 13px var(--cute);color:#062a14;background:#7dffb0;border-radius:999px;padding:2px 8px}
 .lbline .tx{flex:1;min-width:0}.lbline .arr{font-size:22px;color:var(--dim)}
 .lbline.pop{animation:lbpop .5s cubic-bezier(.34,1.56,.64,1) both}@keyframes lbpop{0%{transform:scale(.92);opacity:0}}
+.lbpb{margin:4px 0 10px;text-align:center;color:#ffd27a;font:800 15px var(--cute)}
 @media (max-width:640px){#lb{padding:8px;align-items:stretch}.lbbox{max-height:none;height:100%}}
 
 /* duel: the room owns difficulty and map (switching map reloads the page and would drop the room); hide the solo pickers */

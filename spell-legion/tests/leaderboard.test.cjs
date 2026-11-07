@@ -7,9 +7,10 @@ const source=n=>fs.readFileSync(path.join(__dirname,'../js',n+'.js'),'utf8');
 function node(){return {innerHTML:'',children:[],classList:{add(){}},appendChild(x){this.children.push(x)},querySelector(){return null},remove(){this.removed=true},setAttribute(){}}}
 function setup(extra={}){
   const nodes={};const c=vm.createContext({console:{warn(){}},Date,Math,Map,Set,JSON,Number,String,URLSearchParams,AbortController,setTimeout,clearTimeout,
+    window:{},location:{hostname:'spelllegion.com',origin:'https://spelllegion.com'},
     localStorage:{getItem(){return null},setItem(){}},crypto:require('node:crypto').webcrypto,
     document:{createElement:node,querySelectorAll:()=>[]},$:s=>nodes[s]||(nodes[s]=node()),
-    SAVE:{name:'Hero',avatar:{e:1,h:50}},G:{t:123,day:20261107,cls:'swordsman',score:50,kills:200,bossSlain:1,lv:12,comboMax:20,relics:[]},
+    SAVE:{name:'Hero',mode:'solo',avatar:{e:1,h:50}},G:{t:123,day:20261107,cls:'swordsman',score:50,kills:200,bossSlain:1,lv:12,comboMax:20,relics:[]},
     MAPID:'valley',DIFFID:'normal',RIVAL_ON:false,ASURA_T:0,L:(zh,en)=>en,dayKey:()=>20261107,persist(){},SFX:{pick(){}},
     firebase:{firestore:{FieldValue:{serverTimestamp:()=> 'server-time'}}},...extra});
   vm.runInContext(source('cloud'),c);vm.runInContext(source('leaderboard'),c);
@@ -32,6 +33,16 @@ test('public leaderboard and profiles load before login or SDK initialization',a
   const profiles=await lb.profiles([{uid:'u1'}]);assert.ok(profiles.u1);
   assert.equal(requests.length,2);assert.ok(requests[0].url.endsWith('/documents:runQuery'));
   assert.equal(requests[1].body.structuredQuery.where.fieldFilter.op,'IN');
+});
+test('leaderboard falls back to the shared proxy when direct Firestore is unreachable',async()=>{
+  const urls=[],result=[{document:{name:'projects/x/databases/(default)/documents/runs/u1',fields:{uid:{stringValue:'u1'},score:{integerValue:'900'},mode:{stringValue:'solo'}}}}];
+  const {clb}=setup({location:{hostname:'hyang.org',origin:'https://hyang.org'},fetch:async url=>{
+    urls.push(url);if(urls.length===1)throw new TypeError('network blocked');return {ok:true,json:async()=>result};
+  }});
+  const board=await clb.fetch('endless');
+  assert.equal(board.rows[0].score,900);
+  assert.ok(urls[0].startsWith('https://firestore.googleapis.com/'));
+  assert.ok(urls[1].startsWith('https://spelllegion.com/api/cn-proxy/firestore/'));
 });
 test('an unauthenticated viewer is never mistaken for another player with the same name',()=>{
   const {lb}=setup();assert.equal(lb.isMe({uid:'someone-else',name:'Hero'}),false);
@@ -90,4 +101,27 @@ test('cloud merge preserves the best score across devices and keeps the correct 
   const {ev}=setup();const merge=ev('mergeSave');
   const result=merge({ts:2,lb:{rankBy:'score',bestRun:{score:900,time:100},day:20261107,dayBestRun:{score:900}}},{ts:1,lb:{rankBy:'score',bestRun:{score:100,time:1000},day:20261108,dayBestRun:{score:50}}});
   assert.equal(result.lb.bestRun.score,900);assert.equal(result.lb.day,20261108);assert.equal(result.lb.dayBestRun.score,50);
+});
+test('an offline endless best stays saved and uploads after reconnection',async()=>{
+  const {c,ev,lb,cloud}=setup();let posts=0;
+  c.SAVE.mode='solo';c.G.score=900;
+  lb.fetch=async()=>{throw new TypeError('offline')};
+  lb.submit=async()=>{posts++;return {ok:posts>1}};
+  await ev('submitRun')(node());
+  assert.equal(c.SAVE.lb.bestRun.score,900);
+  assert.equal(c.SAVE.lb.pendingRun.score,900);
+  cloud.ready=true;cloud.user={uid:'u'};
+  await ev('lbFlushPending()');
+  assert.equal(posts,2);
+  assert.equal(c.SAVE.lb.pendingRun,undefined);
+});
+test('an endless best is saved before the board responds, including a voluntary exit',async()=>{
+  const {c,ev,lb}=setup(),pending=deferred();
+  c.G.abandoned=true;c.G.score=1200;
+  lb.fetch=()=>pending.promise;lb.submit=async()=>({ok:false});
+  const container=node(),work=ev('submitRun')(container);
+  assert.equal(c.SAVE.lb.bestRun.score,1200);
+  assert.equal(c.SAVE.lb.pendingRun.score,1200);
+  assert.match(container.children[1].textContent,/1,200/);
+  pending.resolve({ok:true,rows:[]});await work;
 });

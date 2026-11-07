@@ -70,9 +70,10 @@ function mergeSave(local,cloud){
   const dd=o=>o.daily?.day||0;out.daily=clone(dd(cloud)>dd(local)?cloud.daily:dd(local)>dd(cloud)?local.daily:(local.daily&&cloud.daily?(local.daily.best>=cloud.daily.best?local.daily:cloud.daily):(local.daily||cloud.daily||null)));
   const ls=local.season||{},cs=cloud.season||{};out.season=clone((ls.id||0)>(cs.id||0)?ls:(cs.id||0)>(ls.id||0)?cs:{...ls,...cs,peak:Math.max(ls.peak||0,cs.peak||0)});
   const lb=local.lb||{},cb=cloud.lb||{};out.lb={...(lb.day>cb.day?lb:cb),best:Math.max(lb.best||0,cb.best||0)};if(lb.day===cb.day)out.lb.dayBest=Math.max(lb.dayBest||0,cb.dayBest||0);
-  if(lb.rankBy==='score'||cb.rankBy==='score'){
+  if(['score','endless-score'].includes(lb.rankBy)||['score','endless-score'].includes(cb.rankBy)){
     const better=(a,b)=>{if(!a)return b;if(!b)return a;for(const k of ['score','bosses','kills','time']){if((a[k]||0)!==(b[k]||0))return (a[k]||0)>(b[k]||0)?a:b}return a};
-    out.lb.rankBy='score';out.lb.bestRun=clone(better(lb.bestRun,cb.bestRun)||null);
+    out.lb.rankBy='endless-score';out.lb.bestRun=clone(better(lb.bestRun,cb.bestRun)||null);
+    out.lb.pendingRun=clone(better(lb.pendingRun,cb.pendingRun)||null);
     out.lb.day=Math.max(lb.day||0,cb.day||0);out.lb.dayBestRun=clone(lb.day===cb.day?better(lb.dayBestRun,cb.dayBestRun)||null:(lb.day>cb.day?lb.dayBestRun:cb.dayBestRun)||null);
   }
   out.ts=Math.max(+local.ts||0,+cloud.ts||0);if(typeof migrateProgression==='function')migrateProgression(out);delete out.autocast;return out;
@@ -229,14 +230,29 @@ const CLB={
   noAv:(()=>{try{return localStorage.getItem('sl_lb_noav')==='1'}catch(_){return false}})(),
   // These collections are public. Reading must not wait for Auth or the Firebase SDK.
   async query(parent,structuredQuery){
-    const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),10000);
+    const path=`/v1/projects/${FIREBASE_CONFIG.projectId}/databases/(default)/documents${parent?'/'+parent:''}:runQuery`;
+    const direct=`https://firestore.googleapis.com${path}`;
+    const proxyOrigin=['spelllegion.com','spell-legion.pages.dev','127.0.0.1'].includes(location.hostname)?location.origin:'https://spelllegion.com';
+    const proxy=`${proxyOrigin}/api/cn-proxy/firestore${path}`;
+    const body=JSON.stringify({structuredQuery});
+    const read=async(url,ms)=>{
+      const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),ms);
+      try{
+        const response=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body,signal:controller.signal});
+        if(!response.ok)throw new Error('Leaderboard read failed: '+response.status);
+        return await response.json();
+      }finally{clearTimeout(timer)}
+    };
     try{
-      const url=`https://firestore.googleapis.com/v1/projects/${FIREBASE_CONFIG.projectId}/databases/(default)/documents${parent?'/'+parent:''}:runQuery`;
-      const response=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({structuredQuery}),signal:controller.signal});
-      if(!response.ok)throw new Error('Leaderboard read failed: '+response.status);
+      let result;
+      try{result=await read(direct,6000)}
+      catch(e){
+        if(window.SPELL_CN_PROXY||!['spelllegion.com','spell-legion.pages.dev','hyang.org','leehomyc.github.io','127.0.0.1'].includes(location.hostname))throw e;
+        result=await read(proxy,10000);
+      }
       const decode=v=>v.integerValue!==undefined?Number(v.integerValue):v.doubleValue!==undefined?v.doubleValue:v.stringValue!==undefined?v.stringValue:v.booleanValue!==undefined?v.booleanValue:v.mapValue?Object.fromEntries(Object.entries(v.mapValue.fields||{}).map(([k,x])=>[k,decode(x)])):v.arrayValue?(v.arrayValue.values||[]).map(decode):v.timestampValue||null;
-      return (await response.json()).filter(x=>x.document).map(x=>({...Object.fromEntries(Object.entries(x.document.fields||{}).map(([k,v])=>[k,decode(v)])),_id:x.document.name.split('/').pop()}));
-    }finally{clearTimeout(timer)}
+      return result.filter(x=>x.document).map(x=>({...Object.fromEntries(Object.entries(x.document.fields||{}).map(([k,v])=>[k,decode(v)])),_id:x.document.name.split('/').pop()}));
+    }catch(e){console.warn('leaderboard query failed',e);throw e}
   },
   async raw(board){
     const day=board==='today'?dayKey():0,key=day?'today:'+day:'endless';

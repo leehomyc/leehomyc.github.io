@@ -1,6 +1,6 @@
 // Fixed upstreams only: the mainland route forwards Firebase traffic over the
 // existing Pages origin, without changing the standard client or its database.
-const ORIGINS=new Set(['https://spelllegion.com','https://spell-legion.pages.dev']);
+const ORIGINS=new Set(['https://spelllegion.com','https://spell-legion.pages.dev','https://hyang.org','https://leehomyc.github.io']);
 const API_KEY='AIzaSyDeI9V8qBVB2B1lqZP5BaedYhaToHfs6Z8';
 const allowedOrigin=request=>{
  const url=new URL(request.url),origin=request.headers.get('Origin');
@@ -19,6 +19,7 @@ export async function proxyFirebase(request){
  const url=new URL(request.url),match=url.pathname.match(/^\/api\/cn-proxy\/([^/]+)(\/.*)$/);
  if(!match)return deny(404,'Not found');
  const route=ROUTES[match[1]];
+ if(request.method==='OPTIONS'&&match[1]==='firestore'&&match[2].startsWith('/v1/projects/spell-legion/databases/(default)/documents')&&allowedOrigin(request))return new Response(null,{status:204,headers:{'Access-Control-Allow-Origin':request.headers.get('Origin'),'Access-Control-Allow-Methods':'POST, OPTIONS','Access-Control-Allow-Headers':'Content-Type','Access-Control-Max-Age':'3600','Vary':'Origin'}});
  if(!route||!route.methods.includes(request.method)||!match[2].startsWith(route.prefix))return deny(403,'Forbidden');
  if(request.method==='POST'&&!allowedOrigin(request))return deny(403,'Origin denied');
  if(Number(request.headers.get('Content-Length')||0)>1500000)return deny(413,'Request too large');
