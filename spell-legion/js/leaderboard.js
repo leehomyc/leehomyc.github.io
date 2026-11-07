@@ -61,7 +61,7 @@ function wireLeaderboard(){
   lbMenuRank();
 }
 async function lbMenuRank(){
-  const b=$('#lbbtn'),rk=$('#lbrank');if(!b)return;b.hidden=!LB.enabled();if(b.hidden)return;
+  const b=$('#lbbtn'),rk=$('#lbrank');if(!b)return;b.hidden=false;if(!LB.enabled())return;
   try{const d=await LB.fetch('all');if(!d||!d.ok)return;const i=d.rows.findIndex(r=>LB.isMe(r));rk.textContent=i>=0?'#'+(i+1):''}catch(_){}
 }
 /* ---- after a run: post a new best automatically, show one line ---- */
@@ -71,7 +71,7 @@ async function submitRun(container){
   const dk=G.day||dayKey(),t=Math.round(G.t);
   const line=document.createElement('button');line.type='button';line.className='lbline';line.innerHTML=`<span class="rk">…</span><span class="tx">${L('排名结算中','Ranking…')}</span>`;
   line.onclick=()=>{SFX.pick(1);openLeaderboard('all')};
-  const anchor=container.querySelector('.stat.main');if(anchor)anchor.before(line);else container.appendChild(line);
+  const anchor=container.querySelector('.endmore');if(anchor)anchor.before(line);else container.appendChild(line);
   let all=null,today=null;try{[all,today]=await Promise.all([LB.fetch('all').catch(()=>null),LB.fetch('today').catch(()=>null)])}catch(_){}
   const S=SAVE.lb&&typeof SAVE.lb==='object'?SAVE.lb:(SAVE.lb={best:0,day:0,dayBest:0});if(S.day!==dk){S.day=dk;S.dayBest=0}
   const mineT=d=>{if(!d||!d.ok)return null;const m=d.rows.find(r=>LB.isMe(r));return m?m.time:0};

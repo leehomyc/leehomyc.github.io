@@ -1,9 +1,9 @@
 'use strict';
-/* gear.js — 装备 (Diablo-style loot for solo endless) and 经脉 (an endless gold sink).
+/* gear.js — 装备 (solo loot) and the unified 修炼 gold sink.
    - Four slots. Items drop from bosses, the Warlord, bounty champions, chests, elites and (rarely) anything.
    - Rarity colours a light beam on the ground; legendaries carry a unique power that changes how the build plays.
-   - Gear and meridians apply only in solo (applyUpgrades is never called in duels, rooms or the daily), so ranked stays fair.
-   - Higher Ascension tiers and later bosses roll higher item tiers (品阶): the reason to keep climbing. */
+   - Gear and training apply only in solo (applyUpgrades is never called in duels, rooms or the daily), so ranked stays fair.
+   - Survival time and bosses slain determine item tier and rarity; Ascension remains a separate challenge. */
 const GEAR_SLOTS={weapon:{zh:'兵器',en:'Weapon',g:'兵'},armor:{zh:'护甲',en:'Armour',g:'甲'},trinket:{zh:'饰物',en:'Trinket',g:'饰'},manual:{zh:'秘籍',en:'Manual',g:'籍'}};
 const GEAR_RAR=[{k:'common',zh:'凡品',en:'Common',col:'#cfc6b2',n:1,m:.85,w:46},{k:'fine',zh:'良品',en:'Fine',col:'#6fb8ff',n:2,m:1,w:32},{k:'rare',zh:'精品',en:'Rare',col:'#ffd75a',n:3,m:1.12,w:15},{k:'epic',zh:'绝品',en:'Epic',col:'#c7a4f0',n:4,m:1.25,w:5.5},{k:'legend',zh:'传说',en:'Legendary',col:'#ff9c3a',n:3,m:1.3,w:1.5}];
 /* affixes: b = base value at item tier 1; cap = per-item ceiling; x = handled at hit time rather than on the hero's stats */
@@ -49,20 +49,35 @@ const GEAR_LEG={
   jiuyin:{slot:'manual',zh:'九阴真经',en:'Nine Yin Manual',d:'内力九成以上时,武学伤害 +30%;武学击杀回复 2 内力',de:'Skills deal +30% while qi is above 90%; skill kills restore 2 qi'},
   beiming:{slot:'manual',zh:'北冥神功',en:'Northern Abyss Art',d:'武学命中有 4% 几率立刻刷新它的冷却',de:'Skill hits have a 4% chance to reset that skill\'s cooldown'},
 };
+// The former class legendary attacks are now weapon drops, with no separate unlock counter.
+for(const cls in WEAPONS)for(const w of WEAPONS[cls])if(WEAPON_INFO[w]?.need==='legend'){
+  const m=SPELLS[w];GEAR_LEG['hero_'+w]={slot:'weapon',cls,weapon:w,zh:m.zh,en:m.en,d:`${CLASSES[cls].zh}专属普攻:${m.d}`,de:`${CLASSES[cls].en} attack: ${m.de}`};
+}
 const GEAR_INV_MAX=40;
 function gearSave(){SAVE.gear=SAVE.gear||{inv:[],eq:{},pity:0,seq:0,found:0};const g=SAVE.gear;g.inv=g.inv||[];g.eq=g.eq||{};g.removed=g.removed||{};return g}
 function gearChanged(it){const g=gearSave();g.ts=Date.now();if(it)it.ts=g.ts;persist()}
 function gearRemove(it){const g=gearSave();g.removed[it.id]=Date.now();g.inv=g.inv.filter(x=>x.id!==it.id);g.ts=Date.now()}
 function gearById(id){return gearSave().inv.find(x=>x.id===id)}
+function gearWeaponFor(cls){const it=gearById(gearSave().eq.weapon),leg=it&&GEAR_LEG[it.leg];return leg&&leg.cls===cls?leg.weapon:null}
+function gearMigrateLegends(){
+  const g=gearSave();SAVE.legendMigrated=SAVE.legendMigrated||{};let changed=false;
+  for(const k in GEAR_LEG){const leg=GEAR_LEG[k];if(!leg.weapon||SAVE.legendMigrated[leg.weapon])continue;
+    if(!SAVE.weaponOwned?.[leg.weapon]&&(SAVE.clsBest?.[leg.cls]||0)<3)continue;
+    SAVE.legendMigrated[leg.weapon]=1;const id='legacy-legend-'+leg.weapon;
+    if(!g.removed[id]&&!g.inv.some(x=>x.id===id)){const it=makeGear({rar:4,leg:k,tier:1});it.id=id;it.lock=true;g.inv.push(it);g.found=(g.found||0)+1;if(SAVE.weapon?.[leg.cls]===leg.weapon&&!g.eq.weapon)g.eq.weapon=id}changed=true;
+  }
+  if(changed)gearChanged();
+}
 function gearEquipped(){const g=gearSave(),out=[];for(const k in GEAR_SLOTS){const it=g.eq[k]&&gearById(g.eq[k]);if(it)out.push(it)}return out}
-/* item tier: Ascension tier and how deep into the run the drop came */
-function gearTierNow(){return 1+(typeof ASURA_T!=='undefined'?ASURA_T:0)+Math.floor((G.bossN||0)/3)}
-function rollGearRar(min){const t=typeof ASURA_T!=='undefined'?ASURA_T:0,w=GEAR_RAR.map((r,i)=>i<min?0:r.w*(i>=3?1+t*.12:1));let r=rnd(w.reduce((a,b)=>a+b,0));for(let i=0;i<w.length;i++){if(r<w[i])return i;r-=w[i]}return 0}
+/* Item quality follows time survived and credited boss kills, independent of Ascension. */
+function gearDepth(){return Math.floor((G?.t||0)/300)+Math.floor((G?.bossSlain||0)/2)}
+function gearTierNow(){return 1+gearDepth()}
+function rollGearRar(min){const t=gearDepth(),w=GEAR_RAR.map((r,i)=>i<min?0:r.w*(i>=3?1+t*.12:1));let r=rnd(w.reduce((a,b)=>a+b,0));for(let i=0;i<w.length;i++){if(r<w[i])return i;r-=w[i]}return 0}
 function gearVal(k,tier,rm){const A=GEAR_AFX[k];let v=A.b*(1+(tier-1)*.22)*rm*rnd(.75,1.15);if(A.cap)v=Math.min(A.cap,v);return v<3?Math.round(v*10)/10:Math.round(v)}
 function makeGear(opts={}){const g=gearSave();let ri=opts.rar!==undefined?opts.rar:rollGearRar(opts.min||0);
   g.pity=(g.pity||0)+1;if(ri<4&&g.pity>=45){ri=4} if(ri===4)g.pity=0;
   const R=GEAR_RAR[ri],tier=opts.tier||gearTierNow();let slot=opts.slot,leg=null;
-  if(ri===4){const keys=Object.keys(GEAR_LEG).filter(k=>!slot||GEAR_LEG[k].slot===slot);leg=pick(keys);slot=GEAR_LEG[leg].slot}
+  if(ri===4){const keys=Object.keys(GEAR_LEG).filter(k=>!slot||GEAR_LEG[k].slot===slot);leg=opts.leg||pick(keys);slot=GEAR_LEG[leg].slot}
   slot=slot||pick(Object.keys(GEAR_SLOTS));
   const pool=Object.keys(GEAR_AFX).filter(k=>GEAR_AFX[k].slots.includes(slot)),afx=[];
   const n=R.n;const sh=pool.slice().sort(()=>rnd()-.5);for(let i=0;i<n&&i<sh.length;i++)afx.push({k:sh[i],v:gearVal(sh[i],tier,R.m)});
@@ -83,7 +98,7 @@ function takeGear(it){const g=gearSave();g.found=(g.found||0)+1;G.gearFound=G.ge
   if(typeof showSide==='function')showSide(`拾取 ${R.zh} · ${it.zh}${up?' ▲':''}`,`Picked up ${R.en} · ${it.en}${up?' ▲':''}`,R.col,'relic');spark(G.P.x,G.P.y,R.col,14,90);if(typeof SFX!=='undefined')(it.r>=3?SFX.chest():SFX.pick(1))}
 xOn('tick',dt=>{const P=G.P;for(const f of G.fx){if(f.k==='gear'&&P.down<=0&&hyp(f.x-P.x,f.y-P.y)<24*Math.min(3,P.mag)){f.t=0;takeGear(f.it)}}});
 xOn('kill',(e,s)=>{if(!gearOn()||G.creditOff)return;
-  if(e.type==='boss'){dropGear(e.x,e.y,{min:1});if((G.bossN||0)>=3)dropGear(e.x+20,e.y,{min:0})}
+  if(e.type==='boss'){dropGear(e.x,e.y,{min:1});if((G.bossSlain||0)>=3)dropGear(e.x+20,e.y,{min:0})}
   else if(e.warlord||e.champion)dropGear(e.x,e.y,{min:1});
   else if(e.elite){if(rnd()<.05)dropGear(e.x,e.y)}
   else if(rnd()<.0005)dropGear(e.x,e.y)});
@@ -122,22 +137,27 @@ xOn('fire',s=>{if(!G.gx)return;const w=G.spells[0];if(s!==w)return;
 xOn('cast',()=>{if(gxL('yijin'))G._yjT=G.t+3});
 (()=>{const dz=dash;dash=function(){const r=dz();if(r&&G&&G.gx&&gxL('tiancan')&&!G.auto){const P=G.P;P.dashCd*=.7;later(.2,()=>{const d=22*P.dmg*(1+P.dmgBonus)*(1+G.t/300);near(P.x,P.y,60,e=>{if(e.type==='statue')return;const dx=e.x-P.x,dy=e.y-P.y,l=hyp(dx,dy)||1;if(l<60+e.r)hit(e,d,null,true,'#efe4cd',dx/l*200,dy/l*200)});ring(P.x,P.y,58,'#efe4cd')})}return r}})();
 
-/* ---------- 经脉 meridians: endless, small, compounding ---------- */
-const MERIDIANS=[
-  {id:'ren',zh:'任脉',en:'Conception',d:'生命 +1%',de:'+1% max HP',ap:(P,n)=>{P.maxHp=Math.round(P.maxHp*(1+.01*n));P.hp=P.maxHp}},
-  {id:'du',zh:'督脉',en:'Governor',d:'伤害 +1%',de:'+1% damage',ap:(P,n)=>{P.dmg*=1+.01*n}},
-  {id:'chong',zh:'冲脉',en:'Thrusting',d:'暴击 +0.25%',de:'+0.25% crit',ap:(P,n)=>{P.crit+=.0025*n}},
-  {id:'dai',zh:'带脉',en:'Girdle',d:'受到伤害 -0.3%(至多 15%)',de:'-0.3% damage taken (to 15%)',ap:(P,n)=>{P.def*=1-Math.min(.15,.003*n)}},
-  {id:'yinwei',zh:'阴维',en:'Yin Link',d:'内力回复 +1.5%',de:'+1.5% qi regen',ap:(P,n)=>{P.regen*=1+.015*n}},
-  {id:'yangwei',zh:'阳维',en:'Yang Link',d:'冷却 -0.3%(至多 15%)',de:'-0.3% cooldowns (to 15%)',ap:(P,n)=>{P.haste/=1-Math.min(.15,.003*n)}},
-  {id:'yinqiao',zh:'阴跷',en:'Yin Heel',d:'移速 +0.3%(至多 15%)',de:'+0.3% speed (to 15%)',ap:(P,n)=>{P.spd*=1+Math.min(.15,.003*n)}},
-  {id:'yangqiao',zh:'阳跷',en:'Yang Heel',d:'金币 +1%',de:'+1% gold',ap:(P,n)=>{G.curse.gold=(G.curse.gold||1)*(1+.01*n)}},
+/* ---------- 修炼: the only place to spend gold ---------- */
+const TRAINING=[
+  {id:'ren',zh:'体魄',en:'Vigor',d:'生命 +1% / 级',de:'+1% max HP / rank',ap:(P,n)=>{P.maxHp=Math.round(P.maxHp*(1+.01*n));P.hp=P.maxHp}},
+  {id:'du',zh:'锋芒',en:'Edge',d:'伤害 +1% / 级',de:'+1% damage / rank',ap:(P,n)=>{P.dmg*=1+.01*n}},
+  {id:'chong',zh:'会心',en:'Precision',d:'暴击 +0.25% / 级',de:'+0.25% crit / rank',max:100,ap:(P,n)=>{P.crit+=.0025*n}},
+  {id:'dai',zh:'护体',en:'Guard',d:'受到伤害 -0.3% / 级',de:'-0.3% damage taken / rank',max:50,ap:(P,n)=>{P.def*=1-Math.min(.15,.003*n)}},
+  {id:'yinwei',zh:'回气',en:'Qi Flow',d:'内力回复 +1.5% / 级',de:'+1.5% qi regen / rank',ap:(P,n)=>{P.regen*=1+.015*n}},
+  {id:'yangwei',zh:'疾攻',en:'Haste',d:'冷却 -0.3% / 级',de:'-0.3% cooldowns / rank',max:50,ap:(P,n)=>{P.haste/=1-Math.min(.15,.003*n)}},
+  {id:'yinqiao',zh:'轻功',en:'Footwork',d:'移速 +0.3% / 级',de:'+0.3% speed / rank',max:50,ap:(P,n)=>{P.spd*=1+Math.min(.15,.003*n)}},
+  {id:'yangqiao',zh:'财运',en:'Fortune',d:'金币 +1% / 级',de:'+1% gold / rank',ap:(P,n)=>{G.curse.gold=(G.curse.gold||1)*(1+.01*n)}},
 ];
-function merSave(){SAVE.mer=SAVE.mer||{};return SAVE.mer}
-function merTotal(){const m=merSave();return MERIDIANS.reduce((a,x)=>a+(m[x.id]||0),0)}
-function merCost(){return 150+30*merTotal()}
-function merApply(P){const m=merSave();for(const x of MERIDIANS)if(m[x.id])x.ap(P,m[x.id])}
-(()=>{const au=applyUpgrades;applyUpgrades=function(P){au(P);try{merApply(P);gearApply(P)}catch(err){console.error(err)}}})();
+function trainingSave(){SAVE.training=SAVE.training||{};return SAVE.training}
+function trainingTotal(){return TRAINING.reduce((a,x)=>a+(trainingSave()[x.id]||0),0)}
+function trainingCost(){return 150+30*trainingTotal()}
+function trainingApply(P){const m=trainingSave();for(const x of TRAINING)if(m[x.id])x.ap(P,m[x.id])}
+function buyTraining(id){const x=TRAINING.find(x=>x.id===id);if(!x)return false;const m=trainingSave(),n=m[id]||0,c=trainingCost();if(SAVE.gold<c||(x.max&&n>=x.max))return false;SAVE.gold-=c;m[id]=n+1;persist();return true}
+function renderTraining(){const el=$('#shop');if(!el)return;const m=trainingSave(),cost=trainingCost();el.hidden=false;
+  el.innerHTML=TRAINING.map(x=>{const n=m[x.id]||0,max=x.max&&n>=x.max;return `<button type="button" class="up" data-train="${x.id}" ${max||SAVE.gold<cost?'disabled':''}><b>${L(x.zh,x.en)}</b><span class="rk">Lv ${n}</span><span class="dd">${L(x.d,x.de)}</span><span class="pr">${max?L('已满','Max'):cost+' '+L('金','gold')}</span></button>`}).join('');
+  el.querySelectorAll('[data-train]').forEach(b=>b.onclick=()=>{if(!buyTraining(b.dataset.train))return;if(typeof SFX!=='undefined')SFX.complete();renderTitle();renderRoad()});
+}
+(()=>{const au=applyUpgrades;applyUpgrades=function(P){au(P);trainingApply(P);gearApply(P)}})();
 
 /* ---------- the 行囊 panel ---------- */
 xCss(`
@@ -185,28 +205,26 @@ function renderGear(){const box=$('#gearbody');if(!box)return;const g=gearSave()
   const list=g.inv.filter(it=>gearFilt==='all'||it.slot===gearFilt).sort((a,b)=>(b.r-a.r)||(b.t-a.t)||(gearScore(b)-gearScore(a)));
   const cells=list.map(it=>{const R=GEAR_RAR[it.r],isEq=Object.values(eq).includes(it.id),cur=eq[it.slot]&&gearById(eq[it.slot]),up=!isEq&&gearScore(it)>gearScore(cur);return `<button type="button" class="gcell${gearSel===it.id?' sel':''}${isEq?' eq':''}${up?' up':''}${it.new?' nw':''}" data-id="${it.id}" style="--rc:${R.col}" title="${xEsc(L(it.zh,it.en))}">${gearIcon(it)}${it.lock?'<span class="lk">🔒</span>':''}</button>`}).join('');
   const filt=['all',...Object.keys(GEAR_SLOTS)].map(k=>`<button type="button" data-f="${k}" class="${gearFilt===k?'on':''}">${k==='all'?L('全部','All'):LL(GEAR_SLOTS[k])}</button>`).join('');
-  const mer=merSave(),cost=merCost();
-  const mers=MERIDIANS.map(x=>`<button type="button" data-m="${x.id}" ${SAVE.gold<cost?'disabled':''}><span><b>${L(x.zh,x.en)}</b><small>${L(x.d,x.de)}</small></span><em>${mer[x.id]||0}</em></button>`).join('');
+
   const sel=gearSel&&gearById(gearSel);
   box.innerHTML=`<div class="gwrap"><div><div class="gsec"><span>${L('已装备','Equipped')}</span></div><div class="geq">${slots}</div>${gearDetail(sel)}</div>
-    <div><div class="gsec"><span>${L('行囊','Bag')} ${g.inv.length}/${GEAR_INV_MAX}</span><span>${L('仅出山生效 · 对决与每日不计','Solo only · not used in duels or the daily')}</span></div><div class="gfilt">${filt}</div><div class="ginv">${cells||`<span class="meta" style="grid-column:1/-1;color:#a99f8d;font-size:13px">${L('还没有装备。斩杀首领、统领、悬赏和打开金宝箱会掉落装备,修罗层越高品阶越高。','No gear yet. Bosses, the Warlord, bounties and golden chests drop it; higher Ascension tiers drop higher tiers.')}</span>`}</div>
-    <div class="gsec" style="margin-top:14px"><span>${L('经脉','Meridians')} · ${merTotal()} ${L('重','pts')}</span><span>${L('下一重','next point')} ${cost} ${L('金','gold')} · ${L('持有','have')} ${SAVE.gold}</span></div><div class="gmer">${mers}</div></div></div>`;
+    <div><div class="gsec"><span>${L('行囊','Bag')} ${g.inv.length}/${GEAR_INV_MAX}</span><span>${L('仅出山生效 · 对决与每日不计','Solo only · not used in duels or the daily')}</span></div><div class="gfilt">${filt}</div><div class="ginv">${cells||`<span class="meta" style="grid-column:1/-1;color:#a99f8d;font-size:13px">${L('还没有装备。斩杀首领、统领、悬赏和打开金宝箱会掉落装备,存活越久、击败首领越多,掉落品质越高。','No gear yet. Bosses, the Warlord, bounties and golden chests drop it; survive longer and slay more bosses for better gear.')}</span>`}</div>
+    </div></div>`;
   box.querySelectorAll('[data-sl]').forEach(b=>b.onclick=()=>{const id=eq[b.dataset.sl];if(id){gearSel=id;renderGear()}else{gearFilt=b.dataset.sl;renderGear()}});
   box.querySelectorAll('[data-id]').forEach(b=>b.onclick=()=>{gearSel=b.dataset.id;const it=gearById(gearSel);if(it&&it.new){it.new=0;gearChanged(it)}renderGear();if(typeof SFX!=='undefined')SFX.pick(1)});
   box.querySelectorAll('[data-f]').forEach(b=>b.onclick=()=>{gearFilt=b.dataset.f;renderGear()});
-  box.querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>{const c=merCost();if(SAVE.gold<c)return;SAVE.gold-=c;mer[b.dataset.m]=(mer[b.dataset.m]||0)+1;persist();if(typeof SFX!=='undefined')SFX.levelup();renderGear();if(typeof renderProg==='function')renderProg()});
   box.querySelectorAll('[data-ga]').forEach(b=>b.onclick=()=>{const it=gearById(gearSel);if(!it)return;const a=b.dataset.ga;
-    if(a==='eq'){eq[it.slot]=it.id;it.new=0;if(typeof SFX!=='undefined')SFX.chest()}else if(a==='off'){delete eq[it.slot]}else if(a==='lock'){it.lock=!it.lock}else if(a==='sal'){SAVE.gold+=gearSalvage(it);gearRemove(it);gearSel=null;if(typeof SFX!=='undefined')SFX.pick(1)}
+    if(a==='eq'){eq[it.slot]=it.id;it.new=0;const lg=GEAR_LEG[it.leg];if(lg?.weapon){SAVE.weapon=SAVE.weapon||{};SAVE.weapon[lg.cls]=lg.weapon}if(typeof SFX!=='undefined')SFX.chest()}else if(a==='off'){delete eq[it.slot]}else if(a==='lock'){it.lock=!it.lock}else if(a==='sal'){SAVE.gold+=gearSalvage(it);gearRemove(it);gearSel=null;if(typeof SFX!=='undefined')SFX.pick(1)}
     gearChanged(it);renderGear();if(typeof renderProg==='function')renderProg()});
 }
-function openGear(){let ov=$('#gearov');if(!ov){ov=document.createElement('div');ov.id='gearov';ov.className='overlay';ov.hidden=true;ov.innerHTML=`<div class="cbox"><div class="ch"><h2><span>${L('行囊','Gear')}</span> <small>${L('装备 · 经脉','Equipment · Meridians')}</small></h2><button type="button" class="go alt sm" id="gearclose">${L('关闭','Close')}</button></div><div id="gearbody"></div></div>`;document.body.appendChild(ov);$('#gearclose').onclick=()=>{ov.hidden=true;if(typeof renderProg==='function')renderProg()};ov.addEventListener('click',e=>{if(e.target===ov)$('#gearclose').click()})}
+function openGear(){let ov=$('#gearov');if(!ov){ov=document.createElement('div');ov.id='gearov';ov.className='overlay';ov.hidden=true;ov.innerHTML=`<div class="cbox"><div class="ch"><h2><span>${L('行囊','Gear')}</span> <small>${L('仅在冒险中生效','Adventure only')}</small></h2><button type="button" class="go alt sm" id="gearclose">${L('关闭','Close')}</button></div><div id="gearbody"></div></div>`;document.body.appendChild(ov);$('#gearclose').onclick=()=>{ov.hidden=true;if(typeof renderProg==='function')renderProg()};ov.addEventListener('click',e=>{if(e.target===ov)$('#gearclose').click()})}
   if(!gearSel){const eq=gearSave().eq;gearSel=eq.weapon||null}renderGear();ov.hidden=false}
 function gearNewCount(){return gearSave().inv.filter(x=>x.new).length}
 /* a 行囊 chip on the menu strip */
 /* menu entry: a 行囊 button in the bottom tab bar (next to 江湖), shown once there is anything in it; the number is new, unseen items */
-(()=>{if(typeof renderProg!=='function')return;const rp=renderProg;renderProg=function(){rp();const bar=document.querySelector('#menu .tabbar');if(!bar)return;let b=$('#gearbtn');
-  const show=gearSave().inv.length||merTotal()||(SAVE.ach&&SAVE.ach.boss1);
-  if(!b){if(!show)return;b=document.createElement('button');b.type='button';b.id='gearbtn';b.title=L('行囊:装备与经脉','Gear and meridians');b.onclick=()=>{openGear();if(typeof SFX!=='undefined')SFX.pick(1)};const road=bar.querySelector('[data-t=road]');if(road)road.after(b);else bar.prepend(b)}
+(()=>{if(typeof renderProg!=='function')return;const rp=renderProg;renderProg=function(){rp();const bar=document.querySelector('#menu .tabbar');if(!bar)return;let b=$('#gearbtn');if(b&&!b.onclick)b.onclick=()=>{openGear();if(typeof SFX!=='undefined')SFX.pick(1)};
+  const show=true;
+  if(!b){if(!show)return;b=document.createElement('button');b.type='button';b.id='gearbtn';b.title=L('行囊:装备','Gear');b.onclick=()=>{openGear();if(typeof SFX!=='undefined')SFX.pick(1)};const road=bar.querySelector('[data-t=road]');if(road)road.after(b);else bar.prepend(b)}
   const n=gearNewCount();b.innerHTML=`${typeof ICON!=='undefined'?ICON.misc('relic','#ff9c3a','sm'):''}<span>${L('行囊','Gear')}</span>${n?` <b class="gn">${n}</b>`:''}`;b.hidden=!show}})();
 /* results: what dropped this run */
-xOn('end',box=>{if(!G.gearFound||!G.gearFound.length)return;const d=document.createElement('div');d.className='endgear';d.innerHTML=G.gearFound.slice(0,12).map(it=>{const R=GEAR_RAR[it.r];return `<span style="--rc:${R.col}">${it.leg?'✦ ':''}${xEsc(L(it.zh,it.en))}</span>`}).join('')+(G.gearFound.length>12?`<span style="--rc:#cfc6b2">+${G.gearFound.length-12}</span>`:'')+`<button type="button" class="go alt sm" id="endgearbtn">${L('去行囊','Open gear')}</button>`;box.appendChild(d);const b=$('#endgearbtn');if(b)b.onclick=()=>openGear()});
+xOn('end',box=>{if(!G.gearFound||!G.gearFound.length)return;const d=document.createElement('div');d.className='endgear';d.innerHTML=G.gearFound.slice(0,12).map(it=>{const R=GEAR_RAR[it.r];return `<span style="--rc:${R.col}">${it.leg?'✦ ':''}${xEsc(L(it.zh,it.en))}</span>`}).join('')+(G.gearFound.length>12?`<span style="--rc:#cfc6b2">+${G.gearFound.length-12}</span>`:'')+`<button type="button" class="go alt sm" id="endgearbtn">${L('去行囊','Open gear')}</button>`;const anchor=box.querySelector('details')||box.querySelector('.btns');if(anchor)anchor.before(d);else box.appendChild(d);const b=$('#endgearbtn');if(b)b.onclick=()=>openGear()});

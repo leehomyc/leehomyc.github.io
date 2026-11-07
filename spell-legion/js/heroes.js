@@ -44,22 +44,22 @@ Object.assign(CLASSES,{
   wizard:{zh:'巫师',en:'Wizard',g:'巫',col:'#a98bff',main:'arcane',skills:['frostnova','blink','manashield','blackhole'],hp:85,mana:150,regen:20,dmg:.97,spd:1,d:'奥术法球、冰霜与黑洞;来自西方的大法师。',de:'Arcane orbs, frost and black holes: a spellcaster from the far west.'},
 });
 Object.assign(WEAPONS,{oni:['katana','kusari','shiki'],idol:['lightstick','mic','pyro'],wizard:['arcane','fireball','meteor']});
-const L3=1500; // legendary weapons: three bosses in one run with that hero, or 1500 gold
+// Legendary attacks are equipment drops, equipped through the bag.
 Object.assign(WEAPON_INFO,{
-  swordcase:{need:'clsboss3',cost:L3,trait:['飞剑常伴·自动俯冲','Swords that stay and dive'],awake:['万剑随身·飞剑 +2,伤害 +15%','Swords Everywhere: +2 swords, +15% damage']},
-  thunder:{need:'clsboss3',cost:L3,trait:['天雷专劈强敌','Thunder seeks the toughest'],awake:['五雷正法·落雷 +2,每道雷多跳一次','True Five Thunders: +2 strikes, each arcs once more']},
-  flute:{need:'clsboss3',cost:L3,trait:['贯穿光束·减速','Piercing beam, slows'],awake:['凤鸣·分出两道副光束','Phoenix Cry: two side beams']},
-  bell:{need:'clsboss3',cost:L3,trait:['天降巨钟·眩晕','Falling bell, stuns'],awake:['晨钟暮鼓·双钟齐落,眩晕 +0.6s','Dawn Bell, Dusk Drum: two bells, +0.6 s stun']},
-  goldgu:{need:'clsboss3',cost:L3,trait:['常伴蛊虫·吸血孵化','Biting swarm, lifesteal, hatches'],awake:['蛊王·金蚕 +3,啃咬叠两层毒','Gu King: +3 silkworms, bites stack two poison']},
+  swordcase:{need:'legend',trait:['飞剑常伴·自动俯冲','Swords that stay and dive'],awake:['万剑随身·飞剑 +2,伤害 +15%','Swords Everywhere: +2 swords, +15% damage']},
+  thunder:{need:'legend',trait:['天雷专劈强敌','Thunder seeks the toughest'],awake:['五雷正法·落雷 +2,每道雷多跳一次','True Five Thunders: +2 strikes, each arcs once more']},
+  flute:{need:'legend',trait:['贯穿光束·减速','Piercing beam, slows'],awake:['凤鸣·分出两道副光束','Phoenix Cry: two side beams']},
+  bell:{need:'legend',trait:['天降巨钟·眩晕','Falling bell, stuns'],awake:['晨钟暮鼓·双钟齐落,眩晕 +0.6s','Dawn Bell, Dusk Drum: two bells, +0.6 s stun']},
+  goldgu:{need:'legend',trait:['常伴蛊虫·吸血孵化','Biting swarm, lifesteal, hatches'],awake:['蛊王·金蚕 +3,啃咬叠两层毒','Gu King: +3 silkworms, bites stack two poison']},
   katana:{trait:['快斩·十字','Quick cuts, cross-slash'],awake:['月华·每第二刀十字斩,刀光 +30% 更远','Moonlight: cross-cut every second swing, +30% reach']},
   kusari:{need:'clsboss',cost:500,trait:['钩拽·回旋','Hook, pull, spin'],awake:['缚魂·拉扯两倍敌人,回旋伤害 +30%','Soul Bind: pulls twice as many, +30% spin damage']},
-  shiki:{need:'clsboss3',cost:L3,trait:['纸鹤常伴·穿刺','Cranes that stay and pierce'],awake:['千羽鹤·纸鹤 +3,伤害 +25%','Thousand Cranes: +3 cranes, +25% damage']},
+  shiki:{need:'legend',trait:['纸鹤常伴·穿刺','Cranes that stay and pierce'],awake:['千羽鹤·纸鹤 +3,伤害 +25%','Thousand Cranes: +3 cranes, +25% damage']},
   lightstick:{trait:['弹射·多目标','Bounces between targets'],awake:['全场应援·弹射 +2,每跳不衰减','Full-House Cheer: +2 bounces, no falloff']},
   mic:{need:'clsboss',cost:500,trait:['扇形声浪·魅惑','Sound cone, charms'],awake:['绝对音感·每第二声就是高音,魅惑 +1s','Perfect Pitch: every second note is a high note, +1 s charm']},
-  pyro:{need:'clsboss3',cost:L3,trait:['烟火·星屑','Fireworks, star shards'],awake:['安可烟火·一次两发,星屑 +4','Encore Fireworks: two at once, +4 shards']},
+  pyro:{need:'legend',trait:['烟火·星屑','Fireworks, star shards'],awake:['安可烟火·一次两发,星屑 +4','Encore Fireworks: two at once, +4 shards']},
   arcane:{trait:['穿透法球·电击','Piercing orb that zaps'],awake:['奥术洪流·双法球,电击更快','Arcane Torrent: two orbs, faster zaps']},
   fireball:{need:'clsboss',cost:500,trait:['爆炸·点燃','Explodes, ignites'],awake:['炎爆·爆炸 +40%,留下火海','Pyroblast: +40% blast, leaves a sea of fire']},
-  meteor:{need:'clsboss3',cost:L3,trait:['陨星·燃烧陨坑','Meteors, burning craters'],awake:['星落·一次两颗陨星','Starfall: two meteors at once']},
+  meteor:{need:'legend',trait:['陨星·燃烧陨坑','Meteors, burning craters'],awake:['星落·一次两颗陨星','Starfall: two meteors at once']},
 });
 Object.assign(NODE_EN,{'+1 飞剑 / 级':'+1 sword / rank','+1 雷 / 级':'+1 strike / rank','+1 副光束 / 级':'+1 side beam / rank','+1 钟 / 级':'+1 bell / rank','+1 金蚕 / 级':'+1 silkworm / rank','+1 刀光 / 级':'+1 crescent / rank','+2 拽人 / 级':'+2 pulled / rank','+1 纸鹤 / 级':'+1 crane / rank','+1 弹射 / 级':'+1 bounce / rank','+1 回声 / 级':'+1 echo / rank','+2 星屑 / 级':'+2 shards / rank','+1 法球 / 级':'+1 orb / rank','+1 陨星 / 级':'+1 meteor / rank','+1 狐火 / 级':'+1 foxfire / rank','+2 爱心 / 级':'+2 hearts / rank','魅惑 +1s / 级':'Charm +1 s / rank','冻结 +0.5s / 级':'Freeze +0.5 s / rank','吸力 +15% / 级':'Pull radius +15% / rank','残影有几率再斩一次':'The afterimage may cut once more','刀痕有几率引发电弧':'Scars may discharge arcs','命中有几率引发电弧':'Hits may arc lightning','爆炸有几率引发连锁':'The burst may chain a second one','着迷的敌人死亡时爆开':'Charmed enemies burst when they die'});
 Object.assign(TREES,{
@@ -98,10 +98,6 @@ AUGS.giant.for.push('katana','kusari','mic','pyro','arcane','fireball','meteor',
 Object.assign(AUTO_WHEN,{flash:['前方成群','a group ahead'],onibi:['附近 ≥3 敌','≥3 enemies near'],seal:['附近 ≥5 敌或首领战','≥5 enemies or a boss'],sakura:['附近 ≥6 敌或首领战','≥6 enemies or a boss'],wink:['附近 ≥4 敌','≥4 enemies near'],dance:['被围或生命 <50%','surrounded or HP <50%'],fanchant:['附近 ≥6 敌或首领战','≥6 enemies or a boss'],encore:['其他武学都在冷却','other skills on cooldown'],blink:['被围或生命 <40%','surrounded or HP <40%'],frostnova:['贴身 ≥4 敌','≥4 enemies close'],manashield:['生命 <60% 且内力充足','HP <60% with qi to spare'],blackhole:['附近 ≥7 敌或首领战','≥7 enemies or a boss']});
 
 /* ---------------- unlocks ---------------- */
-weaponUnlocked=function(cls,w){const i=WEAPON_INFO[w];if(!i||!i.need)return true;if(typeof SAVE==='undefined')return false;if(SAVE.weaponOwned&&SAVE.weaponOwned[w])return true;
-  if(i.need==='clsboss')return !!(SAVE.clsWins&&SAVE.clsWins[cls]);if(i.need==='clsboss3')return ((SAVE.clsBest&&SAVE.clsBest[cls])||0)>=3;return false};
-{const _bs=bossSlain;bossSlain=function(e){_bs(e);if(G.auto||!window.SAVE)return;SAVE.clsBest=SAVE.clsBest||{};if((G.bossSlain||0)>(SAVE.clsBest[G.cls]||0)){const was=SAVE.clsBest[G.cls]||0;SAVE.clsBest[G.cls]=G.bossSlain;if(was<3&&G.bossSlain>=3){const w=(WEAPONS[G.cls]||[]).find(k=>WEAPON_INFO[k]&&WEAPON_INFO[k].need==='clsboss3');if(w)later(1.2,()=>showBanner(`神兵解锁:${SPELLS[w].zh}`,`Legendary weapon unlocked: ${SPELLS[w].en}`,2.4))}if(typeof persist==='function')persist()}}}
-
 /* ---------------- helpers ---------------- */
 const sfx=(k,f)=>{if(typeof SFX==='undefined')return;const fn=SFX[k]||SFX[f];if(fn)fn()};
 const hcol=s=>s.els&&s.els[0]?ELS[s.els[0]].col:SPELLS[s.id].col;
@@ -378,13 +374,6 @@ function HERO_WEAPON_MESH(id){
 
 /* ---------------- discoverability: 「新」 badge on unseen heroes, legendary progress on the results screen ---------------- */
 const NEW_HEROES=['oni','idol','wizard'];
-function legendOf(cls){return (WEAPONS[cls]||[]).find(k=>WEAPON_INFO[k]&&WEAPON_INFO[k].need==='clsboss3')}
-addEventListener('load',()=>{if(typeof xOn!=='function')return;
-  xOn('start',()=>{const w=legendOf(G.cls);G.legLocked=!!(w&&!weaponUnlocked(G.cls,w))});
-  xOn('end',box=>{const w=legendOf(G.cls);if(!w||!G.legLocked)return;const m=SPELLS[w],best=Math.max((SAVE.clsBest||{})[G.cls]||0,G.bossSlain||0),got=weaponUnlocked(G.cls,w);
-    const d=document.createElement('div');d.className='endleg'+(got?' got':'');d.style.setProperty('--c',m.col);
-    d.innerHTML=`${typeof ICON!=='undefined'?ICON.spell(w,'sm'):''}<div><b>${got?L(`神兵解锁 · ${m.zh}`,`Legendary unlocked · ${m.en}`):L(`神兵 · ${m.zh}`,`Legendary · ${m.en}`)}</b><small>${got?L('下一局在选人界面换上它','Equip it on the hero screen next run'):L(`本局斩 ${G.bossSlain||0} 名首领 · 最佳 ${best}/3 · 一局斩 3 名即可解锁`,`${G.bossSlain||0} bosses this run · best ${best}/3 · slay 3 in one run to unlock`)}</small></div><i class="pips">${[0,1,2].map(i=>`<span class="${i<best?'on':''}"></span>`).join('')}</i>`;
-    let at=box.querySelector('details')||box.querySelector('.go');while(at&&at.parentElement&&at.parentElement!==box)at=at.parentElement;if(at&&at.parentElement===box)box.insertBefore(d,at);else box.appendChild(d)})});
 (()=>{const st=document.createElement('style');st.textContent=`
 .cls{position:relative}.cls .newb{position:absolute;top:-7px;right:8px;font-style:normal;font:900 11px/1 var(--ui,inherit);color:#2a0a14;background:linear-gradient(90deg,#ffe9a0,#ff8fd8);border-radius:999px;padding:3px 8px;box-shadow:0 2px 10px #ff8fd866;animation:newb 1.6s ease-in-out infinite;z-index:2;pointer-events:none}
 @keyframes newb{50%{transform:translateY(-2px) scale(1.06)}}@media (prefers-reduced-motion:reduce){.cls .newb{animation:none}}

@@ -37,7 +37,9 @@ async function cloudInit(){
 }
 /* ---- save merge: never lose progress from either side ---- */
 function mergeSave(local,cloud){
-  if(!cloud)return JSON.parse(JSON.stringify(local));
+  local=JSON.parse(JSON.stringify(local));cloud=cloud&&JSON.parse(JSON.stringify(cloud));
+  if(typeof migrateProgression==='function'){migrateProgression(local);if(cloud)migrateProgression(cloud)}
+  if(!cloud)return local;
   const clone=o=>JSON.parse(JSON.stringify(o));
   const progressed=o=>!!(o.runs||o.axp||o.gold||o.trophies||o.gear?.inv?.length||Object.values(o.up||{}).some(Boolean)||Object.values(o.mer||{}).some(Boolean)||o.asura?.max);
   const newer=progressed(cloud)&&!progressed(local)?cloud:progressed(local)&&!progressed(cloud)?local:(+cloud.ts||0)>(+local.ts||0)?cloud:local;
@@ -45,8 +47,8 @@ function mergeSave(local,cloud){
   const maxMap=(a={},b={})=>Object.fromEntries([...new Set([...Object.keys(a),...Object.keys(b)])].map(k=>[k,Math.max(+a[k]||0,+b[k]||0)]));
   const unionMap=(a={},b={})=>Object.fromEntries([...new Set([...Object.keys(a),...Object.keys(b)])].map(k=>[k,a[k]||b[k]]));
   for(const k of ['axp','best','wins','runs','bosses','pkBest','dirPeaks'])out[k]=Math.max(+local[k]||0,+cloud[k]||0);
-  for(const k of ['up','mer','mastery','clsBest','rooms','pk'])out[k]=maxMap(local[k],cloud[k]);
-  for(const k of ['weaponOwned','ach','clsWins','tips','road','seenCls','legendMigrated'])out[k]=unionMap(local[k],cloud[k]);
+  for(const k of ['up','training','mer','mastery','clsBest','rooms','pk','perks'])out[k]=maxMap(local[k],cloud[k]);
+  for(const k of ['weaponOwned','ach','clsWins','tips','road','seenCls','legendMigrated','rankRewards'])out[k]=unionMap(local[k],cloud[k]);
   out.titles=[...new Set([...(local.titles||[]),...(cloud.titles||[])])];
   out.bountyNames=[...new Set([...(local.bountyNames||[]),...(cloud.bountyNames||[])])];
   out.codex={};for(const k of new Set([...Object.keys(local.codex||{}),...Object.keys(cloud.codex||{})]))out.codex[k]=unionMap(local.codex?.[k],cloud.codex?.[k]);
@@ -70,7 +72,7 @@ function mergeSave(local,cloud){
   const dd=o=>o.daily?.day||0;out.daily=clone(dd(cloud)>dd(local)?cloud.daily:dd(local)>dd(cloud)?local.daily:(local.daily&&cloud.daily?(local.daily.best>=cloud.daily.best?local.daily:cloud.daily):(local.daily||cloud.daily||null)));
   const ls=local.season||{},cs=cloud.season||{};out.season=clone((ls.id||0)>(cs.id||0)?ls:(cs.id||0)>(ls.id||0)?cs:{...ls,...cs,peak:Math.max(ls.peak||0,cs.peak||0)});
   const lb=local.lb||{},cb=cloud.lb||{};out.lb={...(lb.day>cb.day?lb:cb),best:Math.max(lb.best||0,cb.best||0)};if(lb.day===cb.day)out.lb.dayBest=Math.max(lb.dayBest||0,cb.dayBest||0);
-  out.ts=Math.max(+local.ts||0,+cloud.ts||0);return out;
+  out.ts=Math.max(+local.ts||0,+cloud.ts||0);if(typeof migrateProgression==='function')migrateProgression(out);return out;
 }
 async function cloudPull(){
   if(!CLOUD.on())return;

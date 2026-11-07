@@ -11,7 +11,7 @@ function onHurtX(n,src,fx,fy){for(const f of XH.hurt){const r=f(n,src,fx,fy);if(
 function extTick(dt){if(!G||G.auto)return;if(!G.xStarted){G.xStarted=1;for(const f of XH.start)try{f()}catch(err){console.error(err)}}for(const f of XH.tick)f(dt)}
 function extRender(tm,ur){if(!G)return;for(const f of XH.render)f(tm,ur)}
 function cardDecor(b,cd,i,q){for(const f of XH.card)f(b,cd,i,q)}
-/* solo endless (and boss rush): the mode where the long-term systems (gear, meridians, variants unlock pacing) live */
+/* solo endless (and boss rush): the mode where the long-term systems (gear, training, variants unlock pacing) live */
 function soloRun(){return !!G&&!G.auto&&!RIVAL_ON&&!G.room&&!(typeof DAILY!=='undefined'&&DAILY)&&!G.shared}
 /* every normal-attack shot and every skill cast passes through here, so variants / legendaries can react to "it fired" */
 (()=>{const af=autoFire;autoFire=function(s){const r=af(s);if(r&&G&&!G.auto&&s&&s.owner!=='rival'&&!G._xfire&&!G._free){G._xfire=1;try{for(const f of XH.fire)f(s)}finally{G._xfire=0}}return r};
