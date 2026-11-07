@@ -21,7 +21,7 @@ function setup(){
     document:{addEventListener:(n,f)=>listeners[n]=f,querySelector:s=>s.includes('#gearov')?[...elements.entries()].find(([id,el])=>(id==='#gearov'||id==='#lb')&&!el.hidden)?.[1]||null:null},choose:i=>calls.push('choose'+i),
   });
   vm.runInContext(sim.match(/^function canAct\(\).*$/m)[0],c);
-  vm.runInContext(controls.slice(controls.indexOf('const keys='),controls.indexOf("addEventListener('pointerdown',()=>SFX.start()")),c);
+  vm.runInContext(controls.slice(controls.indexOf('const keys='),controls.indexOf("cv.addEventListener('pointerdown'")),c);
   vm.runInContext(ui.slice(ui.indexOf('let pickOpenedAt='),ui.indexOf('function openPick()')),c);
   vm.runInContext(ui.slice(ui.indexOf('function closeCards()'),ui.indexOf('/* title:')),c);
   const run=s=>vm.runInContext(s,c);

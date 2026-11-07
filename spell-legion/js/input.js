@@ -36,7 +36,6 @@ addEventListener('keyup',e=>{const k=e.key.toLowerCase();keys.delete(k);pickKeyH
 addEventListener('blur',clearGameInput);
 document.addEventListener('visibilitychange',()=>{if(document.hidden)clearGameInput()});
 addEventListener('focusin',clearGameInput);
-addEventListener('pointerdown',()=>SFX.start());
 cv.addEventListener('pointerdown',e=>{
   if(e.button!==0||e.isPrimary===false||!combatInputsReady())return;
   touch.on=true;touch.id=e.pointerId;touch.sx=touch.x=e.clientX;touch.sy=touch.y=e.clientY;

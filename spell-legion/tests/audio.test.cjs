@@ -3,12 +3,12 @@ const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const vm=require('node:vm');
 const source=fs.readFileSync(require('node:path').join(__dirname,'../js/audio.js'),'utf8');
-function setup(saved={},auto=false){
-  const stats={oscillators:0,samples:0,gains:[],timers:[]};let store=JSON.stringify(saved),clock=10000;
+function setup(saved={},auto=false,options={}){
+  const stats={oscillators:0,samples:0,gains:[],timers:[],resumes:0,events:{}};let store=JSON.stringify(saved),clock=10000;
   const param=()=>({value:0,cancelScheduledValues(){},setValueAtTime(v){this.value=v},setTargetAtTime(v){this.value=v},linearRampToValueAtTime(v){this.value=v},exponentialRampToValueAtTime(v){this.value=v}});
   const node=()=>({connect(){},disconnect(){},start(){},stop(){},gain:param(),frequency:param(),Q:param()});
   class AudioContext{
-    constructor(){stats.context=this;this.currentTime=0;this.state='running';this.sampleRate=100;this.destination=node()}
+    constructor(){stats.context=this;this.currentTime=0;this.state=options.initialState||'running';this.sampleRate=100;this.destination=node()}
     createGain(){const n=node();stats.gains.push(n);return n}
     createDynamicsCompressor(){return {...node(),threshold:param(),ratio:param()}}
     createBuffer(ch,n){const channels=Array.from({length:ch},()=>new Float32Array(n));return {getChannelData:i=>channels[i]}}
@@ -16,11 +16,13 @@ function setup(saved={},auto=false){
     createOscillator(){stats.oscillators++;return node()}
     createBiquadFilter(){return node()}
     createBufferSource(){stats.samples++;return node()}
-    resume(){return Promise.resolve()}
+    resume(){stats.resumes++;if(options.resume) return options.resume(this,stats);this.state='running';return Promise.resolve()}
   }
-  const c=vm.createContext({window:{AudioContext},G:{auto},clamp:(n,a,b)=>Math.max(a,Math.min(n,b)),vrnd:n=>n*.5,localStorage:{getItem:()=>store,setItem:(k,v)=>store=v},performance:{now:()=>clock+=200},setInterval:f=>stats.timers.push(f),Math,Float32Array});
+  const listeners=(name,f)=>(stats.events[name]||=[]).push(f);
+  const doc={hidden:false,addEventListener:listeners};const nav={audioSession:{type:'auto'}};
+  const c=vm.createContext({window:{AudioContext,addEventListener:listeners},document:doc,navigator:nav,G:{auto},clamp:(n,a,b)=>Math.max(a,Math.min(n,b)),vrnd:n=>n*.5,localStorage:{getItem:()=>store,setItem:(k,v)=>store=v},performance:{now:()=>clock+=200},setInterval:f=>stats.timers.push(f),Math,Float32Array});
   vm.runInContext(source+'\nglobalThis.audio=SFX;',c);
-  return {audio:c.audio,stats,game:c.G,read:()=>JSON.parse(store),advance(seconds){const end=stats.context.currentTime+seconds;while(stats.context.currentTime<end){stats.context.currentTime+=.05;for(const f of stats.timers)f()}}};
+  return {audio:c.audio,document:doc,navigator:nav,stats,game:c.G,read:()=>JSON.parse(store),advance(seconds){const end=stats.context.currentTime+seconds;while(stats.context.currentTime<end){stats.context.currentTime+=.05;for(const f of stats.timers)f()}}};
 }
 test('menu demo produces no effect sources while the music scheduler keeps playing',()=>{
   const {audio,stats}=setup({},true);audio.start();const before=stats.oscillators+stats.samples;
@@ -77,4 +79,27 @@ test('a suspended or backgrounded context never replays a backlog of music notes
 });
 test('music muted for a whole track allocates no new sources and preserves the effects setting',()=>{
   const h=setup({},true);h.audio.start();h.audio.setMusicMute(true);const before=h.stats.oscillators+h.stats.samples;h.advance(150);assert.equal(h.stats.oscillators+h.stats.samples,before);assert.equal(h.audio.sfxMuted,false);
+});
+
+test('iPhone audio uses the playback session and resumes an interrupted context',async()=>{
+  const h=setup({},true,{initialState:'interrupted'});h.audio.start();await Promise.resolve();
+  assert.equal(h.navigator.audioSession.type,'playback');assert.equal(h.stats.resumes,1);assert.equal(h.stats.context.state,'running');
+  assert.ok(h.stats.oscillators+h.stats.samples>0);assert.equal(h.stats.timers.length,1);
+});
+test('a rejected touch-down resume is retried on touch-end and native click',async()=>{
+  const h=setup({},true,{initialState:'suspended',resume(ctx,stats){if(stats.resumes===1)return Promise.reject(Error('gesture not accepted'));ctx.state='running';return Promise.resolve()}});
+  h.stats.events.pointerdown[0]();await Promise.resolve();await Promise.resolve();assert.equal(h.stats.context.state,'suspended');
+  h.stats.events.touchend[0]();await Promise.resolve();h.stats.events.click[0]();
+  assert.equal(h.stats.context.state,'running');assert.equal(h.stats.resumes,2);assert.equal(h.stats.timers.length,1);
+  assert.ok(h.stats.oscillators+h.stats.samples>0);
+});
+test('returning to the foreground recovers interruption without unmuting saved settings',async()=>{
+  const h=setup({musicMuted:true,sfxMuted:false});h.audio.start();h.stats.context.state='interrupted';h.document.hidden=true;
+  h.stats.events.visibilitychange[0]();assert.equal(h.stats.resumes,0);
+  h.document.hidden=false;h.stats.events.visibilitychange[0]();await Promise.resolve();
+  assert.equal(h.stats.context.state,'running');assert.equal(h.stats.resumes,1);assert.equal(h.audio.musicMuted,true);assert.equal(h.audio.sfxMuted,false);
+  h.stats.context.state='interrupted';h.stats.events.pageshow[0]();await Promise.resolve();assert.equal(h.stats.resumes,2);assert.equal(h.stats.timers.length,1);
+});
+test('page-show never initializes audio before the first user interaction',()=>{
+  const h=setup();h.stats.events.pageshow[0]();h.stats.events.visibilitychange[0]();assert.equal(h.stats.context,undefined);assert.equal(h.stats.timers.length,0);
 });

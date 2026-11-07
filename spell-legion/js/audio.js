@@ -7,6 +7,7 @@ const SFX=(()=>{
   function ensure(){
     if(ac)return true;
     const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return false;
+    try{if(typeof navigator!=='undefined'&&navigator.audioSession)navigator.audioSession.type='playback'}catch(_){}
     ac=new AC();master=ac.createGain();master.gain.value=.8;
     const comp=ac.createDynamicsCompressor();comp.threshold.value=-14;comp.ratio.value=4;
     master.connect(comp);comp.connect(ac.destination);
@@ -185,7 +186,9 @@ const SFX=(()=>{
   function setState(s){syncMix();if(s===state)return;const resume=state==='off';state=s;if(ac&&resume)nextBeat=now()+.04}
   function start(){
     if(!ensure())return;
-    if(ac.state==='suspended')ac.resume().catch(()=>{});
+    if(ac.state==='suspended'||ac.state==='interrupted'){
+      try{ac.resume().then(()=>schedule()).catch(()=>{})}catch(_){}
+    }
     if(started)return;started=true;nextBeat=now()+.05;beginTrack(nextBeat);setInterval(schedule,50);
   }
   const trackInfo=t=>({id:t.id,locale:t.locale,title:t.title,style:t.style,bpm:t.bpm,duration:SONG_BARS*4*60/t.bpm});
@@ -245,5 +248,11 @@ const SFX=(()=>{
     void(){if(!ac)return;const t=now();osc('sawtooth',80,t,2.4,.35,sfxG,{slide:30,lp:400,rv:1});osc('sine',40,t,2.6,.4,sfxG);noise(t,2,.25,sfxG,{f:300,slide:60,type:'lowpass',rv:1})},
     blink(){if(!ac)return;const t=now();osc('sine',600,t,.18,.18,sfxG,{slide:2400});osc('sine',2400,t+.12,.2,.12,sfxG,{slide:900,rv:1})},
   };
+  if(typeof window.addEventListener==='function'){
+    for(const event of ['pointerdown','pointerup','touchend','click','keydown'])window.addEventListener(event,start,{capture:true,passive:true});
+    const restore=()=>{if(ac&&(typeof document==='undefined'||!document.hidden))start()};
+    window.addEventListener('pageshow',restore);
+    if(typeof document!=='undefined')document.addEventListener('visibilitychange',restore);
+  }
   return fx;
 })();
