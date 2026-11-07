@@ -319,6 +319,7 @@ function startRun(){tipT=0;{const sd=$('#side');if(sd)sd.hidden=false}const _tp=
   if($('#startbtn').disabled)return;
   CLASS=SAVE.cls;DIFFID='normal';
   const inRoom=SAVE.mode==='room'&&ROOM.code&&ROOM.playing;if(SAVE.mode==='room'&&!inRoom)return; // rooms start from the room panel, never from the Start button
+  if(typeof metricsEnd==='function')metricsEnd('abandoned');
   DAILY=SAVE.mode==='daily';if(DAILY)DIFFID='normal';BOSSRUSH=SAVE.mode==='rush';ASURA_T=(SAVE.mode==='solo'||SAVE.mode==='rush')?Math.min(SAVE.asura.sel||0,SAVE.asura.max||0):0;
   if(inRoom){RIVAL_ON=false;DIFFID=(typeof roomHasAI==='function'&&roomHasAI())?(ROOM.data.diff||'normal'):'normal';seedSim(ROOM.seed)}else seedSim(DAILY?dayKey()*7919+1:null);
   $('#title').hidden=true;$('#intro').hidden=true;$('#end').hidden=true;$('#cards').hidden=true;$('#hud').hidden=false;$('#bossbar').hidden=true;$('#pause').hidden=true;$('#char').hidden=true;
@@ -328,9 +329,10 @@ function startRun(){tipT=0;{const sd=$('#side');if(sd)sd.hidden=false}const _tp=
   if(!DAILY){G.P.dmgBonus+=masteryBonus(CLASS);if((SAVE.road||{})[300])G.rerolls++;if((SAVE.road||{})[1000]){G.cores++}}
   if(SAVE.mode==='solo'&&!inRoom){const ev=todayEvent();ev.apply();G.event=ev;showBanner(L('今日活动:','Event: ')+L(ev.zh,ev.en),'',2.4)}updateCores();drawSeals();drawRelics();
   showBanner(CLASSES[CLASS].zh+' 出山',CLASSES[CLASS].en+' sets out',2.2);
+  if(typeof metricsStart==='function')metricsStart();
   SFX.start();SFX.setState('battle');if(IS_TOUCH)goFullscreen(true);
 }
-function showEnd(ok){tipT=0;G._zeroSaid=0;{const sd=$('#side');if(sd){sd.textContent='';sd.hidden=true}}{const nb=$('#nextboss');if(nb&&G.rival)nb.textContent=L('对决结束','Match over')}if(typeof dirRunEnd==='function')try{dirRunEnd()}catch(_){}{const _tp=$('#tip');if(_tp)_tp.classList.remove('on')}
+function showEnd(ok){if(typeof metricsEnd==='function')metricsEnd(G.abandoned?'abandoned':G.over==='lose'?'lose':G.rival?(G.score>G.rival.score?'win':G.score<G.rival.score?'lose':'tie'):'finished');tipT=0;G._zeroSaid=0;{const sd=$('#side');if(sd){sd.textContent='';sd.hidden=true}}{const nb=$('#nextboss');if(nb&&G.rival)nb.textContent=L('对决结束','Match over')}if(typeof dirRunEnd==='function')try{dirRunEnd()}catch(_){}{const _tp=$('#tip');if(_tp)_tp.classList.remove('on')}
   G.ended=true;const box=$('#endb'),tot=G.spells.reduce((a,s)=>a+s.dmg,0)||1,max=Math.max(...G.spells.map(s=>s.dmg),1);
   checkAch();
   const meta=typeof metaAfterRun==='function'?metaAfterRun():null;
