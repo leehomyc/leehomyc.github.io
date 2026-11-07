@@ -23,7 +23,7 @@ const PONDS=[[640,560,118,84],[1960,1440,128,90],[1990,540,82,58],[610,1470,92,6
 const SHRINES=[[520,430],[2080,430],[520,1570],[2080,1570]];
 const PAVS=[[W/2,330],[W/2,H-330]];
 const PLAZA_R=150;
-const BOSS_AT=240;
+const BOSS_AT=180;
 
 /* trails: polylines the ground painter, lanterns and grass all use */
 const TRAILS=[];

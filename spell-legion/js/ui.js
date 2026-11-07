@@ -60,7 +60,7 @@ function hud(dt){
 function drawRelics(){const box=$('#relics');if(!box)return;box.textContent='';const MAXS=PHONE?4:7,list=G.relics.length>MAXS?G.relics.slice(-(MAXS-1)):G.relics;for(const id of list){const R=RELICS[id],d=document.createElement('div');d.className='relic';d.style.color=R.col;d.textContent=R.g;d.title=`${LL(R)} · ${L(R.d,R.de)}`;box.appendChild(d)}
   if(G.relics.length>MAXS){const d=document.createElement('div');d.className='relic more';d.textContent='+'+(G.relics.length-(MAXS-1));d.title=G.relics.slice(0,-(MAXS-1)).map(id=>LL(RELICS[id])).join(' · ');box.appendChild(d)}}
 let introT=null,introOn=false;
-function bossIntro(zh,en,n){const el=$('#intro');el.innerHTML=`<div class="lb"></div><div class="bn"><small>${n>=BOSSES.length?L(`第 ${Math.floor(n/BOSSES.length)+1} 轮 · ${n%BOSSES.length+1}/${BOSSES.length} `,`Cycle ${Math.floor(n/BOSSES.length)+1} · ${n%BOSSES.length+1}/${BOSSES.length}`):L(`第 ${n+1} 位首领`,`Boss ${n+1}`)}</small><b>${L(zh,en)}</b>${BOSS_HINT[n%BOSS_HINT.length]?`<em>${L(BOSS_HINT[n%BOSS_HINT.length][0],BOSS_HINT[n%BOSS_HINT.length][1])}</em>`:''}</div><div class="lb"></div>`;el.hidden=false;el.classList.remove('on');void el.offsetWidth;el.classList.add('on');introOn=true;$('#banner').classList.remove('on');clearTimeout(introT);introT=setTimeout(()=>{el.classList.remove('on');introOn=false;setTimeout(()=>el.hidden=true,500)},3400)}
+function bossIntro(zh,en,n){const el=$('#intro');el.innerHTML=`<div class="bn"><small>${n>=BOSSES.length?L(`第 ${Math.floor(n/BOSSES.length)+1} 轮 · ${n%BOSSES.length+1}/${BOSSES.length} `,`Cycle ${Math.floor(n/BOSSES.length)+1} · ${n%BOSSES.length+1}/${BOSSES.length}`):L(`第 ${n+1} 位首领`,`Boss ${n+1}`)}</small><b>${L(zh,en)}</b>${BOSS_HINT[n%BOSS_HINT.length]?`<em>${L(BOSS_HINT[n%BOSS_HINT.length][0],BOSS_HINT[n%BOSS_HINT.length][1])}</em>`:''}</div>`;el.hidden=false;el.classList.remove('on');void el.offsetWidth;el.classList.add('on');introOn=true;$('#banner').classList.remove('on');clearTimeout(introT);introT=setTimeout(()=>{el.classList.remove('on');introOn=false;setTimeout(()=>el.hidden=true,500)},3400)}
 function updateCores(){const e=$('#cores');e.textContent='';for(let i=0;i<Math.max(2,G.cores);i++){const s=document.createElement('i');s.className='core'+(i<G.cores?'':' off');e.appendChild(s);e.append(' ')}}
 function drawSeals(){
   if(G.auto)return;
@@ -216,7 +216,7 @@ function renderAsura(){
   }
   el.appendChild(rail);rail.scrollLeft=oldScroll===undefined?Math.max(0,sel*168-120):oldScroll;
   const hint=document.createElement('small');hint.className='asura-hint';
-  hint.textContent=max<ASURA.length?L('在最高已解锁层击败 2:00 的铁甲统领或 4:00 的首领，解锁下一层','On your highest tier, defeat the 2:00 Warlord or 4:00 boss to unlock the next'):
+  hint.textContent=max<ASURA.length?L(`在最高已解锁层击败 2:00 的铁甲统领或 ${fmt(BOSS_AT)} 的首领，解锁下一层`,`On your highest tier, defeat the 2:00 Warlord or ${fmt(BOSS_AT)} boss to unlock the next`):
     L('所有修罗层已解锁','All Ascension tiers unlocked');
   el.appendChild(hint);
 }
@@ -309,7 +309,7 @@ function showEnd(ok){if(G.ended)return;if(typeof metricsEnd==='function')metrics
   ${!ok&&G.killer?`<div class="killed"><b>${G.abandoned?L('放弃','Abandoned'):L(`死于 ${G.killer[0]}`,`Killed by ${G.killer[1]}`)}</b></div>`:''}
   ${tierUp?`<div class="nextgoal tier">${L(`修罗 ${ASURA_T+1} 层已开`,`Ascension ${ASURA_T+1} unlocked`)}</div>`:''}
   
-  ${SAVE.mode==='solo'&&!tierUp&&SAVE.asura.max===ASURA_T&&!G.abandoned?`<p class="asura-result-hint">${L('修罗解锁：击败 2:00 铁甲统领或 4:00 首领','Ascension: defeat the 2:00 Warlord or 4:00 boss')}</p>`:''}
+  ${SAVE.mode==='solo'&&!tierUp&&SAVE.asura.max===ASURA_T&&!G.abandoned?`<p class="asura-result-hint">${L(`修罗解锁：击败 2:00 铁甲统领或 ${fmt(BOSS_AT)} 首领`,`Ascension: defeat the 2:00 Warlord or ${fmt(BOSS_AT)} boss`)}</p>`:''}
   ${meta?`<div class="metarow">${meta.ranks.map(([n,zh,en])=>`<span class="td">🏆 ${L(zh,en)}</span>`).join('')}${meta.levelUp?`<span>Lv ${meta.after.lv}</span>`:''}</div>`:''}<div class="stat more"><div>${ICON.misc('awake','#ffd27a','sm')}<b>${G.lv}</b><span>${L('等级','Level')}</span></div><div>${ICON.misc('relic','#c7a4f0','sm')}<b>${G.relics.length}</b><span>${L('法宝','Relics')}</span></div><div>${ICON.misc('knock','#ff6a6a','sm')}<b>${Math.round(G.dmgTaken)}</b><span>${L('承受伤害','Damage taken')}</span></div><div>${ICON.misc('heartplus','#7fc98a','sm')}<b>${Math.round(G.healed||0)}</b><span>${L('治疗量','Healing')}</span></div></div><div class="dmg">${rows}</div>${cmp}</div>${room?'':`<div class="btns"><button class="go big" id="againbtn">${L('再来一局','Play again')}</button><button class="go alt sm" id="buildbtn">${L('换侠客','Change hero')}</button><button class="go alt" id="lobbybtn">${L('返回','Back')}</button></div>`}`;
   $('#end').hidden=false;$('#end').scrollTop=0;if(room){roomCheckFinished();renderRoomResults()}else{$('#againbtn').onclick=startRun;$('#lobbybtn').onclick=toLobby;$('#buildbtn').onclick=()=>{toLobby();if(typeof showScreen==='function')showScreen('hero')};if(!IS_TOUCH)$('#againbtn').focus({preventScroll:true})}
   if(typeof submitRun==='function'&&!room)submitRun(box);

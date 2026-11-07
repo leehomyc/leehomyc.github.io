@@ -21,6 +21,14 @@ test('endless starts with a stronger director while boss rush keeps its previous
   c.dirInit();assert.equal(c.G.dir.base,1.15);
   c.SAVE.mode='rush';c.G={};c.dirInit();assert.equal(c.G.dir.base,.9);
 });
+test('standard bosses arrive at 3:00 and 6:00 while duel and boss rush keep their faster schedules',()=>{
+  const c=context({G:{bossN:0,curse:{}},BOSSRUSH:false,duelLen:()=>0});
+  const timing=source('core').match(/const BOSS_AT=\d+;/)?.[0],s=source('sim');
+  assert.ok(timing);vm.runInContext(timing+'\n'+s.slice(s.indexOf('function bossDue(){'),s.indexOf('function nextBossIn(){')),c);
+  assert.equal(c.bossDue(),180);c.G.bossN=1;assert.equal(c.bossDue(),360);
+  c.G.bossN=0;c.duelLen=()=>180;assert.equal(c.bossDue(),108);
+  c.BOSSRUSH=true;assert.equal(c.bossDue(),25);
+});
 test('new Ascension milestones automatically choose the latest unlocked map',()=>{
   let stored='',reloads=0;
   const c=context({MAPS:{valley:{},snow:{tierNeed:2},ember:{tierNeed:5},moon:{tierNeed:10},marsh:{tierNeed:15}},SAVE:{mode:'solo',asura:{max:10}},MAPID:'valley',localStorage:{setItem:(k,v)=>{if(k==='sl_map')stored=v}},sessionStorage:{setItem(){}},location:{reload:()=>reloads++}});
