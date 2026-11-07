@@ -23,13 +23,13 @@ function renderRoom(){
     ?`<div class="seg" id="rmmode2"><button type="button" data-v="time" class="${d.mode!=='last'?'on':''}">${L('限时 3′','Timed 3′')}</button><button type="button" data-v="last" class="${d.mode==='last'?'on':''}">${L('无尽','Endless')}</button></div>${hasAI?`<span class="grp"><span class="lbl">${L('AI 难度','AI level')}</span><div class="seg" id="rmdiff2">${['easy','normal','hard'].map(k=>`<button type="button" data-v="${k}" class="${diff===k?'on':''}">${LL(DIFF[k])}</button>`).join('')}</div></span>`:''}`
     :`<span class="chip">${roomModeText(d)}</span>${hasAI?`<span class="chip">AI · ${LL(DIFF[diff])}</span>`:''}`;
   const lone=ps.length<2;
-  box.innerHTML=`<div class="rmhd"><b>${L('对决','Duel')}</b><button type="button" class="code" id="rmcodeb" title="${L('复制邀请链接','Copy invite link')}">${ROOM.code}</button><span class="cnt">${ps.length}/${d.max||4}</span>${d.map&&MAPS[d.map]?`<span class="chip map">${LL(MAPS[d.map])}</span>`:''}<div class="opts">${opts}</div></div>
+  box.innerHTML=`<div class="rmhd"><b>${L('对决','Duel')}</b><button type="button" class="code" id="rmcodeb" title="${L('复制房间码','Copy room code')}">${ROOM.code}</button><span class="cnt">${ps.length}/${d.max||4}</span>${d.map&&MAPS[d.map]?`<span class="chip map">${LL(MAPS[d.map])}</span>`:''}<div class="opts">${opts}</div></div>
     <p class="room-rule">${d.mode==='last'?L('每人 3 条生命 · 任一玩家耗尽生命，整局结束','3 lives each · the round ends when anyone runs out'):L('限时 3 分钟 · 无限复活 · 每次死亡分数减半','3 minutes · unlimited revives · each death halves your score')}</p>
     <div class="rplist">${rows}${seat}</div>
     <div class="rmact">${ROOM.host?`<button type="button" class="go" id="rmstart" ${roomCanStart()?'':'disabled'}>${typeof roomLinkWait==='function'&&roomLinkWait()>0&&ps.every(p=>p.ready||p.ai)?L('连接中…','Linking…'):L('开始对决','Start')}</button>`:`<button type="button" class="go${mine.ready?' alt':''}" id="rmready">${mine.ready?L('取消就绪','Unready'):L('就绪','Ready')}</button>`}<button type="button" class="go alt sm" id="rmleave">${L('离开','Leave')}</button>${ps.some(p=>!p.ai&&p.uid!==me)?(ROOM.host?'':`<span class="dim">${L('等房主开始…','Waiting for host…')}</span>`):roomJoinRow()}</div>
     ${ROOM.status?`<p class="note err" id="rmstatus">${ROOM.status}</p>`:''}`;
   bindJoin();
-  const copy=async el=>{const link=roomLink(ROOM.code);try{await navigator.clipboard.writeText(link);toastCopied(el)}catch(_){prompt(L('邀请链接','Invite link'),link)}};
+  const copy=async el=>{const code=ROOM.code;if(!code)return;try{await navigator.clipboard.writeText(code);toastCopied(el)}catch(_){prompt(L('房间码','Room code'),code)}};
   {const cp=$('#rmcopy');if(cp)cp.onclick=()=>copy(cp)}{const cb=$('#rmcodeb');if(cb)cb.onclick=()=>copy(cb)}
   {const ai=$('#rmai');if(ai)ai.onclick=()=>{roomAddAI();SFX.pick(1)}}box.querySelectorAll('.rmx').forEach(b=>b.onclick=()=>{roomRemoveAI(b.dataset.rm);SFX.pick(1)});
   {const rb=$('#rmready');if(rb)rb.onclick=()=>{roomSetReady(!mine.ready);SFX.pick(1)}}
@@ -38,7 +38,7 @@ function renderRoom(){
     box.querySelectorAll('#rmmode2 button').forEach(b=>b.onclick=()=>{roomHostSet(b.dataset.v==='time'?{mode:'time',len:180}:{mode:'last'});SFX.pick(1)});
     box.querySelectorAll('#rmdiff2 button').forEach(b=>b.onclick=()=>{roomHostSet({diff:b.dataset.v});SFX.pick(1)})}
 }
-function toastCopied(el){if(!el)return;el.classList.add('copied');el.dataset.tip=L('已复制邀请链接','Invite link copied');clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('copied'),1600)}
+function toastCopied(el){if(!el)return;el.classList.add('copied');el.dataset.tip=L('已复制房间码','Room code copied');clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('copied'),1600)}
 function drawBoard(){
   const el=$('#roomboard');if(!el)return;if(!G||G.auto||$('#hud').hidden){el.hidden=true;return}
   if(ROOM.code&&ROOM.playing&&G.room)return drawRoomBoard();
