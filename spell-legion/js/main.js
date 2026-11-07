@@ -21,6 +21,7 @@ function frame(now){
   if(!G.auto)hud(dt);
   updateDuelClock();
   updateDuelDeath();
+  updateScoreReward(dt);
 }
 function boot(){
   DPR=Math.min(devicePixelRatio||1,Q().dpr);

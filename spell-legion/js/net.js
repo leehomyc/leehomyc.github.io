@@ -64,15 +64,16 @@ async function roomCreateNow(opts={}){
 }
 async function roomJoinNow(code,isNew){
   code=String(code||'').toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,4);if(code.length!==4)throw new Error('badcode');
-  if(ROOM.code===code)return;const T=isNew?ROOM.T:netPick(),uid=roomUid();const data=await T.getRoom(code);if(!data)throw new Error('nosuch');
+  if(ROOM.code===code)return true;if(!isNew)await netReady(12000);const T=isNew?ROOM.T:netPick();if(!isNew&&T===LocalT&&!location.search.includes('local=1'))throw new Error('offline');const uid=roomUid();const data=await T.getRoom(code);if(!data)throw new Error('nosuch');
+  if(data.state==='closed')throw new Error('nosuch');
   if(data.state==='play'&&!isNew)throw new Error('playing');
-  if(data.map&&MAPS[data.map]&&data.map!==MAPID){roomLeave(true);try{localStorage.setItem('sl_map',data.map);sessionStorage.setItem('sl_rejoin',code)}catch(_){}location.reload();return}
-  roomLeave(true);ROOM.T=T;
+  if(data.map&&MAPS[data.map]&&data.map!==MAPID){roomLeave(true);SAVE.mode='room';persist();try{localStorage.setItem('sl_map',data.map);sessionStorage.setItem('sl_screen','hero');sessionStorage.setItem('sl_rejoin',code)}catch(_){}location.reload();return false}
+  await T.setPlayer(code,uid,{name:roomName(),av:SAVE.avatar||null,cls:SAVE.cls,weapon:weaponOf(SAVE.cls),equipment:roomEquipment(),ready:data.host===uid,score:0,hp:1,lv:1,kills:0,alive:true,done:false,t:0,joined:Date.now(),lvA:(typeof accountLv==='function'?accountLv().lv:1)});
+  roomLeave(true);ROOM.T=T;ROOM.joinError=false;ROOM.status='';
   ROOM.code=code;ROOM.data=data;ROOM.host=data.host===uid;ROOM.joinedAt=Date.now();ROOM.playing=false;ROOM.ended=false;ROOM.results=null;ROOM.evSeen=new Set();ROOM.lastSeen={};
-  await T.setPlayer(code,uid,{name:roomName(),av:SAVE.avatar||null,cls:SAVE.cls,weapon:weaponOf(SAVE.cls),equipment:roomEquipment(),ready:ROOM.host,score:0,hp:1,lv:1,kills:0,alive:true,done:false,t:0,joined:Date.now(),lvA:(typeof accountLv==='function'?accountLv().lv:1)});
   ROOM.unsub=T.subscribe(code,{room:roomOnRoom,players:roomOnPlayers,event:roomOnEvent});
   try{sessionStorage.setItem('sl_rejoin',code)}catch(_){}
-  SAVE.mode='room';persist();if(typeof renderTitle==='function')renderTitle();
+  SAVE.mode='room';persist();if(typeof renderTitle==='function')renderTitle();return true;
 }
 function roomLeave(silent){
   if(!ROOM.code)return;const T=netT(),uid=roomUid(),code=ROOM.code;
@@ -164,7 +165,7 @@ function roomOnEvent(ev){
 function roomSendWave(n,big){if(!ROOM.code||!ROOM.playing||(G&&G.shared))return;netT().addEvent(ROOM.code,{from:roomUid(),name:roomName(),k:'wave',n,big:!!big})}
 /* ---- match flow ---- */
 function roomBeginCountdown(data){
-  ROOM.seed=data.seed;ROOM.countdown=Date.now()+(data.delay||4000);ROOM.ended=false;ROOM.results=null;ROOM.evSeen=new Set();
+  ROOM.aborted=false;ROOM.rewarded=false;ROOM.rewardHTML=null;ROOM.seed=data.seed;ROOM.countdown=Date.now()+(data.delay||4000);ROOM.ended=false;ROOM.results=null;ROOM.evSeen=new Set();
   if(ROOM.playing)return;
   const tick=()=>{if(!ROOM.countdown)return;const left=ROOM.countdown-Date.now();const el=$('#roomcount');if(left<=0){ROOM.countdown=null;if(el)el.hidden=true;ROOM.playing=true;if(typeof startRun==='function')startRun();return}
     if(el){el.hidden=false;el.innerHTML=`<small>${L('对决即将开始','Match starting')}</small><b>${Math.ceil(left/1000)}</b><span>${roomPlayerList().map(p=>`${CLASSES[p.cls]?CLASSES[p.cls].g:'?'} ${p.name}`).join(' · ')}</span>`}
@@ -181,11 +182,14 @@ function roomEndRun(why,who){
 }
 function roomOnDeath(){ // called by lose(): in a room, a death is final and tells the others
   if(!ROOM.code||!ROOM.playing)return;ROOM.endWhy=ROOM.data.mode==='last'?'last':'time';ROOM.endWho={uid:roomUid()};
-  roomSetMe({alive:false,done:true,score:G.score,hp:0,t:Math.round(G.t),lv:G.lv,kills:G.kills});
+  roomSetMe({abandonedRound:G.abandoned?(ROOM.data.round||1):0,alive:false,done:true,score:G.score,hp:0,t:Math.round(G.t),lv:G.lv,kills:G.kills});
 }
 function roomAllDone(){const ps=roomPlayerList(),now=Date.now();return ps.length>0&&ps.every(p=>p.done||p.alive===false||(!p.ai&&now-(ROOM.lastSeen[p.uid]||now)>25000))}
 function roomCheckFinished(){
   if(!ROOM.playing||ROOM.results)return;
+  if(roomPlayerList().some(p=>p.abandonedRound===(ROOM.data.round||1))){
+    ROOM.aborted=true;G.duelAborted=true;if(!G.over)roomEndRun('aborted');ROOM.results=roomRank();if(G.ended&&typeof renderRoomResults==='function')renderRoomResults();return;
+  }
   if(ROOM.data&&ROOM.data.mode==='last'){
     const ps=roomPlayerList(),eliminated=ps.some(p=>p.alive===false);
     if(!eliminated)return;
@@ -211,6 +215,6 @@ function roomLink(code){const u=new URL(location.href);u.search='';u.hash='';u.s
 async function roomAutoJoin(){
   let code=null;try{code=new URL(location.href).searchParams.get('room')||sessionStorage.getItem('sl_rejoin')}catch(_){}
   if(!code)return;if(typeof CLOUD!=='undefined'&&!CLOUD.on()&&!netIsLocal()){setTimeout(roomAutoJoin,800);return}
-  try{await roomJoin(code);if(typeof showScreen==='function')showScreen('hero');if(location.search.includes('room='))history.replaceState(null,'',location.pathname)}catch(e){ROOM.status=roomErr(e);try{sessionStorage.removeItem('sl_rejoin')}catch(_){}if(typeof renderRoom==='function')renderRoom()}
+  try{const joined=await roomJoin(code);if(!joined)return;if(typeof showScreen==='function')showScreen('hero');if(location.search.includes('room=')){const url=new URL(location.href);url.searchParams.delete('room');history.replaceState(null,'',url.pathname+url.search+url.hash)}}catch(e){ROOM.joinError=true;ROOM.status=roomErr(e);SAVE.mode='room';persist();try{sessionStorage.removeItem('sl_rejoin')}catch(_){}if(typeof showScreen==='function')showScreen('hero');if(typeof renderRoom==='function')renderRoom()}
 }
-function roomErr(e){const m=e&&e.message||'';return m==='nosuch'?(netOnline()?L('没有这个房间,检查一下房间码','No such room — check the code'):L('没找到房间:联机暂不可用,检查一下网络','Room not found: online rooms are unavailable — check your connection')):m==='badcode'?L('房间码是 4 位字母数字','Room codes are 4 letters/digits'):m==='playing'?L('这个房间正在对局中','That room is mid-match'):L('连接失败:','Connection failed: ')+m}
+function roomErr(e){const m=e&&e.message||'';return m==='offline'?L('联机服务尚未连接，请稍后重试','Online service is not connected. Please retry shortly.'):m==='nosuch'?(netOnline()?L('没有这个房间,检查一下房间码','No such room — check the code'):L('没找到房间:联机暂不可用,检查一下网络','Room not found: online rooms are unavailable — check your connection')):m==='badcode'?L('房间码是 4 位字母数字','Room codes are 4 letters/digits'):m==='playing'?L('这个房间正在对局中','That room is mid-match'):L('连接失败:','Connection failed: ')+m}

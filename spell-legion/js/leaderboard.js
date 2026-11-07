@@ -10,9 +10,10 @@ const LB={
   name(){let n=(typeof SAVE!=='undefined'&&SAVE.name)||'';if(!n)try{n=localStorage.getItem('sl_name')||''}catch(_){}if(!n&&typeof CLOUD!=='undefined'&&CLOUD.user&&!CLOUD.user.isAnonymous&&CLOUD.user.displayName)n=CLOUD.user.displayName.slice(0,16);return n},
   setName(n){n=String(n||'').trim().slice(0,12);if(!n)return;if(typeof SAVE!=='undefined'){SAVE.name=n;SAVE.nameSet=true;persist()}try{localStorage.setItem('sl_name',n)}catch(_){}},
   cloud(){return typeof CLOUD!=='undefined'&&CLOUD.on()},
+  registered(){return typeof CLOUD!=='undefined'&&CLOUD.registered()},
   enabled(){return typeof CLB!=='undefined'||!!LEADERBOARD_URL},
-  me(){return this.cloud()?CLOUD.uid():null},
-  isMe(r){const u=this.me();return u?r.uid===u:!r.uid&&!!this.name()&&r.name===this.name()},
+  me(){return this.registered()?CLOUD.uid():null},
+  isMe(r){const u=this.me();return !!u&&r.uid===u},
   async fetch(board,filters={}){
     if(typeof CLB!=='undefined')return CLB.fetch(board,filters);
     if(!LEADERBOARD_URL||board==='ladder'||board==='level')return null;
@@ -22,6 +23,7 @@ const LB={
   },
   async profiles(rows){if(typeof CLB==='undefined')return {};return CLB.profiles(rows.map(r=>r.uid))},
   async submit(run){
+    if(!this.registered())return {ok:false,error:'signin-required'};
     if(this.cloud())return CLB.submit(run);
     if(!LEADERBOARD_URL)return {ok:false,error:'disabled'};
     const body=JSON.stringify({...run,token:this.token(),trap:''});
@@ -49,19 +51,21 @@ async function openLeaderboard(board){
   try{
     const d=await LB.fetch(lbBoard);if(seq!==lbSeq)return;
     if(!d||!d.ok){lbRetry(body);return}
-    const myI=d.rows.findIndex(r=>LB.isMe(r)),top=d.rows.slice(0,50);
+    const top=d.rows.slice(0,50);
     const render=prof=>{
       if(seq!==lbSeq)return;
-      const rows=lbDecorate(top,prof);
+      const myI=d.rows.findIndex(r=>LB.isMe(r)),rows=lbDecorate(top,prof);
       body.innerHTML=lbPodium(rows.slice(0,3))+(rows.length>3?`<ol class="lbl">${rows.slice(3).map((r,i)=>lbRow(r,i+3)).join('')}</ol>`:'')+(rows.length?'':`<p class="lbnote big">${L('还没人上榜','No one yet')}</p>`);
-      mine.innerHTML=myI>=50?`<ol class="lbl">${lbRow(lbDecorate([d.rows[myI]],prof)[0],myI)}</ol>`:myI<0?`<p class="lbnote cta">${L('未上榜','Unranked')}</p>`:'';
-      mine.hidden=myI>=0&&myI<50;
+      mine.innerHTML=!LB.registered()?`<button type="button" class="go alt sm" id="lbsignin">${L('登录 / 注册后可上榜','Sign in / register to rank')}</button>`:myI>=50?`<ol class="lbl">${lbRow(lbDecorate([d.rows[myI]],prof)[0],myI)}</ol>`:myI<0?`<p class="lbnote cta">${L('未上榜','Unranked')}</p>`:'';
+      mine.hidden=LB.registered()&&myI>=0&&myI<50;const sign=$('#lbsignin');if(sign)sign.onclick=lbSignIn;
     };
-    render({});
+    render(d.profiles||{});
     // Scores already contain names/avatars. Refresh renamed profiles after showing them.
-    if(lbBoard==='endless'&&top.length)LB.profiles(myI>=50?[...top,d.rows[myI]]:top).then(render).catch(e=>console.warn('profiles lookup',e));
+    if(lbBoard==='endless'&&top.length&&!d.profiles)LB.profiles(top).then(render).catch(e=>console.warn('profiles lookup',e));
   }catch(e){console.warn(e);if(seq===lbSeq)lbRetry(body)}
 }
+function lbSignIn(){closeLeaderboard();if(typeof toLobby==='function')toLobby();if(typeof showScreen==='function')showScreen('menu');if(typeof showTab==='function')showTab('settings');if(typeof renderAccount==='function')renderAccount();$('#account')?.scrollIntoView?.({block:'nearest'})}
+function lbAccountChanged(){if(typeof CLB!=='undefined'){delete CLB.cache.profiles;delete CLB.cache.profileByUid}if(typeof $!=='function')return;const el=$('#lb');if(el&&el.hidden===false&&typeof openLeaderboard==='function')openLeaderboard(lbBoard)}
 function closeLeaderboard(){$('#lb').hidden=true;lbSeq++;lbMenuRank()}
 function wireLeaderboard(){
   const b=$('#lbbtn');if(b)b.onclick=()=>{SFX.pick(1);openLeaderboard()};
@@ -78,7 +82,7 @@ async function lbMenuRank(){
 let lbFlushing=false;
 async function lbFlushPending(){
   const run=SAVE.lb?.pendingRun;
-  if(lbFlushing||!run||!LB.cloud()||(run.uid&&run.uid!==CLOUD.uid()))return;
+  if(lbFlushing||!run||!LB.registered()||!run.uid||(run.uid&&run.uid!==CLOUD.uid()))return;
   lbFlushing=true;
   try{const result=await LB.submit(run);if(result?.ok&&SAVE.lb?.pendingRun?.uid===run.uid&&SAVE.lb.pendingRun.score<=run.score){delete SAVE.lb.pendingRun;persist()}}
   catch(e){console.warn('pending score upload failed',e)}
@@ -95,16 +99,17 @@ async function submitRun(container,snapshot){
   const run=snapshot,dk=run.day;
   const S=SAVE.lb&&typeof SAVE.lb==='object'?SAVE.lb:(SAVE.lb={});
   if(!['score','endless-score'].includes(S.rankBy)){S.rankBy='endless-score';S.bestRun=null;S.dayBestRun=null}else S.rankBy='endless-score';
-  const priorLocal=S.bestRun,priorDay=S.day===dk?S.dayBestRun:null;
+  const priorLocal=S.bestRun?.uid===run.uid?S.bestRun:null,priorDay=S.day===dk&&S.dayBestRun?.uid===run.uid?S.dayBestRun:null;
   const result={uid:run.uid,score:run.score,time:run.time,bosses:run.bosses,kills:run.kills};
   const localPB=!priorLocal||lbCompare(run,priorLocal)<0;
-  if(localPB){S.bestRun=result;if(!S.pendingRun||S.pendingRun.uid!==run.uid||lbCompare(run,S.pendingRun)<0)S.pendingRun={...run,allTime:true}}
+  if(localPB){S.bestRun=result;if(run.uid&&(!S.pendingRun||S.pendingRun.uid!==run.uid||lbCompare(run,S.pendingRun)<0))S.pendingRun={...run,allTime:true}}
   if(!priorDay||lbCompare(run,priorDay)<0){if(S.day!==dk)S.dayBestRun=null;S.day=dk;S.dayBestRun=result}
   if(localPB||!priorDay||lbCompare(run,priorDay)<0)persist();
   const pb=document.createElement('p');pb.className='lbpb';pb.textContent=`${L('个人最高分','Personal best')} · ${Math.round(S.bestRun.score).toLocaleString('en-US')}`;
   const line=document.createElement('button');line.type='button';line.className='lbline';line.innerHTML=`<span class="rk">…</span><span class="tx">${L('排名结算中','Ranking…')}</span>`;
   line.onclick=()=>{SFX.pick(1);openLeaderboard('endless')};
   const anchor=container.querySelector('.endmore');if(anchor){anchor.before(line);anchor.before(pb)}else{container.appendChild(line);container.appendChild(pb)}
+  if(!LB.registered()||!run.uid){line.innerHTML=`<span class="tx">${L('登录 / 注册后，后续对局可上榜','Sign in / register to rank future runs')}</span>`;line.onclick=lbSignIn;return}
   let all=null,today=null;try{[all,today]=await Promise.all([LB.fetch('endless').catch(()=>null),dk===dayKey()?LB.fetch('today').catch(()=>null):Promise.resolve(null)])}catch(_){}
   const mine=r=>run.uid?r.uid===run.uid:r.name===run.name;
   const old=all&&all.ok?all.rows.find(mine):null,oldDay=today&&today.ok?today.rows.find(mine):null;

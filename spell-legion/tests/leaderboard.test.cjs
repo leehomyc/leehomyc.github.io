@@ -15,6 +15,7 @@ function setup(extra={}){
     firebase:{firestore:{FieldValue:{serverTimestamp:()=> 'server-time'}}},...extra});
   vm.runInContext(source('cloud'),c);vm.runInContext(source('leaderboard'),c);
   const ev=s=>vm.runInContext(s,c);
+  if(!extra.realProfiles)ev('CLB').profiles=async uids=>Object.fromEntries(uids.filter(Boolean).map(uid=>[uid,{_id:uid,guest:false}]));
   return {c,ev,nodes,clb:ev('CLB'),lb:ev('LB'),cloud:ev('CLOUD')};
 }
 const plain=o=>JSON.parse(JSON.stringify(o));
@@ -22,9 +23,9 @@ function deferred(){let resolve;const promise=new Promise(r=>resolve=r);return {
 test('public leaderboard and profiles load before login or SDK initialization',async()=>{
   const requests=[];
   const result=[{document:{name:'projects/x/databases/(default)/documents/profiles/u1',fields:{
-    time:{integerValue:'123'},score:{integerValue:'900'},uid:{stringValue:'u1'},av:{mapValue:{fields:{e:{integerValue:'2'},h:{integerValue:'60'}}}}
+    time:{integerValue:'123'},score:{integerValue:'900'},uid:{stringValue:'u1'},guest:{booleanValue:false},av:{mapValue:{fields:{e:{integerValue:'2'},h:{integerValue:'60'}}}}
   }}}];
-  const {ev,lb}=setup({fetch:async(url,options)=>{
+  const {ev,lb}=setup({realProfiles:true,fetch:async(url,options)=>{
     requests.push({url,body:JSON.parse(options.body)});
     return {ok:true,json:async()=>result};
   }});
@@ -62,11 +63,12 @@ test('same-user tied times keep the better boss/kill result and sort consistentl
   const {clb}=setup();clb.raw=async()=>[{uid:'a',score:500,time:100,bosses:1,kills:50},{uid:'a',score:500,time:100,bosses:2,kills:20},{uid:'b',score:500,time:100,bosses:2,kills:30},{uid:'c',score:9000,time:1000,mode:'room'}];
   const data=await clb.fetch('all');assert.deepEqual(Array.from(data.rows,r=>r.uid),['b','a']);assert.equal(data.rows[1].bosses,2);
 });
-test('endless board keeps one best score when a guest and account share a name',async()=>{
+test('endless board excludes guest records even when display names match an account',async()=>{
   const {clb}=setup();clb.raw=async()=>[
     {uid:'guest',name:'Hero',mode:'solo',score:500,time:100,bosses:0,kills:50},
     {uid:'account',name:'Hero',mode:'solo',score:600,time:90,bosses:0,kills:40}
   ];
+  clb.profiles=async()=>({guest:{guest:true},account:{guest:false}});
   const data=await clb.fetch('endless');assert.equal(data.rows.length,1);assert.equal(data.rows[0].uid,'account');
 });
 test('today cache follows the day and concurrent reads share one request',async()=>{
@@ -122,7 +124,7 @@ test('cloud merge preserves the best score across devices and keeps the correct 
 });
 test('an offline endless best stays saved and uploads after reconnection',async()=>{
   const {c,ev,lb,cloud}=setup();let posts=0;
-  c.SAVE.mode='solo';c.G.score=900;
+  c.SAVE.mode='solo';c.G.score=900;cloud.ready=true;cloud.user={uid:'u'};
   lb.fetch=async()=>{throw new TypeError('offline')};
   lb.submit=async()=>{posts++;return {ok:posts>1}};
   await ev('submitRun')(node());
@@ -134,7 +136,7 @@ test('an offline endless best stays saved and uploads after reconnection',async(
   assert.equal(c.SAVE.lb.pendingRun,undefined);
 });
 test('an endless best is saved before the board responds, including a voluntary exit',async()=>{
-  const {c,ev,lb}=setup(),pending=deferred();
+  const {c,ev,lb,cloud}=setup(),pending=deferred();cloud.ready=true;cloud.user={uid:'u'};
   c.G.abandoned=true;c.G.score=1200;
   lb.fetch=()=>pending.promise;lb.submit=async()=>({ok:false});
   const container=node(),work=ev('submitRun')(container);
@@ -169,4 +171,21 @@ test('scores render before slow profiles, and late profiles cannot overwrite ano
   profiles.resolve({u1:{name:'Renamed'}});await new Promise(r=>setImmediate(r));
   assert.match(nodes['#lbbody'].innerHTML,/No one yet/);
   assert.doesNotMatch(nodes['#lbbody'].innerHTML,/Renamed/);
+});
+test('guest accounts cannot submit through either leaderboard layer',async()=>{
+ const {cloud,clb,lb}=setup(),w=writer();cloud.ready=true;cloud.user={uid:'guest',isAnonymous:true};cloud.db=w.db;
+ assert.equal((await clb.submit({uid:'guest'})).error,'signin-required');assert.equal((await lb.submit({uid:'guest'})).error,'signin-required');assert.equal(w.commits,0);assert.equal(lb.me(),null);
+});
+test('guest runs keep a local best but never enter the pending upload queue',async()=>{
+ const {c,ev,cloud,lb}=setup();cloud.ready=true;cloud.user={uid:'guest',isAnonymous:true};let reads=0,posts=0;lb.fetch=async()=>{reads++;return {ok:true,rows:[]}};lb.submit=async()=>{posts++;return {ok:true}};
+ const container=node();await ev('submitRun')(container);assert.equal(c.SAVE.lb.bestRun.score,50);assert.equal(c.SAVE.lb.pendingRun,undefined);assert.equal(posts,0);assert.equal(reads,0);assert.match(container.children[0].innerHTML,/Sign in/);
+ cloud.user={uid:'registered',isAnonymous:false};await ev('lbFlushPending()');assert.equal(posts,0);
+});
+test('unrelated registered accounts with the same display name retain their own rank',async()=>{
+ const {cloud,clb,lb}=setup();cloud.ready=true;cloud.user={uid:'me',isAnonymous:false};clb.raw=async()=>[{uid:'other',name:'Hero',mode:'solo',score:900},{uid:'me',name:'Hero',mode:'solo',score:500},{uid:'guest',name:'Hero',mode:'solo',score:9999}];clb.profiles=async()=>({other:{guest:false},me:{guest:false},guest:{guest:true}});
+ const d=await clb.fetch('endless');assert.deepEqual(Array.from(d.rows,r=>r.uid),['other','me']);assert.equal(d.rows.findIndex(r=>lb.isMe(r)),1);
+});
+test('an account podium row never shows an unranked footer, while guests get a sign-in prompt',async()=>{
+ const {ev,lb,cloud,nodes}=setup({AVATARS:[{}],CLASSES:{},esc:s=>s,avatarHTML:()=>'<span>avatar</span>'});cloud.ready=true;cloud.user={uid:'me',isAnonymous:false};lb.fetch=async()=>({ok:true,rows:[{uid:'me',name:'Hero',score:500}]});lb.profiles=async()=>({});await ev('openLeaderboard("endless")');assert.equal(nodes['#lbmine'].hidden,true);assert.doesNotMatch(nodes['#lbmine'].innerHTML,/Unranked/);
+ cloud.user={uid:'guest',isAnonymous:true};await ev('openLeaderboard("level")');assert.equal(nodes['#lbmine'].hidden,false);assert.match(nodes['#lbmine'].innerHTML,/Sign in \/ register/);
 });

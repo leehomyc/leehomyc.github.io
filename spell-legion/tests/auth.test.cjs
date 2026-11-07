@@ -39,7 +39,7 @@ test('uploads wait for the server save; failed or cached reads cannot overwrite 
   if(mode==='failed')slow.reject(Error('offline'));else slow.resolve({exists:false,metadata:{fromCache:mode==='cached'}});
   await read;
   if(mode!=='pending'){await h.c.cloudPush(true);assert.equal(h.writes.length,0);assert.ok(h.cloud.syncErr)}
-  else assert.equal(h.writes.length,2);
+  else assert.equal(h.writes.length,1);
  }
 });
 test('save writes are serialized and a queued write uses the latest local progress',async()=>{
@@ -115,4 +115,7 @@ test('menu account chip follows guest and signed-in identity and opens account s
  h.cloud.user.displayName='';h.c.renderAccountChip();assert.equal(label.textContent,'player@example.com');
  h.cloud.user=null;h.cloud.initializing=true;h.c.renderAccountChip();assert.equal(label.textContent,'Connecting…');
  h.cloud.initializing=false;h.cloud.ready=false;h.c.renderAccountChip();assert.equal(label.textContent,'Guest · Sign in');
+});
+test('guest save sync never creates a public ranking profile',async()=>{
+ const h=setup();await h.c.cloudPush(true);assert.deepEqual(h.writes.map(w=>w.collection),['saves']);h.user.isAnonymous=false;await h.c.cloudPush(true);assert.deepEqual(h.writes.map(w=>w.collection),['saves','saves','profiles']);assert.equal(h.writes.at(-1).data.guest,false);
 });

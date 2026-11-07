@@ -22,7 +22,7 @@ const BOUNTIES=[
 function dirOn(){if(typeof window!=='undefined'&&window.__nodir)return false;return !!G&&!G.auto&&!G.over&&!RIVAL_ON&&!G.room&&!(typeof DAILY!=='undefined'&&DAILY)}
 function dirInit(){const skill=(typeof SAVE!=='undefined'&&SAVE.skill)||0,solo=SAVE.mode==='solo',base=(solo?1.15:.9)+skill*.45;G.dir={spawn:1,hp:1,dmg:1,elite:1,heal:1,counter:null,counterP:0,mood:'build',moodT:35,I:base,base,base0:base,lowHp:1,lastLow:0,peaks:0,champs:0,bounties:0,bountiesTried:0,hist:[]};G.dirStat={dmgRate:0,kpm:0,actShare:0,parries:0,elitesAlive:0,comboNow:0};G.dirT=0}
 function dirMeasure(){const P=G.P,D=G.dir,S=G.dirStat,t=G.t;
-  const r=P.hp/P.maxHp;D.hist.push({t,r,taken:G.dmgTaken,kills:G.kills,dodges:G.dodges||0});while(D.hist.length&&D.hist[0].t<t-60)D.hist.shift();
+  const r=P.hp/P.maxHp;D.hist.push({t,r,taken:G.dmgTaken,effective:G.effectiveDealt||0,kills:G.kills,dodges:G.dodges||0});while(D.hist.length&&D.hist[0].t<t-60)D.hist.shift();
   const h0=D.hist[0],h30=D.hist.find(h=>h.t>=t-30)||h0;D.lowHp=Math.min(...D.hist.map(h=>h.r));
   S.dmgRate=(G.dmgTaken-h30.taken)/Math.max(1,t-h30.t)/P.maxHp;S.kpm=(G.kills-h0.kills)/Math.max(1,t-h0.t)*60;S.parries=(G.dodges||0)-h0.dodges;
   const tot=G.spells.reduce((a,s)=>a+s.dmg,0)||1;S.actShare=G.spells.filter(s=>!SPELLS[s.id].auto).reduce((a,s)=>a+s.dmg,0)/tot;S.elitesAlive=G.en.filter(e=>!e.dead&&e.elite).length;S.comboNow=G.combo;
@@ -47,7 +47,7 @@ function dirBountyTick(dt){const B=G.bounty;if(!B)return;B.t-=dt;const d=B.def;c
     showBanner(`挑战达成 · ${d.rzh}`,`Challenge done · ${d.ren}`,1.6);G.flash=Math.max(G.flash,.4);if(typeof SFX!=='undefined')SFX.complete()}}
 function bountyText(){const B=G.bounty;if(!B)return '';const p=B.def.prog();return L(`挑战 · ${B.def.zh} · ${Math.ceil(B.t)}s${p>=0&&p<1&&!['noHit','streak'].includes(B.id)?` · ${Math.round(p*100)}%`:''}`,`Challenge · ${B.def.en} · ${Math.ceil(B.t)}s${p>=0&&p<1&&!['noHit','streak'].includes(B.id)?` · ${Math.round(p*100)}%`:''}`)}
 function directorTick(dt){if(!dirOn())return;if(!G.dir)dirInit();const D=G.dir,t=G.t;dirBountyTick(dt);
-  G.dirT=(G.dirT||0)+dt;if(G.dirT<2)return;G.dirT-=2;dirMeasure();const S=G.dirStat,P=G.P;
+  G.dirT=(G.dirT||0)+dt;if(G.dirT<2)return;G.dirT-=2;dirMeasure();dirAdaptiveStep();const S=G.dirStat,P=G.P;
   D.moodT-=2;const inBoss=!!G.boss;
   if(D.mood==='build'){ // calm: ease toward the baseline, let the build breathe
     D.I+=(D.base-D.I)*.25;D.counterP=0;if(D.moodT<=0&&t>(SAVE.mode==='solo'?100:150)&&!inBoss){D.mood='pressure';D.moodT=40;D.counter=dirCounter();D.counterP=.35;D.pushed=0}}
@@ -66,3 +66,46 @@ function directorTick(dt){if(!dirOn())return;if(!G.dir)dirInit();const D=G.dir,t
 }
 /* across runs: a veteran's director starts hotter; a player who keeps dying gets a gentler start */
 function dirRunEnd(){if(!G||!G.dir||typeof SAVE==='undefined'||RIVAL_ON||G.room)return;const mins=G.t/60,died=!!G.killer;let s=SAVE.skill||0;const target=clamp((mins-6)/24+(G.bossSlain*.04)-(died&&mins<8?.15:0),0,1);s+=(target-s)*.35;SAVE.skill=clamp(s,0,1);SAVE.dirPeaks=(SAVE.dirPeaks||0)+(G.dir.peaks||0)}
+
+/* Endless adaptation is sampled at wave boundaries and applies only to new enemies.
+   It uses effective damage (not overkill), leaves the opening two minutes alone,
+   and backs off after a health dip. Competitive rooms retain their shared rules. */
+function dirAdaptiveStep(){
+  if(!dirOn()||SAVE.mode!=='solo')return;
+  const D=G.dir,S=G.dirStat,P=G.P,wave=Math.floor(G.t/30);
+  if(D.adaptWave===wave)return;D.adaptWave=wave;
+  const h=D.hist[0],span=h?G.t-h.t:0,r=P.hp/P.maxHp;
+  if(G.t<120||span<20||G.boss)return;
+  let level=D.adaptLevel||0;
+  const cruising=r>.8&&S.kpm>=180&&(S.dmgRate<.005||(S.still&&r>.95));
+  if(P.down>0||r<.45)level=Math.max(0,level-2);else if(cruising)level=Math.min(8,level+1);else if(r<.65)level=Math.max(0,level-1);
+  if(level>(D.adaptLevel||0))showBanner(`敌军进化 · ${level} 阶`,`Enemy evolution · tier ${level}: tougher foes and telegraphed attacks`,2);
+  D.adaptLevel=level;
+  D.adaptProfile={level,hp:P.maxHp,def:Math.max(.4,P.def),dps:Math.max(0,(G.effectiveDealt||0)-(h.effective||0))/Math.max(1,span)};
+}
+function dirAdaptEnemy(e){
+  if(!e||!dirOn()||SAVE.mode!=='solo'||!G.dir?.adaptProfile)return;
+  const A=G.dir.adaptProfile,n=A.level;if(!n||e.type==='boss'||e.type==='statue'||e.warlord)return;
+  const baseHp=e.hp,baseDmg=e.dmg;
+  // Only part of measured crowd DPS counts; growth has a strict ceiling.
+  e.hp=e.maxHp=Math.min(baseHp*3,Math.max(baseHp*(1+n*.15),A.dps*(e.elite?.65:.16)));
+  e.dmg=Math.min(baseDmg*2.5,Math.max(baseDmg*(1+n*.08),A.hp*.08/A.def));e.adaptArmor=Math.min(.12,n*.015);e.adaptDamage=e.dmg/Math.max(.1,baseDmg);
+  const alive=G.en.filter(o=>!o.dead&&o.adaptAbility).length;
+  if(n>=2&&alive<Math.min(4,Math.ceil(n/2))&&SIMR()<.12+n*.02){
+    e.adaptAbility=pick(n>=4?['blast','line','leech']:['blast','line']);e.adaptCd=3;
+    e.name=({blast:'裂地',line:'穿云',leech:'嗜血'})[e.adaptAbility]+'精锐';e.en=({blast:'Earthbreaker',line:'Linebreaker',leech:'Blooddrinker'})[e.adaptAbility];
+    e.elite=true;e.sc=(e.sc||1)*1.15;e.xp=Math.max(3,e.xp*2);ring(e.x,e.y,e.r+8,e.adaptAbility==='leech'?'#ff607d':'#ffad63');
+  }
+}
+function dirEnemyAttack(e,T,dt){
+  if(!e.adaptAbility||!dirOn()||G.P.down>0||G.boss)return;
+  e.adaptCd=(e.adaptCd||0)-dt;if(e.adaptCd>0||hyp(e.x-T.x,e.y-T.y)>280)return;
+  e.adaptCd=7+SIMR()*3;
+  const n=G.en.filter(o=>!o.dead&&o.adaptAbility).length;
+  if(G.hazards.filter(h=>h.adaptive).length>Math.min(12,n*4))return;
+  const raw=Math.min(e.dmg*1.15,G.P.maxHp*.18/Math.max(.4,G.P.def)),col=e.adaptAbility==='leech'?'#ff607d':'#ffad63';
+  const add=(x,y,r)=>{hazard(clamp(x,30,W-30),clamp(y,30,H-30),r,1.25,.25,raw,0,col);const h=G.hazards[G.hazards.length-1];h.adaptive=true;h.source=[e.name,e.en];if(e.adaptAbility==='leech')h.leech=e};
+  if(e.adaptAbility==='line'){const dx=T.x-e.x,dy=T.y-e.y,d=hyp(dx,dy)||1;for(let i=0;i<5;i++){const a=-80+i*40;add(T.x+dx/d*a,T.y+dy/d*a,22)}}
+  else add(T.x,T.y,e.adaptAbility==='blast'?46:36);
+  ring(e.x,e.y,e.r+10,col);
+}

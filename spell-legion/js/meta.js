@@ -49,7 +49,7 @@ function metaAfterRun(){
     if(t.cum)task.p=Math.min(task.goal,(task.p||0)+v);else task.p=Math.max(task.p||0,Math.min(task.goal,v));
     if(task.p>=task.goal){task.done=1;const g=TASK_GOLD[task.tier];gold+=g;done.push([task,g])}}
   const before=accountLv(),xp=runAxp();SAVE.axp=(SAVE.axp||0)+xp;const after=accountLv();let lvGold=0;for(let l=before.lv+1;l<=after.lv;l++)lvGold+=100+l*20;gold+=lvGold;
-  const duel=runTrophies();const rank=duel?awardDuel(duel):{dT:0,gold:0,ranks:[]};
+  const duel=G.abandoned||G.duelAborted?0:runTrophies();const rank=duel?awardDuel(duel):{dT:0,gold:0,ranks:[]};
   SAVE.gold+=gold;persist();
   return G.metaReward={done,gold:gold+rank.gold,xp,before,after,levelUp:after.lv>before.lv,lvGold,dT:rank.dT,trophies:SAVE.trophies||0,ranks:rank.ranks};
 }

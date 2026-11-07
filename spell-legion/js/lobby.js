@@ -47,7 +47,7 @@ function weaponDetail(w){
 }
 function skillDetail(id,start){
   const m=SPELLS[id];if(!m)return '';const cat=CATS[SKILL_CAT[id]]||CATS.passive;
-  return `<div class="sdh">${ICON.spell(id)}<div><b>${LL(m)} <span class="catd" style="--cc:${cat[2]}">${L(cat[0],cat[1])}</span></b><small>${L(`${m.cost} 内力 · 冷却 ${m.cd}s`,`${m.cost} qi · ${m.cd}s cooldown`)}</small></div></div><p>${L(m.d,m.de)}</p>`;
+  return `<div class="sdh">${ICON.spell(id)}<div><b>${LL(m)} <span class="catd" style="--cc:${cat[2]}">${L(cat[0],cat[1])}</span></b><small>${L(`${Math.round(m.cost*1.25)} 内力 · 冷却 ${m.cd}s`,`${Math.round(m.cost*1.25)} qi · ${m.cd}s cooldown`)}</small></div></div><p>${L(m.d,m.de)}</p>`;
 }
 function renderHero(){
   const C=CLASSES[SAVE.cls]||CLASSES.swordsman,cls=SAVE.cls;

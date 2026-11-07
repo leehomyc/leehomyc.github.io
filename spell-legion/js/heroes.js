@@ -408,4 +408,4 @@ const RS={
   _rt(dt);R.spells.forEach((s,i)=>{s.cd=Math.max(0,hold[i]-dt)});if(R.down>0||G.over)return;
   const main=R.spells[0],mst=stat(main),t=rivalNear(R,main.id==='katana'?110:200);
   if(main.cd<=0&&t&&RW[main.id]){const a=Math.atan2(t.y-R.y,t.x-R.x);R.dx=Math.cos(a);R.dy=Math.sin(a);R.yaw0=Math.atan2(R.dx,R.dy);R.cast=1;RW[main.id](R,main,mst,t)}
-  for(let i=1;i<R.spells.length;i++){const s=R.spells[i],sp=SPELLS[s.id];if(s.cd>0||R.mana<sp.cost||!RS[s.id])continue;if(RS[s.id](R,s,stat(s))){R.mana-=sp.cost;s.cd=sp.cd*stat(s).cdM;R.cast=1}}}}
+  for(let i=1;i<R.spells.length;i++){const s=R.spells[i],sp=SPELLS[s.id];if(s.cd>0||R.mana<skillCost(s)||!RS[s.id])continue;if(RS[s.id](R,s,stat(s))){R.mana-=skillCost(s);R.manaRest=1;s.cd=sp.cd*stat(s).cdM;R.cast=1}}}}

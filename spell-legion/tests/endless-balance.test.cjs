@@ -1,0 +1,53 @@
+const {test}=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm'),path=require('node:path');
+const src=n=>fs.readFileSync(path.join(__dirname,'../js',n+'.js'),'utf8');
+function setup(){const c=vm.createContext({console,Math,Date,Set,Map,SAVE:{mode:'solo'},DAILY:false,W:2600,H:2000,TAU:Math.PI*2,clamp:(v,a,b)=>Math.max(a,Math.min(v,b)),hyp:Math.hypot,rnd:()=>0,SIMR:()=>0,pick:a=>a[0],L:(z,e)=>e,showBanner(){},ring(){},hazard(){}});const run=s=>vm.runInContext(s,c);run(src('content'));run(src('sim'));run(src('director'));run('ring=()=>{};G={auto:false,over:false,room:false,relics:[],en:[],hazards:[],t:180,effectiveDealt:12000,P:{hp:100,maxHp:100,def:1,down:0}};dirInit();G.dirStat={kpm:400,dmgRate:0,still:true};G.dir.hist=[{t:150,effective:0}]');return {c,run}}
+test('damage cards add base bonuses then diminish, while capped pickup cards stop',()=>{
+ const {run}=setup();run('const P={dmg:1,mag:1};const keen=PERKS.find(p=>p.en==="Keen Edge"),mag=PERKS.find(p=>p.en==="Lodestone");for(let i=0;i<5;i++){keen.a(P);mag.a(P)}');assert.ok(Math.abs(run('P.dmg')-1.6)<1e-8);assert.ok(Math.abs(run('P.mag')-3)<1e-8);
+ run('for(let i=0;i<100;i++){keen.a(P);mag.a(P)}');assert.ok(run('P.dmg')>3.4);assert.ok(run('P.dmg')<7);assert.ok(Math.abs(run('P.mag')-3.4)<1e-8);assert.equal(run('P.pickupStacks'),6);
+});
+test('final pickup radius stays local even with stacked gear and relic multipliers',()=>{
+ const {run}=setup();for(const t of [0,180,600])assert.ok(run(`pickupRadius({mag:400},${t})`)<=180);assert.equal(run('pickupRadius({mag:1},600)'),52);
+});
+test('rejuvenation cannot exceed its total healing budget at extreme skill power',()=>{
+ const {run}=setup();assert.equal(run('rejuvHealing({maxHp:100},{m:1},0,0)'),20);assert.ok(Math.abs(run('rejuvHealing({maxHp:100},{m:9999},10,999)')-45)<1e-8);
+});
+test('qi spending outruns regen during repeated casts and cost reduction cannot make skills free',()=>{
+ const {run}=setup();run('const P={mana:0,maxMana:100,regen:100,manaRest:1};manaRegen(P,1)');assert.equal(run('P.mana'),1.125);run('manaRegen(P,1)');assert.equal(run('P.mana'),5.625);assert.equal(run('skillCost(mkSpell("ward"))'),50);
+ run('G.relics=["taiji","bind"];const s=mkSpell("ward");for(let i=0;i<TREES.ward.length;i++)if(TREES.ward[i].fx==="cost")s.nodes[i]=100');assert.ok(run('skillCost(s)')>0);
+});
+test('adaptation waits for wave boundaries, only scales new enemies and retreats when health drops',()=>{
+ const {run}=setup();run('dirAdaptiveStep();const level=G.dir.adaptLevel;dirAdaptiveStep()');assert.equal(run('G.dir.adaptLevel'),1);
+ run('G.t=210;dirAdaptiveStep();const e={type:"bandit",hp:100,maxHp:100,dmg:10,r:8,xp:1,sc:1};G.en.push(e);dirAdaptEnemy(e)');assert.equal(run('G.dir.adaptLevel'),2);assert.ok(run('e.hp')>100);assert.ok(run('e.hp')<=300);assert.ok(run('e.dmg')<=25);assert.ok(run('e.adaptArmor')<=.12);assert.equal(run('e.adaptAbility'),'blast');
+ run('G.P.hp=30;G.t=240;dirAdaptiveStep()');assert.equal(run('G.dir.adaptLevel'),0);
+});
+test('competitive modes never receive player-specific adaptive enemies',()=>{
+ const {run}=setup();run('G.room=true;G.dir.adaptProfile={level:8,hp:9999,def:.4,dps:99999};const e={type:"bandit",hp:100,maxHp:100,dmg:10};dirAdaptEnemy(e)');assert.equal(run('e.hp'),100);assert.equal(run('e.dmg'),10);
+});
+test('adaptive attacks telegraph for 1.25 seconds and cannot burst for more than 18% HP',()=>{
+ const {c,run}=setup();const hazards=[];c.hazard=(x,y,r,tele,dur,burst,dps,col)=>{const h={x,y,r,tele,dur,burst};hazards.push(h);run('G.hazards').push(h)};
+ run('const e={x:0,y:0,r:8,dmg:20,adaptAbility:"line",adaptCd:0};G.en=[e];dirEnemyAttack(e,{x:100,y:0},.1)');assert.equal(hazards.length,5);assert.ok(hazards.every(h=>h.tele===1.25&&h.burst<=18));
+});
+test('blooddrinker heals only after real HP loss, never on a blocked hit',()=>{
+ const {run}=setup();run(`G.P.x=G.P.y=100;G.P.hp=100;G.P.dash=0;const leech={hp:10,maxHp:100};G.hazards=[{x:100,y:100,r:30,tele:.1,dur:.2,burst:20,dps:0,leech}];dmgP=n=>{G.P.hp-=n};hazardTick(.2)`);assert.equal(run('leech.hp'),13);
+ run(`G.hazards=[{x:100,y:100,r:30,tele:.1,dur:.2,burst:20,dps:0,leech}];dmgP=()=>{};hazardTick(.2)`);assert.equal(run('leech.hp'),13);
+});
+test('Vitality keeps max-health growth but restores only five HP per stack',()=>{
+ const {run}=setup();run('G.P.hp=10;const vitality=PERKS.find(p=>p.en==="Vitality");vitality.a(G.P);vitality.a(G.P)');assert.equal(run('G.P.maxHp'),150);assert.equal(run('G.P.hp'),20);
+});
+test('ignoring a rift buffs existing and future enemies once, then expires after 60 seconds',()=>{
+ const {run}=setup();run('const e={type:"bandit",hp:50,maxHp:100,dmg:10,spd:30};G.en=[e];G.mission={k:"seal",n:5};failMission(G.mission);sealEmpower(e)');assert.equal(run('e.hp'),60);assert.equal(run('e.maxHp'),120);assert.equal(run('e.dmg'),12);assert.equal(run('e.spd'),36);assert.equal(run('G.sealRageUntil'),240);
+ run('const next={type:"archer",hp:100,maxHp:100,dmg:20,spd:50};G.en.push(next);sealEmpower(next)');assert.equal(run('next.hp'),120);
+ run('G.t=240;sealRageTick()');assert.equal(run('e.hp'),50);assert.equal(run('e.maxHp'),100);assert.equal(run('next.dmg'),20);assert.equal(run('G.sealRageUntil'),0);
+});
+test('a completed rift is never punished if the timer expires in the same frame',()=>{
+ const {run}=setup();run('G.mission={k:"seal",n:0};failMission(G.mission)');assert.equal(run('G.sealRageUntil'),undefined);
+});
+test('boss skyfall locks a dodgeable location, lands there and deals a health percentage through armour',()=>{
+ const {c,run}=setup();c.collide=()=>{};run(`spark=()=>{};trauma=()=>{};shock=()=>{};G.P.x=100;G.P.y=100;G.P.maxHp=100;G.P.hp=100;G.P.def=.4;G.P.dash=0;const B={type:'boss',x:300,y:300,hp:1000,maxHp:1000,n:0,r:20,skyCd:0};G.boss=B;bossSkyfall(B,.1)`);
+ assert.equal(run('B.skyfall.x'),100);assert.equal(run('G.hazards[0].tele'),1.6);assert.equal(run('G.hazards[0].percent'),.2);
+ run('dmgP=n=>{G.P.hp-=n*.4};hazardTick(1.6)');assert.equal(run('G.P.hp'),80);
+ run('bossSkyfall(B,1.6)');assert.equal(run('B.x'),100);assert.equal(run('B.skyfall'),null);assert.ok(run('B.exposed')>0);
+});
+test('moving out of skyfall avoids all of its percentage damage',()=>{
+ const {c,run}=setup();c.collide=()=>{};run(`G.P.x=G.P.y=100;G.P.dash=0;G.boss={type:'boss',x:300,y:300,hp:1000,maxHp:1000,n:2,r:20,skyCd:0};bossSkyfall(G.boss,.1);G.P.x=400;dmgP=()=>{throw Error('attack followed the player')};hazardTick(1.6)`);assert.equal(run('G.hazards[0].x'),100);
+});

@@ -40,7 +40,7 @@ const SPELLS={
   pouch:{g:'囊',zh:'药囊',en:'Herb Pouch',col:'#b6ff8a',auto:1,d:'普攻:将药囊掷向最密集处,炸开一片毒雾。',de:'Normal attack. Lobs a pouch at the thickest crowd; it bursts into poison mist.'},
   plague:{g:'疫',zh:'瘟疫',en:'Plague',col:'#c6ff5a',cost:32,cd:9,d:'标记附近八名敌人,持续中毒;死亡时留下毒雾。',de:'Marks eight nearby enemies with a wasting poison; they leave mist when they die.'},
   gu:{g:'蛊',zh:'蛊虫',en:'Gu Swarm',col:'#9ff06a',cost:28,cd:6,d:'放出四只追魂蛊虫,穿透并减速、叠毒。',de:'Four homing gu that pierce, slow and stack poison.'},
-  rejuv:{g:'春',zh:'回春',en:'Rejuvenation',col:'#7fc98a',cost:36,cd:14,dur:3,d:'三秒内回复两成生命,解除迷乱并获得短暂护罩;附近每个中毒敌人多回 2%(各消耗一层毒)。',de:'Heal 20% over three seconds, cure bewitchment and gain a brief shield; +2% per poisoned enemy nearby (each loses a stack).'},
+  rejuv:{g:'春',zh:'回春',en:'Rejuvenation',col:'#7fc98a',cost:36,cd:14,dur:3,d:'三秒内回复两成生命，强化后最多 35%；每个中毒敌人额外回复 1%，总量最多 45%，解除迷乱并获得短暂护罩。',de:'Heal 20% over 3 s (upgrades cap at 35%); +1% per poisoned enemy, up to 45% total. Cure bewitchment and gain brief protection.'},
   numb:{g:'麻',zh:'麻沸散',en:'Anesthesia',col:'#dcb0ff',cost:50,cd:18,d:'周围敌人昏睡 2.5 秒,其间受到伤害 +30%;已中毒的目标毒伤一次引爆。',de:'Everything nearby sleeps for 2.5 s and takes 30% more damage; poisoned targets have their poison detonated at once.'},
 };
 const SPELL_KEYS=['','1','2','3'];
@@ -82,14 +82,17 @@ const AUGS={
   extra:{g:'增',zh:'增阵',en:'Wider Array',d:'阵法多两件法器,转得更快。',de:'Two more pieces in the array, spinning faster.',for:['array','bagua']},
 };
 const MOVE_SPEED_CAP=1.7; // permanent speed; timed skill boosts are applied after this cap
+function perkStack(P,key,prop,step,max,inverse=false){const n=P[key]||0;if(n>=max)return false;P[key]=n+1;const a=1+step*n,b=1+step*(n+1);P[prop]*=inverse?a/b:b/a;return true}
+const keenBonus=n=>.12*Math.min(20,n)+1.5*Math.log1p(.08*Math.max(0,n-20));
+const PERK_LIMITS={'金钟罩':['bellStacks',7],'轻身':['lightStep',6],'内息':['breathStacks',8],'摄物':['pickupStacks',6],'疾风':['hasteStacks',8]};
 const PERKS=[
-  {g:'锋',zh:'锋锐',en:'Keen Edge',d:'所有伤害 +12%',de:'All damage +12%',a:P=>P.dmg*=1.12},
-  {g:'罩',zh:'金钟罩',en:'Iron Bell',d:'受到伤害 -12%(减伤上限 60%)',de:'Damage taken -12% (mitigation caps at 60%)',a:P=>P.def*=.88},
-  {g:'轻',zh:'轻身',en:'Light Step',d:'移动速度 +5%，最多 6 层',de:'+5% move speed, up to 6 stacks',a:P=>{if((P.lightStep||0)>=6||P.spd>=MOVE_SPEED_CAP)return;P.lightStep=(P.lightStep||0)+1;P.spd=Math.min(MOVE_SPEED_CAP,P.spd*1.05)}},
-  {g:'息',zh:'内息',en:'Inner Breath',d:'内力上限 +30,回复更快',de:'+30 max qi and faster qi regen',a:P=>{P.maxMana+=30;P.regen*=1.2;P.mana=Math.min(P.maxMana,P.mana+30)}},
-  {g:'命',zh:'生息',en:'Vitality',d:'生命上限 +25,并回复 25',de:'Max HP +25, heal 25',a:P=>{P.maxHp+=25;P.hp=Math.min(P.maxHp,P.hp+25)}},
-  {g:'摄',zh:'摄物',en:'Lodestone',d:'拾取范围 +40%',de:'Pickup range +40%',a:P=>P.mag*=1.4},
-  {g:'疾',zh:'疾风',en:'Haste',d:'冷却时间 -10%',de:'Cooldowns -10%',a:P=>P.haste/=.9},
+  {g:'锋',zh:'锋锐',en:'Keen Edge',d:'伤害 +12% 基础值，20 层后收益递减，可继续成长',de:'+12% base damage; diminishing returns after 20 stacks, with continued growth',a:P=>{const n=P.keenStacks||0;P.keenStacks=n+1;P.dmg*=(1+keenBonus(n+1))/(1+keenBonus(n))}},
+  {g:'罩',zh:'金钟罩',en:'Iron Bell',d:'受到伤害 -8% 基础值，最多 7 层（总减伤上限 60%）',de:'-8% base damage taken per stack, up to 7 stacks (60% total mitigation cap)',a:P=>perkStack(P,'bellStacks','def',-.08,7)},
+  {g:'轻',zh:'轻身',en:'Light Step',d:'移动速度 +5%，最多 6 层',de:'+5% move speed, up to 6 stacks',a:P=>{if((P.lightStep||0)>=6||P.spd>=MOVE_SPEED_CAP)return;perkStack(P,'lightStep','spd',.05,6);P.spd=Math.min(MOVE_SPEED_CAP,P.spd)}},
+  {g:'息',zh:'内息',en:'Inner Breath',d:'内力上限 +30，回复 +10% 基础值，最多 8 层',de:'+30 max qi and +10% base regen per stack, up to 8 stacks',a:P=>{if(!perkStack(P,'breathStacks','regen',.1,8))return;P.maxMana+=30;P.mana=Math.min(P.maxMana,P.mana+30)}},
+  {g:'命',zh:'生息',en:'Vitality',d:'生命上限 +25，并回复 5',de:'Max HP +25, heal 5',a:P=>{P.maxHp+=25;P.hp=Math.min(P.maxHp,P.hp+5)}},
+  {g:'摄',zh:'摄物',en:'Lodestone',d:'拾取范围 +40% 基础值，最多 6 层',de:'+40% base pickup range per stack, up to 6 stacks',a:P=>{perkStack(P,'pickupStacks','mag',.4,6)}},
+  {g:'疾',zh:'疾风',en:'Haste',d:'冷却 -6% 基础值，最多 8 层',de:'-6% base cooldown per stack, up to 8 stacks',a:P=>perkStack(P,'hasteStacks','haste',-.06,8,true)},
   {g:'杀',zh:'致命',en:'Deadly',d:'暴击率 +8%(双倍伤害;超过 100% 转为暴击伤害)',de:'+8% crit chance (double damage; past 100% it raises crit damage)',a:P=>P.crit+=.08},
 ];
 const ETYPES={

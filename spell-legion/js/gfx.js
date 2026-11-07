@@ -429,12 +429,13 @@ function buildHeroModel(cls,slot,weaponId){
   else if(cls==='qin')weapon=[part(BOX(17,1.3,5),'#3a2418',{p:[-5.5,0,8.6],r:[0,.12,.08],top:'#6a4a2a'}),part(BOX(16,.3,.16),'#e8e4d8',{p:[-5.5,.9,7.4],r:[0,.12,.08],emit:'#8fe3ff',ei:1}),part(BOX(16,.3,.16),'#e8e4d8',{p:[-5.5,.95,8.6],r:[0,.12,.08],emit:'#8fe3ff',ei:1}),part(BOX(16,.3,.16),'#e8e4d8',{p:[-5.5,1,9.8],r:[0,.12,.08],emit:'#8fe3ff',ei:1}),part(SPH(.8,8,6),'#d9a641',{p:[2.4,.9,8.6],emit:'#6a4a10',ei:.5})];
   else weapon=[part(BOX(5,1,1),'#d9a641',{p:[1.2,.6,5.4],emit:'#6a4a10',ei:.5}),part(CYL(.7,.7,7,6),'#2a1a14',{p:[1.2,-3.2,5.4]}),part(BOX(2.6,20,.4),'#d7dde6',{p:[1.6,11,5.4],top:'#ffffff',emit:'#ffb080',ei:.3}),part(BOX(.6,19,.5),'#ffffff',{p:[2.4,10.8,5.4],emit:'#ff9c5a',ei:1}),part(BOX(.5,4,.5),'#b8322b',{p:[1.2,-7.5,5.4]})];
   weapon.forEach(w=>w.translate(0,WY,WZ));
+  const heldWeapon=new T3.Mesh(merge(weapon.map(w=>w.clone())),m);heldWeapon.name='weapon-'+weaponId;heldWeapon.castShadow=true;
   const forearm=cls==='blademaster'?[part(CYL(1.5,1.7,6,8),skin,{p:[1,-6,3.2],r:[.55,0,-.1]}),part(CYL(1.75,1.75,2.4,8),'#e9e4d6',{p:[1.1,-5,3.6],r:[.55,0,-.1]})]:[];
   const armM=new T3.Mesh(merge([part(CYL(2.1,female?3.2:4.2,female?11:9,10),V.sleeve,{p:[.2,-3.8,1.6],r:[.55,0,-.18],top:V.sleeve}),...forearm,part(SPH(1.6,10,7),skin,{p:[1.2,-9.2,4.2]}),...weapon]),m);armM.castShadow=true;arm.add(armM);
   const cry=new T3.Mesh(new T3.OctahedronGeometry(1.6,1),new T3.MeshBasicMaterial({color:new T3.Color(...V.gem)}));cry.position.set(1.2,WY+(typeof HERO_GEM_Y!=='undefined'&&HERO_GEM_Y[weaponId]!==undefined?HERO_GEM_Y[weaponId]:weaponId==='whisk'?21:weaponId==='drum'?14:weaponId==='nodachi'?35:weaponId==='great'?27:weaponId==='staff'?37:weaponId==='fist'?2:weaponId==='needle'?11:weaponId==='pouch'?3.5:cls==='taoist'?26:cls==='qin'?2:23.6),5.4+WZ);if(cls==='qin'&&weaponId==='wave')cry.position.set(-12,WY+1.5,8.2);arm.add(cry);
   const sigil=new T3.Mesh(new T3.PlaneGeometry(1,1),new T3.MeshBasicMaterial({map:sigilTex(),transparent:true,opacity:.75,blending:T3.AdditiveBlending,depthWrite:false,color:new T3.Color(.55,1.6,1.8)}));sigil.rotation.x=-Math.PI/2;sigil.scale.set(slot==='player'?50:36,slot==='player'?50:36,1);scene.add(sigil);
   if(slot==='player')for(let i=0;i<14;i++){const gm=new T3.Mesh(robeGeo,new T3.MeshBasicMaterial({color:new T3.Color(.6,2.4,3),transparent:true,opacity:.5,blending:T3.AdditiveBlending,depthWrite:false}));gm.visible=false;gm.scale.set(.9,.9,.9);scene.add(gm);ghostM.push(gm)}
-  return {g:grp,hat,arm,crystal:cry,cape,sigil,cls,slot,gem:V.gem,weapon:weaponId};
+  return {g:grp,hat,arm,heldWeapon,crystal:cry,cape,sigil,cls,slot,gem:V.gem,weapon:weaponId};
 }
 function sigilTex(dash){
   const k=document.createElement('canvas');k.width=k.height=512;const g=k.getContext('2d');g.translate(256,256);g.strokeStyle='#fff';g.fillStyle='#fff';

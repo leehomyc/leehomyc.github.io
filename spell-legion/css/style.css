@@ -1433,3 +1433,27 @@ body.touchhud #healthwarning{bottom:calc(235px + env(safe-area-inset-bottom));fo
 #roompanel .rp:not(.seat)>.ic-w{grid-row:1/4}
 #roompanel .rp .room-gear{grid-column:2/-1;grid-row:3;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:10.5px;line-height:1.4;margin-top:2px;color:var(--dim)}
 #roompanel .rp .rmx{grid-column:3;grid-row:1/3}
+
+/* Equal outer columns keep the clock centered independently of HUD labels. */
+#hud .top>.row{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr)}
+#hud .top>.row>.lft{justify-self:start}#hud .top>.row>.rgt{justify-self:end}
+#hud .top>.row>.tm{justify-self:center;text-align:center}
+#kills[hidden]{display:none}
+#scoreburst{position:absolute;left:50%;top:40%;transform:translate(-50%,-50%);z-index:55;pointer-events:none;text-align:center;width:min(90vw,600px);color:#fff2bd;text-shadow:0 3px 0 #3c1909,0 0 24px #ffac36;animation:score-burst .5s ease-out both}
+#scoreburst[hidden]{display:none}#scoreburst strong{display:block;font:clamp(30px,5vw,60px)/1.2 var(--brush)}#scoreburst b{display:block;font:900 clamp(40px,7vw,82px)/1.1 var(--cute);color:#ffd56a}
+#scoreburst.boss:before{content:'';position:absolute;inset:-25px 15%;border:3px solid #ffd56a;border-radius:50%;animation:score-ring .9s ease-out both}
+.score-reward #banner{visibility:hidden}
+@keyframes score-burst{from{opacity:0;transform:translate(-50%,-50%) scale(.5)}60%{opacity:1;transform:translate(-50%,-50%) scale(1.12)}to{transform:translate(-50%,-50%) scale(1)}}
+@keyframes score-ring{from{opacity:1;transform:scale(.5)}to{opacity:0;transform:scale(1.5)}}
+@media(prefers-reduced-motion:reduce){#scoreburst,#scoreburst.boss:before{animation:none}}
+#gearov>.cbox{box-sizing:border-box;display:flex;flex-direction:column;max-height:calc(100dvh - 32px);overflow:hidden;min-height:0}
+#gearov .ch{flex-shrink:0}#gearbody{min-height:0;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;padding:3px 4px 20px;scrollbar-gutter:stable}
+#gearbody .gwrap>div{min-width:0}#gearbody .gdet{overflow-wrap:anywhere}
+
+#gearov{box-sizing:border-box;padding:16px}#gearov>.cbox{margin-top:0}
+
+#riftwarning{justify-self:center;text-align:center;max-width:90%;padding:4px 12px;border:1px solid #f18b78;border-radius:8px;background:#3b1525e8;color:#ffb3a3;font-weight:800;font-size:13px}#riftwarning[hidden]{display:none}
+#gearov{align-items:center;justify-content:center}
+
+#hud .rgt{padding-right:0}
+body:not(.touchhud) #roomboard{top:270px}

@@ -10,11 +10,15 @@ function weaponUnlocked(cls,w){const i=WEAPON_INFO[w];if(i?.need!=='legend')retu
   return typeof SAVE!=='undefined'&&['solo','rush','room','qpk','pk'].includes(SAVE.mode)&&typeof gearWeaponFor==='function'&&gearWeaponFor(cls)===w}
 function mkSpell(id){return {id,lv:1,cd:0,els:[],augs:[],dmg:0,active:0,casts:0,nodes:{},pts:0}}
 const nd=(s,fx)=>{if(!s||!s.nodes)return 0;let r=0;const T=TREES[s.id]||[];for(const k in s.nodes)if(T[k]&&T[k].fx===fx)r+=s.nodes[k];return r}
-function skillCost(s){return Math.round(SPELLS[s.id].cost*(1-NODE_FX.cost*nd(s,'cost'))*(G&&G.relics&&G.relics.includes('taiji')?.75:1)*(G&&G.relics&&G.relics.includes('bind')?.6:1))}
+function skillCost(s){const rival=s.owner==='rival';return Math.max(1,Math.round(SPELLS[s.id].cost*1.25*Math.max(.35,1-NODE_FX.cost*nd(s,'cost'))*(!rival&&G&&G.relics&&G.relics.includes('taiji')?.75:1)*(!rival&&G&&G.relics&&G.relics.includes('bind')?.6:1)))}
+function manaRegen(P,dt){const rate=Math.min(P.regen,P.maxMana*.045);P.mana=Math.min(P.maxMana,P.mana+rate*((P.manaRest||0)>0?.25:1)*dt);P.manaRest=Math.max(0,(P.manaRest||0)-dt)}
+function pickupRadius(P,t=G.t){return Math.min(180,52*Math.min(3.4,P.mag)*(t<120?1.8:t<240?1.3:1))}
+function rejuvHealing(P,st,life,fed){return P.maxHp*Math.min(.45,Math.min(.35,(.2+.05*life)*Math.sqrt(Math.min(3,st.m)))+.01*Math.min(10,fed))}
+
 function newGame(auto,cls){
   cls=cls||CLASS;const C=CLASSES[cls];
   buildArena();if(typeof buildRuins==='function')buildRuins();
-  const P={x:W/2,y:H/2,hp:C.hp,maxHp:C.hp,mana:C.mana,maxMana:C.mana,regen:C.regen,dmg:C.dmg,def:1,spd:C.spd,mag:1,haste:1,crit:.05,inv:0,face:1,walk:0,down:0,dash:0,dashCd:0,dx:0,dy:1,buff:null,cast:0,yaw:0,yaw0:0,shield:0,guard:0,leap:null,cls,ap:0,sp:0,attr:{str:0,vit:0,spr:0,agi:0},dmgBonus:0};
+  const P={x:W/2,y:H/2,hp:C.hp,maxHp:C.hp,mana:C.mana,maxMana:C.mana,regen:C.regen*.42,dmg:C.dmg,def:1,spd:C.spd,mag:1,haste:1,crit:.05,inv:0,face:1,walk:0,down:0,dash:0,dashCd:0,dx:0,dy:1,buff:null,cast:0,yaw:0,yaw0:0,shield:0,guard:0,leap:null,cls,ap:0,sp:0,attr:{str:0,vit:0,spr:0,agi:0},dmgBonus:0};
   G={auto,t:0,P,cls,en:[],shots:[],bombs:[],bullets:[],gems:[],pools:[],fx:[],floats:[],arcs:[],later:[],ghosts:[],shocks:[],
      mush:[],grid:new Map(),spells:[mkSpell(weaponOf(cls)),mkSpell(C.skills[0])],pwaves:[],sariras:[],xp:0,lv:1,need:xpNeed(1),picks:[],kills:0,cores:RUN_LIVES-1,coreT:0,
      spawnA:8,swarmT:55,mission:null,missionT:26,boss:null,bossT:0,paused:false,over:null,shake:0,trauma:0,shX:0,shY:0,hitStop:0,slow:0,flash:0,dmgTaken:0,
@@ -44,7 +48,7 @@ const RIVAL_SKIP=['qin'];const RIVAL_NEW=['oni','idol','wizard'];
 const RIVAL_NAMES={swordsman:['青衣剑客','Azure Swordsman'],taoist:['玄机道人','Mystic Taoist'],qin:['素琴仙子','Plain-Qin Maiden'],oni:['红莲浪人','Crimson Ronin'],idol:['星光偶像','Starlight Idol'],wizard:['星辰术士','Astral Sorcerer'],blademaster:['黑风刀客','Black Wind Blademaster'],monk:['铁头陀','Iron Monk'],physician:['毒手郎中','Venom Doctor']};
 function mkRival(playerCls,seat){
   const opts=Object.keys(RIVAL_NAMES).filter(k=>k!==playerCls&&CLASSES[k]&&!RIVAL_SKIP.includes(k)),cls=seat&&CLASSES[seat.cls]?seat.cls:pick(opts),C=CLASSES[cls];
-  const a=rnd(TAU);const R={x:clamp(W/2+Math.cos(a)*220,60,W-60),y:clamp(H/2+Math.sin(a)*180,60,H-60),cls,name:RIVAL_NAMES[cls],hp:C.hp,maxHp:C.hp,dmg:C.dmg,crit:.05,spd:C.spd,mana:C.mana,maxMana:C.mana,regen:C.regen,
+  const a=rnd(TAU);const R={x:clamp(W/2+Math.cos(a)*220,60,W-60),y:clamp(H/2+Math.sin(a)*180,60,H-60),cls,name:RIVAL_NAMES[cls],hp:C.hp,maxHp:C.hp,dmg:C.dmg,crit:.05,spd:C.spd,mana:C.mana,maxMana:C.mana,regen:C.regen*.42,
     spells:[Object.assign(mkSpell(C.main),{owner:'rival'}),Object.assign(mkSpell(C.skills[0]),{owner:'rival'})],kills:0,score:0,lv:1,xp:0,need:6,down:0,inv:0,dx:0,dy:1,walk:0,cast:0,yaw:0,yaw0:0,goal:null,goalT:0,dmgDealt:0,downs:0,lx:0,ly:0,dash:0,ai:(DIFFID==='easy'?.9:DIFFID==='hard'?1.45:1.2)*(typeof SAVE!=='undefined'&&SAVE.mode==='qpk'?Math.min(2.2,.85+(SAVE.trophies||0)/900):1)};
   R.cores=RUN_LIVES-1;R.eliminated=false;
   R.av=(seat&&seat.av)||(typeof randomAvatar==='function'?randomAvatar():null);
@@ -54,10 +58,10 @@ function mkRival(playerCls,seat){
 }
 function rivalTick(dt){
   const R=G.rival;if(!R)return;const P=G.P;
-  R.inv=Math.max(0,R.inv-dt);R.mana=Math.min(R.maxMana,R.mana+R.regen*dt);if(R.combo>0){R.comboT-=dt;if(R.comboT<=0)R.combo=0}for(const s of R.spells)s.cd=Math.max(0,s.cd-dt);
+  R.inv=Math.max(0,R.inv-dt);manaRegen(R,dt);if(R.combo>0){R.comboT-=dt;if(R.comboT<=0)R.combo=0}for(const s of R.spells)s.cd=Math.max(0,s.cd-dt);
   if(R.down>0){R.down-=dt;if(R.down<=0){R.hp=R.maxHp;R.inv=1.5;aoe(R.x,R.y,80,40,null,'#6fd3e8',true,{quiet:1})}return}
   // level ups: straight stat growth, like a player picking damage cards
-  while(R.xp>=R.need){R.xp-=R.need;R.lv++;R.need=xpNeed(R.lv);R.dmg*=1.05;R.maxHp+=7;R.hp=Math.min(R.maxHp,R.hp+14);R.regen*=1.02;const sp=R.spells[R.lv%2];sp.lv++;if(sp.lv===7)sp.els.push(pick(Object.keys(ELS)));if(sp.lv===14)sp.els.push(pick(Object.keys(ELS).filter(k=>!sp.els.includes(k))));if(R.lv===4&&R.spells.length<3)R.spells.push(Object.assign(mkSpell(CLASSES[R.cls].skills[1]),{owner:'rival'}));if(R.lv===9&&R.spells.length<4)R.spells.push(Object.assign(mkSpell(CLASSES[R.cls].skills[2]),{owner:'rival'}))}
+  while(R.xp>=R.need){R.xp-=R.need;R.lv++;R.need=xpNeed(R.lv);R.dmg*=1.05;R.maxHp+=7;R.hp=Math.min(R.maxHp,R.hp+14);R.regen*=1.01;const sp=R.spells[R.lv%2];sp.lv++;if(sp.lv===7)sp.els.push(pick(Object.keys(ELS)));if(sp.lv===14)sp.els.push(pick(Object.keys(ELS).filter(k=>!sp.els.includes(k))));if(R.lv===4&&R.spells.length<3)R.spells.push(Object.assign(mkSpell(CLASSES[R.cls].skills[1]),{owner:'rival'}));if(R.lv===9&&R.spells.length<4)R.spells.push(Object.assign(mkSpell(CLASSES[R.cls].skills[2]),{owner:'rival'}))}
   // movement: hunt enemy clusters, keep a little distance, avoid the player's zone, roam when idle
   let x=0,y=0,cnt=0,cx=0,cy=0;
   near(R.x,R.y,230,e=>{if(e.type==='statue')return;const d=hyp(e.x-R.x,e.y-R.y),w=e.type==='boss'?0:Math.min(6,pts(e));cnt+=w;cx+=e.x*w;cy+=e.y*w;if(d<48){x-=(e.x-R.x)/(d||1)*(48-d)/48*2.2;y-=(e.y-R.y)/(d||1)*(48-d)/48*2.2}});
@@ -82,7 +86,7 @@ function rivalTick(dt){
     else if(main.id==='needle'){const n=3+Math.floor(main.lv/4);for(let i=0;i<n;i++)shoot(R.x,R.y-6,a+(i-(n-1)/2)*.1,main,12*st.m,{v:300,life:.8,pierce:1,r:2.5,knock:20});main.cd=.5*st.cdM}
     else if(main.id==='wave'){const n=2+Math.floor(main.lv/4);for(let i=0;i<n;i++)shoot(R.x,R.y-6,a+(i-(n-1)/2)*.22,main,15*st.m,{v:220,life:1,pierce:3,r:5.5,knock:40,slow:.5});main.cd=.58*st.cdM}
     else{const n=7+Math.floor(main.lv/4);for(let i=0;i<n;i++)shoot(R.x+Math.cos(a)*6,R.y+Math.sin(a)*6-6,a+(i-(n-1)/2)*.19,main,15*st.m,{v:330,life:.17,pierce:99,r:6,knock:120});G.fx.push({k:'wave',x:R.x,y:R.y,a,t:.22,T:.22,c:SPELLS.slash.col,w:1.2});main.cd=.46*st.cdM}}
-  for(let i=1;i<R.spells.length;i++){const sk=R.spells[i],sp=SPELLS[sk.id],ss=stat(sk);if(sk.cd>0||R.mana<sp.cost||!countNear(R.x,R.y,170))continue;R.mana-=sp.cost;sk.cd=sp.cd*ss.cdM;R.cast=1;
+  for(let i=1;i<R.spells.length;i++){const sk=R.spells[i],sp=SPELLS[sk.id],ss=stat(sk);if(sk.cd>0||R.mana<skillCost(sk)||!countNear(R.x,R.y,170))continue;R.mana-=skillCost(sk);R.manaRest=1;sk.cd=sp.cd*ss.cdM;R.cast=1;
     const a=t?Math.atan2(t.y-R.y,t.x-R.x):Math.atan2(R.dy,R.dx);
     if(sk.id==='palm'){const n=5+Math.floor(sk.lv/3);for(let j=0;j<n;j++)shoot(R.x+Math.cos(a)*8,R.y+Math.sin(a)*8-6,a+(j-(n-1)/2)*.17,sk,12*ss.m,{v:235,life:.46,pierce:3,knock:190,r:4});G.fx.push({k:'wave',x:R.x,y:R.y,a,t:.28,T:.28,c:sp.col})}
     else if(sk.id==='talis'){const c=t||{x:R.x+R.dx*100,y:R.y+R.dy*100};lob(R.x,R.y-6,c.x,c.y,sk,(30+sk.lv*1.3)*ss.m,(30+sk.lv),false)}
@@ -147,7 +151,7 @@ function affinity(e,s,noEl){
   return {k,why};
 }
 function hit(e,d,s,noEl,col,kx=0,ky=0){
-  if(e.dead)return;
+  if(e.dead||e.skyfall)return;
   if(endlessDuel()&&!G.creditOff){const owner=s&&s.owner==='rival'?G.rival:G.P;if(!owner||owner.down>0||owner.eliminated||G.over)return}
   if(s&&e.type!=='boss'&&e.type!=='statue'){const af=affinity(e,s,noEl);if(af.k!==1){d*=af.k;if(af.k===0)d=0;
     if(!G.auto&&(!G.floats||G.floats.length<60)&&(af.why==='weak'||(!e.afSaid&&G.en.length<90))){e.afSaid=1;if((e.afT||-9)<G.t-.7){e.afT=G.t;G.floats.push({x:e.x+rnd(-3,3),y:e.y-e.r-10,t:.75,v:af.why==='weak'?L('克!','WEAK!'):af.k===0?L('免疫','IMMUNE'):L('抗','RESIST'),c:af.why==='weak'?'#ffe066':'#9a9a9a',crit:af.why==='weak'})}}
@@ -155,11 +159,12 @@ function hit(e,d,s,noEl,col,kx=0,ky=0){
   if(e.shield&&(kx||ky)){const fx=G.P.x-e.x,fy=G.P.y-e.y,fl=hyp(fx,fy)||1,kl=hyp(kx,ky)||1;if((-kx/kl*fx/fl-ky/kl*fy/fl)>.3){d*=.3;if(G.fx.length<CAP.fx&&SIMR()<.3)G.fx.push({k:'ring',x:e.x,y:e.y,r:10,t:.2,T:.2,c:'#9fc4ff'})}}
   if(e.sleep>0&&e.sleepS)d*=1+NODE_FX.dmg*nd(e.sleepS,'dmg');
   const P=G.P,rv=s&&s.owner==='rival',O=rv?G.rival:P;let m=d*O.dmg*(1+(O.dmgBonus||0))*(e.shred>0?1.25:1)*(!rv&&P.buff&&P.buff.k==='dmg'?1.3:1)*(s&&!SPELLS[s.id].auto?ACTIVE_MULT*(P.parryBoost||1):1)*(e.type==='boss'&&e.exposed>0?1.6:1); // active skills hit much harder per cast than the normal attack: they cost qi and have cooldowns
+  m*=(1-(e.adaptArmor||0))*(e.sealEmpowered?1/1.2:1);
   const cc=O.crit+(s?NODE_FX.crit*nd(s,'crit'):0),crit=SIMR()<Math.min(1,cc);if(crit)m*=2+Math.max(0,cc-1)*2; // crit chance caps at 100%; the overflow becomes crit damage
   if(s&&!rv){const lf=nd(s,'life');if(lf)heal(m*NODE_FX.life*lf,s);const ch=nd(s,'chain');if(ch&&SIMR()<NODE_FX.chain*ch&&!noEl)arc(e,m*.35,s,1)}
   if(!rv&&P.frenzy>0){e.hp-=m*.4;if(s)s.dmg+=m*.4;heal(m*.03)}
   if(!rv){if(hasR('jade'))heal(m*.03);if(hasR('pearl')&&!noEl&&SIMR()<.12)arc(e,m*.4,s||G.spells[0],1);if(hasR('iron'))e.slow=Math.max(e.slow||0,.6);if(hasR('blood')&&P.hp<P.maxHp*.5){e.hp-=m*.25;if(s)s.dmg+=m*.25}}
-  if(!rv&&typeof onHitX==='function')m=onHitX(e,m,s,crit,noEl);if(e.tired)m*=e.tired;if(!rv)G.dealt=(G.dealt||0)+m;const dealt=Math.min(Math.max(0,e.hp),Math.max(0,m));e.hp-=m;if(!rv&&typeof onDamageX==='function')onDamageX(e,dealt,s);e.flash=crit?.14:.08;e.sq=crit?.5:.3;if(kx||ky){const l=hyp(kx,ky)||1;e.sqx=kx/l;e.sqy=ky/l}if(s)s.dmg+=m;if(rv)G.rival.dmgDealt+=m;
+  if(!rv&&typeof onHitX==='function')m=onHitX(e,m,s,crit,noEl);if(e.tired)m*=e.tired;if(!rv)G.dealt=(G.dealt||0)+m;const dealt=Math.min(Math.max(0,e.hp),Math.max(0,m));e.hp-=m;if(!rv)G.effectiveDealt=(G.effectiveDealt||0)+dealt;if(!rv&&typeof onDamageX==='function')onDamageX(e,dealt,s);e.flash=crit?.14:.08;e.sq=crit?.5:.3;if(kx||ky){const l=hyp(kx,ky)||1;e.sqx=kx/l;e.sqy=ky/l}if(s)s.dmg+=m;if(rv)G.rival.dmgDealt+=m;
   const kk=e.type==='boss'?.12:e.type==='giant'?.4:e.type==='statue'?0:1;
   e.kx=(e.kx||0)+kx*kk;e.ky=(e.ky||0)+ky*kk;
   if(!rv&&!G.auto&&G.floats.length<CAP.fl&&(m>=Math.max(18,e.maxHp*.25)||(crit&&(G.P.crit<.5||e.type==='boss'||e.elite||SIMR()<.2)))&&(G.en.length<120||e.type==='boss'||e.elite||m>=e.maxHp*.5))G.floats.push({x:e.x+rnd(-4,4),y:e.y-e.r-3,t:.6,v:Math.round(m),c:crit?'#ffd75a':(col||'#efe4cd'),crit});
@@ -234,9 +239,9 @@ function kill(e,s,kx=0,ky=0){
   if(e.type!=='boss'&&e.type!=='statue'&&G.fx.length<CAP.fx){const sp=hyp(kx,ky);G.fx.push({k:'die',x:e.x,y:e.y,h:1,vh:70+sp*.5,kx:kx*1.6+rnd(-20,20),ky:ky*1.6+rnd(-20,20),rot:0,rv:rnd(6,14)*(SIMR()<.5?-1:1),t:.7,T:.7,type:e.type,fr:e.fr,sc:e.sc||1})}
   if(e.type==='statue'){if(G.mission&&G.mission.k==='statue'){G.mission.n--;checkMission()}return}
   const pv=pts(e);
-  if(s&&s.owner==='rival'){const R=G.rival;R.kills++;R.combo=(R.combo||0)+1;R.comboT=2.4;R.comboMax=Math.max(R.comboMax||0,R.combo);{const gain=Math.round(pv*(1+Math.min(.6,Math.floor(R.combo/10)*.1)));R.score+=gain;R.sc=R.sc||{kill:0,big:0,streak:0};if(pv>=8)R.sc.big+=gain;else R.sc.kill+=gain;R.sc.streak+=gain-pv}G.rival.xp+=e.xp*2.2*G.rival.ai;if(RIVAL_ON&&pv>=8&&G.floats.length<80)G.floats.push({x:e.x,y:e.y-e.r-6,t:.9,v:L('对手','Rival')+' +'+pv,c:'#ff9c5a'});if(RIVAL_ON&&pv>=30&&typeof showSide==='function')showSide(`对手斩杀${e.type==='boss'?'首领':'精英'} +${pv} · 去补刀下一个大目标`,`Rival took ${e.type==='boss'?'the boss':'an elite'} +${pv} · claim the next big one`,'#ff9c5a','swords')}
+  if(s&&s.owner==='rival'){const R=G.rival;R.kills++;R.combo=(R.combo||0)+1;R.comboT=2.4;R.comboMax=Math.max(R.comboMax||0,R.combo);awardComboBonus(R,R.combo,false);{const gain=Math.round(pv*(1+Math.min(.6,Math.floor(R.combo/10)*.1)));R.score+=gain;R.sc=R.sc||{kill:0,big:0,streak:0};if(pv>=8)R.sc.big+=gain;else R.sc.kill+=gain;R.sc.streak+=gain-pv}G.rival.xp+=e.xp*2.2*G.rival.ai;if(RIVAL_ON&&pv>=8&&G.floats.length<80)G.floats.push({x:e.x,y:e.y-e.r-6,t:.9,v:L('对手','Rival')+' +'+pv,c:'#ff9c5a'});if(RIVAL_ON&&pv>=30&&typeof showSide==='function')showSide(`对手斩杀${e.type==='boss'?'首领':'精英'} +${pv} · 去补刀下一个大目标`,`Rival took ${e.type==='boss'?'the boss':'an elite'} +${pv} · claim the next big one`,'#ff9c5a','swords')}
   else if(G.creditOff){}
-  else{G.kills++;comboHit();if(s&&!SPELLS[s.id].auto)G.skillKills=(G.skillKills||0)+1;if(e.elite)G.eliteKills=(G.eliteKills||0)+1;if(e.champion&&typeof dirChampionSlain==='function')dirChampionSlain(e);const gain=Math.round(pv*((RIVAL_ON||G.room)?comboMult():1));G.score+=gain;G.sc=G.sc||{kill:0,big:0,ev:0};if(e.type==='boss'||e.elite||e.warlord||e.role||e.affix)G.sc.big+=gain;else G.sc.kill+=gain;if((RIVAL_ON||G.room)&&(pv>=3||G.floats.length<CAP.fl)&&G.floats.length<80)G.floats.push({x:e.x,y:e.y-e.r-6,t:.8,v:'+'+gain,c:pv>=8?'#ffd27a':'#9fe3f0',score:1})}
+  else{G.kills++;comboHit();if(s&&!SPELLS[s.id].auto)G.skillKills=(G.skillKills||0)+1;if(e.elite)G.eliteKills=(G.eliteKills||0)+1;if(e.champion&&typeof dirChampionSlain==='function')dirChampionSlain(e);const gain=Math.round(pv*((RIVAL_ON||G.room)?comboMult():1));G.score+=gain;if(!G.auto&&(e.type==='boss'||e.warlord)&&typeof showScoreReward==='function')showScoreReward(e.warlord?'统领击破':(e.name||'首领击破'),e.warlord?'Warlord defeated':(e.en||'Boss defeated'),gain,'boss');G.sc=G.sc||{kill:0,big:0,ev:0};if(e.type==='boss'||e.elite||e.warlord||e.role||e.affix)G.sc.big+=gain;else G.sc.kill+=gain;if((RIVAL_ON||G.room)&&(pv>=3||G.floats.length<CAP.fl)&&G.floats.length<80)G.floats.push({x:e.x,y:e.y-e.r-6,t:.8,v:'+'+gain,c:pv>=8?'#ffd27a':'#9fe3f0',score:1})}
   if((e.type==='giant'||e.elite)&&!(s&&s.owner==='rival')&&!G.creditOff){hitStop(.06);trauma(.3)}
   const drops=G.creditOff?0:(e.elite?4:1);
   for(let i=0;i<drops;i++){if(G.gems.length<CAP.gem)G.gems.push({x:e.x+rnd(-8,8),y:e.y+rnd(-8,8),v:e.xp,big:e.xp>=3});else gainXP(e.xp)} // when the field is full of gems the XP is granted directly, so late-game leveling never stalls
@@ -244,7 +249,7 @@ function kill(e,s,kx=0,ky=0){
   if(!(s&&s.owner==='rival')&&!G.creditOff&&hasR('charm')&&e.type!=='boss'){const x=e.x,y=e.y;later(.03,()=>{near(x,y,24,o=>{if(hyp(o.x-x,o.y-y)<20+o.r)hit(o,10*G.P.dmg*(1+G.P.dmgBonus),null,true,'#ff7a2c',(o.x-x)*4,(o.y-y)*4)});ring(x,y,20,'#ff7a2c')})}
   if(!G.creditOff&&((e.elite&&SIMR()<.3*Math.max(.15,1-G.relics.length/14))||e.warlord||e.type==='boss'))dropRelic(e.x,e.y); // elites drop fewer relics as the set fills up
   if(e.affix==='explode'){const x=e.x,y=e.y,d=e.dmg*1.3;later(.08,()=>{ring(x,y,34,'#ff4a2a');spark(x,y,'#ff6a3a',14,120);const P=G.P;if(hyp(P.x-x,P.y-y)<34+6)dmgP(d,x,y,['爆裂敌人','exploding enemy']);if(G.rival&&hyp(G.rival.x-x,G.rival.y-y)<40)rivalHurt(d,x,y)})}
-  if(e.warlord&&!G.creditOff){if(!(s&&s.owner==='rival'))G.warlordSlain=(G.warlordSlain||0)+1;G.chests.push({x:e.x,y:e.y,t:0});showBanner('统领已斩','Warlord slain: treasure drops',1.4);if(G.room)roomSendWave(8);trauma(.6);G.slow=Math.max(G.slow,.5);G.flash=.5;if(typeof SFX!=='undefined')SFX.win()}
+  if(e.warlord&&!G.creditOff){if(!(s&&s.owner==='rival'))G.warlordSlain=(G.warlordSlain||0)+1;spawnChest(e.x,e.y);showBanner('统领已斩','Warlord slain: treasure drops',1.4);if(G.room)roomSendWave(8);trauma(.6);G.slow=Math.max(G.slow,.5);G.flash=.5;if(typeof SFX!=='undefined')SFX.win()}
   const fk=fusion(s);
   if(s&&has(s,'dark')&&SIMR()<.05)heal(1);
   if(fk==='dark+fire'&&e.burn>0){const d=e.maxHp*.5+s.lv*2,x=e.x,y=e.y;later(.05,()=>aoe(x,y,26,d,s,'#ff5a2c',true))}
@@ -255,19 +260,32 @@ function kill(e,s,kx=0,ky=0){
   if(e.type==='boss')bossSlain(e);
 }
 const COMBO_TIERS=[[10,'连斩','Combo'],[25,'无双','Unrivalled'],[50,'血洗','Bloodbath'],[100,'天下无敌','Invincible'],[200,'武林神话','Legend'],[500,'万人敌','Army-slayer'],[1000,'一骑当千','One against a thousand'],[2000,'神魔辟易','Gods step aside'],[5000,'斩尽','Annihilation']];
+function awardComboBonus(owner,count,player){
+  const tier=COMBO_TIERS.find(t=>t[0]===count);if(!tier||G.auto||G.creditOff)return tier;
+  owner.score+=count;owner.sc=owner.sc||{kill:0,big:0,ev:0,streak:0};owner.sc.ev=(owner.sc.ev||0)+count;
+  if(player&&typeof showScoreReward==='function')showScoreReward(`${tier[1]} ×${count}`,`${tier[2]} ×${count}`,count,'combo');return tier;
+}
 function comboMult(){return 1+Math.min(.6,Math.floor(G.combo/10)*.1)}
 function comboHit(){
   G.combo++;G.comboT=Math.max(1.1,2.4-G.t/900);if(G.combo>G.comboMax)G.comboMax=G.combo;
-  const t=COMBO_TIERS.find(t=>t[0]===G.combo);
-  if(t){showBanner(`${t[1]} ×${G.combo}`,t[2]+' · '+Math.round((comboMult()-1)*100)+'% bonus',1.3);trauma(.3);if(G.room&&G.combo>=100)roomSendWave(6);G.slow=Math.max(G.slow,.12);G.flash=Math.max(G.flash,.25);if(typeof SFX!=='undefined')SFX.combo(COMBO_TIERS.indexOf(t))}
+  const t=awardComboBonus(G,G.combo,true);
+  if(t){if(typeof showScoreReward!=='function')showBanner(`${t[1]} ×${G.combo}`,t[2]+' · +'+G.combo,1.3);trauma(.3);if(G.room&&G.combo>=100)roomSendWave(6);G.slow=Math.max(G.slow,.12);G.flash=Math.max(G.flash,.25);if(typeof SFX!=='undefined')SFX.combo(COMBO_TIERS.indexOf(t))}
   if(G.combo>=30&&!G.over9){G.over9=1;showBanner('狂暴','Overdrive: faster strikes, faster feet',1.4);if(typeof SFX!=='undefined')SFX.overdrive()}
 }
 function comboTick(dt){if(G.combo>0){G.comboT-=dt;if(G.comboT<=0){if(G.combo>=10)showBanner(`连斩终结 ×${G.combo}`,'Streak ended',.8);G.combo=0;G.over9=0}}}
 /* treasure chests: burst of mana gems, gold and a bonus card */
-function chestTick(dt){if(G.curse.nochest)return;
+function chestClear(x,y){return x>=60&&y>=60&&x<=W-60&&y<=H-60&&!blocked(x,y)&&!onPond(x,y,1.3)&&!rocksNear(x,y).some(b=>!b.tree&&Math.hypot(x-clamp(x,b.x,b.x+b.w),y-clamp(y,b.y,b.y+b.h))<20)}
+function placeChest(c){
+  c.x=clamp(c.x,60,W-60);c.y=clamp(c.y,60,H-60);
+  if(!chestClear(c.x,c.y)){let found=false;for(let r=24;r<=480&&!found;r+=24)for(let k=0;k<24;k++){const a=k/24*TAU,x=clamp(c.x+Math.cos(a)*r,60,W-60),y=clamp(c.y+Math.sin(a)*r,60,H-60);if(chestClear(x,y)){c.x=x;c.y=y;found=true;break}}
+    if(!found){c.x=G.P.x;c.y=G.P.y}}
+  c.ok=1;return c;
+}
+function spawnChest(x,y,kind){if(G.curse.nochest)return null;const c=placeChest({x,y,t:0,kind});G.chests.push(c);return c}
+function chestTick(dt){
   const P=G.P;G.chestT-=dt;
-  if(G.chestT<=0&&G.chests.length<(G.t>600?1:2)){G.chestT=(38+Math.min(120,G.t/10))*(tier(16)?1.25:1);/* chests thin out late */let x,y,n=0;do{const a=rnd(TAU),d=rnd(220,380);x=clamp(P.x+Math.cos(a)*d,60,W-60);y=clamp(P.y+Math.sin(a)*d,60,H-60)}while(n++<20&&(blocked(x,y)||onPond(x,y,1.3)));const kr=SIMR(),kind=G.t>150&&kr<.14?'gold':G.t>200&&kr<.3?'trap':'normal';G.chests.push({x,y,t:0,kind});const CB={gold:['金宝箱现世!必出法宝','A golden chest appeared: a relic is guaranteed'],trap:['有机关的宝箱现世','A trapped chest appeared'],normal:['宝箱现世','A treasure chest appeared']};showBanner(CB[kind][0],CB[kind][1],1)}
-  for(const c of G.chests){if(!c.ok){c.ok=1;c.x=clamp(c.x,60,W-60);c.y=clamp(c.y,60,H-60);if(blocked(c.x,c.y)||onPond(c.x,c.y,1.3)){outer:for(let r=24;r<=240;r+=24)for(let k=0;k<12;k++){const a=k/12*TAU,x=clamp(c.x+Math.cos(a)*r,60,W-60),y=clamp(c.y+Math.sin(a)*r,60,H-60);if(!blocked(x,y)&&!onPond(x,y,1.3)){c.x=x;c.y=y;break outer}}}}
+  if(!G.curse.nochest&&G.chestT<=0&&G.chests.length<(G.t>600?1:2)){G.chestT=(38+Math.min(120,G.t/10))*(tier(16)?1.25:1);/* chests thin out late */let x,y,n=0;do{const a=rnd(TAU),d=rnd(220,380);x=clamp(P.x+Math.cos(a)*d,60,W-60);y=clamp(P.y+Math.sin(a)*d,60,H-60)}while(n++<20&&(blocked(x,y)||onPond(x,y,1.3)));const kr=SIMR(),kind=G.t>150&&kr<.14?'gold':G.t>200&&kr<.3?'trap':'normal';spawnChest(x,y,kind);const CB={gold:['金宝箱现世!必出法宝','A golden chest appeared: a relic is guaranteed'],trap:['有机关的宝箱现世','A trapped chest appeared'],normal:['宝箱现世','A treasure chest appeared']};showBanner(CB[kind][0],CB[kind][1],1)}
+  for(const c of G.chests){if(c.dead)continue;if(!c.ok)placeChest(c);
     c.t+=dt;if(P.down<=0&&hyp(c.x-P.x,c.y-P.y)<34){c.dead=1;const gold=c.kind==='gold',trap=c.kind==='trap';
     for(let i=0;i<10;i++){const a=i/10*TAU;G.gems.push({x:c.x+Math.cos(a)*18,y:c.y+Math.sin(a)*18,v:3,big:1})}
     if(trap){for(let i=0;i<14;i++){const a=i/14*TAU;spawnEnemy('assassin',clamp(c.x+Math.cos(a)*60,30,W-30),clamp(c.y+Math.sin(a)*60,30,H-30),1.2)}G.en.slice(-14).forEach(e=>{e.affix='swift';e.spd*=1.4});showBanner('机关!刺客从箱中涌出','A trap! Assassins pour out',1.2);trauma(.4)}
@@ -423,7 +441,7 @@ function castSkill(i){
   const cost=skillCost(s);
   if(s.cd>0||P.mana<cost){if(!G.auto){G.fx.push({k:'deny',i,t:.3});if(typeof SFX!=='undefined')SFX.deny();if(!G.denyT||G.t-G.denyT>.6){G.denyT=G.t;G.floats.push({x:P.x,y:P.y-30,t:.8,v:s.cd>0?L(`冷却 ${Math.ceil(s.cd)}s`,`Cooldown ${Math.ceil(s.cd)}s`):L(`内力差 ${Math.ceil(cost-P.mana)}`,`${Math.ceil(cost-P.mana)} qi short`),c:s.cd>0?'#c9c2d6':'#6fd3e8'})}}return false}
   const st=stat(s);
-  P.mana-=cost;s.cd=skillCooldown(s,st);s.casts++;P.cast=1;if(P.parry>0){P.parry=0;P.parryBoost=1.6;later(1.2,()=>{P.parryBoost=1});ring(P.x,P.y,60,'#ffd27a')}
+  P.mana-=cost;P.manaRest=1;s.cd=skillCooldown(s,st);s.casts++;P.cast=1;if(P.parry>0){P.parry=0;P.parryBoost=1.6;later(1.2,()=>{P.parryBoost=1});ring(P.x,P.y,60,'#ffd27a')}
   if(s.id==='palm'){
     const fn=()=>{const a=aimDir(260),n=5+Math.floor(s.lv/3)+st.n;P.dx=Math.cos(a);P.dy=Math.sin(a);P.yaw0=Math.atan2(P.dx,P.dy);
       for(let i=0;i<n;i++)shoot(P.x+Math.cos(a)*8,P.y+Math.sin(a)*8-6,a+(i-(n-1)/2)*.17,s,18*st.m,{v:235,life:.52*st.size,pierce:4+st.pierce,knock:190*st.knock,r:4.5*st.size});
@@ -475,7 +493,7 @@ function castSkill(i){
     const n=8+st.n*2;const cands=G.en.filter(e=>!e.dead&&e.type!=='statue'&&hyp(e.x-P.x,e.y-P.y)<240).sort((a,b)=>hyp(a.x-P.x,a.y-P.y)-hyp(b.x-P.x,b.y-P.y)).slice(0,n);
     for(const e of cands){poison(e,5*st.m,s,3);e.poisT=5+st.dur;e.plague=s;spark(e.x,e.y,sp.col,4,50)}G.fx.push({k:'wave',x:P.x,y:P.y,a:0,t:.35,T:.35,c:sp.col,full:1});if(typeof SFX!=='undefined')SFX.ward();
   }else if(s.id==='rejuv'){
-    s.active=sp.dur;s.tk=0;s.healLeft=P.maxHp*(.2+.05*nd(s,'life'))*st.m;let fed=0;near(P.x,P.y,90*st.size,e=>{if(fed<10&&e.pois>0&&hyp(e.x-P.x,e.y-P.y)<90*st.size+e.r){e.pois--;fed++;spark(e.x,e.y,'#7fc98a',3,60)}});if(fed){s.healLeft+=P.maxHp*.02*fed;showBanner(`以毒养生:+${fed*2}% 治疗`,`Fed on poison: +${fed*2}% healing`,1)}grantShield(1.5+st.dur);P.confuse=0;if(nd(s,'dmg'))aoe(P.x,P.y,70*st.size,12*st.m*nd(s,'dmg'),s,sp.col,false,{quiet:1});ring(P.x,P.y,50,sp.col);if(typeof SFX!=='undefined')SFX.ward();
+    s.active=sp.dur;s.tk=0;let fed=0;near(P.x,P.y,90*st.size,e=>{if(fed<10&&e.pois>0&&hyp(e.x-P.x,e.y-P.y)<90*st.size+e.r){e.pois--;fed++;spark(e.x,e.y,'#7fc98a',3,60)}});s.healLeft=rejuvHealing(P,st,nd(s,'life'),fed);s.healBudget=s.healLeft;if(fed){showBanner(`以毒养生:+${fed}% 治疗`,`Fed on poison: +${fed}% healing`,1)}grantShield(Math.min(1.25,.6+st.dur*.2));P.confuse=0;if(nd(s,'dmg'))aoe(P.x,P.y,70*st.size,12*st.m*nd(s,'dmg'),s,sp.col,false,{quiet:1});ring(P.x,P.y,50,sp.col);if(typeof SFX!=='undefined')SFX.ward();
   }else if(s.id==='numb'){
     const R=140*st.size;let det=0;near(P.x,P.y,R+15,e=>{if(e.type!=='boss'&&e.type!=='statue'&&hyp(e.x-P.x,e.y-P.y)<R+e.r){e.sleep=Math.min(4.2,2.5+st.dur*.6)*(e.elite||e.warlord?.5:1);e.sleepS=s;e.shred=Math.max(e.shred||0,e.sleep);e.frz=0;s.ctrl=(s.ctrl||0)+1}else if(e.type==='boss'){e.slow=Math.max(e.slow||0,3);s.ctrl=(s.ctrl||0)+1}
       if(e.pois>0&&e.poisS&&hyp(e.x-P.x,e.y-P.y)<R+e.r){const dmg=e.poisD*e.pois*.6*Math.max(1,e.poisT/.6)*.8;hit(e,dmg,s,true,'#c6ff5a');s.det=(s.det||0)+dmg;e.pois=0;det++;spark(e.x,e.y,'#c6ff5a',5,80)}});
@@ -500,8 +518,8 @@ function orbits(dt){
   for(const s of G.spells){
     if(s.id==='frenzy'&&s.active>0){s.active-=dt;P.frenzy=s.active;if(s.active<=0)P.frenzy=0;continue}
     if(s.id==='vajra'&&s.active>0){s.active-=dt;P.vajra=s.active;if(s.active<=0)P.vajra=0;continue}
-    if(s.id==='zen'&&s.active>0){s.active-=dt;s.tk-=dt;P.zen=s.active;const st=stat(s),tot=sp_dur(s);if(s.tk<=0){s.tk=1;const R=90*st.size;heal(P.maxHp*.15*(1+.3*nd(s,'life'))*st.m*(2/Math.max(2,tot)),s);P.mana=Math.min(P.maxMana,P.mana+P.maxMana*.15);near(P.x,P.y,R+14,e=>{const dx=e.x-P.x,dy=e.y-P.y,d=hyp(dx,dy)||1;if(d<R+e.r)hit(e,10*st.m,s,false,undefined,dx/d*240*st.knock,dy/d*240*st.knock)});G.fx.push({k:'wave',x:P.x,y:P.y,a:0,t:.3,T:.3,c:SPELLS.zen.col,full:1});if(typeof SFX!=='undefined')SFX.ward()}if(s.active<=0)P.zen=0;continue}
-    if(s.id==='rejuv'&&s.active>0){s.active-=dt;s.tk-=dt;if(s.tk<=0){s.tk=.25;heal(s.healLeft/12,s)}continue}
+    if(s.id==='zen'&&s.active>0){s.active-=dt;s.tk-=dt;P.zen=s.active;const st=stat(s),tot=sp_dur(s);if(s.tk<=0){s.tk=1;const R=90*st.size;heal(P.maxHp*.15*(1+.3*nd(s,'life'))*st.m*(2/Math.max(2,tot)),s);P.mana=Math.min(P.maxMana,P.mana+P.maxMana*.03);near(P.x,P.y,R+14,e=>{const dx=e.x-P.x,dy=e.y-P.y,d=hyp(dx,dy)||1;if(d<R+e.r)hit(e,10*st.m,s,false,undefined,dx/d*240*st.knock,dy/d*240*st.knock)});G.fx.push({k:'wave',x:P.x,y:P.y,a:0,t:.3,T:.3,c:SPELLS.zen.col,full:1});if(typeof SFX!=='undefined')SFX.ward()}if(s.active<=0)P.zen=0;continue}
+    if(s.id==='rejuv'&&s.active>0){s.active-=dt;s.tk-=dt;if(s.tk<=0){s.tk=.25;const n=Math.min(s.healLeft/12,s.healBudget||0);s.healBudget=Math.max(0,(s.healBudget||0)-n);heal(n,s)}continue}
     if(s.id==='guangling'&&s.active>0){s.active-=dt;s.tk-=dt;const st=stat(s);if(s.tk<=0){s.tk=.25;const R=120*st.size;near(P.x,P.y,R+12,e=>{if(hyp(e.x-P.x,e.y-P.y)<R+e.r){hit(e,4*st.m,s,false,undefined,0,0);if(!(e.slow>0))s.ctrl=(s.ctrl||0)+1;e.slow=Math.max(e.slow||0,.6)}});heal((1+nd(s,'life'))*st.m*1.5,s)}continue}
     if(s.id==='whirl'&&s.active>0){s.active-=dt;s.tk-=dt;const st=stat(s);if(s.tk<=0){s.tk=.11;const R=52*(st.gi?1.25:1)*st.size;near(P.x,P.y,R+12,e=>{const dx=e.x-P.x,dy=e.y-P.y,d=hyp(dx,dy)||1;if(d<R+e.r){const tx=-dy/d,ty=dx/d;hit(e,5*st.m,s,false,undefined,tx*90+dx/d*60,ty*90+dy/d*60)}});if(typeof SFX!=='undefined')SFX.whirlTick()}continue}
     if((s.id!=='array'&&s.id!=='bagua')||s.active<=0)continue;
@@ -557,6 +575,25 @@ function dash(){
 }
 
 /* ---------- missions & shrines ---------- */
+function sealEmpower(e){
+  if(!e||e.dead||e.type==='statue'||e.sealEmpowered||!(G.sealRageUntil>G.t))return;
+  e.sealEmpowered=true;e.hp*=1.2;e.maxHp*=1.2;e.dmg*=1.2;e.spd*=1.2;e.sealRate=1.2;
+}
+function sealRageTick(){
+  if(!G.sealRageUntil||G.t<G.sealRageUntil)return;
+  G.sealRageUntil=0;for(const e of G.en)if(e.sealEmpowered){e.sealEmpowered=false;e.hp/=1.2;e.maxHp/=1.2;e.dmg/=1.2;e.spd/=1.2;e.sealRate=1}
+  showBanner('邪阵狂化消退','Rift fury fades',1.5);
+}
+function failMission(m){
+  if(!m||G.mission!==m||m.n<=0)return;
+  G.mission=null;G.missionT=35;G.mush=[];
+  G.en.forEach(e=>{if(e.type==='statue')e.dead=1;if(e.marked){e.marked=0;e.flee=0}});
+  if(m.k==='seal'&&soloPressure()){
+    G.sealRageUntil=G.t+60;G.sealFailures=(G.sealFailures||0)+1;for(const e of G.en)sealEmpower(e);
+    showBanner('邪阵失控 · 怪物全属性 +20%（60秒）','Rift unsealed: enemies gain +20% combat stats for 60 s',3);return;
+  }
+  const part=10+Math.floor(G.t/60)*2;G.goldRun+=part;gainXP(Math.max(4,G.need*.15));showBanner(`密令失败 · 保留 ${part} 金与少量经验`,`Mission failed · ${part} gold and a little XP kept`,1.2);
+}
 function startMission(){if(G.shared)return;if(RIVAL_ON&&!G.room){const left=(G.quick?180:PK_LEN)-G.t;if(left<70)return}
   const P=G.P;let x,y,tries=0;
   do{const a=rnd(TAU),d=rnd(260,420);x=clamp(P.x+Math.cos(a)*d,90,W-90);y=clamp(P.y+Math.sin(a)*d,90,H-90);tries++}while(tries<30&&(blocked(x,y)||onPond(x,y,1.4)||hyp(x-P.x,y-P.y)<200));
@@ -574,14 +611,14 @@ function startMission(){if(G.shared)return;if(RIVAL_ON&&!G.room){const left=(G.q
       const hp=90+G.t*1.6;G.en.push({...o,t0:G.t,type:'statue',hp,maxHp:hp,spd:0,dmg:0,r:8,xp:0,fr:0,vx:0,vy:0})}
     G.mission={k,n:3,N:3,T:38,t:38,x,y};
   }
-  const MB={mush:['密令:采集灵芝 ×5','Gather 5 lingzhi'],statue:['密令:摧毁邪碑 ×3','Destroy 3 cursed steles'],seal:['密令:封印邪阵 · 站入法阵 8 秒','Seal the rift: stand in the circle for 8 s'],hunt:['密令:猎杀逃犯 · 它在逃','Hunt the fugitive before it escapes']};showBanner(MB[k][0],MB[k][1]+' · reward: an augment card',1.8);if(typeof SFX!=='undefined')SFX.mission();
+  const MB={mush:['密令:采集灵芝 ×5','Gather 5 lingzhi'],statue:['密令:摧毁邪碑 ×3','Destroy 3 cursed steles'],seal:['密令:封印邪阵 · 站入法阵 8 秒（失败：怪物全属性 +20%，持续60秒）','Seal the rift: stand inside for 8 s (failure: enemies +20% for 60 s)'],hunt:['密令:猎杀逃犯 · 它在逃','Hunt the fugitive before it escapes']};showBanner(MB[k][0],MB[k][1]+' · reward: an augment card',1.8);if(typeof SFX!=='undefined')SFX.mission();
 }
 function checkMission(){if(endlessDuel()&&(G.P.down>0||G.over))return;if(G.mission&&G.mission.n<=0){G.mission=null;G.score+=PK_EVENTS.mission;(G.sc=G.sc||{kill:0,big:0,ev:0}).ev+=PK_EVENTS.mission;if(RIVAL_ON)showBanner('密令 +'+PK_EVENTS.mission,'Mission bonus',1);G.missionT=45;G.mush=[];G.picks.push({kind:'aug'});if(typeof SFX!=='undefined')SFX.complete();openPick()}}
 function missionText(){
   const m=G.mission;if(!m)return '';
   const t=Math.ceil(m.t);
   const body=m.k==='mush'?L(`密令:采集灵芝 ${m.N-m.n}/${m.N}`,`Mission: gather lingzhi ${m.N-m.n}/${m.N}`):m.k==='statue'?L(`密令:摧毁邪碑 ${m.N-m.n}/${m.N}`,`Mission: destroy the cursed steles ${m.N-m.n}/${m.N}`):m.k==='seal'?L(`密令:封印邪阵 ${Math.ceil(m.N-m.n)}/${m.N}s`,`Mission: seal the rift ${Math.ceil(m.N-m.n)}/${m.N}s`):L('密令:猎杀逃犯','Mission: hunt the fugitive');
-  return body+` · ${t}s · `+L('奖励:强化卡','reward: augment card');
+  return body+` · ${t}s · `+L('奖励:强化卡','reward: augment card')+(m.k==='seal'&&soloPressure()?L(' · 失败：怪物全属性 +20%，持续60秒',' · Failure: enemies +20% combat stats for 60 s'):'');
 }
 function missionTarget(){ // the nearest thing the player still has to reach or destroy
   const m=G.mission,P=G.P;if(!m)return null;let b=null,bd=1e9;
@@ -629,10 +666,10 @@ function milestone(s){const m=SPELLS[s.id],w=WEAPON_INFO[s.id],lv=s.lv;const tre
 function previewLevels(s,lv){const c={...s,nodes:{...s.nodes},pts:s.pts,lv:s.lv},got=[];for(let i=0;i<lv;i++){c.lv++;if((c.lv-1)%LV_PER_RANK===0){const n=autoRank(c);if(n)got.push(n)}}return {c,got}}
 function spellCard(s,q){const m=SPELLS[s.id],next=s.lv+1,lv=q.k==='common'?1:q.k==='rare'?2:q.k==='epic'?3:5;
   const pv=previewLevels(s,lv);const gotN=pv.got.filter(n=>n.fx!=='dmg'&&n.fx!=='cd');const gotTxt=gotN.length?gotN.map(n=>L(n.d.replace(' / 级',''),n.de.replace(' / rank',''))).join(' · '):'';
-  const now=stat(s),after=stat(pv.c),cdNow=m.auto?null:(m.cd*now.cdM/G.P.haste),cdAfter=m.auto?null:(m.cd*after.cdM/G.P.haste);
-  const pct=Math.round((after.m/now.m-1)*100),cdp=cdNow?Math.round((1-cdAfter/cdNow)*100):0;
+  const now=stat(s),after=stat(pv.c),cdNow=m.auto?null:skillCooldown(s,now),cdAfter=m.auto?null:skillCooldown(pv.c,after);
+  const rejuv=s.id==='rejuv',hp0=rejuv?rejuvHealing(G.P,now,nd(s,'life'),0)/G.P.maxHp:0,hp1=rejuv?rejuvHealing(G.P,after,nd(pv.c,'life'),0)/G.P.maxHp:0;const pct=Math.round(((rejuv?hp1/hp0:after.m/now.m)-1)*100),cdp=cdNow?Math.round((1-cdAfter/cdNow)*100):0;
   const plain=`${m.zh}升 ${lv} 级:伤害 +${pct}%`+(cdNow&&cdp?`,冷却 -${cdp}%`:'')+((next<=7&&s.lv+lv>=7&&!s.els.length)?' · 并可灌注真气':'')+((s.lv+lv>=14&&s.els.length===1)?' · 并可融合真气':'');
-  const hm=SKILL_CAT[s.id]==='heal'?healMul(G.t)*(G.curse.heal||1):1,wd0=SKILL_CAT[s.id]==='heal'?L('治疗','heal'):SKILL_CAT[s.id]==='defense'?L('效果','effect'):L('伤害','damage');const nums=[`${wd0} ×${(now.m*hm).toFixed(2)} → ×${(after.m*hm).toFixed(2)}`+(hm<1?L(`(含治疗效率 ${Math.round(hm*100)}%)`,` (at ${Math.round(hm*100)}% heal efficiency)`):''),cdNow?`${L('冷却','cooldown')} ${cdNow.toFixed(1)}s → ${cdAfter.toFixed(1)}s`:''].filter(Boolean).join(' · ');
+  const hm=SKILL_CAT[s.id]==='heal'?healMul(G.t)*(G.curse.heal||1):1,wd0=SKILL_CAT[s.id]==='heal'?L('治疗','heal'):SKILL_CAT[s.id]==='defense'?L('效果','effect'):L('伤害','damage');const nums=[rejuv?L(`治疗 ${Math.round(hp0*hm*100)}% → ${Math.round(hp1*hm*100)}% 生命`,`Heal ${Math.round(hp0*hm*100)}% → ${Math.round(hp1*hm*100)}% HP`):`${wd0} ×${(now.m*hm).toFixed(2)} → ×${(after.m*hm).toFixed(2)}`+(hm<1?L(`(含治疗效率 ${Math.round(hm*100)}%)`,` (at ${Math.round(hm*100)}% heal efficiency)`):''),cdNow?`${L('冷却','cooldown')} ${cdNow.toFixed(1)}s → ${cdAfter.toFixed(1)}s`:''].filter(Boolean).join(' · ');
   const extra=(next<=7&&s.lv+lv>=7&&!s.els.length)?' · 解锁真气':(s.lv+lv>=14&&s.els.length===1)?' · 解锁融合':'';
   const isHeal=SKILL_CAT[s.id]==='heal',isDef=SKILL_CAT[s.id]==='defense',word=isHeal?['治疗量','Healing']:isDef?['效果','Effect']:['伤害','Damage'];
   return {g:m.g,c:m.col,skill:s.id,n:LL(m),sub:`Lv ${s.lv} → ${s.lv+lv} · ${nums}`,fx:(gotTxt?gotTxt+' · ':'')+L(`${word[0]} +${pct}%`+(cdNow&&cdp?` · 冷却 -${cdp}%`:'')+extra,`${word[1]} +${pct}%`+(cdNow&&cdp?` · cooldown -${cdp}%`:'')+(extra?L(extra,extra.includes('融合')?' · unlocks fusion':' · unlocks an element'):'')),fxEn:(()=>{const ms=milestone({...s,lv:s.lv+lv});return ms?L('路线:'+ms[0],'Route: '+ms[1]):''})(),q,cat:SKILL_CAT[s.id],kind:'level',a(){levelUp(s,lv);taken(SKILL_CAT[s.id],lv)}}}
@@ -667,11 +704,12 @@ function buildCards(q){
   G.spells.filter(s=>s.lv>=40).forEach(s=>{const m=SPELLS[s.id],q=rollQ(),n=q.k==='common'?1:q.k==='rare'?2:q.k==='epic'?3:5,tr=s.tr||0; // past the cap the skill keeps growing: 真传 stacks without limit
     pool.push({g:m.g,c:m.col,skill:s.id,q:q.k,n:L(`${m.zh} · 真传 +${n}`,`${m.en} · Transcend +${n}`),sub:L(`已满级 · 真传 ${tr} 层`,`Max level · transcend ${tr}`),fx:(()=>{const wd=SKILL_CAT[s.id]==='heal'?['治疗量','Healing']:SKILL_CAT[s.id]==='defense'?['效果','Effect']:['伤害','Damage'];return L(`${wd[0]} +${n*5}%(超越上限)`,`${wd[1]} +${n*5}% (beyond the cap)`)})(),fxEn:L(`倍率 ×${stat(s).m.toFixed(2)} → ×${(stat(s).m*(1+.05*(tr+n))/(1+.05*tr)).toFixed(2)}`,`multiplier ×${stat(s).m.toFixed(2)} → ×${(stat(s).m*(1+.05*(tr+n))/(1+.05*tr)).toFixed(2)}`),cat:SKILL_CAT[s.id],kind:'level',a(){s.tr=(s.tr||0)+n;taken(SKILL_CAT[s.id])}})});
   if(G.spells.length<4&&G.lv>=3)CLASSES[G.cls].skills.filter(k=>!G.spells.some(s=>s.id===k)).forEach(k=>{const m=SPELLS[k];
-    const card={g:m.g,c:m.col,skill:k,n:LL(m),sub:L(`${m.cost} 内力 · ${m.cd}s`,`${m.cost} qi · ${m.cd}s`),fx:L(m.d,m.de),fxEn:'',cat:SKILL_CAT[k],isNew:1,kind:'new',a(){G.spells.push(mkSpell(k));taken(SKILL_CAT[k],2)}};pool.push(card,card)});
+    const card={g:m.g,c:m.col,skill:k,n:LL(m),sub:L(`${skillCost(mkSpell(k))} 内力 · ${m.cd}s`,`${skillCost(mkSpell(k))} qi · ${m.cd}s`),fx:L(m.d,m.de),fxEn:'',cat:SKILL_CAT[k],isNew:1,kind:'new',a(){G.spells.push(mkSpell(k));taken(SKILL_CAT[k],2)}};pool.push(card,card)});
   G.spells.forEach(s=>(TREES[s.id]||[]).forEach((n,i)=>{if(isTrait(n)&&nodeOpen(s,i))pool.push(nodeCard(s,i,rollQ()))}));
   const P=G.P,perkNow={锋锐:()=>L('伤害','damage')+` ×${(P.dmg*(1+P.dmgBonus)).toFixed(2)}`,金钟罩:()=>L('减伤','damage taken')+` ${Math.round((1-P.def)*100)}%`,轻身:()=>L('移速','speed')+` ×${moveSpeed(P).toFixed(2)}`,内息:()=>L('内力','qi')+` ${P.maxMana} · +${P.regen.toFixed(1)}/s`,生息:()=>L('生命','HP')+` ${P.maxHp}`,摄物:()=>L('拾取','pickup')+` ×${P.mag.toFixed(2)}`,疾风:()=>L('冷却','cooldown')+` ×${(1/P.haste).toFixed(2)}`,致命:()=>L('暴击','crit')+` ${Math.min(100,Math.round(P.crit*100))}%`+(P.crit>1?L(` · 暴伤 ×${(2+(P.crit-1)*2).toFixed(1)}`,` · crit dmg ×${(2+(P.crit-1)*2).toFixed(1)}`):'')};
-  const pc=v=>Math.round(v*100)+'%',perkVal={锋锐:Q=>[L('伤害','Damage'),pc(Q.dmg*(1+(Q.dmgBonus||0)))],金钟罩:Q=>[L('减伤','Damage cut'),Math.round((1-Q.def)*100)+'%'],轻身:Q=>[L('移速','Speed'),pc(moveSpeed(Q))],内息:Q=>[L('内力上限','Max qi'),Q.maxMana],生息:Q=>[L('生命上限','Max HP'),Q.maxHp],摄物:Q=>[L('拾取范围','Pickup range'),pc(Q.mag)],疾风:Q=>[L('冷却','Cooldown'),pc(1/Q.haste)],致命:Q=>[L('暴击率','Crit'),Math.min(100,Math.round(Q.crit*100))+'%']};
-  PERKS.forEach(p=>{if(p.zh==='金钟罩'&&G.P.def<=.42)return;if(p.zh==='轻身'&&((G.P.lightStep||0)>=6||moveSpeed(G.P)>=MOVE_SPEED_CAP))return;const q=rollQ();let times=(q.k==='common'?1:q.k==='rare'?2:q.k==='epic'?3:4)*(p.zh==='致命'&&q.k==='legendary'?.75:1)|0||1;
+  const pc=v=>Math.round(v*100)+'%',perkVal={锋锐:Q=>[L('伤害','Damage'),pc(Q.dmg*(1+(Q.dmgBonus||0)))],金钟罩:Q=>[L('减伤','Damage cut'),Math.round((1-Q.def)*100)+'%'],轻身:Q=>[L('移速','Speed'),pc(moveSpeed(Q))],内息:Q=>[L('内力上限','Max qi'),Q.maxMana],生息:Q=>[L('生命上限','Max HP'),Q.maxHp],摄物:Q=>[L('拾取范围','Pickup range'),pc(Math.min(3.4,Q.mag))],疾风:Q=>[L('冷却','Cooldown'),pc(1/Q.haste)],致命:Q=>[L('暴击率','Crit'),Math.min(100,Math.round(Q.crit*100))+'%']};
+  PERKS.forEach(p=>{const limit=PERK_LIMITS[p.zh];if(limit&&(G.P[limit[0]]||0)>=limit[1])return;if(p.zh==='摄物'&&G.P.mag>=3.4)return;if(p.zh==='金钟罩'&&G.P.def<=.42)return;if(p.zh==='轻身'&&((G.P.lightStep||0)>=6||moveSpeed(G.P)>=MOVE_SPEED_CAP))return;const q=rollQ();let times=(q.k==='common'?1:q.k==='rare'?2:q.k==='epic'?3:4)*(p.zh==='致命'&&q.k==='legendary'?.75:1)|0||1;
+    if(limit)times=Math.min(times,limit[1]-(G.P[limit[0]]||0));
     if(p.zh==='轻身')times=Math.min(times,6-(G.P.lightStep||0),Math.ceil(Math.log(MOVE_SPEED_CAP/G.P.spd)/Math.log(1.05)));
     const Q1=Object.assign({},G.P);for(let i=0;i<times;i++)p.a(Q1);const v0=perkVal[p.zh](G.P),v1=perkVal[p.zh](Q1);
     pool.push({g:p.g,c:'#efe4cd',n:LL(p),sub:times>1?L(`${times} 层`,`${times} stacks`):'',fx:`${v0[0]} ${v0[1]} → ${v1[1]}`,fxEn:L(p.d,p.de).replace(/\(.*\)/,''),q,cat:PERK_CAT[p.zh]||'passive',kind:'passive',a(){for(let i=0;i<times;i++)p.a(G.P);taken(PERK_CAT[p.zh]||'passive',times)}})});
@@ -691,7 +729,7 @@ function buildCards(q){
 /* level curve: slow early, keeps paying out late (gem values also rise every 4 minutes) */
 /* level curve: the first levels are nearly free (Lv 2 after a handful of kills), then it settles into the long curve */
 function xpNeed(lv){return lv<=8?Math.round(4+lv*3+lv*lv*.5):Math.round(12+lv*6+lv*lv*Math.min(2.6,.65+Math.max(0,lv-30)*.02)-60*Math.max(0,(16-lv)/8))}
-function autoGrow(){const P=G.P;P.maxHp+=7;P.hp=Math.min(P.maxHp,P.hp+12);P.dmgBonus+=.02;P.maxMana+=5;P.mana=Math.min(P.maxMana,P.mana+10);P.regen*=1.03;P.spd*=1.01;P.crit+=.004;P.attr.str++;P.attr.vit++;P.attr.spr++;P.attr.agi++}
+function autoGrow(){const P=G.P;P.maxHp+=7;P.hp=Math.min(P.maxHp,P.hp+5);P.dmgBonus+=.02;P.maxMana+=5;P.mana=Math.min(P.maxMana,P.mana+10);P.regen*=1.01;P.spd*=1.01;P.crit+=.004;P.attr.str++;P.attr.vit++;P.attr.spr++;P.attr.agi++}
 function spendAttr(id){const P=G.P;if(P.ap<=0)return false;P.ap--;P.attr[id]++;
   if(id==='str')P.dmgBonus+=.04;if(id==='vit'){P.maxHp+=8;P.hp+=8}if(id==='spr'){P.maxMana+=6;P.mana+=6;P.regen*=1.04}if(id==='agi'){P.spd*=1.02;P.crit+=.01}return true}
 function nodeOpen(s,i){const n=TREES[s.id]&&TREES[s.id][i];if(!n)return false;const r=s.nodes[i]||0;if(r>=n.max)return false;if(isTrait(n))return s.lv>=(n.tier===1?1:n.tier===2?4:10);const need=n.tier===1?0:n.tier===2?2:4;return s.pts>=need}
@@ -717,6 +755,7 @@ function spawnEnemy(type,x,y,mul=1,elite){
   G.en.push({x,y,type,hp,maxHp:hp,t0:t,spd:b.spd*rnd(.92,1.08)*(el?.9:1)*(affix==='swift'?1.5:1)*(tier(11)?1.12:1)*Math.min(1.35,1+Math.max(0,t-240)/900)*(G.curse.spd||1),dmg:b.dmg*Math.min(8,(1+t/300)*(t>240?1+(t-240)/420:1))*doomDmg(t)*(el?1.4:1)*D().dmg*(G.curse.edmg||1)*(G.dir?G.dir.dmg:1)*(solo?1.12:1),r:b.r*(el?1.4:1),xp:b.xp*(1+t/260)|0||1,fr:rnd(1),vx:0,vy:0,shoot:b.shoot&&role!=='shaman',st:rnd(1,3),elite:el,sc:(el?1.5:1)*(affix==='armor'?1.15:1)*(role==='charger'?1.12:1),kx:0,ky:0,affix,role,ct:rnd(2,4)});
   const ne=G.en[G.en.length-1];if(b.mesh){ne.mesh=b.mesh;ne.sc=(ne.sc||1)*(b.sc||1);ne.tintv=b.tint;ne.ghost=b.ghost;ne.bomb=b.bomb;ne.shield=type==='brute'}
   if(el)G.elites++;
+  if(typeof dirAdaptEnemy==='function')dirAdaptEnemy(G.en[G.en.length-1]);sealEmpower(G.en[G.en.length-1]);
 }
 function edgePoint(){
   const P=(G.shared&&SIMR()<.55&&arenaSpawnAnchor())||((G.rival&&G.rival.down<=0&&SIMR()<.4)?G.rival:G.P),a=rnd(TAU),R=Math.max(VW,VH)*.62+rnd(20);
@@ -751,24 +790,34 @@ function spawnTick(dt){
     if(G.themeT<=0&&!G.theme){G.themeT=75+rnd(0,20);const opts=THEMES.filter(th=>t>=th.from&&!(G.ev&&G.ev.noTheme));const th=pick(opts);const A=AFFINITY[th.type];G.theme={type:th.type,until:t+22,zh:th.zh,en:th.en};
       showBanner(`${th.zh}! ${A.tip[0]}`,`${th.en}! ${A.tip[1]}`,2.6);if(typeof SFX!=='undefined')SFX.wave();
       const n=Math.round(10+t/60);for(let i=0;i<n;i++){const o=edgePoint();spawnEnemy(th.type,o.x,o.y)}}}
-  const wave=Math.floor(t/30);if(wave>G.wave&&!G.boss){G.wave=wave;const mix=t>150?['刀客 · 弓手 · 铁甲力士','Bandit · Archer · Iron Giant']:t>85?['刀客 · 弓手','Bandit · Archer']:t>25?['刺客 · 刀客','Assassin · Bandit']:['刺客','Assassin'];showBanner(`第 ${wave} 波`,`Wave ${wave} · ${mix[1]}`,1);if(G.curse.waveChest&&!G.curse.nochest){const P=G.P;G.chests.push({x:clamp(P.x+rnd(-90,90),60,W-60),y:clamp(P.y+rnd(-90,90),60,H-60),t:0})}if(typeof SFX!=='undefined')SFX.wave()}
+  const wave=Math.floor(t/30);if(wave>G.wave&&!G.boss){G.wave=wave;const mix=t>150?['刀客 · 弓手 · 铁甲力士','Bandit · Archer · Iron Giant']:t>85?['刀客 · 弓手','Bandit · Archer']:t>25?['刺客 · 刀客','Assassin · Bandit']:['刺客','Assassin'];showBanner(`第 ${wave} 波`,`Wave ${wave} · ${mix[1]}`,1);if(G.curse.waveChest&&!G.curse.nochest){const P=G.P;spawnChest(P.x+rnd(-90,90),P.y+rnd(-90,90))}if(typeof SFX!=='undefined')SFX.wave()}
   G.swarmT-=dt;
   if(G.swarmT<=0&&!G.boss){G.swarmT=50;const P=G.P,n=18+Math.floor(t/8);
     for(let i=0;i<n;i++){const a=i/n*TAU,o={x:clamp(P.x+Math.cos(a)*180,30,W-30),y:clamp(P.y+Math.sin(a)*180,30,H-30)};spawnEnemy('assassin',o.x,o.y,.8)}
     G.ambush=20;showBanner('刺客来袭','Ambush: survive 20 s for a chest',1.2);if(typeof SFX!=='undefined')SFX.swarm();
   }
   if(!BOSSRUSH&&!G.auto&&G.contractN<2&&t>=(G.contractN===0?60:180)){G.contractN++;G.picks.push({kind:'contract'});if(typeof SFX!=='undefined')SFX.chest()}
-  if(G.ambush>0){G.ambush-=dt;if(G.ambush<=0){const P=G.P;G.chests.push({x:clamp(P.x+rnd(-60,60),60,W-60),y:clamp(P.y+rnd(-60,60),60,H-60),t:0});showBanner('伏击已破','Ambush survived: a chest drops'+(RIVAL_ON?' · +'+PK_EVENTS.ambush:''),1.2);G.score+=PK_EVENTS.ambush;(G.sc=G.sc||{kill:0,big:0,ev:0}).ev+=PK_EVENTS.ambush;if(typeof SFX!=='undefined')SFX.complete()}}
+  if(G.ambush>0){G.ambush-=dt;if(G.ambush<=0){const P=G.P;spawnChest(P.x+rnd(-60,60),P.y+rnd(-60,60));showBanner('伏击已破','Ambush survived: a chest drops'+(RIVAL_ON?' · +'+PK_EVENTS.ambush:''),1.2);G.score+=PK_EVENTS.ambush;(G.sc=G.sc||{kill:0,big:0,ev:0}).ev+=PK_EVENTS.ambush;if(typeof SFX!=='undefined')SFX.complete()}}
   if(G.warlordNow){G.warlordNow=0;G.warlordN++;const o=edgePoint();spawnEnemy('giant',o.x,o.y,9+G.warlordN*3,true);const e=G.en[G.en.length-1];e.warlord=1;e.sc=2;e.r=16;e.name='铁甲统领';showBanner('铁甲统领','The Iron Warlord arrives',1.6)}
   if(!BOSSRUSH&&t>=G.warlordN*BOSS_AT+120&&!G.boss){if(tier(7)){const o2=edgePoint();spawnEnemy('giant',o2.x,o.y,9+G.warlordN*3,true);const e2=G.en[G.en.length-1];e2.warlord=1;e2.sc=2;e2.r=16;e2.name='铁甲统领'}G.warlordN++;const o=edgePoint();spawnEnemy('giant',o.x,o.y,9+G.warlordN*3,true);const e=G.en[G.en.length-1];e.warlord=1;e.sc=2;e.r=16;e.spd*=1.15+G.warlordN*.05;e.hp=e.maxHp=Math.max(e.hp,powerHp(9));e.name='铁甲统领';showBanner('铁甲统领','The Iron Warlord arrives',1.6);trauma(.4);if(typeof SFX!=='undefined')SFX.bossIn()}
   if(t>=bossDue()&&!G.boss){const n=G.bossN,V=BOSSES[n%BOSSES.length],o=edgePoint(),k=1+n*1.25,solo=SAVE.mode==='solo'&&!G.auto&&!G.room&&!RIVAL_ON,hp=Math.round(Math.max((BOSSRUSH?5000:9000)*k*(1+t/600)*D().hp*(tier(10)?1.3:1)*(duelLen()&&t<BOSS_AT?.5:1),powerHp(BOSSRUSH?20:duelLen()&&t<BOSS_AT?18:26)))*(solo?1.12:1)*(tier(20)?1.25:1);
-    G.boss={x:o.x,y:o.y,t0:G.t,type:'boss',hp,maxHp:hp,spd:46+n*3,dmg:22*(1+n*.35)*D().dmg*(tier(6)?1.25:1)*Math.pow(G.bossK||1,.22)*(G.curse.bossDmg||1)*(solo?1.1:1),r:20,xp:0,fr:0,vx:0,vy:0,kx:0,ky:0,n,name:V[0],en:V[1],tint:V[2],rate:Math.max(.55,1-n*.12)*(tier(17)?.87:1)};G.en.push(G.boss);G.bossT=2.2;G.bossSpawned=1;
+    G.boss={x:o.x,y:o.y,t0:G.t,type:'boss',hp,maxHp:hp,spd:46+n*3,dmg:22*(1+n*.35)*D().dmg*(tier(6)?1.25:1)*Math.pow(G.bossK||1,.22)*(G.curse.bossDmg||1)*(solo?1.1:1),r:20,xp:0,fr:0,vx:0,vy:0,kx:0,ky:0,n,name:V[0],en:V[1],tint:V[2],rate:Math.max(.55,1-n*.12)*(tier(17)?.87:1)};G.en.push(G.boss);sealEmpower(G.boss);G.bossT=2.2;G.bossSpawned=1;
     const cyc=Math.floor(n/BOSSES.length)+1;if(cyc>=2){for(let i=0;i<Math.min(4,cyc);i++){const o2=edgePoint();spawnEnemy(pick(['giant','brute','archer']),o2.x,o2.y,3+cyc,true);const e2=G.en[G.en.length-1];e2.escort=1;e2.sc=1.4;e2.hp=e2.maxHp=Math.max(e2.hp,powerHp(3))}} // later cycles: the boss brings elite escorts
     showBanner(V[0]+'现身',V[1]+' emerges',2.6);trauma(.6);G.slow=Math.max(G.slow,.5);if(!G.auto&&typeof bossIntro==='function')bossIntro(V[0],V[1],n);if(!G.auto){$('#bossbar').hidden=false;$('#bossname').textContent=(cyc>=2?L(`第${['','一','二','三','四','五','六','七','八','九'][cyc]||cyc}轮 ${n%BOSSES.length+1}/${BOSSES.length} · `,`Cycle ${cyc} · ${n%BOSSES.length+1}/${BOSSES.length} · `):'')+L(V[0],V[1])}if(typeof SFX!=='undefined')SFX.bossIn();
   }
 }
+function bossSkyfall(B,dt){
+  if(B.skyfall){const f=B.skyfall;f.t-=dt;if(f.t<=0){B.x=f.x;B.y=f.y;B.skyfall=null;B.exposed=Math.max(1.5,B.exposed||0);ring(B.x,B.y,68,'#ffc474');spark(B.x,B.y,'#ff9b52',40,170);trauma(.45);shock(B.x,B.y,180,.035)}return true}
+  if(!soloPressure()||G.P.down>0||B.charge>0||B.tele>0)return false;
+  B.skyCd=(B.skyCd??6)-dt;if(B.skyCd>0)return false;B.skyCd=12;
+  const P=G.P,pos={x:P.x,y:P.y};collide(pos,B.r||20);
+  const percent=Math.min(.3,.2+.02*(B.n||0));B.skyfall={...pos,t:1.6,T:1.6};
+  hazard(pos.x,pos.y,58,1.6,.35,0,0,'#ffad63');const h=G.hazards[G.hazards.length-1];h.skyBoss=B;h.percent=percent;h.source=['首领天降重击','boss skyfall'];
+  showBanner(`首领天降 · 离开光圈！命中扣 ${Math.round(percent*100)}% 生命`,`SKYFALL · Move out! Hit loses ${Math.round(percent*100)}% max HP`,1.6);return true;
+}
 function bossAI(dt){
   const B=G.boss;if(!B||B.dead)return;const P=G.shared?arenaBossTarget(B):G.P;
+  if(bossSkyfall(B,dt))return;
   if(B.charge>0){B.charge-=dt;B.x+=B.cvx*dt;B.y+=B.cvy*dt;collide(B,B.r);if(B.charge<=0){ring(B.x,B.y,34,'#e0503f');trauma(.3);if(hyp(B.x-P.x,B.y-P.y)>60){B.exposed=2;showBanner('破绽!','OPENING!',1)}}return}
   if(B.tele>0){B.tele-=dt;if(B.tele<=0){const a=Math.atan2(B.ty-B.y,B.tx-B.x);B.cvx=Math.cos(a)*300;B.cvy=Math.sin(a)*300;B.charge=.62;if(typeof SFX!=='undefined')SFX.bossCharge()}return}
   G.bossT-=dt;if(G.bossT>0)return;
@@ -817,7 +866,8 @@ function hazard(x,y,r,tele,dur,burst,dps,col){if(G.hazards.length>70)G.hazards.s
 function hazardTick(dt){
   const P=G.P;
   for(const h of G.hazards){
-    if(h.tele>0){h.tele-=dt;if(h.tele<=0){ring(h.x,h.y,h.r,h.col);if(P.down<=0&&hyp(P.x-h.x,P.y-h.y)<h.r+6){if(P.dash>0)parry();dmgP(h.burst,h.x,h.y,['首领地面攻击','boss ground attack'])}if(typeof SFX!=='undefined')SFX.bossAttack('radial')}continue}
+    if(h.skyBoss?.dead){h.tele=0;h.dur=0;continue}
+    if(h.tele>0){h.tele-=dt;if(h.tele<=0){ring(h.x,h.y,h.r,h.col);if(P.down<=0&&hyp(P.x-h.x,P.y-h.y)<h.r+6){if(P.dash>0)parry();const before=P.hp;dmgP(h.percent?P.maxHp*h.percent/Math.max(.4,P.def):h.burst,h.x,h.y,h.source||['首领地面攻击','boss ground attack']);if(h.leech&&!h.leech.dead&&P.hp<before){const e=h.leech;e.hp=Math.min(e.maxHp,e.hp+Math.min(e.maxHp*.03,(before-P.hp)*.5))}}if(typeof SFX!=='undefined')SFX.bossAttack('radial')}continue}
     h.dur-=dt;if(h.dps>0){h.tk-=dt;if(h.tk<=0&&P.down<=0&&hyp(P.x-h.x,P.y-h.y)<h.r+4){h.tk=.5;dmgP(h.dps*.5,h.x,h.y,['首领毒雾/烈焰','boss hazard'])}}
   }
   G.hazards=G.hazards.filter(h=>h.tele>0||h.dur>0);
@@ -836,7 +886,7 @@ function collectRelics(dt){const P=G.P;for(const f of G.fx){if(f.k!=='relic'||f.
 
 /* ---------- step ---------- */
 function step(dt){
-  const P=G.P;P.spd=moveSpeed(P);G.t+=dt;{const vx=(P.x-(P.px===undefined?P.x:P.px))/dt,vy=(P.y-(P.py===undefined?P.y:P.py))/dt;P.vx=(P.vx||0)*.7+vx*.3;P.vy=(P.vy||0)*.7+vy*.3;P.px=P.x;P.py=P.y}if(typeof directorTick==='function')directorTick(dt);if(typeof extTick==='function')extTick(dt);{G.dpsT=(G.dpsT||0)+dt;if(G.dpsT>=1){G.dpsT-=1;const d=(G.dealt||0)-(G.dealtLast||0);G.dealtLast=G.dealt||0;G.dpsHist=(G.dpsHist||[]).concat([d]).slice(-20);G.dpsAvg=G.dpsHist.reduce((a,b)=>a+b,0)/G.dpsHist.length}} // rolling 20 s damage output: the first boss and the warlords are sized from it
+  const P=G.P;P.spd=moveSpeed(P);G.t+=dt;sealRageTick();{const vx=(P.x-(P.px===undefined?P.x:P.px))/dt,vy=(P.y-(P.py===undefined?P.y:P.py))/dt;P.vx=(P.vx||0)*.7+vx*.3;P.vy=(P.vy||0)*.7+vy*.3;P.px=P.x;P.py=P.y}if(typeof directorTick==='function')directorTick(dt);if(typeof extTick==='function')extTick(dt);{G.dpsT=(G.dpsT||0)+dt;if(G.dpsT>=1){G.dpsT-=1;const d=(G.dealt||0)-(G.dealtLast||0);G.dealtLast=G.dealt||0;G.dpsHist=(G.dpsHist||[]).concat([d]).slice(-20);G.dpsAvg=G.dpsHist.reduce((a,b)=>a+b,0)/G.dpsHist.length}} // rolling 20 s damage output: the first boss and the warlords are sized from it
   if(RIVAL_ON&&G.rival&&G.t+(G.pickWall||0)>=(G.quick?180:PK_LEN)&&!G.over)pkEnd();
   if(G.room&&typeof roomNetTick==='function')roomNetTick(dt);
   for(let i=G.later.length-1;i>=0;i--){const l=G.later[i];l.t-=dt;if(l.t<=0){G.later.splice(i,1);l.f()}}
@@ -844,7 +894,7 @@ function step(dt){
   for(const e of G.en){if(e.dead)continue;const k=gridOf(e);let a=G.grid.get(k);if(!a)G.grid.set(k,a=[]);a.push(e)}
   // player
   tickShields(dt);P.inv=Math.max(0,P.inv-dt);P.dashCd=Math.max(0,P.dashCd-dt);if(P.parryCd>0)P.parryCd-=dt;
-  P.mana=Math.min(P.maxMana,P.mana+P.regen*dt);
+  manaRegen(P,dt);
   for(const s of G.spells)s.cd=Math.max(0,s.cd-dt*(P.buff&&P.buff.k==='haste'?2:1)*(G.over9?1.3:1));
   comboTick(dt);chestTick(dt);if(!G.auto&&(G.t|0)%2===0&&G.t-Math.floor(G.t)<dt)checkAch();
   if(hasR('pill'))heal(dt);
@@ -853,7 +903,7 @@ function step(dt){
   if(G.P.burnT>0){G.P.burnT-=dt;G.P.btk=(G.P.btk||0)-dt;if(G.P.btk<=0){G.P.btk=.5;dmgP(G.P.burnD,G.P.x,G.P.y,['火煞灼烧','burning']);G.P.inv=0}}if(G.P.chillT>0)G.P.chillT-=dt;
   {const mk=Math.floor(G.t/300);if(mk>=2&&mk>(G.mkDone||1)&&!G.boss&&!BOSSRUSH&&!G.mirror&&!G.trib&&G.P.down<=0){G.mkDone=mk;G.trib={t:40,n:mk,next:1.5,hp0:G.dmgTaken,k:0};G.tribN=(G.tribN||0)+1;showBanner(`天劫 · ${mk*5} 分钟`,`Tribulation · ${mk*5} min: hold for 40 s`,2.4);trauma(.5);G.slow=Math.max(G.slow,.4);if(typeof SFX!=='undefined')SFX.bossIn()}
    if(G.trib){const T=G.trib;T.t-=dt;T.next-=dt;if(T.next<=0&&G.en.length<CAP.en){T.next=Math.max(1.4,4.2-T.n*.25);const o=edgePoint(),ty=pick(['giant','archer','bomber','brute','wraith','bandit']);spawnEnemy(ty,o.x,o.y,(1.6+T.n*.5)*Math.sqrt(G.bossK||1),true);const e=G.en[G.en.length-1];e.trib=1;e.sc=1.5;e.spd*=1.1;e.hp=e.maxHp=Math.max(e.hp,powerHp(2.2));T.k++}
-     if(T.t<=0){G.trib=null;G.tribWon=(G.tribWon||0)+1;const P=G.P;G.chests.push({x:clamp(P.x+rnd(-50,50),60,W-60),y:clamp(P.y+rnd(-50,50),60,H-60),t:0,kind:T.n>=6?'gold':undefined});G.picks.push({kind:'level',forceQ:T.n>=6?'legendary':'epic'});G.pickHold=1.2;G.goldRun+=60+T.n*10;showBanner('渡劫成功',`Tribulation survived · ${T.n>=6?'legendary':'epic'} card + chest`,2.4);G.flash=.6;if(typeof SFX!=='undefined')SFX.win()}}}
+     if(T.t<=0){G.trib=null;G.tribWon=(G.tribWon||0)+1;const P=G.P;spawnChest(P.x+rnd(-50,50),P.y+rnd(-50,50),T.n>=6?'gold':undefined);G.picks.push({kind:'level',forceQ:T.n>=6?'legendary':'epic'});G.pickHold=1.2;G.goldRun+=60+T.n*10;showBanner('渡劫成功',`Tribulation survived · ${T.n>=6?'legendary':'epic'} card + chest`,2.4);G.flash=.6;if(typeof SFX!=='undefined')SFX.win()}}}
   if(!G.doomWarned&&G.t>=DOOM_T){G.doomWarned=1;showBanner('怨气弥漫:此后敌人每分钟更凶狠','Dread rises: enemies hit harder every minute from here',3.5);if(typeof SFX!=='undefined')SFX.roar()}
   if(G.pickHold>0){G.pickHold-=dt;if(G.pickHold<=0&&G.picks.length&&!G.pick&&typeof openPick==='function')openPick()}
   if(P.parry>0)P.parry-=dt;
@@ -885,7 +935,7 @@ function step(dt){
     if(m.k==='seal'){const inside=hyp(P.x-m.x,P.y-m.y)<m.r;if(inside&&P.down<=0){m.n-=dt;m.pulse+=dt;if(m.pulse>1.2){m.pulse=0;spawnTick(0);for(let i=0;i<4;i++){const a=rnd(TAU);spawnEnemy('assassin',clamp(m.x+Math.cos(a)*220,30,W-30),clamp(m.y+Math.sin(a)*220,30,H-30),.8)}ring(m.x,m.y,m.r,'#ff5fe8')}if(m.n<=0){m.n=0;checkMission()}}}
     if(m.k==='hunt'&&m.target){const e=m.target;if(e.dead){m.n=0;checkMission()}else{const dx=e.x-P.x,dy=e.y-P.y,d=hyp(dx,dy)||1;if(d<260){e.flee=1;e.fx=dx/d;e.fy=dy/d}else e.flee=0}}
     if(m.k==='mush'&&(!endlessDuel()||P.down<=0&&!G.over)){for(let i=G.mush.length-1;i>=0;i--){const o=G.mush[i];if(hyp(o.x-P.x,o.y-P.y)<16){G.mush.splice(i,1);m.n--;spark(o.x,o.y,'#ff8a5a',8);if(typeof SFX!=='undefined')SFX.pick(1);checkMission();if(!G.mission)break}}}
-    if(G.mission&&m.t<=0){G.mission=null;G.missionT=35;G.mush=[];G.en.forEach(e=>{if(e.type==='statue')e.dead=1;if(e.marked){e.marked=0;e.flee=0}});const part=10+Math.floor(G.t/60)*2;G.goldRun+=part;gainXP(Math.max(4,G.need*.15));showBanner(`密令失败 · 保留 ${part} 金与少量经验`,`Mission failed · ${part} gold and a little XP kept`,1.2)}
+    if(G.mission&&m.t<=0)failMission(m);
   }
   // enemies
   if(G.mirror)mirrorTick(dt);else for(const e of G.en){
@@ -896,7 +946,7 @@ function step(dt){
     if(e.sleep>0){e.sleep-=dt;if(e.sleep<=0&&e.sleepS&&nd(e.sleepS,'chain')&&SIMR()<NODE_FX.chain*nd(e.sleepS,'chain')*2)aoe(e.x,e.y,30,20*stat(e.sleepS).m,e.sleepS,SPELLS.numb.col,false,{quiet:1});continue}
     if(e.kx||e.ky){e.x+=e.kx*dt;e.y+=e.ky*dt;const f=Math.exp(-8*dt);e.kx*=f;e.ky*=f;if(Math.abs(e.kx)<2&&Math.abs(e.ky)<2){e.kx=e.ky=0}collide(e,e.r)}
     if(e.type==='statue')continue;
-    if(e.type==='boss'&&(e.tele>0||e.charge>0)){if(hyp(e.x-P.x,e.y-P.y)<e.r+6&&e.charge>0)dmgP(e.dmg*1.45,e.x,e.y,['首领冲撞','boss charge']);continue}
+    if(e.type==='boss'&&(e.skyfall||e.tele>0||e.charge>0)){if(hyp(e.x-P.x,e.y-P.y)<e.r+6&&e.charge>0)dmgP(e.dmg*1.45,e.x,e.y,['首领冲撞','boss charge']);continue}
     if(e.frz>0)continue;
     if(e.charm>0&&typeof charmTick==='function'){charmTick(e,dt);continue}
     if(e.role==='charger'){e.ct-=dt;const dP=hyp(P.x-e.x,P.y-e.y);
@@ -905,12 +955,13 @@ function step(dt){
       if(e.ct<=0&&dP<180&&dP>40){e.cw=.6;e.tx=P.x;e.ty=P.y;continue}}
     if(e.role==='shaman'){e.ht=(e.ht||0)-dt;if(e.ht<=0){e.ht=1.2;near(e.x,e.y,70,o=>{if(o!==e&&o.type!=='statue'&&o.hp<o.maxHp){const big=o.type==='boss'||o.warlord;if(big){if(G.t-(o.shamT||-9)>1.1){o.shamT=G.t;o.shamN=0}o.shamN++;if(o.shamN>2)return}const hb=o.hp;o.hp=Math.min(o.maxHp,o.hp+o.maxHp*(big?.012:.08));o.healed=.4;if(big){o.healWiz=(o.healWiz||0)+(o.hp-hb);o.healLine={x:e.x,y:e.y,t:.6}}}});ring(e.x,e.y,60,'#7fc98a')}}
     const R=G.rival,useR=R&&R.down<=0&&hyp(R.x-e.x,R.y-e.y)<hyp(P.x-e.x,P.y-e.y)*.85,RT=G.shared?arenaNear(e,useR?hyp(R.x-e.x,R.y-e.y):hyp(P.x-e.x,P.y-e.y)*(P.down>0?9:1)):null,T=RT||(useR?R:P);
+    if(typeof dirEnemyAttack==='function')dirEnemyAttack(e,T,dt);
     let dx=T.x-e.x,dy=T.y-e.y,d=hyp(dx,dy)||1,sp=e.spd*(e.slow>0?.62:1);
     let ax=dx/d,ay=dy/d;
     if(e.role==='shaman'&&d<160){ax=-ax*.5;ay=-ay*.5}
     if(e.shoot){ if(d<140){ax=-ax*.3;ay=-ay*.3}
-      e.st-=dt;if(e.st<=0&&d<230){const solo=soloPressure()&&e.type==='archer';e.st=solo?rnd(1.8,2.5):rnd(2.2,3.4)-.6*clamp((G.t-480)/600,0,1);if(e.bomb){hazard(T.x+rnd(-14,14),T.y+rnd(-14,14),26,1.0,.2,14*dodgeDmg(G.t),0,'#ff6a2a');if(typeof SFX!=='undefined')SFX.throw()}else{const lateR=clamp((G.t-480)/600,0,1),v=(solo?140:84)+56*lateR,lead=solo?.35+.65*lateR:lateR;let ax2=dx,ay2=dy;if(lead>0){const tt=d/v;ax2=T.x+(T.vx||0)*tt*lead-e.x;ay2=T.y+(T.vy||0)*tt*lead-e.y}
-        bullet(e.x,e.y,Math.atan2(ay2,ax2),v,8*dodgeDmg(G.t),1);if(typeof SFX!=='undefined')SFX.arrow()}}}
+      e.st-=dt;if(e.st<=0&&d<230){const solo=soloPressure()&&e.type==='archer';e.st=(solo?rnd(1.8,2.5):rnd(2.2,3.4)-.6*clamp((G.t-480)/600,0,1))/(e.sealRate||1);if(e.bomb){hazard(T.x+rnd(-14,14),T.y+rnd(-14,14),26,1.0,.2,14*dodgeDmg(G.t)*(e.adaptDamage||1),0,'#ff6a2a');if(typeof SFX!=='undefined')SFX.throw()}else{const lateR=clamp((G.t-480)/600,0,1),v=(solo?140:84)+56*lateR,lead=solo?.35+.65*lateR:lateR;let ax2=dx,ay2=dy;if(lead>0){const tt=d/v;ax2=T.x+(T.vx||0)*tt*lead-e.x;ay2=T.y+(T.vy||0)*tt*lead-e.y}
+        bullet(e.x,e.y,Math.atan2(ay2,ax2),v,8*dodgeDmg(G.t)*(e.adaptDamage||1),1);if(typeof SFX!=='undefined')SFX.arrow()}}}
     let sx=0,sy=0,cnt=0;
     near(e.x,e.y,e.r+8,o=>{if(o===e||o.type==='statue')return;const ox=e.x-o.x,oy=e.y-o.y,dd=hyp(ox,oy)||.01,m=e.r+o.r;if(dd<m){sx+=ox/dd*(m-dd);sy+=oy/dd*(m-dd);if(++cnt>6)return false}});
     e.x+=(ax*sp+sx*7)*dt;e.y+=(ay*sp+sy*7)*dt;e.fr+=dt*(3+sp*.07);
@@ -954,7 +1005,7 @@ function step(dt){
     if(G.rival&&G.rival.down<=0&&hyp(b.x-G.rival.x,b.y-G.rival.y+4)<7){rivalHurt(b.d);b.life=0}
     if(b.x<20||b.y<20||b.x>W-20||b.y>H-20||blocked(b.x,b.y))b.life=0;}
   G.bullets=G.bullets.filter(b=>b.life>0);
-  const mag=52*P.mag*(G.t<120?1.8:G.t<240?1.3:1);
+  const mag=pickupRadius(P);
   for(const g of G.gems){const d=hyp(g.x-P.x,g.y-P.y);
     if((!endlessDuel()||P.down<=0&&!G.over)&&(g.pull||d<mag)){g.pull=1;const s=180+(40-Math.min(d,40))*4;g.x+=(P.x-g.x)/(d||1)*s*dt;g.y+=(P.y-g.y)/(d||1)*s*dt;
       if(d<8){g.dead=1;gainXP(g.v*comboMult()*.6);if(typeof SFX!=='undefined'&&!G.auto)SFX.pick(0)}}}
@@ -989,7 +1040,7 @@ function bossSlain(e){
   {const dur=G.t-(e.t0||G.t),k0=G.bossK||1;G.bossK=clamp(k0*clamp(30/Math.max(2,dur),.75,3.5),1,1e4);G.bossDur=dur;G.bossDurs=(G.bossDurs||[]).concat([Math.round(dur)]);G.bossRef={dps:e.maxHp/Math.max(1.5,dur),pow:powerIdx(),corr:clamp(35/Math.max(10,dur),.5,1)}} // a fight that dragged makes the next boss smaller, whatever the power index says // the next boss scales to how fast this one fell: a 30 s duel, never a 2 s speed bump
   const cr=!G.creditOff;if(cr){G.bossSlain++;G.rerolls+=2}G.bossN++;G.boss=null;if(cr&&!G.auto&&!BOSSRUSH&&!RIVAL_ON&&!G.room&&G.bossN%BOSSES.length===0){G.picks.push({kind:'ascend',cyc:G.bossN/BOSSES.length});G.pickHold=2.6}if(cr&&G.room)roomSendWave(12,true);if(cr)G.goldRun+=(100+G.bossN*50)*((G.ev&&G.ev.bossGold)||1);
   if(!cr){G.bullets=[];if(!G.auto)$('#bossbar').hidden=true;return}
-  G.chests.push({x:e.x,y:e.y,t:0});if(G.curse.bossLeg){G.picks.push({kind:'level',forceQ:'legendary'});G.pickHold=Math.max(G.pickHold||0,2.4)}for(let i=0;i<12;i++){const a=i/12*TAU;G.gems.push({x:e.x+Math.cos(a)*26,y:e.y+Math.sin(a)*26,v:6,big:1})}
+  spawnChest(e.x,e.y);if(G.curse.bossLeg){G.picks.push({kind:'level',forceQ:'legendary'});G.pickHold=Math.max(G.pickHold||0,2.4)}for(let i=0;i<12;i++){const a=i/12*TAU;G.gems.push({x:e.x+Math.cos(a)*26,y:e.y+Math.sin(a)*26,v:6,big:1})}
   G.slow=Math.max(G.slow,1.2);G.flash=1;trauma(1);shock(e.x,e.y,520,.08,1.2);G.bullets=[];
   if(!G.auto){$('#bossbar').hidden=true;showBanner(e.name+'伏诛'+(G.bossDur<15?` · ${Math.round(G.bossDur)} 秒斩杀`:''),`${e.en} slain`+(G.bossDur<15?` in ${Math.round(G.bossDur)} s`:` · next boss in ${fmt(nextBossIn())}`),2.4);if(typeof SFX!=='undefined')SFX.win();if(window.desktop&&G.bossSlain===1)window.desktop.achievement('FIRST_VICTORY')}
 }

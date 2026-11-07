@@ -12,6 +12,7 @@ const CLOUD={ready:false,user:null,db:null,auth:null,status:'off',pushT:0,lastPu
   on(){return this.ready&&!!this.user},
   uid(){return this.user?this.user.uid:null},
   isGuest(){return !!(this.user&&this.user.isAnonymous)},
+  registered(){return this.on()&&!this.isGuest()},
   label(){if(!this.ready)return this.status==='loading'?L('连接中…','connecting…'):L('离线','offline');if(!this.user)return L('未登录','not signed in');return this.isGuest()?L('游客','Guest'):(this.user.displayName||this.user.email||L('已登录','signed in'))},
 };
 function loadScript(src){return new Promise((res,rej)=>{const s=document.createElement('script');s.src=src;s.async=true;s.onload=res;s.onerror=()=>rej(new Error('load '+src));document.head.appendChild(s)})}
@@ -83,9 +84,9 @@ function mergeSave(local,cloud){
 async function cloudAuthChanged(user){
   if(user&&CLOUD.auth.currentUser?.uid!==user.uid)return false;
   if(!user&&CLOUD.auth.currentUser)return cloudAuthChanged(CLOUD.auth.currentUser);
-  if(user&&CLOUD.user?.uid===user.uid){CLOUD.user=user;CLOUD.initializing=false;renderAccount();return CLOUD.syncedUid===user.uid?cloudPush(true):cloudPull()}
+  if(user&&CLOUD.user?.uid===user.uid){const changed=CLOUD.isGuest()!==!!user.isAnonymous;CLOUD.user=user;if(changed&&typeof lbAccountChanged==='function')lbAccountChanged();CLOUD.initializing=false;renderAccount();return CLOUD.syncedUid===user.uid?cloudPush(true):cloudPull()}
   clearTimeout(CLOUD.pushT);CLOUD.epoch++;CLOUD.user=user;CLOUD.syncedUid=null;CLOUD.pullTask=null;CLOUD.writeTask=Promise.resolve();CLOUD.lastPushed='';CLOUD.syncErr='';
-  CLOUD.initializing=!user;renderAccount();
+  CLOUD.initializing=!user;if(typeof lbAccountChanged==='function')lbAccountChanged();renderAccount();
   if(!user){
     try{const r=await (window.SPELL_CN_PROXY?Promise.race([CLOUD.auth.signInAnonymously(),new Promise((_,reject)=>setTimeout(()=>reject(new Error('auth/network-request-failed')),12000))]):CLOUD.auth.signInAnonymously());if(CLOUD.auth.currentUser?.uid===r.user.uid)return await cloudAuthChanged(r.user)}
     catch(e){console.warn('anon sign-in failed',e);CLOUD.status='noauth';CLOUD.initializing=false;renderAccount()}
@@ -128,9 +129,9 @@ async function cloudPush(now){
     try{
       await CLOUD.db.collection('saves').doc(uid).set({save:clean,ts:firebase.firestore.FieldValue.serverTimestamp()});
       if(!cloudSession(uid,epoch))return false;
-      await CLOUD.db.collection('profiles').doc(uid).set(profile,{merge:true});
+      if(CLOUD.registered())await CLOUD.db.collection('profiles').doc(uid).set(profile,{merge:true});
       if(!cloudSession(uid,epoch))return false;
-      if(typeof CLB!=='undefined')delete CLB.cache.profiles;
+      if(typeof CLB!=='undefined'){delete CLB.cache.profiles;delete CLB.cache.profileByUid}if(typeof lbAccountChanged==='function')lbAccountChanged();
       CLOUD.lastPushed=body;CLOUD.syncErr='';return true;
     }catch(e){if(cloudSession(uid,epoch)){CLOUD.syncErr=String(e?.message||e).slice(0,80);renderAccount()}console.warn('push failed',e);return false}
   });
@@ -302,10 +303,10 @@ const CLB={
       if(!cached||Date.now()-cached.t>=45000)this.cache[key]={t:Date.now(),rows:profiles};
       const field=board==='ladder'?'trophies':'lv';
       const byName=new Map(),me=CLOUD.uid();
-      for(const p of profiles.filter(p=>p._id&&p.name)){
+      for(const p of profiles.filter(p=>p._id&&p.name&&p.guest===false)){
         const row={uid:p._id,name:p.name,av:p.av,cls:p.cls,score:Math.max(0,Number(p[field])||0),axp:p.axp||0,guest:!!p.guest};
         if(board==='ladder'&&row.score<=0||board==='level'&&row.score<=1&&row.axp<=0)continue;
-        const key=p.name.normalize('NFKC').trim().toLocaleLowerCase(),old=byName.get(key);
+        const key=p._id,old=byName.get(key);
         if(!key)continue;
         if(!old||row.score>old.score||(row.score===old.score&&((board==='level'&&row.axp>old.axp)||((board!=='level'||row.axp===old.axp)&&(row.uid===me||old.uid!==me&&old.guest&&!row.guest)))))byName.set(key,row);
       }
@@ -313,31 +314,28 @@ const CLB={
       rows.sort((a,b)=>b.score-a.score||(board==='level'?b.axp-a.axp:0)||String(a.uid).localeCompare(String(b.uid)));
       return {ok:true,count:rows.length,rows,me:CLOUD.uid()};
     }
-    const raw=await this.raw(board),best=new Map();
+    const raw=await this.raw(board),best=new Map(),accounts=await this.profiles(raw.map(r=>r.uid));
     for(const r of raw){
+      if(!r.uid||accounts[r.uid]?.guest!==false)continue;
       if((board==='endless'&&r.mode!=='solo')||['pk','qpk','room'].includes(r.mode)||!Number.isFinite(r.score)||r.score<0)continue;
       const k=r.uid||r.name;if(!k)continue;
       if(!best.has(k)||lbCompare(r,best.get(k))<0)best.set(k,r);
     }
-    const named=new Map(),me=CLOUD.uid();
-    for(const r of best.values()){
-      const key=String(r.name||r.uid||'').normalize('NFKC').trim().toLocaleLowerCase(),old=named.get(key);
-      if(!old||lbCompare(r,old)<0||lbCompare(r,old)===0&&r.uid===me)named.set(key,r);
-    }
-    const rows=[...named.values()].sort(lbCompare);
-    return {ok:true,count:rows.length,rows,me:CLOUD.uid()};
+    const rows=[...best.values()].sort(lbCompare);
+    return {ok:true,count:rows.length,rows,me:CLOUD.uid(),profiles:accounts};
   },
   async profiles(uids){
-    const out={},need=[...new Set(uids.filter(Boolean))].slice(0,90);
-    try{for(let i=0;i<need.length;i+=30){
-      const ids=need.slice(i,i+30),base=`projects/${FIREBASE_CONFIG.projectId}/databases/(default)/documents/profiles/`;
+    const need=[...new Set(uids.filter(Boolean))].slice(0,150),out={},now=Date.now(),cache=this.cache.profileByUid||(this.cache.profileByUid={}),missing=[];
+    for(const uid of need){const c=cache[uid];if(c&&now-c.t<45000)out[uid]=c.row;else missing.push(uid)}
+    const epoch=this.epoch;
+    try{await Promise.all(Array.from({length:Math.ceil(missing.length/30)},async(_,i)=>{
+      const ids=missing.slice(i*30,i*30+30),base=`projects/${FIREBASE_CONFIG.projectId}/databases/(default)/documents/profiles/`;
       const rows=await this.query('',{from:[{collectionId:'profiles'}],where:{fieldFilter:{field:{fieldPath:'__name__'},op:'IN',value:{arrayValue:{values:ids.map(uid=>({referenceValue:base+uid}))}}}}});
-      for(const row of rows)if(row._id)out[row._id]=row;
-    }}catch(e){console.warn('profiles lookup',e)}
-    return out;
+      for(const row of rows)if(row._id){out[row._id]=row;if(epoch===this.epoch)cache[row._id]={t:now,row}}
+    }))}catch(e){console.warn('profiles lookup',e)}return out;
   },
   async submit(run){
-    if(!CLOUD.on())return {ok:false,error:'disabled'};
+    if(!CLOUD.registered())return {ok:false,error:'signin-required'};
     if(run.uid&&run.uid!==CLOUD.uid())return {ok:false,error:'account-changed'};
     const doc={name:String(run.name||'Nameless').slice(0,16),cls:run.cls,map:run.map,diff:run.diff,mode:run.mode||'solo',time:Math.round(run.time),kills:Math.round(run.kills),bosses:Math.round(run.bosses),level:Math.round(run.level),combo:Math.round(run.combo),relics:Math.round(run.relics),score:Math.round(run.score||0),day:run.day||dayKey(),tier:Math.round(run.tier||0),uid:CLOUD.uid(),ts:firebase.firestore.FieldValue.serverTimestamp()};
     const post=async d=>{

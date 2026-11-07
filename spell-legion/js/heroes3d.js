@@ -18,10 +18,10 @@ const K3_CLASS={
   idol:{m:'Rogue',w:{lightstick:['Mage:1H_Wand'],mic:['Mage:1H_Wand'],pyro:['Throwable']},hide:['Rogue_Cape']},
 };
 /* how each normal attack looks */
-const K3_ATK={sword:'1H_Melee_Attack_Slice_Horizontal',great:'2H_Melee_Attack_Slice',charm:'Spellcast_Shoot',whisk:'1H_Melee_Attack_Slice_Diagonal',slash:'Dualwield_Melee_Attack_Slice',nodachi:'2H_Melee_Attack_Chop',wave:'1H_Ranged_Shoot',drum:'2H_Ranged_Shoot',staff:'Unarmed_Melee_Attack_Punch_B',fist:'Unarmed_Melee_Attack_Punch_A',needle:'Throw',pouch:'Throw',swordcase:'1H_Melee_Attack_Slice_Horizontal',thunder:'Spellcast_Shoot',flute:'Spellcast_Shoot',bell:'Unarmed_Melee_Attack_Punch_A',goldgu:'Throw',katana:'2H_Melee_Attack_Slice',kusari:'Dualwield_Melee_Attack_Slice',shiki:'Spellcast_Shoot',lightstick:'Spellcast_Shoot',mic:'Spellcast_Shoot',pyro:'Throw',arcane:'Spellcast_Shoot',fireball:'Spellcast_Shoot',meteor:'Spellcast_Raise'};
+const K3_ATK={sword:'1H_Melee_Attack_Slice_Horizontal',great:'2H_Melee_Attack_Slice',charm:'Spellcast_Shoot',whisk:'1H_Melee_Attack_Slice_Diagonal',slash:'Dualwield_Melee_Attack_Slice',nodachi:'2H_Melee_Attack_Chop',wave:'Spellcast_Shoot',drum:'Spellcast_Raise',staff:'2H_Melee_Attack_Slice',fist:'Unarmed_Melee_Attack_Punch_A',needle:'Throw',pouch:'Throw',swordcase:'1H_Melee_Attack_Slice_Horizontal',thunder:'Spellcast_Shoot',flute:'Spellcast_Shoot',bell:'Unarmed_Melee_Attack_Punch_A',goldgu:'Throw',katana:'2H_Melee_Attack_Slice',kusari:'Dualwield_Melee_Attack_Slice',shiki:'Spellcast_Shoot',lightstick:'Spellcast_Shoot',mic:'Spellcast_Shoot',pyro:'Throw',arcane:'Spellcast_Shoot',fireball:'Spellcast_Shoot',meteor:'Spellcast_Raise'};
 const K3_CASTER={taoist:1,qin:1,physician:1,wizard:1,idol:1};
 const K3_UPPER=new Set(['spine','chest','head','upperarm.l','lowerarm.l','wrist.l','hand.l','handslot.l','upperarm.r','lowerarm.r','wrist.r','hand.r','handslot.r','elbowIK.l','handIK.l','elbowIK.r','handIK.r']);
-function k3Split(clip){const up=[],low=[];for(const t of clip.tracks){const bone=t.name.slice(0,t.name.lastIndexOf('.'));(K3_UPPER.has(bone)?up:low).push(t)}
+function k3Split(clip){const up=[],low=[];for(const t of clip.tracks){const bone=t.name.slice(0,t.name.lastIndexOf('.'));((K3_UPPER.has(bone)||K3_UPPER.has(bone.replace(/(upperarm|lowerarm|wrist|hand|handslot|elbowIK|handIK)([lr])$/,'$1.$2')))?up:low).push(t)}
   return [new THREE.AnimationClip(clip.name+'_up',clip.duration,up),new THREE.AnimationClip(clip.name+'_low',clip.duration,low)]}
 function k3Load(){if(K3.loading)return K3.loading;if(typeof THREE.GLTFLoader==='undefined')return Promise.resolve(false);
   const ld=new THREE.GLTFLoader(),get=u=>new Promise((res,rej)=>ld.load(u,res,undefined,rej));
@@ -31,7 +31,7 @@ function k3Load(){if(K3.loading)return K3.loading;if(typeof THREE.GLTFLoader==='
     K3.ready=true;k3Upgrade();return true}).catch(err=>{console.warn('hero models unavailable',err);return false});
   return K3.loading}
 /* a soft rim light and a little lift, so the models read against the ground like the rest of the scene */
-function k3Mat(src,tint){const m=src.clone();m.metalness=0;m.roughness=.78;if(tint)m.color.setRGB(tint[0],tint[1],tint[2]);
+function k3Mat(src,tint){if(!src.isMeshStandardMaterial&&!src.isMeshPhysicalMaterial)return src.clone();const m=src.clone();m.metalness=0;m.roughness=.78;if(tint)m.color.setRGB(tint[0],tint[1],tint[2]);
   m.onBeforeCompile=sh=>{sh.fragmentShader=sh.fragmentShader.replace('#include <tonemapping_fragment>','{float rimF=1.0-max(dot(normalize(vViewPosition),normal),0.0);gl_FragColor.rgb+=vec3(1.0,.93,.82)*pow(rimF,3.0)*.3;}\n#include <tonemapping_fragment>')};
   m.customProgramCacheKey=()=>'k3rim'+(tint?tint.join(','):'');return m}
 /* inverted-hull outline that follows the skin */
@@ -44,8 +44,13 @@ function k3Attach(h){if(!K3.ready||!h||h.k3||!K3_CLASS[h.cls])return;const C=K3_
   g.position.copy(keep.p);g.rotation.copy(keep.r);g.scale.copy(keep.s);
   for(const c of g.children)c.visible=false;
   const obj=THREE.SkeletonUtils.clone(src.scene);const S=(h.slot==='preview'?34:44)/2.35;obj.scale.set(S,S,S);
-  const show=new Set([...(C.w[h.weapon]||Object.values(C.w)[0]),...(C.show||[])]),hide=new Set([...K3_PROPS,...(C.hide||[])]);
+  const show=new Set(h.heldWeapon?[]:[...(C.w[h.weapon]||Object.values(C.w)[0]),...(C.show||[])]),hide=new Set([...K3_PROPS,...(C.hide||[])]);
   for(const nm of show){if(!nm.includes(':'))continue;const [mn,pn]=nm.split(':'),from=K3.models[mn]&&K3.models[mn].scene.getObjectByName(pn);if(!from||!from.parent)continue;const slot=obj.getObjectByName(from.parent.name);if(!slot)continue;const c=from.clone(true);c.name=pn+'_borrowed';slot.add(c)}
+  if(h.heldWeapon){const slot=obj.getObjectByName('handslotr')||obj.getObjectByName('handslot.r')||obj.getObjectByName('handr');if(slot){
+    const held=h.heldWeapon;held.geometry.translate(-1.2,8.2,-4.8);held.scale.setScalar(.75*(h.slot==='preview'?34:44)/44/S);held.rotation.set(0,0,0);slot.add(held);
+    // The gem belongs to the weapon and follows the same animated grip.
+    const gem=h.crystal.clone();gem.position.sub(new THREE.Vector3(1.2,-8.2,4.8));held.add(gem);
+  }}
   const lines=[];obj.traverse(o=>{if(o.name.endsWith('_borrowed')){o.visible=true}if(hide.has(o.name)&&!show.has(o.name))o.visible=false;
     if(o.isMesh){o.material=k3Mat(o.material,C.tint);o.castShadow=true;o.receiveShadow=false;o.frustumCulled=false;if(o.parent&&o.visible)lines.push(o)}});
   for(const o of lines){let v=true;for(let p=o;p;p=p.parent)if(!p.visible){v=false;break}if(v)o.parent.add(k3Outline(o))}

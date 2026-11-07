@@ -36,7 +36,7 @@ test('ward and timed protection retain separate budgets and expire independently
 });
 test('rejuvenation grants timed protection even after a ward budget is exhausted',()=>{
   const {run}=setup();run("G.spells=[mkSpell('rejuv')];G.P.shieldHp=0;castSkill(0);G.P.inv=0;dmgP(20,1,1)");
-  near(run('G.P.hp'),50);near(run('G.P.guard'),1.5);assert.equal(run('G.spells[0].casts'),1);
+  near(run('G.P.hp'),50);near(run('G.P.guard'),.6);assert.equal(run('G.spells[0].casts'),1);
 });
 test('mana shield consumes only damage left after the ward and no mana during timed protection',()=>{
   const {run}=setup(),s=source('heroes');run(s.slice(s.indexOf('function heroMitigate('),s.indexOf('\n{const _hit=hit;')));
@@ -120,7 +120,7 @@ test('solo enemies gain health and damage, and ranged enemies arrive earlier',()
 test('Light Step grants six smaller stacks and permanent speed cannot reach the runaway range',()=>{
   const {run}=setup();run('G.P.spd=1;const light=PERKS.find(p=>p.en==="Light Step");for(let i=0;i<12;i++)light.a(G.P)');
   assert.equal(run('G.P.lightStep'),6);
-  near(run('G.P.spd'),Math.pow(1.05,6));
+  near(run('G.P.spd'),1.3);
   run('G.P.spd=4.3');assert.equal(run('moveSpeed(G.P)'),1.7);
 });
 test('boss volleys outpace a running hero and scale their damage with the boss',()=>{
@@ -158,4 +158,12 @@ test('relics dropped in obstacles move to reachable ground; cursed relics can be
 });
 test('repeated end rendering invokes extension rewards only once',()=>{
   const {run}=setup();run("endCalls=0;xOn('end',()=>endCalls++);showEnd(false);showEnd(false)");assert.equal(run('endCalls'),1);
+});
+test('boss score burst shows actual credited points without awarding them twice',()=>{
+ const {c,run}=setup();const rewards=[];c.showScoreReward=(...args)=>rewards.push(args);c.SFX.die=()=>{};c.CAP.gem=100;
+ run(`G.combo=0;G.gems=[];G.later=[];G.shocks=[];onKillX=()=>{};bossSlain=()=>{};dropRelic=()=>{};const boss={type:'boss',x:100,y:100,r:30,hp:0,maxHp:100,n:0,xp:6,name:'血魔',en:'Blood Demon'};kill(boss,null);kill(boss,null)`);
+ assert.equal(run('G.score'),300);assert.equal(rewards.length,1);assert.equal(rewards[0][2],300);assert.equal(rewards[0][3],'boss');
+});
+test('rejuvenation ticks cannot spend more than their single-cast healing budget',()=>{
+ const {run}=setup();run("G.sariras=[];G.P.hp=1;G.spells=[mkSpell('rejuv')];G.spells[0].lv=40;castSkill(0);const budget=G.spells[0].healLeft;for(let i=0;i<200;i++){G.t+=.016;orbits(.016)}");assert.ok(run('(G.healed||0)<=budget+1e-8'));assert.ok(run('G.spells[0].healBudget')>=0);
 });
