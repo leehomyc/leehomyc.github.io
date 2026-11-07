@@ -43,7 +43,7 @@ function renderHero(){
   const hn=$('#hname');if(!hn)return;hn.textContent=LL(C);$('#hglyph').textContent=C.g;$('#hglyph').style.color=C.col;$('#hrole').textContent=L(ROLES[cls][0],ROLES[cls][1]);$('#hdesc').textContent=L(C.d,C.de);
   const w=weaponOf(cls),ids=[w,...C.skills];if(!HSKILL||!ids.includes(HSKILL))HSKILL=w;
   const sk=$('#hskills');sk.textContent='';ids.forEach((id,i)=>{const m=SPELLS[id],b=document.createElement('button');b.type='button';b.className='hs'+(id===HSKILL?' on':'');b.style.setProperty('--c',m.col);
-    b.innerHTML=`${ICON.spell(id)}<span class="g">${m.g}</span><small>${i===0?L('普攻','Main'):i===4?L('终式','Ultimate'):SPELL_KEYS[i]}</small><b>${LL(m)}</b>`;b.title=LL(m);
+    b.innerHTML=`${ICON.spell(id)}<span class="g">${m.g}</span><small>${i===0?L('普攻','Main'):L('可学','Learnable')}</small><b>${LL(m)}</b>`;b.title=LL(m);
     b.onclick=()=>{HSKILL=id;renderHero();SFX.pick(1)};sk.appendChild(b)});
   $('#skilldetail').innerHTML=skillDetail(HSKILL);
   $('#hstats').innerHTML=statBars(C);
