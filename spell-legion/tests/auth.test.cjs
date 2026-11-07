@@ -101,3 +101,18 @@ test('registration only requires seven characters and accepts digits, letters, s
 test('existing six-character passwords remain valid for signing in',async()=>{
  const h=setup();h.password.value='123456';let passed;h.auth.signInWithEmailAndPassword=async(email,password)=>{passed=password;return {user:h.user}};await h.c.cloudEmail('signin');await tick();assert.equal(passed,'123456');
 });
+
+test('menu account chip follows guest and signed-in identity and opens account settings',()=>{
+ const h=setup(),actions=[];
+ const chip={classList:{toggle(){}},setAttribute(k,v){this[k]=v}},label={};
+ const account={scrollIntoView(){actions.push('scroll')},focus(){actions.push('focus')}};
+ h.c.$=s=>({'#accountchip':chip,'#accountcur':label,'#account':account}[s]||null);
+ h.c.langMenu=()=>actions.push('close-language');h.c.showScreen=s=>actions.push(s);h.c.showTab=s=>actions.push(s);
+ h.c.renderAccountChip();assert.equal(label.textContent,'Guest · Sign in');
+ chip.onclick();assert.deepEqual(actions,['close-language','menu','settings','scroll','focus']);
+ h.cloud.user={isAnonymous:false,displayName:'<Player>',email:'player@example.com'};
+ h.c.renderAccountChip();assert.equal(label.textContent,'<Player>');assert.equal(chip.title,'player@example.com');
+ h.cloud.user.displayName='';h.c.renderAccountChip();assert.equal(label.textContent,'player@example.com');
+ h.cloud.user=null;h.cloud.initializing=true;h.c.renderAccountChip();assert.equal(label.textContent,'Connecting…');
+ h.cloud.initializing=false;h.cloud.ready=false;h.c.renderAccountChip();assert.equal(label.textContent,'Guest · Sign in');
+});

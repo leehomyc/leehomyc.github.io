@@ -1370,3 +1370,20 @@ body.touchhud #healthwarning{bottom:calc(235px + env(safe-area-inset-bottom));fo
 #cards{padding-top:max(66px,env(safe-area-inset-top))}
 #end .btns{align-items:stretch}
 #end #buildbtn{flex:1 1 auto}
+
+/* Account identity and language share the menu's top-right toolbar. */
+.menu-tools{position:fixed;top:max(16px,env(safe-area-inset-top));right:max(16px,env(safe-area-inset-right));z-index:6;display:flex;align-items:center;gap:8px;max-width:calc(100vw - 32px)}
+.menu-tools .langpick{position:relative;top:auto;right:auto;z-index:auto;flex:none}
+.accountchip{min-width:0;max-width:240px}
+.accountchip>b{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.accountchip>.account-icon{color:#9fe3f0;width:20px;height:20px;flex:none}
+.accountchip.signed-in>.account-icon{color:#91edb7}
+@media(max-width:760px){
+  .menu-tools{gap:6px}
+  .accountchip{max-width:min(210px,calc(100vw - 165px))}
+  #menu .tt{padding-top:62px}
+}
+@media(orientation:landscape) and (max-height:520px){
+  .menu-tools{top:max(8px,env(safe-area-inset-top))}
+  #menu .tt{padding-top:54px}
+}

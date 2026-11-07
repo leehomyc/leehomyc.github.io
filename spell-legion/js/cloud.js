@@ -209,7 +209,22 @@ async function cloudDeleteAccount(){
 async function cloudSignOut(){if(!CLOUD.ready)return;return cloudAuthAction(async()=>{try{await CLOUD.auth.signOut();showMsg(L('已退出,继续以游客身份游玩','Signed out; playing as guest'));return true}catch(e){showMsg(authMsg(e));return false}})}
 function showMsg(t){const message={text:t,until:Date.now()+5000};CLOUD.message=message;const el=$('#accmsg');if(el)el.textContent=t;setTimeout(()=>{if(CLOUD.message===message){CLOUD.message=null;const current=$('#accmsg');if(current)current.textContent=''}},5000)}
 function accountEscape(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function renderAccountChip(){
+  const chip=$('#accountchip'),label=$('#accountcur');if(!chip||!label)return;
+  const signedIn=CLOUD.on()&&!CLOUD.isGuest(),user=CLOUD.user;
+  const text=signedIn?(user.displayName||user.email||L('已登录','Signed in')):CLOUD.initializing&&!user?L('连接中…','Connecting…'):L('游客 · 登录','Guest · Sign in');
+  label.textContent=text;chip.title=signedIn?(user.email||text):L('登录或注册账号','Sign in or create an account');
+  chip.setAttribute('aria-label',signedIn?L(`账号: ${text}`,`Account: ${text}`):text);
+  chip.classList.toggle('signed-in',signedIn);
+  chip.onclick=()=>{
+    if(typeof langMenu==='function')langMenu(false);
+    if(typeof showScreen==='function')showScreen('menu');
+    showTab('settings');renderAccount();
+    const account=$('#account');if(account){account.tabIndex=-1;account.scrollIntoView({block:'nearest'});account.focus({preventScroll:true})}
+  };
+}
 function renderAccount(){
+  renderAccountChip();
   const oldPassword=$('#emailform .pw')?.value||'',oldType=$('#emailform .pw')?.type||'password';
   if(typeof renderStatus==='function')renderStatus();
   const el=$('#account');if(!el)return;
