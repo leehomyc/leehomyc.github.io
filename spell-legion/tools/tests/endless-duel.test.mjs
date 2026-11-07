@@ -110,3 +110,53 @@ test('elimination time determines endless placement before score',()=>{
     ROOM.players.third={alive:true,t:20,score:0}`);
   assert.equal(run('roomRank().map(p=>p.uid).join(",")'),'third,other,me');
 });
+
+test('XP received while reviving waits until the player returns and cannot heal a corpse',()=>{
+  const {run}=setup();
+  run(`G.P.down=4;G.P.hp=0;G.xp=5;G.need=6;G.lv=1;G.picks=[];G.curse={};
+    Object.assign(G.P,{maxMana:100,mana:0,regen:1,spd:1,crit:.05,dmgBonus:0,attr:{str:0,vit:0,spr:0,agi:0}});
+    xpNeed=()=>6;openPick=()=>{};SFX.levelup=()=>{};gainXP(2)`);
+  assert.equal(run('G.P.hp'),0);
+  assert.equal(run('G.lv'),1);
+  assert.equal(run('G.pendingXP'),2);
+  run('G.P.down=0;revive()');
+  assert.equal(run('G.lv'),2);
+  assert.equal(run('G.pendingXP'),0);
+  assert.ok(run('G.P.hp')>0);
+  run(`G.over='lose';G.P.hp=0;gainXP(1000)`);
+  assert.equal(run('G.P.hp'),0);
+  assert.equal(run('G.pendingXP'),0);
+});
+
+test('a completed mission cannot pay points during the revive penalty',()=>{
+  const {run}=setup();
+  run(`G.P.down=4;G.mission={n:0};G.picks=[];PK_EVENTS={mission:40};openPick=()=>{};SFX.complete=()=>{};checkMission()`);
+  assert.equal(run('G.score'),20);
+  assert.ok(run('G.mission'));
+  run('G.P.down=0;checkMission()');
+  assert.equal(run('G.score'),60);
+  assert.equal(run('G.mission'),null);
+});
+
+test('the last human wins when all opponents have left the room',()=>{
+  const {run}=setup();
+  run('delete ROOM.players.other;delete ROOM.players.third;roomCheckFinished()');
+  assert.equal(run('G.over'),'pk');
+});
+
+test('a stale heartbeat cannot settle a match with multiple living players',()=>{
+  const {run}=setup();
+  run(`ROOM.ended=true;ROOM.players.me.alive=false;ROOM.players.me.done=true;
+    ROOM.lastSeen={other:Date.now()-30000,third:Date.now()-30000};roomCheckFinished()`);
+  assert.equal(run('ROOM.results'),null);
+});
+
+test('AI winner settlement flushes the final combat stats using the game clock',()=>{
+  const {run}=setup();
+  run(`G.over='lose';G.t=124;ROOM.ended=true;ROOM.players.me={alive:false,done:true};
+    ROOM.players.third={alive:false,done:true};ROOM.players.other={ai:true,alive:true,done:false,score:348,kills:179,t:145};
+    G.rivalSeat='other';G.rival={score:349,kills:180,lv:14,hp:176,maxHp:176};roomCheckFinished()`);
+  assert.equal(run('ROOM.results[0].score'),349);
+  assert.equal(run('ROOM.results[0].kills'),180);
+  assert.equal(run('ROOM.results[0].t'),124);
+});

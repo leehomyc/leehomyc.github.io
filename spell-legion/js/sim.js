@@ -291,6 +291,7 @@ function revive(){
   const P=G.P;P.hp=P.maxHp*.6;P.mana=P.maxMana;P.inv=1.5;aoe(P.x,P.y,100,70,null,'#6fd3e8',true);
   near(P.x,P.y,110,e=>{if(e.type!=='boss'&&e.type!=='statue')e.frz=1.2});
   trauma(.8);
+  const xp=G.pendingXP||0;G.pendingXP=0;if(xp)gainXP(xp);
 }
 
 /* ---------- skills ---------- */
@@ -554,7 +555,7 @@ function startMission(){if(G.shared)return;if(RIVAL_ON&&!G.room){const left=(G.q
   }
   const MB={mush:['密令:采集灵芝 ×5','Gather 5 lingzhi'],statue:['密令:摧毁邪碑 ×3','Destroy 3 cursed steles'],seal:['密令:封印邪阵 · 站入法阵 8 秒','Seal the rift: stand in the circle for 8 s'],hunt:['密令:猎杀逃犯 · 它在逃','Hunt the fugitive before it escapes']};showBanner(MB[k][0],MB[k][1]+' · reward: an augment card',1.8);if(typeof SFX!=='undefined')SFX.mission();
 }
-function checkMission(){if(G.mission&&G.mission.n<=0){G.mission=null;G.score+=PK_EVENTS.mission;(G.sc=G.sc||{kill:0,big:0,ev:0}).ev+=PK_EVENTS.mission;if(RIVAL_ON)showBanner('密令 +'+PK_EVENTS.mission,'Mission bonus',1);G.missionT=45;G.mush=[];G.picks.push({kind:'aug'});if(typeof SFX!=='undefined')SFX.complete();openPick()}}
+function checkMission(){if(endlessDuel()&&(G.P.down>0||G.over))return;if(G.mission&&G.mission.n<=0){G.mission=null;G.score+=PK_EVENTS.mission;(G.sc=G.sc||{kill:0,big:0,ev:0}).ev+=PK_EVENTS.mission;if(RIVAL_ON)showBanner('密令 +'+PK_EVENTS.mission,'Mission bonus',1);G.missionT=45;G.mush=[];G.picks.push({kind:'aug'});if(typeof SFX!=='undefined')SFX.complete();openPick()}}
 function missionText(){
   const m=G.mission;if(!m)return '';
   const t=Math.ceil(m.t);
@@ -586,6 +587,7 @@ function shrineTick(dt){
 
 /* ---------- cards ---------- */
 function gainXP(v){
+  if(endlessDuel()){if(G.over)return;if(G.P.down>0){G.pendingXP=(G.pendingXP||0)+v;return}}
   G.xp+=v*(BOSSRUSH?2.2:1)*((G.ev&&G.ev.xp)||1)*(G.curse.xp||1);
   while(G.xp>=G.need){G.xp-=G.need;G.lv++;G.need=xpNeed(G.lv);autoGrow();if(G.lv%5===0&&!(tier(8)&&G.lv%10!==0))G.rerolls++;G.picks.push({kind:'level'});if(typeof SFX!=='undefined'&&!G.auto)SFX.levelup()}
   if(G.picks.length&&!(G.pickHold>0)){if(typeof introOn!=='undefined'&&introOn)G.pickHold=2.2;else openPick()}
@@ -853,7 +855,7 @@ function step(dt){
   else{const m=G.mission;m.t-=dt;
     if(m.k==='seal'){const inside=hyp(P.x-m.x,P.y-m.y)<m.r;if(inside&&P.down<=0){m.n-=dt;m.pulse+=dt;if(m.pulse>1.2){m.pulse=0;spawnTick(0);for(let i=0;i<4;i++){const a=rnd(TAU);spawnEnemy('assassin',clamp(m.x+Math.cos(a)*220,30,W-30),clamp(m.y+Math.sin(a)*220,30,H-30),.8)}ring(m.x,m.y,m.r,'#ff5fe8')}if(m.n<=0){m.n=0;checkMission()}}}
     if(m.k==='hunt'&&m.target){const e=m.target;if(e.dead){m.n=0;checkMission()}else{const dx=e.x-P.x,dy=e.y-P.y,d=hyp(dx,dy)||1;if(d<260){e.flee=1;e.fx=dx/d;e.fy=dy/d}else e.flee=0}}
-    if(m.k==='mush'){for(let i=G.mush.length-1;i>=0;i--){const o=G.mush[i];if(hyp(o.x-P.x,o.y-P.y)<16){G.mush.splice(i,1);m.n--;spark(o.x,o.y,'#ff8a5a',8);if(typeof SFX!=='undefined')SFX.pick(1);checkMission();if(!G.mission)break}}}
+    if(m.k==='mush'&&(!endlessDuel()||P.down<=0&&!G.over)){for(let i=G.mush.length-1;i>=0;i--){const o=G.mush[i];if(hyp(o.x-P.x,o.y-P.y)<16){G.mush.splice(i,1);m.n--;spark(o.x,o.y,'#ff8a5a',8);if(typeof SFX!=='undefined')SFX.pick(1);checkMission();if(!G.mission)break}}}
     if(G.mission&&m.t<=0){G.mission=null;G.missionT=35;G.mush=[];G.en.forEach(e=>{if(e.type==='statue')e.dead=1;if(e.marked){e.marked=0;e.flee=0}});const part=10+Math.floor(G.t/60)*2;G.goldRun+=part;gainXP(Math.max(4,G.need*.15));showBanner(`密令失败 · 保留 ${part} 金与少量经验`,`Mission failed · ${part} gold and a little XP kept`,1.2)}
   }
   // enemies
@@ -925,7 +927,7 @@ function step(dt){
   G.bullets=G.bullets.filter(b=>b.life>0);
   const mag=52*P.mag*(G.t<120?1.8:G.t<240?1.3:1);
   for(const g of G.gems){const d=hyp(g.x-P.x,g.y-P.y);
-    if(g.pull||d<mag){g.pull=1;const s=180+(40-Math.min(d,40))*4;g.x+=(P.x-g.x)/(d||1)*s*dt;g.y+=(P.y-g.y)/(d||1)*s*dt;
+    if((!endlessDuel()||P.down<=0&&!G.over)&&(g.pull||d<mag)){g.pull=1;const s=180+(40-Math.min(d,40))*4;g.x+=(P.x-g.x)/(d||1)*s*dt;g.y+=(P.y-g.y)/(d||1)*s*dt;
       if(d<8){g.dead=1;gainXP(g.v*comboMult()*.6);if(typeof SFX!=='undefined'&&!G.auto)SFX.pick(0)}}}
   G.gems=G.gems.filter(g=>!g.dead);
   for(const f of G.fx){f.t-=dt;
