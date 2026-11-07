@@ -1165,14 +1165,25 @@ html[lang=en] #menu .vname.ven{display:block}
 .wp .lg{font-style:normal;font-size:10px;font-weight:900;color:#1a0e06;background:linear-gradient(90deg,#ffe9a0,#ffb04a);border-radius:6px;padding:1px 6px;margin-left:6px;vertical-align:2px;letter-spacing:.06em}
 #weapons .wp{flex:1 1 140px;min-width:0}#weapons .wp .ic{width:38px;height:38px}#weapons .wp b{font-size:13px}#weapons .wp .lk,#weapons .wp .buy{font-size:11px}
 #weapons .wp{position:relative}#weapons .wp .lg{position:absolute;top:-9px;right:10px;margin:0;white-space:nowrap;box-shadow:0 2px 8px #0008}#weapons .wp .lk,#weapons .wp .buy{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-/* quick language toggle on the main menu */
-.langchip{position:fixed;top:max(14px,env(safe-area-inset-top));right:max(14px,env(safe-area-inset-right));z-index:5;min-width:42px;height:34px;padding:0 10px;border-radius:999px;background:#140b12cc;border:1px solid #6b5230;color:var(--bone);font:800 13px var(--ui);cursor:pointer;backdrop-filter:blur(6px)}
-.langchip:hover{border-color:#ffd27a;color:#fff}
 #menu{position:relative}
 /* English title: one line on its side, like a book spine, in the same column as 魔咒军团 */
 #menu .vname.ven{text-orientation:mixed;letter-spacing:.12em;font-size:clamp(34px,min(4.6vw,6.8vh),72px)}
 #menu .vname.ven .w{display:inline;white-space:nowrap;margin:0 0 0 0}
 #menu .vname.ven .w+.w{margin-block-start:0;margin-inline-start:.45em}
 #menu .vname.ven .w span:first-child{font-size:1.2em}
-@media (max-width:640px){html[lang=en] #menu .vname.ven{font-size:30px;line-height:42px;letter-spacing:.06em}.langchip{height:30px;min-width:38px;font-size:12px}}
+@media (max-width:640px){html[lang=en] #menu .vname.ven{font-size:30px;line-height:42px;letter-spacing:.06em}}
 @media (orientation:landscape) and (max-height:520px){#menu .vname.ven{font-size:26px;letter-spacing:.06em}}
+
+/* language picker: top-right of the main menu, same chip look as the profile row */
+.langpick{position:fixed;top:max(16px,env(safe-area-inset-top));right:max(16px,env(safe-area-inset-right));z-index:6}
+.langchip{display:flex;align-items:center;gap:7px;height:38px;padding:0 12px 0 10px;border-radius:12px;background:linear-gradient(170deg,#2a1822e6,#140b12f2);border:1px solid #6b523088;color:var(--bone);font:700 14px var(--ui);cursor:pointer;box-shadow:0 4px 0 #00000055;transition:border-color .15s,transform .12s}
+.langchip:hover,.langpick.open .langchip{border-color:var(--brass)}.langchip:active{transform:translateY(1px)}
+.langchip .glb{width:19px;height:19px;color:#9fe3f0;flex:none}.langchip .car{font-style:normal;font-size:10px;color:var(--dim);transition:transform .15s}
+.langpick.open .langchip .car{transform:rotate(180deg)}
+.langmenu{position:absolute;right:0;top:calc(100% + 8px);min-width:170px;display:grid;gap:2px;padding:6px;border-radius:12px;background:#140b12f7;border:1px solid #6b5230aa;box-shadow:0 14px 34px #000a;backdrop-filter:blur(8px)}
+.langmenu[hidden]{display:none}
+.langmenu small{padding:4px 10px 6px;font-size:11px;letter-spacing:.08em;color:var(--dim);border-bottom:1px solid #6b523055;margin-bottom:2px}
+.langmenu button{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:9px 10px;border-radius:8px;background:none;border:none;color:var(--bone);font:700 15px var(--ui);cursor:pointer;text-align:left}
+.langmenu button:hover,.langmenu button:focus-visible{background:#2a1822;outline:none}
+.langmenu button.on{color:#ffd27a}.langmenu button i{font-style:normal;color:#ffd27a}
+@media (max-width:640px){.langpick{top:max(10px,env(safe-area-inset-top));right:max(10px,env(safe-area-inset-right))}.langchip{height:34px;padding:0 10px 0 8px;font-size:13px;gap:5px}.langchip .glb{width:17px;height:17px}}

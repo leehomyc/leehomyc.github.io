@@ -396,10 +396,18 @@ if(window.desktop){$('#exitbtn').hidden=false;$('#exitbtn').onclick=()=>window.d
 
 /* switchLang(l, manual): manual picks are remembered and beat the IP guess from then on */
 function switchLang(l,manual){if(!LANGS.includes(l))return;if(manual)setLang(l);else{LANG=l;document.documentElement.lang=l;document.title=L('魔咒军团','Spell Legion')}
-  document.querySelectorAll('.langbtn').forEach(x=>x.classList.toggle('on',x.dataset.l===LANG));const lc=$('#langchip');if(lc)lc.textContent=LANG==='zh'?'EN':'中';
+  document.querySelectorAll('.langbtn').forEach(x=>x.classList.toggle('on',x.dataset.l===LANG));if(typeof renderLangPick==='function')renderLangPick();
   renderTitle();autoLabel();syncSound();if(G&&!G.auto){drawSeals()}}
 document.querySelectorAll('.langbtn').forEach(b=>{b.classList.toggle('on',b.dataset.l===LANG);b.onclick=()=>switchLang(b.dataset.l,true)});
-{const lc=$('#langchip');if(lc){lc.textContent=LANG==='zh'?'EN':'中';lc.title='中文 / English';lc.onclick=()=>{switchLang(LANG==='zh'?'en':'zh',true);SFX.pick(1)}}}
+/* language picker on the main menu: globe + the current language in its own script; the list names every language in its own script */
+const LANG_NAMES={zh:'中文',en:'English'};
+function renderLangPick(){const cur=$('#langcur'),m=$('#langmenu');if(!cur||!m)return;cur.textContent=LANG_NAMES[LANG]||LANG;
+  m.innerHTML=`<small>Language · 语言</small>`+LANGS.map(l=>`<button type="button" role="option" data-l="${l}" aria-selected="${l===LANG}" class="${l===LANG?'on':''}"><span>${LANG_NAMES[l]}</span>${l===LANG?'<i>✓</i>':''}</button>`).join('');
+  m.querySelectorAll('button').forEach(b=>b.onclick=ev=>{ev.stopPropagation();langMenu(false);if(b.dataset.l!==LANG){switchLang(b.dataset.l,true)}SFX.pick(1)})}
+function langMenu(open){const m=$('#langmenu'),b=$('#langchip');if(!m||!b)return;m.hidden=!open;b.setAttribute('aria-expanded',open?'true':'false');$('#langpick').classList.toggle('open',open);if(open){const f=m.querySelector('button.on')||m.querySelector('button');if(f)f.focus()}}
+{const lc=$('#langchip');if(lc){lc.onclick=ev=>{ev.stopPropagation();langMenu($('#langmenu').hidden);SFX.pick(1)};
+  document.addEventListener('click',ev=>{if(!$('#langmenu').hidden&&!ev.target.closest('#langpick'))langMenu(false)});
+  document.addEventListener('keydown',ev=>{if(ev.key==='Escape'&&!$('#langmenu').hidden){langMenu(false);lc.focus()}});renderLangPick()}}
 /* ?lang= has done its job once it is saved: tidy the address bar (other params such as ?room= stay) */
 if(LANG_FROM_URL)try{const u=new URL(location.href);u.searchParams.delete('lang');history.replaceState(null,'',u.pathname+u.search+u.hash)}catch(_){}
 /* first visit with no pick yet: ask which country the IP is in (two free services, first answer wins), cache it, and switch if it differs.
