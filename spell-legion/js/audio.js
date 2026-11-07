@@ -1,5 +1,5 @@
 'use strict';
-/* audio.js — four original regional instrumentals, shuffled playback and sound effects (Web Audio, no files) */
+/* audio.js — four cheerful regional instrumentals, shuffled playback and sound effects (Web Audio, no files) */
 const SFX=(()=>{
   let ac=null,master,musicG,sfxG,musicBus=null,musicMuted=false,sfxMuted=false,state='title',nextBeat=0,beat=0,bar=0,lastHit=0,started=false,musicVol=.6,sfxVol=.8,lastMusicVol=.6,lastSfxVol=.8,musicGainValue=null,sfxGainValue=null;
   const save=()=>{try{localStorage.setItem('sl_audio',JSON.stringify({muted:musicMuted&&sfxMuted,musicMuted,sfxMuted,musicVol,sfxVol,lastMusicVol,lastSfxVol}))}catch(_){}};
@@ -62,9 +62,9 @@ const SFX=(()=>{
   function dizi(n,t,dur,g){const f=hz(n);osc('sine',f,t,dur,g*.68,musicBus,{a:.055,rv:1});osc('triangle',f*2,t,dur*.75,g*.14,musicBus,{a:.08,lp:3600})}
   function shamisen(n,t,g){const f=hz(n);osc('sawtooth',f,t,.28,g*.43,musicBus,{lp:2800,rv:1});osc('triangle',f,t,.38,g*.65,musicBus,{lp:4400});osc('sine',f*2,t,.14,g*.13,musicBus)}
   function fue(n,t,dur,g){osc('sine',hz(n),t,dur,g,musicBus,{a:.04,rv:1});osc('triangle',hz(n)*2,t,dur*.5,g*.12,musicBus)}
-  function danceLead(n,t,dur,g){const f=hz(n);osc('square',f,t,dur,g*.34,musicBus,{lp:Math.min(3800,f*5)});osc('sine',f*2,t,dur*.55,g*.23,musicBus);osc('triangle',f,t,dur,g*.5,musicBus,{rv:1})}
+  function danceLead(n,t,dur,g){const f=hz(n);osc('square',f,t,dur,g*.18,musicBus,{lp:Math.min(3300,f*4)});osc('sine',f*2,t,dur*.55,g*.25,musicBus);osc('triangle',f,t,dur,g*.66,musicBus,{rv:1})}
   function strings(n,t,dur,g){const f=hz(n);osc('sawtooth',f*.997,t,dur,g*.32,musicBus,{a:.12,lp:1300,rv:1});osc('sawtooth',f*1.003,t,dur,g*.32,musicBus,{a:.14,lp:1300})}
-  function horn(n,t,dur,g){const f=hz(n);osc('sawtooth',f,t,dur,g*.3,musicBus,{a:.04,lp:1800,rv:1});osc('sine',f,t,dur,g*.6,musicBus,{a:.035})}
+  function horn(n,t,dur,g){const f=hz(n);osc('triangle',f,t,dur,g*.55,musicBus,{a:.018,rv:1});osc('sine',f*2,t,dur*.55,g*.24,musicBus,{a:.025})}
   function bass(n,t,dur,g){osc('triangle',hz(n),t,dur,g*.7,musicBus,{lp:650});osc('sine',hz(n-12),t,dur,g*.38,musicBus)}
   function kick(t,g=.42){osc('sine',145,t,.26,g,musicBus,{slide:45,slideT:.45});noise(t,.025,g*.12,musicBus,{f:3600,type:'highpass'})}
   function clap(t,g=.14){noise(t,.12,g,musicBus,{f:1700,q:.6});noise(t+.018,.075,g*.5,musicBus,{f:3200,q:.5})}
@@ -74,56 +74,56 @@ const SFX=(()=>{
   function taiko(t0,g=.8,low=70){osc('sine',low*2.2,t0,.42,g,sfxG,{slide:low,slideT:.3});noise(t0,.12,g*.35,sfxG,{f:900,type:'lowpass'})}
   function bell(f,t0,g=.3,dest=sfxG){osc('sine',f,t0,2.2,g,dest,{rv:1});osc('sine',f*2.76,t0,1.1,g*.35,dest,{rv:1});osc('sine',f*5.4,t0,.5,g*.12,dest)}
   const SC=[146.83,164.81,185,220,246.94,293.66,329.63,369.99,440,493.88,587.33]; // effect pitches
-  /* Original instrumental themes. Each has its own meter, scale, rhythm and instruments.
+  /* Four bright instrumental themes. Different meters and instruments keep the shuffle varied.
      32 bars: intro 4 / theme 8 / lift 8 / quiet 4 / finale 8. */
   const TRACKS=[
-    {id:'bamboo-rain',locale:'zh',title:'竹影听雨',style:'古风 · 筝与笛',bpm:112,steps:16,
-      chords:[[50,57,62,69],[47,54,59,66],[43,50,55,62],[45,52,57,64]],
+    {id:'bamboo-rain',locale:'zh',title:'竹林小跑',style:'欢快古风 · 筝与笛',bpm:132,steps:16,
+      chords:[[50,57,62,66],[55,62,67,71],[57,64,69,73],[50,57,62,66]],
       hook:[
-        [74,-1,-1,76,-1,-1,78,-1,81,-1,-1,78,76,-1,-1,-1],
-        [74,-1,71,-1,-1,74,-1,76,78,-1,-1,76,74,-1,-1,-1],
-        [71,-1,-1,74,-1,-1,76,-1,78,-1,81,-1,78,-1,-1,-1],
-        [76,-1,-1,74,-1,71,-1,69,71,-1,-1,74,69,-1,-1,-1],
-        [78,-1,81,-1,-1,83,-1,81,78,-1,76,-1,74,-1,-1,-1],
-        [76,-1,-1,78,-1,-1,81,-1,83,-1,81,-1,78,-1,-1,-1],
-        [81,-1,-1,83,-1,86,-1,83,81,-1,78,-1,76,-1,-1,-1],
-        [78,-1,76,-1,-1,74,-1,71,74,-1,-1,69,74,-1,-1,-1]
+        [74,-1,78,-1,81,-1,78,76,74,-1,76,78,81,-1,78,-1],
+        [79,-1,81,83,81,-1,79,-1,78,-1,76,74,76,-1,79,-1],
+        [81,-1,83,-1,86,83,81,-1,78,-1,81,83,78,-1,76,-1],
+        [74,76,78,-1,81,-1,83,81,78,-1,76,-1,74,-1,-1,-1],
+        [78,81,83,-1,86,-1,83,81,78,-1,76,78,81,-1,83,-1],
+        [79,-1,83,81,79,-1,76,-1,79,81,83,-1,86,-1,83,-1],
+        [81,83,86,-1,88,-1,86,83,81,-1,83,81,78,-1,76,-1],
+        [78,-1,81,-1,83,81,78,76,74,-1,76,78,74,-1,-1,-1]
       ]},
-    {id:'matsuri-lanterns',locale:'ja',title:'祭の灯',style:'和风 · 三味线与太鼓',bpm:144,steps:16,
-      chords:[[50,57,62,69],[51,58,63,67],[48,55,60,67],[45,52,57,64]],
+    {id:'matsuri-lanterns',locale:'ja',title:'祭の灯',style:'欢快和风 · 三味线与笛',bpm:146,steps:16,
+      chords:[[50,57,62,66],[55,62,67,71],[57,64,69,73],[50,57,62,66]],
       hook:[
-        [74,-1,75,79,-1,81,-1,79,75,-1,74,-1,69,-1,-1,-1],
-        [72,-1,75,-1,79,81,-1,79,75,-1,72,69,72,-1,-1,-1],
-        [74,75,79,-1,81,-1,84,81,79,-1,75,-1,74,-1,-1,-1],
-        [72,-1,69,72,75,-1,79,-1,75,72,69,-1,67,-1,-1,-1],
-        [79,-1,81,84,-1,81,79,-1,75,-1,79,81,84,-1,-1,-1],
-        [81,-1,84,-1,86,84,81,-1,79,75,79,-1,81,-1,-1,-1],
-        [84,81,79,-1,75,79,81,-1,84,-1,86,84,81,-1,-1,-1],
-        [79,-1,75,72,75,-1,79,-1,74,72,69,-1,74,-1,-1,-1]
+        [74,-1,76,78,-1,81,78,-1,74,76,78,-1,81,-1,78,-1],
+        [79,81,-1,83,81,-1,79,-1,76,79,81,-1,79,-1,76,-1],
+        [81,-1,83,85,83,-1,81,78,81,-1,78,76,74,-1,76,-1],
+        [74,78,-1,81,83,-1,81,78,76,-1,78,76,74,-1,-1,-1],
+        [86,-1,83,81,78,81,83,-1,86,83,-1,81,78,-1,81,-1],
+        [83,86,-1,88,86,-1,83,81,79,81,83,-1,86,-1,83,-1],
+        [81,-1,83,86,88,-1,86,83,81,-1,78,81,83,-1,81,-1],
+        [78,81,-1,83,81,-1,78,76,74,76,78,-1,74,-1,-1,-1]
       ]},
-    {id:'seoul-after-dark',locale:'ko',title:'서울 애프터다크',style:'K-pop · dance instrumental',bpm:120,steps:16,
-      chords:[[45,52,57,60],[41,53,57,60],[48,55,60,64],[43,55,59,62]],
+    {id:'seoul-after-dark',locale:'ko',title:'서울 소풍',style:'欢快 K-pop · dance instrumental',bpm:124,steps:16,
+      chords:[[48,55,60,64],[53,60,65,69],[55,62,67,71],[48,55,60,64]],
       hook:[
-        [-1,69,-1,72,76,-1,-1,72,-1,69,-1,67,69,-1,-1,-1],
-        [-1,69,-1,72,77,-1,-1,72,-1,69,72,-1,77,-1,-1,-1],
-        [-1,72,-1,76,79,-1,-1,76,-1,72,-1,69,72,-1,-1,-1],
-        [-1,71,-1,74,79,-1,-1,74,-1,71,74,-1,79,-1,-1,-1],
-        [-1,76,76,-1,81,-1,79,76,-1,72,-1,76,81,-1,-1,-1],
-        [-1,77,77,-1,81,-1,84,81,-1,77,-1,72,77,-1,-1,-1],
-        [-1,79,79,-1,84,-1,81,79,-1,76,-1,72,79,-1,-1,-1],
-        [-1,79,76,-1,74,-1,71,74,-1,69,-1,67,69,-1,-1,-1]
+        [-1,72,-1,76,79,-1,76,-1,72,-1,74,76,79,-1,76,-1],
+        [-1,77,-1,81,84,-1,81,-1,77,-1,79,81,84,-1,81,-1],
+        [-1,79,-1,83,86,-1,83,-1,79,-1,81,83,86,-1,83,-1],
+        [-1,76,-1,79,84,-1,79,-1,76,-1,74,72,76,-1,-1,-1],
+        [-1,79,79,-1,84,81,79,-1,76,-1,79,81,84,-1,79,-1],
+        [-1,81,81,-1,84,86,84,-1,81,-1,79,81,84,-1,81,-1],
+        [-1,83,83,-1,86,88,86,-1,83,-1,81,83,86,-1,83,-1],
+        [-1,84,81,-1,79,81,76,-1,72,-1,74,76,72,-1,-1,-1]
       ]},
-    {id:'lantern-road',locale:'en',title:'The Lantern Road',style:'Western orchestral waltz',bpm:104,steps:12,
-      chords:[[43,55,58,62],[39,51,55,58],[41,53,57,60],[38,50,54,57]],
+    {id:'lantern-road',locale:'en',title:'The Lantern Parade',style:'Cheerful orchestral waltz',bpm:108,steps:12,
+      chords:[[48,55,60,64],[53,60,65,69],[55,62,67,71],[48,55,60,64]],
       hook:[
-        [74,-1,-1,-1,77,-1,-1,-1,79,-1,-1,-1],
-        [75,-1,-1,-1,74,-1,-1,-1,70,-1,-1,-1],
-        [72,-1,-1,-1,76,-1,-1,-1,77,-1,-1,-1],
-        [74,-1,-1,-1,69,-1,-1,-1,66,-1,-1,-1],
-        [79,-1,-1,77,74,-1,-1,-1,82,-1,-1,-1],
-        [80,-1,-1,79,75,-1,-1,-1,77,-1,-1,-1],
-        [77,-1,-1,76,72,-1,-1,-1,81,-1,-1,-1],
-        [78,-1,-1,74,69,-1,-1,-1,74,-1,-1,-1]
+        [76,-1,-1,79,84,-1,-1,81,79,-1,76,-1],
+        [77,-1,-1,81,84,-1,-1,81,77,-1,79,-1],
+        [79,-1,-1,83,86,-1,-1,83,79,-1,81,-1],
+        [76,-1,-1,79,84,-1,-1,79,76,-1,72,-1],
+        [84,-1,83,81,79,-1,-1,76,79,-1,81,-1],
+        [84,-1,86,84,81,-1,-1,77,81,-1,84,-1],
+        [86,-1,88,86,83,-1,-1,79,83,-1,86,-1],
+        [84,-1,81,79,76,-1,-1,79,72,-1,-1,-1]
       ]}
   ];
   const SONG_BARS=32,retiredBuses=[];
@@ -144,14 +144,14 @@ const SFX=(()=>{
     const tail=bar===SONG_BARS-1&&pos>=track.steps/2?Math.max(.25,1-(pos-track.steps/2)/track.steps):1;
     const g=(soft?.76:1)*(quiet?.68:1)*tail,n=track.hook[bar%track.hook.length][pos];
     if(track.locale==='zh'){
-      // Pentatonic dizi phrases float above a plucked zheng; the percussion only marks the phrase.
-      if(pos===0){bass(chord[0],t,step*11,g*.075);if(bar%4===0)drum(t,g*.13)}
-      if([0,3,6,10,12].includes(pos))zheng(chord[1+(pos===10?2:pos===6?1:0)]+12,t,g*(lift?.075:.055));
-      if(pos===8&&lift)rim(t,g*.035);
-      if(n>=0&&(!quiet||pos%4===0))dizi(n,t,step*(pos===0||pos===8?3.4:2.2),g*(lift?.16:.13));
+      // Bouncy pentatonic flute and zheng, with light bell accents.
+      if(pos===0){bass(chord[0],t,step*7,g*.065);drum(t,g*.10)}
+      if([0,3,6,10,12].includes(pos))zheng(chord[1+(pos===10?2:pos===6?1:0)]+12,t,g*(lift?.075:.06));
+      if(pos===8&&lift)bell(hz(chord[3]+12),t,g*.025,musicBus);
+      if(n>=0&&(!quiet||pos%4===0))dizi(n,t,step*(pos===0||pos===8?2.8:1.7),g*(lift?.15:.12));
     }else if(track.locale==='ja'){
-      // Matsuri call-and-response: short shamisen attacks, taiko downbeats and a fue answer.
-      if(pos===0||pos===8)drum(t,g*(pos===0?.29:.21));
+      // A playful festival call-and-response with restrained taiko.
+      if(pos===0||pos===8)drum(t,g*(pos===0?.19:.14));
       if(pos===6||pos===14)rim(t,g*.08);
       if(pos===4||pos===12)bass(chord[0]+12,t,step*1.3,g*.08);
       if([0,4,8,12].includes(pos))shamisen(chord[1+(pos/4)%3]+12,t,g*.055);
@@ -166,11 +166,11 @@ const SFX=(()=>{
       if(lift&&[2,6,10,14].includes(pos))for(const m of chord.slice(1))danceLead(m+12,t,step*1.1,g*.036);
       if(n>=0&&(!quiet||pos%4===0))danceLead(n,t,step*1.5,g*(lift?.15:.12));
     }else{
-      // Western 3/4 waltz: cello on beat one, string chords on two and three, horn over the top.
-      if(pos===0){bass(chord[0],t,step*5,g*.14);if(lift)drum(t,g*.16)}
-      if(pos===4||pos===8)for(const m of chord.slice(1))strings(m,t,step*4,g*.048);
-      if(pos===0&&bar%2===0)strings(chord[1],t,step*10,g*.055);
-      if(n>=0&&(!quiet||pos===0))horn(n,t,step*(pos===0?4.5:3.5),g*(lift?.14:.11));
+      // Light 3/4 dance: plucked-feeling melody above short string chords.
+      if(pos===0){bass(chord[0],t,step*4,g*.10);if(lift)drum(t,g*.10)}
+      if(pos===4||pos===8)for(const m of chord.slice(1))strings(m,t,step*3,g*.043);
+      if(pos===0&&bar%2===0)strings(chord[1],t,step*6,g*.04);
+      if(n>=0&&(!quiet||pos===0))horn(n,t,step*(pos===0?3.2:2.3),g*(lift?.15:.12));
     }
     if(state==='win'&&pos===0)bell(hz(chord[3]+12),t,.08,musicBus);
     beat++;if(beat%track.steps===0)bar++;return step;

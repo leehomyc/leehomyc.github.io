@@ -745,7 +745,7 @@ function spawnTick(dt){
   if(G.warlordNow){G.warlordNow=0;G.warlordN++;const o=edgePoint();spawnEnemy('giant',o.x,o.y,9+G.warlordN*3,true);const e=G.en[G.en.length-1];e.warlord=1;e.sc=2;e.r=16;e.name='铁甲统领';showBanner('铁甲统领','The Iron Warlord arrives',1.6)}
   if(!BOSSRUSH&&t>=G.warlordN*240+120&&!G.boss){if(tier(7)){const o2=edgePoint();spawnEnemy('giant',o2.x,o2.y,9+G.warlordN*3,true);const e2=G.en[G.en.length-1];e2.warlord=1;e2.sc=2;e2.r=16;e2.name='铁甲统领'}G.warlordN++;const o=edgePoint();spawnEnemy('giant',o.x,o.y,9+G.warlordN*3,true);const e=G.en[G.en.length-1];e.warlord=1;e.sc=2;e.r=16;e.spd*=1.15+G.warlordN*.05;e.hp=e.maxHp=Math.max(e.hp,powerHp(9));e.name='铁甲统领';showBanner('铁甲统领','The Iron Warlord arrives',1.6);trauma(.4);if(typeof SFX!=='undefined')SFX.bossIn()}
   if(t>=bossDue()&&!G.boss){const n=G.bossN,V=BOSSES[n%BOSSES.length],o=edgePoint(),k=1+n*1.25,solo=SAVE.mode==='solo'&&!G.auto&&!G.room&&!RIVAL_ON,hp=Math.round(Math.max((BOSSRUSH?5000:9000)*k*(1+t/600)*D().hp*(tier(10)?1.3:1)*(duelLen()&&t<BOSS_AT?.5:1),powerHp(BOSSRUSH?20:duelLen()&&t<BOSS_AT?18:26)))*(solo?1.12:1)*(tier(20)?1.25:1);
-    G.boss={x:o.x,y:o.y,t0:G.t,type:'boss',hp,maxHp:hp,spd:24+n*3,dmg:22*(1+n*.35)*D().dmg*(tier(6)?1.25:1)*Math.pow(G.bossK||1,.22)*(G.curse.bossDmg||1)*(solo?1.1:1),r:20,xp:0,fr:0,vx:0,vy:0,kx:0,ky:0,n,name:V[0],en:V[1],tint:V[2],rate:Math.max(.55,1-n*.12)*(tier(17)?.87:1)};G.en.push(G.boss);G.bossT=3;G.bossSpawned=1;
+    G.boss={x:o.x,y:o.y,t0:G.t,type:'boss',hp,maxHp:hp,spd:46+n*3,dmg:22*(1+n*.35)*D().dmg*(tier(6)?1.25:1)*Math.pow(G.bossK||1,.22)*(G.curse.bossDmg||1)*(solo?1.1:1),r:20,xp:0,fr:0,vx:0,vy:0,kx:0,ky:0,n,name:V[0],en:V[1],tint:V[2],rate:Math.max(.55,1-n*.12)*(tier(17)?.87:1)};G.en.push(G.boss);G.bossT=2.2;G.bossSpawned=1;
     const cyc=Math.floor(n/BOSSES.length)+1;if(cyc>=2){for(let i=0;i<Math.min(4,cyc);i++){const o2=edgePoint();spawnEnemy(pick(['giant','brute','archer']),o2.x,o2.y,3+cyc,true);const e2=G.en[G.en.length-1];e2.escort=1;e2.sc=1.4;e2.hp=e2.maxHp=Math.max(e2.hp,powerHp(3))}} // later cycles: the boss brings elite escorts
     showBanner(V[0]+'现身',V[1]+' emerges',2.6);trauma(.6);G.slow=Math.max(G.slow,.5);if(!G.auto&&typeof bossIntro==='function')bossIntro(V[0],V[1],n);if(!G.auto){$('#bossbar').hidden=false;$('#bossname').textContent=(cyc>=2?L(`第${['','一','二','三','四','五','六','七','八','九'][cyc]||cyc}轮 ${n%BOSSES.length+1}/${BOSSES.length} · `,`Cycle ${cyc} · ${n%BOSSES.length+1}/${BOSSES.length} · `):'')+L(V[0],V[1])}if(typeof SFX!=='undefined')SFX.bossIn();
   }
@@ -755,7 +755,7 @@ function bossAI(dt){
   if(B.charge>0){B.charge-=dt;B.x+=B.cvx*dt;B.y+=B.cvy*dt;collide(B,B.r);if(B.charge<=0){ring(B.x,B.y,34,'#e0503f');trauma(.3);if(hyp(B.x-P.x,B.y-P.y)>60){B.exposed=2;showBanner('破绽!','OPENING!',1)}}return}
   if(B.tele>0){B.tele-=dt;if(B.tele<=0){const a=Math.atan2(B.ty-B.y,B.tx-B.x);B.cvx=Math.cos(a)*300;B.cvy=Math.sin(a)*300;B.charge=.62;if(typeof SFX!=='undefined')SFX.bossCharge()}return}
   G.bossT-=dt;if(G.bossT>0)return;
-  const low=B.hp<B.maxHp*.5;G.bossT=(low?2.3:3.2)*(B.rate||1);
+  const low=B.hp<B.maxHp*.5;G.bossT=(low?1.9:2.7)*(B.rate||1);
   const sig=BOSS_SIG[B.n%BOSSES.length]||[],base=(B.n>=1||tier(3))?['radial','aimed','charge','summon','nova']:['radial','aimed','charge','summon'];
   const k=(SIMR()<.45&&sig.length)?pick(sig):pick(base);
   if(k==='bloodrain'){ // Blood Demon: blood pools fall around the hero
@@ -789,9 +789,9 @@ function bossAI(dt){
   if(k==='cannon'){ // Iron General: three volleys land on where you were
     for(let i=0;i<3;i++)later(i*.55,()=>{if(B.dead)return;hazard(P.x,P.y,46,.9,.3,22*(1+B.n*.3),0,'#c0c8d0');ring(B.x,B.y,30,'#c0c8d0');trauma(.15)})}
   if(k==='nova'){G.novas.push({x:B.x,y:B.y,r:10,R:260+B.n*30,v:150+B.n*15,d:18*(1+B.n*.3)});ring(B.x,B.y,40,'#ff2a3a');trauma(.3)}
-  if(k==='radial'){const n=low?28:20,o=rnd(TAU);for(let i=0;i<n;i++){const a=o+i/n*TAU;bullet(B.x,B.y,a,82,12)}
-    if(low)later(.5,()=>{if(B.dead)return;for(let i=0;i<n;i++){const a=o+.1+i/n*TAU;bullet(B.x,B.y,a,66,12)}})}
-  if(k==='aimed'){for(let w=0;w<3;w++)later(w*.28,()=>{if(B.dead)return;const a=Math.atan2(P.y-B.y,P.x-B.x);for(let i=-2;i<=2;i++)bullet(B.x,B.y,a+i*.16,124,10)})}
+  if(k==='radial'){const n=low?28:20,o=rnd(TAU);for(let i=0;i<n;i++){const a=o+i/n*TAU;bullet(B.x,B.y,a,172,15*B.dmg/22)}
+    if(low)later(.5,()=>{if(B.dead)return;for(let i=0;i<n;i++){const a=o+.1+i/n*TAU;bullet(B.x,B.y,a,158,15*B.dmg/22)}})}
+  if(k==='aimed'){for(let w=0;w<3;w++)later(w*.32,()=>{if(B.dead)return;const travel=Math.min(.48,hyp(P.x-B.x,P.y-B.y)/190),a=Math.atan2(P.y+(P.vy||0)*travel*.65-B.y,P.x+(P.vx||0)*travel*.65-B.x);for(let i=-2;i<=2;i++)bullet(B.x,B.y,a+i*.16,190,14*B.dmg/22)})}
   if(k==='charge'){B.tele=.8;B.tx=P.x;B.ty=P.y}
   if(k==='summon'){for(let i=0;i<14;i++){const a=i/14*TAU;spawnEnemy('assassin',clamp(B.x+Math.cos(a)*40,30,W-30),clamp(B.y+Math.sin(a)*40,30,H-30),.7)}ring(B.x,B.y,50,'#ff6a6a')}
   if(typeof SFX!=='undefined')SFX.bossAttack(k);
@@ -880,7 +880,7 @@ function step(dt){
     if(e.sleep>0){e.sleep-=dt;if(e.sleep<=0&&e.sleepS&&nd(e.sleepS,'chain')&&SIMR()<NODE_FX.chain*nd(e.sleepS,'chain')*2)aoe(e.x,e.y,30,20*stat(e.sleepS).m,e.sleepS,SPELLS.numb.col,false,{quiet:1});continue}
     if(e.kx||e.ky){e.x+=e.kx*dt;e.y+=e.ky*dt;const f=Math.exp(-8*dt);e.kx*=f;e.ky*=f;if(Math.abs(e.kx)<2&&Math.abs(e.ky)<2){e.kx=e.ky=0}collide(e,e.r)}
     if(e.type==='statue')continue;
-    if(e.type==='boss'&&(e.tele>0||e.charge>0)){if(hyp(e.x-P.x,e.y-P.y)<e.r+6&&e.charge>0)dmgP(26,e.x,e.y,['首领冲撞','boss charge']);continue}
+    if(e.type==='boss'&&(e.tele>0||e.charge>0)){if(hyp(e.x-P.x,e.y-P.y)<e.r+6&&e.charge>0)dmgP(e.dmg*1.45,e.x,e.y,['首领冲撞','boss charge']);continue}
     if(e.frz>0)continue;
     if(e.charm>0&&typeof charmTick==='function'){charmTick(e,dt);continue}
     if(e.role==='charger'){e.ct-=dt;const dP=hyp(P.x-e.x,P.y-e.y);

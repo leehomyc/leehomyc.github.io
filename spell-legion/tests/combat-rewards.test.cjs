@@ -118,6 +118,16 @@ test('Light Step grants six smaller stacks and permanent speed cannot reach the 
   near(run('G.P.spd'),Math.pow(1.05,6));
   run('G.P.spd=4.3');assert.equal(run('moveSpeed(G.P)'),1.7);
 });
+test('boss volleys outpace a running hero and scale their damage with the boss',()=>{
+  const {c,run}=setup();c.CAP.bu=500;c.SFX.bossAttack=()=>{};
+  run('G.P.x=200;G.P.y=200;G.bullets=[];G.later=[];G.boss={x:0,y:0,n:0,hp:100,maxHp:100,dmg:22,rate:1};G.bossT=0;bossAI(.016)');
+  assert.equal(run('G.bullets.length'),20);
+  near(run('Math.hypot(G.bullets[0].vx,G.bullets[0].vy)'),172);
+  near(run('G.bullets[0].d'),15);
+  near(run('G.bossT'),2.7);
+  run('G.boss.dmg=44;G.bossT=0;bossAI(.016)');
+  near(run('G.bullets.at(-1).d'),30);
+});
 test('relics dropped in obstacles move to reachable ground; cursed relics can be collected after a short hold',()=>{
   const {c,run}=setup();const rock={x:90,y:90,w:40,h:40};c.rocksNear=()=>[rock];c.blocked=(x,y)=>x>90&&x<130&&y>90&&y<130;
   run('dropRelic(110,110)');const f=run('G.fx.at(-1)');assert.ok(Math.hypot(f.x-110,f.y-110)>=24);
