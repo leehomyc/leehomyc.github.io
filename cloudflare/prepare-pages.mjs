@@ -11,7 +11,7 @@ await cp(resolve(root,'cloudflare/analytics/worker.mjs'), resolve(output,'_worke
 const html = await readFile(resolve(output, 'index.html'), 'utf8');
 const missing = [];
 for (const [, path] of html.matchAll(/(?:src|href)="([^"#]+)"/g)) {
-  if (/^(https?:|data:|\/\/)/.test(path)) continue;
+  if (/^(?:[a-z][a-z0-9+.-]*:|\/\/)/i.test(path)) continue;
   try { await stat(resolve(output, path.split('?')[0])); } catch { missing.push(path); }
 }
 if (missing.length) throw new Error(`Missing assets: ${missing.join(', ')}`);

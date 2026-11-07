@@ -1,7 +1,7 @@
 'use strict';
 /* audio.js — procedural electropop soundtrack and sound effects (Web Audio, no files) */
 const SFX=(()=>{
-  let ac=null,master,musicG,sfxG,muted=false,state='title',nextBeat=0,beat=0,bar=0,drone=null,lastHit=0,lastTick=0,started=false,musicVol=.6,sfxVol=.8;
+  let ac=null,master,musicG,sfxG,muted=false,state='title',nextBeat=0,beat=0,bar=0,lastHit=0,started=false,musicVol=.6,sfxVol=.8;
   const save=()=>{try{localStorage.setItem('sl_audio',JSON.stringify({muted,musicVol,sfxVol}))}catch(_){}};
   try{const o=JSON.parse(localStorage.getItem('sl_audio')||'null');if(o){muted=!!o.muted;if(o.musicVol!==undefined)musicVol=o.musicVol;if(o.sfxVol!==undefined)sfxVol=o.sfxVol}}catch(_){}
   function ensure(){
@@ -47,9 +47,8 @@ const SFX=(()=>{
   function kick(t,g=.48){osc('sine',145,t,.26,g,musicG,{slide:45,slideT:.45});noise(t,.025,g*.16,musicG,{f:3600,type:'highpass'})}
   function clap(t,g=.16){noise(t,.12,g,musicG,{f:1700,q:.6});noise(t+.018,.075,g*.5,musicG,{f:3200,q:.5})}
   function hat(t,open=false){noise(t,open?.12:.035,open?.055:.035,musicG,{f:7200,type:'highpass',q:.5})}
-  function taiko(t0,g=.8,low=70){osc('sine',low*2.2,t0,.42,g,musicG,{slide:low,slideT:.3});noise(t0,.12,g*.35,musicG,{f:900,type:'lowpass'})}
-  function bell(f,t0,g=.3){osc('sine',f,t0,2.2,g,musicG,{rv:1});osc('sine',f*2.76,t0,1.1,g*.35,musicG,{rv:1});osc('sine',f*5.4,t0,.5,g*.12,musicG)}
-  function woodblock(t0,g=.25){osc('square',1700,t0,.05,g*.4,musicG,{lp:2500});noise(t0,.03,g*.5,musicG,{f:3000,q:2})}
+  function taiko(t0,g=.8,low=70){osc('sine',low*2.2,t0,.42,g,sfxG,{slide:low,slideT:.3});noise(t0,.12,g*.35,sfxG,{f:900,type:'lowpass'})}
+  function bell(f,t0,g=.3,dest=sfxG){osc('sine',f,t0,2.2,g,dest,{rv:1});osc('sine',f*2.76,t0,1.1,g*.35,dest,{rv:1});osc('sine',f*5.4,t0,.5,g*.12,dest)}
   /* Four-bar pop harmony (C–G–Am–F), with a recurring eight-bar hook.
      Every state shares the theme; boss fights add drive rather than random notes. */
   const SC=[146.83,164.81,185,220,246.94,293.66,329.63,369.99,440,493.88,587.33]; // effect pitches
@@ -84,7 +83,7 @@ const SFX=(()=>{
       if(!soft&&pos%2===1)pluck(chord[1+(pos>>1)%3]+12,nextBeat,.035,step*.8);
       const melody=HOOK[bar%HOOK.length][pos];
       if(melody>=0){pluck(melody,nextBeat,soft?.12:.15,step*(soft?2.8:1.8));if(busy)pluck(melody-12,nextBeat,.045,step*1.2)}
-      if(state==='win'&&pos===0)bell(hz(chord[3]+12),nextBeat,.12);
+      if(state==='win'&&pos===0)bell(hz(chord[3]+12),nextBeat,.12,musicG);
       beat++;if(beat%16===0)bar++;nextBeat+=step;
     }
   }
