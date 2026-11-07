@@ -998,6 +998,8 @@ body.touchhud #roomboard{min-width:120px;max-width:150px}
 
 /* one title, in the player's language, breathing light */
 html[lang=en] #menu .vname{display:none}
+/* The hero's brush glyph is decoration; English keeps the illustrated hero and name. */
+html[lang=en] #hglyph{display:none}
 html[lang=zh] #menu .ttb h1.entitle{display:none}
 #menu .vname{animation:breathe 3.8s ease-in-out 1.4s infinite}
 @keyframes breathe{0%,100%{filter:drop-shadow(0 0 8px #6fd3e840)}50%{filter:drop-shadow(0 0 22px #6fd3e8a0) drop-shadow(0 0 40px #ffd27a33)}}
