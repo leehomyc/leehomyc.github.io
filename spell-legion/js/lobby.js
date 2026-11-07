@@ -32,20 +32,28 @@ function statBars(C){
   const rows=[['hp',L('生命','HP'),C.hp,mx('hp'),'#ff6a6a'],['mana',L('内力','Qi'),C.mana,mx('mana'),'#6fd3e8'],['dmg',L('伤害','Damage'),C.dmg,mx('dmg'),'#ffb04a'],['spd',L('移速','Speed'),C.spd,mx('spd'),'#7dffb0'],['regen',L('回气','Qi regen'),C.regen,mx('regen'),'#c7a4f0']];
   return rows.map(([k,n,v,m,c])=>`<div class="sb"><span>${n}</span><i style="--w:${Math.round(v/m*100)}%;--c:${c}"></i><b>${k==='dmg'||k==='spd'?'×'+v.toFixed(2):v}</b></div>`).join('');
 }
-function skillDetail(id){
-  const m=SPELLS[id];if(!m)return '';const tree=TREES[id]||[],cat=CATS[SKILL_CAT[id]]||CATS.passive;
-  const meta=m.auto?L('普攻 · 自动','Normal attack · automatic'):L(`${m.cost} 内力 · 冷却 ${m.cd}s${m.dur?` · 持续 ${m.dur}s`:''}`,`${m.cost} qi · ${m.cd}s cooldown${m.dur?` · ${m.dur}s`:''}`);
-  const info=WEAPON_INFO[id];
-  return `<div class="sdh">${ICON.spell(id)}<div><b>${LL(m)} <span class="catd" style="--cc:${cat[2]}">${L(cat[0],cat[1])}</span></b><small>${meta}</small></div></div><p>${L(m.d,m.de)}</p>${info&&info.awake?`<p class="aw">${ICON.misc('awake','#ffd27a','sm')} <b>${L('觉醒 Lv '+AWAKE_LV,'Awakening at Lv '+AWAKE_LV)}</b> ${L(info.awake[0],info.awake[1])}</p>`:''}${tree.some(isTrait)?`<div class="tree compact"><small class="tl">${L('特性','Traits')}</small>${tree.filter(isTrait).map(n=>`<span class="tn" title="${L(n.d,n.de)}">${ICON.node(n.fx,m.col,'sm')}<em>${L(n.zh,n.en)}</em><small>${L(n.d,n.de)}</small></span>`).join('')}</div>`:''}`;
+/* Two different things, shown two different ways:
+   武器 — chosen here, before the run: big selectable cards, the selected one explains its normal attack below.
+   武学 — never chosen here: the first skill comes with the hero, the rest arrive as level-up cards in the run.
+   They are shown as a quiet row of seals (no selection frame), tap one to peek at it. */
+function weaponDetail(w){
+  const m=SPELLS[w],info=WEAPON_INFO[w]||{};if(!m)return '';
+  return `<p><span class="wtag">${L('普攻 · 自动','Auto attack')}</span>${L(m.d,m.de).replace(/^(普攻[:：]|Normal attack\.\s*)/,'')}</p>${info.awake?`<p class="aw">${ICON.misc('awake','#ffd27a','sm')}<b>${L('Lv '+AWAKE_LV+' 觉醒','Lv '+AWAKE_LV+' awakening')}</b><span>${L(info.awake[0],info.awake[1])}</span></p>`:''}`;
+}
+function skillDetail(id,start){
+  const m=SPELLS[id];if(!m)return '';const cat=CATS[SKILL_CAT[id]]||CATS.passive;
+  const how=start?L('开局自带 · 键 1','Yours from the start · key 1'):L('升级时可选','Offered on level-up');
+  return `<div class="sdh">${ICON.spell(id)}<div><b>${LL(m)} <span class="catd" style="--cc:${cat[2]}">${L(cat[0],cat[1])}</span></b><small>${how} · ${L(`${m.cost} 内力 · 冷却 ${m.cd}s`,`${m.cost} qi · ${m.cd}s cooldown`)}</small></div></div><p>${L(m.d,m.de)}</p>`;
 }
 function renderHero(){
   const C=CLASSES[SAVE.cls]||CLASSES.swordsman,cls=SAVE.cls;
   const hn=$('#hname');if(!hn)return;hn.textContent=LL(C);$('#hglyph').textContent=C.g;$('#hglyph').style.color=C.col;$('#hrole').textContent=L(ROLES[cls][0],ROLES[cls][1]);$('#hdesc').textContent=L(C.d,C.de);
-  const w=weaponOf(cls),ids=[w,...C.skills];if(!HSKILL||!ids.includes(HSKILL))HSKILL=w;
-  const sk=$('#hskills');sk.textContent='';ids.forEach((id,i)=>{const m=SPELLS[id],b=document.createElement('button');b.type='button';b.className='hs'+(id===HSKILL?' on':'');b.style.setProperty('--c',m.col);
-    b.innerHTML=`${ICON.spell(id)}<span class="g">${m.g}</span><small>${i===0?L('普攻','Main'):L('可学','Learnable')}</small><b>${LL(m)}</b>`;b.title=LL(m);
-    b.onclick=()=>{HSKILL=id;renderHero();SFX.pick(1)};sk.appendChild(b)});
-  $('#skilldetail').innerHTML=skillDetail(HSKILL);
+  const w=weaponOf(cls);if(HSKILL&&!C.skills.includes(HSKILL))HSKILL=null;
+  const wd=$('#wdetail');if(wd){wd.innerHTML=weaponDetail(w);wd.style.setProperty('--c',SPELLS[w].col)}
+  const sk=$('#hskills');sk.textContent='';C.skills.forEach((id,i)=>{const m=SPELLS[id],b=document.createElement('button');b.type='button';b.className='ks'+(i===0?' start':'')+(id===HSKILL?' on':'');b.style.setProperty('--c',m.col);
+    b.innerHTML=`<span class="ring">${ICON.spell(id)}${i===0?`<em>${L('开局','Start')}</em>`:'<em class="up">↑</em>'}</span><b>${LL(m)}</b>`;b.title=LL(m)+' · '+(i===0?L('开局自带','yours from the start'):L('升级时可选','offered on level-up'));
+    b.onclick=()=>{HSKILL=HSKILL===id?null:id;renderHero();SFX.pick(1)};sk.appendChild(b)});
+  const sd=$('#skilldetail');sd.hidden=!HSKILL;sd.innerHTML=HSKILL?skillDetail(HSKILL,HSKILL===C.skills[0]):'';if(HSKILL)sd.style.setProperty('--c',SPELLS[HSKILL].col);
   $('#hstats').innerHTML=statBars(C);
   if(typeof previewSet==='function'&&typeof PV!=='undefined'&&PV)try{previewSet(cls,w)}catch(_){}
 }

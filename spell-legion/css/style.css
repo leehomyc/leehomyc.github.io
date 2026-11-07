@@ -1052,3 +1052,23 @@ html[lang=zh] #menu .ttb h1.entitle{display:none}
 #roompanel .note.err{margin:0;color:#ff9c8a}
 @media (max-width:560px){#roompanel .rmhd .opts{margin-left:0;flex-basis:100%}#roompanel .rmjoin{margin-left:0;flex-basis:100%}#roompanel .rmjoin input{flex:1}}
 #roompanel .grp{display:flex;align-items:center;gap:6px}
+/* hero kit: weapon = chosen now (chunky cards + attached detail); skills = learned in the run (quiet seals, no selection frame) */
+#wdetail{background:#140b12d9;border:1px solid #6b523066;border-left:3px solid var(--c,#ffd27a);border-radius:12px;padding:8px 12px 10px;display:grid;gap:5px;font-size:13px;line-height:1.45}
+#wdetail p{margin:0}#wdetail .wtag{display:inline-block;margin-right:8px;padding:1px 8px;border-radius:999px;background:color-mix(in srgb,var(--c,#ffd27a) 22%,transparent);color:var(--c,#ffd27a);font-size:11px;font-weight:800;letter-spacing:.04em}
+#wdetail .aw{display:flex;gap:6px;align-items:center;color:#ffe9a0;font-size:12px}#wdetail .aw .ic{width:20px;height:20px;flex:none}#wdetail .aw span{color:#d9c9a6}
+.hkit h3.kh{margin-top:10px;padding-top:10px;border-top:1px dashed #6b523066}
+#hskills{grid-template-columns:repeat(4,minmax(0,1fr));gap:4px}
+.ks{display:grid;justify-items:center;gap:4px;background:none;border:none;padding:4px 2px;color:var(--bone);font:inherit;cursor:pointer;min-width:0;border-radius:12px}
+.ks .ring{position:relative;display:grid;place-items:center;width:52px;height:52px;border-radius:50%;border:2px dashed #6b5230aa;background:#0d0810aa}
+.ks .ring .ic{width:40px;height:40px;filter:grayscale(.7) brightness(.8);opacity:.75}
+.ks .ring em{position:absolute;bottom:-6px;right:-8px;font-style:normal;font-size:10px;font-weight:800;line-height:1;padding:3px 5px;border-radius:999px;background:#2a1822;border:1px solid #6b5230;color:#c9b9a8}
+.ks .ring em.up{right:-4px;padding:3px 6px;color:#7dffb0;border-color:#7dffb066}
+.ks b{font-size:11.5px;font-weight:600;color:var(--dim);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ks.start .ring{border-style:solid;border-color:var(--c);box-shadow:0 0 12px color-mix(in srgb,var(--c) 35%,transparent)}.ks.start .ring .ic{filter:none;opacity:1}.ks.start b{color:var(--bone);font-weight:800}
+.ks.start .ring em{background:var(--c);color:#1a0f14;border-color:transparent}
+.ks:hover .ring .ic{filter:none;opacity:1}.ks.on .ring{background:color-mix(in srgb,var(--c) 18%,#0d0810)}.ks.on b{color:var(--c)}
+.ks:focus-visible{outline:2px solid var(--c);outline-offset:2px}
+#skilldetail{border-color:color-mix(in srgb,var(--c,#6b5230) 40%,transparent);padding:8px 12px;gap:4px}#skilldetail[hidden]{display:none}
+#skilldetail .sdh .ic{width:36px;height:36px}#skilldetail .sdh b{font-size:14px}
+@media (max-width:760px){.ks .ring{width:44px;height:44px}.ks .ring .ic{width:34px;height:34px}.ks b{font-size:10.5px}}
+#weapons .wp .lk,#weapons .wp .buy{font-size:11.5px;line-height:1.3}#wdetail .aw b{white-space:nowrap}
