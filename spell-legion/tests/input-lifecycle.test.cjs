@@ -58,6 +58,15 @@ test('closing cards clears the timer and timer label before the next run',()=>{
   const {run,cleared}=setup();run("pickTimer=42;G.pick=[{}];G.picks=[{}];$('#picktimer').textContent='3s';closeCards()");
   assert.deepEqual(cleared,[42]);assert.equal(run('pickTimer'),null);assert.equal(run('G.pick'),null);assert.equal(run('G.picks.length'),0);assert.equal(run("$('#picktimer').textContent"),'');
 });
+test('abandoning from pause requires a second tap and the prompt expires',()=>{
+  const {c,run,calls,clock}=setup(),pending=[];c.L=(zh,en)=>en;c.setTimeout=f=>pending.push(f);c.lose=()=>calls.push('lose');c.win=()=>calls.push('win');
+  vm.runInContext(ui.slice(ui.indexOf('let quitArmedUntil='),ui.indexOf('function syncSound()')),c);
+  run("G.paused=true;G.bossSlain=0;quitLabel();$('#quitbtn').onclick()");
+  assert.equal(run('G.abandoned'),undefined);assert.match(run("$('#quitbtn').textContent"),/Tap again/);
+  clock(3100);pending.shift()();assert.match(run("$('#quitbtn').textContent"),/Abandon/);
+  run("$('#quitbtn').onclick()");assert.deepEqual(calls,[]);
+  clock(4000);run("$('#quitbtn').onclick()");assert.deepEqual(calls,['lose']);assert.equal(run('G.abandoned'),true);
+});
 test('a stale timer cannot select cards in a new run or clear its new timer',()=>{
   const {c,run,timers,cleared,calls,clock}=setup();
   // Execute the same scheduling block as openPick without constructing card DOM.

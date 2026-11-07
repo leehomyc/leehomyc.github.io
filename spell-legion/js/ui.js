@@ -318,8 +318,11 @@ function toLobby(){closeCards();$('#end').hidden=true;$('#hud').hidden=true;$('#
 $('#startbtn').onclick=startRun;
 $('#pausebtn').onclick=()=>{togglePause();$('#pausebtn').blur()};
 $('#resumebtn').onclick=()=>togglePause();
-$('#quitbtn').onclick=()=>{G.paused=false;$('#pause').hidden=true;if(!RIVAL_ON&&!G.room&&G.bossSlain>=1){G.retired=1;G.retireBonus=1;win()}else{G.abandoned=true;lose()}};
-function quitLabel(){const q=$('#quitbtn');if(!q||!G)return;const cash=!RIVAL_ON&&!G.room&&G.bossSlain>=1;q.innerHTML=cash?L('收官','Cash out'):L('放弃 · 金币 ×0.5','Abandon · gold ×0.5')}
+let quitArmedUntil=0;
+$('#quitbtn').onclick=()=>{const cash=!RIVAL_ON&&!G.room&&G.bossSlain>=1,now=performance.now();
+ if(now>=quitArmedUntil){quitArmedUntil=now+3000;$('#quitbtn').textContent=cash?L('再点一次收官','Tap again to cash out'):L('再点一次放弃本局','Tap again to abandon');const until=quitArmedUntil;setTimeout(()=>{if(quitArmedUntil===until)quitLabel()},3000);return}
+ quitArmedUntil=0;G.paused=false;$('#pause').hidden=true;if(cash){G.retired=1;G.retireBonus=1;win()}else{G.abandoned=true;lose()}};
+function quitLabel(){quitArmedUntil=0;const q=$('#quitbtn');if(!q||!G)return;const cash=!RIVAL_ON&&!G.room&&G.bossSlain>=1;q.textContent=cash?L('收官','Cash out'):L('放弃 · 金币 ×0.5','Abandon · gold ×0.5')}
 function syncSound(){
  const m=SFX.muted;
  document.querySelectorAll('#sndbtn').forEach(b=>{b.textContent=m?'🔇':'🔊';b.classList.toggle('off',m)});
