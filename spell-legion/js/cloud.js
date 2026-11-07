@@ -233,30 +233,41 @@ const CLB={
   noAv:(()=>{try{return localStorage.getItem('sl_lb_noav')==='1'}catch(_){return false}})(),
   // These collections are public. Reading must not wait for Auth or the Firebase SDK.
   async query(parent,structuredQuery){
-    if(window.SPELL_CONNECTION_READY)await window.SPELL_CONNECTION_READY;
+    // Public reads can start immediately, independently of region detection and Auth.
     const path=`/v1/projects/${FIREBASE_CONFIG.projectId}/databases/(default)/documents${parent?'/'+parent:''}:runQuery`;
     const direct=`https://firestore.googleapis.com${path}`;
     const proxyOrigin=['spelllegion.com','spell-legion.pages.dev','127.0.0.1'].includes(location.hostname)?location.origin:'https://spelllegion.com';
     const proxy=`${proxyOrigin}/api/cn-proxy/firestore${path}`;
-    const body=JSON.stringify({structuredQuery});
-    const read=async(url,ms)=>{
-      const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),ms);
+    const body=JSON.stringify({structuredQuery}),controllers=[];
+    const read=async url=>{
+      const controller=new AbortController();controllers.push(controller);
+      const timer=setTimeout(()=>controller.abort(),6000);
       try{
         const response=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body,signal:controller.signal});
         if(!response.ok)throw new Error('Leaderboard read failed: '+response.status);
-        return await response.json();
+        const result=await response.json();
+        if(!Array.isArray(result)||result.some(x=>x.error))throw new Error('Invalid leaderboard response');
+        return result;
       }finally{clearTimeout(timer)}
     };
+    let hedgeTimer,startBackup;
     try{
+      const primary=read(window.SPELL_CN_PROXY?proxy:direct);
+      const canBackup=!window.SPELL_CN_PROXY&&['spelllegion.com','spell-legion.pages.dev','hyang.org','leehomyc.github.io','127.0.0.1'].includes(location.hostname);
       let result;
-      try{result=await read(direct,6000)}
-      catch(e){
-        if(window.SPELL_CN_PROXY||!['spelllegion.com','spell-legion.pages.dev','hyang.org','leehomyc.github.io','127.0.0.1'].includes(location.hostname))throw e;
-        result=await read(proxy,10000);
-      }
+      if(canBackup){
+        const backup=new Promise((resolve,reject)=>{
+          let started=false;
+          startBackup=()=>{if(started)return;started=true;clearTimeout(hedgeTimer);read(proxy).then(resolve,reject)};
+          hedgeTimer=setTimeout(startBackup,400);
+        });
+        primary.catch(startBackup);
+        result=await Promise.any([primary,backup]);
+      }else result=await primary;
       const decode=v=>v.integerValue!==undefined?Number(v.integerValue):v.doubleValue!==undefined?v.doubleValue:v.stringValue!==undefined?v.stringValue:v.booleanValue!==undefined?v.booleanValue:v.mapValue?Object.fromEntries(Object.entries(v.mapValue.fields||{}).map(([k,x])=>[k,decode(x)])):v.arrayValue?(v.arrayValue.values||[]).map(decode):v.timestampValue||null;
       return result.filter(x=>x.document).map(x=>({...Object.fromEntries(Object.entries(x.document.fields||{}).map(([k,v])=>[k,decode(v)])),_id:x.document.name.split('/').pop()}));
     }catch(e){console.warn('leaderboard query failed',e);throw e}
+    finally{clearTimeout(hedgeTimer);controllers.forEach(c=>c.abort())}
   },
   async raw(board){
     const day=board==='today'?dayKey():0,key=day?'today:'+day:'endless';

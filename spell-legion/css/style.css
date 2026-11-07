@@ -1304,3 +1304,18 @@ html[lang=ja] #menu .vname.vzh{font-size:clamp(30px,min(6vw,8vh),64px);white-spa
   #hero #endlessbest{font-size:10px}
   #hero #endlessbest span{padding-inline:5px}
 }
+
+/* Home has two full-width actions; duel rank belongs with Duel. */
+#menu #menubtns{grid-template-columns:minmax(0,1fr)}
+#menu .mrow{grid-template-columns:minmax(0,1fr);grid-template-rows:auto}
+#menu .mrow .mb.duel-card{grid-template-columns:auto minmax(0,1fr) auto;align-items:center;align-content:center;column-gap:12px}
+#menu .duel-card>.duel-rank{display:flex;align-items:center;justify-self:end;gap:7px;color:var(--rank-color);font-size:14px;font-weight:800;white-space:nowrap}
+#menu .duel-card>.duel-rank .ic{width:26px;height:26px;grid-row:auto}
+#menu .duel-rank strong{color:#ffe9a0;font-size:14px}
+#menu #prog{grid-template-columns:minmax(0,1fr) auto auto}
+@media(max-width:380px){
+  #menu .mrow .mb.duel-card{column-gap:8px;padding-inline:10px}
+  #menu .duel-card>.duel-rank{gap:4px;font-size:12px}
+  #menu .duel-card>.duel-rank .ic{width:21px;height:21px}
+  #menu .duel-rank strong{font-size:12px}
+}

@@ -9,7 +9,7 @@
        Keys with {0},{1}… are templates; the captured pieces are translated again (skill names inside sentences).
    New text: keep writing L('简体','English'); then run tools/i18n (see I18N.md) to add the Japanese/Korean lines.
    Missing Japanese/Korean lines fall back to English and are listed in I18N.miss for the check script. */
-const LOCS=['zh','zt','en','ja','ko'];
+const LOCS=['en','zh','zt','ja','ko'];
 const LOC_NAME={zh:'简体中文',zt:'繁體中文',en:'English',ja:'日本語',ko:'한국어'};
 const LOC_HTML={zh:'zh',zt:'zh-Hant',en:'en',ja:'ja',ko:'ko'};
 /* first match wins:

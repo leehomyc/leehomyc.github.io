@@ -17,7 +17,6 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('#avpop')){closeA
 function renderProg(){const el=$('#prog');if(!el)return;const popup=el.querySelector('#avpop');const b=roadBits();const xpPct=Math.round(100*(b.a.x||0)/Math.max(1,b.a.need||1));const name=(typeof LB!=='undefined'&&LB.name())||SAVE.name||'';
   const markup=`<div class="pr id"><button type="button" class="avb" id="avbtn" aria-controls="avpop" aria-expanded="${!!popup}" title="${L('换头像','Change avatar')}">${avatarHTML(SAVE.avatar)}</button><button type="button" class="nm" id="namebtn" title="${L('改名','Rename')}"><b>${esc(name)}</b><i class="pen">✎</i></button></div>
     <button type="button" class="pr lv" data-t="road" title="${L('冒险等级','Renown')}">${ICON.misc('crown','#ffe9a0')}<div><b>Lv ${b.a.lv}</b><span class="bar"><i style="width:${xpPct}%"></i></span></div></button>
-    <button type="button" class="pr lad" data-t="road" title="${L('天梯','Ladder')}: ${L(b.lad[1],b.lad[2])} · ${b.tr} 🏆">${ICON.misc('trophy',b.lcol)}<b style="color:${b.lcol}">${L(b.lad[1],b.lad[2])}</b><small>${b.tr}</small></button>
     <button type="button" class="pr gold" data-t="road" title="${L('金币','Gold')}">${ICON.misc('gold','#ffd27a')}<b>${SAVE.gold}</b></button>`;
   if(popup){for(const node of [...el.childNodes])if(node!==popup)node.remove();el.insertAdjacentHTML('afterbegin',markup);syncAvatarPicker(popup)}else el.innerHTML=markup;
   el.querySelectorAll('.pr[data-t]').forEach(x=>x.onclick=()=>{showTab('road');SFX.pick(1);const p=$('#road');if(p&&p.scrollIntoView)try{p.scrollIntoView({block:'start',behavior:'smooth'})}catch(_){}});
@@ -33,13 +32,11 @@ function renderProg(){const el=$('#prog');if(!el)return;const popup=el.querySele
     inp.onkeydown=e=>{if(e.key==='Enter')fin(true);else if(e.key==='Escape')fin(false)};inp.onblur=()=>fin(true)}}
 function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
 /* the full 江湖 tab */
-function renderRoad(){const el=$('#road');if(!el)return;const shopEl=$('#shop'),recEl=$('#record'),b=roadBits(),xpPct=Math.round(100*b.a.x/Math.max(1,b.a.need));
+function renderRoad(){const el=$('#road');if(!el)return;const recEl=$('#record'),b=roadBits(),xpPct=Math.round(100*b.a.x/Math.max(1,b.a.need));
   const rewards=LADDER.filter(r=>RANK_REWARDS[r[0]]).map(([need,zh,en])=>`<span class="rr ${SAVE.rankRewards?.[need]?'on':''}"><b>${L(zh,en)}</b><small>${need} 🏆 · ${RANK_REWARDS[need].gold} ${L('金','gold')}</small></span>`).join('');
   el.innerHTML=`
   <section class="rsec lv"><div class="rh">${ICON.misc('crown','#ffe9a0')}<div><b>${L('冒险等级','Renown')} <em>Lv ${b.a.lv}</em> · ${L(b.t[1],b.t[2])}</b><small>${L(`${b.a.x} / ${b.a.need} · 升级 +${100+(b.a.lv+1)*20} 金 · 冒险伤害 +${Math.round(accountBonus()*100)}%`,`${b.a.x} / ${b.a.need} · next level +${100+(b.a.lv+1)*20} gold · adventure damage +${Math.round(accountBonus()*100)}%`)}</small><span class="bar"><i style="width:${xpPct}%"></i></span></div></div></section>
-  <section class="rsec shop"><div class="rh">${ICON.misc('gold','#ffd27a')}<div><b>${L('修炼','Training')} <em>${SAVE.gold} ${L('金','gold')}</em></b></div></div></section>
   <section class="rsec lad"><div class="rh">${ICON.misc('trophy',b.lcol)}<div><b>${L('天梯','Ladder')} <em>${L(b.lad[1],b.lad[2])} · ${b.tr} 🏆</em></b><small>${b.nxt?L(`再 ${b.nxt[0]-b.tr} 🏆 升段`,`${b.nxt[0]-b.tr} 🏆 to rank up`):L('已是最高段位','Top rank reached')}</small><span class="bar lad"><i style="width:${b.lpct}%;background:${b.lcol}"></i></span></div></div><div class="roadrow">${rewards}</div></section>
   <section class="rsec"><div class="rh">${ICON.misc('boss','#ff5a45')}<div><b>${L('修罗','Ascension')} <em>${b.tier} / ${b.tierMax}</em></b><small>${L('金币 +15% / 层','+15% gold / tier')}</small></div></div></section>`;
-  if(shopEl){shopEl.hidden=false;el.querySelector('.rsec.shop').appendChild(shopEl);if(typeof renderTraining==='function')renderTraining()}
   if(recEl){recEl.hidden=false;el.appendChild(recEl)}renderProg();
 }

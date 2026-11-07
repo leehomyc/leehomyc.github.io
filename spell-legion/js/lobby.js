@@ -4,7 +4,6 @@ const ROLES={swordsman:['远程 · 均衡','Ranged · Balanced'],taoist:['法术
 const MENU_MODES=[
   {m:'solo',ic:['sword','#ffb79f'],zh:'出山',en:'Play',szh:()=>`单人无尽${(SAVE.asura&&SAVE.asura.sel)?` · 修罗 ${SAVE.asura.sel} 层`:''}`,sen:()=>`Solo endless${(SAVE.asura&&SAVE.asura.sel)?` · Ascension ${SAVE.asura.sel}`:''}`,big:1},
   {m:'qpk',ic:['swords','#ff9c5a'],zh:'对决',en:'Duel',szh:()=>`AI 或好友`,sen:()=>`AI or friends`},
-  {m:'daily',ic:['calendar','#ffd27a'],zh:'每日挑战',en:'Daily',szh:()=>(SAVE.daily&&SAVE.daily.day===dayKey())?`今日最佳 ${fmt(SAVE.daily.best)}`:`全服排名`,sen:()=>(SAVE.daily&&SAVE.daily.day===dayKey())?`Today's best ${fmt(SAVE.daily.best)}`:`Ranked worldwide`},
 ];
 /* retired entries (kept playable through SAVE.mode for old links, not offered): 'pk' ten-minute AI race, 'rush' boss rush */
 let SCREEN='menu',HSKILL=null;
@@ -24,6 +23,11 @@ function renderMenu(){
       const C=CLASSES[SAVE.cls]||CLASSES.swordsman,A=SAVE.asura||{},tier=Math.min(A.sel||0,A.max||0);const tasks=typeof todayTasks==='function'?todayTasks():[];const nt=tasks.find(t=>!t.done);const tt=nt&&typeof taskText==='function'?taskText(nt):null;const TGOLD=typeof TASK_GOLD!=='undefined'?TASK_GOLD:[150,220,320];
       b.innerHTML=`${ICON.cls(SAVE.cls)}<div><b>${L(o.zh,o.en)}</b><small>${LL(C)}${tier?` · ${L(`修罗 ${tier} 层`,`Tier ${tier}`)}`:''}</small>${tt?`<span class="goal"><em>${L('今日','Today')}</em><span class="gt">${L(tt.zh,tt.en)}</span><b>+${TGOLD[nt.tier]||150}</b><i><u style="width:${Math.min(100,Math.round(100*(nt.p||0)/nt.goal))}%"></u></i></span>`:''}</div>`}
     else b.innerHTML=`${ICON.misc(o.ic[0],o.ic[1])}<div><b>${L(o.zh,o.en)}</b><small>${L(o.szh(),o.sen())}</small>${o.subs?`<span class="subs">${o.subs.map(s=>`<i data-m="${s.m}" role="button" tabindex="0">${L(s.zh,s.en)}</i>`).join('')}</span>`:''}</div>`;
+    if(o.m==='qpk'){
+      const rank=roadBits();
+      b.classList.add('duel-card');
+      b.insertAdjacentHTML('beforeend',`<span class="duel-rank" style="--rank-color:${rank.lcol}">${ICON.misc('trophy',rank.lcol,'sm')}<span>${L(rank.lad[1],rank.lad[2])}</span><strong>${rank.tr}</strong></span>`);
+    }
     const go=m=>{if(m!=='room'&&typeof ROOM!=='undefined'&&ROOM.code)roomLeave(true);SAVE.mode=m;persist();renderTitle();showScreen('hero');SFX.pick(1)};
     b.onclick=ev=>{const sub=ev.target.closest&&ev.target.closest('.subs i');const m=sub?sub.dataset.m:(o.m==='qpk'?'room':o.m);if(b.dataset.busy)return;b.dataset.busy=1;setTimeout(()=>{delete b.dataset.busy;go(m)},reduceMotion()?0:170)};
     b.querySelectorAll('.subs i').forEach(i=>i.onkeydown=ev=>{if(ev.key==='Enter'||ev.key===' '){ev.preventDefault();ev.stopPropagation();go(i.dataset.m)}});if(o.big)box.appendChild(b);else row.appendChild(b)});box.appendChild(row);

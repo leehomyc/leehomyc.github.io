@@ -143,3 +143,30 @@ test('an endless best is saved before the board responds, including a voluntary 
   assert.match(container.children[1].textContent,/1,200/);
   pending.resolve({ok:true,rows:[]});await work;
 });
+
+test('a stalled direct read uses the backup without waiting for region detection',async()=>{
+  const urls=[],result=[{document:{name:'projects/x/databases/(default)/documents/runs/u1',fields:{uid:{stringValue:'u1'},score:{integerValue:'900'},mode:{stringValue:'solo'}}}}];
+  let directSignal;
+  const {clb}=setup({window:{SPELL_CONNECTION_READY:new Promise(()=>{})},fetch:async(url,options)=>{
+    urls.push(url);
+    if(urls.length===1){directSignal=options.signal;return new Promise((resolve,reject)=>options.signal.addEventListener('abort',()=>reject(new Error('aborted'))))}
+    return {ok:true,json:async()=>result};
+  }});
+  const board=await clb.fetch('endless');
+  assert.equal(board.rows[0].score,900);
+  assert.equal(urls.length,2);assert.equal(directSignal.aborted,true);
+});
+
+test('scores render before slow profiles, and late profiles cannot overwrite another tab',async()=>{
+  const profiles=deferred();
+  const {ev,lb,nodes,c}=setup({AVATARS:[{}],CLASSES:{},esc:s=>s,avatarHTML:()=>'<span>avatar</span>'});
+  lb.fetch=async()=>({ok:true,rows:[{uid:'u1',name:'Original',score:900}]});
+  lb.profiles=()=>profiles.promise;
+  await ev('openLeaderboard("endless")');
+  assert.match(nodes['#lbbody'].innerHTML,/Original/);
+  lb.fetch=async()=>({ok:true,rows:[]});
+  await ev('openLeaderboard("level")');
+  profiles.resolve({u1:{name:'Renamed'}});await new Promise(r=>setImmediate(r));
+  assert.match(nodes['#lbbody'].innerHTML,/No one yet/);
+  assert.doesNotMatch(nodes['#lbbody'].innerHTML,/Renamed/);
+});
