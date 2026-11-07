@@ -794,7 +794,7 @@ function step(dt){
   for(const sp of G.spells)if(sp.beam){sp.beam.t-=dt;if(sp.beam.t<=0)sp.beam=null}
   for(const nv of G.novas){const was=nv.r;nv.r+=nv.v*dt;const d=hyp(P.x-nv.x,P.y-nv.y);if(P.down<=0&&d>=was-8&&d<=nv.r+8&&!nv.hitP){nv.hitP=1;if(P.dash>0)parry();if(P.dash<=0&&P.inv<=0){dmgP(nv.d,nv.x+(nv.x-P.x),nv.y+(nv.y-P.y),['首领波纹','boss nova']);if(nv.confuse){P.confuse=nv.confuse;showBanner('神志颠倒','Bewitched: controls reversed',1.2)}}}}
   G.novas=G.novas.filter(nv=>nv.r<nv.R);
-  if(!G.auto&&SAVE_FIRST){G.hintT-=dt;if(G.hintT<=0&&G.hintN<4){const H=[['WASD 移动','Move with WASD or arrows'],['按 1 释放武学','Press 1 to cast your skill (costs qi)'],['Space 轻功闪避','Space dashes through enemies'],['升级时三选一','Pick one of three cards on each level']];showBanner(H[G.hintN][0],H[G.hintN][1],2.2);G.hintN++;G.hintT=G.hintN===1?6:9}}
+  if(!G.auto&&SAVE_FIRST){G.hintT-=dt;if(G.hintT<=0&&G.hintN<4){const T=typeof IS_TOUCH!=='undefined'&&IS_TOUCH,H=T?[['拖动移动','Drag to move'],['点图标释放武学','Tap a skill to cast it'],['点「轻」闪避','Tap the big button to dash'],['升级时三选一','Pick one of three cards on each level']]:[['WASD 移动','Move with WASD or arrows'],['按 1 释放武学','Press 1 to cast your skill (costs qi)'],['Space 轻功闪避','Space dashes through enemies'],['升级时三选一','Pick one of three cards on each level']];showBanner(H[G.hintN][0],H[G.hintN][1],2.2);G.hintN++;G.hintT=G.hintN===1?6:9}}
   if(P.down>0){P.down-=dt;if(P.down<=0)revive()}
   else if(P.dash>0){
     P.dash-=dt;const sp=P.leap?600:560;P.x+=P.dx*sp*dt;P.y+=P.dy*sp*dt;collide(P,6);P.walk+=dt*20;

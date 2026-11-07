@@ -941,3 +941,7 @@ body.touchhud #pause .pbox>p{display:none}
 /* phone: the menu column always spans the screen (a flex item otherwise shrinks to its content and hugs the left) */
 @media (max-width:760px){#menu .tt{margin-left:0;margin-right:0;width:100%}#menu .ttb{flex:1 1 auto;width:100%;max-width:none}}
 @media (min-width:641px) and (max-width:760px){#menu .tt{justify-content:center;padding-right:16px;padding-left:16px}#menu .ttb{flex:0 1 480px;width:auto;max-width:480px}}
+
+/* phone: the scoreboard sits under the HP/qi bars on the left, clear of the pause/sound buttons and the minimap */
+body.touchhud #roomboard{left:8px;right:auto;top:96px;min-width:150px;max-width:180px}
+body.touchhud #roomboard{min-width:120px;max-width:150px}
