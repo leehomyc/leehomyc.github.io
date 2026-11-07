@@ -1,6 +1,7 @@
 'use strict';
 /* Operational telemetry: no email, player name, IP, URL query or gameplay payload is sent.
    Runs use wall-clock foreground battle time; simulation time is reported separately. */
+const METRICS_ENDPOINT=['https://hyang.org','https://leehomyc.github.io'].includes(location.origin)?'https://spelllegion.com/api/analytics/ingest':'/api/analytics/ingest';
 const METRICS={session:crypto.randomUUID(),uid:null,visible:0,play:0,run:null,queue:[],sending:false,last:performance.now()};
 function metricsUser(){
  const user=typeof CLOUD==='undefined'?null:CLOUD.user,uid=user?.uid||null;
@@ -18,8 +19,9 @@ function metricsStart(){
 }
 function metricsSample(){
  const user=metricsUser(),n=performance.now(),dt=Math.min(1500,Math.max(0,n-METRICS.last));METRICS.last=n;
- if(!user||document.hidden)return;METRICS.visible+=dt;
+ METRICS.active=false;if(!user||document.hidden)return;METRICS.visible+=dt;
  const active=typeof G!=='undefined'&&G&&!G.auto&&!G.ended&&!G.over&&(G.shared||(!G.pick&&!G.paused&&!G.panel));
+ METRICS.active=!!active;
  if(active){METRICS.play+=dt;if(METRICS.run)METRICS.run.playMs+=dt;}
  if(METRICS.run&&typeof G!=='undefined'&&G&&!G.auto)Object.assign(METRICS.run,{simSeconds:G.t||0,kills:G.kills||0,bosses:G.bossSlain||0,level:G.lv||1});
 }
@@ -31,7 +33,7 @@ function metricsEnd(outcome){
 async function metricsFlush(){
  const user=metricsUser();if(!user)return;
  let source='';try{const ref=new URL(document.referrer);if(ref.origin!==location.origin)source=ref.origin;}catch{}
- const b={id:crypto.randomUUID(),session:METRICS.session,visibleMs:Math.min(120000,Math.round(METRICS.visible)),playMs:Math.min(120000,Math.round(METRICS.play)),playing:!!METRICS.run&&!METRICS.run.ended&&!document.hidden,source,device:/Mobi|Android|iPhone/i.test(navigator.userAgent)?'mobile':'desktop',run:METRICS.run?{...METRICS.run,playMs:Math.min(120000,Math.round(METRICS.run.playMs))}:null};
+ const b={id:crypto.randomUUID(),session:METRICS.session,visibleMs:Math.min(120000,Math.round(METRICS.visible)),playMs:Math.min(120000,Math.round(METRICS.play)),playing:!!METRICS.active&&!!METRICS.run&&!METRICS.run.ended&&!document.hidden,source,device:/Mobi|Android|iPhone/i.test(navigator.userAgent)?'mobile':'desktop',run:METRICS.run?{...METRICS.run,playMs:Math.min(120000,Math.round(METRICS.run.playMs))}:null};
  METRICS.visible=METRICS.play=0;if(METRICS.run)METRICS.run.playMs=0;
  METRICS.queue.push(b);if(METRICS.queue.length>20)METRICS.queue.shift();if(METRICS.sending)return;METRICS.sending=true;
  // Keep the queue and identity paired across async token refreshes and sign-out.
@@ -40,7 +42,7 @@ async function metricsFlush(){
   while(queue.length&&typeof CLOUD!=='undefined'&&CLOUD.user?.uid===user.uid){
    const packet=queue[0],token=await user.getIdToken();
    if(CLOUD.user?.uid!==user.uid)break;
-   const r=await fetch('/api/analytics/ingest',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},body:JSON.stringify(packet),keepalive:true});
+   const r=await fetch(METRICS_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},body:JSON.stringify(packet),keepalive:true});
    if(!r.ok){if([400,403,404,405,409,413].includes(r.status)){const i=queue.indexOf(packet);if(i>=0)queue.splice(i,1);continue;}break;}
    const i=queue.indexOf(packet);if(i>=0)queue.splice(i,1);
   }

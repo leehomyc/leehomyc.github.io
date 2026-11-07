@@ -8,6 +8,9 @@ await rm(output, { recursive: true, force: true });
 await mkdir(output, { recursive: true });
 await cp(source, output, { recursive: true });
 await cp(resolve(root,'cloudflare/analytics/worker.mjs'), resolve(output,'_worker.js'));
+await writeFile(resolve(output,'_routes.json'),JSON.stringify({version:1,include:['/api/analytics/*'],exclude:[]}));
+const revision=process.env.CF_PAGES_COMMIT_SHA||await readFile(resolve(root,'RELEASE_SOURCE'),'utf8').catch(()=> 'local');
+await writeFile(resolve(output,'version.json'),JSON.stringify({revision:revision.trim(),built:new Date().toISOString()}));
 const html = await readFile(resolve(output, 'index.html'), 'utf8');
 const missing = [];
 for (const [, path] of html.matchAll(/(?:src|href)="([^"#]+)"/g)) {
@@ -24,6 +27,10 @@ await writeFile(resolve(output, '_headers'), `/*
   Cache-Control: public, max-age=0, must-revalidate
 /css/*
   Cache-Control: public, max-age=0, must-revalidate
+/admin/*
+  Cache-Control: no-store
+/version.json
+  Cache-Control: no-store
 `);
 await writeFile(resolve(output, '_redirects'), `/play / 302\n/spell-legion / 302\n/spell-legion/ / 302\n`);
 console.log(`Pages assets prepared and references checked: ${output}`);
