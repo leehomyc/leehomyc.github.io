@@ -2,6 +2,7 @@
 /* sim.js — game state, combat, skills, missions, shrines, cards, step */
 let G=null,CLASS='swordsman',RIVAL_ON=false,DIFFID='normal';
 const D=()=>DIFF[DIFFID]||DIFF.normal;
+const moveSpeed=P=>Math.min(P.spd,MOVE_SPEED_CAP);
 let ASURA_T=0,BOSSRUSH=false; // set from the title screen
 const tier=n=>ASURA_T>=n; // is modifier n (1-based) active
 function weaponOf(cls){const w=(typeof SAVE!=='undefined'&&SAVE.weapon?.[cls])||CLASSES[cls].main;return (WEAPONS[cls]||[]).includes(w)&&weaponUnlocked(cls,w)?w:CLASSES[cls].main}
@@ -651,9 +652,10 @@ function buildCards(q){
   if(G.spells.length<4&&G.lv>=3)CLASSES[G.cls].skills.filter(k=>!G.spells.some(s=>s.id===k)).forEach(k=>{const m=SPELLS[k];
     const card={g:m.g,c:m.col,skill:k,n:LL(m),sub:L(`${m.cost} 内力 · ${m.cd}s`,`${m.cost} qi · ${m.cd}s`),fx:L(m.d,m.de),fxEn:'',cat:SKILL_CAT[k],isNew:1,kind:'new',a(){G.spells.push(mkSpell(k));taken(SKILL_CAT[k],2)}};pool.push(card,card)});
   G.spells.forEach(s=>(TREES[s.id]||[]).forEach((n,i)=>{if(isTrait(n)&&nodeOpen(s,i))pool.push(nodeCard(s,i,rollQ()))}));
-  const P=G.P,perkNow={锋锐:()=>L('伤害','damage')+` ×${(P.dmg*(1+P.dmgBonus)).toFixed(2)}`,金钟罩:()=>L('减伤','damage taken')+` ${Math.round((1-P.def)*100)}%`,轻身:()=>L('移速','speed')+` ×${P.spd.toFixed(2)}`,内息:()=>L('内力','qi')+` ${P.maxMana} · +${P.regen.toFixed(1)}/s`,生息:()=>L('生命','HP')+` ${P.maxHp}`,摄物:()=>L('拾取','pickup')+` ×${P.mag.toFixed(2)}`,疾风:()=>L('冷却','cooldown')+` ×${(1/P.haste).toFixed(2)}`,致命:()=>L('暴击','crit')+` ${Math.min(100,Math.round(P.crit*100))}%`+(P.crit>1?L(` · 暴伤 ×${(2+(P.crit-1)*2).toFixed(1)}`,` · crit dmg ×${(2+(P.crit-1)*2).toFixed(1)}`):'')};
-  const pc=v=>Math.round(v*100)+'%',perkVal={锋锐:Q=>[L('伤害','Damage'),pc(Q.dmg*(1+(Q.dmgBonus||0)))],金钟罩:Q=>[L('减伤','Damage cut'),Math.round((1-Q.def)*100)+'%'],轻身:Q=>[L('移速','Speed'),pc(Q.spd)],内息:Q=>[L('内力上限','Max qi'),Q.maxMana],生息:Q=>[L('生命上限','Max HP'),Q.maxHp],摄物:Q=>[L('拾取范围','Pickup range'),pc(Q.mag)],疾风:Q=>[L('冷却','Cooldown'),pc(1/Q.haste)],致命:Q=>[L('暴击率','Crit'),Math.min(100,Math.round(Q.crit*100))+'%']};
-  PERKS.forEach(p=>{if(p.zh==='金钟罩'&&G.P.def<=.42)return;const q=rollQ(),times=(q.k==='common'?1:q.k==='rare'?2:q.k==='epic'?3:4)*(p.zh==='致命'&&q.k==='legendary'?.75:1)|0||1;
+  const P=G.P,perkNow={锋锐:()=>L('伤害','damage')+` ×${(P.dmg*(1+P.dmgBonus)).toFixed(2)}`,金钟罩:()=>L('减伤','damage taken')+` ${Math.round((1-P.def)*100)}%`,轻身:()=>L('移速','speed')+` ×${moveSpeed(P).toFixed(2)}`,内息:()=>L('内力','qi')+` ${P.maxMana} · +${P.regen.toFixed(1)}/s`,生息:()=>L('生命','HP')+` ${P.maxHp}`,摄物:()=>L('拾取','pickup')+` ×${P.mag.toFixed(2)}`,疾风:()=>L('冷却','cooldown')+` ×${(1/P.haste).toFixed(2)}`,致命:()=>L('暴击','crit')+` ${Math.min(100,Math.round(P.crit*100))}%`+(P.crit>1?L(` · 暴伤 ×${(2+(P.crit-1)*2).toFixed(1)}`,` · crit dmg ×${(2+(P.crit-1)*2).toFixed(1)}`):'')};
+  const pc=v=>Math.round(v*100)+'%',perkVal={锋锐:Q=>[L('伤害','Damage'),pc(Q.dmg*(1+(Q.dmgBonus||0)))],金钟罩:Q=>[L('减伤','Damage cut'),Math.round((1-Q.def)*100)+'%'],轻身:Q=>[L('移速','Speed'),pc(moveSpeed(Q))],内息:Q=>[L('内力上限','Max qi'),Q.maxMana],生息:Q=>[L('生命上限','Max HP'),Q.maxHp],摄物:Q=>[L('拾取范围','Pickup range'),pc(Q.mag)],疾风:Q=>[L('冷却','Cooldown'),pc(1/Q.haste)],致命:Q=>[L('暴击率','Crit'),Math.min(100,Math.round(Q.crit*100))+'%']};
+  PERKS.forEach(p=>{if(p.zh==='金钟罩'&&G.P.def<=.42)return;if(p.zh==='轻身'&&((G.P.lightStep||0)>=6||moveSpeed(G.P)>=MOVE_SPEED_CAP))return;const q=rollQ();let times=(q.k==='common'?1:q.k==='rare'?2:q.k==='epic'?3:4)*(p.zh==='致命'&&q.k==='legendary'?.75:1)|0||1;
+    if(p.zh==='轻身')times=Math.min(times,6-(G.P.lightStep||0),Math.ceil(Math.log(MOVE_SPEED_CAP/G.P.spd)/Math.log(1.05)));
     const Q1=Object.assign({},G.P);for(let i=0;i<times;i++)p.a(Q1);const v0=perkVal[p.zh](G.P),v1=perkVal[p.zh](Q1);
     pool.push({g:p.g,c:'#efe4cd',n:LL(p),sub:times>1?L(`${times} 层`,`${times} stacks`):'',fx:`${v0[0]} ${v0[1]} → ${v1[1]}`,fxEn:L(p.d,p.de).replace(/\(.*\)/,''),q,cat:PERK_CAT[p.zh]||'passive',kind:'passive',a(){for(let i=0;i<times;i++)p.a(G.P);taken(PERK_CAT[p.zh]||'passive',times)}})});
   const out=[];const used=new Set(q.exclude||[]);
@@ -817,7 +819,7 @@ function collectRelics(dt){const P=G.P;for(const f of G.fx){if(f.k!=='relic'||f.
 
 /* ---------- step ---------- */
 function step(dt){
-  const P=G.P;G.t+=dt;{const vx=(P.x-(P.px===undefined?P.x:P.px))/dt,vy=(P.y-(P.py===undefined?P.y:P.py))/dt;P.vx=(P.vx||0)*.7+vx*.3;P.vy=(P.vy||0)*.7+vy*.3;P.px=P.x;P.py=P.y}if(typeof directorTick==='function')directorTick(dt);if(typeof extTick==='function')extTick(dt);{G.dpsT=(G.dpsT||0)+dt;if(G.dpsT>=1){G.dpsT-=1;const d=(G.dealt||0)-(G.dealtLast||0);G.dealtLast=G.dealt||0;G.dpsHist=(G.dpsHist||[]).concat([d]).slice(-20);G.dpsAvg=G.dpsHist.reduce((a,b)=>a+b,0)/G.dpsHist.length}} // rolling 20 s damage output: the first boss and the warlords are sized from it
+  const P=G.P;P.spd=moveSpeed(P);G.t+=dt;{const vx=(P.x-(P.px===undefined?P.x:P.px))/dt,vy=(P.y-(P.py===undefined?P.y:P.py))/dt;P.vx=(P.vx||0)*.7+vx*.3;P.vy=(P.vy||0)*.7+vy*.3;P.px=P.x;P.py=P.y}if(typeof directorTick==='function')directorTick(dt);if(typeof extTick==='function')extTick(dt);{G.dpsT=(G.dpsT||0)+dt;if(G.dpsT>=1){G.dpsT-=1;const d=(G.dealt||0)-(G.dealtLast||0);G.dealtLast=G.dealt||0;G.dpsHist=(G.dpsHist||[]).concat([d]).slice(-20);G.dpsAvg=G.dpsHist.reduce((a,b)=>a+b,0)/G.dpsHist.length}} // rolling 20 s damage output: the first boss and the warlords are sized from it
   if(RIVAL_ON&&G.rival&&G.t+(G.pickWall||0)>=(G.quick?180:PK_LEN)&&!G.over)pkEnd();
   if(G.room&&typeof roomNetTick==='function')roomNetTick(dt);
   for(let i=G.later.length-1;i>=0;i--){const l=G.later[i];l.t-=dt;if(l.t<=0){G.later.splice(i,1);l.f()}}

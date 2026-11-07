@@ -112,6 +112,12 @@ test('solo enemies gain health and damage, and ranged enemies arrive earlier',()
   assert.equal(run('spawnType(30,.1,true)'),'archer');
   assert.equal(run('spawnType(30,.1,false)'),'bandit');
 });
+test('Light Step grants six smaller stacks and permanent speed cannot reach the runaway range',()=>{
+  const {run}=setup();run('G.P.spd=1;const light=PERKS.find(p=>p.en==="Light Step");for(let i=0;i<12;i++)light.a(G.P)');
+  assert.equal(run('G.P.lightStep'),6);
+  near(run('G.P.spd'),Math.pow(1.05,6));
+  run('G.P.spd=4.3');assert.equal(run('moveSpeed(G.P)'),1.7);
+});
 test('relics dropped in obstacles move to reachable ground; cursed relics can be collected after a short hold',()=>{
   const {c,run}=setup();const rock={x:90,y:90,w:40,h:40};c.rocksNear=()=>[rock];c.blocked=(x,y)=>x>90&&x<130&&y>90&&y<130;
   run('dropRelic(110,110)');const f=run('G.fx.at(-1)');assert.ok(Math.hypot(f.x-110,f.y-110)>=24);

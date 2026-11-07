@@ -81,10 +81,11 @@ const AUGS={
   giant:{g:'雄',zh:'雄浑',en:'Mighty',d:'更大,伤害 +30%,出手稍慢。',de:'Bigger, +30% damage, slightly slower.',for:['sword','palm','talis','array','charm','slash','whirl','leap','roar','bagua','wave','flow','ambush','guangling','sunder','exorcise','staff','tiger','sarira','zen','pouch','plague','numb','vajra']},
   extra:{g:'增',zh:'增阵',en:'Wider Array',d:'阵法多两件法器,转得更快。',de:'Two more pieces in the array, spinning faster.',for:['array','bagua']},
 };
+const MOVE_SPEED_CAP=1.7; // permanent speed; timed skill boosts are applied after this cap
 const PERKS=[
   {g:'锋',zh:'锋锐',en:'Keen Edge',d:'所有伤害 +12%',de:'All damage +12%',a:P=>P.dmg*=1.12},
   {g:'罩',zh:'金钟罩',en:'Iron Bell',d:'受到伤害 -12%(减伤上限 60%)',de:'Damage taken -12% (mitigation caps at 60%)',a:P=>P.def*=.88},
-  {g:'轻',zh:'轻身',en:'Light Step',d:'移动速度 +10%',de:'Move speed +10%',a:P=>P.spd*=1.1},
+  {g:'轻',zh:'轻身',en:'Light Step',d:'移动速度 +5%，最多 6 层',de:'+5% move speed, up to 6 stacks',a:P=>{if((P.lightStep||0)>=6||P.spd>=MOVE_SPEED_CAP)return;P.lightStep=(P.lightStep||0)+1;P.spd=Math.min(MOVE_SPEED_CAP,P.spd*1.05)}},
   {g:'息',zh:'内息',en:'Inner Breath',d:'内力上限 +30,回复更快',de:'+30 max qi and faster qi regen',a:P=>{P.maxMana+=30;P.regen*=1.2;P.mana=Math.min(P.maxMana,P.mana+30)}},
   {g:'命',zh:'生息',en:'Vitality',d:'生命上限 +25,并回复 25',de:'Max HP +25, heal 25',a:P=>{P.maxHp+=25;P.hp=Math.min(P.maxHp,P.hp+25)}},
   {g:'摄',zh:'摄物',en:'Lodestone',d:'拾取范围 +40%',de:'Pickup range +40%',a:P=>P.mag*=1.4},

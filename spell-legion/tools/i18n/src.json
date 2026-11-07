@@ -1376,8 +1376,8 @@
 "i": 171
 },
 {
-"en": "Move speed +10%",
-"zh": "移动速度 +10%",
+"en": "+5% move speed, up to 6 stacks",
+"zh": "移动速度 +5%，最多 6 层",
 "kind": "obj",
 "f": "content.js",
 "exprs": [],
