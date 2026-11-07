@@ -134,6 +134,18 @@ const SFX=(()=>{
     arrow(){if(!ac||!rl(50))return;const t=now();noise(t,.12,.22,sfxG,{f:2600,slide:900,q:1.2})},
     win(){setState('win');if(!ac)return;const t=now();for(let i=0;i<6;i++){bell(SC[[5,7,8,10,8,5][i]]*2,t+.5+i*.3,.4)}},
     lose(){setState('title');if(!ac)return;const t=now();osc('sawtooth',110,t,2.5,.5,sfxG,{slide:40,lp:600,rv:1});taiko(t+.3,.9,45)},
+    /* new heroes and legendary weapons */
+    katana(){if(!ac||!rl(70))return;const t=now();noise(t,.12,.3,sfxG,{f:2600,slide:7000,q:2});osc('sine',3300,t,.18,.08,sfxG,{slide:5200,rv:1})},
+    chain(){if(!ac||!rl(90))return;const t=now();for(let i=0;i<4;i++)noise(t+i*.025,.05,.2,sfxG,{f:4200+i*600,q:6});osc('square',220,t+.12,.12,.12,sfxG,{slide:110,lp:1400})},
+    chime(){if(!ac||!rl(70))return;const t=now();osc('sine',1568,t,.25,.14,sfxG,{rv:1});osc('sine',2093,t+.04,.22,.1,sfxG,{rv:1});osc('triangle',3136,t+.08,.12,.05,sfxG)},
+    zap(){if(!ac||!rl(80))return;const t=now();osc('square',900,t,.09,.07,sfxG,{slide:2600,lp:3500});noise(t,.07,.12,sfxG,{f:5000,q:3})},
+    gong(){if(!ac)return;const t=now();osc('sine',98,t,2.2,.55,sfxG,{rv:1});osc('sine',147,t,1.6,.3,sfxG,{rv:1});osc('sine',262,t,1.1,.16,sfxG,{rv:1});osc('triangle',523,t,.5,.08,sfxG,{rv:1});noise(t,.18,.35,sfxG,{f:900,type:'lowpass'})},
+    pop(){if(!ac||!rl(90))return;const t=now();noise(t,.18,.55,sfxG,{f:700,type:'lowpass',slide:200});for(let i=0;i<5;i++)osc('sine',1800+Math.random()*1800,t+.08+i*.04,.12,.05,sfxG,{rv:1})},
+    whoosh(){if(!ac||!rl(90))return;const t=now();noise(t,.35,.3,sfxG,{f:500,slide:2400,q:.7})},
+    sparkle(){if(!ac||!rl(90))return;const t=now();[0,.05,.1,.15].forEach((d,i)=>osc('sine',[1318,1568,2093,2637][i],t+d,.3,.09,sfxG,{rv:1}))},
+    beat(){if(!ac||!rl(120))return;const t=now();taiko(t,.55,90);noise(t,.05,.2,sfxG,{f:7000,q:1})},
+    void(){if(!ac)return;const t=now();osc('sawtooth',80,t,2.4,.35,sfxG,{slide:30,lp:400,rv:1});osc('sine',40,t,2.6,.4,sfxG);noise(t,2,.25,sfxG,{f:300,slide:60,type:'lowpass',rv:1})},
+    blink(){if(!ac)return;const t=now();osc('sine',600,t,.18,.18,sfxG,{slide:2400});osc('sine',2400,t+.12,.2,.12,sfxG,{slide:900,rv:1})},
   };
   return fx;
 })();
