@@ -8,7 +8,22 @@ await rm(output, { recursive: true, force: true });
 await mkdir(output, { recursive: true });
 await cp(source, output, { recursive: true });
 await cp(resolve(root,'cloudflare/analytics/worker.mjs'), resolve(output,'_worker.js'));
-await writeFile(resolve(output,'_routes.json'),JSON.stringify({version:1,include:['/api/analytics/*'],exclude:[]}));
+await cp(resolve(root,'cloudflare/analytics/cn-proxy.mjs'), resolve(output,'cn-proxy.mjs'));
+await writeFile(resolve(output,'_routes.json'),JSON.stringify({version:1,include:['/api/analytics/*','/api/cn-proxy/*','/api/connection-region'],exclude:[]}));
+await cp(resolve(root,'cloudflare/cn/sw.js'),resolve(output,'cn-connection-sw.js'));
+await cp(resolve(root,'cloudflare/cn/boot.js'),resolve(output,'cn-connection-boot.js'));
+const indexPath=resolve(output,'index.html');
+let index=await readFile(indexPath,'utf8');
+if(!index.includes('<script src="js/i18n.js'))throw new Error('Connection bootstrap insertion point missing');
+index=index.replace('<script src="js/i18n.js','<script src="cn-connection-boot.js"></script>\n<script src="js/i18n.js');
+await writeFile(indexPath,index);
+const cloudPath=resolve(output,'js/cloud.js');
+let cloud=await readFile(cloudPath,'utf8');
+if(!cloud.includes("  try{\n    const base=`https://www.gstatic.com/firebasejs/${FB_VER}/`;"))throw new Error('Auth bootstrap insertion point missing');
+cloud=cloud.replace("  try{\n    const base=`https://www.gstatic.com/firebasejs/${FB_VER}/`;","  try{\n    await window.SPELL_CONNECTION_READY;\n    const base=`https://www.gstatic.com/firebasejs/${FB_VER}/`;");
+if(!cloud.includes('  async query(parent,structuredQuery){'))throw new Error('Leaderboard insertion point missing');
+cloud=cloud.replace('  async query(parent,structuredQuery){','  async query(parent,structuredQuery){await window.SPELL_CONNECTION_READY;');
+await writeFile(cloudPath,cloud);
 const revision=process.env.CF_PAGES_COMMIT_SHA||await readFile(resolve(root,'RELEASE_SOURCE'),'utf8').catch(()=> 'local');
 await writeFile(resolve(output,'version.json'),JSON.stringify({revision:revision.trim(),built:new Date().toISOString()}));
 const html = await readFile(resolve(output, 'index.html'), 'utf8');
@@ -31,6 +46,10 @@ await writeFile(resolve(output, '_headers'), `/*
   Cache-Control: no-store
 /version.json
   Cache-Control: no-store
+/cn-connection-sw.js
+  Cache-Control: no-cache
+/cn-connection-boot.js
+  Cache-Control: no-cache
 `);
 await writeFile(resolve(output, '_redirects'), `/play / 302\n/spell-legion / 302\n/spell-legion/ / 302\n`);
 console.log(`Pages assets prepared and references checked: ${output}`);

@@ -1,3 +1,4 @@
+import {proxyFirebase} from './cn-proxy.mjs';
 const PROJECT='spell-legion';
 const ORIGINS=new Set(['https://spelllegion.com','https://spell-legion.pages.dev','https://hyang.org','https://leehomyc.github.io']);
 let keyCache={until:0,keys:[]};
@@ -84,6 +85,8 @@ async function dashboard(request,env,claims){
 }
 async function handle(request,env){
  const url=new URL(request.url);
+ if(url.pathname==='/api/connection-region')return new Response(JSON.stringify({cn:request.cf?.country==='CN'||(url.hostname==='127.0.0.1'&&url.searchParams.get('country')==='CN')}),{headers:{'Content-Type':'application/json','Cache-Control':'no-store'}});
+ if(url.pathname.startsWith('/api/cn-proxy/'))return proxyFirebase(request);
  if(!url.pathname.startsWith('/api/analytics/'))return env.ASSETS.fetch(request);
  try{
   if(!env.ANALYTICS_DB)return json({error:'Analytics database is not configured'},503);
