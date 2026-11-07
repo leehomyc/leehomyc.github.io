@@ -1203,3 +1203,11 @@ html[lang=ko]{--brush:"Song Myung","AppleMyungjo","Batang","Noto Serif KR",serif
 #gearbtn b.gn{color:#ff9c3a}
 /* five tabs (冒险 · 行囊 · 成就 · 排行 · 设置) in the 480px menu column: icon over label, count underneath, like the phone layout */
 @media (min-width:761px){#menu .tabbar button{flex-direction:column;gap:3px;padding:9px 4px;border-radius:16px;font-size:13px}#menu .tabbar button .ic.sm{width:22px;height:22px;margin:0}#menu .tabbar button b{font-size:10.5px;line-height:1}}
+
+/* ---- account: Facebook, password eye, verification and account tools ---- */
+#account .go.fb{background:#1877f2;border-color:#5b9bff;color:#fff}
+#account .pwrap{position:relative;display:flex;min-width:0}#account .pwrap .pw{flex:1;width:100%;padding-right:32px}
+#account .pwrap .eye{position:absolute;right:4px;top:50%;transform:translateY(-50%);background:none;border:0;cursor:pointer;font-size:14px;opacity:.7;padding:2px 4px}
+#account .unv{font-size:11px;font-weight:800;color:#ffd27a;background:#ffd27a1f;border:1px solid #ffd27a66;border-radius:999px;padding:2px 8px}
+#account .acct{display:inline-flex;gap:10px;margin-left:auto}#account .lnk.danger{color:#ff8a8a}
+#account .lnk{background:none;border:0;color:var(--dim);font:inherit;font-size:12px;cursor:pointer;text-decoration:underline;padding:4px}#account .lnk:hover{color:var(--bone)}
