@@ -314,7 +314,7 @@ function startRun(){tipT=0;{const sd=$('#side');if(sd)sd.hidden=false}const _tp=
   SFX.start();SFX.setState('battle');if(IS_TOUCH)goFullscreen(true);
 }
 function showEnd(ok){if(G.ended)return;if(typeof metricsEnd==='function')metricsEnd(G.abandoned?'abandoned':G.over==='lose'?'lose':G.rival?(G.score>G.rival.score?'win':G.score<G.rival.score?'lose':'tie'):'finished');tipT=0;G._zeroSaid=0;{const sd=$('#side');if(sd){sd.textContent='';sd.hidden=true}}{const nb=$('#nextboss');if(nb&&G.rival)nb.textContent=L('对决结束','Match over')}if(typeof dirRunEnd==='function')try{dirRunEnd()}catch(_){}{const _tp=$('#tip');if(_tp)_tp.classList.remove('on')}
-  G.ended=true;const box=$('#endb'),tot=G.spells.reduce((a,s)=>a+s.dmg,0)||1,max=Math.max(...G.spells.map(s=>s.dmg),1);
+  G.ended=true;const goldBeforeSettlement=SAVE.gold;const box=$('#endb'),tot=G.spells.reduce((a,s)=>a+s.dmg,0)||1,max=Math.max(...G.spells.map(s=>s.dmg),1);
   checkAch();
   const meta=typeof metaAfterRun==='function'?metaAfterRun():null;
   const gold=Math.round((G.kills*.45+G.lv*3+G.bossSlain*220+Math.floor(G.t/10)*2+G.goldRun*.7+G.comboMax)*(1+.15*(SAVE.up.gold||0))*(G.relics.includes('bowl')?1.3:1)*(G.relics.includes('wolf')?1.6:1)*(G.curse.gold||1)*(1+ASURA_GOLD*ASURA_T)*D().gold*(G.retireBonus||1)*(G.abandoned?.5:1));
@@ -323,7 +323,7 @@ function showEnd(ok){if(G.ended)return;if(typeof metricsEnd==='function')metrics
   if(pk){SAVE.pk=SAVE.pk||{w:0,l:0};if(pkRes==='win')SAVE.pk.w++;else if(pkRes==='lose')SAVE.pk.l++;SAVE.pkBest=Math.max(SAVE.pkBest||0,G.score)}
   let dailyNew=false;if(DAILY){const dk=G.day||dayKey();if(!SAVE.daily||SAVE.daily.day!==dk)SAVE.daily={day:dk,best:0,bosses:0};if(G.t>SAVE.daily.best){SAVE.daily.best=G.t;SAVE.daily.bosses=G.bossSlain;dailyNew=true}}
   const room=!!G.room&&ROOM.code;if(room){ROOM.ended=true;roomSetMe({done:true,score:G.score,alive:!(G.over&&G.over!=='pk'),t:Math.round(G.t),lv:G.lv,kills:G.kills,hp:Math.max(0,G.P.hp/G.P.maxHp)})}
-  const record=!pk&&!room&&!G.abandoned&&G.t>(SAVE.best||0);G.runRewardGold=gold+pkBonus+(meta?.gold||0);SAVE.gold+=gold+pkBonus;SAVE.runs++;SAVE.wins+=G.bossSlain;SAVE.bosses=Math.max(SAVE.bosses||0,G.bossSlain);if(record)SAVE.best=G.t;persist();
+  const record=!pk&&!room&&!G.abandoned&&G.t>(SAVE.best||0);SAVE.gold+=gold+pkBonus;G.runRewardGold=SAVE.gold-goldBeforeSettlement;SAVE.runs++;SAVE.wins+=G.bossSlain;SAVE.bosses=Math.max(SAVE.bosses||0,G.bossSlain);if(record)SAVE.best=G.t;persist();
   const rows=G.spells.slice().sort((a,b)=>b.dmg-a.dmg).map(s=>{const f=s.els.length===2?L(FUS[fusion(s)][0],FUS[fusion(s)][1]):s.els[0]?LL(ELS[s.els[0]]):'';
     if(SKILL_CAT[s.id]==='defense'&&((s.blocked||0)>0||(s.refl||0)>0)){return `<span>${LL(SPELLS[s.id])} · Lv ${s.lv}<small>${L(` · 挡住 ${Math.round(s.blocked||0)} · 反击 ${s.refl||0} 次 · 反击伤害 ${Math.round(s.dmg)} · ${s.casts} 次`,` · blocked ${Math.round(s.blocked||0)} · ${s.refl||0} rebounds · ${Math.round(s.dmg)} rebound damage · ${s.casts} casts`)}</small></span><div class="bar def"><i style="width:${Math.min(100,(s.blocked||0)/Math.max(1,G.dmgTaken+(s.blocked||0))*100)}%"></i></div><span>${L('防御','defense')}</span>`}
     const never=!SPELLS[s.id].auto&&!s.casts?`<small class="why"> · ${L('0 次施放:点击技能图标或按 1/2/3 手动释放','0 casts: tap the skill icon or press 1/2/3 to cast')}</small>`:'';
