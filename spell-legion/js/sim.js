@@ -946,10 +946,10 @@ function buildAdvice(){
   const recent=G.dmgTaken-(G._advDmg||0);G._advDmg=G.dmgTaken;
   // counters: if the most common monster on the field right now is weak to a category the build lacks, say so
   const cnt={};for(const e of G.en)if(!e.dead&&AFFINITY[e.type])cnt[e.type]=(cnt[e.type]||0)+1;const top=Object.keys(cnt).sort((a,b)=>cnt[b]-cnt[a])[0];
-  if(top&&cnt[top]>=12){const A=AFFINITY[top];if(A.weak.cat&&!(t[A.weak.cat]>0)&&!G.spells.some(x=>SKILL_CAT[x.id]===A.weak.cat)){const can=G.spells.length<4&&CLASSES[G.cls].skills.some(k=>!G.spells.some(x=>x.id===k)&&SKILL_CAT[k]===A.weak.cat);if(can)return {cat:A.weak.cat,zh:`场上${ETYPES[top].zh}很多,它们${A.tip[0]}:本职业有这类武学,留意新武学卡`,en:`Lots of ${ETYPES[top].en}s out there: ${A.tip[1]} — your class has one, watch for the new-skill card`};
-    if(A.weak.el&&G.spells.some(x=>x.lv>=7&&!x.els.length))return {cat:'element',zh:`场上${ETYPES[top].zh}很多,它们怕${ELS[A.weak.el]?ELS[A.weak.el].zh:'特定'}真气:给一门满 7 级的武学灌注`,en:`Lots of ${ETYPES[top].en}s: weak to ${ELS[A.weak.el]?ELS[A.weak.el].en:'an element'} — infuse a Lv 7+ skill`};
-    return {cat:'passive',zh:`场上${ETYPES[top].zh}很多(${A.tip[0]}),本局没有克制它的武学:靠伤害、范围与走位硬吃`,en:`Lots of ${ETYPES[top].en}s (${A.tip[1]}); nothing in this build counters them — win on raw damage, area and footwork`}}}
-  if(G.lv>=4&&def===0&&!G.spells.some(s=>SKILL_CAT[s.id]==='defense'||SKILL_CAT[s.id]==='heal')&&(P.hp<P.maxHp*.6||G.lv>=8))return {cat:'defense',zh:'还没有防御或治疗,挨打会越来越疼',en:'Nothing for defense or healing yet; hits will start to hurt'};
+  if(top&&cnt[top]>=12){const A=AFFINITY[top];if(A.weak.cat&&!(t[A.weak.cat]>0)&&!G.spells.some(x=>SKILL_CAT[x.id]===A.weak.cat)){const can=G.spells.length<4&&CLASSES[G.cls].skills.some(k=>!G.spells.some(x=>x.id===k)&&SKILL_CAT[k]===A.weak.cat);if(can)return {cat:A.weak.cat,zh:`${ETYPES[top].zh}多:${A.tip[0]}`,en:`${ETYPES[top].en}s: ${A.tip[1]}`};
+    if(A.weak.el&&G.spells.some(x=>x.lv>=7&&!x.els.length))return {cat:'element',zh:`${ETYPES[top].zh}怕${ELS[A.weak.el]?ELS[A.weak.el].zh:'特定'}`,en:`${ETYPES[top].en}s fear ${ELS[A.weak.el]?ELS[A.weak.el].en:'an element'}`};
+    return {cat:'passive',zh:`${ETYPES[top].zh}多:${A.tip[0]}`,en:`${ETYPES[top].en}s: ${A.tip[1]}`}}}
+  if(G.lv>=4&&def===0&&!G.spells.some(s=>SKILL_CAT[s.id]==='defense'||SKILL_CAT[s.id]==='heal')&&(P.hp<P.maxHp*.6||G.lv>=8))return {cat:'defense',zh:'缺防御',en:'No defense yet'};
   if(G.lv>=6&&off<def)return {cat:'melee',zh:'构筑偏防守,补点伤害会清得更快',en:'Build leans defensive; more damage clears faster'};
   if(G.lv>=10&&ctrl===0&&G.en.length>200)return {cat:'control',zh:'怪群很密,控制类武学能拉开空间',en:'Crowds are thick; a control skill buys space'};
   const low=G.spells.filter(s=>s.lv<5&&!SPELLS[s.id].auto);if(G.lv>=8&&low.length)return {cat:SKILL_CAT[low[0].id],zh:`${SPELLS[low[0].id].zh} 还在低级,升到 7 级可灌注真气`,en:`${SPELLS[low[0].id].en} is still low; Lv 7 unlocks an element`};
