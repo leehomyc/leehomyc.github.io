@@ -201,6 +201,10 @@ function openGear(){let ov=$('#gearov');if(!ov){ov=document.createElement('div')
   if(!gearSel){const eq=gearSave().eq;gearSel=eq.weapon||null}renderGear();ov.hidden=false}
 function gearNewCount(){return gearSave().inv.filter(x=>x.new).length}
 /* a 行囊 chip on the menu strip */
-(()=>{if(typeof renderProg!=='function')return;const rp=renderProg;renderProg=function(){rp();const el=$('#prog');if(!el||el.querySelector('.pr.bag'))return;const g=gearSave();if(!g.inv.length&&!merTotal()&&!(SAVE.ach&&SAVE.ach.boss1))return;const n=gearNewCount();const b=document.createElement('button');b.type='button';b.className='pr bag';b.title=L('行囊:装备与经脉','Gear and meridians');b.innerHTML=`${typeof ICON!=='undefined'?ICON.misc('relic','#ff9c3a'):''}<b>${L('行囊','Gear')}</b>${n?`<span class="dot">${n}</span>`:''}`;b.onclick=()=>{openGear();if(typeof SFX!=='undefined')SFX.pick(1)};el.appendChild(b)}})();
+/* menu entry: a 行囊 button in the bottom tab bar (next to 江湖), shown once there is anything in it; the number is new, unseen items */
+(()=>{if(typeof renderProg!=='function')return;const rp=renderProg;renderProg=function(){rp();const bar=document.querySelector('#menu .tabbar');if(!bar)return;let b=$('#gearbtn');
+  const show=gearSave().inv.length||merTotal()||(SAVE.ach&&SAVE.ach.boss1);
+  if(!b){if(!show)return;b=document.createElement('button');b.type='button';b.id='gearbtn';b.title=L('行囊:装备与经脉','Gear and meridians');b.onclick=()=>{openGear();if(typeof SFX!=='undefined')SFX.pick(1)};const road=bar.querySelector('[data-t=road]');if(road)road.after(b);else bar.prepend(b)}
+  const n=gearNewCount();b.innerHTML=`${typeof ICON!=='undefined'?ICON.misc('relic','#ff9c3a','sm'):''}<span>${L('行囊','Gear')}</span>${n?` <b class="gn">${n}</b>`:''}`;b.hidden=!show}})();
 /* results: what dropped this run */
 xOn('end',box=>{if(!G.gearFound||!G.gearFound.length)return;const d=document.createElement('div');d.className='endgear';d.innerHTML=G.gearFound.slice(0,12).map(it=>{const R=GEAR_RAR[it.r];return `<span style="--rc:${R.col}">${it.leg?'✦ ':''}${xEsc(L(it.zh,it.en))}</span>`}).join('')+(G.gearFound.length>12?`<span style="--rc:#cfc6b2">+${G.gearFound.length-12}</span>`:'')+`<button type="button" class="go alt sm" id="endgearbtn">${L('去行囊','Open gear')}</button>`;box.appendChild(d);const b=$('#endgearbtn');if(b)b.onclick=()=>openGear()});
