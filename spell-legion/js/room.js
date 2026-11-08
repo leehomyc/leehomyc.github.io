@@ -4,7 +4,7 @@ function roomHasAI(){return roomPlayerList().some(p=>p.ai)}
 function roomModeText(d){return d.mode==='last'?L('无尽','Endless'):L('限时 3′','Timed 3′')}
 function roomEquipmentText(p){
   const items=p.uid===roomUid()?roomEquipment():Array.isArray(p.equipment)?p.equipment:[];
-  const names=items.filter(it=>it&&typeof it==='object').slice(0,4).map(it=>L(String(it.zh||it.en||'').slice(0,80),String(it.en||it.zh||'').slice(0,80))).filter(Boolean);
+  const names=items.filter(it=>it&&typeof it==='object').slice(0,4).map(it=>typeof gearName==='function'?gearName({zh:String(it.zh||it.en||'').slice(0,80),en:String(it.en||it.zh||'').slice(0,80)}):L(String(it.zh||it.en||'').slice(0,80),String(it.en||it.zh||'').slice(0,80))).filter(Boolean);
   return L('装备：','Gear: ')+(names.length?names.join(L('、',', ')):L('无','None'));
 }
 // Keep the lobby stable while the mobile keyboard is open: room snapshots must not replace its focused input.

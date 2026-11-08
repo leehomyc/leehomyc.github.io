@@ -33,6 +33,16 @@ const GEAR_BASE={weapon:[['青锋剑','Azure Blade'],['雁翎刀','Wild-goose Sa
   armor:[['软猬甲','Hedgehog Vest'],['锁子甲','Chain Coat'],['青布衫','Blue Robe'],['八卦袍','Trigram Robe'],['百衲衣','Patchwork Habit'],['鱼鳞甲','Fish-scale Mail']],
   trinket:[['羊脂玉佩','Mutton-fat Jade'],['驱虫香囊','Herb Sachet'],['菩提念珠','Bodhi Beads'],['青铜铃','Bronze Bell'],['护身符','Amulet'],['翡翠扳指','Jade Ring']],
   manual:[['拳经残卷','Fist Scroll'],['剑谱','Sword Manual'],['吐纳图','Breathing Chart'],['刀诀','Blade Verses'],['琴谱','Qin Score'],['百草经','Herbal Canon']]};
+// Generated names need their known prefix and base translated separately.
+// Keep English item names, saved stats and IDs intact.
+function gearName(it){
+  const zh=String(it?.zh||it?.en||''),en=String(it?.en||it?.zh||'');
+  if(typeof LOC!=='undefined'&&(LOC==='ja'||LOC==='ko'))for(const bases of Object.values(GEAR_BASE))for(const base of bases){
+    const suffix=' '+base[1];if(!en.endsWith(suffix))continue;const pre=en.slice(0,-suffix.length);
+    if(Object.values(GEAR_AFX).some(a=>a.pre[1]===pre))return tr(pre)+' '+tr(base[1]);
+  }
+  return L(zh,en);
+}
 /* legendaries: a fixed name and a power that changes play, not only numbers */
 const GEAR_LEG={
   chixiao:{slot:'weapon',zh:'赤霄剑',en:'Chixiao',d:'普攻带上烈火真气;燃烧的敌人受到的伤害 +25%',de:'Your normal attack carries Fire; burning enemies take +25% damage'},
@@ -217,21 +227,21 @@ html[lang=ko] .gcell.eq::after{content:'착'}
 .gdet .cmp{font-size:12px}.gdet .cmp b.up{color:#7dffb0}.gdet .cmp b.dn{color:#ff8e7a}
 .gbtns{display:flex;gap:8px;flex-wrap:wrap}
 .gfilt{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}.gfilt button{font:700 12px var(--ui);padding:4px 10px;border-radius:999px;border:1px solid #ffffff2a;background:#0c070b;color:#cfc6b2;cursor:pointer}.gfilt button.on{border-color:var(--brass);color:var(--brass)}
-.endgear{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:6px 0}.endgear span{padding:3px 9px;border-radius:999px;border:1px solid var(--rc);color:var(--rc);font-size:13px;background:#0c070bcc}
+.endgear{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:6px 0}.endgear span{display:inline-flex;align-items:center;justify-content:center;padding:3px 9px;border-radius:999px;border:1px solid var(--rc);color:var(--rc);font-size:13px;background:#0c070bcc}
 `);
 let gearSel=null,gearFilt='all';
 function gearIcon(it){if(!it)return '·';const key={weapon:'sword',armor:'ward',trinket:'relic',manual:'book'}[it.slot]||'relic';return typeof ICON!=='undefined'?ICON.misc(key,GEAR_RAR[it.r]?.col||'#cfc6b2'):'◆'}
 function gearDetail(it){if(!it)return '';const R=GEAR_RAR[it.r],g=gearSave(),cur=g.eq[it.slot]&&gearById(g.eq[it.slot]),isEq=cur&&cur.id===it.id;
   const diff=cur&&!isEq?gearScore(it)-gearScore(cur):0,level=gearUpgradeLevel(it),canUpgrade=gearCanUpgrade(it),cost=gearUpgradeCost(it),current=gearAffixes(it),next=gearAffixes(it,level+1);
-  return `<div class="gdet" style="--rc:${R.col}"><h3>${xEsc(L(it.zh,it.en))}${gearUpgradeLabel(it)}</h3><div class="meta">${L(R.zh,R.en)} · ${LL(GEAR_SLOTS[it.slot])} · ${L('品阶','Tier')} ${it.t} · ${L('强化等级','Upgrade level')} ${level}/${GEAR_UPGRADE_MAX}${isEq?L(' · 已装备',' · equipped'):''}</div>
+  return `<div class="gdet" style="--rc:${R.col}"><h3>${xEsc(gearName(it))}${gearUpgradeLabel(it)}</h3><div class="meta">${L(R.zh,R.en)} · ${LL(GEAR_SLOTS[it.slot])} · ${L('品阶','Tier')} ${it.t} · ${L('强化等级','Upgrade level')} ${level}/${GEAR_UPGRADE_MAX}${isEq?L(' · 已装备',' · equipped'):''}</div>
   <ul>${current.map(a=>`<li>${afxText(a)}</li>`).join('')}</ul>${it.leg?`<div class="leg">✦ ${L(GEAR_LEG[it.leg].d,GEAR_LEG[it.leg].de)}</div>`:''}
-  ${cur&&!isEq?`<div class="cmp">${L('对比当前','vs equipped')} ${xEsc(L(cur.zh,cur.en))}: <b class="${diff>=0?'up':'dn'}">${diff>=0?'▲':'▼'} ${Math.abs(diff).toFixed(1)}</b></div>`:''}
+  ${cur&&!isEq?`<div class="cmp">${L('对比当前','vs equipped')} ${xEsc(gearName(cur))}: <b class="${diff>=0?'up':'dn'}">${diff>=0?'▲':'▼'} ${Math.abs(diff).toFixed(1)}</b></div>`:''}
   <div class="gupgradebox"><b>${L('金币强化','Upgrade with gold')}</b>${canUpgrade?`<ul class="gpreview">${next.map((a,i)=>`<li><span>${afxText(current[i])}</span><b>→ ${afxText(a)}</b></li>`).join('')}</ul><button type="button" class="go sm" data-ga="upgrade" ${SAVE.gold<cost?'disabled':''}>${L(`升至 +${level+1}`,`Upgrade to +${level+1}`)} · ${cost.toLocaleString('en-US')} ${L('金币','gold')}</button>${SAVE.gold<cost?`<small>${L(`还差 ${(cost-SAVE.gold).toLocaleString('en-US')} 金币`,`Need ${(cost-SAVE.gold).toLocaleString('en-US')} more gold`)}</small>`:''}`:`<small>${level>=GEAR_UPGRADE_MAX?L('已达强化上限','Maximum upgrade level'):L('全部词条已达上限','All affixes are at their caps')}</small>`}</div>
   <div class="gbtns">${isEq?`<button type="button" class="go alt sm" data-ga="off">${L('卸下','Unequip')}</button>`:`<button type="button" class="go sm" data-ga="eq">${L('装备','Equip')}</button>`}<button type="button" class="go alt sm" data-ga="lock">${it.lock?L('解锁','Unlock'):L('锁定','Lock')}</button>${isEq||it.lock?'':`<button type="button" class="go alt sm" data-ga="sal">${L('分解','Salvage')} +${gearSalvage(it)} ${L('金','gold')}</button>`}</div></div>`}
 function renderGear(){const box=$('#gearbody');if(!box)return;const g=gearSave(),eq=g.eq;
-  const slots=Object.keys(GEAR_SLOTS).map(k=>{const it=eq[k]&&gearById(eq[k]),R=it?GEAR_RAR[it.r]:null;return `<button type="button" class="gslot${gearSel&&it&&gearSel===it.id?' on':''}" data-sl="${k}" style="--rc:${R?R.col:'#6a6256'}"><span class="gico">${gearIcon(it||{slot:k})}</span><span><b>${it?xEsc(L(it.zh,it.en))+gearUpgradeLabel(it):LL(GEAR_SLOTS[k])}</b><small>${it?gearAffixes(it).slice(0,2).map(afxText).join(' · ')+(it.leg?' · ✦':''):L('空','empty')}</small></span></button>`}).join('');
+  const slots=Object.keys(GEAR_SLOTS).map(k=>{const it=eq[k]&&gearById(eq[k]),R=it?GEAR_RAR[it.r]:null;return `<button type="button" class="gslot${gearSel&&it&&gearSel===it.id?' on':''}" data-sl="${k}" style="--rc:${R?R.col:'#6a6256'}"><span class="gico">${gearIcon(it||{slot:k})}</span><span><b>${it?xEsc(gearName(it))+gearUpgradeLabel(it):LL(GEAR_SLOTS[k])}</b><small>${it?gearAffixes(it).slice(0,2).map(afxText).join(' · ')+(it.leg?' · ✦':''):L('空','empty')}</small></span></button>`}).join('');
   const list=g.inv.filter(it=>gearFilt==='all'||it.slot===gearFilt).sort((a,b)=>(b.r-a.r)||(b.t-a.t)||(gearScore(b)-gearScore(a)));
-  const cells=list.map(it=>{const R=GEAR_RAR[it.r],isEq=Object.values(eq).includes(it.id),cur=eq[it.slot]&&gearById(eq[it.slot]),up=!isEq&&gearScore(it)>gearScore(cur);return `<button type="button" class="gcell${gearSel===it.id?' sel':''}${isEq?' eq':''}${up?' up':''}${it.new?' nw':''}" data-id="${it.id}" style="--rc:${R.col}" title="${xEsc(L(it.zh,it.en))+gearUpgradeLabel(it)}">${gearIcon(it)}${gearUpgradeLevel(it)?`<span class="gplus">+${gearUpgradeLevel(it)}</span>`:''}${it.lock?'<span class="lk">🔒</span>':''}</button>`}).join('');
+  const cells=list.map(it=>{const R=GEAR_RAR[it.r],isEq=Object.values(eq).includes(it.id),cur=eq[it.slot]&&gearById(eq[it.slot]),up=!isEq&&gearScore(it)>gearScore(cur);return `<button type="button" class="gcell${gearSel===it.id?' sel':''}${isEq?' eq':''}${up?' up':''}${it.new?' nw':''}" data-id="${it.id}" style="--rc:${R.col}" title="${xEsc(gearName(it))+gearUpgradeLabel(it)}">${gearIcon(it)}${gearUpgradeLevel(it)?`<span class="gplus">+${gearUpgradeLevel(it)}</span>`:''}${it.lock?'<span class="lk">🔒</span>':''}</button>`}).join('');
   const filt=['all',...Object.keys(GEAR_SLOTS)].map(k=>`<button type="button" data-f="${k}" class="${gearFilt===k?'on':''}">${k==='all'?L('全部','All'):LL(GEAR_SLOTS[k])}</button>`).join('');
 
   const sel=gearSel&&gearById(gearSel);
@@ -254,4 +264,4 @@ function gearNewCount(){return gearSave().inv.filter(x=>x.new).length}
   if(!b){b=document.createElement('button');b.type='button';b.id='gearbtn';b.title=L('行囊:装备','Gear');b.onclick=()=>{openGear();if(typeof SFX!=='undefined')SFX.pick(1)};const road=bar.querySelector('[data-t=road]');if(road)road.after(b);else bar.prepend(b)}
   const n=gearNewCount();b.innerHTML=`${typeof ICON!=='undefined'?ICON.misc('relic','#ff9c3a','sm'):''}<span>${L('行囊','Gear')}</span>${n?` <b class="gn">${n}</b>`:''}`;b.hidden=false}})();
 /* results: what dropped this run */
-xOn('end',box=>{const found=(G.gearFound||[]).filter(it=>gearById(it.id));if(!found.length)return;const d=document.createElement('div');d.className='endgear';d.innerHTML=found.slice(0,12).map(it=>{const R=GEAR_RAR[it.r];return `<span style="--rc:${R.col}">${it.leg?'✦ ':''}${xEsc(L(it.zh,it.en))}</span>`}).join('')+(found.length>12?`<span style="--rc:#cfc6b2">+${found.length-12}</span>`:'')+`<button type="button" class="go alt sm" id="endgearbtn">${L('去行囊','Open gear')}</button>`;const anchor=box.querySelector('details')||box.querySelector('.btns');if(anchor)anchor.before(d);else box.appendChild(d);const b=$('#endgearbtn');if(b)b.onclick=()=>openGear()});
+xOn('end',box=>{const found=(G.gearFound||[]).filter(it=>gearById(it.id));if(!found.length)return;const d=document.createElement('div');d.className='endgear';d.innerHTML=found.slice(0,12).map(it=>{const R=GEAR_RAR[it.r];return `<span style="--rc:${R.col}">${it.leg?'✦ ':''}${xEsc(gearName(it))}</span>`}).join('')+(found.length>12?`<span style="--rc:#cfc6b2">+${found.length-12}</span>`:'')+`<button type="button" class="go alt sm" id="endgearbtn">${L('去行囊','Open gear')}</button>`;const anchor=box.querySelector('details')||box.querySelector('.btns');if(anchor)anchor.before(d);else box.appendChild(d);const b=$('#endgearbtn');if(b)b.onclick=()=>openGear()});

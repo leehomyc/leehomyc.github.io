@@ -99,6 +99,7 @@ test('visible collection count follows discoveries rather than staying at zero o
   const {evaluate}=setup();
   evaluate(`const elements={'#codex':{},'#codexcount':{},'#codexcount2':{}};const $=id=>elements[id];
     const SAVE={codex:{en:{},boss:{},relic:{},weapon:{}}};
+    const BOSS_AT=180,fmt=n=>Math.floor(n/60)+':'+String(Math.floor(n%60)).padStart(2,'0');
     const CODEX_ENEMIES=[{id:'archer',zh:'弓手',en:'Archer',d:'',de:''}],AFFINITY={};
     const BOSSES=[['首领','Boss']],BOSS_HINT=[];
     const RELICS={ring:{zh:'戒指',en:'Ring',d:'',de:''}},WEAPONS={swordsman:['sword']};
@@ -134,4 +135,34 @@ test('elimination and revive messages keep their meaning and values in Japanese 
     }
     assert.equal(evaluate('I18N.miss.size'),0);
   }
+});
+
+test('recent social, gear and combat translations cover every new entry and preserve numeric slots',()=>{
+  const {evaluate}=setup(),rows=JSON.parse(fs.readFileSync(new URL('tools/i18n/tr/recent-features-20261108.json',game),'utf8'));
+  for(const loc of ['ja','ko'])for(const row of rows){
+    const key=row[0],out=evaluate(`I18N.D.${loc}[${JSON.stringify(key)}]`);
+    assert.equal(out,row[loc==='ja'?1:2],`${loc}: ${key}`);
+    assert.deepEqual([...out.matchAll(/\{\d+\}/g)].map(m=>m[0]).sort(),[...key.matchAll(/\{\d+\}/g)].map(m=>m[0]).sort());
+    evaluate(`I18N.miss.clear();trDict(${JSON.stringify(key.replace(/\{(\d+)\}/g,(_,i)=>String(7+Number(i))))},'${loc}',0)`);
+    assert.equal(evaluate('I18N.miss.size'),0,`${loc}: ${key}`);
+  }
+});
+test('recent social and upgrade labels use traditional Chinese when selected',()=>{
+  const {evaluate}=setup();evaluate("setLang('zt')");
+  assert.equal(evaluate("L('好友申请已发送，等待房主重开房间','unused')"),'好友申請已發送，等待房主重開房間');
+  assert.equal(evaluate("L('金币强化 · 防御贡献','unused')"),'金幣強化 · 防禦貢獻');
+});
+
+test('generated equipment names translate their parts without changing saved English names',()=>{
+  const {evaluate}=setup(),gear=fs.readFileSync(new URL('js/gear.js',game),'utf8');
+  evaluate(gear.slice(gear.indexOf('const GEAR_SLOTS='),gear.indexOf('/* legendaries:')));
+  for(const loc of ['ja','ko']){
+    evaluate(`setLang('${loc}');I18N.miss.clear()`);
+    evaluate(`for(const a of Object.values(GEAR_AFX))for(const bases of Object.values(GEAR_BASE))for(const base of bases)gearName({zh:a.pre[0]+'·'+base[0],en:a.pre[1]+' '+base[1]})`);
+    assert.equal(evaluate('I18N.miss.size'),0);
+    assert.notEqual(evaluate(`gearName({zh:'幽冥·齐眉棍',en:'Nether Brow-high Staff'})`),'Nether Brow-high Staff');
+  }
+  evaluate("setLang('en');const staff={zh:'幽冥·齐眉棍',en:'Nether Brow-high Staff'}");
+  assert.equal(evaluate('gearName(staff)'),'Nether Brow-high Staff');
+  assert.equal(evaluate('staff.en'),'Nether Brow-high Staff');
 });

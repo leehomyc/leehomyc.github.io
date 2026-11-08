@@ -1525,3 +1525,5 @@ body.control-frozen #stage::after{content:'';position:absolute;inset:0;pointer-e
 .social-panel nav[hidden]{display:none}.invite-room{color:var(--dim)}.invite-room b{color:var(--mana);letter-spacing:.12em}.social-panel .friend-row>button[data-invite]{margin-left:auto;flex:none}.social-panel .friend-row>div{min-width:0;overflow-wrap:anywhere}
 /* Tall duel lobbies must start at the top in phone landscape so every control can be reached by scrolling. */
 @media(orientation:landscape) and (max-height:520px){#title.heroview{align-items:flex-start;justify-content:flex-start}#title.heroview #hero{flex-shrink:0}}
+
+.social-panel header>button{flex:none;white-space:nowrap}

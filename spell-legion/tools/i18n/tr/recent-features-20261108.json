@@ -1,0 +1,752 @@
+[
+  [
+    "Shrine blessing claimed",
+    "祠の加護を獲得",
+    "사당의 축복 획득"
+  ],
+  [
+    "Chest claimed!",
+    "宝箱を獲得！",
+    "보물상자 획득!"
+  ],
+  [
+    "Arena sync lost · no ladder change",
+    "同期が切れました · ランクポイントの変動なし",
+    "동기화 끊김 · 랭크 점수 변동 없음"
+  ],
+  [
+    "Connecting…",
+    "接続中…",
+    "연결 중…"
+  ],
+  [
+    "Sign in or create an account",
+    "ログインまたはアカウント作成",
+    "로그인 또는 계정 만들기"
+  ],
+  [
+    "Account: {0}",
+    "アカウント：{0}",
+    "계정: {0}"
+  ],
+  [
+    "Damage and slow nearby enemies for five seconds, restoring about 9% HP. Healing grows separately from damage and is reduced briefly after taking a hit.",
+    "5秒間、周囲の敵にダメージとスロウを与え、HPを約9%回復する。回復量はダメージとは別に成長し、被弾後は一時的に低下する。",
+    "5초 동안 주변 적에게 피해와 둔화를 주고 HP를 약 9% 회복합니다. 회복량은 피해량과 별도로 성장하며, 피격 후 잠시 감소합니다."
+  ],
+  [
+    "Heal 20% over 3 s (upgrades cap at 35%); +1% per poisoned enemy, up to 45% total. Cure bewitchment and gain brief protection.",
+    "3秒かけてHPを20%回復（強化で最大35%）。毒状態の敵1体につき+1%、合計最大45%。魅了を解除し、短時間の保護を得る。",
+    "3초에 걸쳐 HP를 20% 회복합니다(강화 시 최대 35%). 중독된 적 한 명당 +1%, 총 최대 45%. 매혹을 해제하고 잠시 보호를 얻습니다."
+  ],
+  [
+    "+12% base damage; diminishing returns after 20 stacks, with continued growth",
+    "基礎ダメージ+12%。20スタック以降は伸びが緩やかになるが、成長は続く",
+    "기본 피해량 +12%. 20중첩 이후 증가 효율이 줄지만 계속 성장"
+  ],
+  [
+    "-8% base damage taken per stack, up to 7 stacks (60% total mitigation cap)",
+    "1スタックにつき基礎被ダメージ-8%、最大7スタック（総ダメージ軽減の上限60%）",
+    "중첩당 기본 받는 피해 -8%, 최대 7중첩(총 피해 감소 상한 60%)"
+  ],
+  [
+    "+30 max qi and +10% base regen per stack, up to 8 stacks",
+    "1スタックにつきマナ上限+30、基礎回復速度+10%、最大8スタック",
+    "중첩당 최대 마나 +30, 기본 재생량 +10%, 최대 8중첩"
+  ],
+  [
+    "Max HP +25, heal 5",
+    "最大HP+25、HPを5回復",
+    "최대 HP +25, HP 5 회복"
+  ],
+  [
+    "+40% base pickup range per stack, up to 6 stacks",
+    "1スタックにつき基礎回収範囲+40%、最大6スタック",
+    "중첩당 기본 획득 범위 +40%, 최대 6중첩"
+  ],
+  [
+    "-6% base cooldown per stack, up to 8 stacks",
+    "1スタックにつき基礎クールダウン-6%、最大8スタック",
+    "중첩당 기본 재사용 대기시간 -6%, 최대 8중첩"
+  ],
+  [
+    "Total healing +1.8% of max HP / rank",
+    "ランクごとに総回復量が最大HPの1.8%分増加",
+    "단계당 총 회복량이 최대 HP의 1.8%만큼 증가"
+  ],
+  [
+    "Each pulse heals +15% / rank",
+    "ランクごとに各波動の回復量+15%",
+    "단계당 각 파동의 회복량 +15%"
+  ],
+  [
+    "Lifesteal on effective damage / rank; area hits share a recovery budget",
+    "ランクごとに実際に与えたダメージから吸収回復。範囲攻撃も回復上限を共有",
+    "단계당 실제 입힌 피해로 흡혈. 범위 공격도 회복 한도를 공유"
+  ],
+  [
+    "Total healing +1.5% of max HP / rank",
+    "ランクごとに総回復量が最大HPの1.5%分増加",
+    "단계당 총 회복량이 최대 HP의 1.5%만큼 증가"
+  ],
+  [
+    "1.5% lifesteal on effective damage, sharing a recovery budget with gear and area hits",
+    "実際に与えたダメージの1.5%を吸収回復。装備効果や範囲攻撃と回復上限を共有",
+    "실제 입힌 피해의 1.5%를 흡혈. 장비 효과 및 범위 공격과 회복 한도 공유"
+  ],
+  [
+    "Restore 1 life, up to 3; timed duels have unlimited lives",
+    "残機を1回復、最大3。時間制の対決は復活回数無制限",
+    "목숨 1개 회복, 최대 3개. 시간제 대결은 무제한 부활"
+  ],
+  [
+    "Illusions shatter in one hit. Dodge pink charm marks; blue marks briefly freeze you in phase two.",
+    "分身は一撃で消える。桃色の魅了マークを避けよう。第2形態の青いマークに当たると短時間凍結する。",
+    "분신은 한 번 공격하면 사라집니다. 분홍색 매혹 표식을 피하세요. 2단계의 파란 표식에 맞으면 잠시 얼어붙습니다."
+  ],
+  [
+    "Enemy evolution · tier {0}: tougher foes and telegraphed attacks",
+    "敵が進化 · 第{0}段階：耐久力上昇と予告付き攻撃",
+    "적 진화 · {0}단계: 내구력 증가 및 예고 공격"
+  ],
+  [
+    "Stationary lightning",
+    "立ち止まりへの落雷",
+    "정지 감지 낙뢰"
+  ],
+  [
+    "Lightning incoming · move out of the marked circle",
+    "落雷が来る · マークされた円から離れよう",
+    "낙뢰 접근 · 표시된 원에서 벗어나세요"
+  ],
+  [
+    "Elite breaks control · watch its attack warning",
+    "エリートが行動阻害を解除 · 攻撃予告に注意",
+    "엘리트가 제어 효과 해제 · 공격 예고에 주의"
+  ],
+  [
+    "Killing an elite heals 4% of max HP",
+    "エリートを倒すと最大HPの4%を回復",
+    "엘리트 처치 시 최대 HP의 4% 회복"
+  ],
+  [
+    "Upgrade level",
+    "強化レベル",
+    "강화 레벨"
+  ],
+  [
+    "Upgrade with gold",
+    "ゴールドで強化",
+    "골드로 강화"
+  ],
+  [
+    "Upgrade to +{0}",
+    "+{0}に強化",
+    "+{0}로 강화"
+  ],
+  [
+    "Need {0} more gold",
+    "あと{0}ゴールド必要",
+    "골드 {0} 더 필요"
+  ],
+  [
+    "Maximum upgrade level",
+    "強化レベル上限",
+    "최대 강화 레벨"
+  ],
+  [
+    "All affixes are at their caps",
+    "すべての追加効果が上限に到達",
+    "모든 추가 옵션이 상한에 도달"
+  ],
+  [
+    "Equipment and upgrades apply next run, in solo and duels",
+    "装備と強化は次のプレイから適用。ソロ・対決の両方で有効",
+    "장비와 강화는 다음 판부터 적용되며, 솔로와 대결 모두 유효"
+  ],
+  [
+    "Sign in / register to rank",
+    "ランキング参加にはログイン・登録が必要",
+    "순위 등록은 로그인 또는 회원가입 후 가능"
+  ],
+  [
+    "Saved locally. Click to retry upload",
+    "この端末に保存済み。クリックして再送信",
+    "기기에 저장됨. 눌러서 업로드 재시도"
+  ],
+  [
+    "Boss {0} · arrives at {1}",
+    "ボス{0} · {1}に出現",
+    "보스 {0} · {1}에 등장"
+  ],
+  [
+    "Room version is outdated. Both players should refresh and create a new room.",
+    "ルームのバージョンが古くなっています。全員がページを更新し、新しいルームを作成してください。",
+    "방 버전이 오래되었습니다. 모든 플레이어가 새로고침한 뒤 새 방을 만들어 주세요."
+  ],
+  [
+    "Online service is not connected. Please retry shortly.",
+    "オンラインサービスに未接続です。少し待って再試行してください。",
+    "온라인 서비스에 연결되지 않았습니다. 잠시 후 다시 시도해 주세요."
+  ],
+  [
+    "Task",
+    "ミッション",
+    "임무"
+  ],
+  [
+    "Warlord",
+    "将軍",
+    "장군"
+  ],
+  [
+    "None",
+    "なし",
+    "없음"
+  ],
+  [
+    "Friend room code",
+    "フレンドのルームコード",
+    "친구 방 코드"
+  ],
+  [
+    "Join duel",
+    "対決に参加",
+    "대결 참가"
+  ],
+  [
+    "Create new room",
+    "新しいルームを作成",
+    "새 방 만들기"
+  ],
+  [
+    "Copy room code",
+    "ルームコードをコピー",
+    "방 코드 복사"
+  ],
+  [
+    "Join a friend’s room",
+    "フレンドのルームに参加",
+    "친구 방 참가"
+  ],
+  [
+    "3 lives each · the round ends when anyone runs out",
+    "残機は各自3 · 誰かの残機が尽きると対決終了",
+    "각자 목숨 3개 · 누구든 모두 잃으면 대결 종료"
+  ],
+  [
+    "3 minutes · unlimited revives · each death halves your score",
+    "3分間 · 復活回数無制限 · 倒れるたびにスコア半減",
+    "3분 · 무제한 부활 · 사망할 때마다 점수 절반 감소"
+  ],
+  [
+    "Room code copied",
+    "ルームコードをコピーしました",
+    "방 코드 복사됨"
+  ],
+  [
+    "3 lives each · round ends when anyone runs out",
+    "残機は各自3 · 誰かの残機が尽きると対決終了",
+    "각자 목숨 3개 · 누구든 모두 잃으면 대결 종료"
+  ],
+  [
+    "Duel interrupted",
+    "対決中断",
+    "대결 중단"
+  ],
+  [
+    "Interrupted: no ladder points awarded",
+    "中断：ランクポイントの変動なし",
+    "중단: 랭크 점수 변동 없음"
+  ],
+  [
+    "Waiting for the host to restart",
+    "ホストの再開を待っています",
+    "방장의 재시작을 기다리는 중"
+  ],
+  [
+    "Warlord defeated",
+    "将軍撃破",
+    "장군 격파"
+  ],
+  [
+    "Boss defeated",
+    "ボス撃破",
+    "보스 격파"
+  ],
+  [
+    "Rift fury fades",
+    "亀裂の怒りが収まった",
+    "균열의 분노 해제"
+  ],
+  [
+    "Rift unsealed: enemies gain +20% combat stats for 60 s",
+    "亀裂の封印失敗：敵の戦闘能力が60秒間+20%",
+    "균열 봉인 실패: 60초 동안 적의 전투 능력치 +20%"
+  ],
+  [
+    "Seal the rift: stand inside for 8 s (failure: enemies +20% for 60 s)",
+    "亀裂を封印：円内に8秒間留まる（失敗すると敵の能力が60秒間+20%）",
+    "균열 봉인: 원 안에 8초간 머무르기(실패 시 60초 동안 적 능력치 +20%)"
+  ],
+  [
+    " · Failure: enemies +20% combat stats for 60 s",
+    " · 失敗：敵の戦闘能力が60秒間+20%",
+    " · 실패: 60초 동안 적 전투 능력치 +20%"
+  ],
+  [
+    " / rank",
+    " / ランク",
+    " / 단계"
+  ],
+  [
+    "Heal {0}% → {1}% HP",
+    "HP回復 {0}% → {1}%",
+    "HP 회복 {0}% → {1}%"
+  ],
+  [
+    "boss skyfall",
+    "ボスの急降下",
+    "보스 급강하"
+  ],
+  [
+    "SKYFALL · Move out! Hit loses {0}% max HP",
+    "急降下 · 避けよう！命中すると最大HPの{0}%を失う",
+    "급강하 · 피하세요! 피격 시 최대 HP의 {0}% 감소"
+  ],
+  [
+    "Boss phase {0} · watch for combos",
+    "ボス第{0}形態 · 連続攻撃に注意",
+    "보스 {0}단계 · 연속 공격에 주의"
+  ],
+  [
+    "Boss combination",
+    "ボスの連続攻撃",
+    "보스 연속 공격"
+  ],
+  [
+    "FROZEN!",
+    "凍結！",
+    "빙결!"
+  ],
+  [
+    "BEWITCHED · controls briefly reversed",
+    "魅了 · 短時間、操作方向が反転",
+    "매혹 · 잠시 조작 방향 반전"
+  ],
+  [
+    "Enchanting gaze",
+    "魅惑のまなざし",
+    "매혹의 시선"
+  ],
+  [
+    "FROST GAZE · leave the blue circle",
+    "凍てつくまなざし · 青い円から離れよう",
+    "서리 시선 · 파란 원에서 벗어나세요"
+  ],
+  [
+    "ENCHANTING GAZE · leave the pink circle",
+    "魅惑のまなざし · 桃色の円から離れよう",
+    "매혹의 시선 · 분홍색 원에서 벗어나세요"
+  ],
+  [
+    " · next boss in {0}",
+    " · 次のボスまで{0}",
+    " · 다음 보스까지 {0}"
+  ],
+  [
+    "Connection failed. Please retry.",
+    "接続に失敗しました。再試行してください。",
+    "연결에 실패했습니다. 다시 시도해 주세요."
+  ],
+  [
+    "Could not complete this action. Please retry.",
+    "操作を完了できませんでした。再試行してください。",
+    "작업을 완료하지 못했습니다. 다시 시도해 주세요."
+  ],
+  [
+    "Please retry",
+    "再試行してください",
+    "다시 시도해 주세요"
+  ],
+  [
+    "Sign in first",
+    "先にログインしてください",
+    "먼저 로그인해 주세요"
+  ],
+  [
+    "Verify your email in Settings before adding friends",
+    "フレンド追加の前に設定からメールアドレスを認証してください",
+    "친구를 추가하기 전에 설정에서 이메일을 인증해 주세요"
+  ],
+  [
+    "Enter a valid email",
+    "有効なメールアドレスを入力してください",
+    "올바른 이메일 주소를 입력해 주세요"
+  ],
+  [
+    "No player found. They need to register and verify their email",
+    "プレイヤーが見つかりません。相手の登録とメール認証が必要です",
+    "플레이어를 찾을 수 없습니다. 상대방의 가입 및 이메일 인증이 필요합니다"
+  ],
+  [
+    "This is your own account",
+    "自分のアカウントです",
+    "본인 계정입니다"
+  ],
+  [
+    "Already friends",
+    "すでにフレンドです",
+    "이미 친구입니다"
+  ],
+  [
+    "A friend request is already pending",
+    "フレンド申請は送信済みで承認待ちです",
+    "이미 대기 중인 친구 요청이 있습니다"
+  ],
+  [
+    "Friend request sent",
+    "フレンド申請を送信しました",
+    "친구 요청을 보냈습니다"
+  ],
+  [
+    "Add this player as a friend first",
+    "先にこのプレイヤーをフレンドに追加してください",
+    "먼저 이 플레이어를 친구로 추가해 주세요"
+  ],
+  [
+    "Finish your current match first",
+    "先に現在の対局を終了してください",
+    "먼저 진행 중인 대결을 끝내 주세요"
+  ],
+  [
+    "The room changed. Open invitations again from the duel lobby",
+    "ルームが変更されました。対決ロビーから招待を開き直してください",
+    "방이 변경되었습니다. 대결 로비에서 초대를 다시 열어 주세요"
+  ],
+  [
+    "The room is full",
+    "ルームは満員です",
+    "방이 가득 찼습니다"
+  ],
+  [
+    "Duel service is offline. Please retry",
+    "対決サービスに未接続です。再試行してください",
+    "대결 서비스에 연결되지 않았습니다. 다시 시도해 주세요"
+  ],
+  [
+    "Invitation sent. Waiting for your friend",
+    "招待を送信しました。フレンドの参加を待っています",
+    "초대를 보냈습니다. 친구의 참가를 기다리는 중입니다"
+  ],
+  [
+    "This invitation expired. Ask your friend to invite again",
+    "招待の有効期限が切れました。再度招待してもらってください",
+    "초대가 만료되었습니다. 친구에게 다시 초대해 달라고 요청하세요"
+  ],
+  [
+    "Finish your current match before joining",
+    "参加する前に現在の対局を終了してください",
+    "참가하기 전에 진행 중인 대결을 끝내 주세요"
+  ],
+  [
+    "A friend invited you to a duel",
+    "フレンドから対決への招待が届きました",
+    "친구가 대결에 초대했습니다"
+  ],
+  [
+    "Dismiss invitation",
+    "招待を閉じる",
+    "초대 닫기"
+  ],
+  [
+    "Won",
+    "勝利",
+    "승리"
+  ],
+  [
+    "Lost",
+    "敗北",
+    "패배"
+  ],
+  [
+    "Draw",
+    "引き分け",
+    "무승부"
+  ],
+  [
+    "Interrupted",
+    "中断",
+    "중단"
+  ],
+  [
+    "Finished",
+    "終了",
+    "완료"
+  ],
+  [
+    "Match details",
+    "対局の詳細",
+    "대결 상세"
+  ],
+  [
+    "bosses",
+    "ボス",
+    "보스"
+  ],
+  [
+    "No matches yet. Finish a match to record it here.",
+    "戦績はまだありません。プレイを終えるとここに記録されます。",
+    "아직 전적이 없습니다. 한 판을 마치면 여기에 기록됩니다."
+  ],
+  [
+    "Invite friends to duel",
+    "フレンドを招待",
+    "친구 초대"
+  ],
+  [
+    "Community",
+    "コミュニティ",
+    "커뮤니티"
+  ],
+  [
+    "History",
+    "戦績",
+    "전적"
+  ],
+  [
+    "Add a friend by email",
+    "メールアドレスでフレンド追加",
+    "이메일로 친구 추가"
+  ],
+  [
+    "Friend’s email",
+    "フレンドのメールアドレス",
+    "친구 이메일"
+  ],
+  [
+    "Add",
+    "追加",
+    "추가"
+  ],
+  [
+    "Once accepted, you can view their history and invite them to a duel",
+    "承認されると戦績の閲覧や対決への招待ができます",
+    "수락하면 전적을 보고 대결에 초대할 수 있습니다"
+  ],
+  [
+    "Choose friends to invite",
+    "招待するフレンドを選ぶ",
+    "초대할 친구 선택"
+  ],
+  [
+    "Guest history is stored on this device. Sign in to sync matches and add friends.",
+    "ゲストの戦績はこの端末に保存されます。ログインすると戦績の同期とフレンド追加ができます。",
+    "게스트 전적은 이 기기에 저장됩니다. 로그인하면 전적 동기화와 친구 추가가 가능합니다."
+  ],
+  [
+    "Sign in / Register",
+    "ログイン / 登録",
+    "로그인 / 회원가입"
+  ],
+  [
+    "The room changed. Close this list and open it again",
+    "ルームが変更されました。一覧を閉じて開き直してください",
+    "방이 변경되었습니다. 목록을 닫았다가 다시 열어 주세요"
+  ],
+  [
+    "In room",
+    "参加済み",
+    "방에 있음"
+  ],
+  [
+    "Invited",
+    "招待済み",
+    "초대함"
+  ],
+  [
+    "No friends yet. Add friends by email from Friends on the home screen.",
+    "フレンドはまだいません。ホーム画面の「フレンド」からメールアドレスで追加できます。",
+    "아직 친구가 없습니다. 홈 화면의 친구 메뉴에서 이메일로 추가하세요."
+  ],
+  [
+    "Endless best",
+    "エンドレス最高スコア",
+    "무한 모드 최고 점수"
+  ],
+  [
+    "Remove friend",
+    "フレンド解除",
+    "친구 삭제"
+  ],
+  [
+    "Recent matches",
+    "最近の戦績",
+    "최근 전적"
+  ],
+  [
+    "Friend requests",
+    "フレンド申請",
+    "친구 요청"
+  ],
+  [
+    "Accept",
+    "承認",
+    "수락"
+  ],
+  [
+    "Profile / History",
+    "プロフィール / 戦績",
+    "프로필 / 전적"
+  ],
+  [
+    "Add friends and duel together",
+    "フレンドを追加して一緒に対決しよう",
+    "친구를 추가하고 함께 대결하세요"
+  ],
+  [
+    "Sent requests",
+    "送信した申請",
+    "보낸 요청"
+  ],
+  [
+    "Pending",
+    "承認待ち",
+    "수락 대기 중"
+  ],
+  [
+    "Cancel",
+    "キャンセル",
+    "취소"
+  ],
+  [
+    "Could not load. Please retry.",
+    "読み込めませんでした。再試行してください。",
+    "불러오지 못했습니다. 다시 시도해 주세요."
+  ],
+  [
+    "CRITICAL HEALTH · Avoid attacks",
+    "瀕死 · 攻撃を避けよう",
+    "빈사 상태 · 공격을 피하세요"
+  ],
+  [
+    "LOW HEALTH",
+    "HP低下",
+    "HP 부족"
+  ],
+  [
+    "Rift fury · enemies +20% stats · {0}s",
+    "亀裂の怒り · 敵の能力+20% · 残り{0}秒",
+    "균열의 분노 · 적 능력치 +20% · {0}초"
+  ],
+  [
+    "Lives {0}/{1}",
+    "残機 {0}/{1}",
+    "목숨 {0}/{1}"
+  ],
+  [
+    "DEATH −{0}",
+    "死亡 −{0}",
+    "사망 −{0}"
+  ],
+  [
+    "Awakened",
+    "覚醒済み",
+    "각성 완료"
+  ],
+  [
+    "Automatic attack",
+    "通常攻撃・自動",
+    "일반 공격 · 자동"
+  ],
+  [
+    "{0} qi · Base cooldown {1}s",
+    "マナ{0} · 基礎クールダウン{1}秒",
+    "마나 {0} · 기본 재사용 대기시간 {1}초"
+  ],
+  [
+    "Skill tree upgrades taken",
+    "取得したスキルツリー強化",
+    "획득한 스킬 트리 강화"
+  ],
+  [
+    "None yet",
+    "まだありません",
+    "아직 없음"
+  ],
+  [
+    "Other upgrades",
+    "その他の強化",
+    "기타 강화"
+  ],
+  [
+    "Best",
+    "ベスト",
+    "최고 기록"
+  ],
+  [
+    "On your highest tier, defeat the 2:00 Warlord or {0} boss to unlock the next",
+    "最高到達の階層で2:00の将軍か{0}のボスを倒すと次の階層が開放",
+    "최고 단계에서 2:00 장군 또는 {0} 보스를 처치하면 다음 단계 해금"
+  ],
+  [
+    "blocked",
+    "防いだダメージ",
+    "막은 피해"
+  ],
+  [
+    "healed",
+    "回復量",
+    "회복량"
+  ],
+  [
+    "combos, chests, missions & ambushes",
+    "コンボ・宝箱・ミッション・奇襲",
+    "콤보, 보물상자, 임무 및 기습"
+  ],
+  [
+    "Death penalty",
+    "死亡ペナルティ",
+    "사망 페널티"
+  ],
+  [
+    "Combo rewards",
+    "コンボ報酬",
+    "콤보 보상"
+  ],
+  [
+    "Run score",
+    "今回のスコア",
+    "이번 판 점수"
+  ],
+  [
+    "Ascension: defeat the 2:00 Warlord or {0} boss",
+    "アセンション：2:00の将軍か{0}のボスを倒す",
+    "어센션: 2:00 장군 또는 {0} 보스 처치"
+  ],
+  [
+    "Boss fight times",
+    "ボス戦の所要時間",
+    "보스전 소요 시간"
+  ],
+  [
+    "Skill contributions",
+    "スキル貢献度",
+    "스킬 기여도"
+  ],
+  [
+    "Yellow: share of damage",
+    "黄：総ダメージに占める割合",
+    "노란색: 총 피해량 비중"
+  ],
+  [
+    "Green: healing",
+    "緑：回復への貢献",
+    "초록색: 회복 기여"
+  ],
+  [
+    "Pale gold: protection",
+    "淡い金：防御への貢献",
+    "연한 금색: 방어 기여"
+  ]
+]
