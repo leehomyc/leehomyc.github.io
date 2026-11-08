@@ -62,7 +62,7 @@ function directorTick(dt){if(!dirOn())return;if(!G.dir)dirInit();const D=G.dir,t
   const early=clamp((t-120)/360,0,1);D.I=clamp(D.I,D.base*.75,D.base*(1+1.6*early)); // the first minutes belong to the build: the director only starts leaning in after 2 min and reaches full reach at 8
   if(t<120)D.I=Math.min(D.I,SAVE.mode==='solo'?1.2:1);
   if(S.still&&t>150){D.counter=t>210&&rnd()<.4?'bomber':'archer';D.counterP=Math.max(D.counterP,.5)} // a player who stands still gets shot at: archers and bombers do full damage at range
-  D.spawn=D.mood==='pressure'?Math.min(1.6,D.I):D.mood==='relief'?.7:Math.min(1.15,D.I);D.hp=clamp(Math.pow(D.I,.4),.8,1.35);D.dmg=clamp(Math.pow(D.I,.45),.8+(SAVE.mode==='solo'?.12:0),1+.5*early+(SAVE.mode==='solo'?.12:0));D.elite=clamp(D.I,.8,1+1.2*early+(SAVE.mode==='solo'?.15:0));D.heal=D.mood==='pressure'?.8:1;
+  D.spawn=D.mood==='pressure'?Math.min(1.6,D.I):D.mood==='relief'?.7:Math.min(1.15,D.I);D.hp=clamp(Math.pow(D.I,.4),.8,1.35);D.dmg=clamp(Math.pow(D.I,.45),.8+(SAVE.mode==='solo'?.12:0),1+.5*early+(SAVE.mode==='solo'?.12:0));D.elite=clamp(D.I,.8,1+1.2*early+(SAVE.mode==='solo'?.15:0));D.heal=D.mood==='pressure'?1.4:1;
 }
 /* across runs: a veteran's director starts hotter; a player who keeps dying gets a gentler start */
 function dirRunEnd(){if(!G||!G.dir||typeof SAVE==='undefined'||RIVAL_ON||G.room)return;const mins=G.t/60,died=!!G.killer;let s=SAVE.skill||0;const target=clamp((mins-6)/24+(G.bossSlain*.04)-(died&&mins<8?.15:0),0,1);s+=(target-s)*.35;SAVE.skill=clamp(s,0,1);SAVE.dirPeaks=(SAVE.dirPeaks||0)+(G.dir.peaks||0)}
@@ -81,15 +81,17 @@ function dirAdaptiveStep(){
   if(P.down>0||r<.45)level=Math.max(0,level-2);else if(cruising)level=Math.min(8,level+1);else if(r<.65)level=Math.max(0,level-1);
   if(level>(D.adaptLevel||0))showBanner(`敌军进化 · ${level} 阶`,`Enemy evolution · tier ${level}: tougher foes and telegraphed attacks`,2);
   D.adaptLevel=level;
-  D.adaptProfile={level,hp:P.maxHp,def:Math.max(.4,P.def),dps:Math.max(0,(G.effectiveDealt||0)-(h.effective||0))/Math.max(1,span)};
+  D.adaptProfile={level:Math.max(level,Math.min(6,Math.floor(Math.max(0,G.t-180)/120))),buildDps:typeof buildBossDps==='function'?buildBossDps():0,hp:P.maxHp,def:Math.max(.4,P.def),dps:Math.max(0,(G.effectiveDealt||0)-(h.effective||0))/Math.max(1,span)};
 }
 function dirAdaptEnemy(e){
   if(!e||!dirOn()||SAVE.mode!=='solo'||!G.dir?.adaptProfile)return;
   const A=G.dir.adaptProfile,n=A.level;if(!n||e.type==='boss'||e.type==='statue'||e.warlord)return;
-  const baseHp=e.hp,baseDmg=e.dmg;
-  // Only part of measured crowd DPS counts; growth has a strict ceiling.
-  e.hp=e.maxHp=Math.min(baseHp*3,Math.max(baseHp*(1+n*.15),A.dps*(e.elite?.65:.16)));
-  e.dmg=Math.min(baseDmg*2.5,Math.max(baseDmg*(1+n*.08),A.hp*.08/A.def));e.adaptArmor=Math.min(.12,n*.015);e.adaptDamage=e.dmg/Math.max(.1,baseDmg);
+  const baseHp=e.hp,baseDmg=e.dmg,build=Math.max(0,A.buildDps||0),phase=clamp((G.t-150)/450,0,1),elite=e.elite||e.champion;
+  const life=elite?.75+n*.12:e.type==='brute'?.28+n*.025:e.type==='archer'?.15+n*.012:.10+n*.012;
+  // Trash remains quick to clear. Durable elites and back-line threats keep scaling with the build.
+  e.hp=e.maxHp=Math.max(baseHp*(1+n*.15),Math.max(A.dps*(elite?.65:.16),build*life*phase));
+  e.dmg=Math.max(baseDmg*(1+n*.08),A.hp*(elite?.065+n*.004:.025+n*.002)/Math.sqrt(A.def));e.adaptArmor=Math.min(elite?.22:.12,n*(elite?.025:.015));e.adaptDamage=e.dmg/Math.max(.1,baseDmg);
+  if(elite&&n>=3){e.tenacious=true;e.sc=(e.sc||1)*1.08;e.tintv='#b87563'}
   const alive=G.en.filter(o=>!o.dead&&o.adaptAbility).length;
   if(n>=2&&alive<Math.min(4,Math.ceil(n/2))&&SIMR()<.12+n*.02){
     e.adaptAbility=pick(n>=4?['blast','line','leech']:['blast','line']);e.adaptCd=3;
@@ -117,4 +119,13 @@ function dirStationaryStrike(){
   D.nextStrike=G.t+12;
   hazard(G.P.x,G.P.y,54,1.6,.25,0,0,'#ff8975');const h=G.hazards[G.hazards.length-1];h.percent=.22;h.stationary=true;h.source=['久驻落雷','Stationary lightning'];
   showBanner('落雷将至 · 移动躲避','Lightning incoming · move out of the marked circle',1.6);
+}
+
+function dirControlResilience(e,dt){
+  if(!e.tenacious||!dirOn())return;
+  e.resolveCd=Math.max(0,(e.resolveCd||0)-dt);
+  if(e.resolve>0){e.resolve=Math.max(0,e.resolve-dt);e.frz=0;e.sleep=0;e.slow=Math.min(e.slow||0,.25);return}
+  e.controlTime=e.frz>0||e.sleep>0?(e.controlTime||0)+dt:Math.max(0,(e.controlTime||0)-dt*2);
+  if(e.controlTime>=1.5&&!e.resolveCd){e.resolve=2;e.resolveCd=8;e.controlTime=0;e.frz=0;e.sleep=0;ring(e.x,e.y,e.r+10,'#ffbd88');
+    if(G.t-(G.resolveSaid||-20)>12){G.resolveSaid=G.t;showBanner('精英破控 · 留意预警攻击','Elite breaks control · watch its attack warning',1.6)}}
 }

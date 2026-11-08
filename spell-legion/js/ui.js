@@ -43,7 +43,7 @@ function updateVitalsFeedback(){
   document.body.classList.toggle('health-hit',hit);
   document.body.classList.toggle('health-low',state.low);
   document.body.classList.toggle('health-critical',state.critical);
-  document.body.classList.toggle('energy-low',state.lowEnergy);
+  document.body.classList.toggle('energy-low',state.lowEnergy);document.body.classList.toggle('control-frozen',!!(active&&P.frozen>0));
   fx.hidden=!(hit||state.low);warning.hidden=!state.low;
   const label=state.critical?L('濒危 · 立即避开攻击','CRITICAL HEALTH · Avoid attacks'):L('生命偏低','LOW HEALTH');
   if(warning.textContent!==label)warning.textContent=label;
@@ -391,7 +391,7 @@ function startRun(){
   $('#title').hidden=true;$('#intro').hidden=true;$('#end').hidden=true;$('#cards').hidden=true;$('#hud').hidden=false;$('#bossbar').hidden=true;$('#pause').hidden=true;$('#char').hidden=true;
   $('#banner').classList.remove('on');$('#pausebtn').textContent='II';
   SAVE.played=true;persist();
-  newGame(false,CLASS);G.room=!!inRoom;if(!DAILY&&!inRoom&&!RIVAL_ON)applyUpgrades(G.P);if(!DAILY&&typeof gearApply==='function')gearApply(G.P);G.day=dayKey();if(inRoom){const seat=ROOM.host?roomPlayerList().find(p=>p.ai):null;if(seat){mkRival(CLASS,seat);G.rivalSeat=seat.uid}else G.rivalSeat=null;if(typeof arenaStart==='function')arenaStart();ROOM.ended=false;ROOM.rewarded=false;roomSetMe({score:0,hp:1,lv:1,kills:0,alive:true,done:false,abandonedRound:0,t:0,cls:CLASS});drawRoomBoard()}else{const rb=$('#roomboard');if(rb)rb.hidden=true}if(typeof codexSee==='function')codexSee('weapon',weaponOf(CLASS));G.quick=SAVE.mode==='qpk';G.historyUid=typeof CLOUD!=='undefined'&&CLOUD.registered()?CLOUD.uid():null;
+  newGame(false,CLASS);G.room=!!inRoom;if(!DAILY&&!inRoom&&!RIVAL_ON)applyUpgrades(G.P);if(!DAILY&&typeof gearApply==='function')gearApply(G.P);G.day=dayKey();if(inRoom){const seat=ROOM.host?roomPlayerList().find(p=>p.ai):null;if(seat){mkRival(CLASS,seat);G.rivalSeat=seat.uid}else G.rivalSeat=null;if(typeof arenaStart==='function')arenaStart();ROOM.ended=false;ROOM.rewarded=false;roomSetMe({score:0,hp:1,lv:1,kills:0,alive:true,done:false,abandonedRound:0,t:0,cls:CLASS});drawRoomBoard();if(!G.shared&&typeof arenaDetach==='function')arenaDetach(false)}else{const rb=$('#roomboard');if(rb)rb.hidden=true}if(typeof codexSee==='function')codexSee('weapon',weaponOf(CLASS));G.quick=SAVE.mode==='qpk';G.historyUid=typeof CLOUD!=='undefined'&&CLOUD.registered()?CLOUD.uid():null;
   updateCores();drawSeals();drawRelics();
   if(typeof metricsStart==='function')metricsStart();
   SFX.start();SFX.setState('battle');if(IS_TOUCH)goFullscreen(true);
@@ -407,7 +407,7 @@ function settleRunRewards(){
   const pk=RIVAL_ON&&G.rival,pkRes=pk?(G.abandoned?'aborted':G.score>G.rival.score?'win':G.score<G.rival.score?'lose':'tie'):null;const pkBonus=pkRes==='win'?200:pkRes==='tie'?80:0;
   if(pk){SAVE.pk=SAVE.pk||{w:0,l:0};if(pkRes==='win')SAVE.pk.w++;else if(pkRes==='lose')SAVE.pk.l++;SAVE.pkBest=Math.max(SAVE.pkBest||0,G.score)}
   let dailyNew=false;if(DAILY){const dk=G.day||dayKey();if(!SAVE.daily||SAVE.daily.day!==dk)SAVE.daily={day:dk,best:0,bosses:0};if(G.t>SAVE.daily.best){SAVE.daily.best=G.t;SAVE.daily.bosses=G.bossSlain;dailyNew=true}}
-  const room=!!G.room&&ROOM.code;if(room){ROOM.ended=true;roomSetMe({abandonedRound:G.abandoned?(ROOM.data.round||1):0,done:true,score:G.score,alive:!(G.over&&G.over!=='pk'),t:Math.round(G.t),lv:G.lv,kills:G.kills,hp:Math.max(0,G.P.hp/G.P.maxHp)})}
+  const room=!!G.room&&ROOM.code;if(room){ROOM.ended=true;roomSetMe({abandonedRound:(G.abandoned||G.duelAborted||ROOM.aborted)?(ROOM.data.round||1):0,done:true,score:G.score,alive:!(G.over&&G.over!=='pk'),t:Math.round(G.t),lv:G.lv,kills:G.kills,hp:Math.max(0,G.P.hp/G.P.maxHp)})}
   const record=!pk&&!room&&!DAILY&&!G.abandoned&&G.t>(SAVE.best||0);SAVE.gold+=gold+pkBonus;G.runRewardGold=SAVE.gold-goldBeforeSettlement+(G.gearGold||0);SAVE.runs++;SAVE.wins+=G.bossSlain;SAVE.bosses=Math.max(SAVE.bosses||0,G.bossSlain);if(record)SAVE.best=G.t;persist();
   return G.settlement={meta,gold,tierUp,pk,pkRes,dailyNew,room,record};
 }
@@ -436,7 +436,7 @@ function showEnd(ok){if(G.ended)return;if(typeof metricsEnd==='function')metrics
   ${tierUp?`<div class="nextgoal tier">${L(`修罗 ${ASURA_T+1} 层已开`,`Ascension ${ASURA_T+1} unlocked`)}</div>`:''}
   
   ${SAVE.mode==='solo'&&!tierUp&&SAVE.asura.max===ASURA_T&&!G.abandoned?`<p class="asura-result-hint">${L(`修罗解锁：击败 2:00 铁甲统领或 ${fmt(BOSS_AT)} 首领`,`Ascension: defeat the 2:00 Warlord or ${fmt(BOSS_AT)} boss`)}</p>`:''}
-  ${meta?`<div class="metarow">${meta.ranks.map(([n,zh,en])=>`<span class="td">🏆 ${L(zh,en)}</span>`).join('')}${meta.levelUp?`<span>Lv ${meta.after.lv}</span>`:''}</div>`:''}<div class="stat more"><div>${ICON.misc('awake','#ffd27a','sm')}<b>${G.lv}</b><span>${L('等级','Level')}</span></div><div>${ICON.misc('relic','#c7a4f0','sm')}<b>${G.relics.length}</b><span>${L('法宝','Relics')}</span></div><div>${ICON.misc('knock','#ff6a6a','sm')}<b>${Math.round(G.dmgTaken)}</b><span>${L('承受伤害','Damage taken')}</span></div><div>${ICON.misc('heartplus','#7fc98a','sm')}<b>${Math.round(G.healed||0)}</b><span>${L('治疗量','Healing')}</span></div></div><h4 class="dmg-heading">${L('技能贡献','Skill contributions')}</h4><p class="dmg-legend"><span>${L('黄：总伤害占比','Yellow: share of damage')}</span><span>${L('绿：治疗贡献','Green: healing')}</span><span>${L('浅金：防御贡献','Pale gold: protection')}</span></p><div class="dmg">${rows}</div>${cmp}</div>${room?'':`<div class="btns" id="endactions"><button class="go big" id="againbtn">${L('再来一局','Play again')}</button><button class="go alt" id="buildbtn">${L('换侠客','Change hero')}</button><button class="go alt" id="lobbybtn">${L('返回','Back')}</button></div>`}`;
+  ${meta?`<div class="metarow">${meta.ranks.map(([n,zh,en])=>`<span class="td">🏆 ${L(zh,en)}</span>`).join('')}${meta.levelUp?`<span>Lv ${meta.after.lv}</span>`:''}</div>`:''}<div class="stat more"><div>${ICON.misc('awake','#ffd27a','sm')}<b>${G.lv}</b><span>${L('等级','Level')}</span></div><div>${ICON.misc('relic','#c7a4f0','sm')}<b>${G.relics.length}</b><span>${L('法宝','Relics')}</span></div><div>${ICON.misc('knock','#ff6a6a','sm')}<b>${Math.round(G.dmgTaken)}</b><span>${L('承受伤害','Damage taken')}</span></div><div>${ICON.misc('heartplus','#7fc98a','sm')}<b>${Math.round(G.healed||0)}</b><span>${L('治疗量','Healing')}</span></div></div>${G.bossDurs?.length?`<p class="boss-times">${L('首领战用时','Boss fight times')} · ${G.bossDurs.map(t=>fmt(t)).join(' / ')}</p>`:''}<h4 class="dmg-heading">${L('技能贡献','Skill contributions')}</h4><p class="dmg-legend"><span>${L('黄：总伤害占比','Yellow: share of damage')}</span><span>${L('绿：治疗贡献','Green: healing')}</span><span>${L('浅金：防御贡献','Pale gold: protection')}</span></p><div class="dmg">${rows}</div>${cmp}</div>${room?'':`<div class="btns" id="endactions"><button class="go big" id="againbtn">${L('再来一局','Play again')}</button><button class="go alt" id="buildbtn">${L('换侠客','Change hero')}</button><button class="go alt" id="lobbybtn">${L('返回','Back')}</button></div>`}`;
   $('#end').hidden=false;$('#end').scrollTop=0;if(room){roomCheckFinished();renderRoomResults()}else{$('#againbtn').onclick=startRun;$('#lobbybtn').onclick=toLobby;$('#buildbtn').onclick=()=>{toLobby();if(typeof showScreen==='function')showScreen('hero')};if(!IS_TOUCH)$('#againbtn').focus({preventScroll:true})}
   const actions=box.querySelector('#endactions'),details=box.querySelector('.endmore');if(actions&&details)actions.after(details);
   if(typeof submitRun==='function'&&!room)submitRun(box);if(!room&&typeof socialRecordMatch==='function')socialRecordMatch();
@@ -546,7 +546,7 @@ const fsb=$('#fsbtn');if(fsb)fsb.onclick=()=>goFullscreen(false);
 new MutationObserver(()=>{document.body.classList.toggle('picking',!$('#cards').hidden)}).observe($('#cards'),{attributes:true,attributeFilter:['hidden']});
 
 /* touch layout (Diablo Immortal / Wild Rift style): left thumb moves, right thumb has a big dash button with the skills in an arc around it */
-if(IS_TOUCH){document.body.classList.add('touchhud');const vb=$('#vbars');if(vb)vb.hidden=false}
+if(IS_TOUCH){document.body.classList.add('touchhud');const vb=$('#vbars');if(vb)vb.hidden=false;const xp=$('#xprow'),lv=$('#lv');if(xp&&lv)xp.prepend(lv);$('#minimapanchor')?.style.setProperty('--map-ratio',String(H/W))}
 
 /* the title writes itself in, one brush stroke per character, then a slow gold glint runs through it */
 (()=>{const h=document.querySelector('#menu .entitle');if(h&&!h.dataset.ink){h.dataset.ink=1;const t=h.textContent.trim();h.setAttribute('aria-label',t);h.textContent='';[...t].forEach((ch,i)=>{const sp=document.createElement('span');sp.textContent=ch===' '?'\u00a0':ch;sp.style.setProperty('--i',i);sp.setAttribute('aria-hidden','true');h.appendChild(sp)})}})();

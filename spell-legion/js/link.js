@@ -4,9 +4,34 @@
    A guest holds one link to the host; the host answers whoever dials. Links are made in the lobby, before a match starts. */
 const LINK={peers:{},hostUid:null,onmsg:null,
   ice:[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun.cloudflare.com:3478'}]};
-function linkOpenTo(uid){const p=LINK.peers[uid];return !!(p&&p.ch&&p.ch.readyState==='open')}
-function linkOpenUids(){return Object.keys(LINK.peers).filter(linkOpenTo)}
-function linkSend(uid,msg){const p=LINK.peers[uid];if(!p||!p.ch||p.ch.readyState!=='open')return false;try{p.ch.send(typeof msg==='string'?msg:JSON.stringify(msg));return true}catch(_){return false}}
+function linkDirectOpen(uid){const p=LINK.peers[uid];return !location.search.includes('relay=1')&&!!(p&&p.ch&&p.ch.readyState==='open')}
+function linkRelayReady(uid){
+  if(!ROOM.code||ROOM.data?.protocol!==2||ROOM.players?.[uid]?.protocol!==2)return false;
+  const start=ROOM.firstSeen?.[uid]||LINK.peers[uid]?.t||Date.now();
+  return ROOM.playing||location.search.includes('relay=1')||typeof RTCPeerConnection==='undefined'||Date.now()-start>=8000;
+}
+function linkOpenTo(uid){return linkDirectOpen(uid)||linkRelayReady(uid)}
+function linkOpenUids(){return Object.keys(ROOM.players||{}).filter(uid=>uid!==roomUid()&&!ROOM.players[uid].ai&&linkOpenTo(uid))}
+function linkInterval(uid){return linkDirectOpen(uid)?.1:.3}
+function linkRelayMerge(old,body){
+  if(!old||old.round!==body.round||old.protocol!==body.protocol||old.k!==body.k)return body;
+  if(body.k==='s')return {...body,f:[...(old.f||[]),...(body.f||[])]};
+  if(body.k==='m')return {...body,reports:[...(old.reports||[{q:old.q,h:old.h||[]}]),...(body.reports||[{q:body.q,h:body.h||[]}])],la:[...new Set([...(old.la||[]),...(body.la||[])])]};
+  return body;
+}
+function linkSend(uid,msg){
+  const body={...msg,round:ROOM.data?.round||0,protocol:2,sentAt:Date.now()},p=LINK.peers[uid];
+  if(linkDirectOpen(uid)){try{p.ch.send(JSON.stringify(body));return true}catch(_){}}
+  if(!linkRelayReady(uid))return false;
+  // Coalesce world states during a slow write; preserve every hit report and new world effect.
+  LINK.relay=LINK.relay||{};LINK.relayQueue=LINK.relayQueue||{};
+  const state=LINK.relay[uid]||(LINK.relay[uid]={busy:false,latest:null});
+  if(state.code!==ROOM.code){state.latest=null;state.code=ROOM.code}
+  if(body.k==='s')body.f=(body.f||[]).map(f=>({p:f,at:body.sentAt}));
+  state.latest=linkRelayMerge(state.latest,body);if(state.busy)return true;
+  state.busy=true;const code=ROOM.code,T=netT();
+  LINK.relayQueue[uid]=(async()=>{try{while(state.latest&&ROOM.code===code){const next=state.latest;state.latest=null;try{await T.addEvent(code,{from:roomUid(),k:'rtdata',to:uid,body:JSON.stringify(next)})}catch(e){state.latest=state.latest?linkRelayMerge(next,state.latest):next;console.warn('room relay failed',e);break}}}finally{state.busy=false}})();return true;
+}
 function linkClose(uid){const p=LINK.peers[uid];if(!p)return;delete LINK.peers[uid];try{p.pc.close()}catch(_){}}
 function linkCloseAll(){for(const u in LINK.peers)linkClose(u);LINK.hostUid=null}
 function linkGather(pc,ms=2000){return new Promise(res=>{if(pc.iceGatheringState==='complete')return res();const t=setTimeout(res,ms);pc.addEventListener('icegatheringstatechange',()=>{if(pc.iceGatheringState==='complete'){clearTimeout(t);res()}})})}

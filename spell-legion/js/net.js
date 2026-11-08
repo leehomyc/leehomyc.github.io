@@ -1,6 +1,6 @@
 'use strict';
-/* net.js — multiplayer rooms (2–8 players). Everyone plays the same seeded arena in parallel;
-   scores, HP and levels are shared live, and kills of bosses / warlords / streak milestones send ambush waves to the others.
+/* net.js — multiplayer rooms (2–8 players). The host owns one shared arena and its pickups;
+   scores, HP and levels are shared live. RTC has a room-event relay fallback; unsynchronised private worlds are never ranked.
    Modes: 'time' (fixed length, highest score wins) and 'last' (finite revive lives, last survivor wins).
    Transport: Firestore (rooms/{code}, players and events subcollections). A local BroadcastChannel transport covers testing and offline play
    between tabs of one browser (?local=1). */
@@ -54,7 +54,7 @@ function roomJoin(code,isNew){return roomQueue(()=>roomJoinNow(code,isNew))}
 async function roomCreateNow(opts={}){
   if(ROOM.code&&!opts.force)return ROOM.code; // already in a room: that one stands
   await netReady();let T=netPick();ROOM.T=T;ROOM.cloudFail=false;let uid=roomUid();let code='',tries=0;
-  const mk=()=>({host:uid,mode:opts.mode||'time',len:opts.len||180,max:Math.min(8,Math.max(2,opts.max||4)),state:'lobby',map:MAPID,diff:'normal',round:0,created:Date.now()});
+  const mk=()=>({host:uid,protocol:2,mode:opts.mode||'time',len:opts.len||180,max:Math.min(8,Math.max(2,opts.max||4)),state:'lobby',map:MAPID,diff:'normal',round:0,created:Date.now()});
   while(tries++<6){code=roomCode();try{await Promise.race([T.createRoom(code,mk()),new Promise((_,rej)=>setTimeout(()=>rej(new Error('timeout')),6000))]);break}
     catch(e){if(e.message==='exists'){code='';continue}
       if(T===FirestoreT){console.warn('cloud room unavailable, falling back to a local room',e);T=LocalT;ROOM.T=T;ROOM.cloudFail=true;uid=roomUid();code='';tries=0;continue} // cloud rooms not reachable: AI-only room on this device
@@ -65,10 +65,10 @@ async function roomCreateNow(opts={}){
 async function roomJoinNow(code,isNew){
   code=String(code||'').toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,4);if(code.length!==4)throw new Error('badcode');
   if(ROOM.code===code)return true;if(!isNew)await netReady(12000);const T=isNew?ROOM.T:netPick();if(!isNew&&T===LocalT&&!location.search.includes('local=1'))throw new Error('offline');const uid=roomUid();const data=await T.getRoom(code);if(!data)throw new Error('nosuch');
-  if(data.state==='closed')throw new Error('nosuch');
+  if(data.state==='closed')throw new Error('nosuch');if(data.protocol!==2){if(data.host===uid){await T.setRoom(code,{protocol:2});data.protocol=2}else throw new Error('version')}
   if(data.state==='play'&&!isNew)throw new Error('playing');
   if(data.map&&MAPS[data.map]&&data.map!==MAPID){roomLeave(true);SAVE.mode='room';persist();try{localStorage.setItem('sl_map',data.map);sessionStorage.setItem('sl_screen','hero');sessionStorage.setItem('sl_rejoin',code)}catch(_){}location.reload();return false}
-  await T.setPlayer(code,uid,{name:roomName(),av:SAVE.avatar||null,cls:SAVE.cls,weapon:weaponOf(SAVE.cls),equipment:roomEquipment(),ready:data.host===uid,score:0,hp:1,lv:1,kills:0,alive:true,done:false,t:0,joined:Date.now(),lvA:(typeof accountLv==='function'?accountLv().lv:1)});
+  await T.setPlayer(code,uid,{protocol:2,name:roomName(),av:SAVE.avatar||null,cls:SAVE.cls,weapon:weaponOf(SAVE.cls),equipment:roomEquipment(),ready:data.host===uid,score:0,hp:1,lv:1,kills:0,alive:true,done:false,t:0,joined:Date.now(),lvA:(typeof accountLv==='function'?accountLv().lv:1)});
   roomLeave(true);ROOM.T=T;ROOM.joinError=false;ROOM.status='';
   ROOM.code=code;ROOM.data=data;ROOM.host=data.host===uid;ROOM.joinedAt=Date.now();ROOM.playing=false;ROOM.ended=false;ROOM.results=null;ROOM.evSeen=new Set();ROOM.lastSeen={};
   ROOM.unsub=T.subscribe(code,{room:roomOnRoom,players:roomOnPlayers,event:roomOnEvent});
@@ -125,7 +125,7 @@ setInterval(()=>{if(ROOM.code&&!ROOM.playing)roomSetMe({beat:Date.now()})},20000
 setInterval(()=>{if(ROOM.code&&ROOM.playing&&ROOM.host)roomAITick()},1000); // AI seats keep moving even after the host's own run has ended
 addEventListener('pagehide',()=>{if(ROOM.code&&!ROOM.playing)roomLeave(true)});
 function roomLinkWait(){if(!ROOM.host||typeof linkOpenTo!=='function'||typeof RTCPeerConnection==='undefined')return 0;const now=Date.now();let w=0;for(const p of roomPlayerList()){if(p.ai||p.uid===roomUid()||linkOpenTo(p.uid))continue;const t0=(ROOM.firstSeen||{})[p.uid]||now;w=Math.max(w,20000-(now-t0))}return Math.max(0,w)}
-function roomCanStart(){const ps=roomPlayerList();return ROOM.host&&ps.length>=2&&ps.every(p=>p.ready||p.ai)&&roomLinkWait()<=0}
+function roomCanStart(){const ps=roomPlayerList();return ROOM.host&&ps.length>=2&&ps.every(p=>p.ready||p.ai)&&ps.every(p=>p.ai||p.uid===roomUid()||p.protocol===2&&linkOpenTo(p.uid))&&roomLinkWait()<=0}
 async function roomStart(){
   if(!roomCanStart())return;const seed=(Math.floor(Math.random()*2**31)|1);
   await roomHostSet({state:'play',seed,round:(ROOM.data.round||0)+1,startedAt:Date.now(),delay:4000});
@@ -134,7 +134,7 @@ async function roomBackToLobby(){if(!ROOM.host)return;await roomHostSet({state:'
 /* ---- snapshots ---- */
 function roomOnRoom(data){
   if(!ROOM.code)return;
-  if(!data||data.state==='closed'){const was=ROOM.code;roomLeave(true);ROOM.status=L('房间已关闭','The room was closed');if(typeof renderRoom==='function')renderRoom();if(typeof showBanner==='function'&&G&&!G.auto)showBanner('房间已关闭','Room closed',2);return}
+  if(!data||data.state==='closed'){const was=ROOM.code;roomLeave(true);ROOM.joinError=true;ROOM.status=L('房间已关闭','The room was closed');if(typeof renderRoom==='function')renderRoom();if(typeof showBanner==='function'&&G&&!G.auto)showBanner('房间已关闭','Room closed',2);return}
   const prev=ROOM.data;ROOM.data=data;ROOM.host=data.host===roomUid();
   if(data.state==='play'&&(!prev||prev.state!=='play'||prev.round!==data.round)&&!ROOM.playing&&!ROOM.countdown){roomBeginCountdown(data)}
   if(data.state==='lobby'&&prev&&prev.state==='play'){ROOM.playing=false;ROOM.ended=false;ROOM.results=null;ROOM.countdown=null;if(G&&!G.auto&&!G.over){G.abandoned=true;closeCards();lose()}
@@ -156,6 +156,7 @@ function roomOnPlayers(map){
 }
 function roomOnEvent(ev){
   if(!ROOM.code||!ev||ev.from===roomUid()||ROOM.evSeen.has(ev.id))return;ROOM.evSeen.add(ev.id);
+  if(ev.k==='rtdata'){if(ev.to===roomUid()&&(ROOM.host?!!ROOM.players[ev.from]:ev.from===ROOM.data?.host)){try{const m=JSON.parse(ev.body);if(typeof LINK!=='undefined'&&LINK.onmsg)LINK.onmsg(ev.from,m)}catch(_){}}return}
   if(ev.k==='rtc'){if(typeof linkOnSignal==='function')linkOnSignal(ev);return}
   if(G&&G.shared)return;
   if(!ROOM.playing||!G||G.auto||G.over)return;
@@ -182,7 +183,7 @@ function roomEndRun(why,who){
 }
 function roomOnDeath(){ // called by lose(): in a room, a death is final and tells the others
   if(!ROOM.code||!ROOM.playing)return;ROOM.endWhy=ROOM.data.mode==='last'?'last':'time';ROOM.endWho={uid:roomUid()};
-  roomSetMe({abandonedRound:G.abandoned?(ROOM.data.round||1):0,alive:false,done:true,score:G.score,hp:0,t:Math.round(G.t),lv:G.lv,kills:G.kills});
+  roomSetMe({abandonedRound:(G.abandoned||G.duelAborted||ROOM.aborted)?(ROOM.data.round||1):0,alive:false,done:true,score:G.score,hp:0,t:Math.round(G.t),lv:G.lv,kills:G.kills});
 }
 function roomAllDone(){const ps=roomPlayerList(),now=Date.now();return ps.length>0&&ps.every(p=>p.done||p.alive===false||(!p.ai&&now-(ROOM.lastSeen[p.uid]||now)>25000))}
 function roomCheckFinished(){
@@ -217,4 +218,4 @@ async function roomAutoJoin(){
   if(!code)return;if(typeof CLOUD!=='undefined'&&!CLOUD.on()&&!netIsLocal()){setTimeout(roomAutoJoin,800);return}
   try{const joined=await roomJoin(code);if(!joined)return;if(typeof showScreen==='function')showScreen('hero');if(location.search.includes('room=')){const url=new URL(location.href);url.searchParams.delete('room');history.replaceState(null,'',url.pathname+url.search+url.hash)}}catch(e){ROOM.joinError=true;ROOM.status=roomErr(e);SAVE.mode='room';persist();try{sessionStorage.removeItem('sl_rejoin')}catch(_){}if(typeof showScreen==='function')showScreen('hero');if(typeof renderRoom==='function')renderRoom()}
 }
-function roomErr(e){const m=e&&e.message||'';return m==='offline'?L('联机服务尚未连接，请稍后重试','Online service is not connected. Please retry shortly.'):m==='nosuch'?(netOnline()?L('没有这个房间,检查一下房间码','No such room — check the code'):L('没找到房间:联机暂不可用,检查一下网络','Room not found: online rooms are unavailable — check your connection')):m==='badcode'?L('房间码是 4 位字母数字','Room codes are 4 letters/digits'):m==='playing'?L('这个房间正在对局中','That room is mid-match'):L('连接失败:','Connection failed: ')+m}
+function roomErr(e){const m=e&&e.message||'';return m==='version'?L('房间版本较旧，请双方刷新网页后重新开房','Room version is outdated. Both players should refresh and create a new room.'):m==='offline'?L('联机服务尚未连接，请稍后重试','Online service is not connected. Please retry shortly.'):m==='nosuch'?(netOnline()?L('没有这个房间,检查一下房间码','No such room — check the code'):L('没找到房间:联机暂不可用,检查一下网络','Room not found: online rooms are unavailable — check your connection')):m==='badcode'?L('房间码是 4 位字母数字','Room codes are 4 letters/digits'):m==='playing'?L('这个房间正在对局中','That room is mid-match'):L('连接失败:','Connection failed: ')+m}
