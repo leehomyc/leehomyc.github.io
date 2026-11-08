@@ -1,7 +1,7 @@
 'use strict';
 /* Match history and consent-based friends. Email lookup is an exact, authenticated
    document read; emails are never placed in public player profiles or friend lists. */
-const SOCIAL={uid:null,epoch:0,unsubs:[],incoming:[],outgoing:[],invites:[],profiles:{},tab:'friends',view:null,seq:0,error:'',historyBusy:false};
+const SOCIAL={uid:null,epoch:0,unsubs:[],incoming:[],outgoing:[],invites:[],profiles:{},tab:'friends',inviteCode:null,sentInvites:{},returnFocus:null,view:null,seq:0,error:'',historyBusy:false};
 function socialUid(){return typeof CLOUD!=='undefined'&&CLOUD.registered()?CLOUD.uid():null}
 function socialMergeHistory(a=[],b=[]){const rows=new Map();for(const r of [...a,...b])if(r&&typeof r.id==='string'){const old=rows.get(r.id);if(!old||(r.at||0)>=(old.at||0))rows.set(r.id,{...old,...r})}return [...rows.values()].sort((x,y)=>y.at-x.at).slice(0,200)}
 function socialHistoryRows(uid=socialUid()){return (SAVE.history||[]).filter(r=>(r.uid||null)===(uid||null)).sort((a,b)=>b.at-a.at)}
@@ -32,7 +32,7 @@ async function socialPublishDirectory(){
 }
 function socialAuthChanged(){
   const uid=socialUid();if(SOCIAL.uid===uid)return;
-  SOCIAL.unsubs.forEach(f=>f());SOCIAL.unsubs=[];SOCIAL.uid=uid;SOCIAL.epoch++;SOCIAL.seq++;SOCIAL.profiles={};SOCIAL.incoming=[];SOCIAL.outgoing=[];SOCIAL.invites=[];SOCIAL.view=null;SOCIAL.error='';socialNotify();
+  SOCIAL.unsubs.forEach(f=>f());SOCIAL.unsubs=[];SOCIAL.uid=uid;SOCIAL.epoch++;SOCIAL.seq++;SOCIAL.profiles={};SOCIAL.incoming=[];SOCIAL.outgoing=[];SOCIAL.invites=[];SOCIAL.sentInvites={};SOCIAL.view=null;SOCIAL.error='';socialNotify();
   if(!uid){if(!$('#socialov')?.hidden)socialOpen(SOCIAL.tab);return}
   const epoch=SOCIAL.epoch,listen=(collection,field,key)=>{
     const off=CLOUD.db.collection(collection).where(field,'==',uid).limit(100).onSnapshot(s=>{
@@ -44,7 +44,7 @@ function socialAuthChanged(){
 }
 async function socialGetProfile(uid){if(SOCIAL.profiles[uid])return SOCIAL.profiles[uid];const d=await CLOUD.db.collection('profiles').doc(uid).get();const p=d.exists?d.data():{};return SOCIAL.profiles[uid]={...p,name:String(p.name||L('侠客','Hero')),lv:Math.max(1,Math.floor(Number(p.lv)||1)),trophies:Math.max(0,Math.floor(Number(p.trophies)||0)),bestScore:Math.max(0,Number(p.bestScore)||0)}}
 function socialName(p){return esc(p?.name||L('侠客','Hero'))}
-function socialMessage(text){const el=$('#socialmsg');if(el){el.textContent=text;el.hidden=!text}else if(text&&typeof showBanner==='function')showBanner(text,text,3)}
+function socialMessage(text){const el=$('#socialmsg');if(el&&$('#socialov')?.hidden===false){el.textContent=text;el.hidden=!text}else if(text&&typeof showBanner==='function')showBanner(text,text,3)}
 function socialBusy(button,fn){button.disabled=true;return Promise.resolve().then(fn).catch(e=>{socialMessage(e.code?L('操作未完成，请稍后重试','Could not complete this action. Please retry.'):e.message||L('操作失败，请重试','Please retry'));console.warn('social action failed',e)}).finally(()=>{if(button.isConnected)button.disabled=false})}
 async function socialAdd(email){
   const uid=socialUid(),em=String(email||'').trim().toLowerCase();if(!uid)throw Error(L('请先登录','Sign in first'));
@@ -59,17 +59,30 @@ async function socialAdd(email){
 }
 async function socialRequestAction(id,accept){const ref=CLOUD.db.collection('friendRequests').doc(id);if(accept)await ref.update({status:'accepted'});else await ref.delete()}
 async function socialRemove(uid){for(const r of [...SOCIAL.incoming,...SOCIAL.outgoing])if(r.status==='accepted'&&(r.from===uid||r.to===uid))await CLOUD.db.collection('friendRequests').doc(r.id).delete();SOCIAL.view=null}
+function socialInviteState(uid){
+  if(ROOM.players?.[uid])return 'joined';
+  return Date.now()-(SOCIAL.sentInvites[ROOM.code+'_'+uid]||0)<60000?'sent':'ready';
+}
 async function socialInvite(uid){
+  if(!socialUid())throw Error(L('请先登录','Sign in first'));
+  if(!socialFriends().some(f=>f.uid===uid))throw Error(L('请先添加对方为好友','Add this player as a friend first'));
   if(G&&!G.auto&&!G.ended)throw Error(L('请先结束当前对局','Finish your current match first'));
-  if(!ROOM.code){SAVE.mode='room';persist();await roomCreate({mode:'time',len:180,max:4});showScreen('hero')}
-  if(ROOM.playing)throw Error(L('本局已开始，请结束后邀请','This match has started. Invite after it ends'));
+  if(!ROOM.code||SOCIAL.inviteCode!==ROOM.code||ROOM.playing||ROOM.data?.state!=='lobby')throw Error(L('房间已变化，请回到对决大厅重新邀请','The room changed. Open invitations again from the duel lobby'));
+  if(roomPlayerList().length>=(ROOM.data.max||4))throw Error(L('房间已满','The room is full'));
   if(!netOnline())throw Error(L('对决服务暂未连接，请稍后重试','Duel service is offline. Please retry'));
-  await CLOUD.db.collection('duelInvites').add({from:socialUid(),to:uid,code:ROOM.code,createdAt:socialStamp(),expiresAt:firebase.firestore.Timestamp.fromMillis(Date.now()+9*60*1000)});
-  socialMessage(L('邀请已发送，等待好友加入','Invitation sent. Waiting for your friend'));
+  if(socialInviteState(uid)!=='ready')return;
+  const code=ROOM.code;
+  await CLOUD.db.collection('duelInvites').add({from:socialUid(),to:uid,code,createdAt:socialStamp(),expiresAt:firebase.firestore.Timestamp.fromMillis(Date.now()+9*60*1000)});
+  SOCIAL.sentInvites[code+'_'+uid]=Date.now();socialMessage(L('邀请已发送，等待好友加入','Invitation sent. Waiting for your friend'));socialRender();
 }
 async function socialJoinInvite(invite){
+  if(!socialUid())throw Error(L('请先登录','Sign in first'));
+  if(!invite.expiresAt?.toMillis||invite.expiresAt.toMillis()<=Date.now())throw Error(L('邀请已过期，请让好友重新邀请','This invitation expired. Ask your friend to invite again'));
   if(G&&!G.auto&&!G.ended)throw Error(L('请先结束当前对局，再接受邀请','Finish your current match before joining'));
-  const joined=await roomJoin(invite.code);if(joined===false)return;socialClose();if(G?.ended){toLobby();SAVE.mode='room';persist();renderTitle()}showScreen('hero');await CLOUD.db.collection('duelInvites').doc(invite.id).delete();
+  let joined;try{joined=await roomJoin(invite.code)}catch(e){throw Error(roomErr(e))}
+  if(joined===false)return;socialClose();if(G?.ended)toLobby();SAVE.mode='room';persist();renderTitle();showScreen('hero');
+  // A cleanup failure must not turn a successful join into a failed invitation.
+  CLOUD.db.collection('duelInvites').doc(invite.id).delete().catch(e=>console.warn('invite cleanup failed',e));
 }
 function socialNotify(){
   const count=SOCIAL.incoming.filter(r=>r.status==='pending').length,button=$('#friendsbtn');if(button){button.dataset.count=count||'';button.setAttribute('aria-label',L('好友','Friends')+(count?' '+count:''))}
@@ -90,14 +103,15 @@ async function socialLoadHistory(uid){
   return socialMergeHistory(local,snap.docs.map(d=>({...d.data(),id:d.id,synced:true})));
 }
 function socialOpen(tab='friends'){
-  SOCIAL.tab=tab;SOCIAL.view=null;SOCIAL.profiles={};let el=$('#socialov');if(!el){el=document.createElement('div');el.id='socialov';el.className='social-overlay';el.hidden=true;document.body.appendChild(el);el.onclick=e=>{if(e.target===el)socialClose()}}
-  el.hidden=false;el.innerHTML=`<section class="social-panel" role="dialog" aria-modal="true" aria-labelledby="socialtitle"><header><h2 id="socialtitle">${L('江湖','Community')}</h2><button type="button" class="go alt sm" id="socialclose">${L('关闭','Close')}</button></header><nav><button type="button" id="socialhistory" class="${tab==='history'?'on':''}">${L('战绩','History')}</button><button type="button" id="socialfriends" class="${tab==='friends'?'on':''}">${L('好友','Friends')}</button></nav><div id="socialform"></div><p id="socialmsg" role="status" hidden></p><div id="socialbody"></div></section>`;
+  SOCIAL.returnFocus=document.activeElement;SOCIAL.inviteCode=tab==='invite'?ROOM.code:null;SOCIAL.tab=tab;SOCIAL.view=null;SOCIAL.profiles={};let el=$('#socialov');if(!el){el=document.createElement('div');el.id='socialov';el.className='social-overlay';el.hidden=true;document.body.appendChild(el);el.onclick=e=>{if(e.target===el)socialClose()}}
+  el.hidden=false;el.innerHTML=`<section class="social-panel" role="dialog" aria-modal="true" aria-labelledby="socialtitle"><header><h2 id="socialtitle">${tab==='invite'?L('邀请好友对决','Invite friends to duel'):L('江湖','Community')}</h2><button type="button" class="go alt sm" id="socialclose">${L('关闭','Close')}</button></header><nav ${tab==='invite'?'hidden':''}><button type="button" id="socialhistory" class="${tab==='history'?'on':''}">${L('战绩','History')}</button><button type="button" id="socialfriends" class="${tab==='friends'?'on':''}">${L('好友','Friends')}</button></nav><div id="socialform"></div><p id="socialmsg" role="status" hidden></p><div id="socialbody"></div></section>`;
   $('#socialclose').onclick=socialClose;$('#socialhistory').onclick=()=>socialOpen('history');$('#socialfriends').onclick=()=>socialOpen('friends');
   if(tab==='friends'&&socialUid()){$('#socialform').innerHTML=`<form id="friendform"><label for="friendemail">${L('按邮箱添加好友','Add a friend by email')}</label><div><input id="friendemail" type="email" autocomplete="off" inputmode="email" placeholder="${L('好友的邮箱','Friend’s email')}" required maxlength="254"><button type="submit" class="go sm">${L('添加','Add')}</button></div><small>${L('对方同意申请后，可以查看战绩并邀请对决','Once accepted, you can view their history and invite them to a duel')}</small></form>`;$('#friendform').onsubmit=e=>{e.preventDefault();socialBusy(e.submitter||$('#friendform button'),()=>socialAdd($('#friendemail').value))}}
+  if(tab==='invite'&&socialUid())$('#socialform').innerHTML=`<p class="invite-room">${L('房间','Room')} <b>${esc(SOCIAL.inviteCode||'')}</b> · ${L('选择好友发送邀请','Choose friends to invite')}</p>`;
   if(!socialUid())$('#socialform').innerHTML=`<p>${L('游客战绩保存在本机；登录后可同步战绩、添加好友','Guest history is stored on this device. Sign in to sync matches and add friends.')}</p><button type="button" class="go alt sm" id="socialsignin">${L('登录 / 注册','Sign in / Register')}</button>`;
   if($('#socialsignin'))$('#socialsignin').onclick=()=>{socialClose();lbSignIn()};socialRender();$('#socialclose').focus({preventScroll:true});
 }
-function socialClose(){const el=$('#socialov');if(el)el.hidden=true;SOCIAL.seq++;const b=$(SOCIAL.tab==='history'?'#historybtn':'#friendsbtn');b?.focus({preventScroll:true})}
+function socialClose(){const el=$('#socialov');if(el)el.hidden=true;SOCIAL.seq++;const b=SOCIAL.tab==='invite'?$('#rminvite'):$(SOCIAL.tab==='history'?'#historybtn':'#friendsbtn');(b||SOCIAL.returnFocus)?.focus({preventScroll:true})}
 async function socialRender(){
   if($('#socialov')?.hidden!==false)return;const seq=++SOCIAL.seq,body=$('#socialbody');if(!body)return;
   try{
@@ -105,8 +119,12 @@ async function socialRender(){
     if(!socialUid()){body.innerHTML='';return}
     const friends=socialFriends(),requests=SOCIAL.incoming.filter(r=>r.status==='pending'),outgoing=SOCIAL.outgoing.filter(r=>r.status==='pending');
     const ids=[...new Set([...friends.map(f=>f.uid),...requests.map(r=>r.from),...outgoing.map(r=>r.to)])];await Promise.all(ids.map(uid=>socialGetProfile(uid)));if(seq!==SOCIAL.seq)return;
-    if(SOCIAL.view){const uid=SOCIAL.view,p=await socialGetProfile(uid);const lad=ladderOf(p.trophies||0);body.innerHTML=`<button type="button" class="back" id="friendback">‹ ${L('好友列表','Friends')}</button><div class="friend-profile">${p.av?avatarHTML(p.av):''}<h3>${socialName(p)}</h3><p>Lv ${p.lv||1} · ${L('天梯：','Ladder: ')}${L(lad[1],lad[2])} · ${p.trophies||0} ${L('分','pts')}</p><p>${L('无尽最高分','Endless best')} · ${Math.round(p.bestScore||0).toLocaleString('en-US')}</p><button type="button" class="go sm" data-invite="${esc(uid)}">${L('邀请对决','Invite to duel')}</button> <button type="button" class="back" id="friendremove">${L('移除好友','Remove friend')}</button></div><h3>${L('最近战绩','Recent matches')}</h3><div id="friendhistory">${L('加载中…','Loading…')}</div>`;$('#friendback').onclick=()=>{SOCIAL.view=null;socialRender()};$('#friendremove').onclick=e=>socialBusy(e.currentTarget,()=>socialRemove(uid));socialWireActions(body);const rows=await socialLoadHistory(uid);if(seq!==SOCIAL.seq)return;$('#friendhistory').innerHTML=socialHistoryHTML(rows);return}
-    body.innerHTML=(requests.length?`<h3>${L('好友申请','Friend requests')}</h3>`+requests.map(r=>`<article class="friend-row"><b>${socialName(SOCIAL.profiles[r.from])}</b><div><button type="button" class="go sm" data-accept="${esc(r.id)}">${L('同意','Accept')}</button><button type="button" class="back" data-reject="${esc(r.id)}">${L('忽略','Decline')}</button></div></article>`).join(''):'')+`<h3>${L('我的好友','Friends')} · ${friends.length}</h3>`+(friends.length?friends.map(f=>{const p=SOCIAL.profiles[f.uid],lad=ladderOf(p.trophies||0);return `<article class="friend-row">${p.av?avatarHTML(p.av):''}<div><b>${socialName(p)}</b><small>Lv ${p.lv||1} · ${L(lad[1],lad[2])} · ${p.trophies||0}</small></div><div class="friend-actions"><button type="button" class="back" data-view="${esc(f.uid)}">${L('资料 / 战绩','Profile / History')}</button><button type="button" class="go sm" data-invite="${esc(f.uid)}">${L('邀请','Invite')}</button></div></article>`}).join(''):`<p class="social-empty">${L('添加好友，一起对决','Add friends and duel together')}</p>`)+(outgoing.length?`<h3>${L('已发送申请','Sent requests')}</h3>`+outgoing.map(r=>`<article class="friend-row"><b>${socialName(SOCIAL.profiles[r.to])}</b><span>${L('等待同意','Pending')}</span><button type="button" class="back" data-reject="${esc(r.id)}">${L('取消','Cancel')}</button></article>`).join(''):'');socialWireActions(body);
+    if(SOCIAL.tab==='invite'){
+      const valid=SOCIAL.inviteCode===ROOM.code&&ROOM.data?.state==='lobby'&&!ROOM.playing,full=roomPlayerList().length>=(ROOM.data?.max||4);
+      body.innerHTML=!valid?`<p class="social-empty">${L('房间已变化，请关闭后重新邀请','The room changed. Close this list and open it again')}</p>`:(full?`<p>${L('房间已满','The room is full')}</p>`:'')+(friends.length?friends.map(f=>{const p=SOCIAL.profiles[f.uid],state=socialInviteState(f.uid),lad=ladderOf(p.trophies||0);return `<article class="friend-row">${p.av?avatarHTML(p.av):''}<div><b>${socialName(p)}</b><small>Lv ${p.lv||1} · ${L(lad[1],lad[2])} · ${p.trophies||0}</small></div><button type="button" class="go sm" data-invite="${esc(f.uid)}" ${full||state!=='ready'?'disabled':''}>${state==='joined'?L('已在房间','In room'):state==='sent'?L('已邀请','Invited'):L('邀请','Invite')}</button></article>`}).join(''):`<p class="social-empty">${L('还没有好友，请先到首页的好友页面按邮箱添加','No friends yet. Add friends by email from Friends on the home screen.')}</p>`);socialWireActions(body);return;
+    }
+    if(SOCIAL.view){const uid=SOCIAL.view,p=await socialGetProfile(uid);const lad=ladderOf(p.trophies||0);body.innerHTML=`<button type="button" class="back" id="friendback">‹ ${L('好友列表','Friends')}</button><div class="friend-profile">${p.av?avatarHTML(p.av):''}<h3>${socialName(p)}</h3><p>Lv ${p.lv||1} · ${L('天梯：','Ladder: ')}${L(lad[1],lad[2])} · ${p.trophies||0} ${L('分','pts')}</p><p>${L('无尽最高分','Endless best')} · ${Math.round(p.bestScore||0).toLocaleString('en-US')}</p><button type="button" class="back" id="friendremove">${L('移除好友','Remove friend')}</button></div><h3>${L('最近战绩','Recent matches')}</h3><div id="friendhistory">${L('加载中…','Loading…')}</div>`;$('#friendback').onclick=()=>{SOCIAL.view=null;socialRender()};$('#friendremove').onclick=e=>socialBusy(e.currentTarget,()=>socialRemove(uid));socialWireActions(body);const rows=await socialLoadHistory(uid);if(seq!==SOCIAL.seq)return;$('#friendhistory').innerHTML=socialHistoryHTML(rows);return}
+    body.innerHTML=(requests.length?`<h3>${L('好友申请','Friend requests')}</h3>`+requests.map(r=>`<article class="friend-row"><b>${socialName(SOCIAL.profiles[r.from])}</b><div><button type="button" class="go sm" data-accept="${esc(r.id)}">${L('同意','Accept')}</button><button type="button" class="back" data-reject="${esc(r.id)}">${L('忽略','Decline')}</button></div></article>`).join(''):'')+`<h3>${L('我的好友','Friends')} · ${friends.length}</h3>`+(friends.length?friends.map(f=>{const p=SOCIAL.profiles[f.uid],lad=ladderOf(p.trophies||0);return `<article class="friend-row">${p.av?avatarHTML(p.av):''}<div><b>${socialName(p)}</b><small>Lv ${p.lv||1} · ${L(lad[1],lad[2])} · ${p.trophies||0}</small></div><div class="friend-actions"><button type="button" class="back" data-view="${esc(f.uid)}">${L('资料 / 战绩','Profile / History')}</button></div></article>`}).join(''):`<p class="social-empty">${L('添加好友，一起对决','Add friends and duel together')}</p>`)+(outgoing.length?`<h3>${L('已发送申请','Sent requests')}</h3>`+outgoing.map(r=>`<article class="friend-row"><b>${socialName(SOCIAL.profiles[r.to])}</b><span>${L('等待同意','Pending')}</span><button type="button" class="back" data-reject="${esc(r.id)}">${L('取消','Cancel')}</button></article>`).join(''):'');socialWireActions(body);
   }catch(e){if(seq===SOCIAL.seq){socialMessage(L('加载失败，请重试','Could not load. Please retry.'));body.insertAdjacentHTML('beforeend',`<button type="button" class="back" id="socialretry">${L('重试','Retry')}</button>`);$('#socialretry').onclick=()=>{SOCIAL.profiles={};socialRender()}}console.warn('social view failed',e)}
 }
 function socialWireActions(body){body.querySelectorAll('[data-accept]').forEach(b=>b.onclick=()=>socialBusy(b,()=>socialRequestAction(b.dataset.accept,true)));body.querySelectorAll('[data-reject]').forEach(b=>b.onclick=()=>socialBusy(b,()=>socialRequestAction(b.dataset.reject,false)));body.querySelectorAll('[data-invite]').forEach(b=>b.onclick=()=>socialBusy(b,()=>socialInvite(b.dataset.invite)));body.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>{SOCIAL.view=b.dataset.view;socialRender()})}

@@ -43,7 +43,7 @@ function renderRoom(force=false){
     const right=p.ai&&ROOM.host?`<button type="button" class="rmx" data-rm="${p.uid}" title="${L('移除','Remove')}">×</button>`:(isHost||p.ai)?'':`<span class="rd">${p.ready?L('已就绪','Ready'):L('未就绪','Not ready')}${(p.uid!==me&&typeof linkOpenTo==='function'&&(ROOM.host?linkOpenTo(p.uid):isHost&&linkOpenTo(p.uid)))?` <i class="lk" title="${L('已连上,同场对决','Linked: same arena')}">🔗</i>`:''}</span>`;
     return `<div class="rp ${p.uid===me?'me':''} ${p.ready&&!isHost&&!p.ai?'ready':''}"><span class="ic-w">${p.av&&typeof avatarHTML==='function'?avatarHTML(p.av):ICON.cls(p.cls)}</span><b>${esc(p.name||'?')}${p.ai?` <em class="aitag">AI</em>`:''}${isHost?' <em>👑</em>':''}</b><small>${LL(C)} · ${LL(w)}${p.lvA?` · Lv ${p.lvA}`:''}</small><small class="room-gear" title="${esc(equipment)}">${esc(equipment)}</small>${right}</div>`}).join('');
   const empty=Math.max(0,(d.max||4)-ps.length),canAI=ROOM.host&&empty>0,offline=!netOnline();
-  const seat=empty>0&&(canAI||!offline)?`<div class="rp seat">${canAI?`<button type="button" class="seatb" id="rmai"><span>＋</span>${L('AI 对手','AI')}</button>`:''}${offline?'':`<button type="button" class="seatb" id="rmcopy"><span>✉</span>${L('邀请好友','Invite')}</button>`}</div>`:'';
+  const seat=empty>0&&(canAI||!offline)?`<div class="rp seat">${canAI?`<button type="button" class="seatb" id="rmai"><span>＋</span>${L('AI 对手','AI')}</button>`:''}${offline?'':`<button type="button" class="seatb" id="rminvite"><span>✉</span>${L('邀请好友','Invite')}</button>`}</div>`:'';
   const opts=ROOM.host
     ?`<div class="seg" id="rmmode2"><button type="button" data-v="time" class="${d.mode!=='last'?'on':''}">${L('限时 3′','Timed 3′')}</button><button type="button" data-v="last" class="${d.mode==='last'?'on':''}">${L('无尽','Endless')}</button></div>${hasAI?`<span class="grp"><span class="lbl">${L('AI 难度','AI level')}</span><div class="seg" id="rmdiff2">${['easy','normal','hard'].map(k=>`<button type="button" data-v="${k}" class="${diff===k?'on':''}">${LL(DIFF[k])}</button>`).join('')}</div></span>`:''}`
     :`<span class="chip">${roomModeText(d)}</span>${hasAI?`<span class="chip">AI · ${LL(DIFF[diff])}</span>`:''}`;
@@ -56,7 +56,7 @@ function renderRoom(force=false){
     ${ROOM.status?`<p class="note err" id="rmstatus">${ROOM.status}</p>`:''}`;
   bindJoin();
   const copy=async el=>{const code=ROOM.code;if(!code)return;try{await navigator.clipboard.writeText(code);toastCopied(el)}catch(_){prompt(L('房间码','Room code'),code)}};
-  {const cp=$('#rmcopy');if(cp)cp.onclick=()=>copy(cp)}{const cb=$('#rmcodeb');if(cb)cb.onclick=()=>copy(cb)}
+  {const invite=$('#rminvite');if(invite)invite.onclick=()=>socialOpen('invite')}{const cb=$('#rmcodeb');if(cb)cb.onclick=()=>copy(cb)}
   {const ai=$('#rmai');if(ai)ai.onclick=()=>{roomAddAI();SFX.pick(1)}}box.querySelectorAll('.rmx').forEach(b=>b.onclick=()=>{roomRemoveAI(b.dataset.rm);SFX.pick(1)});
   {const rb=$('#rmready');if(rb)rb.onclick=()=>{roomSetReady(!mine.ready);SFX.pick(1)}}
   $('#rmleave').onclick=()=>{roomLeave();SFX.pick(1)};
