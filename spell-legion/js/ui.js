@@ -546,7 +546,12 @@ const fsb=$('#fsbtn');if(fsb)fsb.onclick=()=>goFullscreen(false);
 new MutationObserver(()=>{document.body.classList.toggle('picking',!$('#cards').hidden)}).observe($('#cards'),{attributes:true,attributeFilter:['hidden']});
 
 /* touch layout (Diablo Immortal / Wild Rift style): left thumb moves, right thumb has a big dash button with the skills in an arc around it */
-if(IS_TOUCH){document.body.classList.add('touchhud');const vb=$('#vbars');if(vb)vb.hidden=false;const xp=$('#xprow'),lv=$('#lv');if(xp&&lv)xp.prepend(lv);$('#minimapanchor')?.style.setProperty('--map-ratio',String(H/W))}
+if(IS_TOUCH){
+  document.body.classList.add('touchhud');const vb=$('#vbars');if(vb){vb.hidden=false;const health=document.createElement('div');health.id='healthrow';vb.prepend(health);health.append(vb.querySelector('.hp'),$('#cores'))}
+  const xp=$('#xprow'),lv=$('#lv');if(xp&&lv)xp.prepend(lv);
+  const row=$('#hud .top>.row'),readouts=document.createElement('div');readouts.id='combatreadouts';row.prepend(readouts);readouts.append($('#roomboard'),$('#kills'),row.querySelector('.lft'));
+  $('#minimapanchor')?.style.setProperty('--map-ratio',String(H/W));
+}
 
 /* the title writes itself in, one brush stroke per character, then a slow gold glint runs through it */
 (()=>{const h=document.querySelector('#menu .entitle');if(h&&!h.dataset.ink){h.dataset.ink=1;const t=h.textContent.trim();h.setAttribute('aria-label',t);h.textContent='';[...t].forEach((ch,i)=>{const sp=document.createElement('span');sp.textContent=ch===' '?'\u00a0':ch;sp.style.setProperty('--i',i);sp.setAttribute('aria-hidden','true');h.appendChild(sp)})}})();

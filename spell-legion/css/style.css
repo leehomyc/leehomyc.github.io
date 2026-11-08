@@ -1485,29 +1485,39 @@ body:not(.touchhud) #roomboard{top:270px}
 /* Phone combat header: one left status column, a raised right map/tools column, one clock. */
 .xp-row{min-width:0}#minimapanchor{display:none;pointer-events:none}
 body.touchhud #hud{--hud-top:max(8px,env(safe-area-inset-top,0px));--hud-edge:max(16px,env(safe-area-inset-right,0px));--map-width:clamp(88px,calc(100vw - 274px),116px);--status-width:min(280px,calc(100% - var(--map-width) - 12px));padding-top:var(--hud-top)}
-body.touchhud #hud .top{gap:6px}
+body.touchhud #hud .top{gap:5px}
 body.touchhud #xprow{display:flex;gap:7px;align-items:center;width:var(--status-width);min-height:18px}
 body.touchhud #xprow #lv{flex:none;min-width:35px;text-align:center;padding:1px 4px;font-size:11px;line-height:16px;box-sizing:border-box}
 body.touchhud #xprow #xpbar{flex:1;min-width:0;height:6px;box-sizing:border-box}
-body.touchhud #vbars{width:var(--status-width);gap:6px}
+body.touchhud #vbars{width:var(--status-width);gap:5px}
+body.touchhud #healthrow{display:flex;align-items:center;gap:6px;min-width:0}
+body.touchhud #healthrow .hp{flex:1;min-width:0}
+body.touchhud #healthrow #cores{flex:none;gap:2px}
+body.touchhud #healthrow .run-life svg{width:15px;height:15px}
+body.touchhud #vbars .vb{height:19px;border-width:1px;border-radius:6px;box-sizing:border-box}
+body.touchhud #vbars .vb b{font-size:11px;line-height:17px}
 body.touchhud #hud .rgt{position:absolute;right:var(--hud-edge);top:var(--hud-top);gap:6px;padding:0}
 body.touchhud #sndbtn,body.touchhud #pausebtn{width:44px;min-width:44px;height:44px;min-height:44px;font-size:17px;box-sizing:border-box;border-radius:10px}
-body.touchhud #kills{display:none}
+body.touchhud #kills{display:block;align-self:start;justify-self:start;font-size:11px;line-height:1.2;padding:2px 6px;margin-top:3px}
+body.touchhud #kills[hidden]{display:none}
 body.touchhud #minimapanchor{display:block;position:absolute;right:var(--hud-edge);top:calc(var(--hud-top) + 54px);width:var(--map-width);height:110px}
-body.touchhud #hud .top>.row{gap:4px}
+body.touchhud #hud .top>.row{gap:6px;align-items:start}
+body.touchhud #combatreadouts{grid-column:1;grid-row:1;min-width:0;display:grid;align-content:start;gap:3px}
+body.touchhud #hud .top>.row>.tm{grid-column:2;grid-row:1}
+body.touchhud #combatreadouts .lft:empty{display:none}
 body.touchhud #hud .lft{max-width:100%;overflow:hidden;gap:4px}
 body.touchhud #hud .tm{gap:3px}
-body.touchhud #timer:not(.duel-clock){font-size:24px;line-height:1.2;padding:3px 10px}
+body.touchhud #timer,body.touchhud #timer.duel-clock{font:800 24px/1.2 var(--cute);letter-spacing:0;min-width:0;padding:3px 10px;border:1px solid #d6a54a88;border-radius:10px;background:#0a071099;box-shadow:none;font-variant-numeric:tabular-nums}
 body.touchhud #nextboss{font-size:10px;line-height:1.2}
-body.touchhud #roomboard{position:static;justify-self:start;width:min(160px,45vw);min-width:0;max-width:none;margin-top:4px;gap:5px}
+body.touchhud #roomboard{position:static;justify-self:start;width:100%;min-width:0;max-width:160px;margin:0;gap:4px}
 body.touchhud #roomboard .rbh{display:none}
-body.touchhud #roomboard .rb{grid-template-columns:auto 24px minmax(0,1fr) auto;padding:5px 7px;column-gap:5px}
-body.touchhud #roomboard .rb .av{width:24px;height:24px}body.touchhud #roomboard .rb b{font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}body.touchhud #roomboard .rb .sc{font-size:15px}
-body.touchhud #roomboard.solo .rb{grid-template-columns:24px minmax(0,1fr) auto}
+body.touchhud #roomboard .rb{grid-template-columns:auto 20px minmax(0,1fr) auto;padding:4px 5px;column-gap:4px;border-radius:11px}
+body.touchhud #roomboard .rb .av{width:20px;height:20px;font-size:12px}body.touchhud #roomboard .rb .g{font-size:16px}body.touchhud #roomboard .rb i{font-size:10px;min-width:6px}body.touchhud #roomboard .rb em{display:none}body.touchhud #roomboard .rb b{font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}body.touchhud #roomboard .rb .sc{font-size:12px}
+body.touchhud #roomboard.solo .rb{grid-template-columns:20px minmax(0,1fr) auto}
 body.touchhud #bossbar,body.touchhud #obj,body.touchhud #riftwarning,body.touchhud #buff{justify-self:start;max-width:var(--status-width);box-sizing:border-box;font-size:11px;margin:0}
 body.touchhud #bossbar{width:var(--status-width)}body.touchhud #bossname{font-size:12px}
-@media(max-width:360px){body.touchhud #timer.duel-clock{font-size:25px}body.touchhud .vb b{font-size:12px}}
-@media(max-height:480px) and (min-width:600px){body.touchhud #hud .tm{position:absolute;top:var(--hud-top);left:50%;transform:translateX(-50%)}body.touchhud #hud .top>.row{min-height:18px}body.touchhud #vbars{width:240px}body.touchhud #xprow{width:240px}body.touchhud #roomboard{width:160px;margin-top:0}}
+
+@media(max-height:480px) and (min-width:600px){body.touchhud #hud .top>.row{min-height:18px}body.touchhud #vbars{width:240px}body.touchhud #xprow{width:240px}body.touchhud #roomboard{max-width:160px;margin-top:0}}
 body.touchhud #minimapanchor{height:calc(var(--map-width) * var(--map-ratio,.77) + 18px)}
 .boss-times{font-size:13px;color:var(--dim);text-align:center}
 body.control-frozen #stage::after{content:'';position:absolute;inset:0;pointer-events:none;z-index:7;box-shadow:inset 0 0 55px 10px #a6e7ff99;border:2px solid #c5f1ff99;box-sizing:border-box}
