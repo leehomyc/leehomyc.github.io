@@ -1,9 +1,19 @@
 {
-  "current": "0.1.100",
+  "current": "0.1.101",
   "entries": [
     {
       "revision": null,
-      "at": "2026-11-08T15:59:57.289508+08:00",
+      "at": "2026-11-08T16:26:56.374710+08:00",
+      "version": "0.1.101",
+      "subject": "Move version button before Contact",
+      "zh": "版本号移到联系作者前面。",
+      "en": "Move the version button before Contact.",
+      "ja": "バージョン表示を連絡先の前に移動。",
+      "ko": "버전 버튼을 연락처 앞으로 이동."
+    },
+    {
+      "revision": "e44cdb728da7872cf0a35226de2a64a571233587",
+      "at": "2026-11-08T16:07:25+08:00",
       "version": "0.1.100",
       "subject": "Improve combat readability, correct enemy defenses and add release history",
       "zh": "提高子弹与障碍物辨识度；修复元素抗性和后期小怪血量计算；加入版本与更新记录。",

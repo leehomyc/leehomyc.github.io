@@ -1,6 +1,6 @@
 # Release history
 
-The version button beside Contact opens `releases.json`. Versions use `0.1.N` with a monotonically increasing release number.
+The version button before Contact opens `releases.json`. Versions use `0.1.N` with a monotonically increasing release number.
 
 Before each publish, run `node spell-legion/tools/releases.mjs .` to retain all previous records. Add the next record to `spell-legion/releases.json` with a new version, `revision: null`, the exact planned commit subject, date, and concise `zh`, `en`, `ja`, `ko` notes. Traditional Chinese is converted from `zh`.
 
