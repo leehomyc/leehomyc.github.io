@@ -81,7 +81,7 @@ function dirAdaptiveStep(){
   if(P.down>0||r<.45)level=Math.max(0,level-2);else if(cruising)level=Math.min(8,level+1);else if(r<.65)level=Math.max(0,level-1);
   if(level>(D.adaptLevel||0))showBanner(`敌军进化 · ${level} 阶`,`Enemy evolution · tier ${level}: tougher foes and telegraphed attacks`,2);
   D.adaptLevel=level;
-  D.adaptProfile={level:Math.max(level,Math.min(6,Math.floor(Math.max(0,G.t-180)/120))),buildDps:typeof buildBossDps==='function'?buildBossDps():0,hp:P.maxHp,def:Math.max(.4,P.def),dps:Math.max(0,(G.effectiveDealt||0)-(h.effective||0))/Math.max(1,span)};
+  D.adaptProfile={level:Math.max(level,Math.min(6,Math.floor(Math.max(0,G.t-180)/120))),buildDps:typeof buildEnemyDps==='function'?buildEnemyDps():0,hp:P.maxHp,def:Math.max(.4,P.def),dps:Math.max(0,(G.effectiveDealt||0)-(h.effective||0))/Math.max(1,span)};
 }
 function dirAdaptEnemy(e){
   if(!e||!dirOn()||SAVE.mode!=='solo'||!G.dir?.adaptProfile)return;
@@ -89,7 +89,7 @@ function dirAdaptEnemy(e){
   const baseHp=e.hp,baseDmg=e.dmg,build=Math.max(0,A.buildDps||0),phase=clamp((G.t-150)/450,0,1),elite=e.elite||e.champion;
   const life=elite?.75+n*.12:e.type==='brute'?.28+n*.025:e.type==='archer'?.15+n*.012:.10+n*.012;
   // Trash remains quick to clear. Durable elites and back-line threats keep scaling with the build.
-  e.hp=e.maxHp=Math.max(baseHp*(1+n*.15),Math.max(A.dps*(elite?.65:.16),build*life*phase));
+  e.hp=e.maxHp=Math.max(baseHp*(1+n*.15),build*life*phase);
   e.dmg=Math.max(baseDmg*(1+n*.08),A.hp*(elite?.065+n*.004:.025+n*.002)/Math.sqrt(A.def));e.adaptArmor=Math.min(elite?.22:.12,n*(elite?.025:.015));e.adaptDamage=e.dmg/Math.max(.1,baseDmg);
   if(elite&&n>=3){e.tenacious=true;e.sc=(e.sc||1)*1.08;e.tintv='#b87563'}
   const alive=G.en.filter(o=>!o.dead&&o.adaptAbility).length;

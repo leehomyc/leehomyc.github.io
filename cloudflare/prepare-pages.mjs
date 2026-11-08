@@ -1,6 +1,7 @@
 import { cp, mkdir, rm, writeFile, readFile, stat } from 'node:fs/promises';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import {releaseHistory} from '../spell-legion/tools/releases.mjs';
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const source = resolve(root, 'spell-legion');
 const output = resolve(root, 'cloudflare/dist');
@@ -12,7 +13,9 @@ await cp(resolve(root,'cloudflare/analytics/cn-proxy.mjs'), resolve(output,'cn-p
 await cp(resolve(root,'cloudflare/analytics/cn-static.mjs'), resolve(output,'cn-static.mjs'));
 await writeFile(resolve(output,'_routes.json'),JSON.stringify({version:1,include:['/*'],exclude:[]}));
 const revision=process.env.CF_PAGES_COMMIT_SHA||await readFile(resolve(root,'RELEASE_SOURCE'),'utf8').catch(()=> 'local');
-await writeFile(resolve(output,'version.json'),JSON.stringify({revision:revision.trim(),built:new Date().toISOString()}));
+const releases=await releaseHistory(root);
+await writeFile(resolve(output,'releases.json'),JSON.stringify(releases));
+await writeFile(resolve(output,'version.json'),JSON.stringify({revision:revision.trim(),version:releases.current,built:new Date().toISOString()}));
 const html = await readFile(resolve(output, 'index.html'), 'utf8');
 const missing = [];
 for (const [, path] of html.matchAll(/(?:src|href)="([^"#]+)"/g)) {
@@ -33,6 +36,8 @@ await writeFile(resolve(output, '_headers'), `/*
   Cache-Control: no-store
 /version.json
   Cache-Control: no-store
+/releases.json
+  Cache-Control: no-cache
 /js/cn-connection-boot.js
   Cache-Control: no-cache
 `);

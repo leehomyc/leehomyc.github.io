@@ -1,0 +1,1005 @@
+{
+  "current": "0.1.100",
+  "entries": [
+    {
+      "revision": null,
+      "at": "2026-11-08T15:59:57.289508+08:00",
+      "version": "0.1.100",
+      "subject": "Improve combat readability, correct enemy defenses and add release history",
+      "zh": "提高子弹与障碍物辨识度；修复元素抗性和后期小怪血量计算；加入版本与更新记录。",
+      "en": "Improve projectile and obstacle clarity, fix elemental resistance and late-game monster HP, and add version history.",
+      "ja": "弾と障害物を見やすくし、属性耐性と後半の敵HPを修正。更新履歴を追加。",
+      "ko": "탄환과 장애물 가시성, 속성 저항 및 후반 적 HP 계산 수정. 버전 기록 추가."
+    },
+    {
+      "revision": "3dc2d0b07ef984997d7c5a675b356dcfbcdb02d5",
+      "at": "2026-11-08T11:49:40+08:00",
+      "version": "0.1.99",
+      "subject": "Keep boss countdown above transient overlays without moving or resizing it",
+      "zh": "保护首领倒计时，保持原大小和位置。",
+      "en": "Keep boss countdown above transient overlays without moving or resizing it",
+      "ja": "ボスのカウントダウンを同じ位置と大きさで保護。",
+      "ko": "보스 카운트다운 위치와 크기를 유지하며 가림 방지."
+    },
+    {
+      "revision": "8134d1d236c12dfac9d60d7fdf6ac4b06152f613",
+      "at": "2026-11-08T11:45:19+08:00",
+      "version": "0.1.98",
+      "subject": "Break streak and overdrive on death and preserve boss countdown during surges",
+      "zh": "死亡中断连杀与狂暴，怪潮不再替换首领倒计时。",
+      "en": "Break streak and overdrive on death and preserve boss countdown during surges",
+      "ja": "死亡時にコンボと暴走を解除。敵の波とボス予告を分離。",
+      "ko": "사망 시 콤보와 폭주 종료. 적 무리 안내와 보스 예고 분리."
+    },
+    {
+      "revision": "ecb71a3d13c97cfc777bc0c1cd4c5376924add66",
+      "at": "2026-11-08T11:38:26+08:00",
+      "version": "0.1.97",
+      "subject": "Unify warlord and boss minimap markers",
+      "zh": "合并统领与首领的小地图标记。",
+      "en": "Unify warlord and boss minimap markers",
+      "ja": "将軍とボスのミニマップ表示を統合。",
+      "ko": "장군과 보스의 미니맵 표시 통합."
+    },
+    {
+      "revision": "2bd4d6fe2266dca15e639549d450fbc80928bf1d",
+      "at": "2026-11-08T11:36:15+08:00",
+      "version": "0.1.96",
+      "subject": "Hide relic glyphs from combat HUD",
+      "zh": "隐藏战斗界面的法宝小字图标。",
+      "en": "Hide relic glyphs from combat HUD",
+      "ja": "戦闘画面のレリック文字アイコンを非表示に。",
+      "ko": "전투 화면의 유물 글자 아이콘 숨김."
+    },
+    {
+      "revision": "b98447a10627fe9b314fad01775fa3ed7cba4bce",
+      "at": "2026-11-08T11:32:44+08:00",
+      "version": "0.1.95",
+      "subject": "Place personal best beside run score and loot inside result details",
+      "zh": "最高分与本局分数并排，拾取装备移入详细数据。",
+      "en": "Place personal best beside run score and loot inside result details",
+      "ja": "最高スコアを今回のスコアの隣へ。入手装備は詳細欄へ。",
+      "ko": "최고 점수를 이번 판 점수 옆으로, 획득 장비는 상세 정보로 이동."
+    },
+    {
+      "revision": "535c566d6f2d46b32fa66d2a00ea0874a18aaa83",
+      "at": "2026-11-08T11:31:08+08:00",
+      "version": "0.1.94",
+      "subject": "Complete recent feature translations and center result gear labels",
+      "zh": "补全多语言翻译，装备标签文字垂直居中。",
+      "en": "Complete recent feature translations and center result gear labels",
+      "ja": "多言語表示を補完し、装備ラベルを縦中央に配置。",
+      "ko": "다국어 번역 보완 및 장비 라벨 세로 중앙 정렬."
+    },
+    {
+      "revision": "602f7e086190840710d0710e9096ef7be2ef81db",
+      "at": "2026-11-08T11:19:22+08:00",
+      "version": "0.1.93",
+      "subject": "Invite friends directly from duel lobby and hide solo kill count",
+      "zh": "大厅好友列表直接邀请，单人隐藏击杀数。",
+      "en": "Invite friends directly from duel lobby and hide solo kill count",
+      "ja": "ロビーからフレンドを招待。ソロの撃破数を非表示に。",
+      "ko": "로비 친구 목록에서 직접 초대. 솔로 처치 수 숨김."
+    },
+    {
+      "revision": "bad6291861e95c50f30ad0cd7be5ed37ca43c0ad",
+      "at": "2026-11-08T11:11:20+08:00",
+      "version": "0.1.92",
+      "subject": "Unify compact mobile HUD and align lives, scores and timer",
+      "zh": "统一手机状态栏，生命、分数与时间对齐。",
+      "en": "Unify compact mobile HUD and align lives, scores and timer",
+      "ja": "モバイルのHP・残機・スコア・時間を整列。",
+      "ko": "모바일 HP, 목숨, 점수, 시간 표시 정렬."
+    },
+    {
+      "revision": "5af28c8808a9b2e98fda476ce829793ae0aa7a6d",
+      "at": "2026-11-08T11:00:11+08:00",
+      "version": "0.1.91",
+      "subject": "Strengthen solo encounters, add enchantress control and shared duel loot",
+      "zh": "加强单人敌军，加入魅惑冰冻与对决共用掉落。",
+      "en": "Strengthen solo encounters, add enchantress control and shared duel loot",
+      "ja": "ソロの敵を強化。魅了・凍結と対決の共有ドロップを追加。",
+      "ko": "솔로 적 강화. 매혹, 빙결 및 대결 공용 드롭 추가."
+    },
+    {
+      "revision": "2873d875509d83b2f473212f060504f9ffe12f5b",
+      "at": "2026-11-08T01:24:38+08:00",
+      "version": "0.1.90",
+      "subject": "Add match history and friends; rebalance healing and boss encounters",
+      "zh": "加入战绩、好友，并调整回血与首领战。",
+      "en": "Add match history and friends; rebalance healing and boss encounters",
+      "ja": "戦績とフレンドを追加し、回復とボス戦を調整。",
+      "ko": "전적과 친구 추가, 회복 및 보스전 조정."
+    },
+    {
+      "revision": "f4d72eac28013d48e672fbdd148d655992ced978",
+      "at": "2026-11-08T00:58:46+08:00",
+      "version": "0.1.89",
+      "subject": "Fix mobile room entry and simplify run results; remove ranking caps",
+      "zh": "修复手机加入房间，简化结算，取消排行榜数值限制。",
+      "en": "Fix mobile room entry and simplify run results; remove ranking caps",
+      "ja": "モバイルのルーム参加と結果画面を改善。ランキング数値制限を解除。",
+      "ko": "모바일 방 참가와 결과 화면 개선. 순위 수치 제한 해제."
+    },
+    {
+      "revision": "97c37ea61c7c312cb32dd802fdf422db6c131d98",
+      "at": "2026-11-08T00:45:36+08:00",
+      "version": "0.1.88",
+      "subject": "Fix invisible bamboo walls and keep rendered terrain collisions aligned",
+      "zh": "修复竹林隐形碰撞，让场景与碰撞一致。",
+      "en": "Fix invisible bamboo walls and keep rendered terrain collisions aligned",
+      "ja": "竹林の見えない壁を修正し、見た目と当たり判定を一致。",
+      "ko": "대나무 숲의 보이지 않는 벽 및 지형 충돌 수정."
+    },
+    {
+      "revision": "cbe2112463300519a269d7dede8fadb0bd5d1363",
+      "at": "2026-11-08T00:40:46+08:00",
+      "version": "0.1.87",
+      "subject": "Fix endless balance, room joins, score feedback, and registered rankings",
+      "zh": "调整无尽平衡、进房、得分反馈及登录上榜规则。",
+      "en": "Fix endless balance, room joins, score feedback, and registered rankings",
+      "ja": "エンドレス、ルーム参加、スコア演出とログイン制ランキングを改善。",
+      "ko": "무한 모드, 방 참가, 점수 연출 및 로그인 순위 규칙 개선."
+    },
+    {
+      "revision": "150d0a084a65178d44d8a414bc7e07ac538b1bd6",
+      "at": "2026-11-07T23:54:10+08:00",
+      "version": "0.1.86",
+      "subject": "Show simple equipment names below room player classes",
+      "zh": "房间玩家职业下显示简洁装备名称。",
+      "en": "Show simple equipment names below room player classes",
+      "ja": "ルームでクラスの下に装備名を表示。",
+      "ko": "방에서 직업 아래 간단한 장비 이름 표시."
+    },
+    {
+      "revision": "31e91f183f3997620f3614bf8b113da26c7b342c",
+      "at": "2026-11-07T23:50:34+08:00",
+      "version": "0.1.85",
+      "subject": "Copy only the room code from room invite controls",
+      "zh": "复制操作只复制房间码。",
+      "en": "Copy only the room code from room invite controls",
+      "ja": "コピーする内容をルームコードのみに変更。",
+      "ko": "복사 시 방 코드만 복사."
+    },
+    {
+      "revision": "6ea0faf667d57a3f97126390d89d5d9fc1d07e68",
+      "at": "2026-11-07T23:48:42+08:00",
+      "version": "0.1.84",
+      "subject": "Add expensive gear upgrades and enable equipment in duels",
+      "zh": "加入金币强化装备，对决也享受装备效果。",
+      "en": "Add expensive gear upgrades and enable equipment in duels",
+      "ja": "ゴールドで装備を強化。対決でも装備効果が有効に。",
+      "ko": "골드 장비 강화 추가. 대결에서도 장비 효과 적용."
+    },
+    {
+      "revision": "c5b3f5f026b7a2b2457962a8366c0623e9c72bda",
+      "at": "2026-11-07T23:38:46+08:00",
+      "version": "0.1.83",
+      "subject": "Unify duel lives, death penalties and match countdowns",
+      "zh": "统一对决生命规则、死亡扣分与倒计时。",
+      "en": "Unify duel lives, death penalties and match countdowns",
+      "ja": "対決の残機、死亡ペナルティとカウントダウンを統一。",
+      "ko": "대결 목숨, 사망 점수 감소 및 카운트다운 규칙 통일."
+    },
+    {
+      "revision": "82626dd08392ffe20f91b2f93ecf13f586bafee8",
+      "at": "2026-11-07T23:25:39+08:00",
+      "version": "0.1.82",
+      "subject": "Center room result actions on desktop and mobile",
+      "zh": "对决结算操作按钮居中。",
+      "en": "Center room result actions on desktop and mobile",
+      "ja": "対決結果の操作ボタンを中央に配置。",
+      "ko": "대결 결과 조작 버튼 중앙 정렬."
+    },
+    {
+      "revision": "a69b5a38b7cc2ca628220b4f056d962074923cc9",
+      "at": "2026-11-07T23:18:41+08:00",
+      "version": "0.1.81",
+      "subject": "Show account identity beside the language picker",
+      "zh": "语言选择器旁显示当前账号。",
+      "en": "Show account identity beside the language picker",
+      "ja": "言語選択の隣に現在のアカウントを表示。",
+      "ko": "언어 선택 옆에 현재 계정 표시."
+    },
+    {
+      "revision": "1993e486c4c9dad843765482785126c92538df11",
+      "at": "2026-11-07T23:14:27+08:00",
+      "version": "0.1.80",
+      "subject": "Allow pausing upgrade choices and simplify result actions",
+      "zh": "选卡时可暂停，简化结算按钮操作。",
+      "en": "Allow pausing upgrade choices and simplify result actions",
+      "ja": "カード選択中の一時停止に対応。結果操作を簡略化。",
+      "ko": "카드 선택 중 일시정지 지원 및 결과 조작 간소화."
+    },
+    {
+      "revision": "6c8f30610b848ee4e5e3356785dea676240dfabb",
+      "at": "2026-11-07T23:08:30+08:00",
+      "version": "0.1.79",
+      "subject": "Keep the home menu wide after moving duel rank",
+      "zh": "恢复宽版首页布局。",
+      "en": "Keep the home menu wide after moving duel rank",
+      "ja": "ホーム画面の幅を元に戻す。",
+      "ko": "홈 화면의 넓은 레이아웃 복원."
+    },
+    {
+      "revision": "b77ab488f2f57bf304ad602d48f1b13e951f2ccc",
+      "at": "2026-11-07T23:04:47+08:00",
+      "version": "0.1.78",
+      "subject": "Hide skill cooldown counters while paused",
+      "zh": "暂停时隐藏技能冷却数字。",
+      "en": "Hide skill cooldown counters while paused",
+      "ja": "一時停止中のスキルクールダウン数字を非表示に。",
+      "ko": "일시정지 중 스킬 재사용 대기시간 숫자 숨김."
+    },
+    {
+      "revision": "f8c5e18357cb1ba54f23830f41742d359ae15a22",
+      "at": "2026-11-07T22:59:55+08:00",
+      "version": "0.1.77",
+      "subject": "Add live skill inspection and clearer health feedback",
+      "zh": "加入技能详情和更清晰的生命反馈。",
+      "en": "Add live skill inspection and clearer health feedback",
+      "ja": "スキル詳細と見やすいHP警告を追加。",
+      "ko": "스킬 상세 및 선명한 HP 피드백 추가."
+    },
+    {
+      "revision": "a72a4fce6b204410033e004cdd87fb7b1fb04eda",
+      "at": "2026-11-07T22:53:11+08:00",
+      "version": "0.1.76",
+      "subject": "Simplify home and Journey menus and unblock leaderboard loading",
+      "zh": "简化首页和冒险入口，修复排行榜加载。",
+      "en": "Simplify home and Journey menus and unblock leaderboard loading",
+      "ja": "ホームと冒険メニューを簡略化し、ランキング読み込みを修正。",
+      "ko": "홈과 모험 메뉴 간소화 및 순위 로딩 수정."
+    },
+    {
+      "revision": "876827656150571995a8f714739803b0bc5177c5",
+      "at": "2026-11-07T19:17:49+08:00",
+      "version": "0.1.75",
+      "subject": "Bring standard boss forward and remove cinematic bars",
+      "zh": "普通首领提前登场，移除登场黑边。",
+      "en": "Bring standard boss forward and remove cinematic bars",
+      "ja": "通常ボスの出現を早め、演出の黒帯を削除。",
+      "ko": "일반 보스 등장 시간을 앞당기고 등장 검은 띠 제거."
+    },
+    {
+      "revision": "ec66194ed544f07740b15df2e3f95a8f9ccd7829",
+      "at": "2026-11-07T19:11:15+08:00",
+      "version": "0.1.74",
+      "subject": "Align hero title with Ascension and best score",
+      "zh": "侠客名称与修罗、最高分对齐。",
+      "en": "Align hero title with Ascension and best score",
+      "ja": "ヒーロー名、アセンションと最高スコアを整列。",
+      "ko": "영웅 이름, 어센션 및 최고 점수 정렬."
+    },
+    {
+      "revision": "8ead966185c560d52602c7a1009ea6392836187f",
+      "at": "2026-11-07T19:03:02+08:00",
+      "version": "0.1.73",
+      "subject": "Keep home actions and Ascension guidance visible",
+      "zh": "保持首页操作和修罗解锁提示可见。",
+      "en": "Keep home actions and Ascension guidance visible",
+      "ja": "ホームの操作と階層開放の案内を見やすく。",
+      "ko": "홈 조작 및 어센션 해금 안내 가시성 개선."
+    },
+    {
+      "revision": "636c537a24602a4eeb9cfa1d5f51994286c26a6d",
+      "at": "2026-11-07T18:48:10+08:00",
+      "version": "0.1.72",
+      "subject": "Avoid rewards for empty abandoned runs",
+      "zh": "修复空局放弃仍获得奖励的问题。",
+      "en": "Avoid rewards for empty abandoned runs",
+      "ja": "何もしていない対局の放棄で報酬が出る問題を修正。",
+      "ko": "빈 판 포기 시 보상이 지급되던 문제 수정."
+    },
+    {
+      "revision": "a958f3ee242599845234541ca72b683773903f68",
+      "at": "2026-11-07T18:41:32+08:00",
+      "version": "0.1.71",
+      "subject": "Require confirmation before abandoning or cashing out",
+      "zh": "当时加入放弃和收官确认，后续版本已简化。",
+      "en": "Require confirmation before abandoning or cashing out",
+      "ja": "放棄と終了の確認を導入（後の更新で簡略化）。",
+      "ko": "포기 및 종료 확인 도입(이후 업데이트에서 간소화)."
+    },
+    {
+      "revision": "49d0812b903d9b3658e39ffe250472b1d7a31db2",
+      "at": "2026-11-07T18:08:16+08:00",
+      "version": "0.1.70",
+      "subject": "Grant Pact of Wind relic immediately and correct locked card labels",
+      "zh": "风契约立即发放法宝，修正锁定标签。",
+      "en": "Grant Pact of Wind relic immediately and correct locked card labels",
+      "ja": "風の契約のレリックを即時付与し、ロック表示を修正。",
+      "ko": "바람 계약 유물 즉시 지급 및 잠금 표시 수정."
+    },
+    {
+      "revision": "ef52052315476a41b205f080baae1a30b32398cf",
+      "at": "2026-11-07T17:51:26+08:00",
+      "version": "0.1.69",
+      "subject": "Show contract prices on mobile cards",
+      "zh": "手机契约卡完整显示代价。",
+      "en": "Show contract prices on mobile cards",
+      "ja": "モバイルの契約カードに代償を表示。",
+      "ko": "모바일 계약 카드에 대가 표시."
+    },
+    {
+      "revision": "ea4d3b86f5f0a97d7dcca1c015112b43e5ce36c8",
+      "at": "2026-11-07T17:43:02+08:00",
+      "version": "0.1.68",
+      "subject": "Strengthen boss attacks and brighten all four music themes",
+      "zh": "加强首领招式并优化四套音乐。",
+      "en": "Strengthen boss attacks and brighten all four music themes",
+      "ja": "ボスの技を強化し、4曲の音楽を調整。",
+      "ko": "보스 기술 강화 및 4종 음악 조정."
+    },
+    {
+      "revision": "7981719a7ae723f1a16af4c626d5a7e1c7fe99a3",
+      "at": "2026-11-07T17:18:38+08:00",
+      "version": "0.1.67",
+      "subject": "Balance Light Step and cap permanent movement speed",
+      "zh": "调整轻身收益和永久移速上限。",
+      "en": "Balance Light Step and cap permanent movement speed",
+      "ja": "移動速度強化の効果と上限を調整。",
+      "ko": "이동 속도 강화 효과 및 상한 조정."
+    },
+    {
+      "revision": "85e73dbeca1068e2e7a1fa6a2885dae457e0e6f0",
+      "at": "2026-11-07T16:35:46+08:00",
+      "version": "0.1.66",
+      "subject": "Compose four distinct regional game soundtracks",
+      "zh": "加入四套不同地区风格的配乐。",
+      "en": "Compose four distinct regional game soundtracks",
+      "ja": "地域ごとに異なる4曲のBGMを追加。",
+      "ko": "지역별로 다른 4종 배경 음악 추가."
+    },
+    {
+      "revision": "b9d6f46e86e720e9039ecb293e336cf9f06c85f8",
+      "at": "2026-11-07T16:29:01+08:00",
+      "version": "0.1.65",
+      "subject": "Show Ascension tier with personal best in hero header",
+      "zh": "侠客页显示修罗层数和个人最高分。",
+      "en": "Show Ascension tier with personal best in hero header",
+      "ja": "ヒーロー画面に到達階層と最高スコアを表示。",
+      "ko": "영웅 화면에 어센션 단계 및 최고 점수 표시."
+    },
+    {
+      "revision": "92fa1912ae6b1c77011e5fc3f2cd8e27f29b8eb3",
+      "at": "2026-11-07T16:26:36+08:00",
+      "version": "0.1.64",
+      "subject": "Balance solo progression and clean mobile results and leaderboards",
+      "zh": "调整单人成长，整理手机结算和排行榜。",
+      "en": "Balance solo progression and clean mobile results and leaderboards",
+      "ja": "ソロの成長、モバイル結果とランキングを調整。",
+      "ko": "솔로 성장, 모바일 결과 및 순위 화면 조정."
+    },
+    {
+      "revision": "37c3b8ce586443e5b3901ce0a7816b9171d71d19",
+      "at": "2026-11-07T16:07:12+08:00",
+      "version": "0.1.63",
+      "subject": "Expand Ascension to 20 tiers with map unlocks and active-play pressure",
+      "zh": "修罗扩展至二十层，加入地图解锁和走位压力。",
+      "en": "Expand Ascension to 20 tiers with map unlocks and active-play pressure",
+      "ja": "アセンションを20層に拡張し、マップ開放と移動の重要性を追加。",
+      "ko": "어센션을 20단계로 확장하고 지도 해금과 이동 압박 추가."
+    },
+    {
+      "revision": "2f637721587cc400db7c45bb668a18b8d1f8a16b",
+      "at": "2026-11-07T15:59:14+08:00",
+      "version": "0.1.62",
+      "subject": "Move Ascension tier rail below hero selection",
+      "zh": "修罗层数选择移到侠客选择下方。",
+      "en": "Move Ascension tier rail below hero selection",
+      "ja": "階層選択をヒーロー選択の下に移動。",
+      "ko": "어센션 단계 선택을 영웅 선택 아래로 이동."
+    },
+    {
+      "revision": "b2ef973b6a72b13d65508257406267704e7a45dc",
+      "at": "2026-11-07T15:54:41+08:00",
+      "version": "0.1.61",
+      "subject": "Show Ascension progression atop endless setup and speed up unlocks",
+      "zh": "顶部展示修罗进度，加快解锁。",
+      "en": "Show Ascension progression atop endless setup and speed up unlocks",
+      "ja": "階層進行を上部に表示し、開放を改善。",
+      "ko": "어센션 진행도 상단 표시 및 해금 개선."
+    },
+    {
+      "revision": "649fc958d5166001c53669493d438a1e1beec034",
+      "at": "2026-11-07T15:48:26+08:00",
+      "version": "0.1.60",
+      "subject": "Show personal endless best beside Ascension on hero screen",
+      "zh": "侠客页并列显示修罗与个人无尽最高分。",
+      "en": "Show personal endless best beside Ascension on hero screen",
+      "ja": "ヒーロー画面に階層とエンドレス最高スコアを並べて表示。",
+      "ko": "영웅 화면에 어센션과 무한 모드 최고 점수 나란히 표시."
+    },
+    {
+      "revision": "1efa5b09f9737da2079e63fa66b338b55e736a43",
+      "at": "2026-11-07T15:35:41+08:00",
+      "version": "0.1.59",
+      "subject": "Serve mainland game assets from GitHub mirror on same origin",
+      "zh": "改善大陆地区游戏资源加载。",
+      "en": "Serve mainland game assets from GitHub mirror on same origin",
+      "ja": "中国本土からのゲーム素材読み込みを改善。",
+      "ko": "중국 본토의 게임 리소스 로딩 개선."
+    },
+    {
+      "revision": "b4f0ba9beab095b7d1ea991aafbc3131adf6318d",
+      "at": "2026-11-07T15:33:29+08:00",
+      "version": "0.1.58",
+      "subject": "Keep music rotation automatic with randomized opening track",
+      "zh": "音乐自动轮换，随机选择开场曲。",
+      "en": "Keep music rotation automatic with randomized opening track",
+      "ja": "BGMを自動切り替えし、開始曲をランダム化。",
+      "ko": "음악 자동 순환 및 시작 곡 무작위 선택."
+    },
+    {
+      "revision": "5ff1ccd830e69c1dab0f686a7d512bd2458f59f4",
+      "at": "2026-11-07T15:31:24+08:00",
+      "version": "0.1.57",
+      "subject": "Rotate game music sooner and add next track control",
+      "zh": "加快音乐轮换并加入下一首控制。",
+      "en": "Rotate game music sooner and add next track control",
+      "ja": "BGM切り替えを早め、次の曲の操作を追加。",
+      "ko": "음악 순환 속도 개선 및 다음 곡 조작 추가."
+    },
+    {
+      "revision": "1059d123849b422db5dabbef18e60521600d600b",
+      "at": "2026-11-07T15:23:57+08:00",
+      "version": "0.1.56",
+      "subject": "Use shared mainland connection on both game hosts",
+      "zh": "统一不同入口的大陆联机连接。",
+      "en": "Use shared mainland connection on both game hosts",
+      "ja": "中国本土向けの接続を各入口で統一。",
+      "ko": "접속 경로별 중국 본토 연결 통일."
+    },
+    {
+      "revision": "4dcb3a759901c791da4f9d050c3ae6a97d37dbc1",
+      "at": "2026-11-07T15:17:59+08:00",
+      "version": "0.1.55",
+      "subject": "Recover leaderboard reads and persist endless personal best",
+      "zh": "修复排行榜读取并保存无尽个人最高分。",
+      "en": "Recover leaderboard reads and persist endless personal best",
+      "ja": "ランキング読み込みと最高スコア保存を修正。",
+      "ko": "순위 조회 및 무한 모드 최고 점수 저장 수정."
+    },
+    {
+      "revision": "4dfb1beb23dc694efcfea3e661e5b0516e707fc0",
+      "at": "2026-11-07T14:53:55+08:00",
+      "version": "0.1.54",
+      "subject": "Translate Japanese and Korean game titles and recover offline login",
+      "zh": "翻译日文韩文标题，改善登录恢复。",
+      "en": "Translate Japanese and Korean game titles and recover offline login",
+      "ja": "日韓タイトルを翻訳し、ログイン復旧を改善。",
+      "ko": "일본어와 한국어 제목 번역 및 로그인 복구 개선."
+    },
+    {
+      "revision": "3d87a502900485ecf24864fe11e3709ddd8eaec8",
+      "at": "2026-11-07T14:45:55+08:00",
+      "version": "0.1.53",
+      "subject": "Avoid mainland login wait on service worker activation",
+      "zh": "缩短大陆登录等待。",
+      "en": "Avoid mainland login wait on service worker activation",
+      "ja": "中国本土でのログイン待ち時間を短縮。",
+      "ko": "중국 본토 로그인 대기 시간 단축."
+    },
+    {
+      "revision": "1e6f80ef34d980402bfbdb8eb81350ba803d5495",
+      "at": "2026-11-07T14:31:07+08:00",
+      "version": "0.1.52",
+      "subject": "Route mainland Firebase connections through same-site proxy",
+      "zh": "改善大陆账号和联机服务连接。",
+      "en": "Route mainland Firebase connections through same-site proxy",
+      "ja": "中国本土のアカウントとオンライン接続を改善。",
+      "ko": "중국 본토 계정 및 온라인 연결 개선."
+    },
+    {
+      "revision": "c48932c914570c62c82e778de83fe2a357a91f05",
+      "at": "2026-11-07T14:10:59+08:00",
+      "version": "0.1.51",
+      "subject": "Split leaderboard into endless, ladder and level boards",
+      "zh": "排行榜分为无尽、天梯和级别三类。",
+      "en": "Split leaderboard into endless, ladder and level boards",
+      "ja": "ランキングをエンドレス、ランク、レベルに分割。",
+      "ko": "순위를 무한 모드, 랭크 및 레벨로 구분."
+    },
+    {
+      "revision": "92107868a82fc2b3f81d8869a3af980e14368b39",
+      "at": "2026-11-07T14:03:13+08:00",
+      "version": "0.1.50",
+      "subject": "Let mobile game audio mix with other apps",
+      "zh": "手机游戏音乐可与其他应用混音。",
+      "en": "Let mobile game audio mix with other apps",
+      "ja": "モバイルの音声を他のアプリと同時再生可能に。",
+      "ko": "모바일 게임 오디오와 다른 앱 소리 동시 재생 지원."
+    },
+    {
+      "revision": "3702a8241b5fdafd8d4a24c0c6977be1e4752419",
+      "at": "2026-11-07T13:55:38+08:00",
+      "version": "0.1.49",
+      "subject": "Show full duel results and center mobile layout",
+      "zh": "完善对决结算并居中手机布局。",
+      "en": "Show full duel results and center mobile layout",
+      "ja": "対決結果を充実させ、モバイル表示を中央に配置。",
+      "ko": "대결 결과 보완 및 모바일 화면 중앙 정렬."
+    },
+    {
+      "revision": "18843ec84fb34085fabd6ac1767a7864ba60a8eb",
+      "at": "2026-11-07T13:43:21+08:00",
+      "version": "0.1.48",
+      "subject": "Fix iPhone audio playback sessions and gesture recovery",
+      "zh": "修复 iPhone 音频播放与手势恢复。",
+      "en": "Fix iPhone audio playback sessions and gesture recovery",
+      "ja": "iPhoneの音声再生と操作後の復旧を修正。",
+      "ko": "iPhone 오디오 재생 및 터치 후 복구 수정."
+    },
+    {
+      "revision": "0989a541c5351af55d61a2494b39ac5c54ce93fc",
+      "at": "2026-11-07T13:39:04+08:00",
+      "version": "0.1.47",
+      "subject": "Fix avatar colour taps by preserving the picker and native touch clicks",
+      "zh": "修复头像颜色在触屏上难以选择的问题。",
+      "en": "Fix avatar colour taps by preserving the picker and native touch clicks",
+      "ja": "タッチ操作でアバターの色を選べない問題を修正。",
+      "ko": "터치 화면 아바타 색상 선택 문제 수정."
+    },
+    {
+      "revision": "6cac8187d3814cc61b851b957b4b5ac42e060825",
+      "at": "2026-11-07T13:29:20+08:00",
+      "version": "0.1.46",
+      "subject": "Document live analytics, deployment automation and capacity boundaries",
+      "zh": "完善运营统计与发布流程说明。",
+      "en": "Document live analytics, deployment automation and capacity boundaries",
+      "ja": "運用統計と更新手順を整備。",
+      "ko": "운영 통계 및 배포 절차 정비."
+    },
+    {
+      "revision": "454cf3fec687880da7e90f5aef357f692e125b22",
+      "at": "2026-11-07T13:27:25+08:00",
+      "version": "0.1.45",
+      "subject": "Fix endless duel pickup penalties and final combat standings",
+      "zh": "修复无尽对决拾取扣分和最终排名。",
+      "en": "Fix endless duel pickup penalties and final combat standings",
+      "ja": "エンドレス対決の回収ペナルティと最終順位を修正。",
+      "ko": "무한 대결 획득 페널티 및 최종 순위 수정."
+    },
+    {
+      "revision": "3ffe51a9fac6173d8210df1076b991b59d6e1df1",
+      "at": "2026-11-07T13:24:24+08:00",
+      "version": "0.1.44",
+      "subject": "Unify input guards and language loading, correct cooldowns, and remove dead UI",
+      "zh": "统一输入限制、语言加载与冷却显示。",
+      "en": "Unify input guards and language loading, correct cooldowns, and remove dead UI",
+      "ja": "入力制御、言語読み込みとクールダウン表示を統一。",
+      "ko": "입력 제한, 언어 로딩 및 재사용 대기시간 표시 통일."
+    },
+    {
+      "revision": "4b936e3732510945060ebb1ad3f99cecb8a30d3b",
+      "at": "2026-11-07T13:21:44+08:00",
+      "version": "0.1.43",
+      "subject": "Fix combat protection, lifesteal and loot settlement interactions",
+      "zh": "修复保护、吸血与战利品结算的交互。",
+      "en": "Fix combat protection, lifesteal and loot settlement interactions",
+      "ja": "保護、吸収回復と戦利品集計の連動を修正。",
+      "ko": "보호, 흡혈 및 전리품 정산 상호 작용 수정."
+    },
+    {
+      "revision": "1938527fc9d0ebc1af2deab3aad1703ad18cf9df",
+      "at": "2026-11-07T13:14:33+08:00",
+      "version": "0.1.42",
+      "subject": "Count early visitors and runs started before sign-in finishes",
+      "zh": "完善进入游戏及登录前开局的统计。",
+      "en": "Count early visitors and runs started before sign-in finishes",
+      "ja": "ゲーム開始とログイン前のプレイ統計を改善。",
+      "ko": "게임 접속 및 로그인 전 시작한 판 통계 개선."
+    },
+    {
+      "revision": "b02b987c3d1f003b26e5ea4b64a1c5f3aa25ef90",
+      "at": "2026-11-07T13:12:30+08:00",
+      "version": "0.1.41",
+      "subject": "Fix input and selection lifecycle, restore ward effects, and trim stale UI",
+      "zh": "修复输入与选卡状态，恢复护盾效果。",
+      "en": "Fix input and selection lifecycle, restore ward effects, and trim stale UI",
+      "ja": "入力とカード選択の状態を修正し、シールド効果を復旧。",
+      "ko": "입력과 카드 선택 상태 수정 및 보호막 효과 복구."
+    },
+    {
+      "revision": "30cd44b052ab89aae5e12d8416bd603a873365d5",
+      "at": "2026-11-07T13:05:46+08:00",
+      "version": "0.1.40",
+      "subject": "Use finite lives and delayed revives in endless duels",
+      "zh": "无尽对决采用有限生命和延迟复活。",
+      "en": "Use finite lives and delayed revives in endless duels",
+      "ja": "エンドレス対決に有限の残機と復活待機を導入。",
+      "ko": "무한 대결에 유한 목숨 및 지연 부활 도입."
+    },
+    {
+      "revision": "05af2c7d3797281f8be960b450d52bfd4ed05078",
+      "at": "2026-11-07T13:05:13+08:00",
+      "version": "0.1.39",
+      "subject": "Retain production D1 binding in Cloudflare build configuration",
+      "zh": "保留线上统计服务配置。",
+      "en": "Retain production D1 binding in Cloudflare build configuration",
+      "ja": "オンライン統計サービスの設定を維持。",
+      "ko": "온라인 통계 서비스 설정 유지."
+    },
+    {
+      "revision": "c8c590ca668c19b6ff63cf24787aaab1e52438ac",
+      "at": "2026-11-07T13:04:40+08:00",
+      "version": "0.1.38",
+      "subject": "Deploy operational dashboard with daily activity and isolated analytics routes",
+      "zh": "加入每日活跃与游戏运营统计面板。",
+      "en": "Deploy operational dashboard with daily activity and isolated analytics routes",
+      "ja": "日別の活動とゲーム運用統計を追加。",
+      "ko": "일별 활동 및 게임 운영 통계 패널 추가."
+    },
+    {
+      "revision": "3b55e71b0b26d9e3e4ab0a07a1a06f9ad0a757ed",
+      "at": "2026-11-07T13:02:46+08:00",
+      "version": "0.1.37",
+      "subject": "Clarify Journey collection and close localization gaps",
+      "zh": "完善冒险收集说明和多语言文本。",
+      "en": "Clarify Journey collection and close localization gaps",
+      "ja": "冒険のコレクション説明と多言語表示を改善。",
+      "ko": "모험 수집 설명 및 다국어 문구 개선."
+    },
+    {
+      "revision": "61de0629cb0c39935cd72e3a378aed82fc87c30c",
+      "at": "2026-11-07T13:00:26+08:00",
+      "version": "0.1.36",
+      "subject": "Rank Spell Legion by score and fix leaderboard reads and submissions",
+      "zh": "无尽榜按分数排序，修复读取和提交。",
+      "en": "Rank Spell Legion by score and fix leaderboard reads and submissions",
+      "ja": "エンドレスをスコア順にし、ランキングの読み書きを修正。",
+      "ko": "무한 모드 점수순 정렬 및 순위 조회와 제출 수정."
+    },
+    {
+      "revision": "8c2086361ef7ce8fa60a5c3173f1ab2465bc9cdf",
+      "at": "2026-11-07T12:59:49+08:00",
+      "version": "0.1.35",
+      "subject": "Fix authentication races, preserve cloud saves, and harden account forms",
+      "zh": "修复登录竞态、云存档和账号表单。",
+      "en": "Fix authentication races, preserve cloud saves, and harden account forms",
+      "ja": "ログイン、クラウド保存とアカウント入力を修正。",
+      "ko": "로그인, 클라우드 저장 및 계정 입력 수정."
+    },
+    {
+      "revision": "4235facbfff6f1ce2675119d2a52afbe608aebdf",
+      "at": "2026-11-07T12:58:05+08:00",
+      "version": "0.1.34",
+      "subject": "Add independent music/effects mute switches and silence menu demo effects",
+      "zh": "音乐和音效独立静音，首页演示不播放战斗音效。",
+      "en": "Add independent music/effects mute switches and silence menu demo effects",
+      "ja": "BGMと効果音を個別にミュート。ホームの戦闘効果音を停止。",
+      "ko": "음악과 효과음 개별 음소거 및 홈 전투 효과음 중지."
+    },
+    {
+      "revision": "000650c80e450b8329c04030889d3f9b02c23106",
+      "at": "2026-11-07T12:45:54+08:00",
+      "version": "0.1.33",
+      "subject": "Keep settings to controls and remove explanatory UI copy and coaching",
+      "zh": "设置页精简为实际控制选项。",
+      "en": "Keep settings to controls and remove explanatory UI copy and coaching",
+      "ja": "設定画面を操作項目中心に整理。",
+      "ko": "설정 화면을 실제 조작 항목 위주로 정리."
+    },
+    {
+      "revision": "59d73eb40f3f8d68849fbaf821c04c490afbda1f",
+      "at": "2026-11-07T12:30:31+08:00",
+      "version": "0.1.32",
+      "subject": "Initialize codex sections when merging fresh and partial cloud saves",
+      "zh": "修复新账号和不完整云存档的图鉴数据。",
+      "en": "Initialize codex sections when merging fresh and partial cloud saves",
+      "ja": "新規・不完全な保存データの図鑑を修正。",
+      "ko": "신규 및 불완전한 저장 데이터의 도감 수정."
+    },
+    {
+      "revision": "0149e1cabefb14a89690a5133abf0139206babe0",
+      "at": "2026-11-07T12:28:22+08:00",
+      "version": "0.1.31",
+      "subject": "Recognize migrated training when selecting a cloud save snapshot",
+      "zh": "改善旧版养成数据的云存档迁移。",
+      "en": "Recognize migrated training when selecting a cloud save snapshot",
+      "ja": "旧育成データのクラウド移行を改善。",
+      "ko": "이전 성장 데이터의 클라우드 이전 개선."
+    },
+    {
+      "revision": "f6c381a3d2c879fb1d83999d27c74b1e3582aa3b",
+      "at": "2026-11-07T12:27:47+08:00",
+      "version": "0.1.30",
+      "subject": "Match displayed settlement gold to actual rewards and localize simplified progression",
+      "zh": "结算金币与实际奖励一致，并翻译成长说明。",
+      "en": "Match displayed settlement gold to actual rewards and localize simplified progression",
+      "ja": "表示ゴールドと実際の報酬を一致させ、成長説明を翻訳。",
+      "ko": "표시 골드와 실제 보상 일치 및 성장 설명 번역."
+    },
+    {
+      "revision": "83a51b826306f2855c29588ffd37c6652e7bab27",
+      "at": "2026-11-07T12:20:51+08:00",
+      "version": "0.1.29",
+      "subject": "Simplify progression to level training, adventure loot and duel ranks; retain Ascension",
+      "zh": "简化成长为等级、冒险战利品和天梯，并保留修罗。",
+      "en": "Simplify progression to level training, adventure loot and duel ranks; retain Ascension",
+      "ja": "レベル、冒険装備、ランクを中心に成長を整理。",
+      "ko": "레벨, 모험 전리품 및 랭크 중심으로 성장 정리."
+    },
+    {
+      "revision": "ea651197b76147d92cbdee2c66cd066952914c14",
+      "at": "2026-11-07T12:14:16+08:00",
+      "version": "0.1.28",
+      "subject": "Fix cloud progression merges and isolate ranked duel rewards and stats",
+      "zh": "修复云端进度合并，并分开结算天梯奖励。",
+      "en": "Fix cloud progression merges and isolate ranked duel rewards and stats",
+      "ja": "クラウド進行の統合とランク報酬の集計を修正。",
+      "ko": "클라우드 진행 병합 및 랭크 보상 정산 수정."
+    },
+    {
+      "revision": "2f96991c25a4729a73c6a5ebecf2da656f91eff9",
+      "at": "2026-11-07T11:58:10+08:00",
+      "version": "0.1.27",
+      "subject": "spell-legion accounts: Facebook sign-in (behind FB_LOGIN until enabled in Firebase), email verification badge with resend / I've verified, reset + change password emails in the player's language, show-password toggle, delete account, redirect fallback when popups are blocked",
+      "zh": "完善邮箱验证、密码找回、修改与账号删除。",
+      "en": "spell-legion accounts: Facebook sign-in (behind FB_LOGIN until enabled in Firebase), email verification badge with resend / I've verified, reset + change password emails in the player's language, show-password toggle, delete account, redirect fallback when popups are blocked",
+      "ja": "メール認証、パスワード再設定・変更、退会機能を改善。",
+      "ko": "이메일 인증, 비밀번호 재설정과 변경 및 계정 삭제 개선."
+    },
+    {
+      "revision": "b6fed9665598642fab70562dc042c32d759a720a",
+      "at": "2026-11-07T11:55:15+08:00",
+      "version": "0.1.26",
+      "subject": "Spell Legion menu: Gear moves into the bottom tab bar (no more orphan pill on a second row)",
+      "zh": "行囊入口移入首页底部按钮栏。",
+      "en": "Spell Legion menu: Gear moves into the bottom tab bar (no more orphan pill on a second row)",
+      "ja": "装備メニューをホーム下部のボタン列へ移動。",
+      "ko": "장비 메뉴를 홈 하단 버튼 모음으로 이동."
+    },
+    {
+      "revision": "dee59329230a9549b7abe5c245470106dc909f58",
+      "at": "2026-11-07T11:54:09+08:00",
+      "version": "0.1.25",
+      "subject": "English is fully English: achievement rewards say gold; auto-generated names follow the language you pick",
+      "zh": "修正英文奖励文案，随机名字跟随语言。",
+      "en": "English is fully English: achievement rewards say gold; auto-generated names follow the language you pick",
+      "ja": "英語の報酬表示を修正し、名前生成を選択言語に対応。",
+      "ko": "영어 보상 문구 수정 및 언어별 무작위 이름 지원."
+    },
+    {
+      "revision": "af6a6c6fc435cb3381021a451ab5f77f25ddfcef",
+      "at": "2026-11-07T11:50:38+08:00",
+      "version": "0.1.24",
+      "subject": "spell-legion: remove the Display / Fullscreen row from Settings (phones still go fullscreen when a run starts)",
+      "zh": "设置中移除显示和全屏控制行。",
+      "en": "spell-legion: remove the Display / Fullscreen row from Settings (phones still go fullscreen when a run starts)",
+      "ja": "設定から画面・全画面の操作行を削除。",
+      "ko": "설정에서 화면 및 전체 화면 조작 항목 제거."
+    },
+    {
+      "revision": "0933a1b7e46857f7db188d0899d6b0e082ff0389",
+      "at": "2026-11-07T11:45:42+08:00",
+      "version": "0.1.23",
+      "subject": "spell-legion i18n: leaderboard retry line",
+      "zh": "补齐排行榜上传重试翻译。",
+      "en": "spell-legion i18n: leaderboard retry line",
+      "ja": "ランキング再送信の翻訳を補完。",
+      "ko": "순위 업로드 재시도 번역 보완."
+    },
+    {
+      "revision": "ad48b3e20576a44f24c6233f8a41069295b4c4a7",
+      "at": "2026-11-07T11:45:22+08:00",
+      "version": "0.1.22",
+      "subject": "spell-legion i18n: legendary-weapon progress lines; 繁體 table refreshed",
+      "zh": "翻译传说武器进度，更新繁体字表。",
+      "en": "spell-legion i18n: legendary-weapon progress lines; 繁體 table refreshed",
+      "ja": "伝説武器の進行を翻訳し、繁体字を更新。",
+      "ko": "전설 무기 진행도 번역 및 번체 갱신."
+    },
+    {
+      "revision": "c37d4adede6f726c049965efbcadca4775b888be",
+      "at": "2026-11-07T11:45:22+08:00",
+      "version": "0.1.21",
+      "subject": "spell-legion i18n: contact/feedback lines; Japanese/Korean picker names",
+      "zh": "翻译联系反馈和语言选择器。",
+      "en": "spell-legion i18n: contact/feedback lines; Japanese/Korean picker names",
+      "ja": "連絡・意見送信と言語選択を翻訳。",
+      "ko": "연락, 피드백 및 언어 선택 번역."
+    },
+    {
+      "revision": "3901619a81ed5d5930e30650c04af94c4a1cdf00",
+      "at": "2026-11-07T11:45:22+08:00",
+      "version": "0.1.20",
+      "subject": "spell-legion i18n: Awards/menu labels; check tooling throttles the frame loop",
+      "zh": "补齐成就和菜单标签翻译。",
+      "en": "spell-legion i18n: Awards/menu labels; check tooling throttles the frame loop",
+      "ja": "実績とメニューの翻訳を補完。",
+      "ko": "업적 및 메뉴 번역 보완."
+    },
+    {
+      "revision": "4b153fda0fe577d42ead2f016fcf7da78bc3c43f",
+      "at": "2026-11-07T11:45:22+08:00",
+      "version": "0.1.19",
+      "subject": "spell-legion: five languages (简体/繁體/EN/日本語/한국어); plain friendly game words instead of 江湖",
+      "zh": "加入五种语言，统一友好的游戏用词。",
+      "en": "spell-legion: five languages (简体/繁體/EN/日本語/한국어); plain friendly game words instead of 江湖",
+      "ja": "5言語対応と分かりやすいゲーム用語を導入。",
+      "ko": "5개 언어 및 쉬운 게임 용어 도입."
+    },
+    {
+      "revision": "8da747a7c3bb88987559692662d0f7100d3cc664",
+      "at": "2026-11-07T11:44:44+08:00",
+      "version": "0.1.18",
+      "subject": "Spell Legion leaderboard: retry line when a best fails to post; keep avatars unless the plain post works",
+      "zh": "成绩上传失败可重试，并保留头像。",
+      "en": "Spell Legion leaderboard: retry line when a best fails to post; keep avatars unless the plain post works",
+      "ja": "スコア送信の再試行とアバター保持に対応。",
+      "ko": "점수 전송 재시도 및 아바타 유지 지원."
+    },
+    {
+      "revision": "20c085fc7efe0edcbff98b74ab3681c4c8d501d1",
+      "at": "2026-11-07T11:43:20+08:00",
+      "version": "0.1.17",
+      "subject": "Spell Legion: models for the new Oni Hunter, Idol and Wizard heroes and the new weapons; props can be borrowed across models",
+      "zh": "加入新职业和新武器造型。",
+      "en": "Spell Legion: models for the new Oni Hunter, Idol and Wizard heroes and the new weapons; props can be borrowed across models",
+      "ja": "新クラスと武器のモデルを追加。",
+      "ko": "새 직업 및 무기 외형 추가."
+    },
+    {
+      "revision": "e37927cc53055fa2e1e607df594656b668888a53",
+      "at": "2026-11-07T11:43:20+08:00",
+      "version": "0.1.16",
+      "subject": "Spell Legion: rigged, animated heroes (KayKit Adventurers, CC0 by Kay Lousberg) replace the primitive models — shared animation file, layered legs/upper-body animation (run + attack, cast, hit, dodge, death, cheer), rim light and outline, hero-screen preview",
+      "zh": "加入角色动画、描边和侠客预览。",
+      "en": "Spell Legion: rigged, animated heroes (KayKit Adventurers, CC0 by Kay Lousberg) replace the primitive models — shared animation file, layered legs/upper-body animation (run + attack, cast, hit, dodge, death, cheer), rim light and outline, hero-screen preview",
+      "ja": "キャラクターアニメーション、輪郭とプレビューを追加。",
+      "ko": "캐릭터 애니메이션, 윤곽선 및 영웅 미리보기 추가."
+    },
+    {
+      "revision": "c4191e500edd2a3e3dfe2594b95eed814669b0b3",
+      "at": "2026-11-07T11:42:37+08:00",
+      "version": "0.1.15",
+      "subject": "spell-legion: new-hero polish — own sound effects (katana, chain, chime, zap, gong, fireworks, black hole…), 「新」 badge on unseen heroes, legendary-weapon progress on the results screen, duel AI can now be 斩鬼人 / 偶像 / 巫师",
+      "zh": "完善新职业音效、新标记和武器进度提示。",
+      "en": "spell-legion: new-hero polish — own sound effects (katana, chain, chime, zap, gong, fireworks, black hole…), 「新」 badge on unseen heroes, legendary-weapon progress on the results screen, duel AI can now be 斩鬼人 / 偶像 / 巫师",
+      "ja": "新クラスの効果音、NEW表示と武器進行を改善。",
+      "ko": "새 직업 효과음, 신규 표시 및 무기 진행 안내 개선."
+    },
+    {
+      "revision": "03390336470350d83eb664e538ba1f63b6f34297",
+      "at": "2026-11-07T11:40:44+08:00",
+      "version": "0.1.14",
+      "subject": "main menu: Contact (hyang.org) and Feedback (pre-filled email) links under the buttons",
+      "zh": "首页加入联系作者与反馈入口。",
+      "en": "main menu: Contact (hyang.org) and Feedback (pre-filled email) links under the buttons",
+      "ja": "ホームに連絡・意見送信の入口を追加。",
+      "ko": "홈에 연락 및 피드백 메뉴 추가."
+    },
+    {
+      "revision": "90350e81230df842080d7ca8ca9a9f370e06124d",
+      "at": "2026-11-07T11:38:27+08:00",
+      "version": "0.1.13",
+      "subject": "main menu language picker: globe + current language in its own script, dropdown of all languages, top-right",
+      "zh": "右上角加入语言选择菜单。",
+      "en": "main menu language picker: globe + current language in its own script, dropdown of all languages, top-right",
+      "ja": "右上に言語選択メニューを追加。",
+      "ko": "오른쪽 상단에 언어 선택 메뉴 추가."
+    },
+    {
+      "revision": "e8aaa73067cf3c5b31ee6786fdba5631326a8fed",
+      "at": "2026-11-07T11:35:51+08:00",
+      "version": "0.1.12",
+      "subject": "language: /spell-legion/zh/ and /en/ links, IP country guess on first visit (cached, never mid-run), manual pick always wins; 中/EN toggle on the menu; English title as one sideways line in the 魔咒军团 column",
+      "zh": "支持语言链接、初次语言检测和手动优先选择。",
+      "en": "language: /spell-legion/zh/ and /en/ links, IP country guess on first visit (cached, never mid-run), manual pick always wins; 中/EN toggle on the menu; English title as one sideways line in the 魔咒军团 column",
+      "ja": "言語リンク、初回の自動判定と手動選択に対応。",
+      "ko": "언어 링크, 최초 자동 감지 및 수동 선택 우선 지원."
+    },
+    {
+      "revision": "558e6ae7fa16f1a6ec859fb4470b8dcf6171fed3",
+      "at": "2026-11-07T11:28:29+08:00",
+      "version": "0.1.11",
+      "subject": "spell-legion: 8 heroes (new 斩鬼人 Oni Hunter, 偶像 Idol, 巫师 Wizard; 刀客 retired), legendary third weapon for every hero",
+      "zh": "扩充职业阵容，加入第三套传说武器。",
+      "en": "spell-legion: 8 heroes (new 斩鬼人 Oni Hunter, 偶像 Idol, 巫师 Wizard; 刀客 retired), legendary third weapon for every hero",
+      "ja": "クラスを拡充し、第3の伝説武器を追加。",
+      "ko": "직업 확장 및 세 번째 전설 무기 추가."
+    },
+    {
+      "revision": "f612deb00a371bb1bc43e642a901389c297bde35",
+      "at": "2026-11-07T11:27:43+08:00",
+      "version": "0.1.10",
+      "subject": "English layout matches Chinese: title hangs in the same vertical slot (SPELL / LEGION), same height on phones; English labels wrap or shrink instead of widening the page (skills, ascension, maps, footer); shorter English task lines and 'Awards' tab",
+      "zh": "英文界面与中文统一，长文本不再撑宽手机页面。",
+      "en": "English layout matches Chinese: title hangs in the same vertical slot (SPELL / LEGION), same height on phones; English labels wrap or shrink instead of widening the page (skills, ascension, maps, footer); shorter English task lines and 'Awards' tab",
+      "ja": "英語と中国語の配置を統一し、モバイルの横はみ出しを改善。",
+      "ko": "영어와 중국어 배치 통일 및 모바일 긴 문구 가로 넘침 개선."
+    },
+    {
+      "revision": "fe3c8c2b5e4b751a928d1d0c48ac2432181213b6",
+      "at": "2026-11-07T11:19:27+08:00",
+      "version": "0.1.9",
+      "subject": "Spell Legion: gear (4 slots, rarities, legendaries that change play, item tiers by Ascension), 经脉 endless gold sink, skill variants at Lv 6, skill bonds, staged card-kind unlocks, banish, golden-chest roulette, card fit tags",
+      "zh": "加入装备、技能变体、羁绊和更多选卡机制。",
+      "en": "Spell Legion: gear (4 slots, rarities, legendaries that change play, item tiers by Ascension), 经脉 endless gold sink, skill variants at Lv 6, skill bonds, staged card-kind unlocks, banish, golden-chest roulette, card fit tags",
+      "ja": "装備、スキル派生、連携とカード選択を拡充。",
+      "ko": "장비, 스킬 변형, 연계 및 카드 선택 확장."
+    },
+    {
+      "revision": "215a3a9e5d5ca0defd2f0c121ac32f511dca3ecd",
+      "at": "2026-11-07T11:17:32+08:00",
+      "version": "0.1.8",
+      "subject": "duel screen hides the solo map picker (switching maps reloads and would drop the room; the room's map is shown as a chip instead); desktop HUD score panel moved below the minimap; menu duel subtitle no longer says 3 minutes now that duels can be endless",
+      "zh": "对决页显示房间地图并整理计分面板。",
+      "en": "duel screen hides the solo map picker (switching maps reloads and would drop the room; the room's map is shown as a chip instead); desktop HUD score panel moved below the minimap; menu duel subtitle no longer says 3 minutes now that duels can be endless",
+      "ja": "対決にルームのマップを表示し、スコア欄を整理。",
+      "ko": "대결에 방 지도 표시 및 점수 패널 정리."
+    },
+    {
+      "revision": "a40ffd206e0784ae1b0f6a46733fcc163477effc",
+      "at": "2026-11-07T11:17:18+08:00",
+      "version": "0.1.7",
+      "subject": "Spell Legion: simpler leaderboard, auto-posted personal bests",
+      "zh": "简化排行榜，自动提交个人最高分。",
+      "en": "Spell Legion: simpler leaderboard, auto-posted personal bests",
+      "ja": "ランキングを簡略化し、最高スコアを自動送信。",
+      "ko": "순위 화면 간소화 및 최고 점수 자동 제출."
+    },
+    {
+      "revision": "50d0dd0b23457e0cc7081f8006111f18a24d5980",
+      "at": "2026-11-07T11:12:56+08:00",
+      "version": "0.1.6",
+      "subject": "merge of two parallel sessions + combat readability: enemy warnings on a top layer, hero locator, own glow dimmed near the hero, perk cards before → after, card keys never cast, key 4 picks the 4th card, seals show cooldown / qi shortfall and flash when ready, rarity vs focus colours",
+      "zh": "强化敌方预警、角色定位、卡牌预览和输入保护。",
+      "en": "merge of two parallel sessions + combat readability: enemy warnings on a top layer, hero locator, own glow dimmed near the hero, perk cards before → after, card keys never cast, key 4 picks the 4th card, seals show cooldown / qi shortfall and flash when ready, rarity vs focus colours",
+      "ja": "敵の予告、プレイヤー位置、カード予測と入力保護を改善。",
+      "ko": "적 예고, 플레이어 위치, 카드 미리보기 및 입력 보호 개선."
+    },
+    {
+      "revision": "17c540406073c5787593890594b12cf458d6d098",
+      "at": "2026-11-07T11:04:48+08:00",
+      "version": "0.1.5",
+      "subject": "less text everywhere: difficulty folded into one 修罗 stepper (reward shown), hero screen drops duplicate role/desc/stat numbers/summary, results keep title + rewards + 4 numbers + one line (rest under 详细数据), shorter tips, cards without hint lines or category tags, one tutorial system",
+      "zh": "减少冗余文本，简化修罗、结算和教程。",
+      "en": "less text everywhere: difficulty folded into one 修罗 stepper (reward shown), hero screen drops duplicate role/desc/stat numbers/summary, results keep title + rewards + 4 numbers + one line (rest under 详细数据), shorter tips, cards without hint lines or category tags, one tutorial system",
+      "ja": "文章量を減らし、階層・結果・チュートリアルを簡略化。",
+      "ko": "문구를 줄이고 어센션, 결과 및 튜토리얼 간소화."
+    },
+    {
+      "revision": "664f790cdc03de69122962ced97301e41caafcd0",
+      "at": "2026-11-07T10:50:29+08:00",
+      "version": "0.1.4",
+      "subject": "hero screen: weapon picked now with its auto attack explained below; skills shown as in-run seals (starter marked, others learned on level-up), tap to peek",
+      "zh": "侠客页展示武器普攻和技能预览。",
+      "en": "hero screen: weapon picked now with its auto attack explained below; skills shown as in-run seals (starter marked, others learned on level-up), tap to peek",
+      "ja": "ヒーロー画面に通常攻撃とスキルのプレビューを追加。",
+      "ko": "영웅 화면에 무기 일반 공격 및 스킬 미리보기 추가."
+    },
+    {
+      "revision": "9e0b2bbff01dcffb56c09724eaaf373772677b28",
+      "at": "2026-11-07T10:46:21+08:00",
+      "version": "0.1.3",
+      "subject": "duel lobby: one header line (code tap-to-copy, Timed 3′ / Endless), AI difficulty only appears once an AI is seated and now scales AI strength, human-only duels always normal, seat card holds +AI / Invite, join box inline; removed length picker, host ready tag and explainer text",
+      "zh": "重整房间码、模式、AI 难度与邀请入口。",
+      "en": "duel lobby: one header line (code tap-to-copy, Timed 3′ / Endless), AI difficulty only appears once an AI is seated and now scales AI strength, human-only duels always normal, seat card holds +AI / Invite, join box inline; removed length picker, host ready tag and explainer text",
+      "ja": "ルームコード、モード、AI難易度と招待を整理。",
+      "ko": "방 코드, 모드, AI 난이도 및 초대 정리."
+    },
+    {
+      "revision": "471100af6966734b94f9de4dba6f05ec85ddcd1a",
+      "at": "2026-11-07T10:40:29+08:00",
+      "version": "0.1.2",
+      "subject": "one glowing title in the player's language (brush 魔咒军团 / Cinzel SPELL LEGION, ink-in + glint + breathing light); ladder chip on one line; buttons line up with the cards; far less explanatory text (results advice, mode lines, card hints, room note)",
+      "zh": "统一发光标题、按钮和天梯布局，减少说明文字。",
+      "en": "one glowing title in the player's language (brush 魔咒军团 / Cinzel SPELL LEGION, ink-in + glint + breathing light); ladder chip on one line; buttons line up with the cards; far less explanatory text (results advice, mode lines, card hints, room note)",
+      "ja": "光るタイトル、ボタンとランクの配置を統一。",
+      "ko": "빛나는 제목, 버튼 및 랭크 배치 통일."
+    },
+    {
+      "revision": "ee5d7e783cce555cbad3faf0e159a1cc8b8d18d5",
+      "at": "2026-11-07T10:25:20+08:00",
+      "version": "0.1.1",
+      "subject": "results: winner podium with avatars and big reward chips first, stats and advice below; chests never stuck in rocks/ponds and easier to touch; short duels get a lighter boss at 60% of the clock; ladder rank next to the level on the menu; title inks in with a gold glint and lines up left on phones",
+      "zh": "结算优先展示排名奖励，改善宝箱位置和短局首领。",
+      "en": "results: winner podium with avatars and big reward chips first, stats and advice below; chests never stuck in rocks/ponds and easier to touch; short duels get a lighter boss at 60% of the clock; ladder rank next to the level on the menu; title inks in with a gold glint and lines up left on phones",
+      "ja": "結果で順位と報酬を優先し、宝箱配置と短時間ボスを改善。",
+      "ko": "결과에 순위와 보상 우선 표시 및 보물상자 위치와 단기 보스 개선."
+    }
+  ]
+}

@@ -116,8 +116,8 @@ const AFFINITY={
   brute:{weak:{el:'lightning'},resist:{cat:'ranged'},tip:['盾挡远程,雷电穿甲','shield blocks ranged; lightning pierces']},
   bomber:{weak:{cat:'ranged'},resist:{cat:'melee'},tip:['远程打掉它,近身会被炸','kill it at range; melee gets you blown up']},
   wraith:{weak:{cat:'heal'},resist:{auto:1},tip:['普攻只有一半,驱邪/禅定/回春类武学双倍','normal attacks do half; exorcism, zen and healing skills do double']},
-  firewisp:{weak:{el:'ice'},resist:{el:'fire'},tip:['免疫火,怕冰','immune to fire, weak to ice']},
-  icesprite:{weak:{el:'fire'},resist:{el:'ice'},tip:['免疫冰,怕火','immune to ice, weak to fire']},
+  firewisp:{weak:{el:'ice'},resist:{el:'fire'},tip:['高度抗火,怕冰','highly resistant to fire, weak to ice']},
+  icesprite:{weak:{el:'fire'},resist:{el:'ice'},tip:['高度抗冰,怕火','highly resistant to ice, weak to fire']},
   boss:null,statue:null,
 };
 const THEMES=[
@@ -303,8 +303,8 @@ const CONTRACTS=[
 
 /* codex: what the player has met */
 const CODEX_ENEMIES=[
-  {id:'firewisp',g:'煞',zh:'火煞',en:'Fire Wisp',d:'燃着的游魂,碰到就着火;免疫火,怕冰。',de:'A burning spirit that sets you alight; immune to fire, weak to ice.'},
-  {id:'icesprite',g:'魄',zh:'冰魄',en:'Ice Sprite',d:'寒气逼人,碰到就减速;免疫冰,怕火。',de:'A freezing spirit that chills on touch; immune to ice, weak to fire.'},
+  {id:'firewisp',g:'煞',zh:'火煞',en:'Fire Wisp',d:'燃着的游魂,碰到就着火;高度抗火,怕冰。',de:'A burning spirit that sets you alight; highly resistant to fire, weak to ice.'},
+  {id:'icesprite',g:'魄',zh:'冰魄',en:'Ice Sprite',d:'寒气逼人,碰到就减速;高度抗冰,怕火。',de:'A freezing spirit that chills on touch; highly resistant to ice, weak to fire.'},
   {id:'assassin',g:'刺',zh:'刺客',en:'Assassin',d:'快而脆,成群扑来。',de:'Fast and fragile; comes in packs.'},
   {id:'bandit',g:'匪',zh:'刀客',en:'Bandit',d:'中等体型的近战,数量是关键。',de:'Mid-weight melee; numbers are the threat.'},
   {id:'archer',g:'弓',zh:'弓手',en:'Archer',d:'保持距离放箭,箭可以被轻功躲开。',de:'Keeps its distance and shoots; arrows can be dashed through.'},

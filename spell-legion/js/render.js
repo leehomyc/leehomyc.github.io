@@ -143,7 +143,7 @@ function render(rdt){
   gemMesh.count=gi;gemMesh.instanceMatrix.needsUpdate=true;if(gemMesh.instanceColor)gemMesh.instanceColor.needsUpdate=true;
   /* enemy blades */
   let bi=0;const bc=bulletMesh.instanceMatrix.count;
-  for(const b of G.bullets){if(bi>=bc)break;dummy.position.set(b.x,10,b.y);dummy.rotation.set(0,Math.atan2(b.vx,b.vy),tm*18);dummy.scale.set(1,1,1);dummy.updateMatrix();bulletMesh.setMatrixAt(bi,dummy.matrix);bi++;glow(b.x,10,b.y,b.bone?'#f4efe0':'#ff2a50',b.bone?22:15,1.1);glow(b.x-b.vx*.03,10,b.y-b.vy*.03,'#ff2a50',9,.6)}
+  for(const b of G.bullets){if(bi>=bc)break;dummy.position.set(b.x,10,b.y);dummy.rotation.set(0,Math.atan2(b.vx,b.vy),tm*18);dummy.scale.set(1,1,1);dummy.updateMatrix();bulletMesh.setMatrixAt(bi,dummy.matrix);bi++;glow(b.x,10,b.y,b.bone?'#f4efe0':'#ff2a50',b.bone?12:9,.65);glow(b.x-b.vx*.03,10,b.y-b.vy*.03,'#ff2a50',6,.35)}
   bulletMesh.count=bi;bulletMesh.instanceMatrix.needsUpdate=true;
   /* player projectiles */
   let si=0,ti=0;const sCap=swordMesh.instanceMatrix.count,tCap=talisMesh.instanceMatrix.count;
@@ -237,9 +237,25 @@ function render(rdt){
 }
 const pv=new T3.Vector3();
 function toScreen(x,y,z){pv.set(x,y,z).project(cam);return [(pv.x+1)/2*ov.width,(1-pv.y)/2*ov.height,pv.z]}
+function drawCombatReadability(ow,oh,S){
+  if(G.auto)return;
+  c.save();c.lineJoin='round';
+  // Trace solid footprints only; decorative bamboo never receives a blocking outline.
+  for(const b of rocks){if(b.bamboo||b.tree||hyp(b.x+b.w/2-G.P.x,b.y+b.h/2-G.P.y)>Math.max(VW,VH)*.65)continue;
+    const pts=[[b.x,b.y],[b.x+b.w,b.y],[b.x+b.w,b.y+b.h],[b.x,b.y+b.h]].map(([x,y])=>toScreen(x,1,y));
+    if(pts.every(p=>p[0]<-10||p[0]>ow+10||p[1]<-10||p[1]>oh+10))continue;
+    c.beginPath();pts.forEach((p,i)=>i?c.lineTo(p[0],p[1]):c.moveTo(p[0],p[1]));c.closePath();c.strokeStyle='#101b23d9';c.lineWidth=3*S;c.stroke();c.strokeStyle='#d0c7ad99';c.lineWidth=1*S;c.stroke();
+  }
+  // A shared dark outline + orange body + white core stays readable on every map.
+  c.beginPath();for(const b of G.bullets){const [x,y,z]=toScreen(b.x,10,b.y);if(z>1||x<-16*S||x>ow+16*S||y<-16*S||y>oh+16*S)continue;
+    const [tx,ty]=toScreen(b.x-b.vx*.025,10,b.y-b.vy*.025),dx=x-tx,dy=y-ty,d=hyp(dx,dy)||1,len=clamp(d,4*S,10*S);c.moveTo(x-dx/d*len,y-dy/d*len);c.lineTo(x,y)}
+  c.lineCap='round';for(const [width,col] of [[7,'#190b17'],[4,'#ff694d'],[1.4,'#fff4dc']]){c.lineWidth=width*S;c.strokeStyle=col;c.stroke()}
+  c.restore();
+}
 function drawOverlay(){
   const stageBounds=$('#stage').getBoundingClientRect(),ow=ov.width,oh=ov.height,S=ow/Math.max(1,stageBounds.width);
   c.clearRect(0,0,ow,oh);
+  drawCombatReadability(ow,oh,S);
   c.textAlign='center';c.textBaseline='middle';c.lineJoin='round';
   for(const f of G.floats){const [x,y]=toScreen(f.x,14+(.6-f.t)*22,f.y);const sz=(f.crit?22:13.5)*S*(1+Math.max(0,f.t-.46)*3);c.font=`800 ${sz}px ${locFont('ui')}`;c.globalAlpha=clamp(f.t/.22,0,1);c.lineWidth=3.5*S;c.strokeStyle='#160b12';c.strokeText(f.v,x,y);c.fillStyle=f.c;c.fillText(f.v,x,y);if(f.crit&&f.t>.4){c.font=`700 ${10*S}px ${locFont('ui')}`;c.fillStyle='#ffd75a';c.strokeText(L('暴击','CRIT'),x,y-sz*.75);c.fillText(L('暴击','CRIT'),x,y-sz*.75)}}
   c.globalAlpha=1;
@@ -254,7 +270,7 @@ function drawOverlay(){
       if(w.id==='great'||w.id==='staff'||w.id==='fist'){const every=w.id==='great'?(w.awake?2:3):w.id==='staff'?(w.awake?2:4):(w.awake?3:5),k=(w.swing||0)%every,ready=k===every-1;
         for(let i=0;i<every;i++){const x=hx+(i-(every-1)/2)*7*S,y=hy+22*S;c.beginPath();c.arc(x,y,2.6*S,0,TAU);c.fillStyle=i<=k-1||ready?(ready?'#ffd27a':'#ffffff'):'#00000099';c.globalAlpha=ready?1:.8;c.fill();c.lineWidth=1*S;c.strokeStyle='#160b12';c.stroke()}
         if(ready){c.globalAlpha=.6+Math.sin(U.uTime.value*12)*.3;c.beginPath();c.arc(hx,hy+22*S,9*S,0,TAU);c.strokeStyle='#ffd27a';c.lineWidth=1.5*S;c.stroke()}c.globalAlpha=1}}}
-  for(const e of G.en){if(e.dead||(e.type!=='giant'&&e.type!=='statue'&&!e.elite)||(e.hp>=e.maxHp&&e.type!=='statue'))continue;
+  for(const e of G.en){if(e.dead||(e.type!=='giant'&&e.type!=='statue'&&!e.elite&&G.t-(e.hitAt??-10)>1.5)||(e.hp>=e.maxHp&&e.type!=='statue'))continue;
     const [x,y]=toScreen(e.x,e.type==='statue'?60:e.type==='giant'?54:e.r*4+10,e.y),w=(e.type==='statue'?44:32)*S,hh=4*S;c.fillStyle='#160b12cc';c.fillRect(x-w/2-1,y-1,w+2,hh+2);c.fillStyle=e.type==='statue'?'#ff5fe8':e.elite?'#ffd27a':'#ff5a45';c.fillRect(x-w/2,y,w*e.hp/e.maxHp,hh)}
   const label=(x,y,txt,col,big)=>{c.font=`800 ${(big?15:13)*S}px ${locFont('ui')}`;const w=c.measureText(txt).width+18*S,h=22*S;c.fillStyle='#0a0710d9';c.strokeStyle=col;c.lineWidth=1.2*S;c.beginPath();c.roundRect(x-w/2,y-h/2,w,h,5*S);c.fill();c.stroke();c.fillStyle=col;c.fillText(txt,x,y+1)};
   const arrowAvoid=IS_TOUCH?['#timer','#vbars','#roomboard','#minimapanchor'].map(sel=>$(sel)).filter(el=>el&&!el.hidden).map(el=>{const r=el.getBoundingClientRect();return {l:(r.left-stageBounds.left)*S,r:(r.right-stageBounds.left)*S,t:(r.top-stageBounds.top)*S,b:(r.bottom-stageBounds.top)*S}}):[];

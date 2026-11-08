@@ -1,0 +1,32 @@
+[
+  [
+    "highly resistant to fire, weak to ice",
+    "火に強く、氷に弱い",
+    "화염에 강하고 냉기에 약함"
+  ],
+  [
+    "highly resistant to ice, weak to fire",
+    "氷に強く、火に弱い",
+    "냉기에 강하고 화염에 약함"
+  ],
+  [
+    "A burning spirit that sets you alight; highly resistant to fire, weak to ice.",
+    "触れると燃やされる炎の精霊。火に強く、氷に弱い。",
+    "닿으면 불이 붙는 정령. 화염에 강하고 냉기에 약합니다."
+  ],
+  [
+    "A freezing spirit that chills on touch; highly resistant to ice, weak to fire.",
+    "触れるとスロウを与える氷の精霊。氷に強く、火に弱い。",
+    "닿으면 둔화시키는 냉기 정령. 냉기에 강하고 화염에 약합니다."
+  ],
+  [
+    "Release notes",
+    "更新履歴",
+    "업데이트 기록"
+  ],
+  [
+    "Version and release notes",
+    "バージョンと更新履歴",
+    "버전 및 업데이트 기록"
+  ]
+]

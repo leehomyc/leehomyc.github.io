@@ -151,29 +151,36 @@ function fusion(s){return s&&s.els.length===2?fusKey(s.els[0],s.els[1]):null}
 /* 克制: multiplier for this skill against this monster; elites with affixes add their own */
 function affinity(e,s,noEl){
   const A=AFFINITY[e.type];let k=1,why=null;
-  if(A&&s){const m=SPELLS[s.id],cat=SKILL_CAT[s.id],el=noEl?null:(s.els&&s.els[0]);
-    const match=q=>q&&((q.cat&&q.cat===cat)||(q.el&&q.el===el)||(q.auto&&m.auto));
+  if(A&&s){const m=SPELLS[s.id],cat=SKILL_CAT[s.id],els=noEl?[]:(s.els||[]);
+    const match=q=>q&&((q.cat&&q.cat===cat)||(q.el&&els.includes(q.el))||(q.auto&&m.auto));
     if(match(A.weak)){k*=e.type==='wraith'||e.type==='firewisp'||e.type==='icesprite'?2:1.6;why='weak'}
-    if(match(A.resist)){k*=A.resist.el?0:.5;why='resist'}}
+    if(match(A.resist)){if(A.resist.el){const remaining=e.type==='firewisp'||e.type==='icesprite'?.35:.5;k*=els.reduce((n,el)=>n+(el===A.resist.el?remaining:1),0)/Math.max(1,els.length)}else k*=.5;why=why||'resist'}
+  }
   if(e.affix==='armor'&&s&&SKILL_CAT[s.id]==='ranged'){k*=.6;why=why||'resist'}
   if(e.affix==='swift'&&s&&SKILL_CAT[s.id]==='control'){k*=1.5;why=why||'weak'}
   return {k,why};
 }
+function enemyDamageFactor(e,affinityFactor=1,shieldFactor=1){
+  const armor=(1-clamp(e.bossArmor||0,0,.8))*(1-clamp(e.adaptArmor||0,0,.8))*(e.sealEmpowered?1/1.2:1),factor=affinityFactor*shieldFactor*armor;
+  // Layered defenses must never turn an ordinary monster into an invulnerable wall.
+  return e.type==='boss'||e.type==='statue'?factor:Math.max(.25,factor);
+}
 function hit(e,d,s,noEl,col,kx=0,ky=0){
   if(e.dead||e.skyfall)return;
+  let resistance=1,shieldFactor=1;
   if(endlessDuel()&&!G.creditOff){const owner=s&&s.owner==='rival'?G.rival:G.P;if(!owner||owner.down>0||owner.eliminated||G.over)return}
-  if(s&&e.type!=='boss'&&e.type!=='statue'){const af=affinity(e,s,noEl);if(af.k!==1){d*=af.k;if(af.k===0)d=0;
+  if(s&&e.type!=='boss'&&e.type!=='statue'){const af=affinity(e,s,noEl);if(af.k!==1){resistance=af.k;
     if(!G.auto&&(!G.floats||G.floats.length<60)&&(af.why==='weak'||(!e.afSaid&&G.en.length<90))){e.afSaid=1;if((e.afT||-9)<G.t-.7){e.afT=G.t;G.floats.push({x:e.x+rnd(-3,3),y:e.y-e.r-10,t:.75,v:af.why==='weak'?L('克!','WEAK!'):af.k===0?L('免疫','IMMUNE'):L('抗','RESIST'),c:af.why==='weak'?'#ffe066':'#9a9a9a',crit:af.why==='weak'})}}
-    if(d===0)return}}
-  if(e.shield&&(kx||ky)){const fx=G.P.x-e.x,fy=G.P.y-e.y,fl=hyp(fx,fy)||1,kl=hyp(kx,ky)||1;if((-kx/kl*fx/fl-ky/kl*fy/fl)>.3){d*=.3;if(G.fx.length<CAP.fx&&SIMR()<.3)G.fx.push({k:'ring',x:e.x,y:e.y,r:10,t:.2,T:.2,c:'#9fc4ff'})}}
+    }}
+  if(e.shield&&(kx||ky)){const fx=G.P.x-e.x,fy=G.P.y-e.y,fl=hyp(fx,fy)||1,kl=hyp(kx,ky)||1;if((-kx/kl*fx/fl-ky/kl*fy/fl)>.3){shieldFactor=.3;if(G.fx.length<CAP.fx&&SIMR()<.3)G.fx.push({k:'ring',x:e.x,y:e.y,r:10,t:.2,T:.2,c:'#9fc4ff'})}}
   if(e.sleep>0&&e.sleepS)d*=1+NODE_FX.dmg*nd(e.sleepS,'dmg');
   const P=G.P,rv=s&&s.owner==='rival',O=rv?G.rival:P;let m=d*O.dmg*(1+(O.dmgBonus||0))*(e.shred>0?1.25:1)*(!rv&&P.buff&&P.buff.k==='dmg'?1.3:1)*(s&&!SPELLS[s.id].auto?ACTIVE_MULT*(P.parryBoost||1):1)*(e.type==='boss'&&e.exposed>0?1.6:1); // active skills hit much harder per cast than the normal attack: they cost qi and have cooldowns
-  m*=(1-(e.bossArmor||0))*(1-(e.adaptArmor||0))*(e.sealEmpowered?1/1.2:1);
+  m*=enemyDamageFactor(e,resistance,shieldFactor);
   const cc=O.crit+(s?NODE_FX.crit*nd(s,'crit'):0),crit=SIMR()<Math.min(1,cc);if(crit)m*=2+Math.max(0,cc-1)*2; // crit chance caps at 100%; the overflow becomes crit damage
   if(s&&!rv){const ch=nd(s,'chain');if(ch&&SIMR()<NODE_FX.chain*ch&&!noEl)arc(e,m*.35,s,1)}
   if(!rv&&P.frenzy>0){e.hp-=m*.4;if(s)s.dmg+=m*.4}
   if(!rv){if(hasR('pearl')&&!noEl&&SIMR()<.12)arc(e,m*.4,s||G.spells[0],1);if(hasR('iron'))e.slow=Math.max(e.slow||0,.6);if(hasR('blood')&&P.hp<P.maxHp*.5){e.hp-=m*.25;if(s)s.dmg+=m*.25}}
-  if(!rv&&typeof onHitX==='function')m=onHitX(e,m,s,crit,noEl);if(e.tired)m*=e.tired;if(!rv)G.dealt=(G.dealt||0)+m;const dealt=Math.min(Math.max(0,e.hp),Math.max(0,m));e.hp-=m;if(!rv){const lf=s?nd(s,'life'):0;if(lf)lifeSteal(dealt*NODE_FX.life*lf,s);if(P.frenzy>0)lifeSteal(dealt*.015);if(hasR('jade'))lifeSteal(dealt*.015)}if(!rv)G.effectiveDealt=(G.effectiveDealt||0)+dealt;if(!rv&&typeof onDamageX==='function')onDamageX(e,dealt,s);e.flash=crit?.14:.08;e.sq=crit?.5:.3;if(kx||ky){const l=hyp(kx,ky)||1;e.sqx=kx/l;e.sqy=ky/l}if(s)s.dmg+=m;if(rv)G.rival.dmgDealt+=m;
+  if(!rv&&typeof onHitX==='function')m=onHitX(e,m,s,crit,noEl);if(e.tired)m*=e.tired;if(!rv)G.dealt=(G.dealt||0)+m;const dealt=Math.min(Math.max(0,e.hp),Math.max(0,m));e.hp-=m;if(!rv){const lf=s?nd(s,'life'):0;if(lf)lifeSteal(dealt*NODE_FX.life*lf,s);if(P.frenzy>0)lifeSteal(dealt*.015);if(hasR('jade'))lifeSteal(dealt*.015)}if(!rv)G.effectiveDealt=(G.effectiveDealt||0)+dealt;if(!rv&&typeof onDamageX==='function')onDamageX(e,dealt,s);e.hitAt=G.t;e.flash=crit?.14:.08;e.sq=crit?.5:.3;if(kx||ky){const l=hyp(kx,ky)||1;e.sqx=kx/l;e.sqy=ky/l}if(s)s.dmg+=m;if(rv)G.rival.dmgDealt+=m;
   const kk=e.type==='boss'?.12:e.type==='giant'?.4:e.type==='statue'?0:1;
   e.kx=(e.kx||0)+kx*kk;e.ky=(e.ky||0)+ky*kk;
   if(!rv&&!G.auto&&G.floats.length<CAP.fl&&(m>=Math.max(18,e.maxHp*.25)||(crit&&(G.P.crit<.5||e.type==='boss'||e.elite||SIMR()<.2)))&&(G.en.length<120||e.type==='boss'||e.elite||m>=e.maxHp*.5))G.floats.push({x:e.x+rnd(-4,4),y:e.y-e.r-3,t:.6,v:Math.round(m),c:crit?'#ffd75a':(col||'#efe4cd'),crit});
@@ -1089,18 +1096,19 @@ function lose(){if(G.auto){newGame(true);demoBoost();return}closeCards();G.over=
 function expectedCrit(chance){const c=Math.max(0,chance||0);return 1+Math.min(1,c)*(1+Math.max(0,c-1)*2)}
 function powerIdx(){const P=G.P;let m=0;G.spells.forEach((s,i)=>{m+=stat(s).m*(i===0?1:.3)});return P.dmg*(1+(P.dmgBonus||0))*expectedCrit(P.crit)*Math.max(.5,m)*Math.max(.1,P.haste||1)}
 // Estimate one large target from the current build, without using small-monster HP as a ceiling.
-function buildBossDps(P=G.P,spells=G.spells){
-  const gx=G.gx||{},base=Math.max(.01,P.dmg||1)*(1+(P.dmgBonus||0))*(1+(gx.boss||0)/100),mana=Math.max(1,Math.min(P.regen||1,(P.maxMana||100)*.045)*.7),active=spells.filter(s=>!SPELLS[s.id].auto).length||1;
+function buildBossDps(P=G.P,spells=G.spells,target='boss'){
+  const gx=G.gx||{},base=Math.max(.01,P.dmg||1)*(1+(P.dmgBonus||0))*(1+(target==='boss'?(gx.boss||0):0)/100),mana=Math.max(1,Math.min(P.regen||1,(P.maxMana||100)*.045)*.7),active=spells.filter(s=>!SPELLS[s.id].auto).length||1;
   let total=0;
   for(const s of spells){const st=stat(s),auto=!!SPELLS[s.id].auto,n=st.n||0,crit=expectedCrit((P.crit||0)+NODE_FX.crit*nd(s,'crit'));let raw,interval;
     if(auto){const model={sword:[22*(1+.55*(1+Math.floor(s.lv/3)+n)),.46],wave:[15*(1+.6*(1+Math.floor(s.lv/4)+n)),.58],needle:[12*(1+.6*(2+Math.floor(s.lv/4)+n)),.5],charm:[20*(1+.5*(1+Math.floor(s.lv/3)+n)),.6],slash:[25,.46],great:[58,1.05],staff:[27,.56],fist:[17,.22],whisk:[12,.14],drum:[28,.95],lute:[8,.14],swordcase:[18*(3+Math.floor(s.lv/4)+n),.8],goldgu:[12*(4+Math.floor(s.lv/4)+n),.65],shiki:[17*(3+Math.floor(s.lv/4)+n),.8]};
-      [raw,interval]=model[s.id]||[28*(1+n*.4),.65];interval*=Math.max(.12,st.cdM);if(s.awake)raw*=1.25;if(st.burst)raw*=1.65;
+      [raw,interval]=model[s.id]||[28*(1+n*.4),.65];if(target==='normal')raw=({sword:22,wave:15,needle:12,charm:20,swordcase:18,goldgu:12,shiki:17})[s.id]||raw;interval*=Math.max(.12,st.cdM);if(s.awake)raw*=1.25;if(st.burst)raw*=1.65;
     }else{const duration=(SPELLS[s.id].dur||4)+st.dur,model={flow:((10+s.lv)*4),guangling:16*duration,whirl:5*duration/.11,array:13*(3+Math.floor(s.lv/3)+n)*duration/.55,bagua:16*(2+Math.floor(s.lv/3)+n)*duration/.55,palm:12*(2+n*.5),sunder:160,ambush:35,ward:8,zen:10*duration,rejuv:8,talis:60,leap:45,roar:25,plague:70,pouch:70,sarira:120};raw=(model[s.id]||55)*ACTIVE_MULT*.65;interval=Math.max(skillCooldown(s,st),skillCost(s)*active/mana);}
     const gear=1+(auto?(gx.auto||0):(gx.skill||0))/100,element=1+(s.els||[]).reduce((v,e)=>v+(gx[e]||0),0)/100;
     total+=raw*st.m*base*crit*gear*element/Math.max(.12,interval);
   }
   return Math.max(1,total);
 }
+function buildEnemyDps(){return buildBossDps(G.P,G.spells,'normal')}
 function powerHp(sec){
   if(soloPressure()||G.shared){const current=buildBossDps(),all=G.shared&&typeof arenaBuildDps==='function'?arenaBuildDps(current):current,r=G.bossRef;
     const previous=r?.dps?Math.max(0,r.dps)*Math.max(.1,powerIdx()/Math.max(.01,r.pow||1))*(r.corr||1):0;

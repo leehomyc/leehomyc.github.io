@@ -131,7 +131,7 @@ function paintGround(){
   const X=x=>(x+M)*sx,Y=y=>(y+M)*sx;
   const TH_=MAP();g.fillStyle=TH_.base;g.fillRect(0,0,TW,TH);
   const blob=(x,y,r,col,a)=>{const G2=g.createRadialGradient(x,y,0,x,y,r);const c=new T3.Color(col),s=`${c.r*255|0},${c.g*255|0},${c.b*255|0}`;G2.addColorStop(0,`rgba(${s},${a})`);G2.addColorStop(.6,`rgba(${s},${a*.55})`);G2.addColorStop(1,`rgba(${s},0)`);g.fillStyle=G2;g.fillRect(x-r,y-r,r*2,r*2)};
-  for(let i=0;i<3200;i++)blob(vrnd(TW),vrnd(TH),vrnd(30,220)*sx,vpick(TH_.blobs),.3);
+  for(let i=0;i<3200;i++)blob(vrnd(TW),vrnd(TH),vrnd(30,220)*sx,vpick(TH_.blobs),.20);
   const trail=(pts,w)=>{for(const [lw,a,col] of [[w*1.6,.22,TH_.trail[0]],[w,.45,TH_.trail[1]],[w*.5,.5,TH_.trail[2]]]){g.lineWidth=lw*sx;g.strokeStyle=col;g.globalAlpha=a;g.lineCap='round';g.lineJoin='round';g.beginPath();pts.forEach((p,i)=>i?g.lineTo(X(p[0]),Y(p[1])):g.moveTo(X(p[0]),Y(p[1])));g.stroke()}g.globalAlpha=1};
   TRAILS.forEach(t=>trail(t.pts,t.w));
   for(const t of TRAILS)for(let i=0;i<t.pts.length*40;i++){const p=t.pts[Math.floor(vrnd(t.pts.length))];g.fillStyle=vpick(['#6f5f43','#4e5a3a','#a39070','#7c8040']);g.globalAlpha=.3;g.fillRect(X(p[0]+vrnd(-t.w,t.w))-1,Y(p[1]+vrnd(-t.w,t.w))-1,vrnd(1,4),vrnd(1,3))}g.globalAlpha=1;
@@ -151,7 +151,7 @@ function paintGround(){
   maples.forEach(m=>{for(let i=0;i<90;i++){g.fillStyle=vpick(m[3]?['#e8713a','#f0a040','#c9552f']:['#b03a2a','#e85a3a','#8e2a22']);g.globalAlpha=vrnd(.4,.85);const a=vrnd(TAU),d=vrnd(0,40*m[2]);g.fillRect(X(m[0]+Math.cos(a)*d),Y(m[1]+Math.sin(a)*d*.8),2.4,2)}});
   g.globalAlpha=1;
   const n=TW>=4096?170000:TW>=3072?110000:60000;
-  for(let i=0;i<n;i++){g.fillStyle=vpick(TH_.grain);g.globalAlpha=vrnd(.12,.42);const s=vrnd(.8,2.6);g.fillRect(vrnd(TW),vrnd(TH),s,s*vrnd(.6,2.4))}
+  for(let i=0;i<n;i++){g.fillStyle=vpick(TH_.grain);g.globalAlpha=vrnd(.06,.18);const s=vrnd(.8,2.6);g.fillRect(vrnd(TW),vrnd(TH),s,s*vrnd(.6,2.4))}
   for(let i=0;i<(PHONE?1500:4200);i++){g.fillStyle=vpick(['#e9c95f','#e77a5a','#f0ead2','#c986e0','#ffb44a']);g.globalAlpha=.75;const x=vrnd(TW),y=vrnd(TH);g.fillRect(x,y,2,2);g.fillRect(x+vrnd(-5,5),y+vrnd(-5,5),1.6,1.6)}
   g.globalAlpha=1;
   const ed=(x0,y0,x1,y1,rx,ry,rw,rh)=>{const G2=g.createLinearGradient(X(x0),Y(y0),X(x1),Y(y1));G2.addColorStop(0,`rgba(${TH_.edge},.96)`);G2.addColorStop(1,`rgba(${TH_.edge},0)`);g.fillStyle=G2;g.fillRect(X(rx),Y(ry),rw*sx,rh*sx)};
@@ -166,7 +166,7 @@ function paintGround(){
   ng.putImageData(d,0,0);
   const map=new T3.CanvasTexture(k);map.encoding=T3.sRGBEncoding;map.anisotropy=rn.capabilities.getMaxAnisotropy();
   const nor=new T3.CanvasTexture(nk);nor.anisotropy=4;
-  const plane=new T3.Mesh(new T3.PlaneGeometry(W+2*M,H+2*M),new T3.MeshStandardMaterial({map,normalMap:nor,normalScale:new T3.Vector2(1.1,1.1),roughness:.94,metalness:0}));
+  const plane=new T3.Mesh(new T3.PlaneGeometry(W+2*M,H+2*M),new T3.MeshStandardMaterial({map,normalMap:nor,normalScale:new T3.Vector2(.55,.55),roughness:.94,metalness:0}));
   plane.rotation.x=-Math.PI/2;plane.position.set(W/2,0,H/2);plane.receiveShadow=true;scene.add(plane);
   const under=new T3.Mesh(new T3.PlaneGeometry(12000,12000),new T3.MeshBasicMaterial({color:lin('rgb('+TH_.edge+')')}));under.rotation.x=-Math.PI/2;under.position.set(W/2,-1,H/2);scene.add(under);
 }
@@ -188,7 +188,8 @@ function buildPonds(){
 
 /* ---------- vegetation and architecture ---------- */
 function buildWorld(){
-  const leaf=mat('wind',{rough:.85,rim:'#ffdca8',rimI:.22,windY:'0.035'}),wood=mat('plain',{rough:.9,rimI:.15}),stone=mat('plain',{rough:.92,rimI:.18,rim:'#ffe4c0'}),lacquer=mat('plain',{rough:.45,metal:.05,rimI:.3,rim:'#ffc9a0'});
+  const leaf=mat('wind',{rough:.85,rim:'#ffdca8',rimI:.08,windY:'0.035'}),wood=mat('plain',{rough:.9,rimI:.15}),stone=mat('plain',{rough:.92,rimI:.28,rim:'#aac2d2'}),lacquer=mat('plain',{rough:.45,metal:.05,rimI:.3,rim:'#ffc9a0'});
+  leaf.color.setRGB(.80,.84,.80);
   const inst2=(geo,m,list,shadow=true)=>chunked(geo,m,list,shadow,true);const tq=Q().trees;
   // pines and bamboo forest outside the walls
   const TM=MAP(),pc=TM.pine;const pine=merge([part(CYL(2.6,4.5,40,8),'#3a2a22',{p:[0,20,0]}),part(CONE(22,30,9),pc[0],{p:[0,44,0],top:pc[1]}),part(CONE(17,26,9),pc[0],{p:[0,62,0],top:pc[1]}),part(CONE(11,22,9),pc[0],{p:[0,78,0],top:pc[1]})]);
