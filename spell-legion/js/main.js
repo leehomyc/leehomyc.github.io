@@ -19,6 +19,7 @@ function frame(now){
   render(dt);
   updateVitalsFeedback();
   if(!G.auto)hud(dt);
+  syncBossClock();
   updateDuelClock();
   updateDuelDeath();
   updateScoreReward(dt);

@@ -1534,3 +1534,6 @@ body.control-frozen #stage::after{content:'';position:absolute;inset:0;pointer-e
 #hud #relics{display:none}
 
 #wavetheme{font-size:10px;line-height:1.2;font-weight:700;color:#ffe066;text-align:center}#wavetheme[hidden]{display:none}
+
+/* Only the boss label escapes the HUD layer; skill cooldowns stay behind menus. */
+#nextboss{visibility:hidden}#bossclock{position:absolute;z-index:130;pointer-events:none;display:block;box-sizing:border-box;text-align:center;white-space:nowrap;background:#160c1be8;border-radius:3px}#bossclock[hidden]{display:none}

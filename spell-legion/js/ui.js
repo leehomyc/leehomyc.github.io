@@ -48,6 +48,16 @@ function updateVitalsFeedback(){
   const label=state.critical?L('濒危 · 立即避开攻击','CRITICAL HEALTH · Avoid attacks'):L('生命偏低','LOW HEALTH');
   if(warning.textContent!==label)warning.textContent=label;
 }
+// Keep the existing countdown footprint, with a separate layer above transient overlays.
+let bossClockSyncAt=0;
+function syncBossClock(){
+  const clock=$('#bossclock'),anchor=$('#nextboss');if(!clock||!anchor)return;
+  if(!G||G.auto||G.over||G.ended||$('#hud').hidden){clock.hidden=true;return}
+  const now=performance.now();if(!clock.hidden&&now<bossClockSyncAt)return;bossClockSyncAt=now+50;
+  const r=anchor.getBoundingClientRect(),stage=$('#stage').getBoundingClientRect(),style=getComputedStyle(anchor);
+  clock.textContent=anchor.textContent;clock.style.left=(r.left-stage.left)+'px';clock.style.top=(r.top-stage.top)+'px';clock.style.width=r.width+'px';clock.style.height=r.height+'px';
+  clock.style.font=style.font;clock.style.letterSpacing=style.letterSpacing;clock.style.color=style.color;clock.style.textShadow=style.textShadow;clock.hidden=false;
+}
 function hud(dt){
   if(skillHoverAnchor&&(G.auto||G.over||G.ended||G.paused||G.pick||G.panel))hideSkillHover();
   hudT-=dt;if(hudT>0)return;hudT=.05;
