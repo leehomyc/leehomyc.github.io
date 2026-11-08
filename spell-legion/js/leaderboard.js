@@ -105,7 +105,7 @@ async function submitRun(container,snapshot){
   if(localPB){S.bestRun=result;if(run.uid&&(!S.pendingRun||S.pendingRun.uid!==run.uid||lbCompare(run,S.pendingRun)<0))S.pendingRun={...run,allTime:true}}
   if(!priorDay||lbCompare(run,priorDay)<0){if(S.day!==dk)S.dayBestRun=null;S.day=dk;S.dayBestRun=result}
   if(localPB||!priorDay||lbCompare(run,priorDay)<0)persist();
-  let pb=container.querySelector('.lbpb');if(!pb){pb=document.createElement('p');pb.className='lbpb';const anchor=container.querySelector('#endactions')||container.querySelector('.endmore');if(anchor)anchor.before(pb);else container.appendChild(pb)}
+  let pb=container.querySelector('.lbpb');if(!pb){pb=document.createElement('p');pb.className='lbpb';const summary=container.querySelector('.score-summary');if(summary)summary.appendChild(pb);else{const anchor=container.querySelector('#endactions')||container.querySelector('.endmore');if(anchor)anchor.before(pb);else container.appendChild(pb)}}
   pb.textContent=`${L('个人最高分','Personal best')} · ${Math.round(S.bestRun.score).toLocaleString('en-US')}`;pb.onclick=null;pb.title='';pb.classList.remove?.('pending');
   if(!LB.registered()||!run.uid)return;
   let all=null,today=null;try{[all,today]=await Promise.all([LB.fetch('endless').catch(()=>null),dk===dayKey()?LB.fetch('today').catch(()=>null):Promise.resolve(null)])}catch(_){}

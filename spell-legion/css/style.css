@@ -1527,3 +1527,5 @@ body.control-frozen #stage::after{content:'';position:absolute;inset:0;pointer-e
 @media(orientation:landscape) and (max-height:520px){#title.heroview{align-items:flex-start;justify-content:flex-start}#title.heroview #hero{flex-shrink:0}}
 
 .social-panel header>button{flex:none;white-space:nowrap}
+
+#end .score-summary{display:flex;align-items:center;justify-content:center;gap:clamp(14px,4vw,40px);width:100%;min-width:0}#end .score-summary .run-score{margin:0;min-width:0}#end .score-summary .lbpb{margin:0;max-width:45%;font-size:clamp(13px,2vw,18px);line-height:1.4;overflow-wrap:anywhere}#end .endmore .endgear{margin:18px 0 6px}
