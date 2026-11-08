@@ -94,3 +94,8 @@ test('duel selection header shows current ladder rank and points rather than sol
  assert.equal(elements.get('#endlessbest').hidden,false);
  assert.match(elements.get('#endlessbest').innerHTML,/Ladder: Bronze/);assert.match(elements.get('#endlessbest').innerHTML,/15 pts/);
 });
+test('death breaks streak and overdrive in solo, timed and endless duels while retaining the best streak',()=>{
+  for(const mode of ['solo','time','last']){const {run}=setup();run(`G.room=${mode!=='solo'};ROOM.data.mode='${mode}';G.combo=351;G.comboT=2;G.comboMax=351;G.over9=1;downed()`);assert.equal(run('G.combo'),0,mode);assert.equal(run('G.comboT'),0,mode);assert.equal(run('G.over9'),0,mode);assert.equal(run('G.comboMax'),351,mode);run('comboHit()');assert.equal(run('G.combo'),0,'lingering attacks while down must not restart streak');run('G.P.down=0;comboHit()');assert.equal(run('G.combo'),1);assert.equal(run('G.over9'),0)}
+});
+test('final death also clears the current streak and overdrive',()=>{const {run}=setup();run('G.cores=0;G.combo=50;G.comboT=2;G.over9=1;downed()');assert.equal(run('G.over'),'lose');assert.equal(run('G.combo'),0);assert.equal(run('G.over9'),0)});
+test('AI opponents lose their streak on final elimination too',()=>{const {run}=setup();run("G.room=true;ROOM.data.mode='last';mkRival('swordsman');G.rival.cores=0;G.rival.hp=1;G.rival.combo=50;G.rival.comboT=2;G.rival.over9=1;rivalHurt(10)");assert.equal(run('G.rival.eliminated'),true);assert.equal(run('G.rival.combo'),0);assert.equal(run('G.rival.comboT'),0);assert.equal(run('G.rival.over9'),0)});

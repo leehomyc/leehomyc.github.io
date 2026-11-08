@@ -4,14 +4,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>魔咒军团</title>
-<meta name="build" content="20261108-shared-boss-marker-1">
+<meta name="build" content="20261108-deathstreak-countdown-1">
 <link rel="manifest" href="manifest.json?v=mage-1">
 <meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="theme-color" content="#0b060e">
 <link rel="apple-touch-icon" sizes="180x180" href="icons/icon-180.png?v=mage-1">
 <link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png?v=mage-1">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png?v=mage-1">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Cinzel:wght@700;900&family=ZCOOL+XiaoWei&family=ZCOOL+KuaiLe&family=Baloo+2:wght@600;800&family=Alegreya+Sans:wght@400;700;800&display=swap">
-<link rel="stylesheet" href="css/style.css?v=20261108-shared-boss-marker-1">
+<link rel="stylesheet" href="css/style.css?v=20261108-deathstreak-countdown-1">
 <script src="vendor/three.min.js"></script>
 <script src="vendor/CopyShader.js"></script>
 <script src="vendor/LuminosityHighPassShader.js"></script>
@@ -35,7 +35,7 @@
       <div id="vbars" hidden><div class="vb hp"><i id="hpfill2"></i><b id="hpnum2"></b></div><div class="vb mp"><i id="mpfill2"></i><b id="mpnum2"></b></div></div>
       <div class="row">
         <div class="lft"><b id="lv">Lv 1</b><button id="charbtn" aria-label="Character" data-l10n="角色|Character" data-l10n-attr="aria-label"><span class="zh">角色 C</span><span class="en">Hero C</span><span id="ptsbadge" hidden></span></button><span id="cores"></span><small id="coretm" hidden></small><div id="relics"></div></div>
-        <div class="tm"><b id="timer">0:00</b><span id="nextboss"></span></div>
+        <div class="tm"><b id="timer">0:00</b><span id="nextboss"></span><span id="wavetheme" hidden></span></div>
         <div class="rgt"><span id="kills">0</span><button id="sndbtn" class="sndb" aria-label="Mute / unmute" title="Mute / unmute" data-l10n="静音 / 开启|Mute / unmute" data-l10n-attr="title aria-label">🔊</button><button id="pausebtn" aria-label="Pause" data-l10n="暂停|Pause" data-l10n-attr="aria-label">II</button></div>
       </div>
       <div id="bossbar" hidden><span id="bossname">血魔教主 · Blood Demon Patriarch</span><div id="bosshp"><i></i><s id="bosspoisfill" hidden></s></div><div id="openbar" hidden></div><small id="bosspois" hidden></small><small id="bossheal" hidden></small></div>
@@ -110,36 +110,36 @@
   <div id="lb" class="overlay" hidden role="dialog" aria-modal="true" aria-label="Leaderboard" data-l10n="排行榜|Leaderboard" data-l10n-attr="aria-label"><div class="lbbox" id="lbbox"></div></div>
   <div id="end" class="overlay" hidden><div class="endb" id="endb"></div></div>
 </div>
-<script src="js/cn-connection-boot.js?v=20261108-shared-boss-marker-1"></script>
-<script src="js/i18n.js?v=20261108-shared-boss-marker-1"></script>
-<script src="js/core.js?v=20261108-shared-boss-marker-1"></script>
-<script src="js/content.js?v=20261108-shared-boss-marker-1"></script>
-<script src="js/icons.js?v=20261108-shared-boss-marker-1"></script>
-<script src="js/audio.js?v=20261108-shared-boss-marker-1"></script>
-<script src="js/gfx.js?v=20261108-shared-boss-marker-1"></script>
-<script src="js/sim.js?v=20261108-shared-boss-marker-1"></script>
-<script src="js/heroes.js?v=20261108-shared-boss-marker-1"></script>
-<script src="js/director.js?v=20261108-shared-boss-marker-1"></script>
-<script src="js/road.js?v=20261108-shared-boss-marker-1"></script>
-<script src="js/render.js?v=20261108-shared-boss-marker-1"></script>
-<script src="js/leaderboard.js?v=20261108-shared-boss-marker-1"></script>
-<script src="js/cloud.js?v=20261108-shared-boss-marker-1"></script>
-<script src="js/net.js?v=20261108-shared-boss-marker-1"></script>
-<script src="js/room.js?v=20261108-shared-boss-marker-1"></script>
-<script src="js/link.js?v=20261108-shared-boss-marker-1"></script>
-<script src="js/arena.js?v=20261108-shared-boss-marker-1"></script>
-<script src="js/arena-loot.js?v=20261108-shared-boss-marker-1"></script>
-<script src="js/meta.js?v=20261108-shared-boss-marker-1"></script>
-<script src="js/ui.js?v=20261108-shared-boss-marker-1"></script>
-<script src="js/input.js?v=20261108-shared-boss-marker-1"></script>
-<script src="js/lobby.js?v=20261108-shared-boss-marker-1"></script>
-<script src="js/ext.js?v=20261108-shared-boss-marker-1"></script>
-<script src="js/gear.js?v=20261108-shared-boss-marker-1"></script>
-<script src="js/build.js?v=20261108-shared-boss-marker-1"></script>
-<script src="js/heroes3d.js?v=20261108-shared-boss-marker-1"></script>
-<script src="js/analytics.js?v=20261108-shared-boss-marker-1"></script>
-<script src="js/social.js?v=20261108-shared-boss-marker-1"></script>
-<script src="js/main.js?v=20261108-shared-boss-marker-1"></script>
+<script src="js/cn-connection-boot.js?v=20261108-deathstreak-countdown-1"></script>
+<script src="js/i18n.js?v=20261108-deathstreak-countdown-1"></script>
+<script src="js/core.js?v=20261108-deathstreak-countdown-1"></script>
+<script src="js/content.js?v=20261108-deathstreak-countdown-1"></script>
+<script src="js/icons.js?v=20261108-deathstreak-countdown-1"></script>
+<script src="js/audio.js?v=20261108-deathstreak-countdown-1"></script>
+<script src="js/gfx.js?v=20261108-deathstreak-countdown-1"></script>
+<script src="js/sim.js?v=20261108-deathstreak-countdown-1"></script>
+<script src="js/heroes.js?v=20261108-deathstreak-countdown-1"></script>
+<script src="js/director.js?v=20261108-deathstreak-countdown-1"></script>
+<script src="js/road.js?v=20261108-deathstreak-countdown-1"></script>
+<script src="js/render.js?v=20261108-deathstreak-countdown-1"></script>
+<script src="js/leaderboard.js?v=20261108-deathstreak-countdown-1"></script>
+<script src="js/cloud.js?v=20261108-deathstreak-countdown-1"></script>
+<script src="js/net.js?v=20261108-deathstreak-countdown-1"></script>
+<script src="js/room.js?v=20261108-deathstreak-countdown-1"></script>
+<script src="js/link.js?v=20261108-deathstreak-countdown-1"></script>
+<script src="js/arena.js?v=20261108-deathstreak-countdown-1"></script>
+<script src="js/arena-loot.js?v=20261108-deathstreak-countdown-1"></script>
+<script src="js/meta.js?v=20261108-deathstreak-countdown-1"></script>
+<script src="js/ui.js?v=20261108-deathstreak-countdown-1"></script>
+<script src="js/input.js?v=20261108-deathstreak-countdown-1"></script>
+<script src="js/lobby.js?v=20261108-deathstreak-countdown-1"></script>
+<script src="js/ext.js?v=20261108-deathstreak-countdown-1"></script>
+<script src="js/gear.js?v=20261108-deathstreak-countdown-1"></script>
+<script src="js/build.js?v=20261108-deathstreak-countdown-1"></script>
+<script src="js/heroes3d.js?v=20261108-deathstreak-countdown-1"></script>
+<script src="js/analytics.js?v=20261108-deathstreak-countdown-1"></script>
+<script src="js/social.js?v=20261108-deathstreak-countdown-1"></script>
+<script src="js/main.js?v=20261108-deathstreak-countdown-1"></script>
 <!--/PAGE-->
 </body>
 </html>

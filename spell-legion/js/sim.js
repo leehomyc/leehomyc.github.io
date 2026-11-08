@@ -107,9 +107,9 @@ function rivalTick(dt){
   for(const sk of R.spells){if(sk.id==='whirl'&&sk.active>0){sk.active-=dt;sk.tk-=dt;if(sk.tk<=0){sk.tk=.11;near(R.x,R.y,64,e=>{const dx=e.x-R.x,dy=e.y-R.y,d=hyp(dx,dy)||1;if(d<52+e.r)hit(e,7*stat(sk).m,sk,false,undefined,-dy/d*90,dx/d*90)})}}
     if((sk.id==='array'||sk.id==='bagua')&&sk.active>0){sk.active-=dt;const ss=stat(sk),n=3+Math.floor(sk.lv/3),Rr=sk.id==='bagua'?58:40;sk.a=(sk.a||0)+dt*3.2;sk.pos=[];for(let i=0;i<n;i++){const a=sk.a+i/n*TAU,x=R.x+Math.cos(a)*Rr,y=R.y-4+Math.sin(a)*Rr;sk.pos.push([x,y,a]);near(x,y,16,e=>{if(hyp(e.x-x,e.y-y)<e.r+6&&(e.orbT||0)<=0){e.orbT=.34;hit(e,9*ss.m,sk,false,undefined,-Math.sin(a)*120,Math.cos(a)*120)}})}if(sk.active<=0)sk.pos=null}}
 }
-function rivalHurt(n,fx,fy){const R=G.rival;if(!R||R.eliminated||R.down>0||R.inv>0)return;R.hp-=n;R.inv=.4;if(R.hp<=0){R.hp=0;R.downs++;spark(R.x,R.y,'#6fd3e8',20,120);
+function rivalHurt(n,fx,fy){const R=G.rival;if(!R||R.eliminated||R.down>0||R.inv>0)return;R.hp-=n;R.inv=.4;if(R.hp<=0){R.hp=0;R.downs++;breakCombo(R);spark(R.x,R.y,'#6fd3e8',20,120);
   if(endlessDuel()&&R.cores<=0){R.eliminated=true;R.down=Infinity;R.eliminatedAt=G.t;if(G.rivalSeat){aiPut(G.rivalSeat,{alive:false,done:true,hp:0,score:R.score,lv:R.lv,kills:R.kills,t:Math.round(G.t)});aiFlush()}if(typeof roomCheckFinished==='function')roomCheckFinished();return}
-  if(endlessDuel())R.cores--;if(timedDuel())deathScorePenalty(R);R.combo=0;R.down=DUEL_REVIVE_DELAY}}
+  if(endlessDuel())R.cores--;if(timedDuel())deathScorePenalty(R);R.down=DUEL_REVIVE_DELAY}}
 
 /* ---------- relics ---------- */
 const hasR=k=>G.relics.includes(k);
@@ -249,7 +249,7 @@ function kill(e,s,kx=0,ky=0){
   if(e.type!=='boss'&&e.type!=='statue'&&G.fx.length<CAP.fx){const sp=hyp(kx,ky);G.fx.push({k:'die',x:e.x,y:e.y,h:1,vh:70+sp*.5,kx:kx*1.6+rnd(-20,20),ky:ky*1.6+rnd(-20,20),rot:0,rv:rnd(6,14)*(SIMR()<.5?-1:1),t:.7,T:.7,type:e.type,fr:e.fr,sc:e.sc||1})}
   if(e.type==='statue'){if(G.mission&&G.mission.k==='statue'){G.mission.n--;checkMission()}return}
   const pv=pts(e);
-  if(s&&s.owner==='rival'){const R=G.rival;R.kills++;R.combo=(R.combo||0)+1;R.comboT=2.4;R.comboMax=Math.max(R.comboMax||0,R.combo);awardComboBonus(R,R.combo,false);{const gain=Math.round(pv*(1+Math.min(.6,Math.floor(R.combo/10)*.1)));R.score+=gain;R.sc=R.sc||{kill:0,big:0,streak:0};if(pv>=8)R.sc.big+=gain;else R.sc.kill+=gain;R.sc.streak+=gain-pv}G.rival.xp+=e.xp*2.2*G.rival.ai;if(RIVAL_ON&&pv>=8&&G.floats.length<80)G.floats.push({x:e.x,y:e.y-e.r-6,t:.9,v:L('对手','Rival')+' +'+pv,c:'#ff9c5a'});if(RIVAL_ON&&pv>=30&&typeof showSide==='function')showSide(`对手斩杀${e.type==='boss'?'首领':'精英'} +${pv} · 去补刀下一个大目标`,`Rival took ${e.type==='boss'?'the boss':'an elite'} +${pv} · claim the next big one`,'#ff9c5a','swords')}
+  if(s&&s.owner==='rival'){const R=G.rival;R.kills++;if(!R.down&&!R.eliminated&&!G.over){R.combo=(R.combo||0)+1;R.comboT=2.4;R.comboMax=Math.max(R.comboMax||0,R.combo);awardComboBonus(R,R.combo,false);}{const gain=Math.round(pv*(1+Math.min(.6,Math.floor(R.combo/10)*.1)));R.score+=gain;R.sc=R.sc||{kill:0,big:0,streak:0};if(pv>=8)R.sc.big+=gain;else R.sc.kill+=gain;R.sc.streak+=gain-pv}G.rival.xp+=e.xp*2.2*G.rival.ai;if(RIVAL_ON&&pv>=8&&G.floats.length<80)G.floats.push({x:e.x,y:e.y-e.r-6,t:.9,v:L('对手','Rival')+' +'+pv,c:'#ff9c5a'});if(RIVAL_ON&&pv>=30&&typeof showSide==='function')showSide(`对手斩杀${e.type==='boss'?'首领':'精英'} +${pv} · 去补刀下一个大目标`,`Rival took ${e.type==='boss'?'the boss':'an elite'} +${pv} · claim the next big one`,'#ff9c5a','swords')}
   else if(G.creditOff){}
   else{G.kills++;comboHit();if(s&&!SPELLS[s.id].auto)G.skillKills=(G.skillKills||0)+1;if(e.elite)G.eliteKills=(G.eliteKills||0)+1;if(e.champion&&typeof dirChampionSlain==='function')dirChampionSlain(e);const gain=Math.round(pv*((RIVAL_ON||G.room)?comboMult():1));G.score+=gain;if(!G.auto&&(e.type==='boss'||e.warlord)&&typeof showScoreReward==='function')showScoreReward(e.warlord?'统领击破':(e.name||'首领击破'),e.warlord?'Warlord defeated':(e.en||'Boss defeated'),gain,'boss');G.sc=G.sc||{kill:0,big:0,ev:0};if(e.type==='boss'||e.elite||e.warlord||e.role||e.affix)G.sc.big+=gain;else G.sc.kill+=gain;if((RIVAL_ON||G.room)&&(pv>=3||G.floats.length<CAP.fl)&&G.floats.length<80)G.floats.push({x:e.x,y:e.y-e.r-6,t:.8,v:'+'+gain,c:pv>=8?'#ffd27a':'#9fe3f0',score:1})}
   if((e.type==='giant'||e.elite)&&!(s&&s.owner==='rival')&&!G.creditOff){hitStop(.06);trauma(.3)}
@@ -276,13 +276,15 @@ function awardComboBonus(owner,count,player){
   if(player&&typeof showScoreReward==='function')showScoreReward(`${tier[1]} ×${count}`,`${tier[2]} ×${count}`,count,'combo');return tier;
 }
 function comboMult(){return 1+Math.min(.6,Math.floor(G.combo/10)*.1)}
+function breakCombo(owner=G){owner.combo=0;owner.comboT=0;owner.over9=0}
 function comboHit(){
+  if(G.over||G.P?.down>0)return;
   G.combo++;G.comboT=Math.max(1.1,2.4-G.t/900);if(G.combo>G.comboMax)G.comboMax=G.combo;
   const t=awardComboBonus(G,G.combo,true);
   if(t){if(typeof showScoreReward!=='function')showBanner(`${t[1]} ×${G.combo}`,t[2]+' · +'+G.combo,1.3);trauma(.3);if(G.room&&G.combo>=100)roomSendWave(6);G.slow=Math.max(G.slow,.12);G.flash=Math.max(G.flash,.25);if(typeof SFX!=='undefined')SFX.combo(COMBO_TIERS.indexOf(t))}
   if(G.combo>=30&&!G.over9){G.over9=1;showBanner('狂暴','Overdrive: faster strikes, faster feet',1.4);if(typeof SFX!=='undefined')SFX.overdrive()}
 }
-function comboTick(dt){if(G.combo>0){G.comboT-=dt;if(G.comboT<=0){if(G.combo>=10)showBanner(`连斩终结 ×${G.combo}`,'Streak ended',.8);G.combo=0;G.over9=0}}}
+function comboTick(dt){if(G.combo>0){G.comboT-=dt;if(G.comboT<=0){if(G.combo>=10)showBanner(`连斩终结 ×${G.combo}`,'Streak ended',.8);breakCombo()}}}
 /* treasure chests: burst of mana gems, gold and a bonus card */
 function chestClear(x,y){return x>=60&&y>=60&&x<=W-60&&y<=H-60&&!blocked(x,y)&&!onPond(x,y,1.3)&&!rocksNear(x,y).some(b=>!b.tree&&!b.bamboo&&Math.hypot(x-clamp(x,b.x,b.x+b.w),y-clamp(y,b.y,b.y+b.h))<20)}
 function placeChest(c){
@@ -325,10 +327,10 @@ function dmgP(n,fx,fy,src){
 }
 function downed(){
   if(G.over||G.P.down>0)return;
-  const P=G.P;P.hp=0;
+  const P=G.P;P.hp=0;breakCombo();
   if(timedDuel()){
     G.downs=(G.downs||0)+1;G.revives=(G.revives||0)+1;
-    const lost=deathScorePenalty(G);G.lastDeathLoss=lost;P.down=DUEL_REVIVE_DELAY;G.combo=0;G.comboT=0;
+    const lost=deathScorePenalty(G);G.lastDeathLoss=lost;P.down=DUEL_REVIVE_DELAY;
     spark(P.x,P.y,'#6fd3e8',24,120);
     if(typeof SFX!=='undefined')SFX.revive();return;
   }

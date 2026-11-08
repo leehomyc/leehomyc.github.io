@@ -1532,3 +1532,5 @@ body.control-frozen #stage::after{content:'';position:absolute;inset:0;pointer-e
 
 /* Relics remain visible in the pause build, without cluttering the combat HUD. */
 #hud #relics{display:none}
+
+#wavetheme{font-size:10px;line-height:1.2;font-weight:700;color:#ffe066;text-align:center}#wavetheme[hidden]{display:none}
