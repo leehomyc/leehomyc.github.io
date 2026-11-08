@@ -1,9 +1,19 @@
 {
-  "current": "0.1.101",
+  "current": "0.1.102",
   "entries": [
     {
       "revision": null,
-      "at": "2026-11-08T16:26:56.374710+08:00",
+      "at": "2026-11-08T20:39:01.283078+08:00",
+      "version": "0.1.102",
+      "subject": "Remove dark background from boss countdown label",
+      "zh": "移除首领倒计时与首领战文字背后的黑底，保持位置与大小。",
+      "en": "Remove the dark background behind the boss countdown and BOSS label, keeping their size and position.",
+      "ja": "ボス表示の黒い背景を削除。位置とサイズは維持。",
+      "ko": "보스 표시의 검은 배경 제거. 위치와 크기 유지."
+    },
+    {
+      "revision": "07ea5ae1c420b3a5f314276dffcd527dd619f166",
+      "at": "2026-11-08T16:27:18+08:00",
       "version": "0.1.101",
       "subject": "Move version button before Contact",
       "zh": "版本号移到联系作者前面。",

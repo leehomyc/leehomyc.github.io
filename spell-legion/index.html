@@ -4,14 +4,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>魔咒军团</title>
-<meta name="build" content="20261108-version-before-contact-1">
+<meta name="build" content="20261108-boss-label-clear-1">
 <link rel="manifest" href="manifest.json?v=mage-1">
 <meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="theme-color" content="#0b060e">
 <link rel="apple-touch-icon" sizes="180x180" href="icons/icon-180.png?v=mage-1">
 <link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png?v=mage-1">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png?v=mage-1">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Cinzel:wght@700;900&family=ZCOOL+XiaoWei&family=ZCOOL+KuaiLe&family=Baloo+2:wght@600;800&family=Alegreya+Sans:wght@400;700;800&display=swap">
-<link rel="stylesheet" href="css/style.css?v=20261108-version-before-contact-1">
+<link rel="stylesheet" href="css/style.css?v=20261108-boss-label-clear-1">
 <script src="vendor/three.min.js"></script>
 <script src="vendor/CopyShader.js"></script>
 <script src="vendor/LuminosityHighPassShader.js"></script>
@@ -64,7 +64,7 @@
           <div id="prog"></div><div id="menubtns"></div>
           <span id="loadnote" class="note"></span>
           <div class="tabbar"><b id="gold" hidden>0</b><button type="button" data-t="road" data-ic="crown"><span class="zh">冒险</span><span class="en">Journey</span></button><button type="button" id="gearbtn" data-ic="relic"><span class="zh">行囊</span><span class="en">Gear</span></button><b id="achcount" hidden>0/0</b><b id="codexcount" hidden>0/0</b><button type="button" id="lbbtn" data-ic="podium"><span class="zh">排行</span><span class="en">Ranks</span> <b id="lbrank"></b></button><button type="button" id="historybtn" data-ic="scroll"><span class="zh">战绩</span><span class="en">History</span></button><button type="button" id="friendsbtn" data-ic="swords"><span class="zh">好友</span><span class="en">Friends</span></button><button type="button" data-t="settings" data-ic="gear"><span class="zh">设置</span><span class="en">Settings</span></button></div>
-          <div class="mfoot"><button type="button" id="releasebtn" aria-haspopup="dialog">v0.1.101</button><a href="https://hyang.org/" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8.5" r="3.6" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M5 19.5c1.2-3.6 4-5.3 7-5.3s5.8 1.7 7 5.3" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg><span class="zh">联系作者</span><span class="en">Contact</span></a><span class="sep">·</span><a id="fbmail" href="mailto:harryyang.hk@gmail.com?subject=Spell%20Legion%20feedback"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5.5" width="18" height="13" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M4 7.5l8 6 8-6" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg><span class="zh">反馈</span><span class="en">Feedback</span></a></div>
+          <div class="mfoot"><button type="button" id="releasebtn" aria-haspopup="dialog">v0.1.102</button><a href="https://hyang.org/" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8.5" r="3.6" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M5 19.5c1.2-3.6 4-5.3 7-5.3s5.8 1.7 7 5.3" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg><span class="zh">联系作者</span><span class="en">Contact</span></a><span class="sep">·</span><a id="fbmail" href="mailto:harryyang.hk@gmail.com?subject=Spell%20Legion%20feedback"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5.5" width="18" height="13" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M4 7.5l8 6 8-6" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg><span class="zh">反馈</span><span class="en">Feedback</span></a></div>
           <div class="lobby" role="dialog" aria-modal="true"><div class="lhead"><button type="button" class="back" id="lobbyback">‹ <span class="zh">返回</span><span class="en">Back</span></button><h2 id="lobbytitle"></h2></div>
             <div class="panel" data-p="road"><div id="road"></div><div id="record" hidden></div></div>
             <div class="panel" data-p="tasks"><div id="meta"></div></div>
@@ -111,37 +111,37 @@
   <div id="lb" class="overlay" hidden role="dialog" aria-modal="true" aria-label="Leaderboard" data-l10n="排行榜|Leaderboard" data-l10n-attr="aria-label"><div class="lbbox" id="lbbox"></div></div>
   <div id="end" class="overlay" hidden><div class="endb" id="endb"></div></div>
 </div>
-<script src="js/cn-connection-boot.js?v=20261108-version-before-contact-1"></script>
-<script src="js/i18n.js?v=20261108-version-before-contact-1"></script>
-<script src="js/core.js?v=20261108-version-before-contact-1"></script>
-<script src="js/content.js?v=20261108-version-before-contact-1"></script>
-<script src="js/icons.js?v=20261108-version-before-contact-1"></script>
-<script src="js/audio.js?v=20261108-version-before-contact-1"></script>
-<script src="js/gfx.js?v=20261108-version-before-contact-1"></script>
-<script src="js/sim.js?v=20261108-version-before-contact-1"></script>
-<script src="js/heroes.js?v=20261108-version-before-contact-1"></script>
-<script src="js/director.js?v=20261108-version-before-contact-1"></script>
-<script src="js/road.js?v=20261108-version-before-contact-1"></script>
-<script src="js/render.js?v=20261108-version-before-contact-1"></script>
-<script src="js/leaderboard.js?v=20261108-version-before-contact-1"></script>
-<script src="js/cloud.js?v=20261108-version-before-contact-1"></script>
-<script src="js/net.js?v=20261108-version-before-contact-1"></script>
-<script src="js/room.js?v=20261108-version-before-contact-1"></script>
-<script src="js/link.js?v=20261108-version-before-contact-1"></script>
-<script src="js/arena.js?v=20261108-version-before-contact-1"></script>
-<script src="js/arena-loot.js?v=20261108-version-before-contact-1"></script>
-<script src="js/meta.js?v=20261108-version-before-contact-1"></script>
-<script src="js/ui.js?v=20261108-version-before-contact-1"></script>
-<script src="js/input.js?v=20261108-version-before-contact-1"></script>
-<script src="js/lobby.js?v=20261108-version-before-contact-1"></script>
-<script src="js/ext.js?v=20261108-version-before-contact-1"></script>
-<script src="js/gear.js?v=20261108-version-before-contact-1"></script>
-<script src="js/build.js?v=20261108-version-before-contact-1"></script>
-<script src="js/heroes3d.js?v=20261108-version-before-contact-1"></script>
-<script src="js/analytics.js?v=20261108-version-before-contact-1"></script>
-<script src="js/social.js?v=20261108-version-before-contact-1"></script>
-<script src="js/releases.js?v=20261108-version-before-contact-1"></script>
-<script src="js/main.js?v=20261108-version-before-contact-1"></script>
+<script src="js/cn-connection-boot.js?v=20261108-boss-label-clear-1"></script>
+<script src="js/i18n.js?v=20261108-boss-label-clear-1"></script>
+<script src="js/core.js?v=20261108-boss-label-clear-1"></script>
+<script src="js/content.js?v=20261108-boss-label-clear-1"></script>
+<script src="js/icons.js?v=20261108-boss-label-clear-1"></script>
+<script src="js/audio.js?v=20261108-boss-label-clear-1"></script>
+<script src="js/gfx.js?v=20261108-boss-label-clear-1"></script>
+<script src="js/sim.js?v=20261108-boss-label-clear-1"></script>
+<script src="js/heroes.js?v=20261108-boss-label-clear-1"></script>
+<script src="js/director.js?v=20261108-boss-label-clear-1"></script>
+<script src="js/road.js?v=20261108-boss-label-clear-1"></script>
+<script src="js/render.js?v=20261108-boss-label-clear-1"></script>
+<script src="js/leaderboard.js?v=20261108-boss-label-clear-1"></script>
+<script src="js/cloud.js?v=20261108-boss-label-clear-1"></script>
+<script src="js/net.js?v=20261108-boss-label-clear-1"></script>
+<script src="js/room.js?v=20261108-boss-label-clear-1"></script>
+<script src="js/link.js?v=20261108-boss-label-clear-1"></script>
+<script src="js/arena.js?v=20261108-boss-label-clear-1"></script>
+<script src="js/arena-loot.js?v=20261108-boss-label-clear-1"></script>
+<script src="js/meta.js?v=20261108-boss-label-clear-1"></script>
+<script src="js/ui.js?v=20261108-boss-label-clear-1"></script>
+<script src="js/input.js?v=20261108-boss-label-clear-1"></script>
+<script src="js/lobby.js?v=20261108-boss-label-clear-1"></script>
+<script src="js/ext.js?v=20261108-boss-label-clear-1"></script>
+<script src="js/gear.js?v=20261108-boss-label-clear-1"></script>
+<script src="js/build.js?v=20261108-boss-label-clear-1"></script>
+<script src="js/heroes3d.js?v=20261108-boss-label-clear-1"></script>
+<script src="js/analytics.js?v=20261108-boss-label-clear-1"></script>
+<script src="js/social.js?v=20261108-boss-label-clear-1"></script>
+<script src="js/releases.js?v=20261108-boss-label-clear-1"></script>
+<script src="js/main.js?v=20261108-boss-label-clear-1"></script>
 <!--/PAGE-->
 </body>
 </html>
