@@ -108,12 +108,13 @@ test('twenty Ascension tiers and map milestones stay connected to real gameplay 
   run('ASURA_T=0;spawnEnemy("assassin",100,100)');const base=run('G.en.at(-1).hp');
   run('ASURA_T=19;spawnEnemy("assassin",100,100)');assert.ok(run('G.en.at(-1).hp')>base*1.3);
 });
-test('solo enemies gain health and damage, and ranged enemies arrive earlier',()=>{
+test('solo opening gets relief while later enemies retain their strength',()=>{
   const {run}=setup();run('G.t=50;ASURA_T=0;spawnEnemy("bandit",100,100)');
   const soloHp=run('G.en.at(-1).hp'),soloDamage=run('G.en.at(-1).dmg');
   run('SAVE.mode="daily";spawnEnemy("bandit",100,100)');
-  assert.ok(soloHp>run('G.en.at(-1).hp')*1.14);
-  assert.ok(soloDamage>run('G.en.at(-1).dmg')*1.11);
+  near(soloHp/run('G.en.at(-1).hp'),1.15*run('openingPressure(50)'));
+  near(soloDamage/run('G.en.at(-1).dmg'),1.12*run('openingPressure(50)'));
+  run('G.t=120;SAVE.mode="solo";spawnEnemy("bandit",100,100)');const laterHp=run('G.en.at(-1).hp');run('SAVE.mode="daily";spawnEnemy("bandit",100,100)');near(laterHp/run('G.en.at(-1).hp'),1.15);
   assert.equal(run('spawnType(30,.1,true)'),'archer');
   assert.equal(run('spawnType(30,.1,false)'),'bandit');
 });

@@ -12,7 +12,7 @@ test('rejuvenation cannot exceed its total healing budget at extreme skill power
  const {run}=setup();assert.equal(run('rejuvHealing({maxHp:100},{m:1},0,0)'),12);assert.ok(run('rejuvHealing({maxHp:100},{m:9999},2,999)')<35);
 });
 test('qi spending outruns regen during repeated casts and cost reduction cannot make skills free',()=>{
- const {run}=setup();run('const P={mana:0,maxMana:100,regen:100,manaRest:1};manaRegen(P,1)');assert.equal(run('P.mana'),1.125);run('manaRegen(P,1)');assert.equal(run('P.mana'),5.625);assert.equal(run('skillCost(mkSpell("ward"))'),50);
+ const {run}=setup();run('const P={mana:0,maxMana:100,regen:100,manaRest:1};manaRegen(P,1)');assert.equal(run('P.mana'),1.125);run('manaRegen(P,1)');assert.equal(run('P.mana'),5.625);assert.equal(run('skillCost(mkSpell("ward"))'),44);
  run('G.relics=["taiji","bind"];const s=mkSpell("ward");for(let i=0;i<TREES.ward.length;i++)if(TREES.ward[i].fx==="cost")s.nodes[i]=100');assert.ok(run('skillCost(s)')>0);
 });
 test('adaptation waits for wave boundaries, only scales new enemies and retreats when health drops',()=>{
@@ -85,3 +85,5 @@ test('elemental resistance cannot erase an entire hit, and fusion element order 
 test('stacked monster defenses have a 25% damage floor, while boss armor is unchanged',()=>{const {run}=setup();assert.equal(run('enemyDamageFactor({type:"brute",adaptArmor:.22,sealEmpowered:true},.3,.3)'),.25);assert.equal(run('enemyDamageFactor({type:"boss",bossArmor:.35})'),.65);assert.equal(run('enemyDamageFactor({type:"bandit"},1.6)'),1.6)});
 test('crowd-wide DPS is never used as one small monster’s HP budget',()=>{const {run}=setup();run('G.t=600;G.dir.adaptProfile={level:5,hp:100,def:1,dps:1e12,buildDps:100};const e={type:"bandit",hp:100,maxHp:100,dmg:10,r:8,xp:1,sc:1};dirAdaptEnemy(e)');assert.ok(run('e.hp')<500);assert.ok(Number.isFinite(run('e.hp')))});
 test('normal-monster HP estimates ignore boss-only gear and do not assume every multishot hits one small target',()=>{const {run}=setup();run('G.P={...G.P,dmg:1,dmgBonus:0,crit:0,haste:1,regen:5,maxMana:130};G.spells=[mkSpell("sword")];G.spells[0].lv=40;G.gx={boss:0};const before=buildEnemyDps();G.gx.boss=5000');assert.equal(run('buildEnemyDps()'),run('before'));assert.ok(run('buildBossDps()')>run('buildEnemyDps()')*50)});
+
+test('opening relief fades smoothly and is gone before late-game adaptation',()=>{const {run}=setup();assert.equal(run('openingPressure(0)'),.9);assert.ok(Math.abs(run('openingPressure(60)')-.95)<1e-9);assert.equal(run('openingPressure(120)'),1);assert.equal(run('openingPressure(600)'),1)});

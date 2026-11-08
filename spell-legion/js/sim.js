@@ -10,7 +10,7 @@ function weaponUnlocked(cls,w){const i=WEAPON_INFO[w];if(i?.need!=='legend')retu
   return typeof SAVE!=='undefined'&&['solo','rush','room','qpk','pk'].includes(SAVE.mode)&&typeof gearWeaponFor==='function'&&gearWeaponFor(cls)===w}
 function mkSpell(id){return {id,lv:1,cd:0,els:[],augs:[],dmg:0,active:0,casts:0,nodes:{},pts:0}}
 const nd=(s,fx)=>{if(!s||!s.nodes)return 0;let r=0;const T=TREES[s.id]||[];for(const k in s.nodes)if(T[k]&&T[k].fx===fx)r+=s.nodes[k];return r}
-function skillCost(s){const rival=s.owner==='rival';return Math.max(1,Math.round(SPELLS[s.id].cost*1.25*Math.max(.35,1-NODE_FX.cost*nd(s,'cost'))*(!rival&&G&&G.relics&&G.relics.includes('taiji')?.75:1)*(!rival&&G&&G.relics&&G.relics.includes('bind')?.6:1)))}
+function skillCost(s){const rival=s.owner==='rival';return Math.max(1,Math.round(SPELLS[s.id].cost*1.1*Math.max(.35,1-NODE_FX.cost*nd(s,'cost'))*(!rival&&G&&G.relics&&G.relics.includes('taiji')?.75:1)*(!rival&&G&&G.relics&&G.relics.includes('bind')?.6:1)))}
 function manaRegen(P,dt){const rate=Math.min(P.regen,P.maxMana*.045);P.mana=Math.min(P.maxMana,P.mana+rate*((P.manaRest||0)>0?.25:1)*dt);P.manaRest=Math.max(0,(P.manaRest||0)-dt)}
 function pickupRadius(P,t=G.t){return Math.min(180,52*Math.min(3.4,P.mag)*(t<120?1.8:t<240?1.3:1))}
 function healingPower(st){return 1+Math.log1p(Math.max(0,st.m-1))*.08}
@@ -26,7 +26,7 @@ function lifeSteal(n,s){
 function newGame(auto,cls){
   cls=cls||CLASS;const C=CLASSES[cls];
   buildArena();if(typeof buildRuins==='function')buildRuins();
-  const P={x:W/2,y:H/2,hp:C.hp,maxHp:C.hp,mana:C.mana,maxMana:C.mana,regen:C.regen*.42,dmg:C.dmg,def:1,spd:C.spd,mag:1,haste:1,crit:.05,inv:0,face:1,walk:0,down:0,dash:0,dashCd:0,dx:0,dy:1,buff:null,cast:0,yaw:0,yaw0:0,shield:0,guard:0,leap:null,cls,ap:0,sp:0,attr:{str:0,vit:0,spr:0,agi:0},dmgBonus:0};
+  const P={x:W/2,y:H/2,hp:C.hp,maxHp:C.hp,mana:C.mana,maxMana:C.mana,regen:C.regen*.42,dmg:C.dmg*1.08,def:1,spd:C.spd,mag:1,haste:1,crit:.05,inv:0,face:1,walk:0,down:0,dash:0,dashCd:0,dx:0,dy:1,buff:null,cast:0,yaw:0,yaw0:0,shield:0,guard:0,leap:null,cls,ap:0,sp:0,attr:{str:0,vit:0,spr:0,agi:0},dmgBonus:0};
   G={auto,t:0,P,cls,en:[],shots:[],bombs:[],bullets:[],gems:[],pools:[],fx:[],floats:[],arcs:[],later:[],ghosts:[],shocks:[],
      mush:[],grid:new Map(),spells:[mkSpell(weaponOf(cls)),mkSpell(C.skills[0])],pwaves:[],sariras:[],xp:0,lv:1,need:xpNeed(1),picks:[],kills:0,cores:RUN_LIVES-1,coreT:0,
      spawnA:8,swarmT:55,mission:null,missionT:26,boss:null,bossT:0,paused:false,over:null,shake:0,trauma:0,shX:0,shY:0,hitStop:0,slow:0,flash:0,dmgTaken:0,
@@ -56,7 +56,7 @@ const RIVAL_SKIP=['qin'];const RIVAL_NEW=['oni','idol','wizard'];
 const RIVAL_NAMES={swordsman:['青衣剑客','Azure Swordsman'],taoist:['玄机道人','Mystic Taoist'],qin:['素琴仙子','Plain-Qin Maiden'],oni:['红莲浪人','Crimson Ronin'],idol:['星光偶像','Starlight Idol'],wizard:['星辰术士','Astral Sorcerer'],blademaster:['黑风刀客','Black Wind Blademaster'],monk:['铁头陀','Iron Monk'],physician:['毒手郎中','Venom Doctor']};
 function mkRival(playerCls,seat){
   const opts=Object.keys(RIVAL_NAMES).filter(k=>k!==playerCls&&CLASSES[k]&&!RIVAL_SKIP.includes(k)),cls=seat&&CLASSES[seat.cls]?seat.cls:pick(opts),C=CLASSES[cls];
-  const a=rnd(TAU);const R={x:clamp(W/2+Math.cos(a)*220,60,W-60),y:clamp(H/2+Math.sin(a)*180,60,H-60),cls,name:RIVAL_NAMES[cls],hp:C.hp,maxHp:C.hp,dmg:C.dmg,crit:.05,spd:C.spd,mana:C.mana,maxMana:C.mana,regen:C.regen*.42,
+  const a=rnd(TAU);const R={x:clamp(W/2+Math.cos(a)*220,60,W-60),y:clamp(H/2+Math.sin(a)*180,60,H-60),cls,name:RIVAL_NAMES[cls],hp:C.hp,maxHp:C.hp,dmg:C.dmg*1.08,crit:.05,spd:C.spd,mana:C.mana,maxMana:C.mana,regen:C.regen*.42,
     spells:[Object.assign(mkSpell(C.main),{owner:'rival'}),Object.assign(mkSpell(C.skills[0]),{owner:'rival'})],kills:0,score:0,lv:1,xp:0,need:6,down:0,inv:0,dx:0,dy:1,walk:0,cast:0,yaw:0,yaw0:0,goal:null,goalT:0,dmgDealt:0,downs:0,lx:0,ly:0,dash:0,ai:(DIFFID==='easy'?.9:DIFFID==='hard'?1.45:1.2)*(typeof SAVE!=='undefined'&&SAVE.mode==='qpk'?Math.min(2.2,.85+(SAVE.trophies||0)/900):1)};
   R.cores=RUN_LIVES-1;R.eliminated=false;
   R.av=(seat&&seat.av)||(typeof randomAvatar==='function'?randomAvatar():null);
@@ -763,15 +763,17 @@ const diff=t=>Math.min(24,(1+t/120)*(t>240?1+(t-240)/220:1)); // enemy HP: steep
 const DOOM_T=600;const doomDmg=t=>(t>DOOM_T?1+(t-DOOM_T)/500:1)*(t>1800?1+(t-1800)/300:1); // +12%/min after 10 min, steeper after 30: a good player goes much longer, nobody goes forever
 const dodgeDmg=t=>(1+t/170)*doomDmg(t); // arrows, bombs, charges and ground attacks keep scaling — they can all be dodged or parried
 const soloPressure=()=>SAVE.mode==='solo'&&!G.auto&&!G.room&&!RIVAL_ON;
+// A gentle opening that fades out completely before the first Warlord.
+const openingPressure=t=>.9+.1*clamp(t/120,0,1);
 /* healing tapers with run time: full for the first 5 minutes, 65% at 10, 40% at 15, floor 30% — so late runs cannot be out-healed */
 const healMul=t=>(t<240?1:Math.max(.25,1-(t-240)/1000))*(tier(13)?.8:1);
 function spawnEnemy(type,x,y,mul=1,elite){
-  const b=ETYPES[type],t=G.t,solo=soloPressure(),sc=diff(t)*(tier(1)?1.15:1);
+  const b=ETYPES[type],t=G.t,solo=soloPressure(),opening=solo?openingPressure(t):1,sc=diff(t)*(tier(1)?1.15:1);
   const el=elite||(t>50&&type!=='assassin'&&SIMR()<Math.min(.22,.06+t/3600)*(tier(2)?1.8:1)*((G.ev&&G.ev.elite)||1)*(G.curse.elite||1)*(G.dir?G.dir.elite:1));
   let affix=null;const afT=tier(18)?60:tier(4)?120:300;if(t>afT&&SIMR()<Math.min(.35,(t-afT)/1500))affix=pick(['swift','explode','armor']);
   let role=null;if(type==='bandit'&&t>90&&SIMR()<.22)role='charger';if(type==='archer'&&t>200&&SIMR()<.3*(G.dir?G.dir.heal:1))role='shaman';
-  const hp=b.hp*sc*mul*(solo?1.15:1)*(el?5:1)*(tier(12)&&el?1.2:1)*(tier(19)?1.2:1)*(affix==='armor'?1.8:1)*D().hp*(G.dir?G.dir.hp:1);
-  G.en.push({x,y,type,hp,maxHp:hp,t0:t,spd:b.spd*rnd(.92,1.08)*(el?.9:1)*(affix==='swift'?1.5:1)*(tier(11)?1.12:1)*Math.min(1.35,1+Math.max(0,t-240)/900)*(G.curse.spd||1),dmg:b.dmg*Math.min(8,(1+t/300)*(t>240?1+(t-240)/420:1))*doomDmg(t)*(el?1.4:1)*D().dmg*(G.curse.edmg||1)*(G.dir?G.dir.dmg:1)*(solo?1.12:1),r:b.r*(el?1.4:1),xp:b.xp*(1+t/260)|0||1,fr:rnd(1),vx:0,vy:0,shoot:b.shoot&&role!=='shaman',st:rnd(1,3),elite:el,sc:(el?1.5:1)*(affix==='armor'?1.15:1)*(role==='charger'?1.12:1),kx:0,ky:0,affix,role,ct:rnd(2,4)});
+  const hp=b.hp*sc*mul*opening*(solo?1.15:1)*(el?5:1)*(tier(12)&&el?1.2:1)*(tier(19)?1.2:1)*(affix==='armor'?1.8:1)*D().hp*(G.dir?G.dir.hp:1);
+  G.en.push({x,y,type,hp,maxHp:hp,t0:t,spd:b.spd*rnd(.92,1.08)*(el?.9:1)*(affix==='swift'?1.5:1)*(tier(11)?1.12:1)*Math.min(1.35,1+Math.max(0,t-240)/900)*(G.curse.spd||1),dmg:b.dmg*opening*Math.min(8,(1+t/300)*(t>240?1+(t-240)/420:1))*doomDmg(t)*(el?1.4:1)*D().dmg*(G.curse.edmg||1)*(G.dir?G.dir.dmg:1)*(solo?1.12:1),r:b.r*(el?1.4:1),xp:b.xp*(1+t/260)|0||1,fr:rnd(1),vx:0,vy:0,shoot:b.shoot&&role!=='shaman',st:rnd(1,3),elite:el,sc:(el?1.5:1)*(affix==='armor'?1.15:1)*(role==='charger'?1.12:1),kx:0,ky:0,affix,role,ct:rnd(2,4)});
   const ne=G.en[G.en.length-1];if(b.mesh){ne.mesh=b.mesh;ne.sc=(ne.sc||1)*(b.sc||1);ne.tintv=b.tint;ne.ghost=b.ghost;ne.bomb=b.bomb;ne.shield=type==='brute'}
   if(el)G.elites++;
   if(typeof dirAdaptEnemy==='function')dirAdaptEnemy(G.en[G.en.length-1]);sealEmpower(G.en[G.en.length-1]);
@@ -795,7 +797,7 @@ function spawnType(t,r,solo){
 function spawnTick(dt){
   const t=G.t;
   if(G.en.length>CAP.en)return;
-  const rate=Math.min(20,1.0+t/34+Math.max(0,t-240)/36+Math.max(0,1.6*(1-t/60)))*(soloPressure()?1.2:1)*(G.boss?.4:1)*(G.en.length>CAP.en*.75?.45:1)*(tier(9)?1.25:1)*(tier(14)?1.15:1)*(G.curse.spawn||1)*(BOSSRUSH?.55:1)*(G.dir?G.dir.spawn:1)*(G.shared?1+.7*arenaRemoteN():1);G.spawnA+=rate*dt;
+  const rate=Math.min(20,1.0+t/34+Math.max(0,t-240)/36+Math.max(0,1.6*(1-t/60)))*(soloPressure()?1.2*openingPressure(t):1)*(G.boss?.4:1)*(G.en.length>CAP.en*.75?.45:1)*(tier(9)?1.25:1)*(tier(14)?1.15:1)*(G.curse.spawn||1)*(BOSSRUSH?.55:1)*(G.dir?G.dir.spawn:1)*(G.shared?1+.7*arenaRemoteN():1);G.spawnA+=rate*dt;
   while(G.spawnA>=1){G.spawnA--;
     const r=rnd(),o=edgePoint();
     const solo=soloPressure();let ty=spawnType(t,r,solo);

@@ -1,9 +1,19 @@
 {
-  "current": "0.1.102",
+  "current": "0.1.103",
   "entries": [
     {
       "revision": null,
-      "at": "2026-11-08T20:39:01.283078+08:00",
+      "at": "2026-11-08T20:41:59.525988+08:00",
+      "version": "0.1.103",
+      "subject": "Ease opening combat and hide boss label while paused",
+      "zh": "武学耗气降低约12%，初始攻击提高8%；单人开局怪物生命、伤害与生成率降低10%，两分钟内平滑恢复；暂停时隐藏首领提示。",
+      "en": "Reduce skill Qi costs by about 12% and raise starting attack by 8%. Solo monster health, damage and spawn rate start 10% lower, fading to normal over two minutes. Hide boss labels while paused.",
+      "ja": "武学の消費気を約12%軽減、初期攻撃力を8%増加。ソロ序盤の敵HP・攻撃・出現率を10%軽減し2分で通常に。一時停止中はボス表示を非表示。",
+      "ko": "기술 기 소모 약12% 감소, 초기 공격력8% 증가. 솔로 시작 적 HP·공격·생성률10% 감소 후 2분에 걸쳐 정상화. 일시정지 중 보스 표시 숨김."
+    },
+    {
+      "revision": "1e697a0504c84cb169f6e5c312d75ec12f289c1f",
+      "at": "2026-11-08T20:39:45+08:00",
       "version": "0.1.102",
       "subject": "Remove dark background from boss countdown label",
       "zh": "移除首领倒计时与首领战文字背后的黑底，保持位置与大小。",
