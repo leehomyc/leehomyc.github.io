@@ -114,7 +114,7 @@ test('solo opening gets relief while later enemies retain their strength',()=>{
   run('SAVE.mode="daily";spawnEnemy("bandit",100,100)');
   near(soloHp/run('G.en.at(-1).hp'),1.15*run('openingPressure(50)'));
   near(soloDamage/run('G.en.at(-1).dmg'),1.12*run('openingPressure(50)'));
-  run('G.t=120;SAVE.mode="solo";spawnEnemy("bandit",100,100)');const laterHp=run('G.en.at(-1).hp');run('SAVE.mode="daily";spawnEnemy("bandit",100,100)');near(laterHp/run('G.en.at(-1).hp'),1.15);
+  run('G.t=180;SAVE.mode="solo";spawnEnemy("bandit",100,100)');const laterHp=run('G.en.at(-1).hp');run('SAVE.mode="daily";spawnEnemy("bandit",100,100)');near(laterHp/run('G.en.at(-1).hp'),1.15);
   assert.equal(run('spawnType(30,.1,true)'),'archer');
   assert.equal(run('spawnType(30,.1,false)'),'bandit');
 });

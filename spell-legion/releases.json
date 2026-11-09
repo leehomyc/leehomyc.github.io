@@ -1,9 +1,19 @@
 {
-  "current": "0.1.103",
+  "current": "0.1.104",
   "entries": [
     {
       "revision": null,
-      "at": "2026-11-08T20:41:59.525988+08:00",
+      "at": "2026-11-09T10:02:41.837883+08:00",
+      "version": "0.1.104",
+      "subject": "Gently reduce Qi costs and extend opening relief",
+      "zh": "武学耗气再降低约5%；单人开局怪物生命、伤害与生成率降低15%，三分钟内平滑恢复正常，保留后期难度。",
+      "en": "Lower skill Qi costs by another 5%. Solo monsters start with 15% less health, damage and spawn pressure, gradually returning to normal over three minutes. Preserve late-game difficulty.",
+      "ja": "武学の消費気をさらに約5%軽減。ソロ序盤の敵HP・攻撃・出現率を15%軽減し、3分で通常に。後半の難易度は維持。",
+      "ko": "기술 기 소모 약5% 추가 감소. 솔로 시작 적 HP·공격·생성률15% 감소 후 3분에 걸쳐 정상화. 후반 난이도 유지."
+    },
+    {
+      "revision": "18ed59768f4bbb3e6a5184415d1b0f8e1f7389be",
+      "at": "2026-11-08T20:42:16+08:00",
       "version": "0.1.103",
       "subject": "Ease opening combat and hide boss label while paused",
       "zh": "武学耗气降低约12%，初始攻击提高8%；单人开局怪物生命、伤害与生成率降低10%，两分钟内平滑恢复；暂停时隐藏首领提示。",

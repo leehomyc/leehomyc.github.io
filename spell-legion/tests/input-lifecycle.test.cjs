@@ -98,7 +98,7 @@ test('ward restores health and applies its promised area effect and feedback',()
   vm.runInContext(fs.readFileSync(path.join(__dirname,'../js/sim.js'),'utf8'),c);
   vm.runInContext(`heal=n=>calls.push(['heal',n]);aoe=(...args)=>calls.push(['aoe',...args]);trauma=()=>calls.push('trauma');shock=()=>calls.push('shock');
     G={over:false,relics:[],P:{x:10,y:20,maxHp:100,mana:100,down:0,haste:1},spells:[mkSpell('ward')]};castSkill(0);`,c);
-  assert.equal(vm.runInContext('G.P.mana',c),56);assert.ok(Math.abs(vm.runInContext('G.P.shieldHp',c)-36.2)<1e-9);
+  assert.equal(vm.runInContext('G.P.mana',c),58);assert.ok(Math.abs(vm.runInContext('G.P.shieldHp',c)-36.2)<1e-9);
   assert.equal(c.calls[0][0],'heal');assert.equal(c.calls[0][1],12);assert.equal(c.calls[1][0],'aoe');assert.equal(c.calls[1][3],80);assert.equal(c.calls[1][4],8);
   assert.deepEqual(Array.from(c.calls.slice(-3)),['trauma','shock','sound']);
 });

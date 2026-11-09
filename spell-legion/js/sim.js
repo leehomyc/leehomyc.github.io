@@ -10,7 +10,7 @@ function weaponUnlocked(cls,w){const i=WEAPON_INFO[w];if(i?.need!=='legend')retu
   return typeof SAVE!=='undefined'&&['solo','rush','room','qpk','pk'].includes(SAVE.mode)&&typeof gearWeaponFor==='function'&&gearWeaponFor(cls)===w}
 function mkSpell(id){return {id,lv:1,cd:0,els:[],augs:[],dmg:0,active:0,casts:0,nodes:{},pts:0}}
 const nd=(s,fx)=>{if(!s||!s.nodes)return 0;let r=0;const T=TREES[s.id]||[];for(const k in s.nodes)if(T[k]&&T[k].fx===fx)r+=s.nodes[k];return r}
-function skillCost(s){const rival=s.owner==='rival';return Math.max(1,Math.round(SPELLS[s.id].cost*1.1*Math.max(.35,1-NODE_FX.cost*nd(s,'cost'))*(!rival&&G&&G.relics&&G.relics.includes('taiji')?.75:1)*(!rival&&G&&G.relics&&G.relics.includes('bind')?.6:1)))}
+function skillCost(s){const rival=s.owner==='rival';return Math.max(1,Math.round(SPELLS[s.id].cost*1.05*Math.max(.35,1-NODE_FX.cost*nd(s,'cost'))*(!rival&&G&&G.relics&&G.relics.includes('taiji')?.75:1)*(!rival&&G&&G.relics&&G.relics.includes('bind')?.6:1)))}
 function manaRegen(P,dt){const rate=Math.min(P.regen,P.maxMana*.045);P.mana=Math.min(P.maxMana,P.mana+rate*((P.manaRest||0)>0?.25:1)*dt);P.manaRest=Math.max(0,(P.manaRest||0)-dt)}
 function pickupRadius(P,t=G.t){return Math.min(180,52*Math.min(3.4,P.mag)*(t<120?1.8:t<240?1.3:1))}
 function healingPower(st){return 1+Math.log1p(Math.max(0,st.m-1))*.08}
@@ -763,8 +763,8 @@ const diff=t=>Math.min(24,(1+t/120)*(t>240?1+(t-240)/220:1)); // enemy HP: steep
 const DOOM_T=600;const doomDmg=t=>(t>DOOM_T?1+(t-DOOM_T)/500:1)*(t>1800?1+(t-1800)/300:1); // +12%/min after 10 min, steeper after 30: a good player goes much longer, nobody goes forever
 const dodgeDmg=t=>(1+t/170)*doomDmg(t); // arrows, bombs, charges and ground attacks keep scaling — they can all be dodged or parried
 const soloPressure=()=>SAVE.mode==='solo'&&!G.auto&&!G.room&&!RIVAL_ON;
-// A gentle opening that fades out completely before the first Warlord.
-const openingPressure=t=>.9+.1*clamp(t/120,0,1);
+// Gentle opening relief fades out by the first standard boss.
+const openingPressure=t=>.85+.15*clamp(t/180,0,1);
 /* healing tapers with run time: full for the first 5 minutes, 65% at 10, 40% at 15, floor 30% — so late runs cannot be out-healed */
 const healMul=t=>(t<240?1:Math.max(.25,1-(t-240)/1000))*(tier(13)?.8:1);
 function spawnEnemy(type,x,y,mul=1,elite){
