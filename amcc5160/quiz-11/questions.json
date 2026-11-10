@@ -1,7 +1,7 @@
 [
   "Technique: Drift in long video (Lecture 07), a world model that forgets the red door (Lecture 09), and a robot whose small errors compound (Lecture 09) share one cause. Name it, and describe one technique from the course that reduces it.",
   "Technique: Your main character's face changes from shot to shot in your A2 or A3. Choose two methods from Lectures 02, 05 or 08 (for example a reference image or IP-Adapter, LoRA, DreamBooth, or a motion latent like VASA-1). Say what each one supplies or trains, and give one trade-off between them.",
-  "Art: Choose one of the four debates (Lecture 07, 08, 09 or 10). Give your vote that night, your vote now, and one piece of evidence from a different lecture that moved or confirmed it.",
-  "Art: Write the credit block for the project you will present on November 17 or 24: models and versions, your human work counted, references, consent, and one plain sentence of disclosure.",
+  "Technique: A 1024×1024 RGB image becomes a 64×64×64 latent. How many values is that before and after, and why is it not 16 times fewer? Then explain why 45 video frames become 12 latent frames. (Lecture 02)",
+  "Technique: For a 4096×4096 layer, how many parameters does a full update have, and how many does a rank-16 LoRA have? Name one thing a small LoRA file does not guarantee. (Lectures 02 and 05)",
   "Reflection: Which single idea from this semester most changed how you make or look at work? Name the lecture, and give one concrete example from your own project."
 ]
