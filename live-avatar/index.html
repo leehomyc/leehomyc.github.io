@@ -102,7 +102,9 @@ if (live) {
   stopButton.disabled = true;
   button.after(stopButton);
   const guidance = document.createElement('p');
-  guidance.textContent = 'Talk naturally or say “wait” to interrupt. Calls run for up to four minutes. You can end a call at any time. Your microphone audio is processed on the research server during the call.';
+  guidance.textContent = params.get('seconds') === 'continuous'
+    ? 'Open-ended preview. Choose End call when you’re done. Your microphone audio is processed on the research server during the call.'
+    : 'Talk naturally or say “wait” to interrupt. Calls run for up to four minutes. You can end a call at any time. Your microphone audio is processed on the research server during the call.';
   output.after(guidance);
 }
 if (!accessPattern.test(access)) {
@@ -203,13 +205,44 @@ button.onclick = async () => {
   socket.binaryType = 'arraybuffer';
   const context = canvas.getContext('2d');
   const frames = new Map();
-  const audioStarts = [];
+  const continuous = params.get('seconds') === 'continuous';
+  const historySize = 512;
+  const workingHistory = () => {
+    if (!continuous) return [];
+    const values = new Map();
+    return {
+      get: (index) => values.get(index),
+      set(index, value) {
+        values.set(index, value);
+        values.delete(index - historySize);
+      },
+      slice(first, end) {
+        return Array.from({length: Math.max(0, end - first)}, (_, offset) => values.get(first + offset));
+      },
+      findLastIndex(predicate) {
+        const candidates = [...values];
+        for (let i = candidates.length - 1; i >= 0; --i) {
+          if (predicate(candidates[i][1])) return candidates[i][0];
+        }
+        return -1;
+      }
+    };
+  };
+  function keepSample(list, value) {
+    list.push(value);
+    if (continuous && list.length > 2048) list.splice(0, 512);
+  }
+  const getHistory = (history, index) => continuous ? history.get(index) : history[index];
+  const setHistory = (history, index, value) => {
+    if (continuous) history.set(index, value); else history[index] = value;
+  };
+  const audioStarts = workingHistory();
   const pendingAudio = [];
-  const audiblePackets = [];
-  const silentPackets = [];
-  const quietPackets = [];
-  const playbackLogRms = [];
-  const callerLogRms = [];
+  const audiblePackets = workingHistory();
+  const silentPackets = workingHistory();
+  const quietPackets = workingHistory();
+  const playbackLogRms = workingHistory();
+  const callerLogRms = workingHistory();
   const interruptions = [];
   const interruptionDecisions = [];
   const tentativeInterruptions = [];
@@ -266,7 +299,7 @@ button.onclick = async () => {
     for (let i = 25; i > 2; i--) {
       const time = onsetTime - (i - .5) * .08;
       const packet = audioStarts.findLastIndex(start => start <= time);
-      holder.push(packet >= 0 && time < audioStarts[packet] + .08 ? playbackLogRms[packet] : quietLogRms);
+      holder.push(packet >= 0 && time < getHistory(audioStarts, packet) + .08 ? getHistory(playbackLogRms, packet) : quietLogRms);
     }
     const values = [...caller, ...holder, average(caller) - average(holder), average(caller.slice(-2)),
       average(holder.slice(-10)) - average(holder.slice(0, -10))];
@@ -283,7 +316,7 @@ button.onclick = async () => {
     }
     let power = 0;
     for (const sample of samples) power += (sample / 32768) ** 2;
-    if (interruptionModel) callerLogRms[sequence] = Math.log(Math.sqrt(power / samples.length) + .0001);
+    if (interruptionModel) setHistory(callerLogRms, sequence, Math.log(Math.sqrt(power / samples.length) + .0001));
     if (power / samples.length >= 10 ** (-36 / 10)) {
       voicedTicks++;
       quietTicks = 0;
@@ -295,7 +328,7 @@ button.onclick = async () => {
         confirmedHold = false;
         restoreAtPacket = lastVoicedCallerPacket + 1;
         interruptions.at(-1).restore_packet = restoreAtPacket;
-        if (audioStarts[restoreAtPacket] !== undefined) resumePlayback(audioStarts[restoreAtPacket]);
+        if (getHistory(audioStarts, restoreAtPacket) !== undefined) resumePlayback(getHistory(audioStarts, restoreAtPacket));
       }
       return;
     }
@@ -346,7 +379,7 @@ button.onclick = async () => {
       pendingAdvance = {cuePacket: callerPacket, deadline: now + .8, event: interruptions.at(-1)};
       tryPendingAdvance(now);
     }
-    if (audioStarts[restoreAtPacket] !== undefined) resumePlayback(audioStarts[restoreAtPacket]);
+    if (getHistory(audioStarts, restoreAtPacket) !== undefined) resumePlayback(getHistory(audioStarts, restoreAtPacket));
   }
   function beginTentativeCut(previous, samples, callerPacket) {
     const event = {caller_packet: callerPacket};
@@ -461,14 +494,14 @@ button.onclick = async () => {
     const audioTickSeconds = config.audio_tick / config.audio_rate;
     const packet = audioPacketForTime(mediaTime);
     return packet < 0 ? audioOrigin + mediaTime :
-      audioStarts[packet] + mediaTime - packet * audioTickSeconds;
+      getHistory(audioStarts, packet) + mediaTime - packet * audioTickSeconds;
   }
   function idleFrame(index) {
     if (!config.audio_packets) return false;
     const first = Math.max(0, audioPacketForTime(frameAudioTime(index)));
     const last = audioPacketForTime(frameAudioTime(index + 1) - 1e-6);
     for (let packet = first; packet <= last; packet++) {
-      if (silentPackets[packet] !== true) return false;
+      if (getHistory(silentPackets, packet) !== true) return false;
     }
     return true;
   }
@@ -477,7 +510,7 @@ button.onclick = async () => {
     const last = audioPacketForTime(frameAudioTime(index + 1) - 1e-6) + 1;
     if (last >= config.audio_packets) return false;
     for (let packet = first; packet <= last; packet++) {
-      if (quietPackets[packet] !== true) return false;
+      if (getHistory(quietPackets, packet) !== true) return false;
     }
     return true;
   }
@@ -578,7 +611,7 @@ button.onclick = async () => {
       next_frame: nextFrame, decoded_through: availableFrame - 1};
     let resume, firstFrame;
     for (let packet = currentPacket + 1; packet <= limit; packet++) {
-      const ahead = audioStarts[packet] - start;
+      const ahead = getHistory(audioStarts, packet) - start;
       if (ahead > .64) break;
       if (ahead < .16) continue;
       if (frameAudioTime(nextFrame) > packet * tickSeconds + 1 / config.fps) continue;
@@ -599,7 +632,7 @@ button.onclick = async () => {
       if (!source) return;
       buffers.push(source.buffer);
     }
-    const advanceMs = 1000 * (audioStarts[resume] - start);
+    const advanceMs = 1000 * (getHistory(audioStarts, resume) - start);
     for (const source of scheduledAudio.values()) source.stop(start);
     scheduledAudio.clear();
     const discardedFrames = firstFrame - nextFrame;
@@ -612,7 +645,7 @@ button.onclick = async () => {
     audioUntil = start;
     for (const [offset, buffer] of buffers.entries()) {
       const packet = resume + offset;
-      audioStarts[packet] = audioUntil;
+      setHistory(audioStarts, packet, audioUntil);
       startAudioBuffer(packet, buffer, audioUntil);
       audioUntil += buffer.duration;
     }
@@ -657,10 +690,10 @@ button.onclick = async () => {
     audioUntil = firstAt;
     audioOrigin = audioUntil - prerollPackets * tickSeconds;
     for (let index = 0; index < prerollPackets; index++) {
-      audiblePackets[index] = false;
-      silentPackets[index] = true;
-      quietPackets[index] = true;
-      audioStarts[index] = audioOrigin + index * tickSeconds;
+      setHistory(audiblePackets, index, false);
+      setHistory(silentPackets, index, true);
+      setHistory(quietPackets, index, true);
+      setHistory(audioStarts, index, audioOrigin + index * tickSeconds);
     }
     audioCount = prerollPackets;
     const videoAnchor = frameForPacket(prerollPackets);
@@ -679,6 +712,10 @@ button.onclick = async () => {
     startSynchronizedPlayback(elapsed);
     if (pendingAdvance) tryPendingAdvance(audio.currentTime);
     const clock = config.audio_packets ? audio.currentTime : elapsed;
+    if (continuous && n - nextFrame > historySize) {
+      fail('Video playback has fallen behind. Start a new call to reconnect.');
+      return;
+    }
     discardCutFrames(clock, elapsed);
     if (!videoCut && (catchUp || catchUpIdle) && drawn && clock - dueTime(nextFrame) > 2 / config.fps) {
       // Skip only decoded frames for which a newer, playable frame is already ready.
@@ -712,12 +749,12 @@ button.onclick = async () => {
         const lag = 1000 * (clock - due);
         maximumVideoLagMs = Math.max(maximumVideoLagMs, lag);
         if (measure) {
-          pictureLagMs.push(lag);
-          if (audiblePackets[audioPacketForTime(frameAudioTime(nextFrame))]) voicedPictureLagMs.push(lag);
+          keepSample(pictureLagMs, lag);
+          if (getHistory(audiblePackets, audioPacketForTime(frameAudioTime(nextFrame)))) keepSample(voicedPictureLagMs, lag);
         }
       }
-      if (config.audio_packets && audioStarts[0] !== undefined) {
-        firstDrawRelativeToAudio ??= audio.currentTime - audioStarts[0];
+      if (config.audio_packets && getHistory(audioStarts, 0) !== undefined) {
+        firstDrawRelativeToAudio ??= audio.currentTime - getHistory(audioStarts, 0);
       }
       previousDraw = elapsed;
     }
@@ -782,10 +819,10 @@ button.onclick = async () => {
       channel[i] = pcm.getInt16(4 + 2 * i, true) / 32768;
       power += channel[i] ** 2;
     }
-    audiblePackets[index] = power / channel.length >= 10 ** (-39 / 10);
-    silentPackets[index] = power === 0;
-    if (playQuietCutVideo) quietPackets[index] = power / channel.length <= 10 ** (-54 / 10);
-    if (interruptionModel) playbackLogRms[index] = Math.log(Math.sqrt(power / channel.length) + .0001);
+    setHistory(audiblePackets, index, power / channel.length >= 10 ** (-39 / 10));
+    setHistory(silentPackets, index, power === 0);
+    if (playQuietCutVideo) setHistory(quietPackets, index, power / channel.length <= 10 ** (-54 / 10));
+    if (interruptionModel) setHistory(playbackLogRms, index, Math.log(Math.sqrt(power / channel.length) + .0001));
     const targetTime = audioOrigin + index * buffer.duration;
     const when = Math.max(targetTime, audioUntil, audio.currentTime + .005);
     const gap = when - audioUntil;
@@ -794,7 +831,7 @@ button.onclick = async () => {
       audioGapMs = Math.max(audioGapMs, gap * 1000);
     }
     startAudioBuffer(index, buffer, when);
-    audioStarts[index] = when;
+    setHistory(audioStarts, index, when);
     audioUntil = when + buffer.duration;
     if (restoreAtPacket !== undefined && index >= restoreAtPacket) {
       resumePlayback(when);
@@ -827,8 +864,12 @@ button.onclick = async () => {
         return;
       }
       config = message;
+      if (config.continuous) {
+        config.frames = Infinity;
+        config.audio_packets = Infinity;
+      }
       clearTimeout(connectionTimer);
-      packetArrivals = new Float64Array(config.frames);
+      packetArrivals = continuous ? new Map() : new Float64Array(config.frames);
       canvas.width = config.width;
       canvas.height = config.height;
       if (quietPicture) {
@@ -841,7 +882,9 @@ button.onclick = async () => {
           const elapsed = (performance.now() - origin) / 1000;
           firstDecode ??= elapsed;
           minimumBuffer = Math.max(minimumBuffer, elapsed - index / config.fps);
-          packetToDecodedMs.push(1000 * (elapsed - packetArrivals[index]));
+          const arrival = continuous ? packetArrivals.get(index) : packetArrivals[index];
+          if (continuous) packetArrivals.delete(index);
+          if (measure) keepSample(packetToDecodedMs, 1000 * (elapsed - arrival));
           frames.set(index, frame);
         }});
         decoder.configure({codec: 'avc1.42E01F', codedWidth: config.width,
@@ -896,7 +939,7 @@ button.onclick = async () => {
   function receiveFrame(index, bytes, arrival) {
     if (index !== n || index >= config.frames) { fail('Out-of-order H.264 frame'); return false; }
     n++;
-    packetArrivals[index] = arrival;
+    if (continuous) packetArrivals.set(index, arrival); else packetArrivals[index] = arrival;
     firstVideoPacket ??= arrival;
     maxVideoPacketOffset = Math.max(maxVideoPacketOffset, arrival - index / config.fps);
     decoder.decode(new EncodedVideoChunk({
