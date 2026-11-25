@@ -12,9 +12,9 @@
     ['08', 'Oct 23', '2026-10-23T18:30:00+08:00', '2026-10-23T19:20:00+08:00', '2026-10-23T23:59:59+08:00', 'Speaker to be announced'],
     ['09', 'Oct 30', '2026-10-30T18:30:00+08:00', '2026-10-30T19:20:00+08:00', '2026-10-30T23:59:59+08:00', 'Xian Xu — Lingnan University · Talk title to be announced'],
     ['10', 'Nov 06', '2026-11-06T18:30:00+08:00', '2026-11-06T19:20:00+08:00', '2026-11-06T23:59:59+08:00', 'Tae-Hyun Oh — KAIST · Talk title to be announced'],
-    ['11', 'Nov 13', '2026-11-13T18:30:00+08:00', '2026-11-13T19:20:00+08:00', '2026-11-13T23:59:59+08:00', 'Seminar postponed — Sunil Manghani rescheduled to Nov 27 due to Microsoft 365 outage'],
+    ['11', 'Nov 13', '2026-11-13T18:30:00+08:00', '2026-11-13T19:20:00+08:00', '2026-11-13T23:59:59+08:00', 'Seminar postponed — Microsoft 365 outage'],
     ['12', 'Nov 20', '2026-11-20T18:30:00+08:00', '2026-11-20T19:20:00+08:00', '2026-11-20T23:59:59+08:00', "Ting Xu — From Director's Chair to Research Lab: How Twenty Years of Storytelling Shapes My AI Research（从导演椅到实验室：二十年叙事经验如何塑造我的 AI 研究）"],
-    ['13', 'Nov 27', '2026-11-27T18:30:00+08:00', '2026-11-27T19:20:00+08:00', '2026-11-27T23:59:59+08:00', 'Sunil Manghani — University of Southampton · Rescheduled from Nov 13']
+    ['13', 'Nov 27', '2026-11-27T18:30:00+08:00', '2026-11-27T19:20:00+08:00', '2026-11-27T23:59:59+08:00', 'Xiaogang Xu — From Foundation Models to Agentic Intelligence: Post-Training, Agent Harnesses, and Enterprise AI Infrastructure']
   ].map(([id, date, opensAt, endsAt, closesAt, title]) => ({ id, date, opensAt, endsAt, closesAt, title }));
 
   const form = document.getElementById('attendance-form');
