@@ -201,6 +201,8 @@ button.onclick = async () => {
   if (live && params.get('short_lookahead') === '1') endpoint.searchParams.set('short_lookahead', '1');
   if (live && params.has('face_detail')) endpoint.searchParams.set('face_detail', params.get('face_detail'));
   if (live && params.get('native_mouth') === '1') endpoint.searchParams.set('native_mouth', '1');
+  const renderQuietFrames = new Set();
+  if (live && params.get('renderer_silence') === '1') endpoint.searchParams.set('renderer_silence', '1');
   const socket = new WebSocket(endpoint);
   socket.binaryType = 'arraybuffer';
   const context = canvas.getContext('2d');
@@ -506,6 +508,7 @@ button.onclick = async () => {
     return true;
   }
   function quietCutFrame(index) {
+    if (renderQuietFrames.has(index)) return true;
     const first = Math.max(0, audioPacketForTime(frameAudioTime(index)) - 2);
     const last = audioPacketForTime(frameAudioTime(index + 1) - 1e-6) + 1;
     if (last >= config.audio_packets) return false;
@@ -709,6 +712,9 @@ button.onclick = async () => {
   function draw(now) {
     if (!config) return;
     const elapsed = (now - origin) / 1000;
+    for (const index of renderQuietFrames) {
+      if (index < nextFrame) renderQuietFrames.delete(index);
+    }
     startSynchronizedPlayback(elapsed);
     if (pendingAdvance) tryPendingAdvance(audio.currentTime);
     const clock = config.audio_packets ? audio.currentTime : elapsed;
@@ -854,6 +860,12 @@ button.onclick = async () => {
     if (typeof data === 'string') {
       const message = JSON.parse(data);
       if (config) {
+        if (message.type === 'renderer_silence') {
+          for (let index = Math.max(nextFrame, message.first); index < message.end; index++) {
+            renderQuietFrames.add(index);
+          }
+          return;
+        }
         if (message.type === 'cue_decision') {
           if (pendingCue?.streaming && pendingCue.event.caller_packet === message.caller_packet) {
             finishTentativeCut(pendingCue, message.cut === true, message.reason, message.recognition_ms);
