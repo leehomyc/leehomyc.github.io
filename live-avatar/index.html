@@ -32,7 +32,7 @@ const button = document.querySelector('button');
 const live = true;
 const backend = 'https://eleven-felt-anytime-sandy.trycloudflare.com';
 const params = new URLSearchParams(location.search);
-for (const [key,value] of Object.entries({voice:'voicechat',seconds:'240',buffer:'1.75',group_audio:'1',
+for (const [key,value] of Object.entries({voice:'voicechat',seconds:'continuous',buffer:'1.75',group_audio:'1',
     face_detail:'32',spatial_refinement:'1',interrupt:'confirm-stream-fast',cut_video:'quiet'})) {
   if (!params.has(key)) params.set(key,value);
 }
