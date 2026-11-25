@@ -876,6 +876,7 @@ button.onclick = async () => {
         return;
       }
       config = message;
+      if (live && params.get('lip-sync') === '1') config.video_delay_frames = 1;
       if (config.continuous) {
         config.frames = Infinity;
         config.audio_packets = Infinity;
