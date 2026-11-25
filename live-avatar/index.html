@@ -1,0 +1,907 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="referrer" content="no-referrer">
+<meta name="robots" content="noindex,nofollow">
+<title>Live avatar test · Harry Yang</title>
+<link rel="icon" href="data:,">
+<style>
+  :root {color-scheme:dark; font-family:ui-sans-serif,system-ui,sans-serif; background:#111514; color:#f3f5f2;}
+  body.live {max-width:37rem; margin:clamp(1.5rem,5vw,3.5rem) auto; padding:0 1.1rem 2rem;}
+  h1 {font-size:clamp(1.8rem,6vw,2.5rem); line-height:1.05; margin:0 0 1rem; letter-spacing:-.045em;}
+  canvas {display:block; width:100%; height:auto; aspect-ratio:1; background:#202624; border:1px solid #36413e;
+    border-radius:16px; box-sizing:border-box; margin:0 0 1rem;}
+  button, input {font:inherit; color:inherit; min-height:44px; box-sizing:border-box; border-radius:9px;}
+  button {padding:.65rem 1.1rem; border:1px solid #466457; background:#253e34; font-weight:600; cursor:pointer;}
+  button+button {margin-left:.5rem;}
+  button:disabled {opacity:.5; cursor:default;}
+  input {padding:.55rem .7rem; border:1px solid #576963; background:#1d2521; width:min(100%,24rem);}
+  :focus-visible {outline:2px solid #b2d6c2; outline-offset:3px;}
+  form {display:grid; gap:.55rem; margin:1rem 0; justify-items:start;}
+  pre {font:inherit; white-space:pre-wrap; margin:1rem 0 .5rem; color:#e6ebe7;}
+  p {line-height:1.5; color:#aebcb4; margin:.5rem 0;}
+</style>
+<canvas aria-label="Avatar video"></canvas>
+<button>Run playback</button>
+<pre aria-live="polite"></pre>
+<script>
+const canvas = document.querySelector('canvas');
+const output = document.querySelector('pre');
+const button = document.querySelector('button');
+const live = true;
+const backend = 'https://49655677b61e14.app.lhr.life';
+const params = new URLSearchParams(location.search);
+for (const [key,value] of Object.entries({voice:'voicechat',seconds:'64',buffer:'1.5',
+    face_detail:'32',spatial_refinement:'1',interrupt:'confirm-stream-fast',cut_video:'quiet'})) {
+  if (!params.has(key)) params.set(key,value);
+}
+const accessPattern = /^[0-9a-f]{48}$/;
+let access = location.hash.slice(1);
+try {
+  if (accessPattern.test(access)) {
+    sessionStorage.setItem('avatar-test-access',access);
+    history.replaceState(null,'',location.pathname+location.search);
+  } else {
+    access = sessionStorage.getItem('avatar-test-access') || '';
+  }
+} catch {}
+const measure = !live || params.get('measure') === '1';
+function explicitCueScore(first, second, model) {
+  const input = new Int16Array(first.length + second.length);
+  input.set(first); input.set(second, first.length);
+  const size = 512, width = 480;
+  const window = Float64Array.from({length: width}, (_, i) => .5 - .5 * Math.cos(2 * Math.PI * i / (width - 1)));
+  const frequencies = [];
+  for (let start = 0; start + width <= input.length; start += width) {
+    const real = new Float64Array(size), imaginary = new Float64Array(size);
+    for (let i = 0, j = 0; i < size; i++) {
+      if (i < width) real[j] = input[start + i] / 32768 * window[i];
+      let bit = size / 2;
+      while (j & bit) { j ^= bit; bit >>= 1; }
+      j ^= bit;
+    }
+    for (let span = 2; span <= size; span *= 2) {
+      const half = span / 2;
+      for (let k = 0; k < half; k++) {
+        const angle = -2 * Math.PI * k / span;
+        const cosine = Math.cos(angle), sine = Math.sin(angle);
+        for (let a = k; a < size; a += span) {
+          const b = a + half;
+          const r = real[b] * cosine - imaginary[b] * sine;
+          const im = real[b] * sine + imaginary[b] * cosine;
+          real[b] = real[a] - r;
+          imaginary[b] = imaginary[a] - im;
+          real[a] += r;
+          imaginary[a] += im;
+        }
+      }
+    }
+    const bands = model.bands.slice(1).map((limit, i) => {
+      let power = 0;
+      for (let b = model.bands[i]; b < limit; b++) power += real[b] ** 2 + imaginary[b] ** 2;
+      return Math.log(power + .000001);
+    });
+    const mean = bands.reduce((sum, value) => sum + value, 0) / bands.length;
+    frequencies.push(...bands.map(value => value - mean));
+  }
+  if (frequencies.length !== model.w.length) throw new Error('Unexpected cue model feature size');
+  return frequencies.reduce((sum, value, i) => sum + (value - model.mu[i]) / model.sd[i] * model.w[i], model.b);
+}
+let stopButton;
+if (live) {
+  document.title = 'Live avatar test · Harry Yang';
+  document.body.classList.add('live');
+  if (measure) document.body.classList.add('measure');
+  const heading = document.createElement('h1');
+  heading.textContent = 'Live avatar test';
+  canvas.before(heading);
+  button.textContent = 'Start call';
+  stopButton = document.createElement('button');
+  stopButton.textContent = 'End call';
+  stopButton.disabled = true;
+  button.after(stopButton);
+  const guidance = document.createElement('p');
+  guidance.textContent = 'Talk naturally or say “wait” to interrupt. Calls run for up to 64 seconds. Your microphone audio is processed on the research server during the call.';
+  output.after(guidance);
+}
+if (!accessPattern.test(access)) {
+  button.disabled = true;
+  const form = document.createElement('form');
+  const label = document.createElement('label');
+  label.htmlFor = 'test-access';
+  label.textContent = 'Test access code';
+  const input = document.createElement('input');
+  input.id = 'test-access';
+  input.type = 'password';
+  input.required = true;
+  input.autocomplete = 'off';
+  input.pattern = '[0-9a-f]{48}';
+  const unlock = document.createElement('button');
+  unlock.textContent = 'Unlock';
+  form.append(label,input,unlock);
+  canvas.after(form);
+  form.addEventListener('submit',event => {
+    event.preventDefault();
+    if (!accessPattern.test(input.value.trim())) return;
+    access = input.value.trim();
+    try { sessionStorage.setItem('avatar-test-access',access); } catch {}
+    form.remove();
+    button.disabled = false;
+    button.focus();
+  });
+}
+button.onclick = async () => {
+  if (!accessPattern.test(access)) return;
+  if (!window.VideoDecoder || !window.AudioWorkletNode || !navigator.mediaDevices?.getUserMedia) {
+    output.textContent = 'This browser cannot run the video call. Open the test in Chrome or Edge.';
+    return;
+  }
+  button.disabled = true;
+  delete output.dataset.metrics;
+  output.textContent = live ? 'Connecting your microphone' : 'Measuring playback';
+  const audio = new AudioContext({latencyHint: 'interactive'});
+  await audio.resume();
+  const playbackGain = audio.createGain();
+  playbackGain.connect(audio.destination);
+  let mic, micSource, micNode;
+  if (live) {
+    try {
+      mic = await navigator.mediaDevices.getUserMedia({audio: {
+        channelCount: 1, echoCancellation: true, noiseSuppression: true
+      }});
+      const code = `class Pcm24 extends AudioWorkletProcessor {
+        constructor(){super();this.phase=0;this.samples=new Int16Array(1920);this.count=0;}
+        process(inputs){
+          for (const value of inputs[0]?.[0] ?? []) {
+            this.phase += 24000;
+            while (this.phase >= sampleRate) {
+              this.phase -= sampleRate;
+              this.samples[this.count++] = Math.max(-32768,Math.min(32767,value*32768));
+              if(this.count===1920) {
+                this.port.postMessage(this.samples,[this.samples.buffer]);
+                this.samples=new Int16Array(1920);this.count=0;
+              }
+            }
+          }
+          return true;
+        }
+      }
+      registerProcessor('pcm24',Pcm24);`;
+      const module = URL.createObjectURL(new Blob([code], {type:'text/javascript'}));
+      try { await audio.audioWorklet.addModule(module); } finally { URL.revokeObjectURL(module); }
+      micSource = audio.createMediaStreamSource(mic);
+      micNode = new AudioWorkletNode(audio, 'pcm24', {numberOfOutputs: 0});
+    } catch (e) {
+      mic?.getTracks().forEach(track => track.stop());
+      await audio.close();
+      button.disabled = false;
+      output.textContent = 'Microphone unavailable. ' + e.message;
+      return;
+    }
+  }
+  const endpoint = new URL('/' + access + '/video', backend);
+  endpoint.protocol = 'wss:';
+  if (live && params.has('seconds')) endpoint.searchParams.set('seconds', params.get('seconds'));
+  if (live && params.has('lip_delay_ms')) endpoint.searchParams.set('lip_delay_ms', params.get('lip_delay_ms'));
+  if (live && params.has('voice')) endpoint.searchParams.set('voice', params.get('voice'));
+  if (live && params.has('group_audio')) endpoint.searchParams.set('group_audio', params.get('group_audio'));
+  if (live && params.get('quiet_diffusion') === '1') endpoint.searchParams.set('quiet_diffusion', '1');
+  if (live && params.get('spatial_refinement') === '1') endpoint.searchParams.set('spatial_refinement', '1');
+  const fastConfirmation = live && params.get('interrupt') === 'confirm-stream-fast';
+  if (live && (fastConfirmation || ['confirm-stream-hold', 'confirm-stream-advance'].includes(params.get('interrupt')))) {
+    endpoint.searchParams.set('cue_stream', '1');
+    if (fastConfirmation) endpoint.searchParams.set('cue_fast', '1');
+  }
+  if (live && params.has('early_silence')) endpoint.searchParams.set('early_silence', params.get('early_silence'));
+  if (live && params.get('video_packet_frames') === '2') endpoint.searchParams.set('video_packet_frames', '2');
+  if (live && params.get('trace_audio') === '1') endpoint.searchParams.set('trace_audio', '1');
+  if (live && params.get('short_lookahead') === '1') endpoint.searchParams.set('short_lookahead', '1');
+  if (live && params.has('face_detail')) endpoint.searchParams.set('face_detail', params.get('face_detail'));
+  if (live && params.get('native_mouth') === '1') endpoint.searchParams.set('native_mouth', '1');
+  const socket = new WebSocket(endpoint);
+  socket.binaryType = 'arraybuffer';
+  const context = canvas.getContext('2d');
+  const frames = new Map();
+  const audioStarts = [];
+  const pendingAudio = [];
+  const audiblePackets = [];
+  const silentPackets = [];
+  const quietPackets = [];
+  const playbackLogRms = [];
+  const callerLogRms = [];
+  const interruptions = [];
+  const interruptionDecisions = [];
+  const tentativeInterruptions = [];
+  let voicedTicks = 0, quietTicks = 0, callerSpeaking = false, restoreAtPacket, mutedUntil = 0;
+  let origin, config, decoder, server, animation, n = 0, drawn = 0, nextFrame = 0, skipped = 0;
+  let minimumBuffer = 0, firstDecode, firstDraw, largestGap = 0, previousDraw;
+  let audioOrigin, audioUntil, audioCount = 0, audioGaps = 0, audioGapMs = 0;
+  let prerollPackets = 0, prerollFrames = 0;
+  let silentPrefixPackets = 0, anchorStarted;
+  let maximumVideoLagMs = 0, firstDrawRelativeToAudio, firstAudioArrival;
+  let audioClockAtOrigin, audioClockDeficitAtFirstDraw;
+  let packetArrivals, firstVideoPacket, maxVideoPacketOffset = 0, maximumDecodeQueue = 0;
+  const packetToDecodedMs = [];
+  const pictureLagMs = [];
+  const voicedPictureLagMs = [];
+  const target = Number(params.get('buffer') ?? (live ? 2.6 : 2.15));
+  const catchUp = params.get('catchup') === '1';
+  const catchUpIdle = params.get('catchup') === 'idle';
+  const synchronizeStart = live && params.get('sync') === '1';
+  const reduceSilentPreroll = synchronizeStart && params.get('preroll') === '1';
+  const speechAnchor = synchronizeStart && params.get('speech_anchor') === '1';
+  const requestedReserve = Number(params.get('video_reserve'));
+  const videoReserveFrames = [5, 8, 20].includes(requestedReserve) ? requestedReserve : 13;
+  const interruptMode = live ? params.get('interrupt') : null;
+  const interruptionModel = interruptMode === 'learned' ? window.avatarCutModel : undefined;
+  const cueModel = ['cue', 'cue-context'].includes(interruptMode) ? window.avatarCueModel : undefined;
+  const followupModel = interruptMode === 'cue-context' ? window.avatarFollowupModel : undefined;
+  const advanceConfirmedCut = interruptMode === 'confirm-stream-advance';
+  const streamConfirmation = interruptMode === 'confirm-stream-hold' || advanceConfirmedCut || fastConfirmation;
+  const holdConfirmedCut = interruptMode === 'confirm-hold' || streamConfirmation;
+  const confirmInterrupt = interruptMode === 'confirm' || holdConfirmedCut;
+  const interruptPlayback = interruptMode === '1' || confirmInterrupt || Boolean(interruptionModel || cueModel);
+  const cutVideoMode = params.get('cut_video');
+  const previewQuietCutVideo = confirmInterrupt && cutVideoMode === 'quiet-preview';
+  const playQuietCutVideo = confirmInterrupt && (cutVideoMode === 'quiet' || previewQuietCutVideo);
+  const suppressCutVideo = confirmInterrupt && (cutVideoMode === '1' || playQuietCutVideo);
+  const quietPicture = suppressCutVideo ? document.createElement('canvas') : null;
+  const quietContext = quietPicture?.getContext('2d');
+  let hasQuietPicture = false, videoCut;
+  const scheduledAudio = new Map();
+  let pendingAdvance;
+  let previousMic, lastDeclinedCue, pendingCue, lastVoicedCallerPacket, confirmedHold;
+  const quietLogRms = Math.log(.0001);
+  function average(values) {
+    return values.reduce((sum, value) => sum + value, 0) / values.length;
+  }
+  function scoreInterruption(sequence, now) {
+    const onset = sequence - 1;
+    if (onset < 25) return null;
+    // Two microphone packets have elapsed. The holder cutoff precedes its onset by another two.
+    const onsetTime = now - .16;
+    const caller = callerLogRms.slice(onset - 25, sequence + 1);
+    const holder = [];
+    for (let i = 25; i > 2; i--) {
+      const time = onsetTime - (i - .5) * .08;
+      const packet = audioStarts.findLastIndex(start => start <= time);
+      holder.push(packet >= 0 && time < audioStarts[packet] + .08 ? playbackLogRms[packet] : quietLogRms);
+    }
+    const values = [...caller, ...holder, average(caller) - average(holder), average(caller.slice(-2)),
+      average(holder.slice(-10)) - average(holder.slice(0, -10))];
+    const {mu, sd, w, b} = interruptionModel;
+    if (values.length !== w.length) return null;
+    return values.reduce((sum, value, i) => sum + ((value - mu[i]) / sd[i]) * w[i], b);
+  }
+  function respondToCaller(samples, sequence) {
+    const previous = previousMic;
+    if (cueModel || confirmInterrupt) previousMic = samples;
+    if (pendingCue && !pendingCue.streaming && pendingCue.packets.length < 7) {
+      pendingCue.packets.push(samples);
+      if (pendingCue.packets.length === 7) confirmCallerCue(pendingCue);
+    }
+    let power = 0;
+    for (const sample of samples) power += (sample / 32768) ** 2;
+    if (interruptionModel) callerLogRms[sequence] = Math.log(Math.sqrt(power / samples.length) + .0001);
+    if (power / samples.length >= 10 ** (-36 / 10)) {
+      voicedTicks++;
+      quietTicks = 0;
+      lastVoicedCallerPacket = sequence;
+    } else {
+      voicedTicks = 0;
+      if (++quietTicks >= 3) callerSpeaking = false;
+      if (confirmedHold && quietTicks >= 6) {
+        confirmedHold = false;
+        restoreAtPacket = lastVoicedCallerPacket + 1;
+        interruptions.at(-1).restore_packet = restoreAtPacket;
+        if (audioStarts[restoreAtPacket] !== undefined) resumePlayback(audioStarts[restoreAtPacket]);
+      }
+      return;
+    }
+    if (callerSpeaking || voicedTicks < 2) return;
+    callerSpeaking = true;
+    const now = audio.currentTime;
+    if (!interruptPlayback || now < mutedUntil) return;
+    const index = audioStarts.findLastIndex(start => start <= now);
+    if (index < 0 || sequence <= index) return;
+    const nextStaleSpeech = audiblePackets.slice(Math.max(0, index - 2), Math.min(sequence, index + 7)).some(Boolean);
+    if (!nextStaleSpeech) return;
+    if (confirmInterrupt) {
+      if (!pendingCue && previous) beginTentativeCut(previous, samples, sequence - 1);
+      return;
+    }
+    if (interruptionModel) {
+      const score = scoreInterruption(sequence, now);
+      const take = score !== null && score > interruptionModel.threshold;
+      interruptionDecisions.push({caller_packet: sequence, score, take});
+      if (!take) return;
+    }
+    if (cueModel) {
+      const began = performance.now();
+      const followup = Boolean(followupModel && lastDeclinedCue !== undefined && sequence - lastDeclinedCue <= 19);
+      const model = followup ? followupModel : cueModel;
+      const score = previous ? explicitCueScore(previous, samples, model) : null;
+      const take = score !== null && score > model.threshold;
+      interruptionDecisions.push({caller_packet: sequence, score, threshold: model.threshold,
+        take, followup, compute_ms: performance.now() - began});
+      lastDeclinedCue = take ? undefined : sequence;
+      if (!take) return;
+    }
+    cutPlayback(sequence - 1, index, now, 1);
+  }
+  function cutPlayback(callerPacket, index, now, initialGain) {
+    confirmedHold = holdConfirmedCut && quietTicks < 6;
+    restoreAtPacket = confirmedHold ? undefined
+      : holdConfirmedCut ? Math.max(callerPacket, lastVoicedCallerPacket + 1) : callerPacket;
+    mutedUntil = Infinity;
+    const gain = playbackGain.gain;
+    gain.cancelScheduledValues(now);
+    gain.setValueAtTime(initialGain, now);
+    gain.linearRampToValueAtTime(0, now + .02);
+    interruptions.push({caller_packet: callerPacket, cut_packet: index, cut_audio_time_s: now,
+      restore_packet: restoreAtPacket, hold_until_caller_quiet: confirmedHold});
+    if (suppressCutVideo) videoCut = interruptions.at(-1);
+    if (advanceConfirmedCut) {
+      pendingAdvance = {cuePacket: callerPacket, deadline: now + .8, event: interruptions.at(-1)};
+      tryPendingAdvance(now);
+    }
+    if (audioStarts[restoreAtPacket] !== undefined) resumePlayback(audioStarts[restoreAtPacket]);
+  }
+  function beginTentativeCut(previous, samples, callerPacket) {
+    const event = {caller_packet: callerPacket};
+    tentativeInterruptions.push(event);
+    const cue = {packets: [previous, samples], event, controller: new AbortController(),
+      streaming: streamConfirmation && config.cue_stream};
+    pendingCue = cue;
+    if (!fastConfirmation) {
+      const gain = playbackGain.gain;
+      event.duck_audio_time_s = audio.currentTime;
+      gain.cancelScheduledValues(audio.currentTime);
+      gain.setValueAtTime(1, audio.currentTime);
+      gain.linearRampToValueAtTime(.35, audio.currentTime + .02);
+      cue.duckTimer = setTimeout(() => restoreTentativeGain(cue), 420);
+    }
+    cue.timer = setTimeout(() => finishTentativeCut(cue, false, 'timeout'), 1300);
+    if (cue.streaming) {
+      cue.event.request_audio_time_s = audio.currentTime;
+      socket.send(JSON.stringify({type: 'confirm_cue', caller_packet: callerPacket}));
+    }
+  }
+  function restoreTentativeGain(cue) {
+    if (cue.event.duck_audio_time_s === undefined || cue.event.restore_gain_audio_time_s !== undefined ||
+        audio.state === 'closed') return;
+    const now = audio.currentTime;
+    cue.event.restore_gain_audio_time_s = now;
+    const gain = playbackGain.gain;
+    gain.cancelScheduledValues(now);
+    gain.setValueAtTime(.35, now);
+    gain.linearRampToValueAtTime(1, now + .03);
+  }
+  function finishTentativeCut(cue, confirmed, reason, recognitionMs) {
+    if (pendingCue !== cue) return;
+    pendingCue = undefined;
+    clearTimeout(cue.timer);
+    clearTimeout(cue.duckTimer);
+    cue.controller.abort();
+    if (audio.state === 'closed') return;
+    const now = audio.currentTime;
+    const index = audioStarts.findLastIndex(start => start <= now);
+    const cutoff = holdConfirmedCut ? lastVoicedCallerPacket + 1 : cue.event.caller_packet;
+    const stale = index >= 0 && index < cutoff;
+    Object.assign(cue.event, {decision_audio_time_s: now, confirmed, reason,
+      recognition_ms: recognitionMs ?? null, cut: confirmed && stale});
+    if (confirmed && stale) {
+      const ducked = cue.event.duck_audio_time_s !== undefined && cue.event.restore_gain_audio_time_s === undefined;
+      cutPlayback(cue.event.caller_packet, index, now, ducked ? .35 : 1);
+    } else {
+      restoreTentativeGain(cue);
+    }
+  }
+  async function confirmCallerCue(cue) {
+    cue.event.request_audio_time_s = audio.currentTime;
+    const raw = new Int16Array(7 * 1920);
+    cue.packets.forEach((samples, i) => raw.set(samples, i * 1920));
+    try {
+      const response = await fetch(new URL('cue', location.href), {method: 'POST',
+        headers: {'Content-Type': 'application/octet-stream'}, body: raw, signal: cue.controller.signal});
+      if (!response.ok) throw new Error('Confirmation unavailable');
+      const result = await response.json();
+      finishTentativeCut(cue, result.cut === true, 'recognition', result.recognition_ms);
+    } catch {
+      finishTentativeCut(cue, false, 'unavailable');
+    }
+  }
+  function resumePlayback(when) {
+    const event = interruptions.at(-1);
+    const resume = Math.max(when, event.cut_audio_time_s + .02);
+    playbackGain.gain.setValueAtTime(0, resume);
+    playbackGain.gain.linearRampToValueAtTime(1, resume + .02);
+    event.resume_audio_time_s = resume;
+    mutedUntil = resume + .02;
+    restoreAtPacket = undefined;
+  }
+  function stopMic() {
+    micSource?.disconnect();
+    mic?.getTracks().forEach(track => track.stop());
+  }
+  const fail = (error, ended = false) => {
+    if (ended) server = {ended: true};
+    output.textContent = ended ? 'Call ended.' : measure ? JSON.stringify({error: String(error)}) : String(error);
+    cancelAnimationFrame(animation);
+    if (decoder?.state === 'configured') decoder.close();
+    for (const frame of frames.values()) frame.close();
+    frames.clear();
+    if (pendingCue) finishTentativeCut(pendingCue, false, 'call ended');
+    stopMic();
+    if (audio.state !== 'closed') audio.close();
+    socket.close();
+    button.disabled = false;
+    if (stopButton) stopButton.disabled = true;
+  };
+  if (stopButton) {
+    stopButton.disabled = false;
+    stopButton.onclick = () => fail('Call ended', true);
+  }
+  function frameAudioTime(index) {
+    return (index - config.audio_offset_frames + (config.video_delay_frames ?? 0)) / config.fps;
+  }
+  function audioPacketForTime(mediaTime) {
+    const tick = config.audio_tick / config.audio_rate;
+    return Math.min(config.audio_packets - 1, Math.floor((mediaTime + 1e-8) / tick));
+  }
+  function dueTime(index) {
+    if (!config.audio_packets) return target + index / config.fps;
+    const mediaTime = frameAudioTime(index);
+    const audioTickSeconds = config.audio_tick / config.audio_rate;
+    const packet = audioPacketForTime(mediaTime);
+    return packet < 0 ? audioOrigin + mediaTime :
+      audioStarts[packet] + mediaTime - packet * audioTickSeconds;
+  }
+  function idleFrame(index) {
+    if (!config.audio_packets) return false;
+    const first = Math.max(0, audioPacketForTime(frameAudioTime(index)));
+    const last = audioPacketForTime(frameAudioTime(index + 1) - 1e-6);
+    for (let packet = first; packet <= last; packet++) {
+      if (silentPackets[packet] !== true) return false;
+    }
+    return true;
+  }
+  function quietCutFrame(index) {
+    const first = Math.max(0, audioPacketForTime(frameAudioTime(index)) - 2);
+    const last = audioPacketForTime(frameAudioTime(index + 1) - 1e-6) + 1;
+    if (last >= config.audio_packets) return false;
+    for (let packet = first; packet <= last; packet++) {
+      if (quietPackets[packet] !== true) return false;
+    }
+    return true;
+  }
+  function discardCutFrames(clock, elapsed) {
+    if (!videoCut || clock < videoCut.cut_audio_time_s + .02) return;
+    if (videoCut.video_skipped_frames === undefined) {
+      videoCut.video_skipped_frames = 0;
+      videoCut.video_hold_audio_time_s = clock;
+      videoCut.video_held_quiet_picture = hasQuietPicture;
+      if (playQuietCutVideo) videoCut.video_quiet_frames = 0;
+      if (hasQuietPicture) context.drawImage(quietPicture, 0, 0);
+    }
+    // H.264 dependencies still decode. Superseded pictures never reach the canvas.
+    const cutoff = videoCut.restore_packet ?? Infinity;
+    const previewCutoff = videoCut.restore_packet ?? lastVoicedCallerPacket + 1;
+    const previewing = previewQuietCutVideo && clock < (videoCut.resume_audio_time_s ?? Infinity);
+    const horizon = previewing ? clock + .75 : clock;
+    let quietFrame, quietDue;
+    while (frames.has(nextFrame) && audioPacketForTime(frameAudioTime(nextFrame)) <
+      cutoff && horizon >= dueTime(nextFrame)) {
+      const frame = frames.get(nextFrame);
+      const frameDue = dueTime(nextFrame);
+      if (previewing && frameDue > clock && audioPacketForTime(frameAudioTime(nextFrame)) >= previewCutoff) break;
+      if (playQuietCutVideo && clock - frameDue <= 1 / config.fps && quietCutFrame(nextFrame)) {
+        if (previewing && videoCut.video_last_quiet_audio_time_s !== undefined &&
+            clock - videoCut.video_last_quiet_audio_time_s < 1 / config.fps - .008) break;
+        quietFrame?.close();
+        quietFrame = frame;
+        quietDue = frameDue;
+      } else {
+        frame.close();
+      }
+      frames.delete(nextFrame++);
+      videoCut.video_skipped_frames++;
+      skipped++;
+      if (previewing && quietFrame) break;
+    }
+    const canResume = videoCut.resume_audio_time_s !== undefined && clock >= videoCut.resume_audio_time_s &&
+      audioPacketForTime(frameAudioTime(nextFrame)) >= videoCut.restore_packet;
+    if (quietFrame && !canResume) {
+      context.drawImage(quietFrame, 0, 0);
+      quietFrame.close();
+      videoCut.video_quiet_frames++;
+      videoCut.video_first_quiet_audio_time_s ??= clock;
+      videoCut.video_last_quiet_audio_time_s = clock;
+      if (previewQuietCutVideo) {
+        videoCut.video_max_preview_ms = Math.max(videoCut.video_max_preview_ms ?? 0, 1000 * (quietDue - clock));
+      }
+      videoCut.video_skipped_frames--;
+      skipped--;
+      drawn++;
+      if (previousDraw !== undefined) largestGap = Math.max(largestGap, elapsed - previousDraw);
+      previousDraw = elapsed;
+    }
+    if (canResume) {
+      quietFrame?.close();
+      videoCut.video_resume_audio_time_s = clock;
+      videoCut = undefined;
+    }
+  }
+  function silentPacket(data) {
+    return !new Int16Array(data, 4).some(sample => sample !== 0);
+  }
+  function frameForPacket(index) {
+    return Math.min(config.frames, Math.ceil(index * config.audio_tick / config.audio_rate * config.fps - 1e-8));
+  }
+  function startAudioBuffer(index, buffer, when) {
+    const source = audio.createBufferSource();
+    source.buffer = buffer;
+    source.connect(playbackGain);
+    source.start(when);
+    if (advanceConfirmedCut) {
+      scheduledAudio.set(index, source);
+      source.onended = () => {
+        if (scheduledAudio.get(index) === source) scheduledAudio.delete(index);
+      };
+    }
+  }
+  function tryPendingAdvance(now) {
+    if (!pendingAdvance) return;
+    const {cuePacket, deadline, event} = pendingAdvance;
+    const currentPacket = audioStarts.findLastIndex(start => start <= now);
+    if (now >= deadline || currentPacket >= cuePacket || event.resume_audio_time_s !== undefined) {
+      pendingAdvance = undefined;
+      return;
+    }
+    if (advancePastOldReply(cuePacket, currentPacket, now, event)) pendingAdvance = undefined;
+  }
+  function advancePastOldReply(cuePacket, currentPacket, now, event) {
+    const tickSeconds = config.audio_tick / config.audio_rate;
+    const start = now + .04;
+    const reservePackets = 8;
+    const limit = Math.min(cuePacket, audioCount - reservePackets);
+    let availableFrame = nextFrame;
+    while (frames.has(availableFrame)) availableFrame++;
+    event.advance_probe = {attempts: (event.advance_probe?.attempts ?? 0) + 1,
+      current_packet: currentPacket, audio_packets_ready: audioCount,
+      next_frame: nextFrame, decoded_through: availableFrame - 1};
+    let resume, firstFrame;
+    for (let packet = currentPacket + 1; packet <= limit; packet++) {
+      const ahead = audioStarts[packet] - start;
+      if (ahead > .64) break;
+      if (ahead < .16) continue;
+      if (frameAudioTime(nextFrame) > packet * tickSeconds + 1 / config.fps) continue;
+      let first = nextFrame;
+      while (first < config.frames && frameAudioTime(first) < packet * tickSeconds) first++;
+      let end = first;
+      const reserveEnd = (packet + reservePackets) * tickSeconds;
+      while (end < config.frames && frameAudioTime(end) < reserveEnd && frames.has(end)) end++;
+      if (first < end && (end === config.frames || frameAudioTime(end) >= reserveEnd)) {
+        resume = packet;
+        firstFrame = first;
+      }
+    }
+    if (resume === undefined) return;
+    const buffers = [];
+    for (let packet = resume; packet < audioCount; packet++) {
+      const source = scheduledAudio.get(packet);
+      if (!source) return;
+      buffers.push(source.buffer);
+    }
+    const advanceMs = 1000 * (audioStarts[resume] - start);
+    for (const source of scheduledAudio.values()) source.stop(start);
+    scheduledAudio.clear();
+    const discardedFrames = firstFrame - nextFrame;
+    while (nextFrame < firstFrame) {
+      frames.get(nextFrame)?.close();
+      frames.delete(nextFrame++);
+      skipped++;
+    }
+    audioOrigin = start - resume * tickSeconds;
+    audioUntil = start;
+    for (const [offset, buffer] of buffers.entries()) {
+      const packet = resume + offset;
+      audioStarts[packet] = audioUntil;
+      startAudioBuffer(packet, buffer, audioUntil);
+      audioUntil += buffer.duration;
+    }
+    Object.assign(event, {advance_ms: advanceMs, advance_to_packet: resume,
+      advance_skipped_frames: discardedFrames});
+    return true;
+  }
+  function p95(values) {
+    return values.length ? values.sort((a, b) => a - b)[Math.ceil(.95 * values.length) - 1] : null;
+  }
+  function startSynchronizedPlayback(elapsed) {
+    if (!synchronizeStart || audioOrigin !== undefined || !pendingAudio.length) return;
+    if (speechAnchor) {
+      const final = pendingAudio.length === config.audio_packets;
+      const reserveEnd = Math.min(config.frames - 1, frameForPacket(silentPrefixPackets) + videoReserveFrames - 1);
+      const receivedSpeech = silentPrefixPackets < pendingAudio.length;
+      if (receivedSpeech && (final || pendingAudio.length >= silentPrefixPackets + 4) && frames.has(reserveEnd)) {
+        anchorStarted = elapsed;
+        beginPlayback(silentPrefixPackets, audio.currentTime + .06);
+      } else if (!receivedSpeech && final && nextFrame === config.frames) {
+        beginPlayback(silentPrefixPackets, audio.currentTime);
+      }
+      return;
+    }
+    const ready = frames.has(Math.min(videoReserveFrames - 1, config.frames - 1));
+    if (!ready && elapsed < target + 2.5) return;
+    const tickSeconds = config.audio_tick / config.audio_rate;
+    let silent = 0;
+    if (reduceSilentPreroll && ready) {
+      let contiguous = 0;
+      while (frames.has(contiguous)) contiguous++;
+      for (const [, data] of pendingAudio) {
+        if (Math.ceil((silent + 1) * tickSeconds * config.fps) + 3 > contiguous || !silentPacket(data)) break;
+        silent++;
+      }
+    }
+    beginPlayback(silent, Math.max(audioClockAtOrigin + target, audio.currentTime + .06));
+  }
+  function beginPlayback(silent, firstAt) {
+    const tickSeconds = config.audio_tick / config.audio_rate;
+    prerollPackets = silent;
+    audioUntil = firstAt;
+    audioOrigin = audioUntil - prerollPackets * tickSeconds;
+    for (let index = 0; index < prerollPackets; index++) {
+      audiblePackets[index] = false;
+      silentPackets[index] = true;
+      quietPackets[index] = true;
+      audioStarts[index] = audioOrigin + index * tickSeconds;
+    }
+    audioCount = prerollPackets;
+    const videoAnchor = frameForPacket(prerollPackets);
+    while (nextFrame < videoAnchor) {
+      frames.get(nextFrame).close();
+      frames.delete(nextFrame++);
+      skipped++;
+      prerollFrames++;
+    }
+    for (let i = prerollPackets; i < pendingAudio.length; i++) scheduleAudio(...pendingAudio[i]);
+    pendingAudio.length = 0;
+  }
+  function draw(now) {
+    if (!config) return;
+    const elapsed = (now - origin) / 1000;
+    startSynchronizedPlayback(elapsed);
+    if (pendingAdvance) tryPendingAdvance(audio.currentTime);
+    const clock = config.audio_packets ? audio.currentTime : elapsed;
+    discardCutFrames(clock, elapsed);
+    if (!videoCut && (catchUp || catchUpIdle) && drawn && clock - dueTime(nextFrame) > 2 / config.fps) {
+      // Skip only decoded frames for which a newer, playable frame is already ready.
+      while (frames.has(nextFrame) && frames.has(nextFrame + 1) && clock >= dueTime(nextFrame + 1) &&
+             (catchUp || idleFrame(nextFrame))) {
+        frames.get(nextFrame).close();
+        frames.delete(nextFrame++);
+        skipped++;
+      }
+    }
+    const preview = speechAnchor && audioOrigin === undefined && nextFrame < frameForPacket(silentPrefixPackets);
+    const due = preview ? audioClockAtOrigin + nextFrame / config.fps : dueTime(nextFrame);
+    const ready = frames.get(nextFrame);
+    if (ready && clock >= due && (!videoCut || clock < videoCut.cut_audio_time_s + .02)) {
+      context.drawImage(ready, 0, 0);
+      if (quietContext && idleFrame(nextFrame)) {
+        quietContext.drawImage(ready, 0, 0);
+        hasQuietPicture = true;
+      }
+      ready.close();
+      frames.delete(nextFrame++);
+      drawn++;
+      if (firstDraw === undefined) {
+        firstDraw = elapsed;
+        if (config.audio_packets) {
+          audioClockDeficitAtFirstDraw = 1000 * (elapsed - (audio.currentTime - audioClockAtOrigin));
+        }
+      }
+      if (previousDraw !== undefined) largestGap = Math.max(largestGap, elapsed - previousDraw);
+      if (config.audio_packets && !preview) {
+        const lag = 1000 * (clock - due);
+        maximumVideoLagMs = Math.max(maximumVideoLagMs, lag);
+        if (measure) {
+          pictureLagMs.push(lag);
+          if (audiblePackets[audioPacketForTime(frameAudioTime(nextFrame))]) voicedPictureLagMs.push(lag);
+        }
+      }
+      if (config.audio_packets && audioStarts[0] !== undefined) {
+        firstDrawRelativeToAudio ??= audio.currentTime - audioStarts[0];
+      }
+      previousDraw = elapsed;
+    }
+    if (nextFrame === config.frames && server && audioCount === config.audio_packets &&
+        (!audioCount || audio.currentTime >= audioUntil)) {
+      decoder.close();
+      stopMic();
+      if (pendingCue) finishTentativeCut(pendingCue, false, 'call ended');
+      audio.close();
+      const result = {
+        received: n, drawn, skipped, catch_up: catchUp, first_decoded_s: firstDecode, first_drawn_s: firstDraw,
+        min_decode_buffer_s: minimumBuffer, requested_buffer_s: target,
+        actual_audio_start_s: audioCount ? audioOrigin - audioClockAtOrigin : null,
+        synchronize_start: synchronizeStart,
+        speech_anchor: speechAnchor,
+        speech_anchor_ready_s: anchorStarted ?? null,
+        video_start_reserve_frames: videoReserveFrames,
+        silent_preroll_audio_packets: prerollPackets,
+        silent_preroll_video_frames: prerollFrames,
+        first_video_packet_arrival_s: firstVideoPacket,
+        min_video_packet_buffer_s: maxVideoPacketOffset,
+        packet_to_decode_p95_ms: p95(packetToDecodedMs),
+        maximum_decode_queue: maximumDecodeQueue,
+        audio_received: audioCount, audio_gaps: audioGaps, largest_audio_gap_ms: audioGapMs,
+        playback_interruptions: interruptions,
+        interruption_decisions: interruptionDecisions,
+        tentative_interruptions: tentativeInterruptions,
+        first_audio_packet_arrival_s: firstAudioArrival ?? null,
+        audio_clock_deficit_at_first_draw_ms: audioClockDeficitAtFirstDraw ?? null,
+        video_delay_frames: config.video_delay_frames ?? 0,
+        first_draw_relative_to_audio_ms: firstDrawRelativeToAudio === undefined ? null : 1000 * firstDrawRelativeToAudio,
+        largest_video_lag_against_audio_clock_ms: maximumVideoLagMs,
+        video_playout_lag_p95_ms: p95(pictureLagMs),
+        voiced_video_playout_lag_p95_ms: p95(voicedPictureLagMs),
+        voiced_video_playout_frames: voicedPictureLagMs.length,
+        largest_draw_gap_ms: 1000 * largestGap, ...server
+      };
+      output.dataset.metrics = JSON.stringify(result);
+      output.textContent = measure ? JSON.stringify(result, null, 2) : 'Call finished.';
+      button.disabled = false;
+      if (stopButton) stopButton.disabled = true;
+      return;
+    }
+    if (elapsed > target + config.frames / config.fps + 8) {
+      fail(`Playback timed out after processing ${nextFrame}/${config.frames} frames`);
+      return;
+    }
+    animation = requestAnimationFrame(draw);
+  }
+  function scheduleAudio(index, data) {
+    if (index !== audioCount || data.byteLength !== 4 + 2 * config.audio_tick) {
+      fail('Out-of-order or incomplete audio packet');
+      return;
+    }
+    firstAudioArrival ??= (performance.now() - origin) / 1000;
+    audioCount++;
+    const buffer = audio.createBuffer(1, config.audio_tick, config.audio_rate);
+    const channel = buffer.getChannelData(0);
+    const pcm = new DataView(data);
+    let power = 0;
+    for (let i = 0; i < channel.length; ++i) {
+      channel[i] = pcm.getInt16(4 + 2 * i, true) / 32768;
+      power += channel[i] ** 2;
+    }
+    audiblePackets[index] = power / channel.length >= 10 ** (-39 / 10);
+    silentPackets[index] = power === 0;
+    if (playQuietCutVideo) quietPackets[index] = power / channel.length <= 10 ** (-54 / 10);
+    if (interruptionModel) playbackLogRms[index] = Math.log(Math.sqrt(power / channel.length) + .0001);
+    const targetTime = audioOrigin + index * buffer.duration;
+    const when = Math.max(targetTime, audioUntil, audio.currentTime + .005);
+    const gap = when - audioUntil;
+    if (gap > .001) {
+      audioGaps++;
+      audioGapMs = Math.max(audioGapMs, gap * 1000);
+    }
+    startAudioBuffer(index, buffer, when);
+    audioStarts[index] = when;
+    audioUntil = when + buffer.duration;
+    if (restoreAtPacket !== undefined && index >= restoreAtPacket) {
+      resumePlayback(when);
+    }
+  }
+  function receiveAudio(index, data) {
+    if (synchronizeStart && audioOrigin === undefined) {
+      if (index !== pendingAudio.length || data.byteLength !== 4 + 2 * config.audio_tick) {
+        fail('Out-of-order or incomplete audio packet');
+        return;
+      }
+      firstAudioArrival ??= (performance.now() - origin) / 1000;
+      if (speechAnchor && index === silentPrefixPackets && silentPacket(data)) silentPrefixPackets++;
+      pendingAudio.push([index, data]);
+      return;
+    }
+    scheduleAudio(index, data);
+  }
+  socket.onmessage = ({data}) => {
+    if (typeof data === 'string') {
+      const message = JSON.parse(data);
+      if (config) {
+        if (message.type === 'cue_decision') {
+          if (pendingCue?.streaming && pendingCue.event.caller_packet === message.caller_packet) {
+            finishTentativeCut(pendingCue, message.cut === true, message.reason, message.recognition_ms);
+          }
+          return;
+        }
+        if (message.error) fail(message.error); else server = message;
+        return;
+      }
+      config = message;
+      packetArrivals = new Float64Array(config.frames);
+      canvas.width = config.width;
+      canvas.height = config.height;
+      if (quietPicture) {
+        quietPicture.width = config.width;
+        quietPicture.height = config.height;
+      }
+      try {
+        decoder = new VideoDecoder({error: fail, output(frame) {
+          const index = Math.round(frame.timestamp * config.fps / 1e6);
+          const elapsed = (performance.now() - origin) / 1000;
+          firstDecode ??= elapsed;
+          minimumBuffer = Math.max(minimumBuffer, elapsed - index / config.fps);
+          packetToDecodedMs.push(1000 * (elapsed - packetArrivals[index]));
+          frames.set(index, frame);
+        }});
+        decoder.configure({codec: 'avc1.42E01F', codedWidth: config.width,
+          codedHeight: config.height, optimizeForLatency: true});
+      } catch (error) { fail(error); return; }
+      origin = performance.now();
+      audioClockAtOrigin = audio.currentTime;
+      if (!synchronizeStart) {
+        audioOrigin = audioUntil = audioClockAtOrigin + target + config.audio_offset_frames / config.fps;
+      }
+      socket.send('start');
+      if (micNode) {
+        let sent = 0;
+        micNode.port.onmessage = ({data: samples}) => {
+          if (sent >= config.audio_packets || socket.readyState !== WebSocket.OPEN) return;
+          const packet = new ArrayBuffer(4 + 2 * samples.length);
+          respondToCaller(samples, sent);
+          new DataView(packet).setUint32(0, sent++, true);
+          new Int16Array(packet, 4).set(samples);
+          socket.send(packet);
+          if (sent === config.audio_packets) stopMic();
+        };
+        micSource.connect(micNode);
+        output.textContent = 'Microphone on';
+      }
+      animation = requestAnimationFrame(draw);
+      return;
+    }
+    const header = new DataView(data);
+    const index = header.getUint32(0, true);
+    if (index >= 0x80000000) {
+      receiveAudio(index - 0x80000000, data);
+      return;
+    }
+    const arrival = (performance.now() - origin) / 1000;
+    if (index !== 0x7fffffff) {
+      receiveFrame(index, new Uint8Array(data, 4), arrival);
+      return;
+    }
+    if (data.byteLength < 13) { fail('Incomplete H.264 window'); return; }
+    let frame = header.getUint32(4, true);
+    let offset = 8;
+    while (offset + 4 <= data.byteLength) {
+      const bytes = header.getUint32(offset, true);
+      offset += 4;
+      if (bytes < 2 || offset + bytes > data.byteLength) { fail('Invalid H.264 frame length'); return; }
+      if (!receiveFrame(frame++, new Uint8Array(data, offset, bytes), arrival)) return;
+      offset += bytes;
+    }
+    if (offset !== data.byteLength) fail('Incomplete H.264 frame header');
+  };
+  function receiveFrame(index, bytes, arrival) {
+    if (index !== n || index >= config.frames) { fail('Out-of-order H.264 frame'); return false; }
+    n++;
+    packetArrivals[index] = arrival;
+    firstVideoPacket ??= arrival;
+    maxVideoPacketOffset = Math.max(maxVideoPacketOffset, arrival - index / config.fps);
+    decoder.decode(new EncodedVideoChunk({
+      type: bytes[0] ? 'key' : 'delta', timestamp: Math.round(index * 1e6 / config.fps),
+      duration: Math.round(1e6 / config.fps), data: bytes.subarray(1)
+    }));
+    maximumDecodeQueue = Math.max(maximumDecodeQueue, decoder.decodeQueueSize);
+    return true;
+  }
+  socket.onerror = () => fail('Could not connect. The test server may be busy or offline, or the access code may have expired.');
+  socket.onclose = () => { if (!server) fail('WebSocket closed before completing replay'); };
+};
+</script>
+</html>
