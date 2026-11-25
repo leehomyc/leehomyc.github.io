@@ -32,7 +32,7 @@ const button = document.querySelector('button');
 const live = true;
 const backend = 'https://eleven-felt-anytime-sandy.trycloudflare.com';
 const params = new URLSearchParams(location.search);
-for (const [key,value] of Object.entries({voice:'voicechat',seconds:'64',buffer:'1.5',
+for (const [key,value] of Object.entries({voice:'voicechat',seconds:'64',buffer:'1.75',group_audio:'1',
     face_detail:'32',spatial_refinement:'1',interrupt:'confirm-stream-fast',cut_video:'quiet'})) {
   if (!params.has(key)) params.set(key,value);
 }
@@ -425,7 +425,12 @@ button.onclick = async () => {
     micSource?.disconnect();
     mic?.getTracks().forEach(track => track.stop());
   }
+  let closed = false;
+  let connectionTimer;
   const fail = (error, ended = false) => {
+    if (closed) return;
+    closed = true;
+    clearTimeout(connectionTimer);
     if (ended) server = {ended: true};
     output.textContent = ended ? 'Call ended.' : measure ? JSON.stringify({error: String(error)}) : String(error);
     cancelAnimationFrame(animation);
@@ -822,6 +827,7 @@ button.onclick = async () => {
         return;
       }
       config = message;
+      clearTimeout(connectionTimer);
       packetArrivals = new Float64Array(config.frames);
       canvas.width = config.width;
       canvas.height = config.height;
@@ -900,8 +906,14 @@ button.onclick = async () => {
     maximumDecodeQueue = Math.max(maximumDecodeQueue, decoder.decodeQueueSize);
     return true;
   }
-  socket.onerror = () => fail('Could not connect. The test server may be busy or offline, or the access code may have expired.');
-  socket.onclose = () => { if (!server) fail('WebSocket closed before completing replay'); };
+  connectionTimer = setTimeout(() => {
+    if (!config) fail('The live server is taking too long to connect. Start a new call to retry.');
+  }, 15000);
+  socket.onerror = () => fail(config ? 'The connection dropped. Start a new call to reconnect.' :
+    'Could not connect. The server may be busy or offline, or the access code may have expired.');
+  socket.onclose = () => {
+    if (!server && !closed) fail('The call disconnected. Start a new call to reconnect.');
+  };
 };
 </script>
 </html>
