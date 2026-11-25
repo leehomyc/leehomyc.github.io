@@ -461,6 +461,11 @@ button.onclick = async () => {
     mic?.getTracks().forEach(track => track.stop());
   }
   let closed = false;
+  let resumeVideo = false;
+  function resyncAfterVisibilityChange() {
+    if (document.visibilityState === 'visible') resumeVideo = true;
+  }
+  if (continuous) document.addEventListener('visibilitychange', resyncAfterVisibilityChange);
   let connectionTimer;
   const fail = (error, ended = false) => {
     if (closed) return;
@@ -469,6 +474,7 @@ button.onclick = async () => {
     if (ended) server = {ended: true};
     output.textContent = ended ? 'Call ended.' : measure ? JSON.stringify({error: String(error)}) : String(error);
     cancelAnimationFrame(animation);
+    document.removeEventListener('visibilitychange', resyncAfterVisibilityChange);
     if (decoder?.state === 'configured') decoder.close();
     for (const frame of frames.values()) frame.close();
     frames.clear();
@@ -718,19 +724,20 @@ button.onclick = async () => {
     startSynchronizedPlayback(elapsed);
     if (pendingAdvance) tryPendingAdvance(audio.currentTime);
     const clock = config.audio_packets ? audio.currentTime : elapsed;
-    if (continuous && n - nextFrame > historySize) {
-      fail('Video playback has fallen behind. Start a new call to reconnect.');
-      return;
-    }
     discardCutFrames(clock, elapsed);
-    if (!videoCut && (catchUp || catchUpIdle) && drawn && clock - dueTime(nextFrame) > 2 / config.fps) {
+    if (!videoCut && (catchUp || catchUpIdle || resumeVideo) && drawn && clock - dueTime(nextFrame) > 2 / config.fps) {
       // Skip only decoded frames for which a newer, playable frame is already ready.
       while (frames.has(nextFrame) && frames.has(nextFrame + 1) && clock >= dueTime(nextFrame + 1) &&
-             (catchUp || idleFrame(nextFrame))) {
+             (catchUp || resumeVideo || idleFrame(nextFrame))) {
         frames.get(nextFrame).close();
         frames.delete(nextFrame++);
         skipped++;
       }
+    }
+    if (resumeVideo && (!drawn || clock - dueTime(nextFrame) <= 2 / config.fps)) resumeVideo = false;
+    if (continuous && n - nextFrame > historySize) {
+      fail('Video playback has fallen behind. Start a new call to reconnect.');
+      return;
     }
     const preview = speechAnchor && audioOrigin === undefined && nextFrame < frameForPacket(silentPrefixPackets);
     const due = preview ? audioClockAtOrigin + nextFrame / config.fps : dueTime(nextFrame);
