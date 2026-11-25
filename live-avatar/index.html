@@ -32,7 +32,7 @@ const button = document.querySelector('button');
 const live = true;
 const backend = 'https://eleven-felt-anytime-sandy.trycloudflare.com';
 const params = new URLSearchParams(location.search);
-for (const [key,value] of Object.entries({voice:'voicechat',seconds:'64',buffer:'1.75',group_audio:'1',
+for (const [key,value] of Object.entries({voice:'voicechat',seconds:'240',buffer:'1.75',group_audio:'1',
     face_detail:'32',spatial_refinement:'1',interrupt:'confirm-stream-fast',cut_video:'quiet'})) {
   if (!params.has(key)) params.set(key,value);
 }
@@ -102,7 +102,7 @@ if (live) {
   stopButton.disabled = true;
   button.after(stopButton);
   const guidance = document.createElement('p');
-  guidance.textContent = 'Talk naturally or say “wait” to interrupt. Calls run for up to 64 seconds. Your microphone audio is processed on the research server during the call.';
+  guidance.textContent = 'Talk naturally or say “wait” to interrupt. Calls run for up to four minutes. You can end a call at any time. Your microphone audio is processed on the research server during the call.';
   output.after(guidance);
 }
 if (!accessPattern.test(access)) {
